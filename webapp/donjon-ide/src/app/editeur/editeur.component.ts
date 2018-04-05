@@ -1,7 +1,9 @@
 import { ElementGenerique } from '../models/element-generique';
 import { Genre } from '../models/genre.enum';
 import { Nombre } from '../models/nombre.enum';
+import { PositionSujet, PositionSujetString } from '../models/position-sujet';
 import { Salle } from '../models/salle';
+import { TypeElement } from '../models/type-element.enum';
 import { Component, OnInit } from '@angular/core';
 import { log } from 'util';
 
@@ -44,8 +46,8 @@ Le trésor est dans la caverne.
   readonly xSujetSalle = /^(le |la |l')(.+?)(\(f\))? est une salle(.*)/gim;
   readonly xSujetContenant = /^(le |la |l')(.+?)(\(f\))? est un contenant(.*)/gim;
   readonly xSujetPorte = /^(le |la |l')(.+?)(\(f\))? est une porte(.*)/gim;
-  /** element genérique positioinné -> determinant, nom, féminin?, type, position, genre complément, complément */
-  readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (.*?) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+?)/gim;
+  /** element genérique positioinné -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
+  readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:un|une) (.+?)(| .+) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+)/gim;
 
   constructor() { }
 
@@ -60,13 +62,18 @@ Le trésor est dans la caverne.
     this.salles = new Array<Salle>();
     this.generiques = new Array<Element>();
 
+
+    console.log("Analyse de la position des éléments génériques");
+
     this.phrases.forEach(phrase => {
 
-      console.log("Analyse de la position des éléments génériques");
+      console.log("Analyse de la phrase (PositionGénérique) : ", phrase);
 
       let m = this.xPositionElementGenerique.exec(phrase);
+      console.log(" ==> ", m);
       if (m) {
-        let e = new ElementGenerique(m[2], m[1], this.getGenre(m[1], m[3]), Nombre.s, );
+        let e = new ElementGenerique(m[1], m[2], this.getTypeElement(m[4]) , new PositionSujetString(m[2], m[8], m[6]), this.getGenre(m[1], m[3]), Nombre.s);
+        console.log(" ===> ", e);
       }
 
       // console.log("Analyse de la phrase (SALLE) : ", phrase);
@@ -81,6 +88,37 @@ Le trésor est dans la caverne.
 
     console.log("SALLES: ", this.salles);
 
+  }
+
+  getTypeElement(typeElement: string): TypeElement {
+    let retVal = TypeElement.inconnu;
+    switch (typeElement.trim().toLocaleLowerCase()) {
+      case "animal":
+        retVal = TypeElement.animal;
+        break;
+      case "contenant":
+        retVal = TypeElement.contenant;
+        break;
+      case "décor":
+      case "decor":
+        retVal = TypeElement.decor;
+        break;
+        case "humain":
+        retVal = TypeElement.humain;
+        break;
+        case "objet":
+        retVal = TypeElement.objet;
+        break;
+        case "porte":
+        retVal = TypeElement.porte;
+        break;
+        case "salle":
+        retVal = TypeElement.salle;
+        break;
+      default:
+        break;
+    }
+    return retVal;
   }
 
   /** Obtenir le genre d'un élément du donjon. */

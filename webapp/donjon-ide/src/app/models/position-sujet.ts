@@ -2,17 +2,17 @@ import { ElementDonjon } from './element-donjon';
 
 export enum PositionRelative {
   /** nord */
-  nord,
+  nord = 's',
   /** est */
-  est,
+  est = 'e',
   /** sud */
-  sud,
+  sud = 's',
   /** ouest */
-  ouest,
-  /** interieur */
-  interieur,
-  /** exterieur */
-  exterieur,
+  ouest = 'o',
+  /** intérieur */
+  interieur = 'i',
+  /** extérieur */
+  exterieur = 'x',
 }
 
 export class PositionSujet {
@@ -21,5 +21,14 @@ export class PositionSujet {
     public complement: ElementDonjon,
     /** Position du sujet relative au complément */
     public position: PositionRelative,
+  ) { }
+}
+
+export class PositionSujetString {
+  constructor(
+    public sujet: string,
+    public complement: string,
+    /** Position du sujet relative au complément */
+    public position: string,
   ) { }
 }

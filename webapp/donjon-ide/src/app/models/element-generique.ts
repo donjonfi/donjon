@@ -1,16 +1,18 @@
 import { ElementDonjon } from './element-donjon';
 import { Genre } from './genre.enum';
 import { Nombre } from './nombre.enum';
-import { PositionSujet } from './position-sujet';
+import { PositionSujet, PositionSujetString } from './position-sujet';
+import { TypeElement } from './type-element.enum';
 
 export class ElementGenerique implements ElementDonjon {
 
   constructor(
-    public nom: string,
     public determinant: string,
+    public nom: string,
+    public type: TypeElement,
+    public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,
-    public position: PositionSujet
   ) { }
 
 }
