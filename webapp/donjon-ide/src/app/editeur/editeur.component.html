@@ -1,0 +1,27 @@
+<h2>Éditeur</h2>
+
+<h3>Source</h3>
+
+<form>
+  <div class="form-group">
+    <label for="codeSource">Code source</label>
+    <textarea [(ngModel)]="codeSource" class="form-control" wrap="off" name="codeSource" id="codeSource" rows="15"></textarea>
+  </div>
+
+  <button type="button" (click)="parseCode()" class="btn btn-primary">Interpréter</button>
+
+</form>
+
+<h3>Éléments du donjon</h3>
+<p *ngIf="!phrases">Veuillez commencer par interpréter le code.</p>
+<div *ngIf="phrases">
+  <h4>Salles</h4>
+  <p *ngIf="salles && salles.length == 0">Aucune salle trouvée.</p>
+  <ul>
+    <ng-template ngFor let-salle [ngForOf]="salles">
+      <li>{{salle.determinant + salle.nom}}
+        <ul>Genre: {{salle.genre}}</ul>
+      </li>
+    </ng-template>
+  </ul>
+</div>
