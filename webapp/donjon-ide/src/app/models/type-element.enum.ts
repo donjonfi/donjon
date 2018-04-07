@@ -1,4 +1,5 @@
 export enum TypeElement {
+  aucun = '-',
   inconnu = '?',
   salle = 'salle',
   porte = 'porte',

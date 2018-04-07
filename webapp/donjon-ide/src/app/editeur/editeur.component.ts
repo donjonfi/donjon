@@ -17,7 +17,7 @@ export class EditeurComponent implements OnInit {
   codeSource = `"Le nain qui voulait un trésor"
 
 - 1 - Le jardin
-Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille."
+Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
 Les fleurs (f) sont des décors du jardin.
 La clé rouge est dans le jardin.
 L'abri de jardin est une salle à l'intérieur du jardin.
@@ -27,12 +27,12 @@ Le seau est dans l'abri de jardin.
 La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
 
 - 2 - La forêt et la caverne
-La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre."
+La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre.".
 Les arbres sont des décors de la forêt.
 Les fleurs (f) sont des décors de la forêt.
 Le lac est un décor de la forêt.
 Il contient de l'eau.
-La description du seau est ici "Ce seau n'est pas troué, je peux y mettre de l'eau."
+La description du seau est ici "Ce seau n'est pas troué, je peux y mettre de l'eau.".
 La caverne ténébreuse est une salle sombre à l'intérieur de la forêt.
 Le dragon est un animal dans la caverne.
 Le trésor est dans la caverne.
@@ -46,35 +46,57 @@ Le trésor est dans la caverne.
   readonly xSujetSalle = /^(le |la |l')(.+?)(\(f\))? est une salle(.*)/gim;
   readonly xSujetContenant = /^(le |la |l')(.+?)(\(f\))? est un contenant(.*)/gim;
   readonly xSujetPorte = /^(le |la |l')(.+?)(\(f\))? est une porte(.*)/gim;
-  /** element genérique positioinné -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
-  readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:un|une) (.+?)(| .+) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+)/gim;
+  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
+  // readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:un|une) (.+?)(| .+) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+)/i;
+
+  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
+  readonly xPositionElementGenerique = /^(le |la |l'|les)(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+) )((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
+
+  /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
+  readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
 
   constructor() { }
-
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
   parseCode() {
     // découper le code source en phrases
-    this.phrases = this.codeSource.replace(/(\r|\n)/, "").split('.');
-
+    this.phrases = this.codeSource.replace(/(\r|\n)/g, "").split('.');
+    console.log("phrases: ", this.phrases);
     // retrouver les salles dans le code source
     this.salles = new Array<Salle>();
     this.generiques = new Array<Element>();
-
-
     console.log("Analyse de la position des éléments génériques");
-
+    let result: RegExpExecArray;
     this.phrases.forEach(phrase => {
-
-      console.log("Analyse de la phrase (PositionGénérique) : ", phrase);
-
-      let m = this.xPositionElementGenerique.exec(phrase);
-      console.log(" ==> ", m);
-      if (m) {
-        let e = new ElementGenerique(m[1], m[2], this.getTypeElement(m[4]) , new PositionSujetString(m[2], m[8], m[6]), this.getGenre(m[1], m[3]), Nombre.s);
-        console.log(" ===> ", e);
+      console.log("Analyse : ", phrase);
+      result = this.xPositionElementGenerique.exec(phrase);
+      if (result !== null) {
+        //console.log(" ==> e générique posistionné ", result);
+        let e = new ElementGenerique(
+          result[1],
+          result[2],
+          this.getTypeElement(result[4]),
+          new PositionSujetString(result[2], result[7], result[6]),
+          this.getGenre(result[1], result[3]),
+          Nombre.s
+        );
+        console.log(e);
+      } else {
+        // result = this.xEmplacementGenerique.exec(phrase);
+        // if (result !== null) {
+        //   console.log(" ==> emplacement él générique ", result);
+        //   let e = new ElementGenerique(
+        //     result[1],
+        //     result[2],
+        //     this.getTypeElement(result[4]),
+        //     new PositionSujetString(result[2], result[8], result[6]),
+        //     this.getGenre(result[1], result[3]),
+        //     Nombre.s
+        //   );
+        //   console.log(" ===> ", e);
+        //   }
       }
+
 
       // console.log("Analyse de la phrase (SALLE) : ", phrase);
       // let m = this.xSujetSalle.exec(phrase);
@@ -91,32 +113,38 @@ Le trésor est dans la caverne.
   }
 
   getTypeElement(typeElement: string): TypeElement {
-    let retVal = TypeElement.inconnu;
-    switch (typeElement.trim().toLocaleLowerCase()) {
-      case "animal":
-        retVal = TypeElement.animal;
-        break;
-      case "contenant":
-        retVal = TypeElement.contenant;
-        break;
-      case "décor":
-      case "decor":
-        retVal = TypeElement.decor;
-        break;
+    let retVal = TypeElement.aucun;
+
+    if (typeElement) {
+      switch (typeElement.trim().toLocaleLowerCase()) {
+        case "animal":
+          retVal = TypeElement.animal;
+          break;
+        case "contenant":
+          retVal = TypeElement.contenant;
+          break;
+        case "décors":
+        case "décor":
+        case "decor":
+        case "decors":
+          retVal = TypeElement.decor;
+          break;
         case "humain":
-        retVal = TypeElement.humain;
-        break;
+          retVal = TypeElement.humain;
+          break;
         case "objet":
-        retVal = TypeElement.objet;
-        break;
+          retVal = TypeElement.objet;
+          break;
         case "porte":
-        retVal = TypeElement.porte;
-        break;
+          retVal = TypeElement.porte;
+          break;
         case "salle":
-        retVal = TypeElement.salle;
-        break;
-      default:
-        break;
+          retVal = TypeElement.salle;
+          break;
+        default:
+          retVal = TypeElement.inconnu;
+          break;
+      }
     }
     return retVal;
   }
