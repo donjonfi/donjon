@@ -1,5 +1,5 @@
 export enum Genre {
-  m,
-  f,
-  n,
+  m = 'm',
+  f = 'f',
+  n = 'n',
 }

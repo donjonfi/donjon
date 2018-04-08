@@ -13,6 +13,7 @@ export class ElementGenerique implements ElementDonjon {
     public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,
+    public attributs: string[],
   ) { }
 
 }

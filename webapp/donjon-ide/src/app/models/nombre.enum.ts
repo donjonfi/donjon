@@ -1,6 +1,6 @@
 export enum Nombre {
   /** Singulier */
-  s,
+  s = 's',
   /** Pluriel */
-  p,
+  p = 'p',
 }

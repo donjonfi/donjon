@@ -1,6 +1,7 @@
 import { ElementGenerique } from '../models/element-generique';
 import { Genre } from '../models/genre.enum';
 import { Nombre } from '../models/nombre.enum';
+import { Phrase } from '../models/phrase';
 import { PositionSujet, PositionSujetString } from '../models/position-sujet';
 import { Salle } from '../models/salle';
 import { TypeElement } from '../models/type-element.enum';
@@ -14,19 +15,21 @@ import { log } from 'util';
 })
 export class EditeurComponent implements OnInit {
 
-  codeSource = `"Le nain qui voulait un trésor"
+  codeSource = `"Le nain qui voulait un trésor".
 
-- 1 - Le jardin
+- 1 - Le jardin.
 Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
 Les fleurs (f) sont des décors du jardin.
 La clé rouge est dans le jardin.
+C'est une clé.
 L'abri de jardin est une salle à l'intérieur du jardin.
+Elle est sombre.
 La porte rouge est une porte au sud de l'abri de jardin.
 Le seau est un contenant.
 Le seau est dans l'abri de jardin.
 La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
 
-- 2 - La forêt et la caverne
+- 2 - La forêt et la caverne.
 La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre.".
 Les arbres sont des décors de la forêt.
 Les fleurs (f) sont des décors de la forêt.
@@ -38,9 +41,9 @@ Le dragon est un animal dans la caverne.
 Le trésor est dans la caverne.
   `;
 
-  phrases: string[];
+  phrases: Phrase[];
   salles: Salle[];
-  generiques: Element[];
+  generiques: ElementGenerique[];
 
   /** salle -> déterminant, nom, féminin?, reste de la phrase */
   readonly xSujetSalle = /^(le |la |l')(.+?)(\(f\))? est une salle(.*)/gim;
@@ -49,52 +52,85 @@ Le trésor est dans la caverne.
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
   // readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:un|une) (.+?)(| .+) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+)/i;
 
-  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
+  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5), position(6), genre complément(7), complément(8) */
   readonly xPositionElementGenerique = /^(le |la |l'|les)(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+) )((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
 
+  /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
+  readonly xElementSimple = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
+
+  /** élément générique simple -> determinant(1), type(2), adjectifs(3) */
+  readonly xPronomSimple = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
+
   /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
-  readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
+  // readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
 
   constructor() { }
   ngOnInit() { }
 
   parseCode() {
     // découper le code source en phrases
-    this.phrases = this.codeSource.replace(/(\r|\n)/g, "").split('.');
-    console.log("phrases: ", this.phrases);
-    // retrouver les salles dans le code source
+    const phrasesBrutes = this.codeSource.replace(/(\r|\n)/g, "").split('.');
+    let i = 0;
+    this.phrases = new Array<Phrase>();
+    phrasesBrutes.forEach(phraseBrute => {
+      this.phrases.push(new Phrase(phraseBrute, false, null, i++));
+    });
+    console.log("Voici les phrases: ", this.phrases);
+
+    // retrouver les éléments dans le code source
     this.salles = new Array<Salle>();
-    this.generiques = new Array<Element>();
-    console.log("Analyse de la position des éléments génériques");
+    this.generiques = new Array<ElementGenerique>();
     let result: RegExpExecArray;
     this.phrases.forEach(phrase => {
-      console.log("Analyse : ", phrase);
-      result = this.xPositionElementGenerique.exec(phrase);
+      console.log("Analyse: ", phrase);
+      result = this.xPositionElementGenerique.exec(phrase.phrase);
       if (result !== null) {
-        //console.log(" ==> e générique posistionné ", result);
         let e = new ElementGenerique(
           result[1],
           result[2],
           this.getTypeElement(result[4]),
           new PositionSujetString(result[2], result[7], result[6]),
           this.getGenre(result[1], result[3]),
-          Nombre.s
+          this.getNombre(result[1]),
+          (result[8] ? new Array<string>(result[8]) : new Array<string>())
         );
-        console.log(e);
+        this.generiques.push(e);
+        console.log("Réslultat: test 1:", e);
       } else {
-        // result = this.xEmplacementGenerique.exec(phrase);
-        // if (result !== null) {
-        //   console.log(" ==> emplacement él générique ", result);
-        //   let e = new ElementGenerique(
-        //     result[1],
-        //     result[2],
-        //     this.getTypeElement(result[4]),
-        //     new PositionSujetString(result[2], result[8], result[6]),
-        //     this.getGenre(result[1], result[3]),
-        //     Nombre.s
-        //   );
-        //   console.log(" ===> ", e);
-        //   }
+        result = this.xElementSimple.exec(phrase.phrase);
+        if (result !== null) {
+          let e = new ElementGenerique(
+            result[1],
+            result[2],
+            this.getTypeElement(result[4]),
+            null,
+            this.getGenre(result[1], result[3]),
+            this.getNombre(result[1]),
+            (result[5] ? new Array<string>(result[5]) : new Array<string>())
+          );
+          console.log("Réslultat: test 2:", e);
+          this.generiques.push(e);
+        } else {
+          // pronom simple
+          result = this.xPronomSimple.exec(phrase.phrase);
+          if (result !== null) {
+            // récupérer le dernier élément
+            let e = this.generiques.pop();
+            // type de l'élément précédent
+            if (result[2] && result[2].trim() !== '') {
+              e.type = this.getTypeElement(result[2]);
+            }
+            // attributs de l'élément précédent
+            if (result[3] && result[3].trim() !== '') {
+              e.attributs.push(result[3]);
+            }
+            // remettre l'élément à jour
+            this.generiques.push(e);
+            console.log("Réslultat: test 3:", e);
+          } else {
+            console.log("Pas de résultat.");
+          }
+        }
       }
 
 
@@ -120,6 +156,10 @@ Le trésor est dans la caverne.
         case "animal":
           retVal = TypeElement.animal;
           break;
+        case "clé":
+        case "cle":
+          retVal = TypeElement.cle;
+          break;
         case "contenant":
           retVal = TypeElement.contenant;
           break;
@@ -143,6 +183,26 @@ Le trésor est dans la caverne.
           break;
         default:
           retVal = TypeElement.inconnu;
+          break;
+      }
+    }
+    return retVal;
+  }
+
+  getNombre(determinant: string) {
+    let retVal = Nombre.s;
+    if (determinant) {
+      switch (determinant.trim().toLocaleLowerCase()) {
+        case "le":
+        case "la":
+        case "l'":
+          retVal = Nombre.s;
+          break;
+        case "les":
+          retVal = Nombre.p;
+          break;
+        default:
+          retVal = Nombre.s;
           break;
       }
     }

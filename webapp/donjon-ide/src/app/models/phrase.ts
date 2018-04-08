@@ -4,6 +4,7 @@ export class Phrase {
     public phrase: string,
     public traitee: boolean,
     public sujet: Element,
+    public ordre: number,
   ) { }
 
 }
