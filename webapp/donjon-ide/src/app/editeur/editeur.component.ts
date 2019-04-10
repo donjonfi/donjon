@@ -22,8 +22,9 @@ Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil br
 Les fleurs (f) sont des décors du jardin.
 La clé rouge est dans le jardin.
 C'est une clé.
-L'abri de jardin est une salle à l'intérieur du jardin.
-Elle est sombre.
+L'abri de jardin est une salle.
+Il est à l'intérieur du jardin.
+Il est sombre, humide et froid.
 La porte rouge est une porte au sud de l'abri de jardin.
 Le seau est un contenant.
 Le seau est dans l'abri de jardin.
@@ -58,8 +59,13 @@ Le trésor est dans la caverne.
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
   readonly xElementSimple = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
 
-  /** élément générique simple -> determinant(1), type(2), adjectifs(3) */
-  readonly xPronomSimple = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
+  /** pronom démonstratif -> determinant(1), type(2), adjectifs(3) */
+  readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
+
+  /** pronom personnel position -> position(1), complément(2)*/
+  readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
+  /** élément générique simple -> adjectifs(1) */
+  readonly xPronomPersonnel = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (\S+)(| et (\S)|(, \S)+ et (\S))/i;
 
   /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
   // readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
@@ -111,8 +117,8 @@ Le trésor est dans la caverne.
           console.log("Réslultat: test 2:", e);
           this.generiques.push(e);
         } else {
-          // pronom simple
-          result = this.xPronomSimple.exec(phrase.phrase);
+          // pronom démonstratif
+          result = this.xPronomDemonstratif.exec(phrase.phrase);
           if (result !== null) {
             // récupérer le dernier élément
             let e = this.generiques.pop();
@@ -128,7 +134,37 @@ Le trésor est dans la caverne.
             this.generiques.push(e);
             console.log("Réslultat: test 3:", e);
           } else {
-            console.log("Pas de résultat.");
+            // pronom personnel position
+            result = this.xPronomPersonnelPosition.exec(phrase.phrase);
+            if (result !== null) {
+              console.log("resultat test 4: ", result);
+
+              // récupérer le dernier élément
+              let e = this.generiques.pop();
+              // attributs de l'élément précédent
+              e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
+              // remettre l'élément à jour
+              this.generiques.push(e);
+              console.log("Réslultat: test :4", e);
+            } else {
+              // pronom personnel adjectifs
+              result = this.xPronomPersonnel.exec(phrase.phrase);
+              if (result !== null) {
+                console.log("resultat test 5: ", result);
+
+                // récupérer le dernier élément
+                let e = this.generiques.pop();
+                // attributs de l'élément précédent
+                if (result[1] && result[1].trim() !== '') {
+                  e.attributs.push(result[1]);
+                }
+                // remettre l'élément à jour
+                this.generiques.push(e);
+                console.log("Réslultat: test :5", e);
+              } else {
+                console.log("Pas de résultat.");
+              }
+            }
           }
         }
       }

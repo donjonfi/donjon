@@ -1,7 +1,5 @@
-import { EditeurComponent } from './editeur/editeur.component';
-import { PageNotFoundComponentComponent } from './page-not-found-component/page-not-found-component.component';
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   {

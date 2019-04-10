@@ -1,24 +1,24 @@
-"Le nain qui voulait un trésor"
+"Le nain qui voulait un trésor".
 
-- Le jardin (level 1)
-
-Le jardin est une pièce. "Vous êtes dans un beau jardin en fleurs. Le soleil brille."
-Les fleurs (f) sont des décors de le jardin.
+// Le jardin.
+Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
+Les fleurs (f) sont des décors du jardin.
 La clé rouge est dans le jardin.
-L'abris de jardin est une pièce à l'intérieur du jardin.
-La porte rouge est une porte au sud de l'abris de jardin.
+C'est une clé.
+L'abri de jardin est une salle à l'intérieur du jardin.
+Elle est sombre.
+La porte rouge est une porte au sud de l'abri de jardin.
 Le seau est un contenant.
-Le seau est dans l'abris de jardin.
+Le seau est dans l'abri de jardin.
 La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
 
-- La forêt et la caverne (level 2)
-
-La forêt une pièce au nord du jardin. "Vous êtes dans une forêt sombre."
+// La forêt et la caverne.	
+La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre.".
 Les arbres sont des décors de la forêt.
 Les fleurs (f) sont des décors de la forêt.
 Le lac est un décor de la forêt.
 Il contient de l'eau.
-La description du seau est ici "Ce seau n'est pas troué, je peux y mettre de l'eau."
-La caverne ténébreuse est une pièce sombre à l'intérieur de la forêt.
+La description du seau est ici "Ce seau n'est pas troué, je peux y mettre de l'eau.".
+La caverne ténébreuse est une salle sombre à l'intérieur de la forêt.
 Le dragon est un animal dans la caverne.
 Le trésor est dans la caverne.
