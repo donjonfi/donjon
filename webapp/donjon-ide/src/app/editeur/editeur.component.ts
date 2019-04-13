@@ -43,8 +43,16 @@ Le trésor est dans la caverne.
   `;
 
   phrases: Phrase[];
-  salles: Salle[];
   generiques: ElementGenerique[];
+
+  salles: Salle[];
+  decors: ElementGenerique[]
+  contenants: ElementGenerique[]
+  portes: ElementGenerique[]
+  cles: ElementGenerique[]
+  animaux: ElementGenerique[]
+  objets: ElementGenerique[]
+  aucuns: ElementGenerique[]
 
   /** salle -> déterminant, nom, féminin?, reste de la phrase */
   readonly xSujetSalle = /^(le |la |l')(.+?)(\(f\))? est une salle(.*)/gim;
@@ -65,7 +73,7 @@ Le trésor est dans la caverne.
   /** pronom personnel position -> position(1), complément(2)*/
   readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
   /** élément générique simple -> adjectifs(1) */
-  readonly xPronomPersonnel = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (\S+)(| et (\S)|(, \S)+ et (\S))/i;
+  readonly xPronomPersonnel = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) ((?:\S+[^,])(?:$| et (?:\S+)|(?:, \S+)+ et (?:\S+)))/i;
 
   /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
   // readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
@@ -84,11 +92,20 @@ Le trésor est dans la caverne.
     console.log("Voici les phrases: ", this.phrases);
 
     // retrouver les éléments dans le code source
-    this.salles = new Array<Salle>();
+    this.salles = [];
+    this.decors = [];
+    this.contenants = [];
+    this.portes = [];
+    this.cles = [];
+    this.animaux = [];
+    this.objets = [];
+    this.aucuns = [];
+
     this.generiques = new Array<ElementGenerique>();
     let result: RegExpExecArray;
     this.phrases.forEach(phrase => {
       console.log("Analyse: ", phrase);
+      // Élement positionné
       result = this.xPositionElementGenerique.exec(phrase.phrase);
       if (result !== null) {
         let e = new ElementGenerique(
@@ -100,9 +117,40 @@ Le trésor est dans la caverne.
           this.getNombre(result[1]),
           (result[8] ? new Array<string>(result[8]) : new Array<string>())
         );
-        this.generiques.push(e);
+
+        // avant d'ajouter l'élément vérifier s'il existe déjà
+        let filtered = this.generiques.filter(x => x.nom == e.nom);
+        if (filtered.length > 0) {
+          // mettre à jour l'élément existant le plus récent.
+          let found = filtered[filtered.length - 1];
+          // - position
+          if (e.positionString) {
+            // s'il y avait déjà une position définie, c'est un autre élément !
+            if (found.positionString) {
+              this.generiques.push(e);
+            } else {
+              // sinon, ajouter la position
+              found.positionString = e.positionString;
+            }
+          }
+
+          // - attributs
+          if (e.attributs.length > 0) {
+            found.attributs = found.attributs.concat(e.attributs);
+          }
+          // - type élément
+          if (e.type != TypeElement.inconnu && e.type != TypeElement.aucun) {
+            found.type = e.type;
+          }
+        } else {
+          // ajouter le nouvel élément
+          this.generiques.push(e);
+        }
+
         console.log("Réslultat: test 1:", e);
+        // Élément NON positionné
       } else {
+        // élément générique simple
         result = this.xElementSimple.exec(phrase.phrase);
         if (result !== null) {
           let e = new ElementGenerique(
@@ -143,9 +191,9 @@ Le trésor est dans la caverne.
               let e = this.generiques.pop();
               // attributs de l'élément précédent
               e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
-              // remettre l'élément à jour
-              this.generiques.push(e);
-              console.log("Réslultat: test :4", e);
+                // remettre l'élément à jour
+                this.generiques.push(e);
+              console.log("Réslultat: test 4:", e);
             } else {
               // pronom personnel adjectifs
               result = this.xPronomPersonnel.exec(phrase.phrase);
@@ -156,18 +204,22 @@ Le trésor est dans la caverne.
                 let e = this.generiques.pop();
                 // attributs de l'élément précédent
                 if (result[1] && result[1].trim() !== '') {
-                  e.attributs.push(result[1]);
+                  // découper les attributs
+                  let attributs = result[1].split(/(?:, | et )+/);
+                  e.attributs = e.attributs.concat(attributs);
                 }
                 // remettre l'élément à jour
                 this.generiques.push(e);
-                console.log("Réslultat: test :5", e);
+                console.log("Réslultat: test 5:", e);
               } else {
-                console.log("Pas de résultat.");
+                console.log("Pas de résultat test 5.");
               }
             }
           }
         }
       }
+
+
 
 
       // console.log("Analyse de la phrase (SALLE) : ", phrase);
@@ -180,7 +232,47 @@ Le trésor est dans la caverne.
       // }
     });
 
-    console.log("SALLES: ", this.salles);
+    this.generiques.forEach(el => {
+
+      switch (el.type) {
+        case TypeElement.salle:
+          this.salles.push(el);
+          break;
+
+        case TypeElement.decor:
+          this.decors.push(el);
+          break;
+
+        case TypeElement.contenant:
+          this.contenants.push(el);
+          break;
+
+        case TypeElement.animal:
+          this.animaux.push(el);
+          break;
+
+        case TypeElement.porte:
+          this.portes.push(el);
+          break;
+
+        case TypeElement.cle:
+          this.cles.push(el);
+          break;
+
+        case TypeElement.objet:
+          this.objets.push(el);
+          break;
+
+        case TypeElement.aucun:
+        case TypeElement.inconnu:
+          this.aucuns.push(el);
+          break;
+
+        default:
+          break;
+      }
+
+    });
 
   }
 
@@ -190,6 +282,7 @@ Le trésor est dans la caverne.
     if (typeElement) {
       switch (typeElement.trim().toLocaleLowerCase()) {
         case "animal":
+        case "animaux":
           retVal = TypeElement.animal;
           break;
         case "clé":
@@ -217,6 +310,7 @@ Le trésor est dans la caverne.
         case "salle":
           retVal = TypeElement.salle;
           break;
+
         default:
           retVal = TypeElement.inconnu;
           break;
@@ -258,6 +352,7 @@ Le trésor est dans la caverne.
           retVal = Genre.f;
           break;
         case "l'":
+        case "les":
           if (feminin && feminin.trim() == "(f)") {
             retVal = Genre.f;
           } else {

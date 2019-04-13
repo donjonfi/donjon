@@ -5,7 +5,8 @@
 <form>
   <div class="form-group">
     <label for="codeSource">Code source</label>
-    <textarea [(ngModel)]="codeSource" class="form-control" wrap="off" name="codeSource" id="codeSource" rows="15"></textarea>
+    <textarea [(ngModel)]="codeSource" class="form-control" wrap="off" name="codeSource" id="codeSource"
+      rows="15"></textarea>
   </div>
 
   <button type="button" (click)="parseCode()" class="btn btn-primary">Interpréter</button>
@@ -18,10 +19,201 @@
   <h4>Salles</h4>
   <p *ngIf="salles && salles.length == 0">Aucune salle trouvée.</p>
   <ul>
-    <ng-template ngFor let-salle [ngForOf]="salles">
-      <li>{{salle.determinant + salle.nom}}
-        <ul>Genre: {{salle.genre}}</ul>
+    <ng-template ngFor let-el [ngForOf]="salles">
+      <li>{{el.determinant + el.nom}}
+        <ul>
+          <li>Genre: {{el.genre}}</li>
+          <li>Nombre: {{el.nombre}}</li>
+          <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+            <ul *ngIf="el.attributs">
+              <li *ngFor="let at of el.attributs">{{at}}</li>
+            </ul>
+          </li>
+          <li>Position: <span *ngIf="! el.positionString"> ?</span>
+            <ul *ngIf="el.positionString">
+              <li>Sujet : {{el.positionString.sujet}}</li>
+              <li>Position : {{el.positionString.position}}</li>
+              <li>Complement : {{el.positionString.complement}}</li>
+            </ul>
+          </li>
+        </ul>
       </li>
     </ng-template>
   </ul>
+
+  <h4>Décors</h4>
+  <p *ngIf="decors && decors.length == 0">Aucune décor trouvé.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="decors">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Contenant</h4>
+  <p *ngIf="contenants && contenants.length == 0">Aucune contenant trouvée.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="contenants">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Portes</h4>
+  <p *ngIf="portes && portes.length == 0">Aucune porte trouvée.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="portes">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Clés</h4>
+  <p *ngIf="cles && cles.length == 0">Aucune cle trouvée.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="cles">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Animaux</h4>
+  <p *ngIf="animaux && animaux.length == 0">Aucun animal trouvé.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="animaux">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Objets</h4>
+  <p *ngIf="objets && objets.length == 0">Aucun objet trouvé.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="objets">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
+  <h4>Sans type</h4>
+  <p *ngIf="aucuns && aucuns.length == 0">Aucun élément sans type trouvé.</p>
+  <ul>
+    <ng-template ngFor let-el [ngForOf]="aucuns">
+        <li>{{el.determinant + el.nom}}
+            <ul>
+              <li>Genre: {{el.genre}}</li>
+              <li>Nombre: {{el.nombre}}</li>
+              <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+                <ul *ngIf="el.attributs">
+                  <li *ngFor="let at of el.attributs">{{at}}</li>
+                </ul>
+              </li>
+              <li>Position: <span *ngIf="! el.positionString"> ?</span>
+                <ul *ngIf="el.positionString">
+                  <li>Sujet : {{el.positionString.sujet}}</li>
+                  <li>Position : {{el.positionString.position}}</li>
+                  <li>Complement : {{el.positionString.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ng-template>
+  </ul>
+
 </div>
