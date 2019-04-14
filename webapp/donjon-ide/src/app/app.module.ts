@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EditeurComponent } from './editeur/editeur.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { VueElementGeneriqueComponent } from './vue-element-generique/vue-element-generique.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EditeurComponent,
     PageNotFoundComponent,
+    VueElementGeneriqueComponent,
   ],
   imports: [
     BrowserModule,

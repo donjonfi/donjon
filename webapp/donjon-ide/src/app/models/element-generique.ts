@@ -6,6 +6,8 @@ import { TypeElement } from './type-element.enum';
 
 export class ElementGenerique implements ElementDonjon {
 
+  public description: string;
+
   constructor(
     public determinant: string,
     public nom: string,
