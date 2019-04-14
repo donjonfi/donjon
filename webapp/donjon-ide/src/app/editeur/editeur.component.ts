@@ -22,11 +22,14 @@ Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil br
 Les fleurs (f) sont des décors du jardin.
 La clé rouge est dans le jardin.
 C'est une clé. "Il s'agit d'une veille clé rouillée et un peu tordue."
+La clé rouge est rouillée et tordue.
 L'abri de jardin est une salle.
 Il est à l'intérieur du jardin.
 Il est sombre, humide et froid.
 Les fourmis sont des animaux du jardin. "Il y en a beaucoup mais elle n'ont pas l'air agressives."
 La porte rouge est une porte au sud de l'abri de jardin.
+La porte rouge est fermée et n'est pas ouvrable.
+La clé rouge ouvre la porte rouge.
 Le seau est un contenant.
 Le seau est dans l'abri de jardin.
 La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
@@ -74,15 +77,18 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
-  readonly xElementSimple = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
+  readonly xElementSimpleType = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
 
   /** pronom démonstratif -> determinant(1), type(2), adjectifs(3) */
   readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
 
   /** pronom personnel position -> position(1), complément(2)*/
   readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
-  /** élément générique simple -> adjectifs(1) */
-  readonly xPronomPersonnel = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) ((?:\S+[^,])(?:$| et (?:\S+)|(?:, \S+)+ et (?:\S+)))/i;
+  /** pronom personnel -> adjectifs(1) */
+  readonly xPronomPersonnelAdjectif = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+
+  /** élément générique -> déterminant (1), nom (2), féminin?(3) adjectifs(4) */
+  readonly xElementSimpleAdjectif = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
   // readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
@@ -90,19 +96,88 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   constructor() { }
   ngOnInit() { }
 
+  // Élement simple non positionné
+  testerElementSimple(phrase: Phrase): boolean {
+    let e: ElementGenerique = null;
+
+    // élément générique simple avec type d'élément (ex: le champignon est un décor)
+    let result = this.xElementSimpleType.exec(phrase.phrase);
+    if (result !== null) {
+      e = new ElementGenerique(
+        result[1] ? result[1].toLowerCase() : null,
+        result[2],
+        this.getTypeElement(result[4]),
+        null,
+        this.getGenre(result[1], result[3]),
+        this.getNombre(result[1]),
+        (result[5] ? new Array<string>(result[5]) : new Array<string>())
+      );
+
+    } else {
+      // élément simple avec adjectifs (ex: le champignon est brun et peut le cueillir)
+      result = this.xElementSimpleAdjectif.exec(phrase.phrase);
+      console.log("hé hé hé");
+
+      if (result != null) {
+        console.log("hi hi hi");
+        // attributs ?
+        let attributs = null
+        if (result[4] && result[4].trim() !== '') {
+          // découper les attributs qui sont séparés par des ', ' ou ' et '
+          attributs = result[4].split(/(?:, | et )+/);
+        }
+        e = new ElementGenerique(
+          result[1] ? result[1].toLowerCase() : null,
+          result[2],
+          TypeElement.aucun,
+          null,
+          this.getGenre(result[1], result[3]),
+          this.getNombre(result[1]),
+          (attributs ? attributs : new Array<string>())
+        );
+      }
+    }
+
+    // s'il y a un résultat, l'ajouter
+    if (e) {
+      // avant d'ajouter l'élément vérifier s'il existe déjà
+      let filtered = this.generiques.filter(x => x.nom == e.nom);
+      if (filtered.length > 0) {
+        // mettre à jour l'élément existant le plus récent.
+        let found = filtered[filtered.length - 1];
+        // - type d'élément
+        if (e.type != TypeElement.aucun) {
+          // s'il y avait déjà un type défini, c'est un autre élément
+          if (found.type != TypeElement.aucun) {
+            this.generiques.push(e);
+          } else {
+            // sinon, définir le type
+            found.type = e.type;
+          }
+        }
+        // - attributs
+        if (e.attributs.length > 0) {
+          found.attributs = found.attributs.concat(e.attributs);
+        }
+      } else {
+        // ajouter le nouvel élément
+        this.generiques.push(e);
+      }
+      return true; // trouvé un résultat
+    } else {
+      return false; // rien trouvé
+    }
+
+  }
+
+  // Élement positionné
   testerPosition(phrase: Phrase): boolean {
 
     let e: ElementGenerique = null;
 
-    // Élement positionné
+    // élément positionné défini (la, le, les)
     let result = this.xPositionElementGeneriqueDefini.exec(phrase.phrase);
-
-    console.log("xxxx a");
-    
-
     if (result !== null) {
-      console.log("xxxx b");
-
       e = new ElementGenerique(
         result[1] ? result[1].toLowerCase() : null,
         result[2],
@@ -112,15 +187,10 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         this.getNombre(result[1]),
         (result[8] ? new Array<string>(result[8]) : new Array<string>())
       );
+      // élément positionné avec " il y a "
     } else {
-
-      console.log("xxxx c >", phrase.phrase);
-
       result = this.xPositionElementGeneriqueIlya.exec(phrase.phrase);
       if (result != null) {
-
-        console.log("xxxx d");
-
         e = new ElementGenerique(
           result[1] ? result[1].toLowerCase() : null,
           result[2],
@@ -134,9 +204,6 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     }
     // s'il y a un résultat, l'ajouter
     if (e) {
-
-      console.log("xxxx e");
-
       // avant d'ajouter l'élément vérifier s'il existe déjà
       let filtered = this.generiques.filter(x => x.nom == e.nom);
       if (filtered.length > 0) {
@@ -193,7 +260,10 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         if (blocSuivantEstCode) {
           const phrasesBrutes = bloc.split('.');
           phrasesBrutes.forEach(phraseBrute => {
-            this.phrases.push(new Phrase(phraseBrute, false, false, null, indexPhrase++));
+            const phraseNettoyee = phraseBrute.replace('.', '').trim();
+            if (phraseNettoyee != '') {
+              this.phrases.push(new Phrase(phraseNettoyee, false, false, null, indexPhrase++));
+            }
           });
         } else {
           // si le bloc est un commentaire, l'ajouter tel quel
@@ -219,7 +289,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     let result: RegExpExecArray;
     this.phrases.forEach(phrase => {
 
-      // si c'est un commentaire
+      // 1) COMMENTAIRE
       if (phrase.commentaire) {
         // si c'est le premier boc du code, il s'agit du titre
         if (phrase.ordre == 0) {
@@ -233,10 +303,9 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           // remettre l'élément à jour
           this.generiques.push(e);
         }
-
         phrase.traitee = true;
 
-        // si c'est du code
+        // 2) CODE DESCRIPTIF
       } else {
 
         console.log("Analyse: ", phrase);
@@ -244,23 +313,10 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         // 1 - TESTER POSITION
         let found = this.testerPosition(phrase);
         if (!found) {
-          // Élément NON positionné
-
-          // élément générique simple
-          result = this.xElementSimple.exec(phrase.phrase);
-          if (result !== null) {
-            let e = new ElementGenerique(
-              result[1] ? result[1].toLowerCase() : null,
-              result[2],
-              this.getTypeElement(result[4]),
-              null,
-              this.getGenre(result[1], result[3]),
-              this.getNombre(result[1]),
-              (result[5] ? new Array<string>(result[5]) : new Array<string>())
-            );
-            console.log("Réslultat: test 2:", e);
-            this.generiques.push(e);
-          } else {
+          // 2 - TESTER ELEMENT SIMPLE (NON positionné)
+          found = this.testerElementSimple(phrase);
+          if (!found) {
+            // 3 - LE RESTE
             // pronom démonstratif
             result = this.xPronomDemonstratif.exec(phrase.phrase);
             if (result !== null) {
@@ -292,7 +348,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
                 console.log("Réslultat: test 4:", e);
               } else {
                 // pronom personnel adjectifs
-                result = this.xPronomPersonnel.exec(phrase.phrase);
+                result = this.xPronomPersonnelAdjectif.exec(phrase.phrase);
                 if (result !== null) {
                   console.log("resultat test 5: ", result);
 
@@ -311,24 +367,30 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
                   console.log("Pas de résultat test 5.");
                 }
               }
+
             }
+
+
+
+
+
+
+
+
           }
+
         }
-
       }
-
-
-
-
-      // console.log("Analyse de la phrase (SALLE) : ", phrase);
-      // let m = this.xSujetSalle.exec(phrase);
-      // console.log(" ==> ", m);
-      // // la phrase décrit une salle
-      // if (m) {
-      //   let salle = new Salle(m[2], m[1], this.getGenre(m[1], m[3]), Nombre.s);
-      //   this.salles.push(salle);
-      // }
     });
+
+    // console.log("Analyse de la phrase (SALLE) : ", phrase);
+    // let m = this.xSujetSalle.exec(phrase);
+    // console.log(" ==> ", m);
+    // // la phrase décrit une salle
+    // if (m) {
+    //   let salle = new Salle(m[2], m[1], this.getGenre(m[1], m[3]), Nombre.s);
+    //   this.salles.push(salle);
+    // }
 
     this.generiques.forEach(el => {
 
