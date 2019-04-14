@@ -34,7 +34,8 @@ La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
 - 2 - La forêt et la caverne.
 La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre.".
 Les arbres sont des décors de la forêt.
-Les chauves souris sont dans les arbres.
+Il y a des chauves souris dans les arbres.
+Elles sont douces et gentilles.
 Ce sont des animaux.
 Les fleurs (f) sont des décors de la forêt.
 Le lac est un décor de la forêt.
@@ -67,7 +68,10 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5), position(6), genre complément(7), complément(8) */
   // readonly xPositionElementGenerique = /^(le |la |l'|les)(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
-  readonly xPositionElementGenerique = /^(le |la |l'|les)(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
+  readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
+
+  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), position(4), complément(5) */
+  readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
   readonly xElementSimple = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
@@ -85,6 +89,87 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
   constructor() { }
   ngOnInit() { }
+
+  testerPosition(phrase: Phrase): boolean {
+
+    let e: ElementGenerique = null;
+
+    // Élement positionné
+    let result = this.xPositionElementGeneriqueDefini.exec(phrase.phrase);
+
+    console.log("xxxx a");
+    
+
+    if (result !== null) {
+      console.log("xxxx b");
+
+      e = new ElementGenerique(
+        result[1] ? result[1].toLowerCase() : null,
+        result[2],
+        this.getTypeElement(result[4]),
+        new PositionSujetString(result[2], result[7], result[6]),
+        this.getGenre(result[1], result[3]),
+        this.getNombre(result[1]),
+        (result[8] ? new Array<string>(result[8]) : new Array<string>())
+      );
+    } else {
+
+      console.log("xxxx c >", phrase.phrase);
+
+      result = this.xPositionElementGeneriqueIlya.exec(phrase.phrase);
+      if (result != null) {
+
+        console.log("xxxx d");
+
+        e = new ElementGenerique(
+          result[1] ? result[1].toLowerCase() : null,
+          result[2],
+          TypeElement.aucun,
+          new PositionSujetString(result[2], result[5], result[4]),
+          this.getGenre(result[1], result[3]),
+          this.getNombre(result[1]),
+          new Array<string>()
+        );
+      }
+    }
+    // s'il y a un résultat, l'ajouter
+    if (e) {
+
+      console.log("xxxx e");
+
+      // avant d'ajouter l'élément vérifier s'il existe déjà
+      let filtered = this.generiques.filter(x => x.nom == e.nom);
+      if (filtered.length > 0) {
+        // mettre à jour l'élément existant le plus récent.
+        let found = filtered[filtered.length - 1];
+        // - position
+        if (e.positionString) {
+          // s'il y avait déjà une position définie, c'est un autre élément !
+          if (found.positionString) {
+            this.generiques.push(e);
+          } else {
+            // sinon, ajouter la position
+            found.positionString = e.positionString;
+          }
+        }
+
+        // - attributs
+        if (e.attributs.length > 0) {
+          found.attributs = found.attributs.concat(e.attributs);
+        }
+        // - type élément
+        if (e.type != TypeElement.inconnu && e.type != TypeElement.aucun) {
+          found.type = e.type;
+        }
+      } else {
+        // ajouter le nouvel élément
+        this.generiques.push(e);
+      }
+      return true; // trouvé un résultat
+    } else {
+      return false; // rien trouvé
+    }
+  }
 
   parseCode() {
     // retirer les retours à la ligne et les espace avant et après le bloc de texte.
@@ -154,58 +239,18 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         // si c'est du code
       } else {
 
-
         console.log("Analyse: ", phrase);
-        // Élement positionné
-        result = this.xPositionElementGenerique.exec(phrase.phrase);
-        if (result !== null) {
-          let e = new ElementGenerique(
-            result[1],
-            result[2],
-            this.getTypeElement(result[4]),
-            new PositionSujetString(result[2], result[7], result[6]),
-            this.getGenre(result[1], result[3]),
-            this.getNombre(result[1]),
-            (result[8] ? new Array<string>(result[8]) : new Array<string>())
-          );
 
-          // avant d'ajouter l'élément vérifier s'il existe déjà
-          let filtered = this.generiques.filter(x => x.nom == e.nom);
-          if (filtered.length > 0) {
-            // mettre à jour l'élément existant le plus récent.
-            let found = filtered[filtered.length - 1];
-            // - position
-            if (e.positionString) {
-              // s'il y avait déjà une position définie, c'est un autre élément !
-              if (found.positionString) {
-                this.generiques.push(e);
-              } else {
-                // sinon, ajouter la position
-                found.positionString = e.positionString;
-              }
-            }
-
-            // - attributs
-            if (e.attributs.length > 0) {
-              found.attributs = found.attributs.concat(e.attributs);
-            }
-            // - type élément
-            if (e.type != TypeElement.inconnu && e.type != TypeElement.aucun) {
-              found.type = e.type;
-            }
-          } else {
-            // ajouter le nouvel élément
-            this.generiques.push(e);
-          }
-
-          console.log("Réslultat: test 1:", e);
+        // 1 - TESTER POSITION
+        let found = this.testerPosition(phrase);
+        if (!found) {
           // Élément NON positionné
-        } else {
+
           // élément générique simple
           result = this.xElementSimple.exec(phrase.phrase);
           if (result !== null) {
             let e = new ElementGenerique(
-              result[1],
+              result[1] ? result[1].toLowerCase() : null,
               result[2],
               this.getTypeElement(result[4]),
               null,
@@ -384,7 +429,13 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           retVal = Nombre.s;
           break;
         case "les":
+        case "des":
           retVal = Nombre.p;
+          break;
+        case "du":
+        case "de la":
+        case "de l'":
+          retVal = Nombre.i;
           break;
         default:
           retVal = Nombre.s;

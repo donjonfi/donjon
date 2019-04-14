@@ -3,4 +3,6 @@ export enum Nombre {
   s = 's',
   /** Pluriel */
   p = 'p',
+  /** Indéfini */
+  i = 'i',
 }
