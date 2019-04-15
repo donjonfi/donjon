@@ -6,6 +6,7 @@ import { PositionSujetString } from '../models/position-sujet';
 import { TypeElement } from '../models/type-element.enum';
 import { Component, OnInit } from '@angular/core';
 import { Salle } from '../models/salle';
+import { Definition } from '../models/definition';
 
 @Component({
   selector: 'app-editeur',
@@ -51,7 +52,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
   titreJeu = "";
 
-  typesUtilisateur: Map<string, string>;
+  typesUtilisateur: Map<string, Definition>;
 
   phrases: Phrase[];
   generiques: ElementGenerique[];
@@ -67,36 +68,40 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
 
 
-  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5), position(6), genre complément(7), complément(8) */
+  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
   readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
 
   // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
   /** élément générique positionné par rapport à complément :
-   * -> soit : determinant(1)), type(2), nom(2+3), adjectifs(3), féminin?(4), position(9), complément(10)
-   * -> soit : determinant(5), type(6), nom(6+7), adjectifs(7), féminin?(8), position(9), complément(10)
+   * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
+   * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
    */
   readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(f\))? (?:est|sont))) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
   // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
-  /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
+  /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
   readonly xDefinitionTypeElement = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
 
-  /** pronom démonstratif -> determinant(1), type(2), adjectifs(3) */
+  /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
   readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
 
   /** pronom personnel position -> position(1), complément(2) */
   readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
-  /** pronom personnel -> adjectifs(1) */
-  readonly xPronomPersonnelAdjectif = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+  /** pronom personnel -> attributs(1) */
+  readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
-  /** élément générique -> déterminant (1), nom (2), féminin?(3) adjectifs(4).
+  /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
    * ex: Le champignon est brun et on peut le cuillir.
    */
-  readonly xElementSimpleAdjectif = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+  readonly xElementSimpleAttribut = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   readonly xNombrePluriel = /^[2-9]\d*$/;
 
-  constructor() { }
+  constructor() {
+
+    this.typesUtilisateur = new Map();
+
+   }
   ngOnInit() { }
 
   // Élement simple non positionné
@@ -108,8 +113,8 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     let intituleType: string;
     let type: TypeElement;
     let genre: Genre;
-    let adjectifsString: string;
-    let adjectifs: string[];
+    let attributsString: string;
+    let attributs: string[];
     let nombre: Nombre;
     let quantite: number;
     let position: PositionSujetString;
@@ -125,9 +130,11 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
       genre = this.getGenre(result[1], result[3]);
       nombre = this.getNombre(result[1]);
       quantite = this.getQuantite(result[1]);
-      adjectifsString = result[5];
-      adjectifs = this.getAdjectifs(adjectifsString);
+      attributsString = result[5];
+      attributs = this.getAttributs(attributsString);
       position = null;
+
+      this.addOrUpdDefinition(nom, nombre, intituleType, attributs);
 
       e = new ElementGenerique(
         determinant,
@@ -138,18 +145,18 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         genre,
         nombre,
         quantite,
-        adjectifs,
+        attributs,
       );
 
     } else {
-      // élément simple avec adjectifs (ex: le champignon est brun et on peut le cueillir)
-      result = this.xElementSimpleAdjectif.exec(phrase.phrase);
+      // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
+      result = this.xElementSimpleAttribut.exec(phrase.phrase);
       if (result != null) {
         // attributs ?
         let attributs = null;
         if (result[4] && result[4].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = this.getAdjectifs(result[4]);
+          attributs = this.getAttributs(result[4]);
         }
         e = new ElementGenerique(
           result[1] ? result[1].toLowerCase() : null,
@@ -198,6 +205,19 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
   }
 
+  addOrUpdDefinition(intitule: string, nombre: Nombre, typeParent: string, attributs: string[]) {
+    // mise à jour
+    if (this.typesUtilisateur.has(intitule)) {
+      let found = this.typesUtilisateur.get(intitule);
+      found.typeParent = typeParent;
+      found.attributs.concat(attributs);
+      // ajout
+    } else {
+      const definition = new Definition(intitule, typeParent, nombre, attributs);
+      this.typesUtilisateur.set(intitule, definition)
+    }
+  }
+
   // Élement positionné
   testerPosition(phrase: Phrase): boolean {
 
@@ -208,8 +228,8 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     let intituleType: string;
     let type: TypeElement;
     let genre: Genre;
-    let adjectifsString: string;
-    let adjectifs: string[];
+    let attributsString: string;
+    let attributs: string[];
     let nombre: Nombre;
     let position: PositionSujetString;
 
@@ -237,11 +257,11 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
         intituleType = result[2 + offset];
         type = this.getTypeElement(intituleType);
-        adjectifsString = result[3 + offset];
-        adjectifs = this.getAdjectifs(adjectifsString);
-        // s'il y a des adjectifs, prendre uniquement le 1er pour le nom
-        if (adjectifs.length > 0) {
-          nom = result[2 + offset] + " " + adjectifs[0];
+        attributsString = result[3 + offset];
+        attributs = this.getAttributs(attributsString);
+        // s'il y a des attributs, prendre uniquement le 1er pour le nom
+        if (attributs.length > 0) {
+          nom = result[2 + offset] + " " + attributs[0];
         } else {
           nom = result[2 + offset];
         }
@@ -258,7 +278,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           genre,
           nombre,
           this.getQuantite(determinant),
-          adjectifs,
+          attributs,
         );
       }
 
@@ -408,8 +428,8 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
                   this.generiques.push(e);
                 console.log("Réslultat: test 4:", e);
               } else {
-                // pronom personnel adjectifs
-                result = this.xPronomPersonnelAdjectif.exec(phrase.phrase);
+                // pronom personnel attributs
+                result = this.xPronomPersonnelAttribut.exec(phrase.phrase);
                 if (result !== null) {
                   console.log("resultat test 5: ", result);
 
@@ -418,7 +438,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
                   // attributs de l'élément précédent
                   if (result[1] && result[1].trim() !== '') {
                     // découper les attributs
-                    const attributs = this.getAdjectifs(result[1]);
+                    const attributs = this.getAttributs(result[1]);
                     e.attributs = e.attributs.concat(attributs);
                   }
                   // remettre l'élément à jour
@@ -452,6 +472,9 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     //   let salle = new Salle(m[2], m[1], this.getGenre(m[1], m[3]), Nombre.s);
     //   this.salles.push(salle);
     // }
+
+    console.log("definitions: ", this.typesUtilisateur);
+    
 
     this.generiques.forEach(el => {
 
@@ -624,11 +647,11 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     return retVal;
   }
 
-  /** Obtenir une liste d'adjectifs sur base d'une châine d'adjectifs séparés par des "," et un "et" */
-  getAdjectifs(adjectifsString: string): string[] {
-    if (adjectifsString && adjectifsString.trim() !== '') {
+  /** Obtenir une liste d'attributs sur base d'une châine d'attributs séparés par des "," et un "et" */
+  getAttributs(attributsString: string): string[] {
+    if (attributsString && attributsString.trim() !== '') {
       // découper les attributs qui sont séparés par des ', ' ou ' et '
-      return adjectifsString.split(/(?:, | et )+/);
+      return attributsString.split(/(?:, | et )+/);
     } else {
       return new Array<string>();
     }
