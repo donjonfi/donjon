@@ -11,10 +11,12 @@ export class ElementGenerique implements ElementDonjon {
   constructor(
     public determinant: string,
     public nom: string,
+    public intituleType: string,
     public type: TypeElement,
     public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,
+    public quantite: number,
     public attributs: string[],
   ) { }
 

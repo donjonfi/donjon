@@ -2,11 +2,10 @@ import { ElementGenerique } from '../models/element-generique';
 import { Genre } from '../models/genre.enum';
 import { Nombre } from '../models/nombre.enum';
 import { Phrase } from '../models/phrase';
-import { PositionSujet, PositionSujetString } from '../models/position-sujet';
-import { Salle } from '../models/salle';
+import { PositionSujetString } from '../models/position-sujet';
 import { TypeElement } from '../models/type-element.enum';
 import { Component, OnInit } from '@angular/core';
-import { log } from 'util';
+import { Salle } from '../models/salle';
 
 @Component({
   selector: 'app-editeur',
@@ -20,9 +19,10 @@ export class EditeurComponent implements OnInit {
 - 1 - Le jardin.
 Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
 Les fleurs (f) sont des décors du jardin.
-La clé rouge est dans le jardin.
-C'est une clé. "Il s'agit d'une veille clé rouillée et un peu tordue."
-La clé rouge est rouillée et tordue.
+Une clé rouge est dans le jardin. "Il s'agit d'une veille clé rouillée et un peu tordue."
+La clé verte est dans le jardin.
+C'est une clé.
+La clé rouge est en fer, légère et rouillée.
 L'abri de jardin est une salle.
 Il est à l'intérieur du jardin.
 Il est sombre, humide et froid.
@@ -50,6 +50,9 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   `;
 
   titreJeu = "";
+
+  typesUtilisateur: Map<string, string>;
+
   phrases: Phrase[];
   generiques: ElementGenerique[];
 
@@ -62,36 +65,36 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   objets: ElementGenerique[];
   aucuns: ElementGenerique[];
 
-  /** salle -> déterminant, nom, féminin?, reste de la phrase */
-  readonly xSujetSalle = /^(le |la |l')(.+?)(\(f\))? est une salle(.*)/gim;
-  readonly xSujetContenant = /^(le |la |l')(.+?)(\(f\))? est un contenant(.*)/gim;
-  readonly xSujetPorte = /^(le |la |l')(.+?)(\(f\))? est une porte(.*)/gim;
-  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6), genre complément(7), complément(8) */
-  // readonly xPositionElementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:un|une) (.+?)(| .+) (à l'intérieur|au sud|au nord|à l'est|à l'ouest) (du |de la |de l')(.+)/i;
+
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5), position(6), genre complément(7), complément(8) */
-  // readonly xPositionElementGenerique = /^(le |la |l'|les)(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
   readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
 
-  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), position(4), complément(5) */
-  readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
+  // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
+  /** élément générique positionné par rapport à complément :
+   * -> soit : determinant(1)), type(2), nom(2+3), adjectifs(3), féminin?(4), position(9), complément(10)
+   * -> soit : determinant(5), type(6), nom(6+7), adjectifs(7), féminin?(8), position(9), complément(10)
+   */
+  readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(f\))? (?:est|sont))) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
+  // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), adjectifs(5) */
-  readonly xElementSimpleType = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
+  readonly xDefinitionTypeElement = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
 
   /** pronom démonstratif -> determinant(1), type(2), adjectifs(3) */
   readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
 
-  /** pronom personnel position -> position(1), complément(2)*/
+  /** pronom personnel position -> position(1), complément(2) */
   readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
   /** pronom personnel -> adjectifs(1) */
   readonly xPronomPersonnelAdjectif = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
-  /** élément générique -> déterminant (1), nom (2), féminin?(3) adjectifs(4) */
+  /** élément générique -> déterminant (1), nom (2), féminin?(3) adjectifs(4).
+   * ex: Le champignon est brun et on peut le cuillir.
+   */
   readonly xElementSimpleAdjectif = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
-  /** élément générique placé dans complément -> déterminant(1), nom(2), féminin?(3), type(4), adjectif(5), position(6) complément(7)*/
-  // readonly xEmplacementGenerique = /^(le |la |l')(.+?)(\(f\))? est (?:|(?:(?:un|une) (.+?)(| .+)))(?:dans le |dans la |dans l'| du | de la |de l')(.+?)/i;
+  readonly xNombrePluriel = /^[2-9]\d*$/;
 
   constructor() { }
   ngOnInit() { }
@@ -100,40 +103,64 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   testerElementSimple(phrase: Phrase): boolean {
     let e: ElementGenerique = null;
 
+    let determinant: string;
+    let nom: string;
+    let intituleType: string;
+    let type: TypeElement;
+    let genre: Genre;
+    let adjectifsString: string;
+    let adjectifs: string[];
+    let nombre: Nombre;
+    let quantite: number;
+    let position: PositionSujetString;
+
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
-    let result = this.xElementSimpleType.exec(phrase.phrase);
+    let result = this.xDefinitionTypeElement.exec(phrase.phrase);
     if (result !== null) {
+
+      determinant = result[1] ? result[1].toLowerCase() : null;
+      nom = result[2];
+      intituleType = result[4];
+      type = this.getTypeElement(result[4]);
+      genre = this.getGenre(result[1], result[3]);
+      nombre = this.getNombre(result[1]);
+      quantite = this.getQuantite(result[1]);
+      adjectifsString = result[5];
+      adjectifs = this.getAdjectifs(adjectifsString);
+      position = null;
+
       e = new ElementGenerique(
-        result[1] ? result[1].toLowerCase() : null,
-        result[2],
-        this.getTypeElement(result[4]),
-        null,
-        this.getGenre(result[1], result[3]),
-        this.getNombre(result[1]),
-        (result[5] ? new Array<string>(result[5]) : new Array<string>())
+        determinant,
+        nom,
+        intituleType,
+        type,
+        position,
+        genre,
+        nombre,
+        quantite,
+        adjectifs,
       );
 
     } else {
-      // élément simple avec adjectifs (ex: le champignon est brun et peut le cueillir)
+      // élément simple avec adjectifs (ex: le champignon est brun et on peut le cueillir)
       result = this.xElementSimpleAdjectif.exec(phrase.phrase);
-      console.log("hé hé hé");
-
       if (result != null) {
-        console.log("hi hi hi");
         // attributs ?
-        let attributs = null
+        let attributs = null;
         if (result[4] && result[4].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = result[4].split(/(?:, | et )+/);
+          attributs = this.getAdjectifs(result[4]);
         }
         e = new ElementGenerique(
           result[1] ? result[1].toLowerCase() : null,
           result[2],
+          "",
           TypeElement.aucun,
           null,
           this.getGenre(result[1], result[3]),
           this.getNombre(result[1]),
-          (attributs ? attributs : new Array<string>())
+          this.getQuantite(result[1]),
+          (attributs ? attributs : new Array<string>()),
         );
       }
     }
@@ -141,14 +168,14 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     // s'il y a un résultat, l'ajouter
     if (e) {
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let filtered = this.generiques.filter(x => x.nom == e.nom);
+      let filtered = this.generiques.filter(x => x.nom === e.nom);
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let found = filtered[filtered.length - 1];
         // - type d'élément
-        if (e.type != TypeElement.aucun) {
+        if (e.type !== TypeElement.aucun) {
           // s'il y avait déjà un type défini, c'est un autre élément
-          if (found.type != TypeElement.aucun) {
+          if (found.type !== TypeElement.aucun) {
             this.generiques.push(e);
           } else {
             // sinon, définir le type
@@ -163,6 +190,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         // ajouter le nouvel élément
         this.generiques.push(e);
       }
+
       return true; // trouvé un résultat
     } else {
       return false; // rien trouvé
@@ -175,37 +203,70 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
 
     let e: ElementGenerique = null;
 
+    let determinant: string;
+    let nom: string;
+    let intituleType: string;
+    let type: TypeElement;
+    let genre: Genre;
+    let adjectifsString: string;
+    let adjectifs: string[];
+    let nombre: Nombre;
+    let position: PositionSujetString;
+
     // élément positionné défini (la, le, les)
     let result = this.xPositionElementGeneriqueDefini.exec(phrase.phrase);
     if (result !== null) {
       e = new ElementGenerique(
         result[1] ? result[1].toLowerCase() : null,
         result[2],
+        result[4],
         this.getTypeElement(result[4]),
         new PositionSujetString(result[2], result[7], result[6]),
         this.getGenre(result[1], result[3]),
         this.getNombre(result[1]),
-        (result[8] ? new Array<string>(result[8]) : new Array<string>())
+        this.getQuantite(result[1]),
+        (result[8] ? new Array<string>(result[8]) : new Array<string>()),
       );
-      // élément positionné avec " il y a "
+      // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
     } else {
-      result = this.xPositionElementGeneriqueIlya.exec(phrase.phrase);
+      result = this.xPositionElementGeneriqueIndefini.exec(phrase.phrase);
+
       if (result != null) {
+        // selon le type de résultat ("il y a un xxx" ou "un xxx est")
+        let offset = result[1] ? 0 : 4;
+        determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
+        intituleType = result[2 + offset];
+        type = this.getTypeElement(intituleType);
+        adjectifsString = result[3 + offset];
+        adjectifs = this.getAdjectifs(adjectifsString);
+        // s'il y a des adjectifs, prendre uniquement le 1er pour le nom
+        if (adjectifs.length > 0) {
+          nom = result[2 + offset] + " " + adjectifs[0];
+        } else {
+          nom = result[2 + offset];
+        }
+        genre = this.getGenre(result[1 + offset], result[4 + offset]);
+        nombre = this.getNombre(result[1 + offset]);
+        position = new PositionSujetString(result[2], result[10], result[9]);
+
         e = new ElementGenerique(
-          result[1] ? result[1].toLowerCase() : null,
-          result[2],
-          TypeElement.aucun,
-          new PositionSujetString(result[2], result[5], result[4]),
-          this.getGenre(result[1], result[3]),
-          this.getNombre(result[1]),
-          new Array<string>()
+          determinant,
+          nom,
+          intituleType,
+          type,
+          position,
+          genre,
+          nombre,
+          this.getQuantite(determinant),
+          adjectifs,
         );
       }
+
     }
     // s'il y a un résultat, l'ajouter
     if (e) {
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let filtered = this.generiques.filter(x => x.nom == e.nom);
+      let filtered = this.generiques.filter(x => x.nom === e.nom);
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let found = filtered[filtered.length - 1];
@@ -225,7 +286,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           found.attributs = found.attributs.concat(e.attributs);
         }
         // - type élément
-        if (e.type != TypeElement.inconnu && e.type != TypeElement.aucun) {
+        if (e.type !== TypeElement.inconnu && e.type !== TypeElement.aucun) {
           found.type = e.type;
         }
       } else {
@@ -249,19 +310,19 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
     let indexPhrase = 0;
     // si le bloc de texte commence par " on commence avec un bloc de commentaire
     let blocSuivantEstCode = true;
-    if (blocTexte[0] == '"') {
+    if (blocTexte[0] === '"') {
       blocSuivantEstCode = false;
     }
 
     // séparer les blocs en phrases sauf les commentaires
     blocsCodeEtCommentaire.forEach(bloc => {
-      if (bloc != '') {
+      if (bloc !== '') {
         // bloc de code, séparer les phrases (sur les '.')
         if (blocSuivantEstCode) {
           const phrasesBrutes = bloc.split('.');
           phrasesBrutes.forEach(phraseBrute => {
             const phraseNettoyee = phraseBrute.replace('.', '').trim();
-            if (phraseNettoyee != '') {
+            if (phraseNettoyee !== '') {
               this.phrases.push(new Phrase(phraseNettoyee, false, false, null, indexPhrase++));
             }
           });
@@ -269,7 +330,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           // si le bloc est un commentaire, l'ajouter tel quel
           this.phrases.push(new Phrase(bloc, true, false, null, indexPhrase++));
         }
-        blocSuivantEstCode = !blocSuivantEstCode
+        blocSuivantEstCode = !blocSuivantEstCode;
       }
     });
 
@@ -292,7 +353,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
       // 1) COMMENTAIRE
       if (phrase.commentaire) {
         // si c'est le premier boc du code, il s'agit du titre
-        if (phrase.ordre == 0) {
+        if (phrase.ordre === 0) {
           this.titreJeu = phrase.phrase;
           // sinon, le commentaire se rapporte au dernier sujet
         } else {
@@ -357,7 +418,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
                   // attributs de l'élément précédent
                   if (result[1] && result[1].trim() !== '') {
                     // découper les attributs
-                    let attributs = result[1].split(/(?:, | et )+/);
+                    const attributs = this.getAdjectifs(result[1]);
                     e.attributs = e.attributs.concat(attributs);
                   }
                   // remettre l'élément à jour
@@ -449,9 +510,12 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           break;
         case "clé":
         case "cle":
+        case "clés":
+        case "cles":
           retVal = TypeElement.cle;
           break;
         case "contenant":
+        case "contenants":
           retVal = TypeElement.contenant;
           break;
         case "décors":
@@ -461,12 +525,15 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
           retVal = TypeElement.decor;
           break;
         case "humain":
+        case "humains":
           retVal = TypeElement.humain;
           break;
         case "objet":
+        case "objets":
           retVal = TypeElement.objet;
           break;
         case "porte":
+        case "portes":
           retVal = TypeElement.porte;
           break;
         case "salle":
@@ -488,10 +555,15 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         case "le":
         case "la":
         case "l'":
+        case "1":
+        case "un":
+        case "une":
           retVal = Nombre.s;
           break;
         case "les":
         case "des":
+        case "deux":
+        case "trois":
           retVal = Nombre.p;
           break;
         case "du":
@@ -499,12 +571,67 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         case "de l'":
           retVal = Nombre.i;
           break;
+
         default:
-          retVal = Nombre.s;
+          if (this.xNombrePluriel.exec(determinant.trim()) !== null) {
+            retVal = Nombre.p;
+          } else {
+            retVal = Nombre.s;
+          }
           break;
       }
     }
     return retVal;
+  }
+
+  getQuantite(determinant: string): number {
+    let retVal = 0;
+    if (determinant) {
+      switch (determinant.trim().toLocaleLowerCase()) {
+        case "le":
+        case "la":
+        case "l'":
+        case "1":
+        case "un":
+        case "une":
+          retVal = 1;
+          break;
+        case "deux":
+          retVal = 2;
+          break;
+        case "trois":
+          retVal = 3;
+          break;
+        case "les":
+        case "des":
+          retVal = -1;
+          break;
+        case "du":
+        case "de la":
+        case "de l'":
+          retVal = -1;
+          break;
+
+        default:
+          if (this.xNombrePluriel.exec(determinant.trim()) !== null) {
+            retVal = +(determinant.trim());
+          } else {
+            retVal = 0;
+          }
+          break;
+      }
+    }
+    return retVal;
+  }
+
+  /** Obtenir une liste d'adjectifs sur base d'une châine d'adjectifs séparés par des "," et un "et" */
+  getAdjectifs(adjectifsString: string): string[] {
+    if (adjectifsString && adjectifsString.trim() !== '') {
+      // découper les attributs qui sont séparés par des ', ' ou ' et '
+      return adjectifsString.split(/(?:, | et )+/);
+    } else {
+      return new Array<string>();
+    }
   }
 
   /** Obtenir le genre d'un élément du donjon. */
@@ -519,15 +646,13 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
         case "la":
           retVal = Genre.f;
           break;
-        case "l'":
-        case "les":
-          if (feminin && feminin.trim() == "(f)") {
+
+        default:
+          if (feminin && feminin.trim() === "(f)") {
             retVal = Genre.f;
           } else {
             retVal = Genre.m;
           }
-          break;
-        default:
           break;
       }
     }

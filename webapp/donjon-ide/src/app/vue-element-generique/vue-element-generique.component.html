@@ -1,19 +1,22 @@
 {{el.determinant + el.nom}}
-  <ul>
-    <li>Description: {{el.description}}</li>
-    <li>Genre: {{el.genre}}</li>
-    <li>Nombre: {{el.nombre}}</li>
-    <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
-      <ul *ngIf="el.attributs">
-        <li *ngFor="let at of el.attributs">{{at}}</li>
-      </ul>
-    </li>
-    <li>Position: <span *ngIf="! el.positionString"> ?</span>
-      <ul *ngIf="el.positionString">
-        <li>Sujet : {{el.positionString.sujet}}</li>
-        <li>Position : {{el.positionString.position}}</li>
-        <li>Complement : {{el.positionString.complement}}</li>
-      </ul>
-    </li>
-  </ul>
+<ul>
+  <li>Description: {{el.description}}</li>
+  <li>Genre: {{el.genre}}</li>
+  <li>Nombre: {{el.nombre}}</li>
+  <li>Quantité: {{el.quantite}}</li>
+  <li>Type: {{el.type}}</li>
+  <li>Intitulé type: {{el.intituleType}}</li>
 
+  <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+    <ul *ngIf="el.attributs">
+      <li *ngFor="let at of el.attributs">{{at}}</li>
+    </ul>
+  </li>
+  <li>Position: <span *ngIf="! el.positionString"> ?</span>
+    <ul *ngIf="el.positionString">
+      <li>Sujet : {{el.positionString.sujet}}</li>
+      <li>Position : {{el.positionString.position}}</li>
+      <li>Complement : {{el.positionString.complement}}</li>
+    </ul>
+  </li>
+</ul>
