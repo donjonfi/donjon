@@ -9,10 +9,10 @@ import { ElementGenerique } from '../models/element-generique';
 export class VueElementGeneriqueComponent implements OnInit {
 
   @Input() el: ElementGenerique;
-
+  
   constructor() { }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
 }

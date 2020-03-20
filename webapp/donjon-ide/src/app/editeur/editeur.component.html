@@ -3,13 +3,16 @@
 <h3>Source</h3>
 
 <form>
-  <div class="form-group">
-    <label for="codeSource">Code source</label>
-    <textarea [(ngModel)]="codeSource" class="form-control" wrap="off" name="codeSource" id="codeSource"
-      rows="15"></textarea>
-  </div>
+    <div class="form-group">
 
-  <button type="button" (click)="parseCode()" class="btn btn-primary">Interpréter</button>
+        <div class="code-editor" #codeEditor></div>
+
+        <label for="codeSource">Code source</label>
+
+        <textarea [(ngModel)]="codeSource" class="form-control" name="codeSource" id="codeSource" rows="15"></textarea>
+    </div>
+
+    <button type="button" (click)="parseCode()" class="btn btn-primary">Interpréter</button>
 
 </form>
 
@@ -17,88 +20,88 @@
 <p *ngIf="!phrases">Veuillez commencer par interpréter le code.</p>
 <div *ngIf="phrases">
 
-  <h4>Titre</h4>
-  <p>{{titreJeu}}</p>
+    <h4>Titre</h4>
+    <p>{{titreJeu}}</p>
 
-  <h4>Salles</h4>
-  <p *ngIf="salles && salles.length == 0">Aucune salle trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="salles">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Salles</h4>
+    <p *ngIf="salles && salles.length == 0">Aucune salle trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="salles">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Décors</h4>
-  <p *ngIf="decors && decors.length == 0">Aucune décor trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="decors">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Décors</h4>
+    <p *ngIf="decors && decors.length == 0">Aucune décor trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="decors">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Contenant</h4>
-  <p *ngIf="contenants && contenants.length == 0">Aucune contenant trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="contenants">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Contenant</h4>
+    <p *ngIf="contenants && contenants.length == 0">Aucune contenant trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="contenants">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Portes</h4>
-  <p *ngIf="portes && portes.length == 0">Aucune porte trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="portes">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Portes</h4>
+    <p *ngIf="portes && portes.length == 0">Aucune porte trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="portes">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Clés</h4>
-  <p *ngIf="cles && cles.length == 0">Aucune cle trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="cles">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
+    <h4>Clés</h4>
+    <p *ngIf="cles && cles.length == 0">Aucune cle trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="cles">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
 
-    </ng-template>
-  </ul>
+        </ng-template>
+    </ul>
 
-  <h4>Animaux</h4>
-  <p *ngIf="animaux && animaux.length == 0">Aucun animal trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="animaux">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Animaux</h4>
+    <p *ngIf="animaux && animaux.length == 0">Aucun animal trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="animaux">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Objets</h4>
-  <p *ngIf="objets && objets.length == 0">Aucun objet trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="objets">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Objets</h4>
+    <p *ngIf="objets && objets.length == 0">Aucun objet trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="objets">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-  <h4>Sans type</h4>
-  <p *ngIf="aucuns && aucuns.length == 0">Aucun élément sans type trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="aucuns">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul>
+    <h4>Sans type</h4>
+    <p *ngIf="aucuns && aucuns.length == 0">Aucun élément sans type trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="aucuns">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
 </div>

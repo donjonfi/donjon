@@ -1,19 +1,23 @@
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Phrase } from '../models/phrase';
+import { Salle } from '../models/salle';
 import { ElementGenerique } from '../models/element-generique';
+import { Definition } from '../models/definition';
+import { TypeElement } from '../models/type-element.enum';
+import { PositionSujetString } from '../models/position-sujet';
 import { Genre } from '../models/genre.enum';
 import { Nombre } from '../models/nombre.enum';
-import { Phrase } from '../models/phrase';
-import { PositionSujetString } from '../models/position-sujet';
-import { TypeElement } from '../models/type-element.enum';
-import { Component, OnInit } from '@angular/core';
-import { Salle } from '../models/salle';
-import { Definition } from '../models/definition';
 
 @Component({
   selector: 'app-editeur',
   templateUrl: './editeur.component.html',
-  styleUrls: ['./editeur.component.css']
+  styleUrls: ['./editeur.component.scss']
 })
 export class EditeurComponent implements OnInit {
+
+  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+
+
 
   codeSource = `"Le nain qui voulait un trésor".
 
@@ -38,13 +42,12 @@ La haie est une porte au nord du jardin. Elle est fermée et ouvrable.
 - 2 - La forêt et la caverne.
 La forêt est une salle au nord du jardin. "Vous êtes dans une forêt sombre.".
 Les arbres sont des décors de la forêt.
-Il y a des chauves souris dans les arbres.
+Il y a des chauves-souris dans les arbres.
 Elles sont douces et gentilles.
 Ce sont des animaux.
 Les fleurs (f) sont des décors de la forêt.
 Le lac est un décor de la forêt.
 Il contient de l'eau.
-La description du seau est ici "Ce seau n'est pas troué, je peux y mettre de l'eau.".
 La caverne ténébreuse est une salle sombre à l'intérieur de la forêt.
 Le dragon est un animal dans la caverne.
 Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreuses richesses."
@@ -98,11 +101,30 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   readonly xNombrePluriel = /^[2-9]\d*$/;
 
   constructor() {
-
     this.typesUtilisateur = new Map();
+  }
 
-   }
-  ngOnInit() { }
+  ngOnInit(): void {
+
+    // // Éditeur de code
+    // const elementRef = this.codeEditorElmRef.nativeElement;
+    // const editorOptions: Partial<ace.Ace.EditorOptions> = {
+    //   highlightActiveLine: true,
+    //   minLines: 10,
+    //   maxLines: Infinity,
+    // };
+
+    // this.codeEditor = ace.edit(elementRef, editorOptions);
+    // this.codeEditor.setTheme(THEME);
+
+    // ace.config.setModuleUrl("ace/mode/donjon", "assets/mode-donjon.js");
+
+    // this.codeEditor.getSession().setMode("ace/mode/donjon");
+
+    // this.codeEditor.setShowFoldWidgets(true); // for the scope fold feature
+
+
+  }
 
   // Élement simple non positionné
   testerElementSimple(phrase: Phrase): boolean {
@@ -217,6 +239,8 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
       this.typesUtilisateur.set(intitule, definition)
     }
   }
+
+
 
   // Élement positionné
   testerPosition(phrase: Phrase): boolean {
@@ -464,17 +488,7 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
       }
     });
 
-    // console.log("Analyse de la phrase (SALLE) : ", phrase);
-    // let m = this.xSujetSalle.exec(phrase);
-    // console.log(" ==> ", m);
-    // // la phrase décrit une salle
-    // if (m) {
-    //   let salle = new Salle(m[2], m[1], this.getGenre(m[1], m[3]), Nombre.s);
-    //   this.salles.push(salle);
-    // }
-
     console.log("definitions: ", this.typesUtilisateur);
-    
 
     this.generiques.forEach(el => {
 
