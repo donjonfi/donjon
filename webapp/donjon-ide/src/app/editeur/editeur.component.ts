@@ -33,7 +33,10 @@ export class EditeurComponent implements OnInit {
 
   };
 
+  mode: "aucun" | "jeu" | "apercu" = "aucun";
+
   codeSource = `"Le nain qui voulait un trésor".
+
 
 - 1 - Le jardin.
 Le joueur est dans le jardin.
@@ -75,13 +78,21 @@ Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreus
   }
 
   onParseCode() {
+    // interpréter le code
     this.jeu = Compilateur.parseCode(this.codeSource);
+    // voir le résultat
+    this.mode = "apercu";
+  }
+
+  onJouer() {
+    // interpréter le code
+    this.jeu = Compilateur.parseCode(this.codeSource);
+    // commencer le jeu
+    this.mode = "jeu";
   }
 
   ngOnInit(): void {
 
   }
-
-
 
 }

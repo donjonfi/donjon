@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { VueElementGeneriqueComponent } from './vue-element-generique/vue-element-generique.component';
+import { PlayComponent } from './play/play.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -20,6 +21,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     PageNotFoundComponent,
     VueElementGeneriqueComponent,
     EditeurComponent,
+    PlayComponent,
 
   ],
   imports: [
