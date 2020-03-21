@@ -37,6 +37,10 @@ export class PlayComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Historique: aller en arrière.
+   * @param event
+   */
   onKeyDownArrowUp(event) {
     if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
       this.curseurHistorique += 1;
@@ -51,6 +55,9 @@ export class PlayComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Historique: revenir en avant
+   */
   onKeyDownArrowDown(event) {
     if (this.curseurHistorique > 0) {
       this.curseurHistorique -= 1;
@@ -66,6 +73,10 @@ export class PlayComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Valider une commande.
+   * @param event 
+   */
   onKeyDownEnter(event) {
     console.log("C’est noté !");
     this.curseurHistorique = -1;
@@ -84,14 +95,16 @@ export class PlayComponent implements OnInit, OnChanges {
 
   doCommande(commande: string): string {
 
-    this.historiqueCommandes.push(commande);
-    if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
-      this.historiqueCommandes.shift();
+    // GESTION HISTORIQUE
+    // ajouter à l’historique (à condition que différent du précédent)
+    if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commande)) {
+      this.historiqueCommandes.push(commande);
+      if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
+        this.historiqueCommandes.shift();
+      }
     }
 
-    console.log("commande:", commande);
-
-
+    // COMPRENDRE LA COMMANDE
     const mots = commande.trim().split(" ");
 
     let retVal = null;
