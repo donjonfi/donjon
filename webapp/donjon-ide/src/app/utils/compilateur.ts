@@ -10,6 +10,8 @@ import { TypeElement } from '../models/type-element.enum';
 
 export class Compilateur {
 
+    static verbeux = false;
+
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
     static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
 
@@ -83,7 +85,9 @@ export class Compilateur {
             }
         });
 
-        console.log("Voici les phrases: ", phrases);
+        if (Compilateur.verbeux) {
+            console.log("Voici les phrases: ", phrases);
+        }
 
         // retrouver les éléments dans le code source
         let typesUtilisateur: Map<string, Definition> = new Map();
@@ -110,7 +114,9 @@ export class Compilateur {
                 // 2) CODE DESCRIPTIF
             } else {
 
-                console.log("Analyse: ", phrase);
+                if (Compilateur.verbeux) {
+                    console.log("Analyse: ", phrase);
+                }
 
                 // 1 - TESTER POSITION
                 let found = Compilateur.testerPosition(elementsGeneriques, phrase);
@@ -134,26 +140,32 @@ export class Compilateur {
                             }
                             // remettre l'élément à jour
                             elementsGeneriques.push(e);
-                            console.log("Réslultat: test 3:", e);
+                            if (Compilateur.verbeux) {
+                                console.log("Réslultat: test 3:", e);
+                            }
                         } else {
                             // pronom personnel position
                             result = Compilateur.xPronomPersonnelPosition.exec(phrase.phrase);
                             if (result !== null) {
-                                console.log("resultat test 4: ", result);
-
+                                if (Compilateur.verbeux) {
+                                    console.log("resultat test 4: ", result);
+                                }
                                 // récupérer le dernier élément
                                 let e = elementsGeneriques.pop();
                                 // attributs de l'élément précédent
                                 e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
                                     // remettre l'élément à jour
                                     elementsGeneriques.push(e);
-                                console.log("Réslultat: test 4:", e);
+                                if (Compilateur.verbeux) {
+                                    console.log("Réslultat: test 4:", e);
+                                }
                             } else {
                                 // pronom personnel attributs
                                 result = Compilateur.xPronomPersonnelAttribut.exec(phrase.phrase);
                                 if (result !== null) {
-                                    console.log("resultat test 5: ", result);
-
+                                    if (Compilateur.verbeux) {
+                                        console.log("resultat test 5: ", result);
+                                    }
                                     // récupérer le dernier élément
                                     let e = elementsGeneriques.pop();
                                     // attributs de l'élément précédent
@@ -164,9 +176,13 @@ export class Compilateur {
                                     }
                                     // remettre l'élément à jour
                                     elementsGeneriques.push(e);
-                                    console.log("Réslultat: test 5:", e);
+                                    if (Compilateur.verbeux) {
+                                        console.log("Réslultat: test 5:", e);
+                                    }
                                 } else {
-                                    console.log("Pas de résultat test 5.");
+                                    if (Compilateur.verbeux) {
+                                        console.log("Pas de résultat test 5.");
+                                    }
                                 }
                             }
 
@@ -185,8 +201,9 @@ export class Compilateur {
             }
         });
 
-        console.log("definitions: ", typesUtilisateur);
-
+        if (Compilateur.verbeux) {
+            console.log("definitions: ", typesUtilisateur);
+        }
         elementsGeneriques.forEach(el => {
 
             switch (el.type) {

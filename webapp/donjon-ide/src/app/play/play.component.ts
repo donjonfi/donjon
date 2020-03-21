@@ -45,13 +45,8 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
       this.curseurHistorique += 1;
       const index = this.historiqueCommandes.length - this.curseurHistorique - 1;
-      console.log("index:", index);
       this.commande = this.historiqueCommandes[index];
-      console.log("this.commande:", this.commande);
-      setTimeout(() => {
-        console.log("setTimeout");
-        this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande.length;
-      }, 100);
+      this.focusCommande();
     }
   }
 
@@ -62,14 +57,68 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.curseurHistorique > 0) {
       this.curseurHistorique -= 1;
       const index = this.historiqueCommandes.length - this.curseurHistorique - 1;
-      console.log("index:", index);
       this.commande = this.historiqueCommandes[index];
-      console.log("this.commande:", this.commande);
-      setTimeout(() => {
-        this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande.length;
-      }, 100);
+      this.focusCommande();
     } else {
       this.commande = "";
+    }
+  }
+
+  private focusCommande() {
+    setTimeout(() => {
+      this.commandeInputRef.nativeElement.focus();
+      this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande.length;
+    }, 100);
+  }
+
+  onKeyDownTab(event) {
+    switch (this.commande) {
+
+      case 'n':
+        this.commande = "aller au nord";
+        this.focusCommande();
+        break;
+
+      case 's':
+        this.commande = "aller au sud";
+        this.focusCommande();
+        break;
+
+      case 'e':
+        this.commande = "aller à l’est";
+        this.focusCommande();
+        break;
+
+      case 'o':
+        this.commande = "aller à l’ouest";
+        this.focusCommande();
+        break;
+
+      case 'r':
+      case 're':
+        this.commande = "regarder ";
+        this.focusCommande();
+        break;
+
+      case 'ob':
+        this.commande = "observer ";
+        this.focusCommande();
+        break;
+
+      case 'i':
+      case 'in':
+        this.commande = "inventaire";
+        this.focusCommande();
+        break;
+
+      case 'p':
+      case 'pr':
+        this.commande = "prendre ";
+        this.focusCommande();
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -78,7 +127,6 @@ export class PlayComponent implements OnInit, OnChanges {
    * @param event 
    */
   onKeyDownEnter(event) {
-    console.log("C’est noté !");
     this.curseurHistorique = -1;
     if (this.commande && this.commande.trim() !== "") {
       const result = this.doCommande(this.commande);
@@ -113,10 +161,34 @@ export class PlayComponent implements OnInit, OnChanges {
       const verbe = mots[0];
 
       switch (verbe.toLowerCase()) {
+
+        case "a": // aller
+        case "al":
+        case "aller":
+        case "n": // nord
+        case "s": // sud
+        case "e": // est
+        case "o": // ouest
+          retVal = this.doAller(mots);
+          break;
+
+        case "i": // inventaire
+        case "in":
         case "inventaire":
           retVal = this.showInventaire();
           break;
 
+        case "p": // prendre
+        case "pr":
+        case "at": // attraper
+        case "prendre":
+        case "attraper":
+          retVal = this.doPrendre(mots);
+          break;
+
+        case "r": // regarder
+        case "re":
+        case "ob": // observer
         case "regarder":
         case "observer":
           retVal = this.doRegarder(mots);
@@ -131,12 +203,20 @@ export class PlayComponent implements OnInit, OnChanges {
     return retVal;
   }
 
+  doAller(mots: string[]) {
+    return "Je ne sais pas encore me déplacer.";
+  }
+
   doRegarder(mots: string[]) {
     return "Je ne vois rien pour l’instant.";
   }
 
+  doPrendre(mots: string[]) {
+    return "Je ne sais pas encore attraper.";
+  }
+
   showInventaire() {
-    return "Votre inventaire est vide.";
+    return "L’inventaire est vide.";
   }
 
 

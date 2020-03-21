@@ -10,7 +10,7 @@
             </ace>
         </div>
         <div>
-            <button type="button" (click)="onParseCode()" class="btn btn-primary mr-2">Visualiser</button>
+            <button type="button" (click)="onParseCode()" class="btn btn-primary mr-2">Aperçu</button>
             <button type="button" (click)="onJouer()" class="btn btn-primary">Jouer</button>
         </div>
     </div>
@@ -19,7 +19,7 @@
 <div *ngIf="mode == 'jeu'" class="card mb-4">
     <div class="card-body">
         <h3>Jeu</h3>
-       <app-play [jeu]="jeu"></app-play>
+        <app-play [jeu]="jeu"></app-play>
     </div>
 </div>
 

@@ -7,8 +7,8 @@
 <!-- entrée utilisateur -->
 <div class="input-group mb-3">
     <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
-        (keydown.arrowup)="onKeyDownArrowUp($event);" (keydown.arrowdown)="onKeyDownArrowDown($event);"
-        class="form-control" placeholder="Entrez une commande">
+        (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
+        (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control" placeholder="Entrez une commande (verbe + complément)">
     <div class="input-group-append">
         <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
             id="btExecuter">Enter</button>
