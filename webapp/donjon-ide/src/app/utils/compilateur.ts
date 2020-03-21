@@ -30,9 +30,9 @@ export class Compilateur {
     static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
 
     /** pronom personnel position -> position(1), complément(2) */
-    static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
+    static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l')|de (?:la |l')|du ))(.+)/i;
     /** pronom personnel -> attributs(1) */
-    static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle) est)|(?:(?:ils|elles) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+    static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
     /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
      * ex: Le champignon est brun et on peut le cuillir.
@@ -93,6 +93,10 @@ export class Compilateur {
         let typesUtilisateur: Map<string, Definition> = new Map();
         let elementsGeneriques = new Array<ElementGenerique>();
         let result: RegExpExecArray;
+
+        // ajouter le joueur au monde
+        elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", TypeElement.joueur, null, Genre.m, Nombre.s, 1, null));
+
         phrases.forEach(phrase => {
 
             // 1) COMMENTAIRE
@@ -152,6 +156,8 @@ export class Compilateur {
                                 }
                                 // récupérer le dernier élément
                                 let e = elementsGeneriques.pop();
+                                // genre de l'élément
+                                e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
                                 // attributs de l'élément précédent
                                 e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
                                     // remettre l'élément à jour
@@ -174,6 +180,10 @@ export class Compilateur {
                                         const attributs = Compilateur.getAttributs(result[1]);
                                         e.attributs = e.attributs.concat(attributs);
                                     }
+                                    // genre de l'élément
+                                    e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
+
+
                                     // remettre l'élément à jour
                                     elementsGeneriques.push(e);
                                     if (Compilateur.verbeux) {
@@ -229,6 +239,10 @@ export class Compilateur {
 
                 case TypeElement.cle:
                     monde.cles.push(el);
+                    break;
+
+                case TypeElement.joueur:
+                    monde.joueurs.push(el);
                     break;
 
                 case TypeElement.objet:
@@ -481,6 +495,8 @@ export class Compilateur {
                     break;
                 case "clé":
                 case "cle":
+                case "clef":
+                case "clefs":
                 case "clés":
                 case "cles":
                     retVal = TypeElement.cle;
@@ -509,6 +525,10 @@ export class Compilateur {
                     break;
                 case "salle":
                     retVal = TypeElement.salle;
+                    break;
+
+                case "joueur":
+                    retVal = TypeElement.joueur;
                     break;
 
                 default:
@@ -612,9 +632,13 @@ export class Compilateur {
         if (determinant) {
             switch (determinant.trim().toLocaleLowerCase()) {
                 case "le":
+                case "il":
+                case "ils":
                     retVal = Genre.m;
                     break;
                 case "la":
+                case "elle":
+                case "elles":
                     retVal = Genre.f;
                     break;
 

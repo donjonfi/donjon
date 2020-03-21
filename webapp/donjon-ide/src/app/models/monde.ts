@@ -11,5 +11,6 @@ export class Monde {
     animaux: ElementGenerique[] = [];
     objets: ElementGenerique[] = [];
     aucuns: ElementGenerique[] = [];
+    joueurs: ElementGenerique[] = [];
 
 }

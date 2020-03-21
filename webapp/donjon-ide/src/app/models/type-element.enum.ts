@@ -9,5 +9,6 @@ export enum TypeElement {
   decor = 'décor',
   animal = 'animal',
   humain = 'humain',
-
+  joueur = 'joueur',
+  
 }

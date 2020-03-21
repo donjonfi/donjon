@@ -32,6 +32,10 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
+      if (this.jeu.monde.joueurs.length == 1) {
+        const joueur = this.jeu.monde.joueurs[0];
+        this.resultat += "\n" + "Vous êtes " + joueur.positionString.position + joueur.positionString.complement;
+      }
     } else {
       console.warn("pas de jeu :(");
     }

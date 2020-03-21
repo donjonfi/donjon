@@ -103,6 +103,16 @@
                 </ng-template>
             </ul>
 
+            <h4>Joueurs</h4>
+            <p *ngIf="jeu.monde.joueurs && jeu.monde.joueurs.length == 0">Aucun joueur trouvé.</p>
+            <ul>
+                <ng-template ngFor let-el [ngForOf]="jeu.monde.joueurs">
+                    <li>
+                        <app-vue-element-generique [el]=el></app-vue-element-generique>
+                    </li>
+                </ng-template>
+            </ul>
+
             <h4>Sans type</h4>
             <p *ngIf="jeu.monde.aucuns && jeu.monde.aucuns.length == 0">Aucun élément sans type trouvé.</p>
             <ul>
