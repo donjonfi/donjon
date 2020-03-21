@@ -3,20 +3,24 @@
 <h3>Source</h3>
 
 <form>
+
     <div class="form-group">
-
-        <div class="code-editor" #codeEditor></div>
-
-        <label for="codeSource">Code source</label>
-
-        <textarea [(ngModel)]="codeSource" class="form-control" name="codeSource" id="codeSource" rows="15"></textarea>
+        <label for="codeSource">Code source (Ace)</label>
+        <div class="row">
+            <div class="col-12 ">
+                <div class="card content-container">
+                    <ace [config]="config" [(value)]="codeSource">
+                    </ace>
+                </div>
+               
+            </div>
+        </div>
     </div>
 
     <button type="button" (click)="parseCode()" class="btn btn-primary">Interpréter</button>
-
 </form>
 
-<h3>Éléments du donjon</h3>
+<h3 class="mt-4">Éléments du donjon</h3>
 <p *ngIf="!phrases">Veuillez commencer par interpréter le code.</p>
 <div *ngIf="phrases">
 

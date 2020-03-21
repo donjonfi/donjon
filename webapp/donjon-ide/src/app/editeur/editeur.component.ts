@@ -1,12 +1,20 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Phrase } from '../models/phrase';
-import { Salle } from '../models/salle';
-import { ElementGenerique } from '../models/element-generique';
+import 'brace';
+import 'brace/mode/text';
+// import 'brace/mode/javascript';
+// import 'brace/theme/github';
+import 'brace/theme/chrome';
+
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+
+import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Definition } from '../models/definition';
-import { TypeElement } from '../models/type-element.enum';
-import { PositionSujetString } from '../models/position-sujet';
+import { ElementGenerique } from '../models/element-generique';
 import { Genre } from '../models/genre.enum';
 import { Nombre } from '../models/nombre.enum';
+import { Phrase } from '../models/phrase';
+import { PositionSujetString } from '../models/position-sujet';
+import { Salle } from '../models/salle';
+import { TypeElement } from '../models/type-element.enum';
 
 @Component({
   selector: 'app-editeur',
@@ -17,7 +25,19 @@ export class EditeurComponent implements OnInit {
 
   @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
 
-
+  public config: AceConfigInterface = {
+    mode: 'text',
+    minLines: 80,
+    theme: 'chrome',
+    readOnly : false,
+    tabSize : 2,
+    fontSize: 18,
+    showGutter: true,
+    showLineNumbers: true,
+    showPrintMargin: false,
+    hScrollBarAlwaysVisible: false,
+    
+  };
 
   codeSource = `"Le nain qui voulait un trésor".
 
@@ -51,7 +71,7 @@ Il contient de l'eau.
 La caverne ténébreuse est une salle sombre à l'intérieur de la forêt.
 Le dragon est un animal dans la caverne.
 Le trésor est dans la caverne. "Vous êtes attiré par l'éclat de ces nombreuses richesses."
-  `;
+`;
 
   titreJeu = "";
 
