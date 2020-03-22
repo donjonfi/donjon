@@ -286,3 +286,4 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+/webapp/donjon-ide/src/assets/exemples/ca.djn

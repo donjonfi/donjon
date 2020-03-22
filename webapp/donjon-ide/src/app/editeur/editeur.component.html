@@ -9,9 +9,23 @@
             <ace [config]="config" [(value)]="codeSource">
             </ace>
         </div>
-        <div>
-            <button type="button" (click)="onParseCode()" class="btn btn-primary mr-2">Aperçu</button>
-            <button type="button" (click)="onJouer()" class="btn btn-primary">Jouer</button>
+        <div class="row">
+            <div class="col">
+                <div class="input-group mb-3">
+                    <input #txCommande type="text" [(ngModel)]="nomExemple" class="form-control"
+                        placeholder="nom d’un exemple à charger">
+                    <div class="input-group-append">
+                        <button [disabled]="!nomExemple" class="btn btn-primary" (click)="onChargerExemple()"
+                            type="button" id="btExecuter">Charger</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button type="button" (click)="onParseCode()" class="btn btn-primary mr-2">Aperçu</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" (click)="onJouer()" class="btn btn-primary">Jouer</button>
+            </div>
         </div>
     </div>
 </div>
@@ -32,7 +46,7 @@
             <h4>Titre</h4>
             <p>{{jeu.titre}}</p>
 
-            <h4>Salles</h4>
+            <h4>Salles (lieux)</h4>
             <p *ngIf="jeu.monde.salles && jeu.monde.salles.length == 0">Aucune salle trouvée.</p>
             <ul>
                 <ng-template ngFor let-el [ngForOf]="jeu.monde.salles">

@@ -13,14 +13,14 @@ export class Compilateur {
     static verbeux = true;
 
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
+    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
 
     // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
     /** élément générique positionné par rapport à complément :
      * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
      * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
      */
-    static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(f\))? (?:est|sont))) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un |une )))(.+)/i;
+    static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(f\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un |une )))(.+)/i;
     // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
     /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
@@ -30,7 +30,7 @@ export class Compilateur {
     static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
 
     /** pronom personnel position -> position(1), complément(2) */
-    static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'))|(?:dans (?:la |le |l'|un |une )|de (?:la |l')|du ))(.+)/i;
+    static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|un |une )|de (?:la |l')|du ))(.+)/i;
     /** pronom personnel -> attributs(1) */
     static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
@@ -51,8 +51,10 @@ export class Compilateur {
         let monde = new Monde();
         jeu.monde = monde;
 
-        // retirer les retours à la ligne et les espace avant et après le bloc de texte.
-        const blocTexte = source.replace(/(\r|\n)/g, "").trim();
+        // retirer les retours à la ligne et les remplacer par un espace.
+        // retirer ensuite les éventuels doubles espaces.
+        // retirer les espace avant et après le bloc de texte.
+        const blocTexte = source.replace(/(\r|\n)/g, " ").replace(/(  )/g, " ").trim();
 
         // séparer les commentaires (entre " ") du code
         const blocsCodeEtCommentaire = blocTexte.split('"');
@@ -78,7 +80,7 @@ export class Compilateur {
                         }
                     });
                 } else {
-                    // si le bloc est un commentaire, l'ajouter tel quel
+                    // si le bloc est un commentaire, l'ajouter tel quel :
                     phrases.push(new Phrase(bloc, true, false, null, indexPhrase++));
                 }
                 blocSuivantEstCode = !blocSuivantEstCode;
@@ -537,6 +539,7 @@ export class Compilateur {
                     retVal = TypeElement.porte;
                     break;
                 case "salle":
+                case "lieu":
                     retVal = TypeElement.salle;
                     break;
 

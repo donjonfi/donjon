@@ -10,6 +10,7 @@ import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Compilateur } from '../utils/compilateur';
 import { HttpClient } from '@angular/common/http';
 import { Jeu } from '../models/jeu';
+import { StringUtils } from '../utils/string.utils';
 
 @Component({
   selector: 'app-editeur',
@@ -38,13 +39,12 @@ export class EditeurComponent implements OnInit {
 
   jeu: Jeu = null;
   codeSource = "";
+  nomExemple = "exemple1";
 
   constructor(
     private http: HttpClient
   ) {
 
-    this.http.get('assets/exemples/exemple1.dnj', { responseType: 'text' })
-      .subscribe(texte => this.codeSource = texte);
   }
 
   onParseCode() {
@@ -52,6 +52,14 @@ export class EditeurComponent implements OnInit {
     this.jeu = Compilateur.parseCode(this.codeSource);
     // voir le résultat
     this.mode = "apercu";
+  }
+
+  onChargerExemple() {
+    const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
+    if (nomFichierExemple) {
+      this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
+        .subscribe(texte => this.codeSource = texte);
+    }
   }
 
   onJouer() {
