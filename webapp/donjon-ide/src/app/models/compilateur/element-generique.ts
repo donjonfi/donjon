@@ -1,8 +1,9 @@
-import { ElementDonjon } from './element-donjon';
-import { Genre } from './genre.enum';
-import { Nombre } from './nombre.enum';
 import { PositionSujet, PositionSujetString } from './position-sujet';
-import { TypeElement } from './type-element.enum';
+
+import { ElementDonjon } from './element-donjon';
+import { Genre } from '../commun/genre.enum';
+import { Nombre } from '../commun/nombre.enum';
+import { TypeElement } from '../commun/type-element.enum';
 
 export class ElementGenerique implements ElementDonjon {
 

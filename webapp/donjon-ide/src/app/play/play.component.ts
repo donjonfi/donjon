@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
-import { Jeu } from '../models/jeu';
+import { Jeu } from '../models/jeu/jeu';
 
 @Component({
   selector: 'app-play',
@@ -32,10 +32,8 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
-      if (this.jeu.monde.joueurs.length == 1) {
-        const joueur = this.jeu.monde.joueurs[0];
-        this.resultat += "\n" + "Vous êtes " + joueur.positionString.position + joueur.positionString.complement;
-      }
+      // afficher où on est.
+      this.doOuSuisJe();
     } else {
       console.warn("pas de jeu :(");
     }
@@ -198,6 +196,14 @@ export class PlayComponent implements OnInit, OnChanges {
           retVal = this.doRegarder(mots);
           break;
 
+        case "où":
+        case "ou":
+          retVal = this.doOu(mots);
+          break;
+        case "position":
+          retVal = this.doOuSuisJe();
+          break;
+
         default:
           retVal = "Désolé je n’ai pas compris « " + verbe + " »";
           break;
@@ -205,6 +211,33 @@ export class PlayComponent implements OnInit, OnChanges {
     }
 
     return retVal;
+  }
+
+  doOu(mots: string[]) {
+    let retVal = "où… quoi ?";
+
+    if (mots[1]) {
+      // suis-je
+      switch (mots[1]) {
+        case "suis-je":
+        case "suis je":
+        case "es-tu":
+        case "es tu":
+        case "sommes-nous":
+        case "sommes nous":
+          retVal = this.doOuSuisJe();
+          break;
+
+        default:
+          retVal = "Je n’ai pas compris où…";
+          break;
+      }
+    }
+    return retVal;
+  }
+
+  doOuSuisJe() {
+    return "Je ne sais pas où je suis";
   }
 
   doAller(mots: string[]) {

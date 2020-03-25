@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ElementGenerique } from '../models/element-generique';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { ElementGenerique } from '../models/compilateur/element-generique';
 
 @Component({
   selector: 'app-vue-element-generique',

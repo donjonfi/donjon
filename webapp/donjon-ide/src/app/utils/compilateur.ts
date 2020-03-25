@@ -1,12 +1,14 @@
-import { Definition } from '../models/definition';
-import { ElementGenerique } from '../models/element-generique';
-import { Genre } from '../models/genre.enum';
-import { Jeu } from '../models/jeu';
-import { Monde } from '../models/monde';
-import { Nombre } from '../models/nombre.enum';
-import { Phrase } from '../models/phrase';
-import { PositionSujetString } from '../models/position-sujet';
-import { TypeElement } from '../models/type-element.enum';
+import { Definition } from '../models/compilateur/definition';
+import { ElementGenerique } from '../models/compilateur/element-generique';
+import { Generateur } from './generateur';
+import { Genre } from '../models/commun/genre.enum';
+import { Jeu } from '../models/jeu/jeu';
+import { Monde } from '../models/compilateur/monde';
+import { Nombre } from '../models/commun/nombre.enum';
+import { Phrase } from '../models/compilateur/phrase';
+import { PositionSujetString } from '../models/compilateur/position-sujet';
+import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
+import { TypeElement } from '../models/commun/type-element.enum';
 
 export class Compilateur {
 
@@ -45,11 +47,10 @@ export class Compilateur {
      * Interpréter le code source fourni et renvoyer le jeu correspondant.
      * @param source Code à interpréter.
      */
-    public static parseCode(source: string): Jeu {
-        // le jeu
-        let jeu = new Jeu();
+    public static parseCode(source: string): ResultatCompilation {
+        // le monde qui est décrit
         let monde = new Monde();
-        jeu.monde = monde;
+        let erreurs = new Array<string>();
 
         // retirer les retours à la ligne et les remplacer par un espace.
         // retirer ensuite les éventuels doubles espaces.
@@ -105,7 +106,7 @@ export class Compilateur {
             if (phrase.commentaire) {
                 // si c'est le premier boc du code, il s'agit du titre
                 if (phrase.ordre === 0) {
-                    jeu.titre = phrase.phrase;
+                    monde.titre = phrase.phrase;
                     // sinon, le commentaire se rapporte au dernier sujet
                 } else {
                     // récupérer le dernier élément
@@ -124,91 +125,91 @@ export class Compilateur {
                     console.log("Analyse: ", phrase);
                 }
 
-                // 1 - TESTER POSITION
-                let found = Compilateur.testerPosition(elementsGeneriques, phrase);
-                if (!found) {
-                    // 2 - TESTER ELEMENT SIMPLE (NON positionné)
-                    found = Compilateur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase);
+                // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
+                if (phrase.phrase.slice(0, 1) == "-") {
+                    phrase.traitee = true;
+                    if (Compilateur.verbeux) {
+                        console.log("Je passe le commentaire : ", phrase);
+                    }
+                } else {
+                    // 1 - TESTER POSITION
+                    let found = Compilateur.testerPosition(elementsGeneriques, phrase);
                     if (!found) {
-                        // 3 - LE RESTE
-                        // pronom démonstratif
-                        result = Compilateur.xPronomDemonstratif.exec(phrase.phrase);
-                        if (result !== null) {
-                            // récupérer le dernier élément
-                            let e = elementsGeneriques.pop();
-                            // type de l'élément précédent
-                            if (result[2] && result[2].trim() !== '') {
-                                e.type = Compilateur.getTypeElement(result[2]);
-                            }
-                            // attributs de l'élément précédent
-                            if (result[3] && result[3].trim() !== '') {
-                                e.attributs.push(result[3]);
-                            }
-                            // remettre l'élément à jour
-                            elementsGeneriques.push(e);
-                            if (Compilateur.verbeux) {
-                                console.log("Réslultat: test 3:", e);
-                            }
-                        } else {
-                            // pronom personnel position
-                            result = Compilateur.xPronomPersonnelPosition.exec(phrase.phrase);
+                        // 2 - TESTER ELEMENT SIMPLE (NON positionné)
+                        found = Compilateur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase);
+                        if (!found) {
+                            // 3 - LE RESTE
+                            // pronom démonstratif
+                            result = Compilateur.xPronomDemonstratif.exec(phrase.phrase);
                             if (result !== null) {
-                                if (Compilateur.verbeux) {
-                                    console.log("resultat test 4: ", result);
-                                }
                                 // récupérer le dernier élément
                                 let e = elementsGeneriques.pop();
-                                // genre de l'élément
-                                e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
+                                // type de l'élément précédent
+                                if (result[2] && result[2].trim() !== '') {
+                                    e.type = Compilateur.getTypeElement(result[2]);
+                                }
                                 // attributs de l'élément précédent
-                                e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
-                                    // remettre l'élément à jour
-                                    elementsGeneriques.push(e);
+                                if (result[3] && result[3].trim() !== '') {
+                                    e.attributs.push(result[3]);
+                                }
+                                // remettre l'élément à jour
+                                elementsGeneriques.push(e);
                                 if (Compilateur.verbeux) {
-                                    console.log("Réslultat: test 4:", e);
+                                    console.log("Réslultat: test 3:", e);
                                 }
                             } else {
-                                // pronom personnel attributs
-                                result = Compilateur.xPronomPersonnelAttribut.exec(phrase.phrase);
+                                // pronom personnel position
+                                result = Compilateur.xPronomPersonnelPosition.exec(phrase.phrase);
                                 if (result !== null) {
                                     if (Compilateur.verbeux) {
-                                        console.log("resultat test 5: ", result);
+                                        console.log("resultat test 4: ", result);
                                     }
                                     // récupérer le dernier élément
                                     let e = elementsGeneriques.pop();
-                                    // attributs de l'élément précédent
-                                    if (result[1] && result[1].trim() !== '') {
-                                        // découper les attributs
-                                        const attributs = Compilateur.getAttributs(result[1]);
-                                        e.attributs = e.attributs.concat(attributs);
-                                    }
                                     // genre de l'élément
                                     e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
-
-
-                                    // remettre l'élément à jour
-                                    elementsGeneriques.push(e);
+                                    // attributs de l'élément précédent
+                                    e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
+                                        // remettre l'élément à jour
+                                        elementsGeneriques.push(e);
                                     if (Compilateur.verbeux) {
-                                        console.log("Réslultat: test 5:", e);
+                                        console.log("Réslultat: test 4:", e);
                                     }
                                 } else {
-                                    if (Compilateur.verbeux) {
-                                        console.log("Pas de résultat test 5.");
+                                    // pronom personnel attributs
+                                    result = Compilateur.xPronomPersonnelAttribut.exec(phrase.phrase);
+                                    if (result !== null) {
+                                        if (Compilateur.verbeux) {
+                                            console.log("resultat test 5: ", result);
+                                        }
+                                        // récupérer le dernier élément
+                                        let e = elementsGeneriques.pop();
+                                        // attributs de l'élément précédent
+                                        if (result[1] && result[1].trim() !== '') {
+                                            // découper les attributs
+                                            const attributs = Compilateur.getAttributs(result[1]);
+                                            e.attributs = e.attributs.concat(attributs);
+                                        }
+                                        // genre de l'élément
+                                        e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
+
+
+                                        // remettre l'élément à jour
+                                        elementsGeneriques.push(e);
+                                        if (Compilateur.verbeux) {
+                                            console.log("Réslultat: test 5:", e);
+                                        }
+                                    } else {
+                                        erreurs.push("l." + phrase.ordre + " : " + phrase.phrase);
+                                        if (Compilateur.verbeux) {
+                                            console.log("Pas de résultat test 5.");
+                                        }
                                     }
                                 }
+
                             }
-
                         }
-
-
-
-
-
-
-
-
                     }
-
                 }
             }
         });
@@ -265,14 +266,19 @@ export class Compilateur {
         });
 
         if (Compilateur.verbeux) {
-            console.info("==================\n");
-            console.info("jeu:", jeu);
-            console.info("typesUtilisateur:", typesUtilisateur);
-            console.info("==================\n");
+            console.log("==================\n");
+            console.log("monde:", monde);
+            console.log("typesUtilisateur:", typesUtilisateur);
+            console.log("==================\n");
         }
 
-        return jeu;
+        let resultat = new ResultatCompilation();
+        resultat.monde = monde;
+        resultat.erreurs = erreurs;
+        return resultat;
     }
+
+
 
     // Élement simple non positionné
     private static testerElementSimple(dictionnaire: Map<string, Definition>, elementsGeneriques: ElementGenerique[], phrase: Phrase): boolean {

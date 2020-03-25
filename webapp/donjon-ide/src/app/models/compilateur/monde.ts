@@ -1,9 +1,9 @@
 import { ElementGenerique } from './element-generique';
-import { Salle } from './salle';
 
 export class Monde {
 
-    salles: Salle[] = [];
+    titre: string;
+    salles: ElementGenerique[] = [];
     decors: ElementGenerique[] = [];
     contenants: ElementGenerique[] = [];
     portes: ElementGenerique[] = [];

@@ -11,6 +11,7 @@ import { NgModule } from '@angular/core';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PlayComponent } from './play/play.component';
 import { VueElementGeneriqueComponent } from './vue-element-generique/vue-element-generique.component';
+import { ApercuMondeComponent } from './apercu-monde/apercu-monde.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -23,6 +24,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     VueElementGeneriqueComponent,
     EditeurComponent,
     PlayComponent,
+    ApercuMondeComponent,
     
 
   ],

@@ -8,8 +8,10 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Compilateur } from '../utils/compilateur';
+import { Generateur } from '../utils/generateur';
 import { HttpClient } from '@angular/common/http';
-import { Jeu } from '../models/jeu';
+import { Jeu } from '../models/jeu/jeu';
+import { Monde } from '../models/compilateur/monde';
 import { StringUtils } from '../utils/string.utils';
 
 @Component({
@@ -37,9 +39,11 @@ export class EditeurComponent implements OnInit {
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";
 
+  monde: Monde = null;
+  erreurs: string[] = null;
   jeu: Jeu = null;
   codeSource = "";
-  nomExemple = "exemple1";
+  nomExemple = "ca";
 
   constructor(
     private http: HttpClient
@@ -49,7 +53,9 @@ export class EditeurComponent implements OnInit {
 
   onParseCode() {
     // interpréter le code
-    this.jeu = Compilateur.parseCode(this.codeSource);
+    let resultat = Compilateur.parseCode(this.codeSource);
+    this.monde = resultat.monde;
+    this.erreurs = resultat.erreurs;
     // voir le résultat
     this.mode = "apercu";
   }
@@ -64,7 +70,12 @@ export class EditeurComponent implements OnInit {
 
   onJouer() {
     // interpréter le code
-    this.jeu = Compilateur.parseCode(this.codeSource);
+    // interpréter le code
+    let resultat = Compilateur.parseCode(this.codeSource);
+    this.monde = resultat.monde;
+    this.erreurs = resultat.erreurs;
+    // générer le jeu
+    this.jeu = Generateur.genererJeu(this.monde);
     // commencer le jeu
     this.mode = "jeu";
   }
