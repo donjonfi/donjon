@@ -11,12 +11,12 @@ export class Jeu {
     /**
      * Salles qui constituent le jeu.
      */
-    salles: Salle[];
+    salles: Salle[] = [];
 
     /**
      * Objets du jeu en possession du joueur.
      */
-    inventaire: Objet[];
+    inventaire: Objet[] = [];
 
     /**
      * Position du joueur.

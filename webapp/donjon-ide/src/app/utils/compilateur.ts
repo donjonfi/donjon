@@ -26,7 +26,7 @@ export class Compilateur {
     // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
     /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
-    static readonly xDefinitionTypeElement = /^(le |la|l'|les)(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
+    static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
 
     /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
     static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;

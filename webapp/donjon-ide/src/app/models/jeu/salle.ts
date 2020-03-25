@@ -1,5 +1,6 @@
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
+import { Voisin } from './voisin';
 
 export class Salle {
 
@@ -32,6 +33,8 @@ export class Salle {
     /**
      * État de l’objet (allumé, fermé, cassé, …)
      */
-    etat: string[];
+    etat: string[] = [];
+
+    voisins: Voisin[] = [];
 
 }
