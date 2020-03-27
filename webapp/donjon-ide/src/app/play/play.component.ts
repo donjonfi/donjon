@@ -1,7 +1,10 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
+import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
+import { Nombre } from '../models/commun/nombre.enum';
+import { Objet } from '../models/jeu/objet';
 import { Salle } from '../models/jeu/salle';
 
 @Component({
@@ -290,8 +293,6 @@ export class PlayComponent implements OnInit, OnChanges {
     }
   }
 
-
-
   doAller(mots: string[]) {
 
     let voisin: Salle = null;
@@ -372,10 +373,11 @@ export class PlayComponent implements OnInit, OnChanges {
   doRegarder(mots: string[]) {
     if (this.curSalle) {
       if (this.curSalle.description) {
-        return this.curSalle.description;
+        return this.curSalle.description
+          + this.printObjets();
       } else {
         return "Vous êtes dans " + this.curSalle.déterminant + this.curSalle.intitulé + ".\n"
-          + "Rien à signaler.";
+          + this.printObjets();
       }
     } else {
       return "Mais où suis-je ?";
@@ -387,11 +389,38 @@ export class PlayComponent implements OnInit, OnChanges {
   }
 
   doPrendre(mots: string[]) {
-    return "Je ne sais pas encore attraper.";
+
+    // TODO: vérifier si on peut prendre l'objet...
+
+    if (mots[1]) {
+      // TODO: objets dont l'intitulé comprend plusieurs mots !
+      let o = this.doTrouverObjet(mots);
+      if (o) {
+        this.jeu.inventaire.objets.push(o);
+        return this.printUnUneDes(o, true) + o.intitulé + " a été ajouté" + this.printAccordSimple(o) + " à votre inventaire.";
+      }
+    } else {
+      return "prendre quoi ?";
+    }
   }
 
   showInventaire() {
     return "L’inventaire est vide.";
+  }
+
+  doTrouverObjet(mots: string[]) {
+
+    let retVal: Objet = null;
+
+    // commencer par chercher avec le 2e mot
+    const mot2 = mots[1];
+    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitulé.startsWith(mot2));
+    if (objetsTrouves.length == 1) {
+      retVal = objetsTrouves[0];
+    } else if (objetsTrouves.length > 1) {
+      // TODO: ajouter des mots en plus
+    }
+    return retVal;
   }
 
   getSalle(index: number) {
@@ -421,10 +450,10 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.curSalle) {
       return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
         + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
-        + this.printSorties();
+        + this.printSorties()
     } else {
       console.warn("Pas trouvé de curSalle :(");
-      return "Je suis où moi ? :("
+      return "Je suis où moi ? :(";
     }
 
   }
@@ -439,6 +468,53 @@ export class PlayComponent implements OnInit, OnChanges {
       });
     } else {
       retVal = "Il n’y a pas de sortie.";
+    }
+    return retVal;
+  }
+
+  printObjets() {
+    let retVal: string;
+    if (this.curSalle.inventaire.objets.length == 0) {
+      retVal = "\nJe ne vois rien ici.";
+    } else {
+      retVal = "\nContenu de la pièce :";
+      this.curSalle.inventaire.objets.forEach(o => {
+        retVal += "\n - Il y a ";
+
+        retVal += (this.printUnUneDes(o) + o.intitulé);
+      });
+    }
+    return retVal;
+  }
+
+  printUnUneDes(o: Objet, majuscule: boolean) {
+    let retVal: string;
+    if (o.nombre == Nombre.s) {
+      if (o.genre == Genre.f) {
+        retVal = majuscule ? "Une " : "une ";
+      } else {
+        retVal = majuscule ? "Un" : "un ";
+      }
+    } else {
+      retVal = majuscule ? "Des" : "des ";
+    }
+    return retVal;
+  }
+
+  printAccordSimple(o: Objet) {
+    let retVal: string;
+    if (o.nombre == Nombre.s) {
+      if (o.genre == Genre.f) {
+        retVal = "e";
+      } else {
+        retVal = "";
+      }
+    } else {
+      if (o.genre == Genre.f) {
+        retVal = "es";
+      } else {
+        retVal = "s";
+      }
     }
     return retVal;
   }

@@ -1,4 +1,5 @@
 import { Genre } from '../commun/genre.enum';
+import { Inventaire } from './inventaire';
 import { Nombre } from '../commun/nombre.enum';
 import { Voisin } from './voisin';
 
@@ -38,5 +39,7 @@ export class Salle {
     voisins: Voisin[] = [];
 
     description = "";
+
+    inventaire = new Inventaire();
 
 }

@@ -1,6 +1,7 @@
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
+import { Objet } from '../models/jeu/objet';
 import { PositionRelative } from '../models/compilateur/position-sujet';
 import { Salle } from '../models/jeu/salle';
 import { Voisin } from '../models/jeu/voisin';
@@ -13,7 +14,7 @@ export class Generateur {
 
         jeu.titre = monde.titre;
 
-        // ajouter toutes les salles
+        // AJOUTER LES SALLES
         for (let index = 0; index < monde.salles.length; index++) {
             const curEle = monde.salles[index];
 
@@ -25,11 +26,11 @@ export class Generateur {
             newSalle.nombre = curEle.nombre;
             newSalle.description = curEle.description;
             console.log("newSalle.description:", newSalle.description);
-            
+
             jeu.salles.push(newSalle);
         }
 
-        // ajouter toutes les voisins
+        // DÉFINIR LES VOISINS
         for (let index = 0; index < monde.salles.length; index++) {
             const curEle = monde.salles[index];
 
@@ -55,11 +56,36 @@ export class Generateur {
             }
         }
 
+        // PLACER LE JOUEUR
         if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
             const localisation = Generateur.getLocalisation(monde.joueurs[0].positionString.position);
             const salleID = Generateur.getSalleID(jeu.salles, monde.joueurs[0].positionString.complement);
             if (salleID != -1) {
                 jeu.position = salleID;
+            }
+        }
+
+        // PLACER LES OBJETS DANS LES SALLES
+        for (let index = 0; index < monde.objets.length; index++) {
+            const curEle = monde.objets[index];
+
+            if (curEle.positionString) {
+                // const localisation = Generateur.getLocalisation(curEle.positionString.position);
+                const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
+
+                if (salleID === -1) {
+                    console.log("position objet pas trouvé: ", curEle.nom, curEle.positionString);
+                } else {
+                    let newObjet = new Objet();
+                    newObjet.id = index;
+                    newObjet.intitulé = curEle.nom;
+                    newObjet.déterminant = curEle.determinant;
+                    newObjet.genre = curEle.genre;
+                    newObjet.nombre = curEle.nombre;
+                    newObjet.quantité = curEle.quantite;
+                    newObjet.etat = curEle.attributs;
+                    jeu.salles[salleID].inventaire.objets.push(newObjet);
+                }
             }
         }
 

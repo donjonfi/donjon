@@ -1,3 +1,4 @@
+import { Inventaire } from './inventaire';
 import { Objet } from './objet';
 import { Salle } from './salle';
 
@@ -16,7 +17,7 @@ export class Jeu {
     /**
      * Objets du jeu en possession du joueur.
      */
-    inventaire: Objet[] = [];
+    inventaire: Inventaire = new Inventaire();
 
     /**
      * Position du joueur.

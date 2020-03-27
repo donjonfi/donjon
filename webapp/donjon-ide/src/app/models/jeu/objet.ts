@@ -3,6 +3,8 @@ import { Nombre } from '../commun/nombre.enum';
 
 export class Objet {
 
+    id: number;
+
     intitulé: string;
     déterminant: string;
     /**

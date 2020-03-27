@@ -5,7 +5,7 @@ export class Inventaire {
     /**
      * Objets de jeu présents dans l’inventaire.
      */
-    ojbets: Objet[] = [];
+    objets: Objet[] = [];
 
     /**
      * Capacité de l’inventaire.
