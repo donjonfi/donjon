@@ -6,7 +6,7 @@ export class Objet {
     id: number;
 
     intitulé: string;
-    déterminant: string;
+    determinant: string;
     /**
      * Quantité disponible de l’objet.
      * > -1: illimité.

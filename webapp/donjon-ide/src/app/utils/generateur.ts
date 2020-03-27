@@ -79,7 +79,7 @@ export class Generateur {
                     let newObjet = new Objet();
                     newObjet.id = index;
                     newObjet.intitulé = curEle.nom;
-                    newObjet.déterminant = curEle.determinant;
+                    newObjet.determinant = curEle.determinant;
                     newObjet.genre = curEle.genre;
                     newObjet.nombre = curEle.nombre;
                     newObjet.quantité = curEle.quantite;

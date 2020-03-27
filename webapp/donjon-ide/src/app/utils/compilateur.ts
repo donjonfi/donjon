@@ -651,16 +651,20 @@ export class Compilateur {
     private static getGenre(determinant: string, feminin: string): Genre {
         let retVal = Genre.n;
 
+
         if (determinant) {
             switch (determinant.trim().toLocaleLowerCase()) {
                 case "le":
                 case "il":
                 case "ils":
+                case "un":
                     retVal = Genre.m;
                     break;
                 case "la":
                 case "elle":
                 case "elles":
+                case "une":
+
                     retVal = Genre.f;
                     break;
 

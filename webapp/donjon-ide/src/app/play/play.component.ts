@@ -196,7 +196,7 @@ export class PlayComponent implements OnInit, OnChanges {
         case "i": // inventaire
         case "in":
         case "inventaire":
-          retVal = this.showInventaire();
+          retVal = this.printInventaire();
           break;
 
         case "p": // prendre
@@ -394,18 +394,48 @@ export class PlayComponent implements OnInit, OnChanges {
 
     if (mots[1]) {
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      let o = this.doTrouverObjet(mots);
-      if (o) {
-        this.jeu.inventaire.objets.push(o);
-        return this.printUnUneDes(o, true) + o.intitulé + " a été ajouté" + this.printAccordSimple(o) + " à votre inventaire.";
+      const objetTrouve = this.doTrouverObjet(mots);
+      if (objetTrouve) {
+        const nouvelObjet = this.doPrendreObjet(objetTrouve.id);
+        this.jeu.inventaire.objets.push(nouvelObjet);
+        return this.printUnUneDes(nouvelObjet, true) + nouvelObjet.intitulé + " a été ajouté" + this.printAccordSimple(objetTrouve) + " à votre inventaire.";
+      } else {
+        return "Je ne trouve pas ça.";
       }
     } else {
       return "prendre quoi ?";
     }
   }
 
-  showInventaire() {
-    return "L’inventaire est vide.";
+  doPrendreObjet(objetID) {
+    let retVal: Objet = null;
+    // un seul exemplaire : on le retire de l'inventaire et on le retourne.
+    let objetIndex = this.curSalle.inventaire.objets.findIndex(x => x.id === objetID);
+    let objet = this.curSalle.inventaire.objets[objetIndex];
+    if (objet.quantité == 1) {
+      retVal = this.curSalle.inventaire.objets.splice(objetIndex, 1)[0];
+
+      // plusieurs exemplaires : on le clone
+    } else {
+      // décrémenter quantité si pas infini
+      if (objet.quantité != -1) {
+        objet.quantité -= 1;
+      }
+      // faire une copie
+      retVal = this.copierObjet(objet);
+    }
+    return retVal;
+  }
+
+  private copierObjet(original: Objet) {
+    let retVal = new Objet();
+    retVal.quantité = 1;
+    retVal.nombre = Nombre.s;
+    retVal.genre = original.genre;
+    retVal.determinant = original.determinant;
+    retVal.intitulé = original.intitulé;
+    retVal.id = original.id; // TODO: quid des ID pour les clones ?
+    return retVal;
   }
 
   doTrouverObjet(mots: string[]) {
@@ -413,8 +443,15 @@ export class PlayComponent implements OnInit, OnChanges {
     let retVal: Objet = null;
 
     // commencer par chercher avec le 2e mot
-    const mot2 = mots[1];
-    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitulé.startsWith(mot2));
+    let premierMot: string;
+
+    if (mots[1] == 'la' || mots[1] == 'le' || mots[2] == 'du' || mots[2] == 'un' || mots[2] == 'une') {
+      premierMot = mots[2];
+    } else {
+      premierMot = mots[1];
+    }
+
+    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitulé.startsWith(premierMot) && x.quantité !== 0);
     if (objetsTrouves.length == 1) {
       retVal = objetsTrouves[0];
     } else if (objetsTrouves.length > 1) {
@@ -472,16 +509,31 @@ export class PlayComponent implements OnInit, OnChanges {
     return retVal;
   }
 
+  printInventaire() {
+    let retVal: string;
+    let objets = this.jeu.inventaire.objets.filter(x => x.quantité !== 0);
+    if (objets.length == 0) {
+      retVal = "\nVotre inventaire est vide.";
+    } else {
+      retVal = "\nContenu de l'inventaire :";
+      objets.forEach(o => {
+        retVal += "\n - " + (this.printUnUneDes(o, false) + o.intitulé);
+      });
+    }
+    return retVal;
+  }
+
   printObjets() {
     let retVal: string;
-    if (this.curSalle.inventaire.objets.length == 0) {
+
+    let objets = this.curSalle.inventaire.objets.filter(x => x.quantité !== 0);
+
+    if (objets.length == 0) {
       retVal = "\nJe ne vois rien ici.";
     } else {
       retVal = "\nContenu de la pièce :";
-      this.curSalle.inventaire.objets.forEach(o => {
-        retVal += "\n - Il y a ";
-
-        retVal += (this.printUnUneDes(o) + o.intitulé);
+      objets.forEach(o => {
+        retVal += "\n - Il y a " + (this.printUnUneDes(o, false) + o.intitulé);
       });
     }
     return retVal;
@@ -493,10 +545,10 @@ export class PlayComponent implements OnInit, OnChanges {
       if (o.genre == Genre.f) {
         retVal = majuscule ? "Une " : "une ";
       } else {
-        retVal = majuscule ? "Un" : "un ";
+        retVal = majuscule ? "Un " : "un ";
       }
     } else {
-      retVal = majuscule ? "Des" : "des ";
+      retVal = majuscule ? "Des " : "des ";
     }
     return retVal;
   }

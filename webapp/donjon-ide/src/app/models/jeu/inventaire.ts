@@ -5,7 +5,7 @@ export class Inventaire {
     /**
      * Objets de jeu présents dans l’inventaire.
      */
-    objets: Objet[] = [];
+    objets: Objet[] = new Array<Objet>();
 
     /**
      * Capacité de l’inventaire.
