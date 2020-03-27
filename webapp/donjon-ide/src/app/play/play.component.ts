@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
+import { Salle } from '../models/jeu/salle';
 
 @Component({
   selector: 'app-play',
@@ -253,7 +254,7 @@ export class PlayComponent implements OnInit, OnChanges {
 
   doEffacer() {
     this.resultat = "";
-    return this.doOuSuisJe();
+    return this.printCurSalle();
   }
 
   doOu(mots: string[]) {
@@ -293,16 +294,79 @@ export class PlayComponent implements OnInit, OnChanges {
 
   doAller(mots: string[]) {
 
-    switch (mots[0]) {
+    let voisin: Salle = null;
+
+    let destination: string;
+
+    if (mots[0] === 'aller' || mots[0] === 'a') {
+      if (mots[1] == 'en' || mots[1] == 'à' || mots[1] == 'au') {
+        destination = mots[2];
+      } else {
+        destination = mots[1];
+      }
+    } else {
+      destination = mots[0];
+    }
+
+    switch (destination) {
+
       case "n":
-        if (this.curSalle.voisins.find)
-          break;
+      case "no":
+      case "nord":
+        voisin = this.getSalle(this.getVoisin(Localisation.nord));
+        break;
+
+      case "s":
+      case "su":
+      case "sud":
+        voisin = this.getSalle(this.getVoisin(Localisation.sud));
+        break;
+
+      case "o":
+      case "ou":
+      case "ouest":
+      case "l'ouest":
+        voisin = this.getSalle(this.getVoisin(Localisation.ouest));
+        break;
+
+      case "e":
+      case "es":
+      case "est":
+      case "l'est":
+        voisin = this.getSalle(this.getVoisin(Localisation.est));
+        break;
+
+      case "so":
+      case "sortir":
+        voisin = this.getSalle(this.getVoisin(Localisation.exterieur));
+        break;
+      case "en":
+      case "entrer":
+        voisin = this.getSalle(this.getVoisin(Localisation.interieur));
+        break;
+      case "mo":
+      case "monter":
+      case "haut":
+        voisin = this.getSalle(this.getVoisin(Localisation.haut));
+        break;
+      case "de":
+      case "descendre":
+      case "bas":
+        voisin = this.getSalle(this.getVoisin(Localisation.bas));
+        break;
 
       default:
         break;
     }
 
-    return "Je ne sais pas encore me déplacer.";
+    // TODO: vérifier accès…
+
+    if (voisin) {
+      this.jeu.position = voisin.id;
+      return this.printCurSalle();
+    } else {
+      return "Pas pu aller par là.";
+    }
   }
 
   doRegarder(mots: string[]) {
@@ -335,19 +399,34 @@ export class PlayComponent implements OnInit, OnChanges {
   }
 
   getVoisin(loc: Localisation) {
+    console.log("getVoisin:", loc);
+
     let found = this.curSalle.voisins.find(x => x.localisation == loc);
-    return found;
+
+    console.log("  >> found:", found);
+
+    return found ? found.salleIndex : -1;
   }
 
   get curSalle() {
     // TODO: retenir la salle
-    return this.jeu.salles.find(x => x.id === this.jeu.position);
+    const retVal = this.jeu.salles.find(x => x.id === this.jeu.position);
+    if (!retVal) {
+      console.warn("Pas trouvé la curSalle:", this.jeu.position);
+    }
+    return retVal;
   }
 
   printCurSalle() {
-    return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
-      + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
-      + this.printSorties();
+    if (this.curSalle) {
+      return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
+        + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
+        + this.printSorties();
+    } else {
+      console.warn("Pas trouvé de curSalle :(");
+      return "Je suis où moi ? :("
+    }
+
   }
 
   printSorties() {
@@ -356,8 +435,7 @@ export class PlayComponent implements OnInit, OnChanges {
     if (this.curSalle.voisins.length > 0) {
       retVal = "Sorties :";
       this.curSalle.voisins.forEach(voisin => {
-        const curSalle = this.getSalle(voisin.salleIndex);
-        retVal += ("\n - " + this.printLocalisation(voisin.localisation));
+        retVal += ("\n - " + this.printLocalisation(voisin.localisation, this.curSalle.id, voisin.salleIndex));
       });
     } else {
       retVal = "Il n’y a pas de sortie.";
@@ -365,7 +443,7 @@ export class PlayComponent implements OnInit, OnChanges {
     return retVal;
   }
 
-  printLocalisation(localisation: Localisation) {
+  printLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
     switch (localisation) {
       case Localisation.nord:
         return "nord (n)";
@@ -377,13 +455,13 @@ export class PlayComponent implements OnInit, OnChanges {
         return "ouest (o)";
 
       case Localisation.bas:
-        return "descendre (de)";
+        return "descendre " + this.getSalle(voisinIndex)?.intitulé + " (de)";
       case Localisation.haut:
-        return "monter (mo)";
+        return "monter " + this.getSalle(voisinIndex)?.intitulé + " (mo)";
       case Localisation.exterieur:
-        return "sortir (so)";
+        return "sortir " + this.getSalle(curSalleIndex)?.intitulé + " (so)";
       case Localisation.interieur:
-        return "entrer (en)";
+        return "entrer " + this.getSalle(voisinIndex)?.intitulé + " (en)";
 
       default:
         return localisation.toString();
