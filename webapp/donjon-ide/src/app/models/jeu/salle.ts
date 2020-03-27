@@ -37,4 +37,6 @@ export class Salle {
 
     voisins: Voisin[] = [];
 
+    description = "";
+
 }

@@ -23,6 +23,9 @@ export class Generateur {
             newSalle.déterminant = curEle.determinant;
             newSalle.genre = curEle.genre;
             newSalle.nombre = curEle.nombre;
+            newSalle.description = curEle.description;
+            console.log("newSalle.description:", newSalle.description);
+            
             jeu.salles.push(newSalle);
         }
 
@@ -31,15 +34,15 @@ export class Generateur {
             const curEle = monde.salles[index];
 
             if (curEle.positionString) {
-                const localisation = Generateur.getPosition(curEle.positionString.position);
-                const complement = Generateur.getComplement(jeu.salles, curEle.positionString.complement);
+                const localisation = Generateur.getLocalisation(curEle.positionString.position);
+                const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
 
-                if (localisation === Localisation.inconnu || complement === -1) {
+                if (localisation === Localisation.inconnu || salleID === -1) {
                     console.log("positionString pas trouvé: ", curEle.positionString);
                 } else {
                     let newVoisin = new Voisin();
                     newVoisin.localisation = this.getOpposePosition(localisation);
-                    newVoisin.salleIndex = complement;
+                    newVoisin.salleIndex = salleID;
                     // newVoisin.salle = jeu.salles[complement];
                     jeu.salles[index].voisins.push(newVoisin);
 
@@ -47,8 +50,16 @@ export class Generateur {
                     opposeVoisin.localisation = localisation;
                     // opposeVoisin.salle = jeu.salles[index];
                     opposeVoisin.salleIndex = index;
-                    jeu.salles[complement].voisins.push(opposeVoisin);
+                    jeu.salles[salleID].voisins.push(opposeVoisin);
                 }
+            }
+        }
+
+        if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
+            const localisation = Generateur.getLocalisation(monde.joueurs[0].positionString.position);
+            const salleID = Generateur.getSalleID(jeu.salles, monde.joueurs[0].positionString.complement);
+            if (salleID != -1) {
+                jeu.position = salleID;
             }
         }
 
@@ -56,13 +67,19 @@ export class Generateur {
 
     }
 
-    static getComplement(salles: Salle[], strCompl: string) {
+    /**
+     * Retrouver une salle sur base de son intitulé.
+     * @param salles 
+     * @param intituleSalle 
+     * @returns ID de la salle ou -1 si pas trouvée.
+     */
+    static getSalleID(salles: Salle[], intituleSalle: string) {
 
         let candidats: Salle[] = [];
         let retVal = -1;
         // trouver le sujet complet
         salles.forEach(salle => {
-            if (salle.intitulé == strCompl) {
+            if (salle.intitulé == intituleSalle) {
                 candidats.push(salle);
             }
         });
@@ -71,26 +88,31 @@ export class Generateur {
             retVal = candidats[0].id;
             // pas trouvé => on va chercher le début d'un sujet
         } else if (candidats.length === 0) {
+            let nbFound = 0;
             // trouver un début de sujet
             salles.forEach(salle => {
-                if (salle.intitulé.startsWith(strCompl)) {
+                if (salle.intitulé.startsWith(intituleSalle)) {
                     candidats.push(salle);
+                    nbFound += 1;
                 }
             });
-            if (candidats.length === 1) {
+            if (nbFound === 1) {
                 retVal = candidats[0].id;
             } else {
-                console.log("complément position pas trouvé : ", strCompl);
+                console.log("complément position pas trouvé : ", intituleSalle);
             }
         } else {
-            console.log("complément position pas trouvé (plusieurs candidats) : ", strCompl);
+            console.log("complément position pas trouvé (plusieurs candidats) : ", intituleSalle);
 
         }
 
         return retVal;
     }
 
-    static getPosition(strPosition: string) {
+    /**
+     * Obtenir la localisation correspondante.
+     */
+    static getLocalisation(strPosition: string) {
 
         strPosition = strPosition.replace(/(du|de la|de l'|des)/g, "").trim();
 

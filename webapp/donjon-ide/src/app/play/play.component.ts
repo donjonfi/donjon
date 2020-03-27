@@ -1,6 +1,7 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Jeu } from '../models/jeu/jeu';
+import { Localisation } from '../models/jeu/localisation';
 
 @Component({
   selector: 'app-play',
@@ -31,9 +32,9 @@ export class PlayComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
-      this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
+      this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
       // afficher où on est.
-      this.doOuSuisJe();
+      this.resultat += "\n" + this.doOuSuisJe();
     } else {
       console.warn("pas de jeu :(");
     }
@@ -164,6 +165,12 @@ export class PlayComponent implements OnInit, OnChanges {
 
       switch (verbe.toLowerCase()) {
 
+        case "?":
+        case "aide":
+        case "perdu":
+          retVal = this.doAide(mots);
+          break;
+
         case "a": // aller
         case "al":
         case "aller":
@@ -171,6 +178,14 @@ export class PlayComponent implements OnInit, OnChanges {
         case "s": // sud
         case "e": // est
         case "o": // ouest
+        case "en": // entrer
+        case "entrer": // entrer
+        case "so": // sortir
+        case "sortir":
+        case "mo": // monter
+        case "monter":
+        case "de": // descendre
+        case "descendre":
           retVal = this.doAller(mots);
           break;
 
@@ -196,12 +211,23 @@ export class PlayComponent implements OnInit, OnChanges {
           retVal = this.doRegarder(mots);
           break;
 
+        case "f": // fouiller
+        case "fouiller":
+          retVal = this.doFouiller(mots);
+          break;
+
         case "où":
         case "ou":
           retVal = this.doOu(mots);
           break;
         case "position":
+        case "x":
           retVal = this.doOuSuisJe();
+          break;
+
+        case "effacer":
+        case "ef": // effacer
+          retVal = this.doEffacer();
           break;
 
         default:
@@ -211,6 +237,23 @@ export class PlayComponent implements OnInit, OnChanges {
     }
 
     return retVal;
+  }
+
+  doAide(mots: string[]) {
+    return "Quelques commandes utiles :\n"
+      + " - aide (?) : afficher les commandes de base\n"
+      + " - inventaire (i) : afficher le contenu de votre inventaire\n"
+      + " - aller nord (n) : aller vers le nord\n"
+      + " - prendre épée (p) : prendre l’épée\n"
+      + " - regarder bureau (r) : regarder le bureau\n"
+      + " - fouiller coffre (f) : fouiller le coffre\n"
+      + " - position (x) : afficher position actuelle\n"
+      + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
+  }
+
+  doEffacer() {
+    this.resultat = "";
+    return this.doOuSuisJe();
   }
 
   doOu(mots: string[]) {
@@ -237,15 +280,46 @@ export class PlayComponent implements OnInit, OnChanges {
   }
 
   doOuSuisJe() {
-    return "Je ne sais pas où je suis";
+    if (this.jeu.position == -1) {
+      return "Je ne sais pas où je suis";
+    } else {
+      return "Vous êtes dans " + this.curSalle.déterminant + this.curSalle.intitulé + ".\n"
+        + this.printCurSalle();
+
+    }
   }
 
+
+
   doAller(mots: string[]) {
+
+    switch (mots[0]) {
+      case "n":
+        if (this.curSalle.voisins.find)
+          break;
+
+      default:
+        break;
+    }
+
     return "Je ne sais pas encore me déplacer.";
   }
 
   doRegarder(mots: string[]) {
-    return "Je ne vois rien pour l’instant.";
+    if (this.curSalle) {
+      if (this.curSalle.description) {
+        return this.curSalle.description;
+      } else {
+        return "Vous êtes dans " + this.curSalle.déterminant + this.curSalle.intitulé + ".\n"
+          + "Rien à signaler.";
+      }
+    } else {
+      return "Mais où suis-je ?";
+    }
+  }
+
+  doFouiller(mots: string[]) {
+    return "Je n’ai pas le courage de fouiller ça.";
   }
 
   doPrendre(mots: string[]) {
@@ -256,5 +330,64 @@ export class PlayComponent implements OnInit, OnChanges {
     return "L’inventaire est vide.";
   }
 
+  getSalle(index: number) {
+    return this.jeu.salles.find(x => x.id === index);
+  }
+
+  getVoisin(loc: Localisation) {
+    let found = this.curSalle.voisins.find(x => x.localisation == loc);
+    return found;
+  }
+
+  get curSalle() {
+    // TODO: retenir la salle
+    return this.jeu.salles.find(x => x.id === this.jeu.position);
+  }
+
+  printCurSalle() {
+    return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
+      + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
+      + this.printSorties();
+  }
+
+  printSorties() {
+    let retVal: string;
+
+    if (this.curSalle.voisins.length > 0) {
+      retVal = "Sorties :";
+      this.curSalle.voisins.forEach(voisin => {
+        const curSalle = this.getSalle(voisin.salleIndex);
+        retVal += ("\n - " + this.printLocalisation(voisin.localisation));
+      });
+    } else {
+      retVal = "Il n’y a pas de sortie.";
+    }
+    return retVal;
+  }
+
+  printLocalisation(localisation: Localisation) {
+    switch (localisation) {
+      case Localisation.nord:
+        return "nord (n)";
+      case Localisation.sud:
+        return "sud (s)";
+      case Localisation.est:
+        return "est (e)";
+      case Localisation.ouest:
+        return "ouest (o)";
+
+      case Localisation.bas:
+        return "descendre (de)";
+      case Localisation.haut:
+        return "monter (mo)";
+      case Localisation.exterieur:
+        return "sortir (so)";
+      case Localisation.interieur:
+        return "entrer (en)";
+
+      default:
+        return localisation.toString();
+    }
+  }
 
 }
