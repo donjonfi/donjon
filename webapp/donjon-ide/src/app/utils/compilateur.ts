@@ -1,5 +1,6 @@
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
+import { Evenement } from '../models/compilateur/evenement';
 import { Generateur } from './generateur';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
@@ -7,12 +8,20 @@ import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
 import { PositionSujetString } from '../models/compilateur/position-sujet';
+import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
 import { TypeElement } from '../models/commun/type-element.enum';
+import { TypeRegle } from '../models/compilateur/type-regle';
 
 export class Compilateur {
 
     static verbeux = true;
+
+    // DESCRIPTION DU DONJON
+
+    // Caractères réservés:
+    //   Ɏ − retour à la ligne
+    //   ʭ − commentaire
 
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
     static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
@@ -43,6 +52,11 @@ export class Compilateur {
 
     static readonly xNombrePluriel = /^[2-9]\d*$/;
 
+    // INSTRUCTION
+
+    /** condition/événement -> quand|si(1), {condition}(2), {conséquences}(3) */
+    static readonly rQuandSi = /^(quand|si) (.+)(?:,|:)(.+)/i;
+
     /**
      * Interpréter le code source fourni et renvoyer le jeu correspondant.
      * @param source Code à interpréter.
@@ -50,18 +64,25 @@ export class Compilateur {
     public static parseCode(source: string): ResultatCompilation {
         // le monde qui est décrit
         let monde = new Monde();
+        let regles = new Array<Regle>();
         let erreurs = new Array<string>();
 
-        // retirer les retours à la ligne et les remplacer par un espace.
-        // retirer ensuite les éventuels doubles espaces.
-        // retirer les espace avant et après le bloc de texte.
-        const blocTexte = source.replace(/(\r|\n)/g, " ").replace(/(  )/g, " ").trim();
+        // remplacer les retours à la ligne par un Ɏ.
+        // remplacer les éventuels espaces consécutifs par un simple espace.
+        // retirer les espaces avant et après le bloc de texte.
+        const blocTexte = source.replace(/(\r\n|\r|\n)/g, "Ɏ").replace(/( +)/g, " ").trim();
+
+        console.log("blocTexte:", blocTexte);
+
 
         // séparer les commentaires (entre " ") du code
         const blocsCodeEtCommentaire = blocTexte.split('"');
 
         let phrases = new Array<Phrase>();
         let indexPhrase = 0;
+        let numeroLigne = 1;
+        let premiereLigne = true;
+        let phrasePrecedente: Phrase = null;
         // si le bloc de texte commence par " on commence avec un bloc de commentaire
         let blocSuivantEstCode = true;
         if (blocTexte[0] === '"') {
@@ -74,15 +95,55 @@ export class Compilateur {
                 // bloc de code, séparer les phrases (sur les '.')
                 if (blocSuivantEstCode) {
                     const phrasesBrutes = bloc.split('.');
-                    phrasesBrutes.forEach(phraseBrute => {
-                        const phraseNettoyee = phraseBrute.replace('.', '').trim();
-                        if (phraseNettoyee !== '') {
-                            phrases.push(new Phrase(phraseNettoyee, false, false, null, indexPhrase++));
+                    for (let k = 0; k < phrasesBrutes.length; k++) {
+                        const phraseBrute = phrasesBrutes[k];
+                        // compte le nombre de lignes pour ne pas se décaller !
+                        const nbLignes = (phraseBrute.match(/Ɏ/g) || []).length;
+
+                        // si ce n’est pas la dernière phrase elle est forcément finie
+                        // si c’est la fin du bloc et qu’elle se termine par un point, la phrase est finie également.
+                        const trimBloc = bloc.trim();
+                        const finie = ((k < (phrasesBrutes.length - 1)) || (trimBloc.lastIndexOf(".") === (trimBloc.length - 1)));
+
+                        // enlever le "." et remplacer les "Ɏ" par des espaces
+                        const phraseNettoyee = phraseBrute.replace('.', '').replace(/Ɏ/g, " ").trim();
+
+                        // nouvelle phrase
+                        if (!phrasePrecedente || phrasePrecedente.finie) {
+                            if (phraseNettoyee !== '') {
+                                phrasePrecedente = new Phrase([phraseNettoyee], false, false, null, indexPhrase++, numeroLigne, finie);
+                                phrases.push(phrasePrecedente);
+                            }
+                            // suite de la phrase précédente
+                        } else {
+                            if (phraseNettoyee !== '') {
+                                phrasePrecedente.phrase.push(phraseNettoyee);
+                            }
+                            phrasePrecedente.finie = finie;
                         }
-                    });
-                } else {
+
+                        numeroLigne += nbLignes; //Math.max(1, nbLignes);
+                    }
                     // si le bloc est un commentaire, l'ajouter tel quel :
-                    phrases.push(new Phrase(bloc, true, false, null, indexPhrase++));
+                } else {
+                    // compte le nombre de lignes pour ne pas se décaller !
+                    const nbLignes = (bloc.match(/Ɏ/g) || []).length;
+                    // remplacer les "Ɏ" par des espaces
+                    const phraseNettoyee = bloc.replace(/Ɏ/g, ' ').trim();
+
+                    // le commentaire concerne toujours la phrase précédente (s'il y en a une)
+                    if (phrasePrecedente) {
+                        phrasePrecedente.phrase.push('ʭ' + bloc + 'ʭ');
+                        // sinon, le commentaire est seul (c'est le titre)
+                    } else {
+                        phrases.push(new Phrase([bloc], true, false, null, indexPhrase++, numeroLigne, true));
+                    }
+                    numeroLigne += nbLignes; // Math.max(1, nbLignes);
+                }
+                // fix: il n'y a pas de retour à la ligne au début de la première ligne
+                if (premiereLigne) {
+                    premiereLigne = false;
+                    numeroLigne += 1;
                 }
                 blocSuivantEstCode = !blocSuivantEstCode;
             }
@@ -106,19 +167,14 @@ export class Compilateur {
             if (phrase.commentaire) {
                 // si c'est le premier boc du code, il s'agit du titre
                 if (phrase.ordre === 0) {
-                    monde.titre = phrase.phrase;
+                    monde.titre = phrase.phrase[0];
                     // sinon, le commentaire se rapporte au dernier sujet
                 } else {
-                    // récupérer le dernier élément
-                    let e = elementsGeneriques.pop();
-                    // mettre le commentaire de l'élément précédent
-                    e.description = phrase.phrase;
-                    // remettre l'élément à jour
-                    elementsGeneriques.push(e);
+                    console.error("Commentaire pas attaché :", phrase.phrase[0]);
                 }
                 phrase.traitee = true;
 
-                // 2) CODE DESCRIPTIF
+                // 2) CODE DESCRIPTIF OU REGLE
             } else {
 
                 if (Compilateur.verbeux) {
@@ -126,92 +182,123 @@ export class Compilateur {
                 }
 
                 // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
-                if (phrase.phrase.slice(0, 1) == "-") {
+                if (phrase.phrase[0].slice(0, 1) === "-") {
                     phrase.traitee = true;
                     if (Compilateur.verbeux) {
                         console.log("Je passe le commentaire : ", phrase);
                     }
                 } else {
-                    // 1 - TESTER POSITION
-                    let found = Compilateur.testerPosition(elementsGeneriques, phrase);
-                    if (!found) {
-                        // 2 - TESTER ELEMENT SIMPLE (NON positionné)
-                        found = Compilateur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase);
-                        if (!found) {
-                            // 3 - LE RESTE
-                            // pronom démonstratif
-                            result = Compilateur.xPronomDemonstratif.exec(phrase.phrase);
-                            if (result !== null) {
-                                // récupérer le dernier élément
-                                let e = elementsGeneriques.pop();
-                                // type de l'élément précédent
-                                if (result[2] && result[2].trim() !== '') {
-                                    e.type = Compilateur.getTypeElement(result[2]);
-                                }
-                                // attributs de l'élément précédent
-                                if (result[3] && result[3].trim() !== '') {
-                                    e.attributs.push(result[3]);
-                                }
-                                // remettre l'élément à jour
-                                elementsGeneriques.push(e);
-                                if (Compilateur.verbeux) {
-                                    console.log("Réslultat: test 3:", e);
-                                }
-                            } else {
-                                // pronom personnel position
-                                result = Compilateur.xPronomPersonnelPosition.exec(phrase.phrase);
+
+                    let mondeFound = false;
+                    let regleFound = false;
+                    // ===============================================
+                    // RÈGLES
+                    // ===============================================
+
+                    regleFound = Compilateur.testerRegle(regles, phrase);
+
+                    // ===============================================
+                    // MONDE
+                    // ===============================================
+
+                    if (!regleFound) {
+
+                        // 1 - TESTER POSITION
+                        mondeFound = Compilateur.testerPosition(elementsGeneriques, phrase);
+                        if (!mondeFound) {
+                            // 2 - TESTER ELEMENT SIMPLE (NON positionné)
+                            mondeFound = Compilateur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase);
+                            if (!mondeFound) {
+                                // 3 - LE RESTE
+                                // pronom démonstratif
+                                result = Compilateur.xPronomDemonstratif.exec(phrase.phrase[0]);
                                 if (result !== null) {
-                                    if (Compilateur.verbeux) {
-                                        console.log("resultat test 4: ", result);
-                                    }
                                     // récupérer le dernier élément
                                     let e = elementsGeneriques.pop();
-                                    // genre de l'élément
-                                    e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
+                                    // type de l'élément précédent
+                                    if (result[2] && result[2].trim() !== '') {
+                                        e.type = Compilateur.getTypeElement(result[2]);
+                                    }
                                     // attributs de l'élément précédent
-                                    e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
-                                        // remettre l'élément à jour
-                                        elementsGeneriques.push(e);
+                                    if (result[3] && result[3].trim() !== '') {
+                                        e.attributs.push(result[3]);
+                                    }
+                                    // remettre l'élément à jour
+                                    elementsGeneriques.push(e);
                                     if (Compilateur.verbeux) {
-                                        console.log("Réslultat: test 4:", e);
+                                        console.log("Réslultat: test 3:", e);
                                     }
                                 } else {
-                                    // pronom personnel attributs
-                                    result = Compilateur.xPronomPersonnelAttribut.exec(phrase.phrase);
+                                    // pronom personnel position
+                                    result = Compilateur.xPronomPersonnelPosition.exec(phrase.phrase[0]);
                                     if (result !== null) {
                                         if (Compilateur.verbeux) {
-                                            console.log("resultat test 5: ", result);
+                                            console.log("resultat test 4: ", result);
                                         }
                                         // récupérer le dernier élément
                                         let e = elementsGeneriques.pop();
-                                        // attributs de l'élément précédent
-                                        if (result[1] && result[1].trim() !== '') {
-                                            // découper les attributs
-                                            const attributs = Compilateur.getAttributs(result[1]);
-                                            e.attributs = e.attributs.concat(attributs);
-                                        }
                                         // genre de l'élément
-                                        e.genre = Compilateur.getGenre(phrase.phrase.split(" ")[0], null);
-
-
-                                        // remettre l'élément à jour
-                                        elementsGeneriques.push(e);
+                                        e.genre = Compilateur.getGenre(phrase.phrase[0].split(" ")[0], null);
+                                        // attributs de l'élément précédent
+                                        e.positionString = new PositionSujetString(e.nom, result[2], result[1]),
+                                            // remettre l'élément à jour
+                                            elementsGeneriques.push(e);
                                         if (Compilateur.verbeux) {
-                                            console.log("Réslultat: test 5:", e);
+                                            console.log("Réslultat: test 4:", e);
                                         }
                                     } else {
-                                        erreurs.push("l." + phrase.ordre + " : " + phrase.phrase);
-                                        if (Compilateur.verbeux) {
-                                            console.log("Pas de résultat test 5.");
+                                        // pronom personnel attributs
+                                        result = Compilateur.xPronomPersonnelAttribut.exec(phrase.phrase[0]);
+                                        if (result !== null) {
+                                            if (Compilateur.verbeux) {
+                                                console.log("resultat test 5: ", result);
+                                            }
+                                            // récupérer le dernier élément
+                                            let e = elementsGeneriques.pop();
+                                            // attributs de l'élément précédent
+                                            if (result[1] && result[1].trim() !== '') {
+                                                // découper les attributs
+                                                const attributs = Compilateur.getAttributs(result[1]);
+                                                e.attributs = e.attributs.concat(attributs);
+                                            }
+                                            // genre de l'élément
+                                            e.genre = Compilateur.getGenre(phrase.phrase[0].split(" ")[0], null);
+
+
+                                            // remettre l'élément à jour
+                                            elementsGeneriques.push(e);
+                                            if (Compilateur.verbeux) {
+                                                console.log("Réslultat: test 5:", e);
+                                            }
+                                        } else {
+                                            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
+                                            if (Compilateur.verbeux) {
+                                                console.warn("Pas trouvé la signification de la phrase.");
+                                            }
                                         }
                                     }
-                                }
 
+                                }
                             }
                         }
+                    } // fin test monde
+
+                    // si on a trouvé un élément du monde
+                    if (mondeFound) {
+                        // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
+                        if (phrase.phrase.length > 1) {
+                            let lastEl = elementsGeneriques.pop();
+                            // ajouter la description en enlevant les caractères spéciaux
+                            lastEl.description = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+                            elementsGeneriques.push(lastEl);
+                        }
+                        // si on a trouvé une règle
+                    } else if (regleFound) {
+
                     }
-                }
-            }
+
+                } // fin analyse phrase != commentaire
+            } // fin analyse de la phrase
         });
 
         if (Compilateur.verbeux) {
@@ -268,6 +355,7 @@ export class Compilateur {
         if (Compilateur.verbeux) {
             console.log("==================\n");
             console.log("monde:", monde);
+            console.log("règles:", regles);
             console.log("typesUtilisateur:", typesUtilisateur);
             console.log("==================\n");
         }
@@ -279,6 +367,43 @@ export class Compilateur {
     }
 
 
+    private static testerRegle(regles: Regle[], phrase: Phrase) {
+        let result = Compilateur.rQuandSi.exec(phrase.phrase[0]);
+
+        if (result !== null) {
+
+            let typeRegle: TypeRegle;
+            switch (result[1].toLowerCase()) {
+                case 'quand':
+                    typeRegle = TypeRegle.evenement;
+                    break;
+                case 'si':
+                    typeRegle = TypeRegle.condition;
+                    break;
+                default:
+                    console.error("tester regle: opérateur inconnu:", result[1]);
+                    typeRegle = TypeRegle.inconnu;
+                    break;
+            }
+
+            let regle = new Regle(typeRegle, result[2], result[3]);
+            regles.push(regle);
+
+            if (phrase.phrase.length > 1) {
+                for (let index = 1; index < phrase.phrase.length; index++) {
+                    regle.consequence += phrase.phrase[index];
+                }
+            }
+
+            if (Compilateur.verbeux) {
+                console.log("Règle:", regle);
+            }
+
+            return true; // trouvé un résultat
+        } else {
+            return false; // rien trouvé
+        }
+    }
 
     // Élement simple non positionné
     private static testerElementSimple(dictionnaire: Map<string, Definition>, elementsGeneriques: ElementGenerique[], phrase: Phrase): boolean {
@@ -296,7 +421,7 @@ export class Compilateur {
         let position: PositionSujetString;
 
         // élément générique simple avec type d'élément (ex: le champignon est un décor)
-        let result = Compilateur.xDefinitionTypeElement.exec(phrase.phrase);
+        let result = Compilateur.xDefinitionTypeElement.exec(phrase.phrase[0]);
         if (result !== null) {
 
             determinant = result[1] ? result[1].toLowerCase() : null;
@@ -326,7 +451,7 @@ export class Compilateur {
 
         } else {
             // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
-            result = Compilateur.xElementSimpleAttribut.exec(phrase.phrase);
+            result = Compilateur.xElementSimpleAttribut.exec(phrase.phrase[0]);
             if (result != null) {
                 // attributs ?
                 let attributs = null;
@@ -418,7 +543,7 @@ export class Compilateur {
         let position: PositionSujetString;
 
         // élément positionné défini (la, le, les)
-        let result = Compilateur.xPositionElementGeneriqueDefini.exec(phrase.phrase);
+        let result = Compilateur.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
         if (result !== null) {
             e = new ElementGenerique(
                 result[1] ? result[1].toLowerCase() : null,
@@ -433,7 +558,7 @@ export class Compilateur {
             );
             // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
         } else {
-            result = Compilateur.xPositionElementGeneriqueIndefini.exec(phrase.phrase);
+            result = Compilateur.xPositionElementGeneriqueIndefini.exec(phrase.phrase[0]);
 
             if (result != null) {
                 // selon le type de résultat ("il y a un xxx" ou "un xxx est")
@@ -546,6 +671,7 @@ export class Compilateur {
                     break;
                 case "salle":
                 case "lieu":
+                case "endroit":
                     retVal = TypeElement.salle;
                     break;
 

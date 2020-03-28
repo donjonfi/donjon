@@ -2,7 +2,6 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Objet } from '../models/jeu/objet';
-import { PositionRelative } from '../models/compilateur/position-sujet';
 import { Salle } from '../models/jeu/salle';
 import { Voisin } from '../models/jeu/voisin';
 

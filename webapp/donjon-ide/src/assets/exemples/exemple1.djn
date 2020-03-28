@@ -1,7 +1,10 @@
 "Le nain qui voulait un trésor."
-    
+
+Quand le jeu commence:
+	Dire "Bonjour mon Héro !";
+	Le joueur est dans un jardin.
+
 - 1 - Le jardin.
-Le joueur est dans un jardin.
 Le jardin est une salle. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
 Les fleurs (f) sont des décors du jardin.
 Une clé rouge est dans le jardin. "Il s'agit d'une veille clé rouillée et un peu tordue."
