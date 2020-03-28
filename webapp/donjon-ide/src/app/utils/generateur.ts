@@ -88,6 +88,13 @@ export class Generateur {
             }
         }
 
+        // si pas de position définie, on commence dans la première salle
+        if (!jeu.position) {
+            if (jeu.salles.length > 0) {
+                jeu.position = jeu.salles[0].id;
+            }
+        }
+
         return jeu;
 
     }
