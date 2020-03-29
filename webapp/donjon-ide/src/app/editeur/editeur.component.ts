@@ -43,7 +43,7 @@ export class EditeurComponent implements OnInit {
   erreurs: string[] = null;
   jeu: Jeu = null;
   codeSource = "";
-  nomExemple = "ca";
+  nomExemple = "exemple2";
 
   constructor(
     private http: HttpClient

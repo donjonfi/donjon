@@ -12,6 +12,16 @@
       <li *ngFor="let at of el.attributs">{{at}}</li>
     </ul>
   </li>
+  <li>Capacitées:<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
+    <ul *ngIf="el.capacites">
+      <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
+    </ul>
+  </li>
+  <li>Propriétés:<span *ngIf="!el.proprietes || el.proprietes.length == 0"> (aucune)</span>
+    <ul *ngIf="el.proprietes">
+      <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (': ' + prop.valeur): '')}}</li>
+    </ul>
+  </li>
   <li>Position: <span *ngIf="! el.positionString"> ?</span>
     <ul *ngIf="el.positionString">
       <li>Sujet : {{el.positionString.sujet}}</li>

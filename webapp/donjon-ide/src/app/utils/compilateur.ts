@@ -1,3 +1,4 @@
+import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { Evenement } from '../models/compilateur/evenement';
@@ -8,10 +9,12 @@ import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
 import { PositionSujetString } from '../models/compilateur/position-sujet';
+import { Propriete } from '../models/compilateur/propriete';
 import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
+import { TypeValeur } from '../models/compilateur/type-valeur';
 
 export class Compilateur {
 
@@ -24,7 +27,7 @@ export class Compilateur {
     //   ʭ − commentaire
 
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
+    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)( .+?|) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
 
     // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
     /** élément générique positionné par rapport à complément :
@@ -35,15 +38,19 @@ export class Compilateur {
     // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
     /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
-    static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)(| .+)/i;
+    static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
 
     /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
-    static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)(| .+)/i;
+    static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
 
     /** pronom personnel position -> position(1), complément(2) */
     static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|un |une )|de (?:la |l')|du ))(.+)/i;
     /** pronom personnel -> attributs(1) */
     static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+    /** attribut -> son|sa propriété(1) est|vaut(2) valeur(3) */
+    static readonly xAttribut = /^(?:son|sa) (.+) (est|vaut)( .+|)/i;
+    /** capacité -> verbe(1) complément(2) */
+    static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d')(\S+)( .+|)/i;
 
     /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
      * ex: Le champignon est brun et on peut le cuillir.
@@ -191,6 +198,7 @@ export class Compilateur {
 
                     let mondeFound = false;
                     let regleFound = false;
+                    let proprieteFound = false;
                     // ===============================================
                     // RÈGLES
                     // ===============================================
@@ -210,6 +218,7 @@ export class Compilateur {
                             mondeFound = Compilateur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase);
                             if (!mondeFound) {
                                 // 3 - LE RESTE
+                                mondeFound = true;
                                 // pronom démonstratif
                                 result = Compilateur.xPronomDemonstratif.exec(phrase.phrase[0]);
                                 if (result !== null) {
@@ -271,9 +280,47 @@ export class Compilateur {
                                                 console.log("Réslultat: test 5:", e);
                                             }
                                         } else {
-                                            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
-                                            if (Compilateur.verbeux) {
-                                                console.warn("Pas trouvé la signification de la phrase.");
+                                            result = Compilateur.xAttribut.exec(phrase.phrase[0]);
+
+                                            if (result) {
+                                                const prop = new Propriete(result[1], (result[2] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[3]);
+
+                                                // récupérer le dernier élément
+                                                let e = elementsGeneriques.pop();
+                                                e.proprietes.push(prop);
+
+                                                proprieteFound = true;
+
+                                                // remettre l'élément à jour
+                                                elementsGeneriques.push(e);
+                                                if (Compilateur.verbeux) {
+                                                    console.log("Réslultat: test 6:", e);
+                                                }
+                                            } else {
+                                                result = Compilateur.xCapacite.exec(phrase.phrase[0]);
+
+                                                if (result) {
+                                                    const capacite = new Capacite(result[1], result[2]);
+
+                                                    // récupérer le dernier élément
+                                                    let e = elementsGeneriques.pop();
+
+                                                    // ajouter la capacité
+                                                    e.capacites.push(capacite);
+
+                                                    // remettre l'élément à jour
+                                                    elementsGeneriques.push(e);
+                                                    if (Compilateur.verbeux) {
+                                                        console.log("Réslultat: test 7:", result);
+                                                        console.log("Réslultat: test 7:", e);
+                                                    }
+                                                } else {
+                                                    mondeFound = false;
+                                                    erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
+                                                    if (Compilateur.verbeux) {
+                                                        console.warn("Pas trouvé la signification de la phrase.");
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -287,9 +334,22 @@ export class Compilateur {
                     if (mondeFound) {
                         // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
                         if (phrase.phrase.length > 1) {
+
+                            // récupérer dernier élément
                             let lastEl = elementsGeneriques.pop();
-                            // ajouter la description en enlevant les caractères spéciaux
-                            lastEl.description = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+
+                            // si le dernier élément trouvé est une propriété, il s'agit de la
+                            // valeur de la propriété
+                            if (proprieteFound) {
+                                let lastProp = lastEl.proprietes.pop();
+                                // ajouter la valeur en enlevant les caractères spéciaux
+                                lastProp.valeur = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+                                lastEl.proprietes.push(lastProp);
+                            } else {
+                                // ajouter la description en enlevant les caractères spéciaux
+                                lastEl.description = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+                            }
+                            // replacer dernier élément
                             elementsGeneriques.push(lastEl);
                         }
                         // si on a trouvé une règle
