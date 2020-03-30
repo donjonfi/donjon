@@ -12,6 +12,7 @@ import { Generateur } from '../utils/generateur';
 import { HttpClient } from '@angular/common/http';
 import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
+import { Regle } from '../models/compilateur/regle';
 import { StringUtils } from '../utils/string.utils';
 
 @Component({
@@ -40,6 +41,7 @@ export class EditeurComponent implements OnInit {
   mode: "aucun" | "jeu" | "apercu" = "aucun";
 
   monde: Monde = null;
+  regles: Regle[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
   codeSource = "";
@@ -55,6 +57,7 @@ export class EditeurComponent implements OnInit {
     // interpréter le code
     let resultat = Compilateur.parseCode(this.codeSource);
     this.monde = resultat.monde;
+    this.regles = resultat.regles;
     this.erreurs = resultat.erreurs;
     // voir le résultat
     this.mode = "apercu";
@@ -73,9 +76,10 @@ export class EditeurComponent implements OnInit {
     // interpréter le code
     let resultat = Compilateur.parseCode(this.codeSource);
     this.monde = resultat.monde;
+    this.regles = resultat.regles;
     this.erreurs = resultat.erreurs;
     // générer le jeu
-    this.jeu = Generateur.genererJeu(this.monde);
+    this.jeu = Generateur.genererJeu(this.monde, this.regles);
     // commencer le jeu
     this.mode = "jeu";
   }

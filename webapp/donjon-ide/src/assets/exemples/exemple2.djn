@@ -1,4 +1,4 @@
-"La caverne étrange".
+"Le chateau de la terreur".
 
 - Partie 1 - Devant le chateau.
 
@@ -9,7 +9,9 @@ Quand le jeu commence:
 	le joueur est dans devant le portique;
 	l'inventaire contient la clé rouillée.
 
-La capacité de l'inventaire est de 2.
+La capacité de l'inventaire vaut 2.
+
+Si l'inventaire est déjà plein, dire "Vous ne pouvez plus rien tenir de plus.".
 
 - Chapitre 1 - Devant le portique.
 Le départ est un lieu.
@@ -23,7 +25,7 @@ La clé rouillée est une clé.
 Elle permet d'ouvrir le portique.
 
 - Chapitre 2 - L'allée.
-L'allée (f) est un lieu.
+L'allée (f) est un lieu au sud du départ.
 "Vous êtes dans l'allée qui mène à l'entrée du chateau.
 Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
@@ -39,7 +41,7 @@ Le verger est un lieu sombre à l'ouest de l'allée.
 Il y a des pommiers dans le verger. Ce sont des décors.
 Le seau est un contenant dans le verger.
 "C'est un grand seau rouge qui semble solide."
-La capacité du seau est de 4.
+La capacité du seau vaut 4.
 Il y a un cellier au nord du verger.
 Il y a un coupe branche dans le cellier. C'est un objet.
 

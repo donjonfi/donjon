@@ -2,12 +2,13 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Objet } from '../models/jeu/objet';
+import { Regle } from '../models/compilateur/regle';
 import { Salle } from '../models/jeu/salle';
 import { Voisin } from '../models/jeu/voisin';
 
 export class Generateur {
 
-    public static genererJeu(monde: Monde): Jeu {
+    public static genererJeu(monde: Monde, regles: Regle[]): Jeu {
 
         let jeu = new Jeu();
 

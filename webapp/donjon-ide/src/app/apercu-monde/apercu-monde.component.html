@@ -1,100 +1,125 @@
+<h3>Règles</h3>
+<p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
 
-    <h3>Éléments du donjon</h3>
-    <p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
-    <div *ngIf="monde">
+<p *ngIf="regles && regles.length == 0">Aucune règle trouvée.</p>
+<ul>
+    <ng-template ngFor let-re [ngForOf]="regles">
+        <li>
+            <ul>
+                <li>Type: {{re.typeRegle}}</li>
+                <li>Cause: {{re.cause}}</li>
+                <li>Conséquence: {{re.consequence}}</li>
+            </ul>
+        </li>
+    </ng-template>
+</ul>
 
-        <h4>Titre</h4>
-        <p>{{monde.titre}}</p>
+<h3>Éléments du donjon</h3>
+<p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
+<div *ngIf="monde">
 
-        <h4>Salles (lieux)</h4>
-        <p *ngIf="monde.salles && monde.salles.length == 0">Aucune salle trouvée.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.salles">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Titre</h4>
+    <p>{{monde.titre}}</p>
 
-        <h4>Décors</h4>
-        <p *ngIf="monde.decors && monde.decors.length == 0">Aucune décor trouvé.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.decors">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Salles (lieux)</h4>
+    <p *ngIf="monde.salles && monde.salles.length == 0">Aucune salle trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.salles">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-        <h4>Contenant</h4>
-        <p *ngIf="monde.contenants && monde.contenants.length == 0">Aucune contenant trouvée.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.contenants">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Décors</h4>
+    <p *ngIf="monde.decors && monde.decors.length == 0">Aucune décor trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.decors">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-        <h4>Portes</h4>
-        <p *ngIf="monde.portes && monde.portes.length == 0">Aucune porte trouvée.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.portes">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Contenant</h4>
+    <p *ngIf="monde.contenants && monde.contenants.length == 0">Aucune contenant trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.contenants">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-        <h4>Clés</h4>
-        <p *ngIf="monde.cles && monde.cles.length == 0">Aucune cle trouvée.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.cles">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
+    <h4>Portes</h4>
+    <p *ngIf="monde.portes && monde.portes.length == 0">Aucune porte trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.portes">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-            </ng-template>
-        </ul>
+    <h4>Clés</h4>
+    <p *ngIf="monde.cles && monde.cles.length == 0">Aucune cle trouvée.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.cles">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
 
-        <h4>Animaux</h4>
-        <p *ngIf="monde.animaux && monde.animaux.length == 0">Aucun animal trouvé.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.animaux">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+        </ng-template>
+    </ul>
 
-        <h4>Objets</h4>
-        <p *ngIf="monde.objets && monde.objets.length == 0">Aucun objet trouvé.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.objets">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Animaux</h4>
+    <p *ngIf="monde.animaux && monde.animaux.length == 0">Aucun animal trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.animaux">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-        <h4>Joueurs</h4>
-        <p *ngIf="monde.joueurs && monde.joueurs.length == 0">Aucun joueur trouvé.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.joueurs">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Objets</h4>
+    <p *ngIf="monde.objets && monde.objets.length == 0">Aucun objet trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.objets">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-        <h4>Sans type</h4>
-        <p *ngIf="monde.aucuns && monde.aucuns.length == 0">Aucun élément sans type trouvé.</p>
-        <ul>
-            <ng-template ngFor let-el [ngForOf]="monde.aucuns">
-                <li>
-                    <app-vue-element-generique [el]=el></app-vue-element-generique>
-                </li>
-            </ng-template>
-        </ul>
+    <h4>Joueur</h4>
+    <p *ngIf="monde.joueurs && monde.joueurs.length == 0">Aucun joueur trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.joueurs">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
 
-    </div>
+    <h4>Inventaire</h4>
+    <p *ngIf="monde.inventaires && monde.inventaires.length == 0">Aucun inventaire trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.inventaires">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
+
+    <h4>Sans type</h4>
+    <p *ngIf="monde.aucuns && monde.aucuns.length == 0">Aucun élément sans type trouvé.</p>
+    <ul>
+        <ng-template ngFor let-el [ngForOf]="monde.aucuns">
+            <li>
+                <app-vue-element-generique [el]=el></app-vue-element-generique>
+            </li>
+        </ng-template>
+    </ul>
+
+</div>

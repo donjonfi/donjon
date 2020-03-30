@@ -12,5 +12,6 @@ export class Monde {
     objets: ElementGenerique[] = [];
     aucuns: ElementGenerique[] = [];
     joueurs: ElementGenerique[] = [];
+    inventaires: ElementGenerique[] = [];
 
 }

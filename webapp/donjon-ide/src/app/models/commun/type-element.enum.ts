@@ -9,6 +9,8 @@ export enum TypeElement {
   decor = 'décor',
   animal = 'animal',
   humain = 'humain',
+  // types spéciaux connus d’avance :
   joueur = 'joueur',
-  
+  inventaire = 'inventaire',
+
 }

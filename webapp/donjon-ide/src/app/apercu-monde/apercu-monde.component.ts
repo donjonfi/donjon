@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 import { Monde } from '../models/compilateur/monde';
+import { Regle } from '../models/compilateur/regle';
 
 @Component({
   selector: 'app-apercu-monde',
@@ -10,6 +11,7 @@ import { Monde } from '../models/compilateur/monde';
 export class ApercuMondeComponent implements OnInit {
 
   @Input() monde: Monde;
+  @Input() regles: Regle[];
 
   constructor() { }
 
