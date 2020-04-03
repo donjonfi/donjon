@@ -1,9 +1,13 @@
+import { Auditeur } from '../models/jouer/auditeur';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Objet } from '../models/jeu/objet';
+import { PhraseUtils } from './phrase-utils';
 import { Regle } from '../models/compilateur/regle';
 import { Salle } from '../models/jeu/salle';
+import { TypeRegle } from '../models/compilateur/type-regle';
 import { Voisin } from '../models/jeu/voisin';
 
 export class Generateur {
@@ -96,8 +100,34 @@ export class Generateur {
             }
         }
 
+        // générer les auditeurs
+
+        regles.forEach(regle => {
+            switch (regle.typeRegle) {
+                case TypeRegle.quand:
+                case TypeRegle.apres:
+                case TypeRegle.avant:
+                    jeu.auditeurs.push(Generateur.getAuditeur(regle));
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
         return jeu;
 
+    }
+
+    static getAuditeur(regle: Regle) {
+        let auditeur = new Auditeur();
+        auditeur.type = regle.typeRegle;
+        let elementsPhrase = PhraseUtils.decomposerPhrase(regle.cause);
+        auditeur.determinant = elementsPhrase.determinant;
+        auditeur.sujet = elementsPhrase.sujet;
+        auditeur.verbe = elementsPhrase.verbe;
+        auditeur.complement = elementsPhrase.complement;
+        return auditeur;
     }
 
     /**

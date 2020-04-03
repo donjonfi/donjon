@@ -1,5 +1,8 @@
 export enum TypeRegle {
     inconnu = '?',
-    condition = 'si',
-    evenement = 'quand',
+    si = 'si',
+    quand = 'quand',
+    avant = 'avant',
+    apres = 'apres',
+    remplacer = 'remplacer',
 }
