@@ -221,6 +221,9 @@ export class Compilateur {
 
                     if (!regleFound) {
 
+                        // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
+                        elementGeneriqueFound = true;
+
                         // 1 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT AVEC POSITION
                         let elementConcerne = Compilateur.testerPosition(elementsGeneriques, phrase);
                         if (elementConcerne) {
@@ -238,8 +241,6 @@ export class Compilateur {
                                 }
                             } else {
                                 // 3 - TESTER LES INFORMATIONS SE RAPPORTANT AU DERNIER ÉLÉMENT
-                                // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
-                                elementGeneriqueFound = true;
                                 // pronom démonstratif
                                 result = Compilateur.xPronomDemonstratif.exec(phrase.phrase[0]);
                                 if (result !== null) {
@@ -344,18 +345,30 @@ export class Compilateur {
                             // si le dernier élément trouvé est une propriété, il s'agit de
                             // la valeur de cette propriété
                             if (proprieteFound) {
+                                if (this.verbeux) {
+                                    console.log(">>> Ajout de la description à la dernière propriété.");
+                                }
                                 // ajouter la valeur en enlevant les caractères spéciaux
-                                dernierePropriete.valeur = phrase.phrase[1].replace(this.xCaractereCommentaire, '').replace(this.xCaractereRetourLigne, '\n');
+                                dernierePropriete.valeur = phrase.phrase[1]
+                                    .replace(this.xCaractereCommentaire, '')
+                                    .replace(this.xCaractereRetourLigne, '\n');
 
                                 // sinon c’est la description du dernier élément
                             } else {
+                                if (this.verbeux) {
+                                    console.log(">>> Ajout de la description au dernier élément générique.");
+                                }
                                 // ajouter la description en enlevant les caractères spéciaux
-                                dernierElementGenerique.description = phrase.phrase[1].replace(this.xCaractereCommentaire, '').replace(this.xCaractereRetourLigne, '\n');
+                                dernierElementGenerique.description = phrase.phrase[1]
+                                    .replace(this.xCaractereCommentaire, '')
+                                    .replace(this.xCaractereRetourLigne, '\n');
                             }
                         }
                         // si on a trouvé une règle
                     } else if (regleFound) {
-
+                        if (this.verbeux) {
+                            console.log(">>> regleFound");
+                        }
                     }
 
                 } // fin analyse phrase != commentaire
