@@ -8,11 +8,11 @@ import { Objet } from '../models/jeu/objet';
 import { Salle } from '../models/jeu/salle';
 
 @Component({
-  selector: 'app-play',
-  templateUrl: './play.component.html',
-  styleUrls: ['./play.component.scss']
+  selector: 'app-jouer',
+  templateUrl: './jouer.component.html',
+  styleUrls: ['./jouer.component.scss']
 })
-export class PlayComponent implements OnInit, OnChanges {
+export class JouerComponent implements OnInit, OnChanges {
 
   @Input() jeu: Jeu;
 
