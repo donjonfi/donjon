@@ -1,5 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
+import { Commandes } from '../utils/commandes';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
@@ -23,6 +24,8 @@ export class JouerComponent implements OnInit, OnChanges {
   historiqueCommandes = new Array<string>();
   curseurHistorique = -1;
 
+  private com: Commandes;
+
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
@@ -36,9 +39,12 @@ export class JouerComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
+
+      this.com = new Commandes(this.jeu);
+
       this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
       // afficher où on est.
-      this.resultat += "\n" + this.doOuSuisJe();
+      this.resultat += "\n" + this.com.ouSuisJe();
     } else {
       console.warn("pas de jeu :(");
     }
@@ -179,9 +185,17 @@ export class JouerComponent implements OnInit, OnChanges {
         case "al":
         case "aller":
         case "n": // nord
+        case "no": // nord
+        case "nord":
         case "s": // sud
+        case "su": // sud
+        case "sud":
         case "e": // est
+        case "es": // est
+        case "est":
         case "o": // ouest
+        case "ou": // ouest
+        case "ouest":
         case "en": // entrer
         case "entrer": // entrer
         case "so": // sortir
@@ -190,13 +204,13 @@ export class JouerComponent implements OnInit, OnChanges {
         case "monter":
         case "de": // descendre
         case "descendre":
-          retVal = this.doAller(mots);
+          retVal = this.com.aller(mots);
           break;
 
         case "i": // inventaire
         case "in":
         case "inventaire":
-          retVal = this.printInventaire();
+          retVal = this.com.inventaire();
           break;
 
         case "p": // prendre
@@ -204,7 +218,7 @@ export class JouerComponent implements OnInit, OnChanges {
         case "at": // attraper
         case "prendre":
         case "attraper":
-          retVal = this.doPrendre(mots);
+          retVal = this.com.prendre(mots);
           break;
 
         case "r": // regarder
@@ -212,26 +226,27 @@ export class JouerComponent implements OnInit, OnChanges {
         case "ob": // observer
         case "regarder":
         case "observer":
-          retVal = this.doRegarder(mots);
+          retVal = this.com.regarder(mots);
           break;
 
         case "f": // fouiller
         case "fouiller":
-          retVal = this.doFouiller(mots);
+          retVal = this.com.fouiller(mots);
           break;
 
         case "où":
         case "ou":
-          retVal = this.doOu(mots);
+          retVal = this.com.ou(mots);
           break;
         case "position":
         case "x":
-          retVal = this.doOuSuisJe();
+          retVal = this.com.ouSuisJe();
           break;
 
         case "effacer":
         case "ef": // effacer
-          retVal = this.doEffacer();
+          this.resultat = "";
+          retVal = this.com.effacer();
           break;
 
         default:
@@ -253,347 +268,6 @@ export class JouerComponent implements OnInit, OnChanges {
       + " - fouiller coffre (f) : fouiller le coffre\n"
       + " - position (x) : afficher position actuelle\n"
       + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
-  }
-
-  doEffacer() {
-    this.resultat = "";
-    return this.printCurSalle();
-  }
-
-  doOu(mots: string[]) {
-    let retVal = "où… quoi ?";
-
-    if (mots[1]) {
-      // suis-je
-      switch (mots[1]) {
-        case "suis-je":
-        case "suis je":
-        case "es-tu":
-        case "es tu":
-        case "sommes-nous":
-        case "sommes nous":
-          retVal = this.doOuSuisJe();
-          break;
-
-        default:
-          retVal = "Je n’ai pas compris où…";
-          break;
-      }
-    }
-    return retVal;
-  }
-
-  doOuSuisJe() {
-    if (this.jeu.position == -1) {
-      return "Je ne sais pas où je suis";
-    } else {
-      return "Vous êtes dans " + this.curSalle.déterminant + this.curSalle.intitulé + ".\n"
-        + this.printCurSalle();
-
-    }
-  }
-
-  doAller(mots: string[]) {
-
-    let voisin: Salle = null;
-
-    let destination: string;
-
-    if (mots[0] === 'aller' || mots[0] === 'a') {
-      if (mots[1] == 'en' || mots[1] == 'à' || mots[1] == 'au') {
-        destination = mots[2];
-      } else {
-        destination = mots[1];
-      }
-    } else {
-      destination = mots[0];
-    }
-
-    switch (destination) {
-
-      case "n":
-      case "no":
-      case "nord":
-        voisin = this.getSalle(this.getVoisin(Localisation.nord));
-        break;
-
-      case "s":
-      case "su":
-      case "sud":
-        voisin = this.getSalle(this.getVoisin(Localisation.sud));
-        break;
-
-      case "o":
-      case "ou":
-      case "ouest":
-      case "l'ouest":
-        voisin = this.getSalle(this.getVoisin(Localisation.ouest));
-        break;
-
-      case "e":
-      case "es":
-      case "est":
-      case "l'est":
-        voisin = this.getSalle(this.getVoisin(Localisation.est));
-        break;
-
-      case "so":
-      case "sortir":
-        voisin = this.getSalle(this.getVoisin(Localisation.exterieur));
-        break;
-      case "en":
-      case "entrer":
-        voisin = this.getSalle(this.getVoisin(Localisation.interieur));
-        break;
-      case "mo":
-      case "monter":
-      case "haut":
-        voisin = this.getSalle(this.getVoisin(Localisation.haut));
-        break;
-      case "de":
-      case "descendre":
-      case "bas":
-        voisin = this.getSalle(this.getVoisin(Localisation.bas));
-        break;
-
-      default:
-        break;
-    }
-
-    // TODO: vérifier accès…
-
-    if (voisin) {
-      this.jeu.position = voisin.id;
-      return this.printCurSalle();
-    } else {
-      return "Pas pu aller par là.";
-    }
-  }
-
-  doRegarder(mots: string[]) {
-    if (this.curSalle) {
-      if (this.curSalle.description) {
-        return this.curSalle.description
-          + this.printObjets();
-      } else {
-        return "Vous êtes dans " + this.curSalle.déterminant + this.curSalle.intitulé + ".\n"
-          + this.printObjets();
-      }
-    } else {
-      return "Mais où suis-je ?";
-    }
-  }
-
-  doFouiller(mots: string[]) {
-    return "Je n’ai pas le courage de fouiller ça.";
-  }
-
-  doPrendre(mots: string[]) {
-
-    // TODO: vérifier si on peut prendre l'objet...
-
-    if (mots[1]) {
-      // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.doTrouverObjet(mots);
-      if (objetTrouve) {
-        const nouvelObjet = this.doPrendreObjet(objetTrouve.id);
-        this.jeu.inventaire.objets.push(nouvelObjet);
-        return this.printUnUneDes(nouvelObjet, true) + nouvelObjet.intitulé + " a été ajouté" + this.printAccordSimple(objetTrouve) + " à votre inventaire.";
-      } else {
-        return "Je ne trouve pas ça.";
-      }
-    } else {
-      return "prendre quoi ?";
-    }
-  }
-
-  doPrendreObjet(objetID) {
-    let retVal: Objet = null;
-    // un seul exemplaire : on le retire de l'inventaire et on le retourne.
-    let objetIndex = this.curSalle.inventaire.objets.findIndex(x => x.id === objetID);
-    let objet = this.curSalle.inventaire.objets[objetIndex];
-    if (objet.quantité == 1) {
-      retVal = this.curSalle.inventaire.objets.splice(objetIndex, 1)[0];
-
-      // plusieurs exemplaires : on le clone
-    } else {
-      // décrémenter quantité si pas infini
-      if (objet.quantité != -1) {
-        objet.quantité -= 1;
-      }
-      // faire une copie
-      retVal = this.copierObjet(objet);
-    }
-    return retVal;
-  }
-
-  private copierObjet(original: Objet) {
-    let retVal = new Objet();
-    retVal.quantité = 1;
-    retVal.nombre = Nombre.s;
-    retVal.genre = original.genre;
-    retVal.determinant = original.determinant;
-    retVal.intitulé = original.intitulé;
-    retVal.id = original.id; // TODO: quid des ID pour les clones ?
-    return retVal;
-  }
-
-  doTrouverObjet(mots: string[]) {
-
-    let retVal: Objet = null;
-
-    // commencer par chercher avec le 2e mot
-    let premierMot: string;
-
-    if (mots[1] == 'la' || mots[1] == 'le' || mots[2] == 'du' || mots[2] == 'un' || mots[2] == 'une') {
-      premierMot = mots[2];
-    } else {
-      premierMot = mots[1];
-    }
-
-    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitulé.startsWith(premierMot) && x.quantité !== 0);
-    if (objetsTrouves.length == 1) {
-      retVal = objetsTrouves[0];
-    } else if (objetsTrouves.length > 1) {
-      // TODO: ajouter des mots en plus
-    }
-    return retVal;
-  }
-
-  getSalle(index: number) {
-    return this.jeu.salles.find(x => x.id === index);
-  }
-
-  getVoisin(loc: Localisation) {
-    console.log("getVoisin:", loc);
-
-    let found = this.curSalle.voisins.find(x => x.localisation == loc);
-
-    console.log("  >> found:", found);
-
-    return found ? found.salleIndex : -1;
-  }
-
-  get curSalle() {
-    // TODO: retenir la salle
-    const retVal = this.jeu.salles.find(x => x.id === this.jeu.position);
-    if (!retVal) {
-      console.warn("Pas trouvé la curSalle:", this.jeu.position);
-    }
-    return retVal;
-  }
-
-  printCurSalle() {
-    if (this.curSalle) {
-      return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
-        + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
-        + this.printSorties()
-    } else {
-      console.warn("Pas trouvé de curSalle :(");
-      return "Je suis où moi ? :(";
-    }
-
-  }
-
-  printSorties() {
-    let retVal: string;
-
-    if (this.curSalle.voisins.length > 0) {
-      retVal = "Sorties :";
-      this.curSalle.voisins.forEach(voisin => {
-        retVal += ("\n - " + this.printLocalisation(voisin.localisation, this.curSalle.id, voisin.salleIndex));
-      });
-    } else {
-      retVal = "Il n’y a pas de sortie.";
-    }
-    return retVal;
-  }
-
-  printInventaire() {
-    let retVal: string;
-    let objets = this.jeu.inventaire.objets.filter(x => x.quantité !== 0);
-    if (objets.length == 0) {
-      retVal = "\nVotre inventaire est vide.";
-    } else {
-      retVal = "\nContenu de l'inventaire :";
-      objets.forEach(o => {
-        retVal += "\n - " + (this.printUnUneDes(o, false) + o.intitulé);
-      });
-    }
-    return retVal;
-  }
-
-  printObjets() {
-    let retVal: string;
-
-    let objets = this.curSalle.inventaire.objets.filter(x => x.quantité !== 0);
-
-    if (objets.length == 0) {
-      retVal = "\nJe ne vois rien ici.";
-    } else {
-      retVal = "\nContenu de la pièce :";
-      objets.forEach(o => {
-        retVal += "\n - Il y a " + (this.printUnUneDes(o, false) + o.intitulé);
-      });
-    }
-    return retVal;
-  }
-
-  printUnUneDes(o: Objet, majuscule: boolean) {
-    let retVal: string;
-    if (o.nombre == Nombre.s) {
-      if (o.genre == Genre.f) {
-        retVal = majuscule ? "Une " : "une ";
-      } else {
-        retVal = majuscule ? "Un " : "un ";
-      }
-    } else {
-      retVal = majuscule ? "Des " : "des ";
-    }
-    return retVal;
-  }
-
-  printAccordSimple(o: Objet) {
-    let retVal: string;
-    if (o.nombre == Nombre.s) {
-      if (o.genre == Genre.f) {
-        retVal = "e";
-      } else {
-        retVal = "";
-      }
-    } else {
-      if (o.genre == Genre.f) {
-        retVal = "es";
-      } else {
-        retVal = "s";
-      }
-    }
-    return retVal;
-  }
-
-  printLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
-    switch (localisation) {
-      case Localisation.nord:
-        return "nord (n)";
-      case Localisation.sud:
-        return "sud (s)";
-      case Localisation.est:
-        return "est (e)";
-      case Localisation.ouest:
-        return "ouest (o)";
-
-      case Localisation.bas:
-        return "descendre " + this.getSalle(voisinIndex)?.intitulé + " (de)";
-      case Localisation.haut:
-        return "monter " + this.getSalle(voisinIndex)?.intitulé + " (mo)";
-      case Localisation.exterieur:
-        return "sortir " + this.getSalle(curSalleIndex)?.intitulé + " (so)";
-      case Localisation.interieur:
-        return "entrer " + this.getSalle(voisinIndex)?.intitulé + " (en)";
-
-      default:
-        return localisation.toString();
-    }
   }
 
 }

@@ -435,13 +435,16 @@ export class Compilateur {
         if (result !== null) {
 
             let typeRegle: TypeRegle;
-            switch (result[1].toLowerCase()) {
+            let motCle = result[1].toLowerCase();
+            switch (motCle) {
                 case 'quand':
-                    typeRegle = TypeRegle.evenement;
-                    break;
                 case 'si':
-                    typeRegle = TypeRegle.condition;
+                case 'avant':
+                case 'après':
+                case 'remplacer':
+                    typeRegle = TypeRegle[motCle];
                     break;
+
                 default:
                     console.error("tester regle: opérateur inconnu:", result[1]);
                     typeRegle = TypeRegle.inconnu;
