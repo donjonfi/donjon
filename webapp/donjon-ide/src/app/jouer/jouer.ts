@@ -178,7 +178,7 @@ export class JouerComponent implements OnInit, OnChanges {
         case "?":
         case "aide":
         case "perdu":
-          retVal = this.doAide(mots);
+          retVal = this.com.aide(mots);
           break;
 
         case "a": // aller
@@ -256,18 +256,6 @@ export class JouerComponent implements OnInit, OnChanges {
     }
 
     return retVal;
-  }
-
-  doAide(mots: string[]) {
-    return "Quelques commandes utiles :\n"
-      + " - aide (?) : afficher les commandes de base\n"
-      + " - inventaire (i) : afficher le contenu de votre inventaire\n"
-      + " - aller nord (n) : aller vers le nord\n"
-      + " - prendre épée (p) : prendre l’épée\n"
-      + " - regarder bureau (r) : regarder le bureau\n"
-      + " - fouiller coffre (f) : fouiller le coffre\n"
-      + " - position (x) : afficher position actuelle\n"
-      + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
   }
 
 }

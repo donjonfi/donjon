@@ -23,8 +23,12 @@ export class Compilateur {
     // DESCRIPTION DU DONJON
 
     // Caractères réservés:
-    //   Ɏ − retour à la ligne
     //   ʭ − commentaire
+    static readonly caractereCommentaire = 'ʭ';
+    static readonly xCaractereCommentaire = /ʭ/g;
+    //   Ɏ − retour à la ligne
+    static readonly caractereRetourLigne = 'Ɏ';
+    static readonly xCaractereRetourLigne = /Ɏ/g;
 
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
     static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
@@ -82,10 +86,10 @@ export class Compilateur {
         let dernierePropriete: Propriete = null;
         let dernierElementGenerique: ElementGenerique = null;
 
-        // remplacer les retours à la ligne par un Ɏ.
+        // remplacer les retours à la ligne par un caractereRetourLigne.
         // remplacer les éventuels espaces consécutifs par un simple espace.
         // retirer les espaces avant et après le bloc de texte.
-        const blocTexte = source.replace(/(\r\n|\r|\n)/g, "Ɏ").replace(/( +)/g, " ").trim();
+        const blocTexte = source.replace(/(\r\n|\r|\n)/g, this.caractereRetourLigne).replace(/( +)/g, " ").trim();
 
         // séparer les commentaires (entre " ") du code
         const blocsCodeEtCommentaire = blocTexte.split('"');
@@ -110,15 +114,15 @@ export class Compilateur {
                     for (let k = 0; k < phrasesBrutes.length; k++) {
                         const phraseBrute = phrasesBrutes[k];
                         // compte le nombre de lignes pour ne pas se décaller !
-                        const nbLignes = (phraseBrute.match(/Ɏ/g) || []).length;
+                        const nbLignes = (phraseBrute.match(this.xCaractereRetourLigne) || []).length;
 
                         // si ce n’est pas la dernière phrase elle est forcément finie
                         // si c’est la fin du bloc et qu’elle se termine par un point, la phrase est finie également.
                         const trimBloc = bloc.trim();
                         const finie = ((k < (phrasesBrutes.length - 1)) || (trimBloc.lastIndexOf(".") === (trimBloc.length - 1)));
 
-                        // enlever le "." et remplacer les "Ɏ" par des espaces
-                        const phraseNettoyee = phraseBrute.replace('.', '').replace(/Ɏ/g, " ").trim();
+                        // enlever le "." et remplacer les retours à la ligne par des espaces
+                        const phraseNettoyee = phraseBrute.replace('.', '').replace(this.xCaractereRetourLigne, " ").trim();
 
                         // nouvelle phrase
                         if (!phrasePrecedente || phrasePrecedente.finie) {
@@ -139,13 +143,13 @@ export class Compilateur {
                     // si le bloc est un commentaire, l'ajouter tel quel :
                 } else {
                     // compte le nombre de lignes pour ne pas se décaller !
-                    const nbLignes = (bloc.match(/Ɏ/g) || []).length;
-                    // remplacer les "Ɏ" par des espaces
-                    const phraseNettoyee = bloc.replace(/Ɏ/g, ' ').trim();
+                    const nbLignes = (bloc.match(this.xCaractereRetourLigne) || []).length;
+                    // remplacer les caractereRetourLigne par des espaces
+                    const phraseNettoyee = bloc.replace(this.xCaractereRetourLigne, ' ').trim();
 
                     // le commentaire concerne toujours la phrase précédente (s'il y en a une)
                     if (phrasePrecedente) {
-                        phrasePrecedente.phrase.push('ʭ' + bloc + 'ʭ');
+                        phrasePrecedente.phrase.push(this.caractereCommentaire + bloc + this.caractereCommentaire);
                         // sinon, le commentaire est seul (c'est le titre)
                     } else {
                         phrases.push(new Phrase([bloc], true, false, null, indexPhrase++, numeroLigne, true));
@@ -341,12 +345,12 @@ export class Compilateur {
                             // la valeur de cette propriété
                             if (proprieteFound) {
                                 // ajouter la valeur en enlevant les caractères spéciaux
-                                dernierePropriete.valeur = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+                                dernierePropriete.valeur = phrase.phrase[1].replace(this.xCaractereCommentaire, '').replace(this.xCaractereRetourLigne, '\n');
 
                                 // sinon c’est la description du dernier élément
                             } else {
                                 // ajouter la description en enlevant les caractères spéciaux
-                                dernierElementGenerique.description = phrase.phrase[1].replace(/ʭ/g, '').replace(/Ɏ/g, '\n');
+                                dernierElementGenerique.description = phrase.phrase[1].replace(this.xCaractereCommentaire, '').replace(this.xCaractereRetourLigne, '\n');
                             }
                         }
                         // si on a trouvé une règle

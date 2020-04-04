@@ -120,6 +120,18 @@ export class Commandes {
     // COMMANDES QUI NE MODIFIENT PAS LE JEU
     // =========================================
 
+    aide(mots: string[]) {
+        return "Quelques commandes utiles :\n"
+          + " - aide (?) : afficher les commandes de base\n"
+          + " - inventaire (i) : afficher le contenu de votre inventaire\n"
+          + " - aller nord (n) : aller vers le nord\n"
+          + " - prendre épée (p) : prendre l’épée\n"
+          + " - regarder bureau (r) : regarder le bureau\n"
+          + " - fouiller coffre (f) : fouiller le coffre\n"
+          + " - position (x) : afficher position actuelle\n"
+          + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
+      }
+
     ou(mots: string[]) {
         let retVal = "où… quoi ?";
 
