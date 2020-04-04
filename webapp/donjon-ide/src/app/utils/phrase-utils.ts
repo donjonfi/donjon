@@ -7,10 +7,10 @@ export class PhraseUtils {
         const result = regex.exec(phrase);
         if (result) {
             el = new ElementsPhrase();
-            el.determinant = result[0];
-            el.sujet = result[1];
-            el.verbe = result[2];
-            el.complement = result[3];
+            el.determinant = result[1];
+            el.sujet = result[2];
+            el.verbe = result[3];
+            el.complement = result[4];
         }
         return el;
     }

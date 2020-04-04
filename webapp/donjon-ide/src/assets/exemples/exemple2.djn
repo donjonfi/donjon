@@ -5,13 +5,17 @@
 - Chapitre 0 - Règles.
 
 Quand le jeu commence:
-	dire "Bienvenue dans « Le chateau de la terreur »";
+	dire "Bienvenue dans « Le chateau de la terreur »";
+	dire "Si c’est la première fois que tu joues, utilise la commande « aide »
+	pour en savoir plus sur les commandes disponibles.";
 	le joueur est dans devant le portique;
 	l'inventaire contient la clé rouillée.
 
 La capacité de l'inventaire vaut 2.
 
 Si l'inventaire est déjà plein, dire "Vous ne pouvez plus rien tenir de plus.".
+
+Si le joueur possède une torche, le lieu est éclairé.
 
 - Chapitre 1 - Devant le portique.
 Le départ est un lieu.

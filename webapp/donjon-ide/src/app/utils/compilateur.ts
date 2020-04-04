@@ -1,17 +1,20 @@
+import { Condition, LienCondition } from '../models/compilateur/condition';
+
 import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
-import { Evenement } from '../models/compilateur/evenement';
 import { Generateur } from './generateur';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
+import { PhraseUtils } from './phrase-utils';
 import { PositionSujetString } from '../models/compilateur/position-sujet';
 import { Propriete } from '../models/compilateur/propriete';
 import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
+import { StringUtils } from './string.utils';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { TypeValeur } from '../models/compilateur/type-valeur';
@@ -213,7 +216,7 @@ export class Compilateur {
                     // RÈGLES
                     // ===============================================
 
-                    regleFound = Compilateur.testerRegle(regles, phrase);
+                    regleFound = Compilateur.testerRegle(regles, phrase, erreurs);
 
                     // ===============================================
                     // MONDE
@@ -446,7 +449,7 @@ export class Compilateur {
     }
 
 
-    private static testerRegle(regles: Regle[], phrase: Phrase) {
+    private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
         let result = Compilateur.rQuandSi.exec(phrase.phrase[0]);
 
         if (result !== null) {
@@ -468,7 +471,13 @@ export class Compilateur {
                     break;
             }
 
-            let regle = new Regle(typeRegle, result[2], result[3]);
+            const condition = Compilateur.getCondition(result[2]);
+
+            if (!condition) {
+                erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
+            }
+
+            let regle = new Regle(typeRegle, condition, result[3]);
             regles.push(regle);
 
             if (phrase.phrase.length > 1) {
@@ -485,6 +494,14 @@ export class Compilateur {
         } else {
             return false; // rien trouvé
         }
+    }
+
+    private static getCondition(condition: string) {
+        // TODO: regarder les ET et les OU
+        // TODO: regarder les ()
+        // TODO: priorité des oppérateurs
+        let el = PhraseUtils.decomposerPhrase(condition);
+        return new Condition(LienCondition.aucun, el.determinant, el.sujet, el.verbe, el.complement);
     }
 
     // Élement simple non positionné

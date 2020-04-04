@@ -122,11 +122,10 @@ export class Generateur {
     static getAuditeur(regle: Regle) {
         let auditeur = new Auditeur();
         auditeur.type = regle.typeRegle;
-        let elementsPhrase = PhraseUtils.decomposerPhrase(regle.cause);
-        auditeur.determinant = elementsPhrase.determinant;
-        auditeur.sujet = elementsPhrase.sujet;
-        auditeur.verbe = elementsPhrase.verbe;
-        auditeur.complement = elementsPhrase.complement;
+        auditeur.determinant = regle.condition.determinant;
+        auditeur.sujet = regle.condition.sujet;
+        auditeur.verbe = regle.condition.verbe;
+        auditeur.complement = regle.condition.complement;
         return auditeur;
     }
 
