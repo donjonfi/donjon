@@ -8,8 +8,10 @@
             <ul>
                 <li>Type: <b>{{re.typeRegle}}</b></li>
                 <li>Condition:
-                    <ul>
-                        <li>Sujet : {{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}</li>
+                    <ul *ngIf="re.condition">
+                        <li>Sujet :
+                            {{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
+                        </li>
                         <li>Verbe : {{re.condition.verbe}}</li>
                         <li>Complément : {{re.condition.complement ? re.condition.complement : "-"}}</li>
                     </ul>

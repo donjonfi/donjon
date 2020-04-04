@@ -501,7 +501,11 @@ export class Compilateur {
         // TODO: regarder les ()
         // TODO: priorité des oppérateurs
         let el = PhraseUtils.decomposerPhrase(condition);
-        return new Condition(LienCondition.aucun, el.determinant, el.sujet, el.verbe, el.complement);
+        if (el) {
+            return new Condition(LienCondition.aucun, el.determinant, el.sujet, el.verbe, el.complement);
+        } else {
+            return null;
+        }
     }
 
     // Élement simple non positionné
