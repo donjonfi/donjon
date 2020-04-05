@@ -1,5 +1,6 @@
 import 'brace';
 import 'brace/mode/text';
+import '../../mode-donjon.js';
 // import 'brace/mode/javascript';
 // import 'brace/theme/github';
 import 'brace/theme/chrome';
@@ -14,7 +15,6 @@ import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
 import { Regle } from '../models/compilateur/regle';
 import { StringUtils } from '../utils/string.utils';
-
 @Component({
   selector: 'app-editeur',
   templateUrl: './editeur.component.html',
@@ -22,10 +22,11 @@ import { StringUtils } from '../utils/string.utils';
 })
 export class EditeurComponent implements OnInit {
 
-  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  // @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
 
   public config: AceConfigInterface = {
-    mode: 'text',
+    // mode: 'text',
+    mode: 'donjon',
     minLines: 80,
     theme: 'chrome',
     readOnly: false,
@@ -35,7 +36,6 @@ export class EditeurComponent implements OnInit {
     showLineNumbers: true,
     showPrintMargin: false,
     hScrollBarAlwaysVisible: false,
-
   };
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";
@@ -48,9 +48,15 @@ export class EditeurComponent implements OnInit {
   nomExemple = "exemple2";
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
   ) {
 
+  }
+
+  ngOnInit(): void {
+    // https://www.npmjs.com/package/ngx-ace-wrapper
+    // => this.codeEditorElmRef["directiveRef"] : directiveRef;
+    // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
   }
 
   onParseCode() {
@@ -73,7 +79,6 @@ export class EditeurComponent implements OnInit {
 
   onJouer() {
     // interpréter le code
-    // interpréter le code
     let resultat = Compilateur.parseCode(this.codeSource);
     this.monde = resultat.monde;
     this.regles = resultat.regles;
@@ -84,8 +89,6 @@ export class EditeurComponent implements OnInit {
     this.mode = "jeu";
   }
 
-  ngOnInit(): void {
 
-  }
 
 }
