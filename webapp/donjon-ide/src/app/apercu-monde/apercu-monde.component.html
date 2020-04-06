@@ -13,7 +13,7 @@
                             {{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
                         </li>
                         <li>Verbe : {{re.condition.verbe}}</li>
-                        <li>Complément : {{re.condition.complement ? re.condition.complement : "-"}}</li>
+                        <li *ngIf="re.condition.complement">{{re.condition.complement}}</li>
                     </ul>
                 </li>
                 <li>Conséquence: {{re.consequence}}</li>

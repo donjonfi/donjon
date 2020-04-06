@@ -15,6 +15,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
 import { Regle } from '../models/compilateur/regle';
 import { StringUtils } from '../utils/string.utils';
+
 @Component({
   selector: 'app-editeur',
   templateUrl: './editeur.component.html',
@@ -36,6 +37,7 @@ export class EditeurComponent implements OnInit {
     showLineNumbers: true,
     showPrintMargin: false,
     hScrollBarAlwaysVisible: false,
+    wrap: true,
   };
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";

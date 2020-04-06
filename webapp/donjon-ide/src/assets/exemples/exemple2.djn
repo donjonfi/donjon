@@ -13,7 +13,8 @@ Quand le jeu commence:
 
 La capacité de l'inventaire vaut 2.
 
-Si l'inventaire est déjà plein, dire "Vous ne pouvez plus rien tenir de plus.".
+Si l'inventaire est plein,
+	remplacer prendre un objet par dire "Vous ne pouvez plus rien tenir de plus.".
 
 Si le joueur possède une torche, le lieu est éclairé.
 
