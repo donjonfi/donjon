@@ -5,7 +5,11 @@ export class Objet {
 
     id: number;
 
-    intitulé: string;
+    intitule: string;
+    intituleP: string;
+    intituleS: string;
+    intituleM: string;
+    intituleF: string;
     determinant: string;
     /**
      * Quantité disponible de l’objet.

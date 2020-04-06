@@ -18,7 +18,11 @@ export class OutilsCommandes {
         retVal.nombre = Nombre.s;
         retVal.genre = original.genre;
         retVal.determinant = original.determinant;
-        retVal.intitulé = original.intitulé;
+        retVal.intitule = original.intitule;
+        retVal.intituleF = original.intituleF;
+        retVal.intituleM = original.intituleM;
+        retVal.intituleS = original.intituleS;
+        retVal.intituleP = original.intituleP;
         retVal.id = original.id; // TODO: quid des ID pour les clones ?
         return retVal;
     }
@@ -47,9 +51,9 @@ export class OutilsCommandes {
         return retVal;
     }
 
-    static afficherUnUneDes(o: Objet, majuscule: boolean, estFeminin: boolean) {
+    static afficherUnUneDes(o: Objet, majuscule: boolean, estFeminin: boolean, estSingulier: boolean) {
         let retVal: string;
-        if (o.nombre == Nombre.s) {
+        if (o.quantité == 1 || estSingulier) {
             if (o.genre == Genre.f || estFeminin) {
                 retVal = majuscule ? "Une " : "une ";
             } else {
@@ -76,9 +80,16 @@ export class OutilsCommandes {
             premierMot = mots[1];
         }
 
-        let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitulé.startsWith(premierMot) && x.quantité !== 0);
+        // à priori on recherche sur le singulier
+        let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intituleS.startsWith(premierMot) && x.quantité !== 0);
+        // si rien trouvé, on recherche sur la forme par défaut
+        if (objetsTrouves.length == 0) {
+            objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitule.startsWith(premierMot) && x.quantité !== 0);
+        }
+        // si on a trouvé un objet
         if (objetsTrouves.length == 1) {
             retVal = objetsTrouves[0];
+            // si on a trouvé plusiers objets différents
         } else if (objetsTrouves.length > 1) {
             // TODO: ajouter des mots en plus
         }
@@ -169,7 +180,13 @@ export class OutilsCommandes {
         } else {
             retVal = "\nContenu de l'inventaire :";
             objets.forEach(o => {
-                retVal += "\n - " + (OutilsCommandes.afficherUnUneDes(o, false) + o.intitulé);
+                // un seul
+                if (o.quantité == 1) {
+                    retVal += "\n - " + (OutilsCommandes.afficherUnUneDes(o, false, false, true) + o.intituleS);
+                    // plusieur
+                } else {
+                    retVal += "\n - " + o.quantité + " " + o.intituleP;
+                }
             });
         }
         return retVal;
@@ -185,7 +202,7 @@ export class OutilsCommandes {
         } else {
             retVal = "\nContenu de la pièce :";
             objets.forEach(o => {
-                retVal += "\n - Il y a " + (OutilsCommandes.afficherUnUneDes(o, false) + o.intitulé);
+                retVal += "\n - Il y a " + (OutilsCommandes.afficherUnUneDes(o, false, false, false) + o.intitule);
             });
         }
         return retVal;

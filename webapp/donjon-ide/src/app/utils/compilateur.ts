@@ -34,18 +34,18 @@ export class Compilateur {
     static readonly xCaractereRetourLigne = /Ɏ/g;
 
     /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
+    static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
 
     // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
     /** élément générique positionné par rapport à complément :
      * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
      * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
      */
-    static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(f\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un |une )))(.+)/i;
+    static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un |une )))(.+)/i;
     // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
     /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
-    static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
+    static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
 
     /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
     static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
@@ -530,12 +530,39 @@ export class Compilateur {
 
             console.log("testerElementSimple >>> result=", result);
 
+            let genreSingPlur = result[3];
+            let estFeminin = false;
+            let autreForme: string = null;
+            if (genreSingPlur) {
+                // retirer parenthèses
+                genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
+                // séparer les arguments sur la virgule
+                const argSupp = genreSingPlur.split(',');
+                // le premier argument est le signe féminin
+                if (argSupp[0].trim() == 'f') {
+                    estFeminin = true;
+                    // le premier argument est l'autre forme (singulier ou pluriel)
+                } else {
+                    autreForme = argSupp[0].trim();
+                }
+                // s'il y a 2 arguments
+                if (argSupp.length > 1) {
+                    // le 2e argument est le signe féminin
+                    if (argSupp[1].trim() == 'f') {
+                        estFeminin = true;
+                        // le 2e argument est l'autre forme (singulier ou pluriel)
+                    } else {
+                        autreForme = argSupp[1].trim();
+                    }
+                }
+            }
+
 
             determinant = result[1] ? result[1].toLowerCase() : null;
             nom = result[2];
             intituleType = result[4];
             type = Compilateur.getTypeElement(result[4]);
-            genre = Compilateur.getGenre(result[1], result[3]);
+            genre = Compilateur.getGenre(result[1], estFeminin);
             nombre = Compilateur.getNombre(result[1]);
             quantite = Compilateur.getQuantite(result[1]);
             attributsString = result[5];
@@ -556,10 +583,46 @@ export class Compilateur {
                 attributs,
             );
 
+            if (autreForme) {
+                if (nouvelElementGenerique.nombre == Nombre.s) {
+                    nouvelElementGenerique.nomP = autreForme;
+                } else {
+                    nouvelElementGenerique.nomS = autreForme;
+                }
+            }
+
         } else {
             // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
             result = Compilateur.xElementSimpleAttribut.exec(phrase.phrase[0]);
             if (result != null) {
+
+                let genreSingPlur = result[3];
+                let estFeminin = false;
+                let autreForme: string = null;
+                if (genreSingPlur) {
+                    // retirer parenthèses
+                    genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
+                    // séparer les arguments sur la virgule
+                    const argSupp = genreSingPlur.split(',');
+                    // le premier argument est le signe féminin
+                    if (argSupp[0].trim() == 'f') {
+                        estFeminin = true;
+                        // le premier argument est l'autre forme (singulier ou pluriel)
+                    } else {
+                        autreForme = argSupp[0].trim();
+                    }
+                    // s'il y a 2 arguments
+                    if (argSupp.length > 1) {
+                        // le 2e argument est le signe féminin
+                        if (argSupp[1].trim() == 'f') {
+                            estFeminin = true;
+                            // le 2e argument est l'autre forme (singulier ou pluriel)
+                        } else {
+                            autreForme = argSupp[1].trim();
+                        }
+                    }
+                }
+
                 // attributs ?
                 let attributs = null;
                 if (result[4] && result[4].trim() !== '') {
@@ -572,11 +635,19 @@ export class Compilateur {
                     "",
                     TypeElement.aucun,
                     null,
-                    Compilateur.getGenre(result[1], result[3]),
+                    Compilateur.getGenre(result[1], estFeminin),
                     Compilateur.getNombre(result[1]),
                     Compilateur.getQuantite(result[1]),
                     (attributs ? attributs : new Array<string>()),
                 );
+
+                if (autreForme) {
+                    if (nouvelElementGenerique.nombre == Nombre.s) {
+                        nouvelElementGenerique.nomP = autreForme;
+                    } else {
+                        nouvelElementGenerique.nomS = autreForme;
+                    }
+                }
             }
         }
 
@@ -664,17 +735,54 @@ export class Compilateur {
 
             console.log("testerPosition >>>>> ", result);
 
+
+            let genreSingPlur = result[3];
+            let estFeminin = false;
+            let autreForme: string = null;
+            if (genreSingPlur) {
+                // retirer parenthèses
+                genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
+                // séparer les arguments sur la virgule
+                const argSupp = genreSingPlur.split(',');
+                // le premier argument est le signe féminin
+                if (argSupp[0].trim() == 'f') {
+                    estFeminin = true;
+                    // le premier argument est l'autre forme (singulier ou pluriel)
+                } else {
+                    autreForme = argSupp[0].trim();
+                }
+                // s'il y a 2 arguments
+                if (argSupp.length > 1) {
+                    // le 2e argument est le signe féminin
+                    if (argSupp[1].trim() == 'f') {
+                        estFeminin = true;
+                        // le 2e argument est l'autre forme (singulier ou pluriel)
+                    } else {
+                        autreForme = argSupp[1].trim();
+                    }
+                }
+            }
+
             newElementGenerique = new ElementGenerique(
                 result[1] ? result[1].toLowerCase() : null,
                 result[2],
                 result[4],
                 Compilateur.getTypeElement(result[4]),
                 new PositionSujetString(result[2], result[7], result[6]),
-                Compilateur.getGenre(result[1], result[3]),
+                Compilateur.getGenre(result[1], estFeminin),
                 Compilateur.getNombre(result[1]),
                 Compilateur.getQuantite(result[1]),
                 (result[5] ? new Array<string>(result[5]) : new Array<string>()),
             );
+
+            if (autreForme) {
+                if (newElementGenerique.nombre == Nombre.s) {
+                    newElementGenerique.nomP = autreForme;
+                } else {
+                    newElementGenerique.nomS = autreForme;
+                }
+            }
+
             // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
         } else {
             result = Compilateur.xPositionElementGeneriqueIndefini.exec(phrase.phrase[0]);
@@ -688,14 +796,39 @@ export class Compilateur {
                 type = Compilateur.getTypeElement(intituleType);
                 genreString = result[4 + offset];
                 attributsString = result[3 + offset];
-                // si la valeur d'attribut est "(f)", ce n'est pas un attribut
-                // mais une indication de genre.
-                if (attributsString == '(f)') {
-                    genreString = attributsString;
+                // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
+                // mais une indication de genre et/ou singulier/pluriel.
+                let estFeminin = false;
+                let autreForme: string = null;
+                if (attributsString && attributsString.startsWith('(') && attributsString.endsWith(')')) {
+                    let genreSingPlur = attributsString;
                     attributsString = '';
+                    if (genreSingPlur) {
+                        // retirer parenthèses
+                        genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
+                        // séparer les arguments sur la virgule
+                        const argSupp = genreSingPlur.split(',');
+                        // le premier argument est le signe féminin
+                        if (argSupp[0].trim() == 'f') {
+                            estFeminin = true;
+                            // le premier argument est l'autre forme (singulier ou pluriel)
+                        } else {
+                            autreForme = argSupp[0].trim();
+                        }
+                        // s'il y a 2 arguments
+                        if (argSupp.length > 1) {
+                            // le 2e argument est le signe féminin
+                            if (argSupp[1].trim() == 'f') {
+                                estFeminin = true;
+                                // le 2e argument est l'autre forme (singulier ou pluriel)
+                            } else {
+                                autreForme = argSupp[1].trim();
+                            }
+                        }
+                    }
                 }
 
-                genre = Compilateur.getGenre(determinant, genreString);
+                genre = Compilateur.getGenre(determinant, estFeminin);
                 // retrouver les attributs
                 attributs = Compilateur.getAttributs(attributsString);
 
@@ -719,6 +852,14 @@ export class Compilateur {
                     Compilateur.getQuantite(determinant),
                     attributs,
                 );
+
+                if (autreForme) {
+                    if (newElementGenerique.nombre == Nombre.s) {
+                        newElementGenerique.nomP = autreForme;
+                    } else {
+                        newElementGenerique.nomS = autreForme;
+                    }
+                }
             }
 
         }
@@ -911,7 +1052,7 @@ export class Compilateur {
     }
 
     /** Obtenir le genre d'un élément du donjon. */
-    private static getGenre(determinant: string, feminin: string): Genre {
+    private static getGenre(determinant: string, feminin: boolean): Genre {
         let retVal = Genre.n;
 
 
@@ -932,7 +1073,7 @@ export class Compilateur {
                     break;
 
                 default:
-                    if (feminin && feminin.trim() === "(f)") {
+                    if (feminin) {
                         retVal = Genre.f;
                     } else {
                         retVal = Genre.m;

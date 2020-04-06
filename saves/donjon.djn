@@ -38,10 +38,11 @@ Il y a des torches (f) dans l'allée. Ce sont des objets.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
+Il y a des tombes (f) dans le cimetière. Ce sont des décors.
 Le caveau est une salle obscure à l'intérieur du cimetière.
 Il y a des chauves-souris (f) dans le caveau. Ce sont des animaux.
-Il y a des tombes dans le cimetière. Ce sont des décors.
-Il y a des os dans le caveau. Ce sont des objets.
+Il y a des os (os) dans le caveau. Ce sont des objets.
+Il y a des yeux (oeil) dans le cimetière. Ce sont des objets.
 
 -- Chapitre 4 - Le verger.
 Le verger est un lieu obscur à l'ouest de l'allée.

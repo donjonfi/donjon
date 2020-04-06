@@ -36,8 +36,17 @@ export class Commandes {
             const objetTrouve = this.outils.trouverObjet(mots);
             if (objetTrouve) {
                 const nouvelObjet = this.outils.prendreObjet(objetTrouve.id);
-                this.jeu.inventaire.objets.push(nouvelObjet);
-                return OutilsCommandes.afficherUnUneDes(nouvelObjet, true, estFeminin) + nouvelObjet.intitulé + " a été ajouté" + OutilsCommandes.afficherAccordSimple(objetTrouve, estFeminin, estSingulier) + " à votre inventaire.";
+                let cible = nouvelObjet;
+                // si l'inventaire contient déjà le même objet, augmenter la quantité
+                let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
+                if (objInv) {
+                    objInv.quantité += 1;
+                    cible = objInv;
+                } else {
+                    this.jeu.inventaire.objets.push(nouvelObjet);
+                }
+                // afficher le résultat à l'utilisateur
+                return OutilsCommandes.afficherUnUneDes(cible, true, estFeminin, estSingulier) + cible.intituleS + " a été ajouté" + OutilsCommandes.afficherAccordSimple(cible, estFeminin, estSingulier) + " à votre inventaire.";
             } else {
                 return "Je ne trouve pas ça.";
             }
