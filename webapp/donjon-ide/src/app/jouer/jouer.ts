@@ -15,6 +15,8 @@ import { Salle } from '../models/jeu/salle';
 })
 export class JouerComponent implements OnInit, OnChanges {
 
+  static verbeux = true;
+
   @Input() jeu: Jeu;
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 10;

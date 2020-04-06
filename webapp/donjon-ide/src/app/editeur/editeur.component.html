@@ -10,21 +10,31 @@
             </ace>
         </div>
         <div class="row">
+            <div class="col-auto">
+                <button type="button" (click)="onParseCode()" class="btn btn-warning mr-2">Aperçu</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" (click)="onJouer()" class="btn btn-success">Jouer</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" (click)="onSauvegarder()" class="btn btn-primary">Sauvegarder</button>
+            </div>
+            <div class="col-auto">
+                <div class="custom-file">
+                    <input type="file" accept=".djn,.txt" (change)="onOuvrirFichier($event)"
+                        class="custom-file-input file-input-primary" id="customFile">
+                    <label class="custom-file-label" for="customFile">Ouvrir un fichier *.djn</label>
+                </div>
+            </div>
             <div class="col">
                 <div class="input-group mb-3">
                     <input #txCommande type="text" [(ngModel)]="nomExemple" class="form-control"
                         placeholder="nom d’un exemple à charger">
                     <div class="input-group-append">
                         <button [disabled]="!nomExemple" class="btn btn-primary" (click)="onChargerExemple()"
-                            type="button" id="btExecuter">Charger</button>
+                            type="button" id="btExecuter">Charger exemple</button>
                     </div>
                 </div>
-            </div>
-            <div class="col-auto">
-                <button type="button" (click)="onParseCode()" class="btn btn-primary mr-2">Aperçu</button>
-            </div>
-            <div class="col-auto">
-                <button type="button" (click)="onJouer()" class="btn btn-primary">Jouer</button>
             </div>
         </div>
     </div>

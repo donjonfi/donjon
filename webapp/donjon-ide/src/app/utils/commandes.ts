@@ -23,12 +23,21 @@ export class Commandes {
         // TODO: vérifier si on peut prendre l'objet...
 
         if (mots[1]) {
+
+            if (mots[1] == 'les') {
+                return "Une chose à la fois !";
+            }
+
+            // la, une et de (=> de la) sont féminin.
+            let estFeminin = (mots[1] == 'la' || mots[1] == 'une' || (mots[1] == 'de'));
+            let estSingulier = true;
+
             // TODO: objets dont l'intitulé comprend plusieurs mots !
             const objetTrouve = this.outils.trouverObjet(mots);
             if (objetTrouve) {
                 const nouvelObjet = this.outils.prendreObjet(objetTrouve.id);
                 this.jeu.inventaire.objets.push(nouvelObjet);
-                return OutilsCommandes.afficherUnUneDes(nouvelObjet, true) + nouvelObjet.intitulé + " a été ajouté" + OutilsCommandes.afficherAccordSimple(objetTrouve) + " à votre inventaire.";
+                return OutilsCommandes.afficherUnUneDes(nouvelObjet, true, estFeminin) + nouvelObjet.intitulé + " a été ajouté" + OutilsCommandes.afficherAccordSimple(objetTrouve, estFeminin, estSingulier) + " à votre inventaire.";
             } else {
                 return "Je ne trouve pas ça.";
             }
@@ -122,15 +131,15 @@ export class Commandes {
 
     aide(mots: string[]) {
         return "Quelques commandes utiles :\n"
-          + " - aide (?) : afficher les commandes de base\n"
-          + " - inventaire (i) : afficher le contenu de votre inventaire\n"
-          + " - aller nord (n) : aller vers le nord\n"
-          + " - prendre épée (p) : prendre l’épée\n"
-          + " - regarder bureau (r) : regarder le bureau\n"
-          + " - fouiller coffre (f) : fouiller le coffre\n"
-          + " - position (x) : afficher position actuelle\n"
-          + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
-      }
+            + " - aide (?) : afficher les commandes de base\n"
+            + " - inventaire (i) : afficher le contenu de votre inventaire\n"
+            + " - aller nord (n) : aller vers le nord\n"
+            + " - prendre épée (p) : prendre l’épée\n"
+            + " - regarder bureau (r) : regarder le bureau\n"
+            + " - fouiller coffre (f) : fouiller le coffre\n"
+            + " - position (x) : afficher position actuelle\n"
+            + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
+    }
 
     ou(mots: string[]) {
         let retVal = "où… quoi ?";

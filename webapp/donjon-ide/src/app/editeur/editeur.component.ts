@@ -5,6 +5,8 @@ import '../../mode-donjon.js';
 // import 'brace/theme/github';
 import 'brace/theme/chrome';
 
+import * as FileSaver from 'file-saver';
+
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -77,6 +79,27 @@ export class EditeurComponent implements OnInit {
       this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
         .subscribe(texte => this.codeSource = texte);
     }
+  }
+
+  onOuvrirFichier(evenement) {
+    // fichier choisi par l’utilisateur
+    const file = evenement.target.files[0];
+    if (file) {
+      let fileReader = new FileReader();
+      // quand lu, l’attribuer au code source
+      fileReader.onload = (progressEvent) => {
+        this.codeSource = fileReader.result as string;
+      };
+      // lire le fichier
+      fileReader.readAsText(file);
+    }
+  }
+
+  onSauvegarder() {
+    // Note: Ie and Edge don't support the new File constructor,
+    // so it's better to construct blobs and use saveAs(blob, filename)
+    const file = new File([this.codeSource], "donjon.djn", { type: "text/plain;charset=utf-8" });
+    FileSaver.saveAs(file);
   }
 
   onJouer() {

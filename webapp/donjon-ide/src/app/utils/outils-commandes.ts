@@ -1,5 +1,6 @@
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
+import { JouerComponent } from '../jouer/jouer';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Objet } from '../models/jeu/objet';
@@ -22,16 +23,22 @@ export class OutilsCommandes {
         return retVal;
     }
 
-    static afficherAccordSimple(o: Objet) {
+    /**
+     * Obtenir l'accord ('', 'e' ou 'es') en fonction de l'objet.
+     * @param o 
+     * @param estFeminin forcer féminin
+     * @param estSingulier forcer singulier
+     */
+    static afficherAccordSimple(o: Objet, estFeminin: boolean, estSingulier: boolean) {
         let retVal: string;
-        if (o.nombre == Nombre.s) {
-            if (o.genre == Genre.f) {
+        if (o.nombre == Nombre.s || estSingulier) {
+            if (o.genre == Genre.f || estFeminin) {
                 retVal = "e";
             } else {
                 retVal = "";
             }
         } else {
-            if (o.genre == Genre.f) {
+            if (o.genre == Genre.f || estFeminin) {
                 retVal = "es";
             } else {
                 retVal = "s";
@@ -40,10 +47,10 @@ export class OutilsCommandes {
         return retVal;
     }
 
-    static afficherUnUneDes(o: Objet, majuscule: boolean) {
+    static afficherUnUneDes(o: Objet, majuscule: boolean, estFeminin: boolean) {
         let retVal: string;
         if (o.nombre == Nombre.s) {
-            if (o.genre == Genre.f) {
+            if (o.genre == Genre.f || estFeminin) {
                 retVal = majuscule ? "Une " : "une ";
             } else {
                 retVal = majuscule ? "Un " : "un ";
@@ -59,9 +66,11 @@ export class OutilsCommandes {
         let retVal: Objet = null;
 
         // commencer par chercher avec le 2e mot
+        let determinant = '';
         let premierMot: string;
 
-        if (mots[1] == 'la' || mots[1] == 'le' || mots[2] == 'du' || mots[2] == 'un' || mots[2] == 'une') {
+        if (mots[1] == 'la' || mots[1] == 'le' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
+            determinant = mots[1];
             premierMot = mots[2];
         } else {
             premierMot = mots[1];
@@ -73,6 +82,11 @@ export class OutilsCommandes {
         } else if (objetsTrouves.length > 1) {
             // TODO: ajouter des mots en plus
         }
+
+        if (JouerComponent.verbeux) {
+            console.log("trouverObjet >>> det=", determinant, "mot=", premierMot, "retVal=", retVal);
+        }
+
         return retVal;
     }
 

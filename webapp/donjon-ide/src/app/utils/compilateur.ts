@@ -652,6 +652,7 @@ export class Compilateur {
         let intituleType: string;
         let type: TypeElement;
         let genre: Genre;
+        let genreString: string;
         let attributsString: string;
         let attributs: string[];
         let nombre: Nombre;
@@ -682,18 +683,29 @@ export class Compilateur {
                 // selon le type de résultat ("il y a un xxx" ou "un xxx est")
                 let offset = result[1] ? 0 : 4;
                 determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
+                nombre = Compilateur.getNombre(result[1 + offset]);
                 intituleType = result[2 + offset];
                 type = Compilateur.getTypeElement(intituleType);
+                genreString = result[4 + offset];
                 attributsString = result[3 + offset];
+                // si la valeur d'attribut est "(f)", ce n'est pas un attribut
+                // mais une indication de genre.
+                if (attributsString == '(f)') {
+                    genreString = attributsString;
+                    attributsString = '';
+                }
+
+                genre = Compilateur.getGenre(determinant, genreString);
+                // retrouver les attributs
                 attributs = Compilateur.getAttributs(attributsString);
+
                 // s'il y a des attributs, prendre uniquement le 1er pour le nom
                 if (attributs.length > 0) {
                     nom = result[2 + offset] + " " + attributs[0];
                 } else {
                     nom = result[2 + offset];
                 }
-                genre = Compilateur.getGenre(result[1 + offset], result[4 + offset]);
-                nombre = Compilateur.getNombre(result[1 + offset]);
+
                 position = new PositionSujetString(result[2], result[10], result[9]);
 
                 newElementGenerique = new ElementGenerique(

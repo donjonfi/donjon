@@ -1,0 +1,56 @@
+"Le chateau de la terreur".
+
+-- Partie 1 - Devant le chateau.
+
+-- Chapitre 0 - Règles.
+
+Quand le jeu commence:
+	dire "Bienvenue dans « Le chateau de la terreur »";
+	dire "Si c’est la première fois que tu joues, utilise la commande « aide »
+	pour en savoir plus sur les commandes disponibles.";
+	le joueur est dans devant le portique;
+	l'inventaire contient la clé rouillée.
+
+La capacité de l'inventaire vaut 2.
+
+Si l'inventaire est plein,
+	remplacer prendre un objet par dire "Vous ne pouvez plus rien tenir de plus.".
+
+Si le joueur possède une torche, le lieu est éclairé.
+
+-- Chapitre 1 - Devant le portique.
+Le départ est un lieu.
+Son intitulé est "Devant le portique".
+Sa description est "Vous êtes devant le portique du chateau du comte Von Hohenberg.
+Il fait nuit. Vous distinguez une faible lueur à travers le 
+portique.".
+Le portique est une porte au sud du départ.
+Il est fermé et pas ouvrable.
+La clé rouillée est une clé.
+Elle permet d'ouvrir le portique.
+
+-- Chapitre 2 - L'allée.
+L'allée (f) est un lieu au sud du départ.
+"Vous êtes dans l'allée qui mène à l'entrée du chateau.
+Il y a des torches tout le long du chemin.
+Elles vous permettent d'y voir un peu."
+Il y a des torches (f) dans l'allée. Ce sont des objets.
+
+-- Chapitre 3 - Le cimetière.
+Le cimetière est un lieu obscur à l'est de l'allée.
+Le caveau est une salle obscure à l'intérieur du cimetière.
+Il y a des chauves-souris (f) dans le caveau. Ce sont des animaux.
+Il y a des tombes dans le cimetière. Ce sont des décors.
+Il y a des os dans le caveau. Ce sont des objets.
+
+-- Chapitre 4 - Le verger.
+Le verger est un lieu obscur à l'ouest de l'allée.
+Il y a des pommiers dans le verger. Ce sont des décors.
+Le seau est un contenant dans le verger.
+"C'est un grand seau rouge qui semble solide."
+La capacité du seau vaut 4.
+Le cellier est une salle obscure au nord du verger.
+Il y a un coupe branche dans le cellier. C'est un objet.
+
+-- Partie 2 - Dans le chateau du comte Von Hohenberg
+
