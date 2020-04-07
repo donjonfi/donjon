@@ -63,21 +63,16 @@ export class EditeurComponent implements OnInit {
     // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
   }
 
-  onParseCode() {
-    // interpréter le code
-    let resultat = Compilateur.parseCode(this.codeSource);
-    this.monde = resultat.monde;
-    this.regles = resultat.regles;
-    this.erreurs = resultat.erreurs;
-    // voir le résultat
-    this.mode = "apercu";
-  }
+
 
   onChargerExemple() {
     const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
     if (nomFichierExemple) {
       this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
         .subscribe(texte => this.codeSource = texte);
+      this.monde = null;
+      this.erreurs = null;
+      this.regles = null;
     }
   }
 
@@ -92,6 +87,9 @@ export class EditeurComponent implements OnInit {
       };
       // lire le fichier
       fileReader.readAsText(file);
+      this.monde = null;
+      this.erreurs = null;
+      this.regles = null;
     }
   }
 
@@ -102,16 +100,35 @@ export class EditeurComponent implements OnInit {
     FileSaver.saveAs(file);
   }
 
+  onParseCode() {
+    if (this.codeSource.trim() != '') {
+      // interpréter le code
+      let resultat = Compilateur.parseCode(this.codeSource);
+      this.monde = resultat.monde;
+      this.regles = resultat.regles;
+      this.erreurs = resultat.erreurs;
+      // voir le résultat
+      this.mode = "apercu";
+    } else {
+      this.erreurs = [];
+    }
+  }
+
   onJouer() {
-    // interpréter le code
-    let resultat = Compilateur.parseCode(this.codeSource);
-    this.monde = resultat.monde;
-    this.regles = resultat.regles;
-    this.erreurs = resultat.erreurs;
-    // générer le jeu
-    this.jeu = Generateur.genererJeu(this.monde, this.regles);
-    // commencer le jeu
-    this.mode = "jeu";
+    if (this.codeSource.trim() != '') {
+      // interpréter le code
+      let resultat = Compilateur.parseCode(this.codeSource);
+      this.monde = resultat.monde;
+      this.regles = resultat.regles;
+      this.erreurs = resultat.erreurs;
+      // générer le jeu
+      this.jeu = Generateur.genererJeu(this.monde, this.regles);
+      // commencer le jeu
+      this.mode = "jeu";
+    } else {
+      this.erreurs = [];
+    }
+
   }
 
 

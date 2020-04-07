@@ -1,23 +1,19 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Commandes } from '../utils/commandes';
-import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
-import { Localisation } from '../models/jeu/localisation';
-import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
-import { Salle } from '../models/jeu/salle';
 
 @Component({
-  selector: 'app-jouer',
-  templateUrl: './jouer.component.html',
-  styleUrls: ['./jouer.component.scss']
+  selector: 'app-lecteur',
+  templateUrl: './lecteur.component.html',
+  styleUrls: ['./lecteur.component.scss']
 })
-export class JouerComponent implements OnInit, OnChanges {
+export class LecteurComponent implements OnInit, OnChanges {
 
   static verbeux = true;
 
   @Input() jeu: Jeu;
+  @Input() verbeux = false;
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 10;
 
@@ -42,7 +38,7 @@ export class JouerComponent implements OnInit, OnChanges {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
 
-      this.com = new Commandes(this.jeu);
+      this.com = new Commandes(this.jeu, this.verbeux);
 
       this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
       // afficher où on est.

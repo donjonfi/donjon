@@ -1,0 +1,20 @@
+<p class="form-text text-success">
+    Tapez « ? » pour afficher les commandes de base.
+</p>
+
+<!-- resultat -->
+<textarea #taResultat readonly class="form-control mb-2" name="taResultat" id="taResultat" rows="20">{{resultat}}</textarea>
+
+<!-- entrée utilisateur -->
+<div class="input-group mb-3">
+    <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
+        (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
+        (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
+        placeholder="Entrez une commande (verbe + complément)">
+    <div class="input-group-append">
+        <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
+            id="btExecuter">Enter</button>
+        <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
+            id="btExecuter">↑</button>
+    </div>
+</div>

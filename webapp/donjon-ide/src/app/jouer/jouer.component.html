@@ -1,20 +1,21 @@
-<p class="form-text text-muted">
-    Tapez « ? » pour afficher les commandes de base.
+<p *ngIf="chargement">
+  Chargement du jeu…
 </p>
 
-<!-- resultat -->
-<textarea #taResultat readonly class="form-control mb-2" name="taResultat" id="taResultat" rows="20">{{resultat}}</textarea>
+<p *ngIf="compilation">
+  Compilation du jeu…
+</p>
 
-<!-- entrée utilisateur -->
-<div class="input-group mb-3">
-    <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
-        (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
-        (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
-        placeholder="Entrez une commande (verbe + complément)">
-    <div class="input-group-append">
-        <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
-            id="btExecuter">Enter</button>
-        <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
-            id="btExecuter">↑</button>
-    </div>
+<div *ngIf="erreurs">
+  <div class="text-warning" *ngIf="erreurs.length > 0">
+    😣 Aïe ! Je n’ai pas tout compris…
+  </div>
+  <code class="text-danger">
+    <span *ngFor="let err of erreurs">
+        {{err}}<br>
+    </span>
+  </code>
 </div>
+
+<!-- Lecteur -->
+<app-lecteur *ngIf="jeu" [jeu]="jeu"></app-lecteur>

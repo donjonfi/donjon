@@ -1,74 +1,91 @@
-<h2>Éditeur</h2>
+<div class="card mb-4 shadow-sm">
 
-<div class="card mb-4">
-
-    <div class="card-body">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-auto">
         <h3>Code source</h3>
-
-        <div class="card content-container mb-2">
-            <ace #codeEditor [config]="config" [(value)]="codeSource">
-            </ace>
-        </div>
+      </div>
+      <div class="col-12 col-md">
         <div class="row">
-            <div class="col-auto">
-                <button type="button" (click)="onParseCode()" class="btn btn-warning mr-2">Aperçu</button>
+          <div class="col-auto">
+            <button type="button" (click)="onSauvegarder()" class="btn btn-danger">Sauvegarder</button>
+          </div>
+          <div class="col-auto">
+            <label class="btn btn-primary btn-file">
+              Charger<input type="file" accept=".djn,.txt" style="display: none;" (change)="onOuvrirFichier($event)">
+            </label>
+          </div>
+          <div class="col-12 col-md-auto">
+            <div class="input-group mb-3">
+              <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
+                placeholder="nom d’un exemple">
+              <div class="input-group-append">
+                <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerExemple()" type="button"
+                  id="btExecuter">Charger ex.</button>
+              </div>
             </div>
-            <div class="col-auto">
-                <button type="button" (click)="onJouer()" class="btn btn-success">Jouer</button>
-            </div>
-            <div class="col-auto">
-                <button type="button" (click)="onSauvegarder()" class="btn btn-primary">Sauvegarder</button>
-            </div>
-            <div class="col-auto">
-                <div class="custom-file">
-                    <input type="file" accept=".djn,.txt" (change)="onOuvrirFichier($event)"
-                        class="custom-file-input file-input-primary" id="customFile">
-                    <label class="custom-file-label" for="customFile">Ouvrir un fichier *.djn</label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <input #txCommande type="text" [(ngModel)]="nomExemple" class="form-control"
-                        placeholder="nom d’un exemple à charger">
-                    <div class="input-group-append">
-                        <button [disabled]="!nomExemple" class="btn btn-primary" (click)="onChargerExemple()"
-                            type="button" id="btExecuter">Charger exemple</button>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
+
+
+
+
+    <div class="card content-container mb-2">
+      <ace #codeEditor [config]="config" [(value)]="codeSource">
+      </ace>
+    </div>
+    <div class="row">
+      <div class="col-auto">
+        <button type="button" (click)="onParseCode()" class="btn btn-success mr-2">Aperçu</button>
+      </div>
+      <div class="col-auto">
+        <button type="button" (click)="onJouer()" class="btn btn-warning">Jouer</button>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Compilation -->
-<div *ngIf="erreurs" class="card mb-4">
-    <div class="card-body">
-        <h3>Résultat de la compilation</h3>
-        <div class="text-warning" *ngIf="monde.salles.length == 0">
-            🙄 Je n’ai pas trouvé les lieux à visiter !
-        </div>
-        <div class="text-success" *ngIf="erreurs.length == 0">
-            😀 Super ! Je pense que j’ai tout compris !
-        </div>
-        <div class="text-warning" *ngIf="erreurs.length > 0">
-            😣 Aïe ! Je n’ai pas tout compris…
-        </div>
-        <code>
-            <span *ngFor="let err of erreurs">
-                {{err}}<br>
-            </span>
-        </code>
-    </div>
+<div *ngIf="erreurs" class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <h3>Résultat de la compilation</h3>
+
+    <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
+      <div>
+        <span class="text-warning">Moi je veux bien mais il n’y a aucun code source à traiter. 🙄</span><br>
+        <span class="text-primary">Pssst! Il est possible de charger un exemple pour commencer. 😉</span>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="codeSource && codeSource.trim() != ''">
+      <div class="text-warning" *ngIf="monde.salles.length == 0">
+        🙄 Je n’ai pas trouvé les lieux à visiter !
+      </div>
+      <div class="text-success" *ngIf="erreurs.length == 0">
+        😀 Super ! Je pense que j’ai tout compris !
+      </div>
+      <div class="text-warning" *ngIf="erreurs.length > 0">
+        😣 Aïe ! Je n’ai pas tout compris…
+      </div>
+    </ng-container>
+
+    <code class="text-danger">
+      <span *ngFor="let err of erreurs">
+          {{err}}<br>
+      </span>
+    </code>
+  </div>
 </div>
 <!-- Jeu -->
-<div *ngIf="mode == 'jeu'" class="card mb-4">
-    <div class="card-body">
-        <h3>Jeu</h3>
-        <app-jouer [jeu]="jeu"></app-jouer>
-    </div>
+<div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <h3>Jeu</h3>
+    <app-lecteur [jeu]="jeu"></app-lecteur>
+  </div>
 </div>
 <!-- Aperçu -->
-<div *ngIf="mode == 'apercu'" class="card mb-4">
-    <div class="card-body">
-        <app-apercu-monde [monde]="monde" [regles]="regles"></app-apercu-monde>
-    </div>
+<div *ngIf="mode == 'apercu'" class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <app-apercu-monde [monde]="monde" [regles]="regles"></app-apercu-monde>
+  </div>
 </div>

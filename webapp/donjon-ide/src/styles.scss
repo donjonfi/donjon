@@ -1,6 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
 
-$custom-file-text: (
-  en: "Browse",
-  fr: "Ouvrir"
-);
+@import 'variables';
+@import '../node_modules/bootstrap/scss/bootstrap';
+
