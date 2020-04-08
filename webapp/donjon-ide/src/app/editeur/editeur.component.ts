@@ -7,7 +7,7 @@ import 'brace/theme/chrome';
 
 import * as FileSaver from 'file-saver';
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Compilateur } from '../utils/compilateur';
@@ -84,6 +84,8 @@ export class EditeurComponent implements OnInit {
       // quand lu, l’attribuer au code source
       fileReader.onload = (progressEvent) => {
         this.codeSource = fileReader.result as string;
+        console.log(">>> fichier chargé.");
+        
       };
       // lire le fichier
       fileReader.readAsText(file);
