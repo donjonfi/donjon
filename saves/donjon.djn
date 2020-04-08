@@ -8,7 +8,7 @@ Quand le jeu commence:
 	dire "Bienvenue dans « Le chateau de la terreur »";
 	dire "Si c’est la première fois que tu joues, utilise la commande « aide »
 	pour en savoir plus sur les commandes disponibles.";
-	le joueur est dans devant le portique;
+	le joueur est dans le départ;
 	l'inventaire contient la clé rouillée.
 
 La capacité de l'inventaire vaut 2.
@@ -51,7 +51,7 @@ Le seau est un contenant dans le verger.
 "C'est un grand seau rouge qui semble solide."
 La capacité du seau vaut 4.
 Le cellier est une salle obscure au nord du verger.
-Il y a un coupe branche dans le cellier. C'est un objet.
+Il y a un coupe-branches dans le cellier. C'est un objet.
 
 -- Partie 2 - Dans le chateau du comte Von Hohenberg
 

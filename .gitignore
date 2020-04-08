@@ -287,3 +287,4 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 /webapp/donjon-ide/src/assets/exemples/ca.djn
+/ressources/v1_vs_v2.PNG
