@@ -8,15 +8,13 @@ Quand le jeu commence:
 	dire "Bienvenue dans « Le chateau de la terreur »";
 	dire "Si c’est la première fois que tu joues, utilise la commande « aide »
 	pour en savoir plus sur les commandes disponibles.";
-	le joueur est dans le départ;
+	le joueur se trouve au départ;
 	l'inventaire contient la clé rouillée.
 
 La capacité de l'inventaire vaut 2.
 
 Si l'inventaire est plein,
 	remplacer prendre un objet par dire "Vous ne pouvez plus rien tenir de plus.".
-
-Si le joueur possède une torche, le lieu est éclairé.
 
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
@@ -25,7 +23,7 @@ Sa description est "Vous êtes devant le portique du chateau du comte Von Hohenb
 Il fait nuit. Vous distinguez une faible lueur à travers le 
 portique.".
 Le portique est une porte au sud du départ.
-Il est fermé et pas ouvrable.
+Il est fermé, pas ouvrable, rouillé et froid.
 La clé rouillée est une clé.
 Elle permet d'ouvrir le portique.
 
@@ -35,6 +33,7 @@ L'allée (f) est un lieu au sud du départ.
 Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
 Il y a des torches (f) dans l'allée. Ce sont des objets.
+Si le joueur possède une torche, le lieu est éclairé.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
@@ -43,6 +42,7 @@ Le caveau est une salle obscure à l'intérieur du cimetière.
 Il y a des chauves-souris (f) dans le caveau. Ce sont des animaux.
 Il y a des os (os) dans le caveau. Ce sont des objets.
 Il y a 2 yeux (œil) dans le cimetière. Ce sont des objets.
+Ils permettent de se transformer en monstre.
 
 -- Chapitre 4 - Le verger.
 Le verger est un lieu obscur à l'ouest de l'allée.

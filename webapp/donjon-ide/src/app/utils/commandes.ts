@@ -186,16 +186,27 @@ export class Commandes {
   }
 
   regarder(mots: string[]) {
-    if (this.outils.curSalle) {
-      if (this.outils.curSalle.description) {
-        return this.outils.curSalle.description
-          + this.outils.afficherObjetsCurSalle();
+
+    // regarder la salle actuelle
+    if (mots.length == 1) {
+      if (this.outils.curSalle) {
+        if (this.outils.curSalle.description) {
+          return this.outils.curSalle.description
+            + this.outils.afficherObjetsCurSalle();
+        } else {
+          return "Vous êtes dans " + this.outils.curSalle.déterminant + this.outils.curSalle.intitulé + ".\n"
+            + this.outils.afficherObjetsCurSalle();
+        }
       } else {
-        return "Vous êtes dans " + this.outils.curSalle.déterminant + this.outils.curSalle.intitulé + ".\n"
-          + this.outils.afficherObjetsCurSalle();
+        return "Mais où suis-je ?";
       }
+      // regarder un élément en particulier
     } else {
-      return "Mais où suis-je ?";
+      const trouve = this.outils.trouverObjet(mots);
+
+      if (trouve) {
+        
+      }
     }
   }
 

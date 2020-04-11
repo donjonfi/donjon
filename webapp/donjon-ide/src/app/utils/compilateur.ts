@@ -33,9 +33,9 @@ export class Compilateur {
   static readonly xCaracteresCommentaire = /🚦|🏁/g;
   static readonly xCaractereDebutCommentaire = /🚦/g;
   static readonly xCaractereFinCommentaire = /🏁/g;
-  //   🚦 − retour à la ligne
-  static readonly caractereRetourLigne = '🚦';
-  static readonly xCaractereRetourLigne = /🚦/g;
+  //   ↪ − retour à la ligne
+  static readonly caractereRetourLigne = '↪';
+  static readonly xCaractereRetourLigne = /↪/g;
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
   static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
@@ -66,7 +66,7 @@ export class Compilateur {
   static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l')(\S+) (?:du |de la|de l')(\S+))) (est|vaut)( .+|)/i;
 
   /** capacité -> verbe(1) complément(2) */
-  static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d')(\S+)( .+|)/i;
+  static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d')(se \S+|\S+)( .+|)/i;
 
   /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
    * ex: Le champignon est brun et on peut le cuillir.
@@ -396,25 +396,26 @@ export class Compilateur {
           monde.salles.push(el);
           break;
 
-        case TypeElement.decor:
-          monde.decors.push(el);
-          break;
-
-        case TypeElement.contenant:
-          monde.contenants.push(el);
-          break;
-
-        case TypeElement.animal:
-          monde.animaux.push(el);
-          break;
-
         case TypeElement.porte:
           monde.portes.push(el);
           break;
 
-        case TypeElement.cle:
-          monde.cles.push(el);
-          break;
+        // case TypeElement.decor:
+        //   monde.decors.push(el);
+        //   break;
+
+        // case TypeElement.contenant:
+        //   monde.contenants.push(el);
+        //   break;
+
+        // case TypeElement.animal:
+        //   monde.animaux.push(el);
+        //   break;
+
+
+        // case TypeElement.cle:
+        //   monde.cles.push(el);
+        //   break;
 
         case TypeElement.joueur:
           monde.joueurs.push(el);
@@ -425,8 +426,12 @@ export class Compilateur {
           break;
 
         case TypeElement.objet:
-        case TypeElement.inconnu:
-        case TypeElement.aucun:
+        case TypeElement.decor:
+        case TypeElement.contenant:
+        case TypeElement.animal:
+        case TypeElement.cle:
+        // case TypeElement.inconnu:
+        // case TypeElement.aucun:
           monde.objets.push(el);
           break;
 

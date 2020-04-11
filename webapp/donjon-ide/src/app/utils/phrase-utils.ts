@@ -3,7 +3,7 @@ import { ElementsPhrase } from '../models/commun/elements-phrase';
 export class PhraseUtils {
   static decomposerPhrase(phrase: string) {
     let el: ElementsPhrase = null;
-    const regexDSVC = /^(le |la |les |l'|du |de la|des |un |une )(\S+) (\S+)( .+|)$/i;
+    const regexDSVC = /^(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
     const regexVC = /^(\S+) (.+|)$/i;
     let resultDSVC = regexDSVC.exec(phrase);
     if (resultDSVC) {

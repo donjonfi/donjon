@@ -1,36 +1,32 @@
 {{(el.determinant ? el.determinant : "") + el.nom}}
 <ul>
-  <li>Description: {{el.description}}</li>
-  <li>Genre: {{el.genre}}</li>
-  <li>Nombre: {{el.nombre}}</li>
-  <li>Quantité: {{el.quantite}}</li>
-  <li>Type: {{el.type}}</li>
-  <li>Intitulé type: {{el.intituleType}}</li>
+  <li>Type : {{el.type}} ({{el.intituleType}})</li>
+  <li>Genre/nombre/quantité : {{el.genre}}/{{el.nombre}}/{{el.quantite}}</li>
   <!-- <li *ngIf="el.nomF">Féminin: {{el.nomF}}</li> -->
   <!-- <li *ngIf="el.nomM">Masculin: {{el.nomM}}</li> -->
-  <li *ngIf="el.nomS">Singulier : {{el.nomS}}</li>
-  <li *ngIf="el.nomP">Pluriel : {{el.nomP}}</li>
-
-  <li>Attibuts:<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+  <li>Propriétés :
+    <ul>
+      <li *ngIf="el.description">description : {{el.description}}</li>
+      <li *ngIf="el.nomS">singulier : {{el.nomS}}</li>
+      <li *ngIf="el.nomP">pluriel : {{el.nomP}}</li>
+      <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (' : ' + prop.valeur): '')}}</li>
+    </ul>
+  </li>
+  <li>Attibuts :<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
     <ul *ngIf="el.attributs">
       <li *ngFor="let at of el.attributs">{{at}}</li>
     </ul>
   </li>
-  <li>Capacitées:<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
+  <li>Capacitées :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
     <ul *ngIf="el.capacites">
       <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
     </ul>
   </li>
-  <li>Propriétés:<span *ngIf="!el.proprietes || el.proprietes.length == 0"> (aucune)</span>
-    <ul *ngIf="el.proprietes">
-      <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (': ' + prop.valeur): '')}}</li>
-    </ul>
-  </li>
-  <li>Position: <span *ngIf="! el.positionString"> ?</span>
+  <li>Position : <span *ngIf="! el.positionString"> ?</span>
     <ul *ngIf="el.positionString">
-      <li>Sujet : {{el.positionString.sujet}}</li>
-      <li>Position : {{el.positionString.position}}</li>
-      <li>Complement : {{el.positionString.complement}}</li>
+      <li>sujet : {{el.positionString.sujet}}</li>
+      <li>position : {{el.positionString.position}}</li>
+      <li>complement : {{el.positionString.complement}}</li>
     </ul>
   </li>
 </ul>
