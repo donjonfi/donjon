@@ -35,7 +35,8 @@ export class PhraseUtils {
     }
     el.verbe = el.verbe.toLowerCase().trim();
     if (el.complement) {
-      el.complement = el.complement.toLowerCase().trim();
+      // ne PAS changer la casse, c’est peut-être un texte à conserver tel quel !
+      el.complement = el.complement.trim();
     }
     return el;
   }

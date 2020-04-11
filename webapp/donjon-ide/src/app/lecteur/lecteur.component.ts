@@ -96,7 +96,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     switch (instruction.verbe.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        this.resultat += "\n" + instruction.complement.trim().slice(1, instruction.complement.length - 2).trim();
+        this.resultat += "\n" + instruction.complement.trim().slice(1, instruction.complement.length - 1).trim();
         break;
 
       default:

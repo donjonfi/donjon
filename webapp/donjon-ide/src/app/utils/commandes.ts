@@ -236,9 +236,14 @@ export class Commandes {
       // regarder un élément en particulier
     } else {
       const trouve = this.outils.trouverObjet(mots);
-
       if (trouve) {
-
+        if (trouve.description) {
+          return trouve.description;
+        } else {
+          return (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntituleObjet(trouve, false, null);
+        }
+      } else {
+        return "Je ne vois pas ça.";
       }
     }
   }

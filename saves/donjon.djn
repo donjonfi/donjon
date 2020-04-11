@@ -6,8 +6,8 @@
 
 Avant le jeu commence:
 	dire "Bienvenue dans « Le chateau de la terreur » !";
-	dire "Si c’est la première fois que tu joues, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
-	le joueur se trouve dans l’allée;
+	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
+	le joueur se trouve au départ;
 	l'inventaire contient la clé rouillée.
 
 La capacité de l'inventaire vaut 2.
@@ -21,9 +21,10 @@ Son intitulé est "Devant le portique".
 Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg.
 La nuit vient de tomber. Vous entendez encore des grillons.
 Vous distinguez une faible lueur à travers les bareaux."
-Le portique est une porte au sud du départ.
+Le portique est une porte au sud du départ. "Il s’agit d’un portique en métal. Il est sale et rouillé mais il semble néammoins toujours solide. Il est fermé."
 Il est fermé, pas ouvrable, rouillé et froid.
 Il y a des grillons dans le départ. Ce sont des animaux.
+"Vous sentez plus que vous ne voyez des petites formes qui se déplacent dans les herbes hautes (il fait noir.)".
 La clé rouillée est une clé.
 Elle permet d'ouvrir le portique.
 

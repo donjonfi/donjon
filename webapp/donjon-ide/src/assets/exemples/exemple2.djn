@@ -4,11 +4,10 @@
 
 -- Chapitre 0 - Règles.
 
-Quand le jeu commence:
-	dire "Bienvenue dans « Le chateau de la terreur »";
-	dire "Si c’est la première fois que tu joues, utilise la commande « aide »
-	pour en savoir plus sur les commandes disponibles.";
-	le joueur est dans devant le portique;
+Avant le jeu commence:
+	dire "Bienvenue dans « Le chateau de la terreur » !";
+	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
+	le joueur se trouve au départ;
 	l'inventaire contient la clé rouillée.
 
 La capacité de l'inventaire vaut 2.
@@ -16,16 +15,16 @@ La capacité de l'inventaire vaut 2.
 Si l'inventaire est plein,
 	remplacer prendre un objet par dire "Vous ne pouvez plus rien tenir de plus.".
 
-Si le joueur possède une torche, le lieu est éclairé.
-
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
 Son intitulé est "Devant le portique".
-Sa description est "Vous êtes devant le portique du chateau du comte Von Hohenberg.
-Il fait nuit. Vous distinguez une faible lueur à travers le 
-portique.".
-Le portique est une porte au sud du départ.
-Il est fermé et pas ouvrable.
+Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg.
+La nuit vient de tomber. Vous entendez encore des grillons.
+Vous distinguez une faible lueur à travers les bareaux."
+Le portique est une porte au sud du départ. "Il s’agit d’un portique en métal. Il est sale et rouillé mais il semble néammoins toujours solide. Il est fermé."
+Il est fermé, pas ouvrable, rouillé et froid.
+Il y a des grillons dans le départ. Ce sont des animaux.
+"Vous sentez plus que vous ne voyez des petites formes qui se déplacent dans les herbes hautes (il fait noir.)".
 La clé rouillée est une clé.
 Elle permet d'ouvrir le portique.
 
@@ -34,21 +33,38 @@ L'allée (f) est un lieu au sud du départ.
 "Vous êtes dans l'allée qui mène à l'entrée du chateau.
 Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
+Il y a des torches (f) dans l'allée. Ce sont des objets.
+Si le joueur possède une torche, le lieu est éclairé.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
+Si le cimetière est obscur:
+  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  son intitulé est "?".
+Si le cimetière est éclairé:
+  sa description est "Vous êtes dans un cimetière lugubre. Il y a des bruits vraiment étranges qui ne vous inspirent pas confiance.";
+  son intitulé est "?".
+Il y a des tombes (f) dans le cimetière. Ce sont des décors.
 Le caveau est une salle obscure à l'intérieur du cimetière.
-Il y a des tombes dans le cimetière. Ce sont des décors.
-Il y a des os dans le caveau. Ce sont des objets.
+Il y a des chauves-souris (f) dans le caveau. Ce sont des animaux.
+Il y a des os (os) dans le caveau. Ce sont des objets.
+Il y a 2 yeux (œil) dans le cimetière. Ce sont des objets.
+Ils permettent de se transformer en monstre.
 
 -- Chapitre 4 - Le verger.
 Le verger est un lieu obscur à l'ouest de l'allée.
+Si le verger est obscur:
+  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  son intitulé est "?".
+Si le verger est éclairé:
+  sa description est "Vous êtes dans un verger. Il y a de nombreux arbres.";
+  son intitulé est "?".
 Il y a des pommiers dans le verger. Ce sont des décors.
 Le seau est un contenant dans le verger.
 "C'est un grand seau rouge qui semble solide."
 La capacité du seau vaut 4.
 Le cellier est une salle obscure au nord du verger.
-Il y a un coupe branche dans le cellier. C'est un objet.
+Il y a un coupe-branches dans le cellier. C'est un objet.
 
 -- Partie 2 - Dans le chateau du comte Von Hohenberg
 

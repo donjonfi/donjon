@@ -4,32 +4,34 @@ import { TypeElement } from '../commun/type-element.enum';
 
 export class Objet {
 
-    id: number;
+  id: number;
 
-    type: TypeElement;
+  type: TypeElement;
 
-    intitule: string;
-    intituleP: string;
-    intituleS: string;
-    intituleM: string;
-    intituleF: string;
-    determinant: string;
-    /**
-     * Quantité disponible de l’objet.
-     * > -1: illimité.
-     */
-    quantite: number;
-    /**
-     * Féminin / Masculin / Neutre
-     */
-    genre: Genre;
-    /**
-     * Singulier / Pluriel / Indéfini
-     */
-    nombre: Nombre;
-    /**
-     * État de l’objet (allumé, fermé, cassé, …)
-     */
-    etat: string[];
+  intitule: string;
+  intituleP: string;
+  intituleS: string;
+  intituleM: string;
+  intituleF: string;
+  determinant: string;
+  /**
+   * Quantité disponible de l’objet.
+   * > -1: illimité.
+   */
+  quantite: number;
+  /**
+   * Féminin / Masculin / Neutre
+   */
+  genre: Genre;
+  /**
+   * Singulier / Pluriel / Indéfini
+   */
+  nombre: Nombre;
+  /**
+   * État de l’objet (allumé, fermé, cassé, …)
+   */
+  etat: string[];
+
+  description: string;
 
 }

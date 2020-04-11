@@ -120,7 +120,7 @@ export class OutilsCommandes {
     let determinant = '';
     let premierMot: string;
 
-    if (mots[1] == 'la' || mots[1] == 'le' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
+    if (mots[1] == 'la' || mots[1] == 'le' || mots[1] === 'les' || mots[1] == 'l’' || mots[1] == 'l\'' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
       determinant = mots[1];
       premierMot = mots[2];
     } else {
@@ -243,7 +243,7 @@ export class OutilsCommandes {
     if (objets.length == 0) {
       retVal = "\nJe ne vois pas d’objet ici.";
     } else {
-      retVal = "\nContenu de la pièce :";
+      retVal = "\nCe que vous voyez ici :";
       objets.forEach(o => {
         retVal += "\n - Il y a " + OutilsCommandes.afficherQuantiteIntituleObjet(o, false, null);
       });

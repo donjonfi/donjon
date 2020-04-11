@@ -94,6 +94,7 @@ export class Generateur {
       let newObjet = new Objet();
       newObjet.id = index;
       newObjet.intitule = curEle.nom;
+      newObjet.description = curEle.description;
 
       if (curEle.nombre == Nombre.p) {
         newObjet.intituleP = curEle.nom;
