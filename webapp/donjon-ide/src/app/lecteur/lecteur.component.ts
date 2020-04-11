@@ -1,6 +1,9 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Commandes } from '../utils/commandes';
+import { Declancheur } from '../utils/declancheur';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Instruction } from '../models/jouer/instruction';
 import { Jeu } from '../models/jeu/jeu';
 
 @Component({
@@ -24,6 +27,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   private com: Commandes;
 
+  private dec: Declancheur;
+
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
@@ -37,14 +42,121 @@ export class LecteurComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
-
+      this.resultat = "";
       this.com = new Commandes(this.jeu, this.verbeux);
+      this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
 
-      this.resultat = "" + (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
-      // afficher où on est.
-      this.resultat += "\n" + this.com.ouSuisJe();
+      this.resultat += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
+
+      let evLeJeuCommence = new ElementsPhrase(null, 'le', 'jeu', 'commence', null);
+
+      // éxécuter les instructions AVANT le jeu commence
+      this.executerInstructions(this.dec.avant(evLeJeuCommence));
+
+      // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
+      if (!this.executerInstructions(this.dec.remplacer(evLeJeuCommence))) {
+        // afficher où on est.
+        this.resultat += "\n" + this.com.ouSuisJe();
+      }
+
+      // éxécuter les instructions APRÈS le jeu commence
+      this.executerInstructions(this.dec.apres(evLeJeuCommence));
+
     } else {
       console.warn("pas de jeu :(");
+    }
+  }
+
+  private executerInstructions(instructions: ElementsPhrase[]): boolean {
+    if (instructions && instructions.length > 0) {
+      instructions.forEach(ins => {
+        this.executerInstruction(ins);
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private executerInstruction(instruction: ElementsPhrase) {
+    if (this.verbeux) {
+      console.log(">>> ex instruction:", instruction);
+    }
+
+    if (instruction.sujet == null && instruction.verbe) {
+      this.executerVerbe(instruction);
+    } else if (instruction.sujet) {
+      this.executerSujetVerbe(instruction);
+    } else {
+      console.warn("executerInstruction : pas compris instruction:", instruction);
+    }
+  }
+
+  private executerVerbe(instruction: ElementsPhrase) {
+    switch (instruction.verbe.toLowerCase()) {
+      case 'dire':
+        // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
+        this.resultat += "\n" + instruction.complement.trim().slice(1, instruction.complement.length - 2).trim();
+        break;
+
+      default:
+        console.warn("executerVerbe : pas compris instruction:", instruction);
+        break;
+    }
+  }
+
+  private executerSujetVerbe(instruction: ElementsPhrase) {
+    switch (instruction.sujet.toLowerCase()) {
+      case 'joueur':
+        this.executerJoueur(instruction);
+        break;
+
+      case 'inventaire':
+        this.executerInventaire(instruction);
+        break;
+
+      default:
+        console.warn("executerSujetVerbe : pas compris instruction:", instruction);
+        break;
+    }
+  }
+
+  private executerJoueur(instruction: ElementsPhrase) {
+    switch (instruction.verbe.toLowerCase()) {
+      case 'se trouve':
+        this.com.outils.positionnerJoueur(instruction.complement);
+        break;
+
+      default:
+        console.warn("executerJoueur : pas compris verbe", instruction.verbe, instruction);
+        break;
+    }
+  }
+
+  private executerInventaire(instruction: ElementsPhrase) {
+    switch (instruction.verbe.toLowerCase()) {
+      case 'contient':
+        let mots = [""].concat(instruction.complement.split(" "));
+        let objetTrouve = this.com.outils.trouverObjet(mots, true);
+        if (objetTrouve) {
+          const nouvelObjet = this.com.outils.prendreObjet(objetTrouve.id, true);
+          let cible = nouvelObjet;
+          // si l'inventaire contient déjà le même objet, augmenter la quantité
+          let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
+          if (objInv) {
+            objInv.quantite += 1;
+            cible = objInv;
+          } else {
+            this.jeu.inventaire.objets.push(nouvelObjet);
+          }
+        } else {
+          console.warn("executerInventaire > contient > objet pas trouvé:", instruction.complement);
+        }
+
+        break;
+
+      default:
+        break;
     }
   }
 

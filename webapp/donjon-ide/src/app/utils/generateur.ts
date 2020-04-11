@@ -1,5 +1,7 @@
 import { Auditeur } from '../models/jouer/auditeur';
+import { Consequence } from '../models/compilateur/consequence';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Instruction } from '../models/jouer/instruction';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
@@ -85,9 +87,55 @@ export class Generateur {
       }
     }
 
-    // PLACER LES OBJETS DANS LES SALLES
+    // PLACER LES OBJETS DANS LES SALLES (ET DANS LA LISTE COMMUNE)
     for (let index = 0; index < monde.objets.length; index++) {
       const curEle = monde.objets[index];
+
+      let newObjet = new Objet();
+      newObjet.id = index;
+      newObjet.intitule = curEle.nom;
+
+      if (curEle.nombre == Nombre.p) {
+        newObjet.intituleP = curEle.nom;
+        if (curEle.nomS) {
+          newObjet.intituleS = curEle.nomS;
+        } else {
+          // essayer de déterminer le singulier sur base des règles les plus communes
+          if (curEle.nom.endsWith('eaux') || curEle.nom.endsWith('eux')) {
+            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
+          } else if (curEle.nom.endsWith('aux')) {
+            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 2) + 'l';
+          } else if (curEle.nom.endsWith('s')) {
+            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
+          } else {
+            newObjet.intituleS = curEle.nom;
+          }
+        }
+      } else if (curEle.nombre == Nombre.s) {
+        newObjet.intituleS = curEle.nom;
+
+        if (curEle.nomP) {
+          newObjet.intituleP = curEle.nomP;
+        } else {
+          // essayer de déterminer le pluriel sur base des règles les plus communes
+          if (curEle.nom.endsWith('al')) {
+            newObjet.intituleP = curEle.nom.slice(0, curEle.nom.length - 1) + 'ux';
+          } else if (curEle.nom.endsWith('au') || curEle.nom.endsWith('eu')) {
+            newObjet.intituleP = curEle.nom + 'x';
+          } else if (curEle.nom.endsWith('s') || curEle.nom.endsWith('x') || curEle.nom.endsWith('z')) {
+            newObjet.intituleP = curEle.nom;
+          } else {
+            newObjet.intituleP = curEle.nom + 's';
+          }
+        }
+      }
+
+      newObjet.determinant = curEle.determinant;
+      newObjet.genre = curEle.genre;
+      newObjet.nombre = curEle.nombre;
+      newObjet.quantite = curEle.quantite;
+      newObjet.etat = curEle.attributs;
+      newObjet.type = curEle.type;
 
       if (curEle.positionString) {
         // const localisation = Generateur.getLocalisation(curEle.positionString.position);
@@ -95,57 +143,22 @@ export class Generateur {
 
         if (salleID === -1) {
           console.log("position objet pas trouvé: ", curEle.nom, curEle.positionString);
+          jeu.objets.push(newObjet);
+          // objet pas positionné
         } else {
-          let newObjet = new Objet();
-          newObjet.id = index;
-          newObjet.intitule = curEle.nom;
-
-          if (curEle.nombre == Nombre.p) {
-            newObjet.intituleP = curEle.nom;
-            if (curEle.nomS) {
-              newObjet.intituleS = curEle.nomS;
-            } else {
-              // essayer de déterminer le singulier sur base des règles les plus communes
-              if (curEle.nom.endsWith('eaux') || curEle.nom.endsWith('eux')) {
-                newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
-              } else if (curEle.nom.endsWith('aux')) {
-                newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 2) + 'l';
-              } else if (curEle.nom.endsWith('s')) {
-                newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
-              } else {
-                newObjet.intituleS = curEle.nom;
-              }
-            }
-          } else if (curEle.nombre == Nombre.s) {
-            newObjet.intituleS = curEle.nom;
-
-            if (curEle.nomP) {
-              newObjet.intituleP = curEle.nomP;
-            } else {
-              // essayer de déterminer le pluriel sur base des règles les plus communes
-              if (curEle.nom.endsWith('al')) {
-                newObjet.intituleP = curEle.nom.slice(0, curEle.nom.length - 1) + 'ux';
-              } else if (curEle.nom.endsWith('au') || curEle.nom.endsWith('eu')) {
-                newObjet.intituleP = curEle.nom + 'x';
-              } else if (curEle.nom.endsWith('s') || curEle.nom.endsWith('x') || curEle.nom.endsWith('z')) {
-                newObjet.intituleP = curEle.nom;
-              } else {
-                newObjet.intituleP = curEle.nom + 's';
-              }
-            }
-          }
-
-          newObjet.determinant = curEle.determinant;
-          newObjet.genre = curEle.genre;
-          newObjet.nombre = curEle.nombre;
-          newObjet.quantite = curEle.quantite;
-          newObjet.etat = curEle.attributs;
-          newObjet.type = curEle.type;
           jeu.salles[salleID].inventaire.objets.push(newObjet);
         }
+        // objet pas positionné
+      } else {
+        if (!jeu.objets) {
+          console.warn(" jeu.objets est vide ?!");
+          jeu.objets = new Array<Objet>();
+        }
+        jeu.objets.push(newObjet);
       }
     }
 
+    // PLACEMENT DU JOUEUR
     // si pas de position définie, on commence dans la première salle
     if (!jeu.position) {
       if (jeu.salles.length > 0) {
@@ -154,12 +167,11 @@ export class Generateur {
     }
 
     // générer les auditeurs
-
     regles.forEach(regle => {
       switch (regle.typeRegle) {
-        case TypeRegle.quand:
         case TypeRegle.apres:
         case TypeRegle.avant:
+        case TypeRegle.remplacer:
           jeu.auditeurs.push(Generateur.getAuditeur(regle));
           break;
 
@@ -179,9 +191,9 @@ export class Generateur {
     auditeur.sujet = regle.condition.sujet;
     auditeur.verbe = regle.condition.verbe;
     auditeur.complement = regle.condition.complement;
+    auditeur.instructions = regle.instructions;
     return auditeur;
   }
-
   /**
    * Retrouver une salle sur base de son intitulé.
    * @param salles 

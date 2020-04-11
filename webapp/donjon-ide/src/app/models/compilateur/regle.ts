@@ -1,10 +1,10 @@
 import { Condition } from './condition';
-import { Consequence } from './consequence';
+import { ElementsPhrase } from '../commun/elements-phrase';
 import { TypeRegle } from './type-regle';
 
 export class Regle {
 
-  public consequences: Consequence[] = [];
+  public instructions: ElementsPhrase[] = [];
 
     constructor(
         public typeRegle: TypeRegle,

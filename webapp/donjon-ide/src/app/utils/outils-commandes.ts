@@ -15,7 +15,7 @@ export class OutilsCommandes {
 
   static copierObjet(original: Objet) {
     let retVal = new Objet();
-    retVal.quantite = 1;
+    retVal.quantite = 1; // ça on copie pas !
     retVal.nombre = Nombre.s;
     retVal.genre = original.genre;
     retVal.determinant = original.determinant;
@@ -94,7 +94,25 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  trouverObjet(mots: string[]) {
+  positionnerJoueur(position: string) {
+    position = position.replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
+    // chercher la salle
+    let sallesTrouvees = this.jeu.salles.filter(x => OutilsCommandes.normaliserMot(x.nom).startsWith(position));
+    // si on n’a pas trouvé
+    if (sallesTrouvees.length == 0) {
+      console.warn("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
+      // si on a trouvé une salle
+    } else if (sallesTrouvees.length == 1) {
+      this.jeu.position = sallesTrouvees[0].id;
+      // si on a trouvé plusieurs salles différentes
+    } else if (sallesTrouvees.length > 1) {
+      // TODO: ajouter des mots en plus
+    }
+  }
+
+  trouverObjet(mots: string[], objetNonPlace = false) {
+
+    let listeObjets = (objetNonPlace ? this.jeu.objets : this.curSalle.inventaire.objets);
 
     let retVal: Objet = null;
 
@@ -113,10 +131,10 @@ export class OutilsCommandes {
     premierMot = OutilsCommandes.normaliserMot(premierMot);
 
     // à priori on recherche sur le singulier
-    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
+    let objetsTrouves = listeObjets.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
     // si rien trouvé, on recherche sur la forme par défaut
     if (objetsTrouves.length == 0) {
-      objetsTrouves = this.curSalle.inventaire.objets.filter(x => OutilsCommandes.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
+      objetsTrouves = listeObjets.filter(x => OutilsCommandes.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
     }
     // si on a trouvé un objet
     if (objetsTrouves.length == 1) {
@@ -132,14 +150,14 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  prendreObjet(objetID) {
+  prendreObjet(objetID, objetNonPlace = false) {
     let retVal: Objet = null;
+    let listeObjets = (objetNonPlace ? this.jeu.objets : this.curSalle.inventaire.objets);
     // un seul exemplaire : on le retire de l'inventaire et on le retourne.
-    let objetIndex = this.curSalle.inventaire.objets.findIndex(x => x.id === objetID);
-    let objet = this.curSalle.inventaire.objets[objetIndex];
+    let objetIndex = listeObjets.findIndex(x => x.id === objetID);
+    let objet = listeObjets[objetIndex];
     if (objet.quantite == 1) {
-      retVal = this.curSalle.inventaire.objets.splice(objetIndex, 1)[0];
-
+      retVal = listeObjets.splice(objetIndex, 1)[0];
       // plusieurs exemplaires : on le clone
     } else {
       // décrémenter quantité si pas infini
@@ -151,8 +169,6 @@ export class OutilsCommandes {
     }
     return retVal;
   }
-
-
 
   getSalle(index: number) {
     return this.jeu.salles.find(x => x.id === index);

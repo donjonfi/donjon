@@ -4,9 +4,7 @@ import { Capacite } from '../models/compilateur/capacite';
 import { Consequence } from '../models/compilateur/consequence';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
-import { Generateur } from './generateur';
 import { Genre } from '../models/commun/genre.enum';
-import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
@@ -15,7 +13,6 @@ import { PositionSujetString } from '../models/compilateur/position-sujet';
 import { Propriete } from '../models/compilateur/propriete';
 import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
-import { StringUtils } from './string.utils';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { TypeValeur } from '../models/compilateur/type-valeur';
@@ -77,8 +74,8 @@ export class Compilateur {
 
   // INSTRUCTION
 
-  /** condition/événement -> quand|si(1), {condition}(2), {conséquences}(3) */
-  static readonly rQuandSi = /^(quand|si) (.+)(?:,|:)(.+)/i;
+  /** condition/événement -> avant|après|remplacer|si(1), {condition}(2), {conséquences}(3) */
+  static readonly rAvantApresRemplacerSi = /^(avant|après|remplacer|si) (.+)(?:,|:)(.+)/i;
 
   /**
    * Interpréter le code source fourni et renvoyer le jeu correspondant.
@@ -470,7 +467,7 @@ export class Compilateur {
             if (els.complement) {
               els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
             }
-            regle.consequences.push(new Consequence(els.determinant, els.pronom, els.sujet, els.verbe, els.complement));
+            regle.instructions.push(new Consequence(els.determinant, els.pronom, els.sujet, els.verbe, els.complement));
           } else {
             erreurs.push("conséquence : " + conBruNettoyee);
           }
@@ -496,7 +493,7 @@ export class Compilateur {
 
 
   private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
-    let result = Compilateur.rQuandSi.exec(phrase.phrase[0]);
+    let result = Compilateur.rAvantApresRemplacerSi.exec(phrase.phrase[0]);
 
     if (result !== null) {
 

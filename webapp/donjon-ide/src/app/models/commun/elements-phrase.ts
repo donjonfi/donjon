@@ -1,7 +1,11 @@
 export class ElementsPhrase {
-  pronom: string;
-  determinant: string;
-  sujet: string;
-  verbe: string;
-  complement: string;
+
+  constructor(
+    public pronom: string,
+    public determinant: string,
+    public sujet: string,
+    public verbe: string,
+    public complement: string
+  ) { }
+
 }

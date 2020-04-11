@@ -18,14 +18,14 @@
         </li>
         <li>Conséquences:
           <ul>
-            <li *ngFor="let cons of re.consequences; index as i">
+            <li *ngFor="let ins of re.instructions; index as i">
               Conséquence {{(i+1)}} :
               <ul>
-                <li *ngIf="cons.sujet">
-                  Sujet : {{cons.determinant ? ("["+cons.determinant.trim()+ "] ") : ""}}{{cons.pronom ? ("["+cons.pronom.trim()+ "] ") : ""}}{{cons.sujet}}
+                <li *ngIf="ins.sujet">
+                  Sujet : {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
                 </li>
-                <li>Verbe : {{cons.verbe}}</li>
-                <li *ngIf="cons.complement">Compl : {{cons.complement}}</li>
+                <li>Verbe : {{ins.verbe}}</li>
+                <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
               </ul>
             </li>
           </ul>
