@@ -123,7 +123,7 @@ export class Generateur {
                     newObjet.determinant = curEle.determinant;
                     newObjet.genre = curEle.genre;
                     newObjet.nombre = curEle.nombre;
-                    newObjet.quantité = curEle.quantite;
+                    newObjet.quantite = curEle.quantite;
                     newObjet.etat = curEle.attributs;
                     jeu.salles[salleID].inventaire.objets.push(newObjet);
                 }

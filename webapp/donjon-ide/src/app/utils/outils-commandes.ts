@@ -3,6 +3,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Objet } from '../models/jeu/objet';
+import { ResolvedStaticSymbol } from '@angular/compiler';
 
 export class OutilsCommandes {
 
@@ -14,7 +15,7 @@ export class OutilsCommandes {
 
   static copierObjet(original: Objet) {
     let retVal = new Objet();
-    retVal.quantité = 1;
+    retVal.quantite = 1;
     retVal.nombre = Nombre.s;
     retVal.genre = original.genre;
     retVal.determinant = original.determinant;
@@ -51,17 +52,45 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  static afficherUnUneDes(o: Objet, majuscule: boolean, estFeminin: boolean, estSingulier: boolean) {
+  static afficherUnUneDesQuantite(o: Objet, majuscule: boolean, estFeminin: boolean, estSingulier: boolean) {
     let retVal: string;
-    if (o.quantité == 1 || estSingulier) {
+    if (o.quantite == 1 || estSingulier) {
       if (o.genre == Genre.f || estFeminin) {
         retVal = majuscule ? "Une " : "une ";
       } else {
         retVal = majuscule ? "Un " : "un ";
       }
-    } else {
+    } else if (o.quantite >= 10 || o.quantite == -1) {
       retVal = majuscule ? "Des " : "des ";
+    } else {
+      retVal = (o.quantite + " ");
     }
+    return retVal;
+  }
+
+  static afficherQuantiteIntituleObjet(o: Objet, majuscule: boolean, estFeminin: boolean) {
+
+    let determinant = OutilsCommandes.afficherUnUneDesQuantite(o, majuscule, estFeminin, null);
+    let intitule = o.intitule;
+
+    if (o.intituleS && o.quantite == 1) {
+      intitule = o.intituleS;
+    } else if (o.intituleP) {
+      intitule = o.intituleP;
+    }
+
+    return determinant + intitule;
+  }
+
+  static normaliserMot(mot: string) {
+    const retVal = mot
+      .toLocaleLowerCase()
+      .replace(/œ/g, 'oe')
+      .replace(/æ/g, 'ae')
+      .replace(/éèêë/g, 'e')
+      .replace(/ï/g, 'i')
+      .replace(/àä/g, 'a')
+      .replace(/ç/g, 'c');
     return retVal;
   }
 
@@ -80,11 +109,14 @@ export class OutilsCommandes {
       premierMot = mots[1];
     }
 
+    // remplacer les carctères doubles et les accents
+    premierMot = OutilsCommandes.normaliserMot(premierMot);
+
     // à priori on recherche sur le singulier
-    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intituleS.startsWith(premierMot) && x.quantité !== 0);
+    let objetsTrouves = this.curSalle.inventaire.objets.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
     // si rien trouvé, on recherche sur la forme par défaut
     if (objetsTrouves.length == 0) {
-      objetsTrouves = this.curSalle.inventaire.objets.filter(x => x.intitule.startsWith(premierMot) && x.quantité !== 0);
+      objetsTrouves = this.curSalle.inventaire.objets.filter(x => OutilsCommandes.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
     }
     // si on a trouvé un objet
     if (objetsTrouves.length == 1) {
@@ -105,14 +137,14 @@ export class OutilsCommandes {
     // un seul exemplaire : on le retire de l'inventaire et on le retourne.
     let objetIndex = this.curSalle.inventaire.objets.findIndex(x => x.id === objetID);
     let objet = this.curSalle.inventaire.objets[objetIndex];
-    if (objet.quantité == 1) {
+    if (objet.quantite == 1) {
       retVal = this.curSalle.inventaire.objets.splice(objetIndex, 1)[0];
 
       // plusieurs exemplaires : on le clone
     } else {
       // décrémenter quantité si pas infini
-      if (objet.quantité != -1) {
-        objet.quantité -= 1;
+      if (objet.quantite != -1) {
+        objet.quantite -= 1;
       }
       // faire une copie
       retVal = OutilsCommandes.copierObjet(objet);
@@ -173,19 +205,13 @@ export class OutilsCommandes {
 
   afficherInventaire() {
     let retVal: string;
-    let objets = this.jeu.inventaire.objets.filter(x => x.quantité !== 0);
+    let objets = this.jeu.inventaire.objets.filter(x => x.quantite !== 0);
     if (objets.length == 0) {
       retVal = "\nVotre inventaire est vide.";
     } else {
       retVal = "\nContenu de l'inventaire :";
       objets.forEach(o => {
-        // un seul
-        if (o.quantité == 1) {
-          retVal += "\n - " + (OutilsCommandes.afficherUnUneDes(o, false, false, true) + o.intituleS);
-          // plusieur
-        } else {
-          retVal += "\n - " + o.quantité + " " + o.intituleP;
-        }
+        retVal += "\n - " + OutilsCommandes.afficherQuantiteIntituleObjet(o, false, null);
       });
     }
     return retVal;
@@ -194,18 +220,20 @@ export class OutilsCommandes {
   afficherObjetsCurSalle() {
     let retVal: string;
 
-    let objets = this.curSalle.inventaire.objets.filter(x => x.quantité !== 0);
+    let objets = this.curSalle.inventaire.objets.filter(x => x.quantite !== 0);
 
     if (objets.length == 0) {
       retVal = "\nJe ne vois rien ici.";
     } else {
       retVal = "\nContenu de la pièce :";
       objets.forEach(o => {
-        retVal += "\n - Il y a " + (OutilsCommandes.afficherUnUneDes(o, false, false, false) + o.intitule);
+        retVal += "\n - Il y a " + OutilsCommandes.afficherQuantiteIntituleObjet(o, false, null);
       });
     }
     return retVal;
   }
+
+
 
   afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
     switch (localisation) {

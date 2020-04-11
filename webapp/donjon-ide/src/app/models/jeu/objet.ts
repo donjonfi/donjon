@@ -15,7 +15,7 @@ export class Objet {
      * Quantité disponible de l’objet.
      * > -1: illimité.
      */
-    quantité: number;
+    quantite: number;
     /**
      * Féminin / Masculin / Neutre
      */
