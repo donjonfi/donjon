@@ -179,7 +179,9 @@ export class OutilsCommandes {
 
   afficherCurSalle() {
     if (this.curSalle) {
-      return "—————————————————\n" + this.curSalle.déterminant + this.curSalle.intitulé + "\n—————————————————\n"
+      return "—————————————————\n" +
+        (this.curSalle.intitule ? (this.curSalle.intitule) : (this.curSalle.determinant + this.curSalle.nom))
+        + "\n—————————————————\n"
         + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
         + this.afficherSorties()
     } else {
@@ -223,7 +225,7 @@ export class OutilsCommandes {
     let objets = this.curSalle.inventaire.objets.filter(x => x.quantite !== 0);
 
     if (objets.length == 0) {
-      retVal = "\nJe ne vois rien ici.";
+      retVal = "\nJe ne vois pas d’objet ici.";
     } else {
       retVal = "\nContenu de la pièce :";
       objets.forEach(o => {
@@ -247,13 +249,13 @@ export class OutilsCommandes {
         return "ouest (o)";
 
       case Localisation.bas:
-        return "descendre " + this.getSalle(voisinIndex)?.intitulé + " (de)";
+        return "descendre " + this.getSalle(voisinIndex)?.nom + " (de)";
       case Localisation.haut:
-        return "monter " + this.getSalle(voisinIndex)?.intitulé + " (mo)";
+        return "monter " + this.getSalle(voisinIndex)?.nom + " (mo)";
       case Localisation.exterieur:
-        return "sortir " + this.getSalle(curSalleIndex)?.intitulé + " (so)";
+        return "sortir " + this.getSalle(curSalleIndex)?.nom + " (so)";
       case Localisation.interieur:
-        return "entrer " + this.getSalle(voisinIndex)?.intitulé + " (en)";
+        return "entrer " + this.getSalle(voisinIndex)?.nom + " (en)";
 
       default:
         return localisation.toString();

@@ -1,9 +1,12 @@
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
+import { TypeElement } from '../commun/type-element.enum';
 
 export class Objet {
 
     id: number;
+
+    type: TypeElement;
 
     intitule: string;
     intituleP: string;

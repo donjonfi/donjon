@@ -470,7 +470,7 @@ export class Compilateur {
             if (els.complement) {
               els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
             }
-            regle.consequences.push(new Consequence(els.determinant, els.sujet, els.verbe, els.complement));
+            regle.consequences.push(new Consequence(els.determinant, els.pronom, els.sujet, els.verbe, els.complement));
           } else {
             erreurs.push("conséquence : " + conBruNettoyee);
           }

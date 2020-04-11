@@ -1,6 +1,7 @@
 export class ElementsPhrase {
-    determinant: string;
-    sujet: string;
-    verbe: string;
-    complement: string;
+  pronom: string;
+  determinant: string;
+  sujet: string;
+  verbe: string;
+  complement: string;
 }

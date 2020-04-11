@@ -13,7 +13,7 @@
               Sujet :{{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
             </li>
             <li>Verbe : {{re.condition.verbe}}</li>
-            <li *ngIf="re.condition.complement">{{re.condition.complement}}</li>
+            <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
           </ul>
         </li>
         <li>Conséquences:
@@ -22,7 +22,7 @@
               Conséquence {{(i+1)}} :
               <ul>
                 <li *ngIf="cons.sujet">
-                  Sujet : {{cons.determinant ? ("["+cons.determinant.trim()+ "] ") : ""}}{{cons.sujet}}
+                  Sujet : {{cons.determinant ? ("["+cons.determinant.trim()+ "] ") : ""}}{{cons.pronom ? ("["+cons.pronom.trim()+ "] ") : ""}}{{cons.sujet}}
                 </li>
                 <li>Verbe : {{cons.verbe}}</li>
                 <li *ngIf="cons.complement">Compl : {{cons.complement}}</li>

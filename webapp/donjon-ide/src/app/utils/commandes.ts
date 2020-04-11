@@ -2,6 +2,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
 import { Salle } from '../models/jeu/salle';
+import { TypeElement } from '../models/commun/type-element.enum';
 
 export class Commandes {
 
@@ -22,6 +23,10 @@ export class Commandes {
 
   prendre(mots: string[]) {
 
+    if (this.verbeux) {
+      console.log("commande: PRENDRE >>>", mots);
+    }
+
     // TODO: vérifier si on peut prendre l'objet...
 
     if (mots[1]) {
@@ -37,18 +42,46 @@ export class Commandes {
       // TODO: objets dont l'intitulé comprend plusieurs mots !
       const objetTrouve = this.outils.trouverObjet(mots);
       if (objetTrouve) {
-        const nouvelObjet = this.outils.prendreObjet(objetTrouve.id);
-        let cible = nouvelObjet;
-        // si l'inventaire contient déjà le même objet, augmenter la quantité
-        let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
-        if (objInv) {
-          objInv.quantite += 1;
-          cible = objInv;
-        } else {
-          this.jeu.inventaire.objets.push(nouvelObjet);
+
+        if (this.verbeux) {
+          console.log("l’ojet a été trouvé:", objetTrouve);
         }
-        // afficher le résultat à l'utilisateur
-        return OutilsCommandes.afficherUnUneDesQuantite(cible, true, estFeminin, estSingulier) + cible.intituleS + " a été ajouté" + OutilsCommandes.afficherAccordSimple(cible, estFeminin, estSingulier) + " à votre inventaire.";
+
+        switch (objetTrouve.type) {
+          // on ne prend pas les animaux
+          case TypeElement.animal:
+            if (this.verbeux) {
+              console.log("on ne prend pas les animaux.");
+            }
+            return "Ça ne me parait pas très prudent.";
+            break;
+          // on ne prend pas les décors
+          case TypeElement.decor:
+            if (this.verbeux) {
+              console.log("on ne prend pas les décors.");
+            }
+            return "Je préfère ne pas m’encombrer avec ça.";
+            break;
+          // prendre l’élément
+          default:
+            if (this.verbeux) {
+              console.log("on prend les autres types d’éléments.");
+            }
+            const nouvelObjet = this.outils.prendreObjet(objetTrouve.id);
+            let cible = nouvelObjet;
+            // si l'inventaire contient déjà le même objet, augmenter la quantité
+            let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
+            if (objInv) {
+              objInv.quantite += 1;
+              cible = objInv;
+            } else {
+              this.jeu.inventaire.objets.push(nouvelObjet);
+            }
+            // afficher le résultat à l'utilisateur
+            return OutilsCommandes.afficherUnUneDesQuantite(cible, true, estFeminin, estSingulier) + cible.intituleS + " a été ajouté" + OutilsCommandes.afficherAccordSimple(cible, estFeminin, estSingulier) + " à votre inventaire.";
+            break;
+        }
+
       } else {
         return "Je ne trouve pas ça.";
       }
@@ -179,8 +212,8 @@ export class Commandes {
     if (this.jeu.position == -1) {
       return "Je ne sais pas où je suis";
     } else {
-      return "Vous êtes dans " + this.outils.curSalle.déterminant + this.outils.curSalle.intitulé + ".\n"
-        + this.outils.afficherCurSalle();
+      // return "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
+      return this.outils.afficherCurSalle();
 
     }
   }
@@ -194,7 +227,7 @@ export class Commandes {
           return this.outils.curSalle.description
             + this.outils.afficherObjetsCurSalle();
         } else {
-          return "Vous êtes dans " + this.outils.curSalle.déterminant + this.outils.curSalle.intitulé + ".\n"
+          return "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
             + this.outils.afficherObjetsCurSalle();
         }
       } else {
@@ -205,9 +238,13 @@ export class Commandes {
       const trouve = this.outils.trouverObjet(mots);
 
       if (trouve) {
-        
+
       }
     }
+  }
+
+  sorties(mots: string[]) {
+    return this.outils.afficherSorties();
   }
 
   fouiller(mots: string[]) {

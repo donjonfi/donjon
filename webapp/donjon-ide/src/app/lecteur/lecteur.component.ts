@@ -100,6 +100,11 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.focusCommande();
         break;
 
+      case 'ef':
+        this.commande = "effacer";
+        this.focusCommande();
+        break;
+
       case 'o':
         this.commande = "aller à l’ouest";
         this.focusCommande();
@@ -108,6 +113,11 @@ export class LecteurComponent implements OnInit, OnChanges {
       case 'r':
       case 're':
         this.commande = "regarder ";
+        this.focusCommande();
+        break;
+
+      case 'ss':
+        this.commande = "sorties";
         this.focusCommande();
         break;
 
@@ -125,6 +135,12 @@ export class LecteurComponent implements OnInit, OnChanges {
       case 'p':
       case 'pr':
         this.commande = "prendre ";
+        this.focusCommande();
+        break;
+
+      case 'po':
+      case 'x':
+        this.commande = "position ";
         this.focusCommande();
         break;
 
@@ -227,6 +243,11 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.regarder(mots);
           break;
 
+        case "ss": // sorties
+        case "sorties":
+          retVal = this.com.sorties(mots);
+          break;
+
         case "f": // fouiller
         case "fouiller":
           retVal = this.com.fouiller(mots);
@@ -236,8 +257,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         case "ou":
           retVal = this.com.ou(mots);
           break;
+        case "x": // position
+        case "po": // position
         case "position":
-        case "x":
           retVal = this.com.ouSuisJe();
           break;
 

@@ -11,14 +11,19 @@ export class Salle {
     id: number;
 
     /**
-     * Intitulé de la salle (sans le déterminant).
+     * Nom de la salle (sans le déterminant).
      */
-    intitulé: string;
+    nom: string;
+
+    /**
+     * Intitulé de la salle.
+     */
+    intitule: string;
 
     /**
      * Déterminant qui précède l’intitulé de la salle.
      */
-    déterminant: string;
+    determinant: string;
 
     /**
      * Genre de la salle.

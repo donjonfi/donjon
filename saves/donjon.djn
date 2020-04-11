@@ -19,11 +19,12 @@ Si l'inventaire est plein,
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
 Son intitulé est "Devant le portique".
-Sa description est "Vous êtes devant le portique du chateau du comte Von Hohenberg.
-Il fait nuit. Vous distinguez une faible lueur à travers le 
-portique.".
+Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg.
+La nuit vient de tomber. Vous entendez encore des grillons.
+Vous distinguez une faible lueur à travers les bareaux."
 Le portique est une porte au sud du départ.
 Il est fermé, pas ouvrable, rouillé et froid.
+Il y a des grillons dans le départ. Ce sont des animaux.
 La clé rouillée est une clé.
 Elle permet d'ouvrir le portique.
 
@@ -37,6 +38,12 @@ Si le joueur possède une torche, le lieu est éclairé.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
+Si le cimetière est obscur:
+  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  son intitulé est "?".
+Si le cimetière est éclairé:
+  sa description est "Vous êtes dans un cimetière lugubre. Il y a des bruits vraiment étranges qui ne vous inspirent pas confiance.";
+  son intitulé est "?".
 Il y a des tombes (f) dans le cimetière. Ce sont des décors.
 Le caveau est une salle obscure à l'intérieur du cimetière.
 Il y a des chauves-souris (f) dans le caveau. Ce sont des animaux.
@@ -46,6 +53,12 @@ Ils permettent de se transformer en monstre.
 
 -- Chapitre 4 - Le verger.
 Le verger est un lieu obscur à l'ouest de l'allée.
+Si le verger est obscur:
+  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  son intitulé est "?".
+Si le verger est éclairé:
+  sa description est "Vous êtes dans un verger. Il y a de nombreux arbres.";
+  son intitulé est "?".
 Il y a des pommiers dans le verger. Ce sont des décors.
 Le seau est un contenant dans le verger.
 "C'est un grand seau rouge qui semble solide."
