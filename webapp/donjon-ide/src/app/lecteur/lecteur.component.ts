@@ -83,20 +83,25 @@ export class LecteurComponent implements OnInit, OnChanges {
       console.log(">>> ex instruction:", instruction);
     }
 
-    if (instruction.sujet == null && instruction.verbe) {
-      this.executerVerbe(instruction);
-    } else if (instruction.sujet) {
-      this.executerSujetVerbe(instruction);
+    if (instruction.infinitif) {
+      //if (instruction.sujet == null && instruction.verbe) {
+      this.executerInfinitif(instruction);
+      // } else if (instruction.sujet) {
+      // this.executerSujetVerbe(instruction);
     } else {
-      console.warn("executerInstruction : pas compris instruction:", instruction);
+      console.warn("executerInstruction : pas d'infinitif :", instruction);
     }
   }
 
-  private executerVerbe(instruction: ElementsPhrase) {
-    switch (instruction.verbe.toLowerCase()) {
+  private executerInfinitif(instruction: ElementsPhrase) {
+    switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         this.resultat += "\n" + instruction.complement.trim().slice(1, instruction.complement.length - 1).trim();
+        break;
+
+      case 'changer':
+        this.executerChanger(instruction);
         break;
 
       default:
@@ -105,7 +110,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  private executerSujetVerbe(instruction: ElementsPhrase) {
+  private executerChanger(instruction: ElementsPhrase) {
     switch (instruction.sujet.toLowerCase()) {
       case 'joueur':
         this.executerJoueur(instruction);
@@ -126,6 +131,9 @@ export class LecteurComponent implements OnInit, OnChanges {
       case 'se trouve':
         this.com.outils.positionnerJoueur(instruction.complement);
         break;
+      case 'possède':
+        this.ajouterInventaire(instruction.complement);
+        break;
 
       default:
         console.warn("executerJoueur : pas compris verbe", instruction.verbe, instruction);
@@ -136,27 +144,30 @@ export class LecteurComponent implements OnInit, OnChanges {
   private executerInventaire(instruction: ElementsPhrase) {
     switch (instruction.verbe.toLowerCase()) {
       case 'contient':
-        let mots = [""].concat(instruction.complement.split(" "));
-        let objetTrouve = this.com.outils.trouverObjet(mots, true);
-        if (objetTrouve) {
-          const nouvelObjet = this.com.outils.prendreObjet(objetTrouve.id, true);
-          let cible = nouvelObjet;
-          // si l'inventaire contient déjà le même objet, augmenter la quantité
-          let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
-          if (objInv) {
-            objInv.quantite += 1;
-            cible = objInv;
-          } else {
-            this.jeu.inventaire.objets.push(nouvelObjet);
-          }
-        } else {
-          console.warn("executerInventaire > contient > objet pas trouvé:", instruction.complement);
-        }
-
+        this.ajouterInventaire(instruction.complement);
         break;
 
       default:
         break;
+    }
+  }
+
+  ajouterInventaire(intitule: string) {
+    let mots = [""].concat(intitule.split(" "));
+    let objetTrouve = this.com.outils.trouverObjet(mots, true, false);
+    if (objetTrouve) {
+      const nouvelObjet = this.com.outils.prendreObjet(objetTrouve.id, true);
+      let cible = nouvelObjet;
+      // si l'inventaire contient déjà le même objet, augmenter la quantité
+      let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
+      if (objInv) {
+        objInv.quantite += 1;
+        cible = objInv;
+      } else {
+        this.jeu.inventaire.objets.push(nouvelObjet);
+      }
+    } else {
+      console.warn("ajouterInventaire > objet pas trouvé:", intitule);
     }
   }
 
@@ -197,6 +208,16 @@ export class LecteurComponent implements OnInit, OnChanges {
   onKeyDownTab(event) {
     switch (this.commande) {
 
+      case 'a':
+        this.commande = "aller ";
+        this.focusCommande();
+        break;
+
+      case 'at':
+        this.commande = "attaquer ";
+        this.focusCommande();
+        break;
+
       case 'n':
         this.commande = "aller au nord";
         this.focusCommande();
@@ -209,6 +230,11 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       case 'e':
         this.commande = "aller à l’est";
+        this.focusCommande();
+        break;
+
+      case 'ex':
+        this.commande = "examiner ";
         this.focusCommande();
         break;
 
@@ -353,6 +379,32 @@ export class LecteurComponent implements OnInit, OnChanges {
         case "regarder":
         case "observer":
           retVal = this.com.regarder(mots);
+          break;
+
+        case "deverrouiller": // déverrouiller
+        case "déverrouiller":
+          retVal = this.com.deverrouiller(mots);
+          break;
+
+        case "u": // attaquer
+        case "ut":
+        case "utiliser":
+          retVal = this.com.utiliser(mots);
+          break;
+
+        case "at": // attaquer
+        case "attaquer":
+          retVal = this.com.attaquer(mots);
+          break;
+
+        case "ouvrir":
+          retVal = this.com.ouvrir(mots);
+          break;
+
+        case "ex": // examiner
+        case "examiner":
+          // TODO: changer ça
+          retVal = this.com.examiner(mots);
           break;
 
         case "ss": // sorties

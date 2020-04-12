@@ -3,23 +3,25 @@ import { ElementsPhrase } from '../models/commun/elements-phrase';
 export class PhraseUtils {
   static decomposerPhrase(phrase: string) {
     let el: ElementsPhrase = null;
-    const regexDSVC = /^(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
+    const regexIDSVC = /^(\S+(?:ir|er|re) )?(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
     const regexPSVC = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
-    const regexVC = /^(\S+) (.+|)$/i;
+    const regexVC = /^(\S+(?:ir|er|re)) (.+|)$/i;
     // Déterminant, Sujet, Verbe, Complément
-    const resultDSVC = regexDSVC.exec(phrase);
+    const resultDSVC = regexIDSVC.exec(phrase);
     if (resultDSVC) {
-      el = new ElementsPhrase(null, resultDSVC[1], resultDSVC[2], resultDSVC[3], resultDSVC[4]);
+      el = new ElementsPhrase(null, resultDSVC[2], resultDSVC[3], resultDSVC[4], resultDSVC[5]);
+      el.infinitif = resultDSVC[1];
       // Pronom, Sujet, Verbe, Complément
     } else {
       const resultPSVC = regexPSVC.exec(phrase);
       if (resultPSVC) {
         el = new ElementsPhrase(resultPSVC[1], null, resultPSVC[2], resultPSVC[3], resultPSVC[4]);
       } else {
-        // Verbe complément
-        const resultVC = regexVC.exec(phrase);
-        if (resultVC) {
-          el = new ElementsPhrase(null, null, null, resultVC[1], resultVC[2]);
+        // infinitif, complément
+        const resultIC = regexVC.exec(phrase);
+        if (resultIC) {
+          el = new ElementsPhrase(null, null, null, null, resultIC[2]);
+          el.infinitif = resultIC[1];
         }
       }
     }
@@ -33,11 +35,21 @@ export class PhraseUtils {
     if (el.sujet) {
       el.sujet = el.sujet.toLowerCase().trim();
     }
-    el.verbe = el.verbe.toLowerCase().trim();
+    if (el.verbe) {
+      el.verbe = el.verbe.toLowerCase().trim();
+    }
+    if (el.infinitif) {
+      el.infinitif = el.infinitif.toLowerCase().trim();
+    }
     if (el.complement) {
       // ne PAS changer la casse, c’est peut-être un texte à conserver tel quel !
       el.complement = el.complement.trim();
     }
+
+    console.log("decomposerPhrase >>>", phrase);
+    console.log("decomposerPhrase >>>>", el);
+    
+
     return el;
   }
 }

@@ -7,8 +7,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
   var DonjonHighlightRules = function () {
 
     var keywords = (
-      "si|sinon|quand|remplacer|par|avant|après|" +
-      "est|sont|vaut|contient|se|trouve"
+      "si|sinon|quand|avant|après|" +
+      ""
     );
 
     var variableLanguage = (
@@ -16,69 +16,70 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     );
 
     var builtinFunctions = (
-      "dire"
+      "dire|changer|remplacer|par|verrouiller|déverrouiller|ouvrir|fermer"
     );
     var builtinVariables = (
-      ""
-    );
-
-    var storageType = (
-      "salle|salles|lieu|lieux|" +
-      "porte|portes|clé|clés|" +
-      "objet|objets|animal|animaux|personne|personnes|décor|décors|contenant|" +
-      "nombre"
+      "est|sont|vaut|contient|se|trouve|possède"
     );
 
     var keywordMapper = this.createKeywordMapper({
       "variable.language": variableLanguage,
       "support.function": builtinFunctions,
-      "support.variable": builtinVariables,
+      // "support.variable": builtinVariables,
       "keyword": keywords,
-      "storage.type": storageType,
+      // "storage.type": storageType,
       "invalid.illegal": ("🚦|🏁|↪"),
 
     }, "identifier", true);
 
     this.$rules = {
-      "start": [{
-        token: "comment",
-        regex: "--.*$"
-      }, {
-        token: "comment",
-        start: "/\\*",
-        end: "\\*/"
-      }, {
-        token: "string", // multi line comment
-        //regex : "\\/\\*",
-        regex: '"',
-        next: "string"
-      }, {
-        token: "string",           // " string
-        regex: '".*?"'
-      }, {
-        token: "constant.language",
-        regex: "\\.|;|au sud|au nord|à l’ouest|à l'ouest|à l’est|à l'est|à l’intérieur|à l'intérieur|à l’extérieur|à l'extérieur|"
-          + "ouvrable|ouvert|ouverte|fermé|fermée|vide|plein"
-      }, {
-        token: "constant.numeric", // float
-        regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
-      }, {
-        token: keywordMapper,
-        // regex : "[a-zA-Zéè_$][a-zA-Z0-9éè_$]*\\b"
-        regex: "[a-zA-Zéèàê_$][a-zA-Z0-9éèà_$]*"
-      }, {
-        token: "keyword.operator",
-        regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|=|pas"
-      }, {
-        token: "paren.lparen",
-        regex: "[\\(]"
-      }, {
-        token: "paren.rparen",
-        regex: "[\\)]"
-      }, {
-        token: "text",
-        regex: "\\s+"
-      }],
+      "start": [
+        {
+          token: "comment",
+          regex: "--.*$"
+        }, {
+          token: "comment",
+          start: "/\\*",
+          end: "\\*/"
+        }, {
+          token: "string", // multi line comment
+          //regex : "\\/\\*",
+          regex: '"',
+          next: "string"
+        }, {
+          token: "string",           // " string
+          regex: '".*?"'
+        }, {
+          token: "constant.language",
+          regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|"
+            + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)"
+        }, {
+          token: "storage.type",
+          regex: "une (salle|clé|porte|personne)|un (lieu|objet|animal|décor|contenant|nombre)|" +
+            "des (salles|clés|portes|personnes|lieux|objets|animaux|décors|contenants|nombres)"
+        }, {
+          token: "support.variable",
+          regex: "se (trouve)|est|sont|vaut|contient|possède"
+        }, {
+          token: "constant.numeric", // float
+          regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
+        }, {
+          token: keywordMapper,
+          // regex : "[a-zA-Zéè_$][a-zA-Z0-9éè_$]*\\b"
+          regex: "[a-zA-Zéèàê_$][a-zA-Z0-9éèà_$]*"
+        }, {
+          token: "keyword.operator",
+          regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|=|pas"
+        }, {
+          token: "paren.lparen",
+          regex: "[\\(]"
+        }, {
+          token: "paren.rparen",
+          regex: "[\\)]"
+        }, {
+          token: "text",
+          regex: "\\s+"
+        }],
       "string": [
         {
           token: "string", // closing comment

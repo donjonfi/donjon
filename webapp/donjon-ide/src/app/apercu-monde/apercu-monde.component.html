@@ -21,10 +21,11 @@
             <li *ngFor="let ins of re.instructions; index as i">
               Conséquence {{(i+1)}} :
               <ul>
+                <li>Action : {{ins.infinitif}}</li>
                 <li *ngIf="ins.sujet">
                   Sujet : {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
                 </li>
-                <li>Verbe : {{ins.verbe}}</li>
+                <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
                 <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
               </ul>
             </li>

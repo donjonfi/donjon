@@ -1,5 +1,7 @@
 export class ElementsPhrase {
 
+  public infinitif: string;
+
   constructor(
     public pronom: string,
     public determinant: string,

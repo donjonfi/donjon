@@ -319,7 +319,7 @@ export class Compilateur {
                         result = Compilateur.xCapacite.exec(phrase.phrase[0]);
 
                         if (result) {
-                          const capacite = new Capacite(result[1], result[2]);
+                          const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
                           // ajouter la capacité au dernier élément
                           dernierElementGenerique.capacites.push(capacite);
                           if (Compilateur.verbeux) {
@@ -427,8 +427,8 @@ export class Compilateur {
         case TypeElement.contenant:
         case TypeElement.animal:
         case TypeElement.cle:
-        // case TypeElement.inconnu:
-        // case TypeElement.aucun:
+          // case TypeElement.inconnu:
+          // case TypeElement.aucun:
           monde.objets.push(el);
           break;
 
@@ -467,7 +467,7 @@ export class Compilateur {
             if (els.complement) {
               els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
             }
-            regle.instructions.push(new Consequence(els.determinant, els.pronom, els.sujet, els.verbe, els.complement));
+            regle.instructions.push(els);
           } else {
             erreurs.push("conséquence : " + conBruNettoyee);
           }
@@ -1088,7 +1088,7 @@ export class Compilateur {
   private static getAttributs(attributsString: string): string[] {
     if (attributsString && attributsString.trim() !== '') {
       // découper les attributs qui sont séparés par des ', ' ou ' et '
-      return attributsString.split(/(?:, | et )+/);
+      return attributsString.trim().split(/(?:, | et )+/);
     } else {
       return new Array<string>();
     }

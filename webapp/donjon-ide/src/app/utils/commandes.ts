@@ -1,6 +1,10 @@
+import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
+import { Nombre } from '../models/commun/nombre.enum';
+import { Objet } from '../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
+import { Porte } from '../models/jeu/porte';
 import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
 
@@ -40,7 +44,7 @@ export class Commandes {
       let estSingulier = true;
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.outils.trouverObjet(mots);
+      const objetTrouve = this.outils.trouverObjet(mots, false, false);
       if (objetTrouve) {
 
         if (this.verbeux) {
@@ -92,8 +96,6 @@ export class Commandes {
 
   aller(mots: string[]) {
 
-    let voisin: Salle = null;
-
     let destination: string;
 
     if (mots[0] === 'aller' || mots[0] === 'a') {
@@ -106,65 +108,80 @@ export class Commandes {
       destination = mots[0];
     }
 
+    let locDest: Localisation = Localisation.inconnu;
+
     switch (destination) {
 
       case "n":
       case "no":
       case "nord":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.nord));
+        locDest = Localisation.nord;
         break;
 
       case "s":
       case "su":
       case "sud":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.sud));
+        locDest = Localisation.sud;
         break;
 
       case "o":
       case "ou":
       case "ouest":
       case "l'ouest":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.ouest));
+        locDest = Localisation.ouest;
         break;
 
       case "e":
       case "es":
       case "est":
       case "l'est":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.est));
+        locDest = Localisation.est;
         break;
 
       case "so":
       case "sortir":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.exterieur));
+        locDest = Localisation.exterieur;
         break;
       case "en":
       case "entrer":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.interieur));
+        locDest = Localisation.interieur;
         break;
       case "mo":
       case "monter":
       case "haut":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.haut));
+        locDest = Localisation.haut;
         break;
       case "de":
       case "descendre":
       case "bas":
-        voisin = this.outils.getSalle(this.outils.getVoisin(Localisation.bas));
+        locDest = Localisation.bas;
         break;
 
       default:
         break;
     }
 
-    // TODO: vérifier accès…
+    const voisinSalle = this.outils.getSalle(this.outils.getVoisinSalle(locDest));
+    const voisinPorte = this.outils.getPorte(this.outils.getVoisinPorte(locDest));
 
-    if (voisin) {
-      this.jeu.position = voisin.id;
-      return this.outils.afficherCurSalle();
+    // TODO: vérifier accès…
+    if (voisinPorte && !OutilsCommandes.portePossedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
+      // TODO: gérer majuscule
+      return (voisinPorte.intitule ? voisinPorte.intitule : (voisinPorte.determinant + voisinPorte.nom) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
     } else {
-      return "Pas pu aller par là.";
+      if (voisinPorte) {
+        console.log("porte ouverte :)");
+      } else {
+        console.log("pas de porte");
+      }
+      if (voisinSalle) {
+        this.jeu.position = voisinSalle.id;
+        return this.outils.afficherCurSalle();
+      } else {
+        return "Pas pu aller par là.";
+      }
     }
+
   }
 
 
@@ -218,6 +235,183 @@ export class Commandes {
     }
   }
 
+  deverrouiller(mots: string[]) {
+    if (mots.length == 1) {
+      return "Déverrouiller quoi ?";
+    } else if (mots.length < 4) {
+      return "Déverrouiller comment ?";
+    } else {
+      return this.utiliser(mots);
+    }
+  }
+
+  ouvrir(mots: string[]) {
+    if (mots.length == 1) {
+      return "Ouvrir quoi ?";
+    } else {
+      const porte = this.outils.trouverPorte(mots);
+      // porte trouvée
+      if (porte) {
+        // porte verrouillée
+        if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+          return "C’est verrouillé.";
+          // porte pas ouvrable
+        } else if (!OutilsCommandes.portePossedeUnDeCesEtats(porte, "ouvrable")) {
+          return "Je ne sais pas l’ouvrir.";
+          // porte pas verrouillée et ouvrable => on l’ouvre
+        } else {
+          porte.etat.push((porte.genre == Genre.f ? "ouverte" : "ouvert"));
+          return "C’est ouvert";
+        }
+        // pas trouvé la porte
+      } else {
+        return "Je n’ai pas trouvé ça.";
+      }
+    }
+  }
+
+  utiliser(mots: string[]) {
+    if (mots.length == 1) {
+      return "Utiliser quoi ?";
+    } else {
+      const phrase = mots.join(" ");
+      // Utiliser AVEC => action (1), déterminantA (2), élémentA (3), avec/sur (4) déterminantB (5), élémentB (6)
+      // const exUtiliserAvec = /^(\S+(?:er|ir|re)) (la |le |un |une |l’|l'|)(.+) (avec|sur) (la |le |un |une |l’|l'|)(.+)/i;
+      const exUtiliserAvec = /^(\S+) (la |le |un |une |l’|l'|)(.+) (avec|sur) (la |le |un |une |l’|l'|)(.+)/i;
+      // Utiliser SEUL => action (1), déterminantA (2), élémentA (3)
+      // const exUtiliserSeul = /^(\S+(?:er|ir|re)) (la |le |un |une |l’|l'|)(.+)/i;
+      const exUtiliserSeul = /^(\S+) (la |le |un |une |l’|l'|)(.+)/i;
+
+      const resultExUtiliserAvec = phrase.match(exUtiliserAvec);
+
+      // utiliser un objet avec un autre objet
+      if (resultExUtiliserAvec) {
+        return this.utiliserAvec(resultExUtiliserAvec[3], resultExUtiliserAvec[6]);
+      } else {
+        // utiliser un objet seul
+        const resultExUtiliserSeul = phrase.match(exUtiliserSeul);
+        if (resultExUtiliserSeul) {
+          return this.utiliserSeul(resultExUtiliserSeul[3]);
+          // pas compris
+        } else {
+          return ("Désolé… je n’ai pas compris comment je devais utiliser cela.\nExemple de commande : « utiliser A avec B »");
+        }
+      }
+    }
+  }
+
+  utiliserAvec(elA: string, elB: string) {
+
+    let objetTrouveA: Objet;
+    let objetTrouveB: Objet;
+    let porteTrouveeA: Porte;
+    let porteTrouveeB: Porte;
+
+    objetTrouveA = this.outils.trouverObjet(["", elA]);
+    if (!objetTrouveA) {
+      porteTrouveeA = this.outils.trouverPorte(["", elA]);
+    }
+
+    objetTrouveB = this.outils.trouverObjet(["", elB]);
+    if (!objetTrouveB) {
+      porteTrouveeB = this.outils.trouverPorte(["", elB]);
+    }
+
+    if (objetTrouveA && objetTrouveB) {
+      return this.utiliserObjetAvecObjet(objetTrouveA, objetTrouveA);
+    } else if (objetTrouveA && porteTrouveeB) {
+      return this.utiliserObjetAvecPorte(objetTrouveA, porteTrouveeB);
+    } else if (porteTrouveeA && objetTrouveB) {
+      return this.utiliserObjetAvecPorte(objetTrouveB, porteTrouveeA);
+    } else if (porteTrouveeA && porteTrouveeB) {
+      if (porteTrouveeA == porteTrouveeB) {
+        return "Je ne peux pas l’utiliser sur " + (porteTrouveeA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
+      } else {
+        return "Hum… essayons autre chose !";
+      }
+    } else {
+      return "Je n’ai pas trouvé ce que je dois utiliser.";
+    }
+  }
+
+  utiliserObjetAvecObjet(objetA: Objet, objetB: Objet) {
+    if (objetA == objetB) {
+      return "Je ne peux pas l’utiliser sur " + (objetA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
+    } else {
+      // TODO: utiliser les objets.
+      return "done.";
+    }
+  }
+
+  utiliserObjetAvecPorte(objet: Objet, porte: Porte) {
+
+    let canDeverroullierCettePorte = OutilsCommandes.objetPossedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
+
+    // cet objet déverrouille cette porte
+    if (canDeverroullierCettePorte) {
+      // retirer l’état verrouillé
+      let indexEtat = -1;
+      if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillée", "verrouillé")) {
+        indexEtat = porte.etat.findIndex(x => x.startsWith("verrouillé"));
+        if (indexEtat != -1) {
+          porte.etat.splice(indexEtat, 1);
+        } else {
+          console.error("Pas pu retirer verrouillé");
+        }
+      } else {
+        console.log("utiliserObjetAvecPorte >> Rien à déverrouiller.");
+      }
+      return "À présent ce n’est plus verrouillé.";
+    } else {
+      // cet objet peut déverrouiller AUTRE CHOSE
+      let canDeverroullier = OutilsCommandes.objetPossedeCapaciteAction(objet, "déverrouiller");
+      if (canDeverroullier) {
+        return "Essayons de déverrouiller autre chose avec.";
+      } else {
+        return "Ça ne fonctionne pas.";
+      }
+    }
+  }
+
+  utiliserSeul(elA: string) {
+
+    let objetTrouveA: Objet;
+    objetTrouveA = this.outils.trouverObjet(["", elA]);
+
+    if (objetTrouveA) {
+
+      if (objetTrouveA.type == TypeElement.animal || objetTrouveA.type == TypeElement.humain) {
+        return "Pas de ça ici !";
+      } else if (objetTrouveA.type == TypeElement.decor) {
+        return "Et comment comptes-tu t’y prendre ?";
+      } else {
+        return "Et si on combinait avec autre chose ?";
+      }
+    } else {
+      return "Je n’ai pas trouvé ce que je dois utiliser.";
+    }
+  }
+
+  attaquer(mots: string[]) {
+    if (mots.length == 1) {
+      return "Attaquer qui ?";
+    } else {
+      // TODO: changer ça…
+      return "Je ne suis pas quelqu’un de violent.";
+    }
+  }
+
+  examiner(mots: string[]) {
+
+    if (mots.length == 1) {
+      return "Que dois-je examiner ?";
+    } else {
+      // TODO: changer ça…
+      return this.regarder(mots);
+    }
+
+  }
+
   regarder(mots: string[]) {
 
     // regarder la salle actuelle
@@ -235,15 +429,31 @@ export class Commandes {
       }
       // regarder un élément en particulier
     } else {
-      const trouve = this.outils.trouverObjet(mots);
+      // regarder dans les objets
+      const trouve = this.outils.trouverObjet(mots, false, true);
       if (trouve) {
         if (trouve.description) {
           return trouve.description;
         } else {
           return (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntituleObjet(trouve, false, null);
         }
+        // pas trouvé dans les objets
       } else {
-        return "Je ne vois pas ça.";
+        // regarder dans les portes
+        const trouve = this.outils.trouverPorte(mots);
+        if (trouve) {
+          let retVal = "";
+          if (trouve.description) {
+            retVal = trouve.description;
+          } else {
+            retVal = (trouve.nombre == Nombre.s ? "C’est… " : "Ce sont… ") + (trouve.intitule ? trouve.intitule : (trouve.determinant + trouve.nom));
+          }
+          retVal += "\n" + this.outils.afficherStatutPorte(trouve);
+          return retVal;
+          // rien trouvé
+        } else {
+          return "Je ne vois pas ça.";
+        }
       }
     }
   }

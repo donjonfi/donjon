@@ -1,6 +1,5 @@
 import { Auditeur } from '../models/jouer/auditeur';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { Instruction } from '../models/jouer/instruction';
 import { TypeRegle } from '../models/compilateur/type-regle';
 
 export class Declancheur {

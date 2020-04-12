@@ -3,7 +3,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Objet } from '../models/jeu/objet';
-import { ResolvedStaticSymbol } from '@angular/compiler';
+import { Porte } from '../models/jeu/porte';
 
 export class OutilsCommandes {
 
@@ -94,6 +94,58 @@ export class OutilsCommandes {
     return retVal;
   }
 
+  static objetPossedeCapaciteAction(objet: Objet, actionA: string, actionB: string = null): boolean {
+    if (objet) {
+      var retVal = false;
+      objet.capacites.forEach(cap => {
+        const curAction = cap.verbe.toLocaleLowerCase().trim();
+        if ((curAction === actionA.toLocaleLowerCase().trim()) || (actionB && curAction === actionB.toLocaleLowerCase().trim())) {
+          retVal = true;
+        }
+      });
+      return retVal;
+    } else {
+      console.error("portePossedeCapaciteAction >> objet pas défini.");
+    }
+  }
+
+  static objetPossedeCapaciteActionCible(objet: Objet, actionA: string, actionB: string = null, cible: string): boolean {
+    if (objet) {
+      var retVal = false;
+      objet.capacites.forEach(cap => {
+        const curAction = cap.verbe.toLocaleLowerCase().trim();
+        // TODO: check si null ?
+        const curCible = cap.complement.toLocaleLowerCase().trim();
+        if ((curAction === actionA.toLocaleLowerCase().trim()) || (actionB && curAction === actionB.toLocaleLowerCase().trim())) {
+          if (cible.toLocaleLowerCase().trim() == curCible) {
+            retVal = true;
+          }
+        }
+      });
+      return retVal;
+    } else {
+      console.error("portePossedeCapaciteAction >> objet pas défini.");
+    }
+  }
+
+
+  static portePossedeUnDeCesEtats(porte: Porte, etatA: string, etatB: string = null): boolean {
+    if (porte) {
+      var retVal = false;
+      porte.etat.forEach(et => {
+        const curEt = et.toLocaleLowerCase().trim();
+        if (curEt === etatA.toLocaleLowerCase().trim()) {
+          retVal = true;
+        } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
+          retVal = true;
+        }
+      });
+      return retVal;
+    } else {
+      console.error("portePossedeUnDeCesEtats >> porte pas définie.");
+    }
+  }
+
   positionnerJoueur(position: string) {
     position = position.replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
     // chercher la salle
@@ -110,7 +162,75 @@ export class OutilsCommandes {
     }
   }
 
-  trouverObjet(mots: string[], objetNonPlace = false) {
+  afficherStatutPorte(porte: Porte) {
+    let retVal = "";
+    if (!porte) {
+      console.error("afficherStatutPorte >> porte pas définie");
+    } else {
+      let ouvrable = OutilsCommandes.portePossedeUnDeCesEtats(porte, 'ouvrable');
+      let ouvert = OutilsCommandes.portePossedeUnDeCesEtats(porte, 'ouvert', 'ouverte');
+      let verrou = OutilsCommandes.portePossedeUnDeCesEtats(porte, 'verrouillé', 'verrouillée');
+
+      if (porte.genre == Genre.f) {
+        if (ouvert) {
+          retVal += "Elle est ouverte.";
+        } else {
+          retVal += "Elle est fermée " + (verrou ? "et verrouillée." : "mais pas verrouillée.");
+        }
+        if (ouvrable && !verrou) {
+          retVal += " Vous pouvez " + (ouvert ? 'la fermer.' : 'l’ouvrir.');
+        }
+      } else {
+        if (ouvert) {
+          retVal += "Il est ouvert.";
+        } else {
+          retVal += "Il est fermé " + (verrou ? "et verrouillé." : "mais pas verrouillé.");
+        }
+        if (ouvrable && !verrou) {
+          retVal += " Vous pouvez " + (ouvert ? 'le fermer.' : 'l’ouvrir.');
+        }
+      }
+
+    }
+    return retVal;
+  }
+
+  trouverPorte(mots: string[]) {
+
+    let retVal: Porte = null;
+
+    let portesVisiblesID = this.curSalle.voisins.filter(x => x.porteIndex != -1).map(x => x.porteIndex);
+
+    let portesVisibles = new Array<Porte>();
+    portesVisiblesID.forEach(porteID => {
+      portesVisibles.push(this.getPorte(porteID));
+    });
+
+    // commencer par chercher avec le 2e mot
+    let determinant = '';
+    let premierMot: string;
+    if (mots[1] == 'la' || mots[1] == 'le' || mots[1] === 'les' || mots[1] == 'l’' || mots[1] == 'l\'' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
+      determinant = mots[1];
+      premierMot = mots[2];
+    } else {
+      premierMot = mots[1];
+    }
+
+    // remplacer les carctères doubles et les accents
+    premierMot = OutilsCommandes.normaliserMot(premierMot);
+
+    // à priori on recherche sur le singulier
+    let objetsTrouves = portesVisibles.filter(x => OutilsCommandes.normaliserMot((x.intitule ? x.intitule : x.nom)).startsWith(premierMot));
+
+    if (objetsTrouves.length == 1) {
+      retVal = objetsTrouves[0];
+    } else if (objetsTrouves.length > 1) {
+      // TODO: ajouter des mots en plus
+    }
+    return retVal;
+  }
+
+  trouverObjet(mots: string[], objetNonPlace = false, regarderAussiInventaire = true) {
 
     let listeObjets = (objetNonPlace ? this.jeu.objets : this.curSalle.inventaire.objets);
 
@@ -119,7 +239,6 @@ export class OutilsCommandes {
     // commencer par chercher avec le 2e mot
     let determinant = '';
     let premierMot: string;
-
     if (mots[1] == 'la' || mots[1] == 'le' || mots[1] === 'les' || mots[1] == 'l’' || mots[1] == 'l\'' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
       determinant = mots[1];
       premierMot = mots[2];
@@ -132,6 +251,10 @@ export class OutilsCommandes {
 
     // à priori on recherche sur le singulier
     let objetsTrouves = listeObjets.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
+    // si rien trouvé, on recherche dans l'inventaire (si on peut)
+    if (objetsTrouves.length == 0 && regarderAussiInventaire) {
+      objetsTrouves = this.jeu.inventaire.objets.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
+    }
     // si rien trouvé, on recherche sur la forme par défaut
     if (objetsTrouves.length == 0) {
       objetsTrouves = listeObjets.filter(x => OutilsCommandes.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
@@ -174,14 +297,20 @@ export class OutilsCommandes {
     return this.jeu.salles.find(x => x.id === index);
   }
 
-  getVoisin(loc: Localisation) {
-    console.log("getVoisin:", loc);
+  getPorte(index: number) {
+    return this.jeu.portes.find(x => x.id === index);
+  }
 
-    let found = this.curSalle.voisins.find(x => x.localisation == loc);
-
-    console.log("  >> found:", found);
-
+  getVoisinSalle(loc: Localisation) {
+    let found = this.curSalle.voisins.find(x => x.salleIndex != -1 && x.localisation == loc);
+    console.log("getVoisinSalle:", loc, ">> found:", found);
     return found ? found.salleIndex : -1;
+  }
+
+  getVoisinPorte(loc: Localisation) {
+    let found = this.curSalle.voisins.find(x => x.porteIndex != -1 && x.localisation == loc);
+    console.log("getVoisinPorte:", loc, ">> found:", found);
+    return found ? found.porteIndex : -1;
   }
 
   get curSalle() {
@@ -213,7 +342,9 @@ export class OutilsCommandes {
     if (this.curSalle.voisins.length > 0) {
       retVal = "Sorties :";
       this.curSalle.voisins.forEach(voisin => {
-        retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.curSalle.id, voisin.salleIndex));
+        if (voisin.salleIndex != -1) {
+          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.curSalle.id, voisin.salleIndex));
+        }
       });
     } else {
       retVal = "Il n’y a pas de sortie.";
@@ -250,8 +381,6 @@ export class OutilsCommandes {
     }
     return retVal;
   }
-
-
 
   afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
     switch (localisation) {

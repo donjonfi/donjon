@@ -33,7 +33,7 @@
 
 
     <div class="card content-container mb-2">
-      <ace #codeEditor [config]="config" [(value)]="codeSource">
+      <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
       </ace>
     </div>
     <div class="row">
@@ -42,6 +42,18 @@
       </div>
       <div class="col-auto">
         <button type="button" (click)="onJouer()" class="btn btn-warning">Jouer</button>
+      </div>
+      <div class="col-auto">
+        <select [(ngModel)]="theme" class="form-control" name="selTheme">
+          <option [ngValue]="'chrome'">chrome</option>
+          <option [ngValue]="'clouds'">clouds</option>
+          <option [ngValue]="'crimson_editor'">crimson_editor</option>
+          <option [ngValue]="'katzenmilch'">katzenmilch</option>
+          <option [ngValue]="'kuroir'">kuroir</option>
+          <option [ngValue]="'solarized_light'">solarized_light</option>
+          <option [ngValue]="'tomorrow'">tomorrow</option>
+          <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+        </select>
       </div>
     </div>
   </div>

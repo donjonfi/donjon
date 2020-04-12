@@ -1,10 +1,9 @@
 import { Localisation } from './localisation';
-import { Salle } from './salle';
 
 export class Voisin {
 
-   salleIndex: number;
-   //salle: Salle;
-   localisation: Localisation;
+  salleIndex: number = -1;
+  porteIndex: number = -1;
+  localisation: Localisation;
 
 }

@@ -1,3 +1,4 @@
+import { Capacite } from '../compilateur/capacite';
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
 import { TypeElement } from '../commun/type-element.enum';
@@ -31,6 +32,8 @@ export class Objet {
    * État de l’objet (allumé, fermé, cassé, …)
    */
   etat: string[];
+
+  capacites: Capacite[];
 
   description: string;
 

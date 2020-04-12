@@ -2,8 +2,14 @@ import 'brace';
 import 'brace/mode/text';
 import '../../mode-donjon.js';
 // import 'brace/mode/javascript';
-// import 'brace/theme/github';
 import 'brace/theme/chrome';
+import 'brace/theme/crimson_editor';
+import 'brace/theme/clouds';
+import 'brace/theme/vibrant_ink';
+import 'brace/theme/solarized_light';
+import 'brace/theme/tomorrow';
+import 'brace/theme/kuroir';
+import 'brace/theme/katzenmilch';
 
 import * as FileSaver from 'file-saver';
 
@@ -31,7 +37,7 @@ export class EditeurComponent implements OnInit {
     // mode: 'text',
     mode: 'donjon',
     minLines: 80,
-    theme: 'chrome',
+    theme: 'katzenmilch',
     readOnly: false,
     tabSize: 2,
     fontSize: 18,
@@ -41,6 +47,8 @@ export class EditeurComponent implements OnInit {
     hScrollBarAlwaysVisible: false,
     wrap: true,
   };
+
+  theme = "katzenmilch";
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";
 
@@ -85,7 +93,7 @@ export class EditeurComponent implements OnInit {
       fileReader.onload = (progressEvent) => {
         this.codeSource = fileReader.result as string;
         console.log(">>> fichier chargé.");
-        
+
       };
       // lire le fichier
       fileReader.readAsText(file);
