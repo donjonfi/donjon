@@ -270,6 +270,31 @@ export class Commandes {
     }
   }
 
+  fermer(mots: string[]) {
+    if (mots.length == 1) {
+      return "Fermer quoi ?";
+    } else {
+      const porte = this.outils.trouverPorte(mots);
+      // porte trouvée
+      if (porte) {
+        // porte verrouillée
+        if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+          return "C’est verrouillé.";
+          // porte pas ouvrable
+        } else if (!OutilsCommandes.portePossedeUnDeCesEtats(porte, "ouvrable")) {
+          return "Je ne sais pas la fermer.";
+          // porte pas verrouillée et ouvrable => on la ferme
+        } else {
+          this.retirerEtat(porte, "ouvert", "ouverte");
+          return "C’est fermé.";
+        }
+        // pas trouvé la porte
+      } else {
+        return "Je n’ai pas trouvé ça.";
+      }
+    }
+  }
+
   utiliser(mots: string[]) {
     if (mots.length == 1) {
       return "Utiliser quoi ?";
@@ -318,7 +343,7 @@ export class Commandes {
     }
 
     if (objetTrouveA && objetTrouveB) {
-      return this.utiliserObjetAvecObjet(objetTrouveA, objetTrouveA);
+      return this.utiliserObjetAvecObjet(objetTrouveA, objetTrouveB);
     } else if (objetTrouveA && porteTrouveeB) {
       return this.utiliserObjetAvecPorte(objetTrouveA, porteTrouveeB);
     } else if (porteTrouveeA && objetTrouveB) {
@@ -339,28 +364,15 @@ export class Commandes {
       return "Je ne peux pas l’utiliser sur " + (objetA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
     } else {
       // TODO: utiliser les objets.
-      return "done.";
+      return "Il ne se passera rien.";
     }
   }
 
   utiliserObjetAvecPorte(objet: Objet, porte: Porte) {
-
     let canDeverroullierCettePorte = OutilsCommandes.objetPossedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
-
     // cet objet déverrouille cette porte
     if (canDeverroullierCettePorte) {
-      // retirer l’état verrouillé
-      let indexEtat = -1;
-      if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillée", "verrouillé")) {
-        indexEtat = porte.etat.findIndex(x => x.startsWith("verrouillé"));
-        if (indexEtat != -1) {
-          porte.etat.splice(indexEtat, 1);
-        } else {
-          console.error("Pas pu retirer verrouillé");
-        }
-      } else {
-        console.log("utiliserObjetAvecPorte >> Rien à déverrouiller.");
-      }
+      this.retirerEtat(porte, "verrouillé", "verrouillée");
       return "À présent ce n’est plus verrouillé.";
     } else {
       // cet objet peut déverrouiller AUTRE CHOSE
@@ -370,6 +382,28 @@ export class Commandes {
       } else {
         return "Ça ne fonctionne pas.";
       }
+    }
+  }
+
+  retirerEtat(porte: Porte, etatA: string, etatB: string) {
+    // retirer l’état verrouillé
+    let indexEtat = -1;
+    if (OutilsCommandes.portePossedeUnDeCesEtats(porte, etatA)) {
+      indexEtat = porte.etat.findIndex(x => x == etatA);
+      if (indexEtat != -1) {
+        porte.etat.splice(indexEtat, 1);
+      } else {
+        console.error("Pas pu retirer l'état");
+      }
+    } else if (OutilsCommandes.portePossedeUnDeCesEtats(porte, etatB)) {
+      indexEtat = porte.etat.findIndex(x => x == etatB);
+      if (indexEtat != -1) {
+        porte.etat.splice(indexEtat, 1);
+      } else {
+        console.error("Pas pu retirer l'état");
+      }
+    } else {
+      console.log("retirerEtat >> Rien à retirer.");
     }
   }
 

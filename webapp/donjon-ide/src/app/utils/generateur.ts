@@ -161,6 +161,22 @@ export class Generateur {
         }
       }
 
+      // parcourir les propriétés de la salle
+      curEle.proprietes.forEach(pro => {
+        switch (pro.nom) {
+          case 'description':
+            newObjet.description = pro.valeur;
+            break;
+
+          case 'intitulé':
+            newObjet.intitule = pro.valeur;
+            break;
+
+          default:
+            break;
+        }
+      });
+
       newObjet.determinant = curEle.determinant;
       newObjet.genre = curEle.genre;
       newObjet.nombre = curEle.nombre;

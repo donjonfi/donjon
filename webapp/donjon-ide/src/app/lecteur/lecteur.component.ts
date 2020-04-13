@@ -401,6 +401,10 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.ouvrir(mots);
           break;
 
+        case "fermer":
+          retVal = this.com.fermer(mots);
+          break;
+
         case "ex": // examiner
         case "examiner":
           // TODO: changer ça
