@@ -28,7 +28,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
       // "support.variable": builtinVariables,
       "keyword": keywords,
       // "storage.type": storageType,
-      "invalid.illegal": ("🚦|🏁|↪"),
+      "invalid.illegal": ("Ƶ|ƶ|Ʒ"),
 
     }, "identifier", true);
 

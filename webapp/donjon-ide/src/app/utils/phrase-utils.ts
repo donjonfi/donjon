@@ -25,30 +25,32 @@ export class PhraseUtils {
         }
       }
     }
-    // nettoyer les valeurs
-    if (el.determinant) {
-      el.determinant = el.determinant.toLowerCase();
-    }
-    if (el.pronom) {
-      el.pronom = el.pronom.toLowerCase();
-    }
-    if (el.sujet) {
-      el.sujet = el.sujet.toLowerCase().trim();
-    }
-    if (el.verbe) {
-      el.verbe = el.verbe.toLowerCase().trim();
-    }
-    if (el.infinitif) {
-      el.infinitif = el.infinitif.toLowerCase().trim();
-    }
-    if (el.complement) {
-      // ne PAS changer la casse, c’est peut-être un texte à conserver tel quel !
-      el.complement = el.complement.trim();
+
+    if (el) {
+      // nettoyer les valeurs
+      if (el.determinant) {
+        el.determinant = el.determinant.toLowerCase();
+      }
+      if (el.pronom) {
+        el.pronom = el.pronom.toLowerCase();
+      }
+      if (el.sujet) {
+        el.sujet = el.sujet.toLowerCase().trim();
+      }
+      if (el.verbe) {
+        el.verbe = el.verbe.toLowerCase().trim();
+      }
+      if (el.infinitif) {
+        el.infinitif = el.infinitif.toLowerCase().trim();
+      }
+      if (el.complement) {
+        // ne PAS changer la casse, c’est peut-être un texte à conserver tel quel !
+        el.complement = el.complement.trim();
+      }
     }
 
     console.log("decomposerPhrase >>>", phrase);
     console.log("decomposerPhrase >>>>", el);
-    
 
     return el;
   }

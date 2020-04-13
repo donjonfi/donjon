@@ -25,14 +25,14 @@ export class Compilateur {
 
   // Caractères réservés:
   // 🚦 et 🏁 − commentaire
-  static readonly caractereDebutCommentaire = '🚦';
-  static readonly caractereFinCommentaire = '🏁';
-  static readonly xCaracteresCommentaire = /🚦|🏁/g;
-  static readonly xCaractereDebutCommentaire = /🚦/g;
-  static readonly xCaractereFinCommentaire = /🏁/g;
+  static readonly caractereDebutCommentaire = 'Ƶ';
+  static readonly caractereFinCommentaire = 'ƶ';
+  static readonly xCaracteresCommentaire = /Ƶ|ƶ/g;
+  static readonly xCaractereDebutCommentaire = /Ƶ/g;
+  static readonly xCaractereFinCommentaire = /ƶ/g;
   //   ↪ − retour à la ligne
-  static readonly caractereRetourLigne = '↪';
-  static readonly xCaractereRetourLigne = /↪/g;
+  static readonly caractereRetourLigne = 'Ʒ';
+  static readonly xCaractereRetourLigne = /Ʒ/g;
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
   static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
