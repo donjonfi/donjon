@@ -26,28 +26,35 @@ Il vous faut installer [Node.js](https://nodejs.org) qui va vous permettre d'ins
 
 #### Angular-cli
 
-Il vous faut ensuite installer [Angular CLI](https://cli.angular.io) : Exécutez la commande `npm install -g @angular/cli`
+Il vous faut ensuite installer [Angular CLI](https://cli.angular.io) :
+```shell
+npm install -g @angular/cli
+```
 
 #### Bibliothèques de composants
 
-Ouvrir un terminal à la racine du projet et exécuter la commande
-`npm install`
-pour télécharger les bibliothèques de composants utilisées dans l'application.
+Ouvrir un terminal à la racine du projet et exécuter la commande suivante pour télécharger les bibliothèques de composants utilisées dans l'application :
+```shell
+npm install
+```
 
 ### Test local
 
-Tester l'application localement:\
-`ng serve`.
-
+Tester l'application localement:
+```shell
+ng serve
+```
 Se rendre ensuite sur `http://localhost:4200/`.
 
 ### Déploiement sur un site web
 
-Compiler l'application:\
-`ng build --prod`.
-
+Compiler l'application:
+```shell
+ng build --prod
+```
 Publier ensuie le contenu du dossier `dist` à la racine du site web.
 
-Il est possible de publier l'application dans un sous-dossier du site web. Dans ce cas il faut ajouter la variable\
-`--baseHref=/sous-dossier`\
-lors de la compilation.
+Il est possible de publier l'application dans un sous-dossier du site web. Dans ce cas il faut ajouter la variable `baseHref` lors de la compilation :
+```shell
+--baseHref=/sous-dossier
+```
