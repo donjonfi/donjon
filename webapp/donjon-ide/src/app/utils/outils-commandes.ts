@@ -316,7 +316,10 @@ export class OutilsCommandes {
   get curSalle() {
     // TODO: retenir la salle
     const retVal = this.jeu.salles.find(x => x.id === this.jeu.position);
-    if (!retVal) {
+    if (retVal) {
+      // la salle a été visité par le joueur
+      retVal.visite = true;
+    } else {
       console.warn("Pas trouvé la curSalle:", this.jeu.position);
     }
     return retVal;
@@ -383,28 +386,39 @@ export class OutilsCommandes {
   }
 
   afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
+    let retVal: string = null;
+    let salle = this.getSalle(voisinIndex);
+    let salleIntitulle = (salle.intitule ? salle.intitule : (salle.determinant + salle.nom));
     switch (localisation) {
       case Localisation.nord:
-        return "nord (n)";
+        retVal = "nord (n)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        break;
       case Localisation.sud:
-        return "sud (s)";
+        retVal = "sud (s) " + (salle.visite ? (" − " + salleIntitulle) : '');
+        break;
       case Localisation.est:
-        return "est (e)";
+        retVal = "est (e)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        break;
       case Localisation.ouest:
-        return "ouest (o)";
-
+        retVal = "ouest (o)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        break;
       case Localisation.bas:
-        return "descendre " + this.getSalle(voisinIndex)?.nom + " (de)";
+        retVal = "descendre " + salleIntitulle + " (de)";
+        break;
       case Localisation.haut:
-        return "monter " + this.getSalle(voisinIndex)?.nom + " (mo)";
+        retVal = "monter " + salleIntitulle + " (mo)";
+        break;
       case Localisation.exterieur:
-        return "sortir " + this.getSalle(curSalleIndex)?.nom + " (so)";
+        retVal = "sortir " + salleIntitulle + " (so)";
+        break;
       case Localisation.interieur:
-        return "entrer " + this.getSalle(voisinIndex)?.nom + " (en)";
+        retVal = "entrer " + salleIntitulle + " (en)";
+        break;
 
       default:
-        return localisation.toString();
+        retVal = localisation.toString();
     }
+    return retVal;
   }
 
 }

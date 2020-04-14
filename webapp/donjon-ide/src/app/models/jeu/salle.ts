@@ -49,4 +49,7 @@ export class Salle {
 
   inventaire = new Inventaire();
 
+  /** La salle a-t-elle déjà été visitée par le joueur */
+  visite = false;
+
 }
