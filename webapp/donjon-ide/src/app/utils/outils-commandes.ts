@@ -330,8 +330,8 @@ export class OutilsCommandes {
       return "—————————————————\n" +
         (this.curSalle.intitule ? (this.curSalle.intitule) : (this.curSalle.determinant + this.curSalle.nom))
         + "\n—————————————————\n"
-        + (this.curSalle.description ? (this.curSalle.description + "\n") : "")
-        + this.afficherSorties()
+        + (this.curSalle.description ? (this.calculerDescription(this.curSalle.description) + "\n") : "")
+        + this.afficherSorties();
     } else {
       console.warn("Pas trouvé de curSalle :(");
       return "Je suis où moi ? :(";
@@ -418,6 +418,31 @@ export class OutilsCommandes {
       default:
         retVal = localisation.toString();
     }
+    return retVal;
+  }
+
+  calculerDescription(description: string) {
+
+    const morceaux = description.split(/\[|\]/);
+    let suivantEstCondition = description.trim().startsWith("[");
+    let afficherMorceauSuivant = true;
+    let retVal = "";
+
+    morceaux.forEach(morceau => {
+      if (suivantEstCondition) {
+        afficherMorceauSuivant = true;
+        suivantEstCondition = false;
+      } else {
+        if (afficherMorceauSuivant) {
+          retVal += morceau;
+        }
+        suivantEstCondition = true;
+      }
+    });
+
+    console.log("Calcul de la description :", description, retVal);
+
+
     return retVal;
   }
 

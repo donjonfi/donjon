@@ -6,11 +6,6 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
   var DonjonHighlightRules = function () {
 
-    var keywords = (
-      "si|sinon|quand|avant|après|" +
-      ""
-    );
-
     var variableLanguage = (
       "joueur|inventaire|intitulé|description|capacité"
     );
@@ -18,17 +13,14 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var builtinFunctions = (
       "dire|changer|remplacer|par|verrouiller|déverrouiller|ouvrir|fermer"
     );
-    var builtinVariables = (
-      "est|sont|vaut|contient|se|trouve|possède"
-    );
 
     var keywordMapper = this.createKeywordMapper({
       "variable.language": variableLanguage,
       "support.function": builtinFunctions,
       // "support.variable": builtinVariables,
-      "keyword": keywords,
+      // "keyword": keywords,
       // "storage.type": storageType,
-      "invalid.illegal": ("Ƶ|ƶ|Ʒ"),
+      "invalid": ("Ƶ|ƶ|Ʒ"),
 
     }, "identifier", true);
 
@@ -36,7 +28,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
       "start": [
         {
           token: "comment",
-          regex: "--.*$"
+          regex: "^( |)--.*$"
         }, {
           token: "comment",
           start: "/\\*",
@@ -44,12 +36,27 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "string", // multi line comment
           //regex : "\\/\\*",
-          regex: '"',
-          next: "string"
+          regex: '"|\\]',
+          next: [
+            {
+              token: "string", // closing comment
+              //regex : "\\*\\/",
+              regex: '"|\\[',
+              next: "start"
+            }, {
+              defaultToken: "string"
+            }
+          ]
         }, {
           token: "string",           // " string
           regex: '".*?"'
-        }, {
+        },
+        {
+          token: "keyword",
+          regex: "quand |avant |après |si |sinon|fin si|au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|puis|fin choix",
+          caseInsensitive: true
+        },
+        {
           token: "constant.language",
           regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|"
             + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)"
@@ -58,7 +65,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "une (salle|clé|porte|personne)|un (lieu|objet|animal|décor|contenant|nombre)|" +
             "des (salles|clés|portes|personnes|lieux|objets|animaux|décors|contenants|nombres)"
         }, {
-          token: "support.variable",
+          // token: "support.variable",
+          token: "variable.parameter",
           regex: "se (trouve)|est|sont|vaut|contient|possède"
         }, {
           token: "constant.numeric", // float
@@ -79,17 +87,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "text",
           regex: "\\s+"
-        }],
-      "string": [
-        {
-          token: "string", // closing comment
-          //regex : "\\*\\/",
-          regex: '"',
-          next: "start"
-        }, {
-          defaultToken: "string"
-        }
-      ]
+        }]
     };
     this.normalizeRules();
   };

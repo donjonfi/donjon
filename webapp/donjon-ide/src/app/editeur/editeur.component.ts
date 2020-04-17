@@ -5,6 +5,7 @@ import '../../mode-donjon.js';
 import 'brace/theme/chrome';
 import 'brace/theme/crimson_editor';
 import 'brace/theme/clouds';
+import 'brace/theme/dracula';
 import 'brace/theme/vibrant_ink';
 import 'brace/theme/solarized_light';
 import 'brace/theme/tomorrow';
@@ -37,7 +38,7 @@ export class EditeurComponent implements OnInit {
     // mode: 'text',
     mode: 'donjon',
     minLines: 80,
-    theme: 'katzenmilch',
+    theme: 'chrome',
     readOnly: false,
     tabSize: 2,
     fontSize: 18,
@@ -48,7 +49,7 @@ export class EditeurComponent implements OnInit {
     wrap: true,
   };
 
-  theme = "katzenmilch";
+  theme = "chrome";
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";
 

@@ -452,7 +452,7 @@ export class Commandes {
     if (mots.length == 1) {
       if (this.outils.curSalle) {
         if (this.outils.curSalle.description) {
-          return this.outils.curSalle.description
+          return this.outils.calculerDescription(this.outils.curSalle.description)
             + this.outils.afficherObjetsCurSalle();
         } else {
           return "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
@@ -467,7 +467,7 @@ export class Commandes {
       const trouve = this.outils.trouverObjet(mots, false, true);
       if (trouve) {
         if (trouve.description) {
-          return trouve.description;
+          return this.outils.calculerDescription(trouve.description);
         } else {
           return (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntituleObjet(trouve, false, null);
         }
@@ -478,7 +478,7 @@ export class Commandes {
         if (trouve) {
           let retVal = "";
           if (trouve.description) {
-            retVal = trouve.description;
+            retVal = this.outils.calculerDescription(trouve.description);
           } else {
             retVal = (trouve.nombre == Nombre.s ? "C’est… " : "Ce sont… ") + (trouve.intitule ? trouve.intitule : (trouve.determinant + trouve.nom));
           }
