@@ -21,6 +21,9 @@ export class Porte {
   /** Description de la porte. */
   description = "";
 
+  /** Nombre d'affichages de la description */
+  nbAffichageDescription = 0;
+
   /**
    * Déterminant qui précède l’intitulé de la porte.
    */

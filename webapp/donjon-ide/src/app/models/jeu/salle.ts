@@ -24,6 +24,9 @@ export class Salle {
   /** Description de la salle. */
   description = "";
 
+  /** Nombre d'affichages de la description */
+  nbAffichageDescription = 0;
+
   /**
    * Déterminant qui précède l’intitulé de la salle.
    */

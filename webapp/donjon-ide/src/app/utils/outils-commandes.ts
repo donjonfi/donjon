@@ -1,3 +1,5 @@
+import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
+
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
@@ -11,7 +13,6 @@ export class OutilsCommandes {
     private jeu: Jeu,
     private verbeux: boolean,
   ) { }
-
 
   static copierObjet(original: Objet) {
     let retVal = new Objet();
@@ -330,7 +331,7 @@ export class OutilsCommandes {
       return "—————————————————\n" +
         (this.curSalle.intitule ? (this.curSalle.intitule) : (this.curSalle.determinant + this.curSalle.nom))
         + "\n—————————————————\n"
-        + (this.curSalle.description ? (this.calculerDescription(this.curSalle.description) + "\n") : "")
+        + (this.curSalle.description ? (this.calculerDescription(this.curSalle.description, ++this.curSalle.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
     } else {
       console.warn("Pas trouvé de curSalle :(");
@@ -421,29 +422,151 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  calculerDescription(description: string) {
+  calculerDescription(description: string, nbAffichage: number) {
 
     const morceaux = description.split(/\[|\]/);
+    let statut = new StatutCondition(nbAffichage, morceaux, 0);
     let suivantEstCondition = description.trim().startsWith("[");
     let afficherMorceauSuivant = true;
     let retVal = "";
 
-    morceaux.forEach(morceau => {
+    for (let index = 0; index < morceaux.length; index++) {
+      statut.curMorceauIndex = index;
+      const curMorceau = morceaux[index];
       if (suivantEstCondition) {
-        afficherMorceauSuivant = true;
+        afficherMorceauSuivant = this.estConditionRemplie(curMorceau, statut);
         suivantEstCondition = false;
       } else {
         if (afficherMorceauSuivant) {
-          retVal += morceau;
+          retVal += curMorceau;
         }
         suivantEstCondition = true;
       }
-    });
-
-    console.log("Calcul de la description :", description, retVal);
-
+    }
 
     return retVal;
+  }
+
+
+  estConditionRemplie(condition: string, statut: StatutCondition): boolean {
+
+    let retVal = false;
+    let conditionLC = condition.toLowerCase();
+    const resultFois = conditionLC.match(xFois);
+
+    if (resultFois) {
+      statut.conditionDebutee = ConditionDebutee.fois;
+      const nbFois = Number.parseInt(resultFois[1], 10);
+      statut.nbChoix = this.calculerNbChoix(statut);
+      console.log("resultFois:", resultFois, "nbFois:", nbFois);
+      retVal = (statut.nbAffichage === nbFois);
+      // Au hasard
+      // TODO: au hasard
+    } else if (conditionLC === "au hasard") {
+      statut.conditionDebutee = ConditionDebutee.hasard;
+      statut.dernIndexChoix = 1;
+      // compter le nombre de choix
+      statut.nbChoix = this.calculerNbChoix(statut);
+      // choisir un choix au hasard
+      const rand = Math.random();
+      statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
+      retVal = (statut.choixAuHasard == 1);
+    } else if (conditionLC === "en boucle") {
+      statut.conditionDebutee = ConditionDebutee.boucle;
+      statut.dernIndexChoix = 1;
+      // compter le nombre de choix
+      statut.nbChoix = this.calculerNbChoix(statut);
+      retVal = (statut.nbAffichage % statut.nbChoix === 1);
+    } else if (conditionLC.startsWith("si ")) {
+      statut.conditionDebutee = ConditionDebutee.si;
+      // TODO: vérifier le si
+      statut.siVrai = true;
+      retVal = true;
+    } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
+      retVal = false;
+      switch (conditionLC) {
+
+        case 'ou':
+          if (statut.conditionDebutee == ConditionDebutee.hasard) {
+            retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
+          } else {
+            console.warn("[ou] sans 'au hasard'.");
+          }
+          break;
+
+        case 'puis':
+          if (statut.conditionDebutee === ConditionDebutee.fois) {
+            // toutes les fois suivant le dernier Xe fois
+            retVal = (statut.nbAffichage > statut.plusGrandChoix);
+          } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
+            // boucler
+            statut.dernIndexChoix += 1;
+            retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
+          } else {
+            console.warn("[puis] sans 'fois' ou 'boucle'.");
+          }
+          break;
+
+        case 'sinon':
+          if (statut.conditionDebutee == ConditionDebutee.si) {
+            retVal = !statut.siVrai;
+          } else {
+            console.warn("[sinon] sans 'si'.");
+            retVal = false;
+          }
+          break;
+
+        case 'fin choix':
+          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard) {
+            retVal = true;
+          } else {
+            console.warn("[fin choix] sans 'fois', 'boucle' ou 'hasard'.");
+          }
+          break;
+
+        case 'fin si':
+          if (statut.conditionDebutee == ConditionDebutee.si) {
+            retVal = true;
+          } else {
+            console.warn("[fin si] sans 'si'.");
+          }
+          break;
+
+        default:
+          console.warn("je ne sais pas quoi faire pour:", conditionLC);
+          break;
+      }
+    }
+
+    console.log("estConditionRemplie", condition, statut, retVal);
+
+    return retVal;
+  }
+
+  private calculerNbChoix(statut: StatutCondition) {
+    let nbChoix = 0;
+    let index = statut.curMorceauIndex;
+    do {
+      index += 2;
+      nbChoix += 1;
+    } while (statut.morceaux[index] !== 'fin choix');
+
+    // si on est dans une balise fois, 
+    // et si il y a un "puis"
+    // => récupérer le dernier élément fois pour avoir le plus élevé
+    if (statut.conditionDebutee == ConditionDebutee.fois) {
+
+      if (statut.morceaux[index - 2] == "puis") {
+        const result = statut.morceaux[index - 4].match(xFois);
+        if (result) {
+          statut.plusGrandChoix = Number.parseInt(result[1], 10);
+        } else {
+          console.warn("'puis' ne suit pas un 'Xe fois'");
+        }
+      }
+    }
+
+    return nbChoix;
   }
 
 }

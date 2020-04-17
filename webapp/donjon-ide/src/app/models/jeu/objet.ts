@@ -37,4 +37,7 @@ export class Objet {
 
   description: string;
 
+  /** Nombre d'affichages de la description */
+  nbAffichageDescription = 0;
+
 }

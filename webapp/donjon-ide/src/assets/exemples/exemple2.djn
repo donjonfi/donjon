@@ -6,7 +6,7 @@ Avant le jeu commence:
 	dire "Bienvenue dans « Le chateau de la terreur » !";
 	dire "Ton objectif est de repartir avec le trésor.";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
-	changer le joueur se trouve au cellier;
+	changer le joueur se trouve au départ;
   changer le joueur possède la clé rouillée.
 
 -- (pas encore géré).
@@ -19,8 +19,7 @@ Si l'inventaire est plein,
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
 Son intitulé est "Devant le portique".
-Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg.[si le portique est ouvert] Il est ouvert.[sinon] Il est fermé.[fin si]
-La nuit vient de tomber. Vous entendez encore des grillons.
+Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg. [si le portique est ouvert] Il est ouvert.[sinon] Il est fermé.[fin si] [1ère fois]La nuit va tomber.[2e fois]La nuit vient de tomber.[3e fois]Il fait nuit.[fin choix] Vous entendez encore des grillons.
 Vous distinguez une faible lueur à travers les bareaux.".
 Il y a des grillons dans le départ. Ce sont des animaux.
 "Vous sentez plus que vous ne voyez des petites formes qui se déplacent dans les herbes hautes (il fait noir.)".
