@@ -1,11 +1,10 @@
+import { ElementJeu } from '../models/jeu/element-jeu';
+import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
-import { Porte } from '../models/jeu/porte';
-import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
 
 export class Commandes {
@@ -44,7 +43,7 @@ export class Commandes {
       let estSingulier = true;
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.outils.trouverObjet(mots, false, false);
+      const objetTrouve = this.outils.trouverElementJeu(mots, EmplacementElement.ici, false);
       if (objetTrouve) {
 
         if (this.verbeux) {
@@ -71,7 +70,7 @@ export class Commandes {
             if (this.verbeux) {
               console.log("on prend les autres types d’éléments.");
             }
-            const nouvelObjet = this.outils.prendreObjet(objetTrouve.id);
+            const nouvelObjet = this.outils.prendreElementJeu(objetTrouve.id);
             let cible = nouvelObjet;
             // si l'inventaire contient déjà le même objet, augmenter la quantité
             let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
@@ -161,11 +160,11 @@ export class Commandes {
         break;
     }
 
-    const voisinSalle = this.outils.getSalle(this.outils.getVoisinSalle(locDest));
-    const voisinPorte = this.outils.getPorte(this.outils.getVoisinPorte(locDest));
+    const voisinSalle = this.outils.getSalle(this.outils.getVoisins(locDest, TypeElement.salle));
+    const voisinPorte = this.outils.getPorte(this.outils.getVoisins(locDest, TypeElement.porte));
 
     // TODO: vérifier accès…
-    if (voisinPorte && !OutilsCommandes.portePossedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
+    if (voisinPorte && !OutilsCommandes.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
       // TODO: gérer majuscule
       return (voisinPorte.intitule ? voisinPorte.intitule : (voisinPorte.determinant + voisinPorte.nom) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
     } else {
@@ -249,18 +248,18 @@ export class Commandes {
     if (mots.length == 1) {
       return "Ouvrir quoi ?";
     } else {
-      const porte = this.outils.trouverPorte(mots);
+      const porte = this.outils.trouverElementJeu(mots, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (OutilsCommandes.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!OutilsCommandes.portePossedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!OutilsCommandes.possedeUnDeCesEtats(porte, "ouvrable")) {
           return "Je ne sais pas l’ouvrir.";
           // porte pas verrouillée et ouvrable => on l’ouvre
         } else {
-          porte.etat.push((porte.genre == Genre.f ? "ouverte" : "ouvert"));
+          porte.etats.push((porte.genre == Genre.f ? "ouverte" : "ouvert"));
           return "C’est ouvert";
         }
         // pas trouvé la porte
@@ -274,14 +273,14 @@ export class Commandes {
     if (mots.length == 1) {
       return "Fermer quoi ?";
     } else {
-      const porte = this.outils.trouverPorte(mots);
+      const porte = this.outils.trouverElementJeu(mots, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (OutilsCommandes.portePossedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (OutilsCommandes.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!OutilsCommandes.portePossedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!OutilsCommandes.possedeUnDeCesEtats(porte, "ouvrable")) {
           return "Je ne sais pas la fermer.";
           // porte pas verrouillée et ouvrable => on la ferme
         } else {
@@ -326,40 +325,32 @@ export class Commandes {
   }
 
   utiliserAvec(elA: string, elB: string) {
-
-    let objetTrouveA: Objet;
-    let objetTrouveB: Objet;
-    let porteTrouveeA: Porte;
-    let porteTrouveeB: Porte;
-
-    objetTrouveA = this.outils.trouverObjet(["", elA]);
-    if (!objetTrouveA) {
-      porteTrouveeA = this.outils.trouverPorte(["", elA]);
-    }
-
-    objetTrouveB = this.outils.trouverObjet(["", elB]);
-    if (!objetTrouveB) {
-      porteTrouveeB = this.outils.trouverPorte(["", elB]);
-    }
-
-    if (objetTrouveA && objetTrouveB) {
-      return this.utiliserObjetAvecObjet(objetTrouveA, objetTrouveB);
-    } else if (objetTrouveA && porteTrouveeB) {
-      return this.utiliserObjetAvecPorte(objetTrouveA, porteTrouveeB);
-    } else if (porteTrouveeA && objetTrouveB) {
-      return this.utiliserObjetAvecPorte(objetTrouveB, porteTrouveeA);
-    } else if (porteTrouveeA && porteTrouveeB) {
-      if (porteTrouveeA == porteTrouveeB) {
-        return "Je ne peux pas l’utiliser sur " + (porteTrouveeA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
-      } else {
+    // retrouver les 2 éléments
+    const eleJeuA = this.outils.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
+    const eleJeuB = this.outils.trouverElementJeu(["", elB], EmplacementElement.iciEtInventaire, true);
+    // Les 2 objets ont été trouvés
+    if (eleJeuA && eleJeuB) {
+      // 2x le même objet
+      if (eleJeuA == eleJeuB) {
+        return "Je ne peux pas l’utiliser sur " + (eleJeuA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
+        // 2x une porte
+      } else if (eleJeuA.type === TypeElement.porte && eleJeuB.type === TypeElement.porte) {
         return "Hum… essayons autre chose !";
+        // 1x un objet et 1x une porte
+      } else if (eleJeuA.type === TypeElement.porte && eleJeuB.type !== TypeElement.porte) {
+        return this.utiliserObjetAvecPorte(eleJeuB, eleJeuA);
+      } else if (eleJeuB.type === TypeElement.porte && eleJeuA.type !== TypeElement.porte) {
+        return this.utiliserObjetAvecPorte(eleJeuA, eleJeuB);
+        // 2x un objet
+      } else {
+        return this.utiliserObjetAvecObjet(eleJeuA, eleJeuB);
       }
     } else {
       return "Je n’ai pas trouvé ce que je dois utiliser.";
     }
   }
 
-  utiliserObjetAvecObjet(objetA: Objet, objetB: Objet) {
+  utiliserObjetAvecObjet(objetA: ElementJeu, objetB: ElementJeu) {
     if (objetA == objetB) {
       return "Je ne peux pas l’utiliser sur " + (objetA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
     } else {
@@ -368,15 +359,15 @@ export class Commandes {
     }
   }
 
-  utiliserObjetAvecPorte(objet: Objet, porte: Porte) {
-    let canDeverroullierCettePorte = OutilsCommandes.objetPossedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
+  utiliserObjetAvecPorte(objet: ElementJeu, porte: ElementJeu) {
+    const canDeverroullierCettePorte = OutilsCommandes.possedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
     // cet objet déverrouille cette porte
     if (canDeverroullierCettePorte) {
       this.retirerEtat(porte, "verrouillé", "verrouillée");
       return "À présent ce n’est plus verrouillé.";
     } else {
       // cet objet peut déverrouiller AUTRE CHOSE
-      let canDeverroullier = OutilsCommandes.objetPossedeCapaciteAction(objet, "déverrouiller");
+      const canDeverroullier = OutilsCommandes.objetPossedeCapaciteAction(objet, "déverrouiller");
       if (canDeverroullier) {
         return "Essayons de déverrouiller autre chose avec.";
       } else {
@@ -385,20 +376,20 @@ export class Commandes {
     }
   }
 
-  retirerEtat(porte: Porte, etatA: string, etatB: string) {
+  retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
     // retirer l’état verrouillé
     let indexEtat = -1;
-    if (OutilsCommandes.portePossedeUnDeCesEtats(porte, etatA)) {
-      indexEtat = porte.etat.findIndex(x => x == etatA);
+    if (OutilsCommandes.possedeUnDeCesEtats(eleJeu, etatA)) {
+      indexEtat = eleJeu.etats.findIndex(x => x == etatA);
       if (indexEtat != -1) {
-        porte.etat.splice(indexEtat, 1);
+        eleJeu.etats.splice(indexEtat, 1);
       } else {
         console.error("Pas pu retirer l'état");
       }
-    } else if (OutilsCommandes.portePossedeUnDeCesEtats(porte, etatB)) {
-      indexEtat = porte.etat.findIndex(x => x == etatB);
+    } else if (OutilsCommandes.possedeUnDeCesEtats(eleJeu, etatB)) {
+      indexEtat = eleJeu.etats.findIndex(x => x == etatB);
       if (indexEtat != -1) {
-        porte.etat.splice(indexEtat, 1);
+        eleJeu.etats.splice(indexEtat, 1);
       } else {
         console.error("Pas pu retirer l'état");
       }
@@ -409,14 +400,15 @@ export class Commandes {
 
   utiliserSeul(elA: string) {
 
-    let objetTrouveA: Objet;
-    objetTrouveA = this.outils.trouverObjet(["", elA]);
+    let eleTrouve: ElementJeu;
+    //todo: inclure les portes ou pas ?
+    eleTrouve = this.outils.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
 
-    if (objetTrouveA) {
+    if (eleTrouve) {
 
-      if (objetTrouveA.type == TypeElement.animal || objetTrouveA.type == TypeElement.humain) {
+      if (eleTrouve.type === TypeElement.animal || eleTrouve.type === TypeElement.humain) {
         return "Pas de ça ici !";
-      } else if (objetTrouveA.type == TypeElement.decor) {
+      } else if (eleTrouve.type == TypeElement.decor) {
         return "Et comment comptes-tu t’y prendre ?";
       } else {
         return "Et si on combinait avec autre chose ?";
@@ -447,49 +439,40 @@ export class Commandes {
   }
 
   regarder(mots: string[]) {
+    let retVal: string;
 
     // regarder la salle actuelle
-    if (mots.length == 1) {
+    if (mots.length === 1) {
       if (this.outils.curSalle) {
         if (this.outils.curSalle.description) {
-          return this.outils.calculerDescription(this.outils.curSalle.description, ++this.outils.curSalle.nbAffichageDescription)
+          retVal = this.outils.calculerDescription(this.outils.curSalle.description, ++this.outils.curSalle.nbAffichageDescription)
             + this.outils.afficherObjetsCurSalle();
         } else {
-          return "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
+          retVal = "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
             + this.outils.afficherObjetsCurSalle();
         }
       } else {
-        return "Mais où suis-je ?";
+        retVal = "Mais où suis-je ?";
       }
       // regarder un élément en particulier
     } else {
-      // regarder dans les objets
-      const trouve = this.outils.trouverObjet(mots, false, true);
+      // regarder dans les éléments de jeu
+      const trouve = this.outils.trouverElementJeu(mots, EmplacementElement.iciEtInventaire, true);
       if (trouve) {
         if (trouve.description) {
-          return this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
+          retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
         } else {
-          return (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntituleObjet(trouve, false, null);
+          retVal = (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntitule(trouve, false, null);
         }
-        // pas trouvé dans les objets
+        if (trouve.type == TypeElement.porte) {
+          retVal += "\n" + this.outils.afficherStatutPorte(trouve)
+        }
+        // rien trouvé
       } else {
-        // regarder dans les portes
-        const trouve = this.outils.trouverPorte(mots);
-        if (trouve) {
-          let retVal = "";
-          if (trouve.description) {
-            retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
-          } else {
-            retVal = (trouve.nombre == Nombre.s ? "C’est… " : "Ce sont… ") + (trouve.intitule ? trouve.intitule : (trouve.determinant + trouve.nom));
-          }
-          retVal += "\n" + this.outils.afficherStatutPorte(trouve);
-          return retVal;
-          // rien trouvé
-        } else {
-          return "Je ne vois pas ça.";
-        }
+        retVal = "Je ne vois pas ça.";
       }
     }
+    return retVal;
   }
 
   sorties(mots: string[]) {
@@ -512,4 +495,3 @@ export class Commandes {
   }
 
 }
-

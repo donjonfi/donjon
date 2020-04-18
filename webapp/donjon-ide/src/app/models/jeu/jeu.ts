@@ -1,7 +1,6 @@
 import { Auditeur } from '../jouer/auditeur';
+import { ElementJeu } from './element-jeu';
 import { Inventaire } from './inventaire';
-import { Objet } from './objet';
-import { Porte } from './porte';
 import { Regle } from '../compilateur/regle';
 import { Salle } from './salle';
 
@@ -17,15 +16,15 @@ export class Jeu {
    */
   salles: Salle[] = [];
 
-  /**
-   * Portes qui séparent les salles.
-   */
-  portes: Porte[] = [];
+  // /**
+  //  * Portes qui séparent les salles.
+  //  */
+  // portes: Porte[] = [];
 
   /**
-   * Tous les objets du jeu, quelque soit leur emplacement actuel.
+   * Tous les éléments du jeu excepté les salles.
    */
-  objets: Objet[] = [];
+  elements: ElementJeu[] = [];
 
   /** Un auditeur écoute un évènement en particulier.
    * Lorsque l'évènement se déclanche, on exécute les actions

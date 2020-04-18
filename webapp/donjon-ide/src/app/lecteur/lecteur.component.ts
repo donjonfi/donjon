@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 import { Commandes } from '../utils/commandes';
 import { Declancheur } from '../utils/declancheur';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Instruction } from '../models/jouer/instruction';
 import { Jeu } from '../models/jeu/jeu';
 
@@ -154,9 +155,9 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   ajouterInventaire(intitule: string) {
     let mots = [""].concat(intitule.split(" "));
-    let objetTrouve = this.com.outils.trouverObjet(mots, true, false);
+    let objetTrouve = this.com.outils.trouverElementJeu(mots, EmplacementElement.partout, false);
     if (objetTrouve) {
-      const nouvelObjet = this.com.outils.prendreObjet(objetTrouve.id, true);
+      const nouvelObjet = this.com.outils.prendreElementJeu(objetTrouve.id);
       let cible = nouvelObjet;
       // si l'inventaire contient déjà le même objet, augmenter la quantité
       let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);

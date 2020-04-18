@@ -1,11 +1,11 @@
-import { Objet } from './objet';
+import { ElementJeu } from './element-jeu';
 
 export class Inventaire {
 
     /**
      * Objets de jeu présents dans l’inventaire.
      */
-    objets: Objet[] = new Array<Objet>();
+    objets: ElementJeu[] = new Array<ElementJeu>();
 
     /**
      * Capacité de l’inventaire.

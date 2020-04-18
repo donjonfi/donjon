@@ -1,16 +1,11 @@
 import { Auditeur } from '../models/jouer/auditeur';
-import { Consequence } from '../models/compilateur/consequence';
 import { ElementGenerique } from '../models/compilateur/element-generique';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { Instruction } from '../models/jouer/instruction';
+import { ElementJeu } from '../models/jeu/element-jeu';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
-import { PhraseUtils } from './phrase-utils';
-import { Porte } from '../models/jeu/porte';
 import { Regle } from '../models/compilateur/regle';
 import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
@@ -21,22 +16,17 @@ export class Generateur {
 
   public static genererJeu(monde: Monde, regles: Regle[]): Jeu {
 
+    let indexElementJeu = 0;
     let jeu = new Jeu();
 
     jeu.titre = monde.titre;
 
     // AJOUTER LES SALLES
-    for (let index = 0; index < monde.salles.length; index++) {
-      const curEle = monde.salles[index];
-
-      let newSalle = new Salle();
-      newSalle.id = (index);
-      newSalle.nom = curEle.nom;
-      newSalle.determinant = curEle.determinant;
-      newSalle.genre = curEle.genre;
-      newSalle.nombre = curEle.nombre;
+    // ******************
+    let premierIndexSalle = (indexElementJeu + 1);
+    monde.salles.forEach(curEle => {
+      let newSalle = new Salle(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
       newSalle.description = curEle.description;
-
       // parcourir les propriétés de la salle
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
@@ -52,29 +42,23 @@ export class Generateur {
             break;
         }
       });
-
       jeu.salles.push(newSalle);
-    }
+    });
 
     // AJOUTER LES PORTES
-    for (let index = 0; index < monde.portes.length; index++) {
-      const curEle = monde.portes[index];
-
-      let newPorte = new Porte();
-      newPorte.id = (index);
-      newPorte.nom = curEle.nom;
-      newPorte.determinant = curEle.determinant;
-      newPorte.genre = curEle.genre;
-      newPorte.nombre = curEle.nombre;
+    // ******************
+    let premierIndexPorte = (indexElementJeu + 1);
+    monde.portes.forEach(curEle => {
+      let newPorte = new ElementJeu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
+      newPorte.intitule = curEle.nom;
       newPorte.description = curEle.description;
-
       curEle.attributs.forEach(at => {
-        newPorte.etat.push(at);
+        newPorte.etats.push(at);
       });
 
       // par défaut une porte est ouvrable (sauf si elle contient « pas ouvrable ».)
-      if (!OutilsCommandes.portePossedeUnDeCesEtats(newPorte, "pas ouvrable", "ouvrable")) {
-        newPorte.etat.push("ouvrable");
+      if (!OutilsCommandes.possedeUnDeCesEtats(newPorte, "pas ouvrable", "ouvrable")) {
+        newPorte.etats.push("ouvrable");
       }
 
       // parcourir les propriétés de la salle
@@ -92,23 +76,25 @@ export class Generateur {
             break;
         }
       });
-
-      jeu.portes.push(newPorte);
-    }
+      jeu.elements.push(newPorte);
+    });
 
     // DÉFINIR LES VOISINS (SALLES)
+    // ****************************
     for (let index = 0; index < monde.salles.length; index++) {
       const curEle = monde.salles[index];
-      Generateur.ajouterVoisin(jeu.salles, curEle, index);
+      Generateur.ajouterVoisin(jeu.salles, curEle, (premierIndexSalle + index));
     }
 
     // DÉFINIR LES VOISINS (PORTES)
+    // ****************************
     for (let index = 0; index < monde.portes.length; index++) {
       const curEle = monde.portes[index];
-      Generateur.ajouterVoisin(jeu.salles, curEle, index);
+      Generateur.ajouterVoisin(jeu.salles, curEle, (premierIndexPorte + index));
     }
 
     // PLACER LE JOUEUR
+    // ****************
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
       const localisation = Generateur.getLocalisation(monde.joueurs[0].positionString.position);
       const salleID = Generateur.getSalleID(jeu.salles, monde.joueurs[0].positionString.complement);
@@ -117,59 +103,67 @@ export class Generateur {
       }
     }
 
-    // PLACER LES OBJETS DANS LES SALLES (ET DANS LA LISTE COMMUNE)
-    for (let index = 0; index < monde.objets.length; index++) {
-      const curEle = monde.objets[index];
+    // PLACER LES ÉLÉMENTS DU JEU DANS LES SALLES (ET DANS LA LISTE COMMUNE)
+    // *********************************************************************
+    let premierIndexObjet = (indexElementJeu + 1);
 
-      let newObjet = new Objet();
-      newObjet.id = index;
-      newObjet.intitule = curEle.nom;
-      newObjet.description = curEle.description;
+    monde.objets.forEach(curEle => {
+      let newEleJeu = new ElementJeu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
 
+      newEleJeu.intitule = curEle.nom;
+      newEleJeu.description = curEle.description;
+      newEleJeu.etats = curEle.attributs;
+      newEleJeu.capacites = curEle.capacites;
+
+      // Déterminer PLURIEL
       if (curEle.nombre == Nombre.p) {
-        newObjet.intituleP = curEle.nom;
+        newEleJeu.intituleP = curEle.nom;
+        // le singulier est fourni
         if (curEle.nomS) {
-          newObjet.intituleS = curEle.nomS;
+          newEleJeu.intituleS = curEle.nomS;
+          // le singulier est calculé
         } else {
           // essayer de déterminer le singulier sur base des règles les plus communes
           if (curEle.nom.endsWith('eaux') || curEle.nom.endsWith('eux')) {
-            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
+            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
           } else if (curEle.nom.endsWith('aux')) {
-            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 2) + 'l';
+            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 2) + 'l';
           } else if (curEle.nom.endsWith('s')) {
-            newObjet.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
+            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
           } else {
-            newObjet.intituleS = curEle.nom;
+            newEleJeu.intituleS = curEle.nom;
           }
         }
+        // Déterminer SINGULIER
       } else if (curEle.nombre == Nombre.s) {
-        newObjet.intituleS = curEle.nom;
-
+        newEleJeu.intituleS = curEle.nom;
+        // le pluriel est fourni
         if (curEle.nomP) {
-          newObjet.intituleP = curEle.nomP;
+          newEleJeu.intituleP = curEle.nomP;
+          // le pluriel est calculé
         } else {
           // essayer de déterminer le pluriel sur base des règles les plus communes
           if (curEle.nom.endsWith('al')) {
-            newObjet.intituleP = curEle.nom.slice(0, curEle.nom.length - 1) + 'ux';
+            newEleJeu.intituleP = curEle.nom.slice(0, curEle.nom.length - 1) + 'ux';
           } else if (curEle.nom.endsWith('au') || curEle.nom.endsWith('eu')) {
-            newObjet.intituleP = curEle.nom + 'x';
+            newEleJeu.intituleP = curEle.nom + 'x';
           } else if (curEle.nom.endsWith('s') || curEle.nom.endsWith('x') || curEle.nom.endsWith('z')) {
-            newObjet.intituleP = curEle.nom;
+            newEleJeu.intituleP = curEle.nom;
           } else {
-            newObjet.intituleP = curEle.nom + 's';
+            newEleJeu.intituleP = curEle.nom + 's';
           }
         }
       }
 
-      // parcourir les propriétés de la salle
+      // parcourir les propriétés de l’élément
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
-            newObjet.description = pro.valeur;
+            newEleJeu.description = pro.valeur;
             break;
 
           case 'intitulé':
-            newObjet.intitule = pro.valeur;
+            newEleJeu.intitule = pro.valeur;
             break;
 
           default:
@@ -177,36 +171,28 @@ export class Generateur {
         }
       });
 
-      newObjet.determinant = curEle.determinant;
-      newObjet.genre = curEle.genre;
-      newObjet.nombre = curEle.nombre;
-      newObjet.quantite = curEle.quantite;
-      newObjet.etat = curEle.attributs;
-      newObjet.capacites = curEle.capacites;
-      newObjet.type = curEle.type;
 
+      // POSITION de l’élément
       if (curEle.positionString) {
         // const localisation = Generateur.getLocalisation(curEle.positionString.position);
         const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
-
+        // élément pas trouvé
         if (salleID === -1) {
-          console.log("position objet pas trouvé: ", curEle.nom, curEle.positionString);
-          jeu.objets.push(newObjet);
-          // objet pas positionné
+          console.log("position élément jeu pas trouvé: ", curEle.nom, curEle.positionString);
+          jeu.elements.push(newEleJeu);
+          // élément trouvé
         } else {
-          jeu.salles[salleID].inventaire.objets.push(newObjet);
+          const salleTrouvee = jeu.salles.find(x => x.id === salleID);
+          salleTrouvee.inventaire.objets.push(newEleJeu);
         }
-        // objet pas positionné
+        // élément pas positionné
       } else {
-        if (!jeu.objets) {
-          console.warn(" jeu.objets est vide ?!");
-          jeu.objets = new Array<Objet>();
-        }
-        jeu.objets.push(newObjet);
+        jeu.elements.push(newEleJeu);
       }
-    }
+    });
 
     // PLACEMENT DU JOUEUR
+    // *******************
     // si pas de position définie, on commence dans la première salle
     if (!jeu.position) {
       if (jeu.salles.length > 0) {
@@ -214,7 +200,8 @@ export class Generateur {
       }
     }
 
-    // générer les auditeurs
+    // GÉNÉRER LES AUDITEURS
+    // *********************
     regles.forEach(regle => {
       switch (regle.typeRegle) {
         case TypeRegle.apres:
@@ -232,8 +219,10 @@ export class Generateur {
 
   }
 
-  /** Ajout d'un voisin (salle ou porte) à une salle */
-  static ajouterVoisin(salles: Salle[], elVoisin: ElementGenerique, indexElVoisin: number) {
+  /**
+   * Ajout d'un voisin (salle ou porte) à une salle 
+   */
+  static ajouterVoisin(salles: Salle[], elVoisin: ElementGenerique, idElVoisin: number) {
 
     console.log("ajouterVoisin >>> ", elVoisin);
 
@@ -244,25 +233,18 @@ export class Generateur {
       if (localisation === Localisation.inconnu || foundSalleID === -1) {
         console.log("positionString pas trouvé: ", elVoisin.positionString);
       } else {
+        // ajouter à la salle trouvée, le voisin elVoisin
+        const opposeVoisin = new Voisin(idElVoisin, elVoisin.type, localisation);
+        const salle = salles.find(x => x.id == foundSalleID);
+        salle.voisins.push(opposeVoisin);
+
         // la salle trouvée, est la voisine de la salle elVoisin.
         if (elVoisin.type == TypeElement.salle) {
           // ajouter la salle trouvée aux voisins de elVoisin
-          let newVoisin = new Voisin();
-          newVoisin.localisation = this.getOpposePosition(localisation);
-          newVoisin.salleIndex = foundSalleID;
-          salles[indexElVoisin].voisins.push(newVoisin);
+          const newVoisin = new Voisin(foundSalleID, elVoisin.type, this.getOpposePosition(localisation));
+          const salleTrouvee = salles.find(x => x.id === idElVoisin);
+          salleTrouvee.voisins.push(newVoisin);
         }
-
-        // ajouter à la salle trouvée, le voisin elVoisin
-        let opposeVoisin = new Voisin();
-        opposeVoisin.localisation = localisation;
-        if (elVoisin.type == TypeElement.salle) {
-          opposeVoisin.salleIndex = indexElVoisin;
-        } else {
-          opposeVoisin.porteIndex = indexElVoisin;
-        }
-        salles[foundSalleID].voisins.push(opposeVoisin);
-
       }
     } else {
 
