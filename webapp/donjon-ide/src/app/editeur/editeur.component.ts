@@ -4,17 +4,18 @@ import '../../mode-donjon.js';
 // import 'brace/mode/javascript';
 import 'brace/theme/chrome';
 import 'brace/theme/crimson_editor';
-import 'brace/theme/clouds';
 import 'brace/theme/dracula';
 import 'brace/theme/vibrant_ink';
 import 'brace/theme/solarized_light';
 import 'brace/theme/tomorrow';
-import 'brace/theme/kuroir';
 import 'brace/theme/katzenmilch';
+import 'brace/theme/ambiance';
+import 'brace/theme/monokai';
+import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Compilateur } from '../utils/compilateur';
@@ -32,16 +33,19 @@ import { StringUtils } from '../utils/string.utils';
 })
 export class EditeurComponent implements OnInit {
 
-  // @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+
+  nbLignesCode = 10;
+  tailleTexte = 15;
 
   public config: AceConfigInterface = {
     // mode: 'text',
     mode: 'donjon',
     minLines: 80,
-    theme: 'chrome',
+    theme: 'monokai',
     readOnly: false,
     tabSize: 2,
-    fontSize: 18,
+    fontSize: this.tailleTexte,
     showGutter: true,
     showLineNumbers: true,
     showPrintMargin: false,
@@ -49,7 +53,7 @@ export class EditeurComponent implements OnInit {
     wrap: true,
   };
 
-  theme = "chrome";
+  theme = "monokai";
 
   mode: "aucun" | "jeu" | "apercu" = "aucun";
 
@@ -70,9 +74,56 @@ export class EditeurComponent implements OnInit {
     // https://www.npmjs.com/package/ngx-ace-wrapper
     // => this.codeEditorElmRef["directiveRef"] : directiveRef;
     // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
+
+
+
+    // RÉCUPÉRER LES PRÉFÉRENCES DE L’UTILISATEUR
+    // - nombre de lignes de code visibles
+    let retVal = localStorage.getItem('EditeurNbLignesCodes');
+    if (retVal) {
+      this.nbLignesCode = +retVal;
+    }
+    // - taille texte
+    retVal = localStorage.getItem('EditeurTailleTexte');
+    if (retVal) {
+      this.tailleTexte = +retVal;
+    }
+    this.majTailleAce();
+    // - thème
+    retVal = localStorage.getItem('EditeurTheme');
+    if (retVal) {
+      this.theme = retVal;
+    }
+
+
+    // récupérer le code source de la session
+    this.codeSource = sessionStorage.getItem("CodeSource");
+
+  }
+  onChangerTheme() {
+    localStorage.setItem('EditeurTheme', this.theme);
+  }
+
+  onChangerNbLignesCode() {
+    localStorage.setItem('EditeurNbLignesCodes', this.nbLignesCode.toString());
+    this.majTailleAce();
+  }
+
+  onChangerTailleFont() {
+    localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
+    this.majTailleAce();
   }
 
 
+
+  majTailleAce() {
+    setTimeout(() => {
+      this.codeEditorElmRef["directiveRef"].ace().resize();
+      this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
+      this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
+      this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
+  }
 
   onChargerExemple() {
     const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
@@ -104,14 +155,19 @@ export class EditeurComponent implements OnInit {
     }
   }
 
-  onSauvegarder() {
+  sauvegarderSession() {
+    sessionStorage.setItem('CodeSource', this.codeSource);
+  }
+
+  onSauvegarderSous() {
     // Note: Ie and Edge don't support the new File constructor,
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([this.codeSource], "donjon.djn", { type: "text/plain;charset=utf-8" });
     FileSaver.saveAs(file);
   }
 
-  onParseCode() {
+  onApercu() {
+    this.sauvegarderSession();
     if (this.codeSource.trim() != '') {
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource);
@@ -126,6 +182,7 @@ export class EditeurComponent implements OnInit {
   }
 
   onJouer() {
+    this.sauvegarderSession();
     if (this.codeSource.trim() != '') {
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource);

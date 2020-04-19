@@ -8,7 +8,7 @@
       <div class="col-12 col-md">
         <div class="row">
           <div class="col-auto">
-            <button type="button" (click)="onSauvegarder()" class="btn btn-danger">Sauvegarder</button>
+            <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger">Sauvegarder</button>
           </div>
           <div class="col-auto">
             <label class="btn btn-primary btn-file">
@@ -29,31 +29,65 @@
       </div>
     </div>
 
-
-
-
-    <div class="card content-container mb-2">
+    <!-- <div class="card content-container mb-2"> -->
+    <div class="card mb-2" [style.height]="(2 + (tailleTexte * nbLignesCode)) + 'px'">
       <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
       </ace>
     </div>
     <div class="row">
       <div class="col-auto">
-        <button type="button" (click)="onParseCode()" class="btn btn-success mr-2">Aperçu</button>
+        <button type="button" (click)="onApercu()" class="btn btn-success mr-2">Aperçu</button>
       </div>
       <div class="col-auto">
         <button type="button" (click)="onJouer()" class="btn btn-warning">Jouer</button>
       </div>
       <div class="col-auto">
-        <select [(ngModel)]="theme" class="form-control" name="selTheme">
+        <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
+          <option disabled>*** Thèmes clairs ***</option>
           <option [ngValue]="'chrome'">chrome</option>
-          <option [ngValue]="'clouds'">clouds</option>
           <option [ngValue]="'crimson_editor'">crimson_editor</option>
-          <option [ngValue]="'dracula'">dracula</option>
           <option [ngValue]="'katzenmilch'">katzenmilch</option>
-          <option [ngValue]="'kuroir'">kuroir</option>
           <option [ngValue]="'solarized_light'">solarized_light</option>
           <option [ngValue]="'tomorrow'">tomorrow</option>
+          <option disabled>*** Thèmes foncés ***</option>
+          <option [ngValue]="'ambiance'">ambiance</option>
+          <option [ngValue]="'dracula'">dracula</option>
+          <option [ngValue]="'monokai'">monokai</option>
+          <option [ngValue]="'solarized_dark'">solarized_dark</option>
           <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+
+        </select>
+      </div>
+      <div class="col-auto">
+        <select [(ngModel)]="nbLignesCode" (change)="onChangerNbLignesCode()" class="form-control"
+          name="choixNbLignesCodes">
+          <option [ngValue]="10">10 lignes visibles</option>
+          <option [ngValue]="20">20 lignes visibles</option>
+          <option [ngValue]="30">30 lignes visibles</option>
+          <option [ngValue]="40">40 lignes visibles</option>
+          <option [ngValue]="50">50 lignes visibles</option>
+          <option [ngValue]="60">60 lignes visibles</option>
+          <option [ngValue]="70">70 lignes visibles</option>
+          <option [ngValue]="80">80 lignes visibles</option>
+        </select>
+      </div>
+
+      <div class="col-auto">
+        <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
+          name="choixNbLignesCodes">
+          <option [ngValue]="13">police 13</option>
+          <option [ngValue]="14">police 14</option>
+          <option [ngValue]="15">police 15</option>
+          <option [ngValue]="16">police 16</option>
+          <option [ngValue]="17">police 17</option>
+          <option [ngValue]="18">police 18</option>
+          <option [ngValue]="19">police 19</option>
+          <option [ngValue]="20">police 20</option>
+          <option [ngValue]="21">police 21</option>
+          <option [ngValue]="22">police 22</option>
+          <option [ngValue]="23">police 23</option>
+          <option [ngValue]="24">police 24</option>
+          <option [ngValue]="25">police 25</option>
         </select>
       </div>
     </div>

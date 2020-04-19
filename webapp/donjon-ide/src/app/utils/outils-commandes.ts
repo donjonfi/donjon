@@ -214,7 +214,7 @@ export class OutilsCommandes {
     let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
 
     switch (emplacement) {
-      
+
       // chercher dans la salle actuelle
       case EmplacementElement.ici:
         // inventaire de la salle actuelle
@@ -591,10 +591,9 @@ export class OutilsCommandes {
     do {
       index += 2;
       nbChoix += 1;
-    } while (statut.morceaux[index] !== 'fin choix');
+    } while (statut.morceaux[index] !== 'fin choix' && (index < (statut.morceaux.length - 3)));
 
-    // si on est dans une balise fois, 
-    // et si il y a un "puis"
+    // si on est dans une balise fois et si il y a un "puis"
     // => récupérer le dernier élément fois pour avoir le plus élevé
     if (statut.conditionDebutee == ConditionDebutee.fois) {
 
