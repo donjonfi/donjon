@@ -1,9 +1,9 @@
-"Le chateau de la terreur".
+"Le château de la terreur".
 
--- Partie 1 - Devant le chateau.
+-- Partie 1 - Devant le château.
 
 Avant le jeu commence:
-	dire "Bienvenue dans « Le chateau de la terreur » !";
+	dire "Bienvenue dans « Le château de la terreur » !";
 	dire "Ton objectif est de repartir avec le trésor.";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
 	changer le joueur se trouve au départ;
@@ -19,7 +19,7 @@ Si l'inventaire est plein,
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
 Son intitulé est "Devant le portique".
-Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg. [si le portique est ouvert] Il est ouvert.[sinon] Il est fermé.[fin si] [1ère fois]La nuit va tomber.[2e fois]La nuit vient de tomber.[puis]Il fait nuit.[fin choix] Vous entendez [au hasard]un cris[ou]un grincement[ou]des grillons[fin choix]. Le feu passe [en boucle]au vert[puis]à l'orange[puis]au rouge[fin choix].
+Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg. [si le portique est ouvert] Il est ouvert.[sinon] Il est fermé.[fin si] [1ère fois]La nuit va tomber.[2e fois]La nuit vient de tomber.[3e fois]Il fait nuit.[fin choix] Vous entendez encore des grillons.
 Vous distinguez une faible lueur à travers les bareaux.".
 Il y a des grillons dans le départ. Ce sont des animaux.
 "Vous sentez plus que vous ne voyez des petites formes qui se déplacent dans les herbes hautes (il fait noir.)".
@@ -32,7 +32,7 @@ Elle permet de déverrouiller le portique.
 
 -- Chapitre 2 - L'allée.
 L'allée (f) est un lieu au sud du départ.
-"Vous êtes dans l'allée qui mène à l'entrée du chateau.
+"Vous êtes dans l'allée qui mène à l'entrée du château.
 Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
 Il y a des torches (f) dans l'allée. Ce sont des objets.
@@ -79,11 +79,11 @@ Le cellier est une salle obscure au nord du verger.
 Il y a un coupe-branches dans le cellier. C'est un objet.
 Les restes de nourriture sont des décors dans le cellier.
 
--- Partie 2 - Dans le chateau du comte Von Hohenberg.
+-- Partie 2 - Dans le château du comte Von Hohenberg.
 
 L'entrée est une salle au sud de l'allée.
-"Vous êtes devant la porte du chateau du comte Von Hohenberg.".
-Son intitulé est "Devant la porte du chateau".
+"Vous êtes devant la porte du château du comte Von Hohenberg.".
+Son intitulé est "Devant la porte du château".
 La porte d'entrée est une porte au sud de l'entrée.
 Elle est fermée, ouvrable et verrouillée.
 "Il s'agit d'une porte imposante. Elle est cadenassée."

@@ -3,9 +3,9 @@ import { ElementsPhrase } from '../models/commun/elements-phrase';
 export class PhraseUtils {
   static decomposerPhrase(phrase: string) {
     let el: ElementsPhrase = null;
-    const regexIDSVC = /^(\S+(?:ir|er|re) )?(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
+    const regexIDSVC = /^(?:(?:(\S+(?:ir|er|re))|si) )?(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
     const regexPSVC = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
-    const regexVC = /^(\S+(?:ir|er|re)) (.+|)$/i;
+    const regexIC = /^(\S+(?:ir|er|re)) (.+|)$/i;
     // Déterminant, Sujet, Verbe, Complément
     const resultDSVC = regexIDSVC.exec(phrase);
     if (resultDSVC) {
@@ -18,7 +18,7 @@ export class PhraseUtils {
         el = new ElementsPhrase(resultPSVC[1], null, resultPSVC[2], resultPSVC[3], resultPSVC[4]);
       } else {
         // infinitif, complément
-        const resultIC = regexVC.exec(phrase);
+        const resultIC = regexIC.exec(phrase);
         if (resultIC) {
           el = new ElementsPhrase(null, null, null, null, resultIC[2]);
           el.infinitif = resultIC[1];
@@ -49,8 +49,7 @@ export class PhraseUtils {
       }
     }
 
-    console.log("decomposerPhrase >>>", phrase);
-    console.log("decomposerPhrase >>>>", el);
+    console.log("decomposerPhrase >>> phrase:", phrase, "el:", el);
 
     return el;
   }

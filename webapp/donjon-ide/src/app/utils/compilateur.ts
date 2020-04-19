@@ -1,7 +1,6 @@
 import { Condition, LienCondition } from '../models/compilateur/condition';
 
 import { Capacite } from '../models/compilateur/capacite';
-import { Consequence } from '../models/compilateur/consequence';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { Genre } from '../models/commun/genre.enum';

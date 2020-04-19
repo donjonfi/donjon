@@ -11,6 +11,7 @@ import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { Voisin } from '../models/jeu/voisin';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 
 export class Generateur {
 
@@ -57,7 +58,7 @@ export class Generateur {
       });
 
       // par défaut une porte est ouvrable (sauf si elle contient « pas ouvrable ».)
-      if (!OutilsCommandes.possedeUnDeCesEtats(newPorte, "pas ouvrable", "ouvrable")) {
+      if (!ElementsJeuUtils.possedeUnDeCesEtats(newPorte, "pas ouvrable", "ouvrable")) {
         newPorte.etats.push("ouvrable");
       }
 

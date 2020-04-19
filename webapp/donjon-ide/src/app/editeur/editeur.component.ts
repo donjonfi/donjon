@@ -36,7 +36,7 @@ export class EditeurComponent implements OnInit {
   @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
 
   nbLignesCode = 10;
-  tailleTexte = 15;
+  tailleTexte = 18;
 
   public config: AceConfigInterface = {
     // mode: 'text',

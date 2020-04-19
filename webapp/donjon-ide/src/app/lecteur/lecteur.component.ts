@@ -4,8 +4,8 @@ import { Commandes } from '../utils/commandes';
 import { Declancheur } from '../utils/declancheur';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
-import { Instruction } from '../models/jouer/instruction';
 import { Jeu } from '../models/jeu/jeu';
+import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 
 @Component({
   selector: 'app-lecteur',
@@ -27,6 +27,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   curseurHistorique = -1;
 
   private com: Commandes;
+  private eju: ElementsJeuUtils;
 
   private dec: Declancheur;
 
@@ -45,6 +46,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       console.warn("jeu: ", this.jeu);
       this.resultat = "";
       this.com = new Commandes(this.jeu, this.verbeux);
+      this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
 
       this.resultat += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
@@ -155,9 +157,9 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   ajouterInventaire(intitule: string) {
     let mots = [""].concat(intitule.split(" "));
-    let objetTrouve = this.com.outils.trouverElementJeu(mots, EmplacementElement.partout, false);
+    let objetTrouve = this.eju.trouverElementJeu(mots, EmplacementElement.partout, false);
     if (objetTrouve) {
-      const nouvelObjet = this.com.outils.prendreElementJeu(objetTrouve.id);
+      const nouvelObjet = this.eju.prendreElementJeu(objetTrouve.id);
       let cible = nouvelObjet;
       // si l'inventaire contient déjà le même objet, augmenter la quantité
       let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);

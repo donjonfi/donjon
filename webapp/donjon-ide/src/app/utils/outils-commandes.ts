@@ -7,35 +7,27 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { TypeElement } from '../models/commun/type-element.enum';
+import { ConditionsUtils } from './conditions-utils';
+import { StringUtils } from './string.utils';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 
 export class OutilsCommandes {
 
   constructor(
     private jeu: Jeu,
     private verbeux: boolean,
-  ) { }
+  ) {
 
-  static copierEleJeu(original: ElementJeu) {
-    // Rem: La quantité est toujours à 1, et le nombre est donc toujours singulier.
-    // Rem: L’id reste le même que celui de l’original.
-    // TODO: attribuer un nouvel id aux clones ?
-    let retVal = new ElementJeu(original.id, original.type, original.determinant, original.nom, original.genre, Nombre.s, 1);
-    retVal.description = original.description;
-    retVal.intitule = original.intitule;
-    retVal.intituleF = original.intituleF;
-    retVal.intituleM = original.intituleM;
-    retVal.intituleS = original.intituleS;
-    retVal.intituleP = original.intituleP;
+    this.cond = new ConditionsUtils(jeu, verbeux);
+    this.eju = new ElementsJeuUtils(jeu, verbeux);
 
-    // TODO: faut-il copier le nombre d’affichage de la description ?
-    retVal.nbAffichageDescription = original.nbAffichageDescription;
-
-    // TODO: copier les états
-    // TODO: copier les capacités
-    // TODO: copier les propriétés
-    // TODO: faut-il copier l’inventaire ?
-    return retVal;
   }
+  /** Utilitairs - Conditions */
+  private cond: ConditionsUtils;
+  /** Utilitaires - Éléments du jeu */
+  private eju: ElementsJeuUtils;
+
+
 
   /**
    * Obtenir l'accord ('', 'e' ou 'es') en fonction de l'objet.
@@ -91,20 +83,7 @@ export class OutilsCommandes {
     return determinant + intitule;
   }
 
-  static normaliserMot(mot: string) {
-    let retVal = "";
-    if (mot) {
-      retVal = mot
-        .toLocaleLowerCase()
-        .replace(/œ/g, 'oe')
-        .replace(/æ/g, 'ae')
-        .replace(/éèêë/g, 'e')
-        .replace(/ï/g, 'i')
-        .replace(/àä/g, 'a')
-        .replace(/ç/g, 'c');
-    }
-    return retVal;
-  }
+
 
   static objetPossedeCapaciteAction(ej: ElementJeu, actionA: string, actionB: string = null): boolean {
     if (ej) {
@@ -121,47 +100,12 @@ export class OutilsCommandes {
     }
   }
 
-  static possedeCapaciteActionCible(ej: ElementJeu, actionA: string, actionB: string = null, cible: string): boolean {
-    if (ej) {
-      var retVal = false;
-      ej.capacites.forEach(cap => {
-        const curAction = cap.verbe.toLocaleLowerCase().trim();
-        // TODO: check si null ?
-        const curCible = cap.complement.toLocaleLowerCase().trim();
-        if ((curAction === actionA.toLocaleLowerCase().trim()) || (actionB && curAction === actionB.toLocaleLowerCase().trim())) {
-          if (cible.toLocaleLowerCase().trim() == curCible) {
-            retVal = true;
-          }
-        }
-      });
-      return retVal;
-    } else {
-      console.error("portePossedeCapaciteAction >> ElementJeu pas défini.");
-    }
-  }
 
-
-  static possedeUnDeCesEtats(ej: ElementJeu, etatA: string, etatB: string = null): boolean {
-    if (ej) {
-      var retVal = false;
-      ej.etats.forEach(et => {
-        const curEt = et.toLocaleLowerCase().trim();
-        if (curEt === etatA.toLocaleLowerCase().trim()) {
-          retVal = true;
-        } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
-          retVal = true;
-        }
-      });
-      return retVal;
-    } else {
-      console.error("possedeUnDeCesEtats >> ElementJeu pas défini.");
-    }
-  }
 
   positionnerJoueur(position: string) {
     position = position.replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
     // chercher la salle
-    let sallesTrouvees = this.jeu.salles.filter(x => OutilsCommandes.normaliserMot(x.nom).startsWith(position));
+    let sallesTrouvees = this.jeu.salles.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
     // si on n’a pas trouvé
     if (sallesTrouvees.length == 0) {
       console.warn("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
@@ -181,9 +125,9 @@ export class OutilsCommandes {
     } else if (porte.type !== TypeElement.porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
-      let ouvrable = OutilsCommandes.possedeUnDeCesEtats(porte, 'ouvrable');
-      let ouvert = OutilsCommandes.possedeUnDeCesEtats(porte, 'ouvert', 'ouverte');
-      let verrou = OutilsCommandes.possedeUnDeCesEtats(porte, 'verrouillé', 'verrouillée');
+      let ouvrable = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'ouvrable');
+      let ouvert = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'ouvert', 'ouverte');
+      let verrou = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'verrouillé', 'verrouillée');
 
       if (porte.genre == Genre.f) {
         if (ouvert) {
@@ -209,171 +153,14 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  trouverElementJeu(mots: string[], emplacement: EmplacementElement, inclurePortes: boolean) {
 
-    let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
-
-    switch (emplacement) {
-
-      // chercher dans la salle actuelle
-      case EmplacementElement.ici:
-        // inventaire de la salle actuelle
-        listeEleJeu = listeEleJeu.concat(this.curSalle.inventaire.objets);
-        // ajouter les portes adjacentes
-        if (inclurePortes) {
-          const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
-          portesVisiblesID.forEach(porteID => {
-            listeEleJeu.push(this.getPorte(porteID));
-          });
-        }
-        break;
-
-      // chercher dans l’inventaire du joueur
-      case EmplacementElement.inventaire:
-        listeEleJeu = this.jeu.inventaire.objets;
-        break;
-
-      // chercher dans la salle actuelle et dans l’inventaire du joueur
-      case EmplacementElement.iciEtInventaire:
-        listeEleJeu = listeEleJeu.concat(this.curSalle.inventaire.objets);
-        // ajouter les portes adjacentes
-        if (inclurePortes) {
-          const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
-          portesVisiblesID.forEach(porteID => {
-            listeEleJeu.push(this.getPorte(porteID));
-          });
-        }
-        // ajouter l'inventaire du joueur
-        listeEleJeu = listeEleJeu.concat(this.jeu.inventaire.objets);
-        break;
-
-      // chercher dans l’ensemble des éléments du jeu
-      case EmplacementElement.partout:
-        // inclure les portes
-        if (inclurePortes) {
-          listeEleJeu = this.jeu.elements;
-          // ne pas inclure les portes
-        } else {
-          listeEleJeu = this.jeu.elements.filter(x => x.type !== TypeElement.porte)
-        }
-        break;
-
-      case EmplacementElement.portes:
-        listeEleJeu = new Array<ElementJeu>();
-        const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
-        portesVisiblesID.forEach(porteID => {
-          listeEleJeu.push(this.getPorte(porteID));
-        });
-        break;
-
-      default:
-        break;
-    }
-
-    console.log("trouverElementJeu >>> listeEleJeu=", listeEleJeu);
-
-    let retVal: ElementJeu = null;
-
-    // commencer par chercher avec le 2e mot
-    let determinant = '';
-    let premierMot: string;
-    if (mots[1] == 'la' || mots[1] == 'le' || mots[1] === 'les' || mots[1] == 'l’' || mots[1] == 'l\'' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
-      determinant = mots[1];
-      premierMot = mots[2];
-    } else {
-      premierMot = mots[1];
-    }
-
-    // remplacer les carctères doubles et les accents
-    premierMot = OutilsCommandes.normaliserMot(premierMot);
-
-    // ON CHERCHE DANS L'INTITULÉ SINGULIER (si il y en a un...)
-    let eleJeuTrouves = listeEleJeu.filter(x => OutilsCommandes.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
-    // SI RIEN TROUVE, ON CHERCHE DANS L'INTITULÉ PAR DÉFAUT
-    if (eleJeuTrouves.length == 0) {
-      eleJeuTrouves = listeEleJeu.filter(x => OutilsCommandes.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
-    }
-    // si on a trouvé un objet
-    if (eleJeuTrouves.length == 1) {
-      retVal = eleJeuTrouves[0];
-      // si on a trouvé plusiers objets différents
-    } else if (eleJeuTrouves.length > 1) {
-      // TODO: ajouter des mots en plus
-
-    }
-
-    if (this.verbeux) {
-      console.log("trouverElementJeu >>> det=", determinant, "mot=", premierMot, "retVal=", retVal);
-    }
-    return retVal;
-  }
-
-  prendreElementJeu(eleJeuID) {
-    let retVal: ElementJeu = null;
-    let listeObjets: ElementJeu[] = null;
-    let indexEleJeu = -1;
-    // on recherche en priorité l'objet dans la salle actuelle
-    if (this.curSalle) {
-      listeObjets = this.curSalle.inventaire.objets;
-      indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
-    }
-    // si pas trouvé, on recherche dans la liste globale
-    if (indexEleJeu == -1) {
-      listeObjets = this.jeu.elements;
-      indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
-    }
-
-    if (indexEleJeu !== -1) {
-      let eleJeu = listeObjets[indexEleJeu];
-      // un seul exemplaire : on le retire de l'inventaire et on le retourne.
-      if (eleJeu.quantite == 1) {
-        retVal = listeObjets.splice(indexEleJeu, 1)[0];
-        // plusieurs exemplaires : on le clone
-      } else {
-        // décrémenter quantité si pas infini
-        if (eleJeu.quantite != -1) {
-          eleJeu.quantite -= 1;
-        }
-        // faire une copie
-        retVal = OutilsCommandes.copierEleJeu(eleJeu);
-      }
-    } else {
-      console.error("prendreElementJeu >>> élément pas trouvé !");
-    }
-    return retVal;
-  }
-
-  getSalle(index: number) {
-    return this.jeu.salles.find(x => x.id === index);
-  }
-
-  getPorte(index: number) {
-    return this.jeu.elements.find(x => x.id === index);
-  }
-
-  getVoisins(loc: Localisation, type: TypeElement) {
-    let found = this.curSalle.voisins.find(x => x.type === type && x.localisation === loc);
-    return found ? found.id : -1;
-  }
-
-  get curSalle() {
-    // TODO: retenir la salle
-    const retVal = this.jeu.salles.find(x => x.id === this.jeu.position);
-    if (retVal) {
-      // la salle a été visité par le joueur
-      retVal.visite = true;
-    } else {
-      console.warn("Pas trouvé la curSalle:", this.jeu.position);
-    }
-    return retVal;
-  }
 
   afficherCurSalle() {
-    if (this.curSalle) {
+    if (this.eju.curSalle) {
       return "—————————————————\n" +
-        (this.curSalle.intitule ? (this.curSalle.intitule) : (this.curSalle.determinant + this.curSalle.nom))
+        (this.eju.curSalle.intitule ? (this.eju.curSalle.intitule) : (this.eju.curSalle.determinant + this.eju.curSalle.nom))
         + "\n—————————————————\n"
-        + (this.curSalle.description ? (this.calculerDescription(this.curSalle.description, ++this.curSalle.nbAffichageDescription) + "\n") : "")
+        + (this.eju.curSalle.description ? (this.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
     } else {
       console.warn("Pas trouvé de curSalle :(");
@@ -385,11 +172,11 @@ export class OutilsCommandes {
   afficherSorties() {
     let retVal: string;
 
-    if (this.curSalle.voisins.length > 0) {
+    if (this.eju.curSalle.voisins.length > 0) {
       retVal = "Sorties :";
-      this.curSalle.voisins.forEach(voisin => {
+      this.eju.curSalle.voisins.forEach(voisin => {
         if (voisin.type == TypeElement.salle) {
-          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.curSalle.id, voisin.id));
+          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curSalle.id, voisin.id));
         }
       });
     } else {
@@ -415,7 +202,7 @@ export class OutilsCommandes {
   afficherObjetsCurSalle() {
     let retVal: string;
 
-    let objets = this.curSalle.inventaire.objets.filter(x => x.quantite !== 0);
+    let objets = this.eju.curSalle.inventaire.objets.filter(x => x.quantite !== 0);
 
     if (objets.length == 0) {
       retVal = "\nJe ne vois pas d’objet ici.";
@@ -430,7 +217,7 @@ export class OutilsCommandes {
 
   afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
     let retVal: string = null;
-    let salle = this.getSalle(voisinIndex);
+    let salle = this.eju.getSalle(voisinIndex);
     let salleIntitulle = (salle.intitule ? salle.intitule : (salle.determinant + salle.nom));
     switch (localisation) {
       case Localisation.nord:
@@ -522,7 +309,7 @@ export class OutilsCommandes {
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
       // TODO: vérifier le si
-      statut.siVrai = true;
+      statut.siVrai = this.cond.siEstVrai(conditionLC);
       retVal = true;
     } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
       retVal = false;
@@ -585,6 +372,8 @@ export class OutilsCommandes {
     return retVal;
   }
 
+
+
   private calculerNbChoix(statut: StatutCondition) {
     let nbChoix = 0;
     let index = statut.curMorceauIndex;
@@ -609,5 +398,4 @@ export class OutilsCommandes {
 
     return nbChoix;
   }
-
 }

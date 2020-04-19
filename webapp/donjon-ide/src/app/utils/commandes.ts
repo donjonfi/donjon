@@ -3,9 +3,9 @@ import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
-import { Nombre } from '../models/commun/nombre.enum';
 import { OutilsCommandes } from './outils-commandes';
 import { TypeElement } from '../models/commun/type-element.enum';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 
 export class Commandes {
 
@@ -14,10 +14,11 @@ export class Commandes {
     private verbeux: boolean,
   ) {
     this.outils = new OutilsCommandes(this.jeu, this.verbeux);
+    this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
   }
 
-
   outils: OutilsCommandes;
+  eju: ElementsJeuUtils;
 
 
   // =========================================
@@ -43,7 +44,7 @@ export class Commandes {
       let estSingulier = true;
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.outils.trouverElementJeu(mots, EmplacementElement.ici, false);
+      const objetTrouve = this.eju.trouverElementJeu(mots, EmplacementElement.ici, false);
       if (objetTrouve) {
 
         if (this.verbeux) {
@@ -70,7 +71,7 @@ export class Commandes {
             if (this.verbeux) {
               console.log("on prend les autres types d’éléments.");
             }
-            const nouvelObjet = this.outils.prendreElementJeu(objetTrouve.id);
+            const nouvelObjet = this.eju.prendreElementJeu(objetTrouve.id);
             let cible = nouvelObjet;
             // si l'inventaire contient déjà le même objet, augmenter la quantité
             let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
@@ -160,11 +161,11 @@ export class Commandes {
         break;
     }
 
-    const voisinSalle = this.outils.getSalle(this.outils.getVoisins(locDest, TypeElement.salle));
-    const voisinPorte = this.outils.getPorte(this.outils.getVoisins(locDest, TypeElement.porte));
+    const voisinSalle = this.eju.getSalle(this.eju.getVoisins(locDest, TypeElement.salle));
+    const voisinPorte = this.eju.getPorte(this.eju.getVoisins(locDest, TypeElement.porte));
 
     // TODO: vérifier accès…
-    if (voisinPorte && !OutilsCommandes.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
+    if (voisinPorte && !ElementsJeuUtils.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
       // TODO: gérer majuscule
       return (voisinPorte.intitule ? voisinPorte.intitule : (voisinPorte.determinant + voisinPorte.nom) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
     } else {
@@ -248,14 +249,14 @@ export class Commandes {
     if (mots.length == 1) {
       return "Ouvrir quoi ?";
     } else {
-      const porte = this.outils.trouverElementJeu(mots, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(mots, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (OutilsCommandes.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (ElementsJeuUtils.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!OutilsCommandes.possedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
           return "Je ne sais pas l’ouvrir.";
           // porte pas verrouillée et ouvrable => on l’ouvre
         } else {
@@ -273,14 +274,14 @@ export class Commandes {
     if (mots.length == 1) {
       return "Fermer quoi ?";
     } else {
-      const porte = this.outils.trouverElementJeu(mots, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(mots, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (OutilsCommandes.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (ElementsJeuUtils.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!OutilsCommandes.possedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
           return "Je ne sais pas la fermer.";
           // porte pas verrouillée et ouvrable => on la ferme
         } else {
@@ -326,8 +327,8 @@ export class Commandes {
 
   utiliserAvec(elA: string, elB: string) {
     // retrouver les 2 éléments
-    const eleJeuA = this.outils.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
-    const eleJeuB = this.outils.trouverElementJeu(["", elB], EmplacementElement.iciEtInventaire, true);
+    const eleJeuA = this.eju.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
+    const eleJeuB = this.eju.trouverElementJeu(["", elB], EmplacementElement.iciEtInventaire, true);
     // Les 2 objets ont été trouvés
     if (eleJeuA && eleJeuB) {
       // 2x le même objet
@@ -360,7 +361,7 @@ export class Commandes {
   }
 
   utiliserObjetAvecPorte(objet: ElementJeu, porte: ElementJeu) {
-    const canDeverroullierCettePorte = OutilsCommandes.possedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
+    const canDeverroullierCettePorte = ElementsJeuUtils.possedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
     // cet objet déverrouille cette porte
     if (canDeverroullierCettePorte) {
       this.retirerEtat(porte, "verrouillé", "verrouillée");
@@ -379,14 +380,14 @@ export class Commandes {
   retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
     // retirer l’état verrouillé
     let indexEtat = -1;
-    if (OutilsCommandes.possedeUnDeCesEtats(eleJeu, etatA)) {
+    if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatA)) {
       indexEtat = eleJeu.etats.findIndex(x => x == etatA);
       if (indexEtat != -1) {
         eleJeu.etats.splice(indexEtat, 1);
       } else {
         console.error("Pas pu retirer l'état");
       }
-    } else if (OutilsCommandes.possedeUnDeCesEtats(eleJeu, etatB)) {
+    } else if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatB)) {
       indexEtat = eleJeu.etats.findIndex(x => x == etatB);
       if (indexEtat != -1) {
         eleJeu.etats.splice(indexEtat, 1);
@@ -402,7 +403,7 @@ export class Commandes {
 
     let eleTrouve: ElementJeu;
     //todo: inclure les portes ou pas ?
-    eleTrouve = this.outils.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
+    eleTrouve = this.eju.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
 
     if (eleTrouve) {
 
@@ -443,12 +444,12 @@ export class Commandes {
 
     // regarder la salle actuelle
     if (mots.length === 1) {
-      if (this.outils.curSalle) {
-        if (this.outils.curSalle.description) {
-          retVal = this.outils.calculerDescription(this.outils.curSalle.description, ++this.outils.curSalle.nbAffichageDescription)
+      if (this.eju.curSalle) {
+        if (this.eju.curSalle.description) {
+          retVal = this.outils.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription)
             + this.outils.afficherObjetsCurSalle();
         } else {
-          retVal = "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
+          retVal = "Votre position : " + (this.eju.curSalle.intitule ? (this.eju.curSalle.intitule) : (this.eju.curSalle.determinant + this.eju.curSalle.nom)) + ".\n"
             + this.outils.afficherObjetsCurSalle();
         }
       } else {
@@ -457,7 +458,7 @@ export class Commandes {
       // regarder un élément en particulier
     } else {
       // regarder dans les éléments de jeu
-      const trouve = this.outils.trouverElementJeu(mots, EmplacementElement.iciEtInventaire, true);
+      const trouve = this.eju.trouverElementJeu(mots, EmplacementElement.iciEtInventaire, true);
       if (trouve) {
         if (trouve.description) {
           retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
