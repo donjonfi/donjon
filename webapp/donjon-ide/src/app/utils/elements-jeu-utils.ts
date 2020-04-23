@@ -1,10 +1,10 @@
-import { Jeu } from '../models/jeu/jeu';
 import { ElementJeu } from '../models/jeu/element-jeu';
-import { StringUtils } from './string.utils';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
-import { TypeElement } from '../models/commun/type-element.enum';
+import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
+import { StringUtils } from './string.utils';
+import { TypeElement } from '../models/commun/type-element.enum';
 
 export class ElementsJeuUtils {
 
@@ -29,6 +29,36 @@ export class ElementsJeuUtils {
       console.error("possedeUnDeCesEtats >> ElementJeu pas défini.");
     }
   }
+
+  static retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
+    // retirer l’état verrouillé
+    let indexEtat = -1;
+    if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatA)) {
+      indexEtat = eleJeu.etats.findIndex(x => x == etatA);
+      if (indexEtat != -1) {
+        eleJeu.etats.splice(indexEtat, 1);
+      } else {
+        console.error("Pas pu retirer l'état");
+      }
+    } else if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatB)) {
+      indexEtat = eleJeu.etats.findIndex(x => x == etatB);
+      if (indexEtat != -1) {
+        eleJeu.etats.splice(indexEtat, 1);
+      } else {
+        console.error("Pas pu retirer l'état");
+      }
+    } else {
+      console.log("retirerEtat >> Rien à retirer.");
+    }
+  }
+
+  /** Ajoute l'état à l'objet si celui-ci ne possède pas déjà cet état (accordé de la même façon) */
+  static ajouterEtat(eleJeu: ElementJeu, etat: string) {
+    if (!ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etat)) {
+      eleJeu.etats.push(etat);
+    }
+  }
+
 
   static possedeCapaciteActionCible(ej: ElementJeu, actionA: string, actionB: string = null, cible: string): boolean {
     if (ej) {

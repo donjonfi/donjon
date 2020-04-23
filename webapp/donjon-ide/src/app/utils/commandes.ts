@@ -1,11 +1,11 @@
 import { ElementJeu } from '../models/jeu/element-jeu';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
 import { TypeElement } from '../models/commun/type-element.enum';
-import { ElementsJeuUtils } from './elements-jeu-utils';
 
 export class Commandes {
 
@@ -166,8 +166,9 @@ export class Commandes {
 
     // TODO: vérifier accès…
     if (voisinPorte && !ElementsJeuUtils.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
+      // La porte est fermée
       // TODO: gérer majuscule
-      return (voisinPorte.intitule ? voisinPorte.intitule : (voisinPorte.determinant + voisinPorte.nom) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
+      return (voisinPorte.intitule + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
     } else {
       if (voisinPorte) {
         console.log("porte ouverte :)");
@@ -248,6 +249,8 @@ export class Commandes {
   ouvrir(mots: string[]) {
     if (mots.length == 1) {
       return "Ouvrir quoi ?";
+    } else if (mots.join(" ").match(/^ouvrir .+ avec .+/i)) {
+      return this.deverrouiller(mots);
     } else {
       const porte = this.eju.trouverElementJeu(mots, EmplacementElement.portes, true);
       // porte trouvée
@@ -260,8 +263,8 @@ export class Commandes {
           return "Je ne sais pas l’ouvrir.";
           // porte pas verrouillée et ouvrable => on l’ouvre
         } else {
-          porte.etats.push((porte.genre == Genre.f ? "ouverte" : "ouvert"));
-          return "C’est ouvert";
+          ElementsJeuUtils.ajouterEtat(porte, (porte.genre === Genre.f ? "ouverte" : "ouvert"));
+          return "Á présent c'est ouvert.";
         }
         // pas trouvé la porte
       } else {
@@ -285,7 +288,7 @@ export class Commandes {
           return "Je ne sais pas la fermer.";
           // porte pas verrouillée et ouvrable => on la ferme
         } else {
-          this.retirerEtat(porte, "ouvert", "ouverte");
+          ElementsJeuUtils.retirerEtat(porte, "ouvert", "ouverte");
           return "C’est fermé.";
         }
         // pas trouvé la porte
@@ -311,12 +314,12 @@ export class Commandes {
 
       // utiliser un objet avec un autre objet
       if (resultExUtiliserAvec) {
-        return this.utiliserAvec(resultExUtiliserAvec[3], resultExUtiliserAvec[6]);
+        return this.utiliserAvec(resultExUtiliserAvec[1], resultExUtiliserAvec[3], resultExUtiliserAvec[6]);
       } else {
         // utiliser un objet seul
         const resultExUtiliserSeul = phrase.match(exUtiliserSeul);
         if (resultExUtiliserSeul) {
-          return this.utiliserSeul(resultExUtiliserSeul[3]);
+          return this.utiliserSeul(resultExUtiliserAvec[1], resultExUtiliserSeul[3]);
           // pas compris
         } else {
           return ("Désolé… je n’ai pas compris comment je devais utiliser cela.\nExemple de commande : « utiliser A avec B »");
@@ -325,7 +328,7 @@ export class Commandes {
     }
   }
 
-  utiliserAvec(elA: string, elB: string) {
+  utiliserAvec(infinitif: string, elA: string, elB: string) {
     // retrouver les 2 éléments
     const eleJeuA = this.eju.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
     const eleJeuB = this.eju.trouverElementJeu(["", elB], EmplacementElement.iciEtInventaire, true);
@@ -339,19 +342,19 @@ export class Commandes {
         return "Hum… essayons autre chose !";
         // 1x un objet et 1x une porte
       } else if (eleJeuA.type === TypeElement.porte && eleJeuB.type !== TypeElement.porte) {
-        return this.utiliserObjetAvecPorte(eleJeuB, eleJeuA);
+        return this.utiliserObjetAvecPorte(infinitif, eleJeuB, eleJeuA);
       } else if (eleJeuB.type === TypeElement.porte && eleJeuA.type !== TypeElement.porte) {
-        return this.utiliserObjetAvecPorte(eleJeuA, eleJeuB);
+        return this.utiliserObjetAvecPorte(infinitif, eleJeuA, eleJeuB);
         // 2x un objet
       } else {
-        return this.utiliserObjetAvecObjet(eleJeuA, eleJeuB);
+        return this.utiliserObjetAvecObjet(infinitif, eleJeuA, eleJeuB);
       }
     } else {
       return "Je n’ai pas trouvé ce que je dois utiliser.";
     }
   }
 
-  utiliserObjetAvecObjet(objetA: ElementJeu, objetB: ElementJeu) {
+  utiliserObjetAvecObjet(infinitif: string, objetA: ElementJeu, objetB: ElementJeu) {
     if (objetA == objetB) {
       return "Je ne peux pas l’utiliser sur " + (objetA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
     } else {
@@ -360,12 +363,22 @@ export class Commandes {
     }
   }
 
-  utiliserObjetAvecPorte(objet: ElementJeu, porte: ElementJeu) {
+  utiliserObjetAvecPorte(infinitif: string, objet: ElementJeu, porte: ElementJeu) {
     const canDeverroullierCettePorte = ElementsJeuUtils.possedeCapaciteActionCible(objet, "déverrouiller", null, (porte.determinant + porte.nom));
     // cet objet déverrouille cette porte
     if (canDeverroullierCettePorte) {
-      this.retirerEtat(porte, "verrouillé", "verrouillée");
-      return "À présent ce n’est plus verrouillé.";
+      ElementsJeuUtils.retirerEtat(porte, "verrouillé", "verrouillée");
+      // ouvrir la porte en plus si le verbe utilisé est ouvrir
+      console.log("utiliserObjetAvecPorte >>> infinitif:", infinitif);
+      
+      if (infinitif.toLowerCase() === 'ouvrir' && ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
+        ElementsJeuUtils.ajouterEtat(porte, (porte.genre === Genre.f ? "ouverte" : "ouvert"));
+        return "Á présent c'est ouvert.";
+        // sinon juste déverrouiller
+      } else {
+        return "À présent ce n’est plus verrouillé.";
+      }
+
     } else {
       // cet objet peut déverrouiller AUTRE CHOSE
       const canDeverroullier = OutilsCommandes.objetPossedeCapaciteAction(objet, "déverrouiller");
@@ -377,29 +390,9 @@ export class Commandes {
     }
   }
 
-  retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
-    // retirer l’état verrouillé
-    let indexEtat = -1;
-    if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatA)) {
-      indexEtat = eleJeu.etats.findIndex(x => x == etatA);
-      if (indexEtat != -1) {
-        eleJeu.etats.splice(indexEtat, 1);
-      } else {
-        console.error("Pas pu retirer l'état");
-      }
-    } else if (ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, etatB)) {
-      indexEtat = eleJeu.etats.findIndex(x => x == etatB);
-      if (indexEtat != -1) {
-        eleJeu.etats.splice(indexEtat, 1);
-      } else {
-        console.error("Pas pu retirer l'état");
-      }
-    } else {
-      console.log("retirerEtat >> Rien à retirer.");
-    }
-  }
 
-  utiliserSeul(elA: string) {
+
+  utiliserSeul(infinitif: string, elA: string) {
 
     let eleTrouve: ElementJeu;
     //todo: inclure les portes ou pas ?
@@ -449,7 +442,7 @@ export class Commandes {
           retVal = this.outils.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription)
             + this.outils.afficherObjetsCurSalle();
         } else {
-          retVal = "Votre position : " + (this.eju.curSalle.intitule ? (this.eju.curSalle.intitule) : (this.eju.curSalle.determinant + this.eju.curSalle.nom)) + ".\n"
+          retVal = "Votre position : " + this.eju.curSalle.intitule + ".\n"
             + this.outils.afficherObjetsCurSalle();
         }
       } else {

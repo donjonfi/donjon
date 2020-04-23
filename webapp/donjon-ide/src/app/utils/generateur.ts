@@ -1,6 +1,7 @@
 import { Auditeur } from '../models/jouer/auditeur';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementJeu } from '../models/jeu/element-jeu';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
@@ -11,7 +12,6 @@ import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { Voisin } from '../models/jeu/voisin';
-import { ElementsJeuUtils } from './elements-jeu-utils';
 
 export class Generateur {
 
@@ -27,6 +27,7 @@ export class Generateur {
     let premierIndexSalle = (indexElementJeu + 1);
     monde.salles.forEach(curEle => {
       let newSalle = new Salle(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
+      newSalle.intitule = curEle.determinant + curEle.nom;
       newSalle.description = curEle.description;
       // parcourir les propriétés de la salle
       curEle.proprietes.forEach(pro => {
@@ -51,7 +52,7 @@ export class Generateur {
     let premierIndexPorte = (indexElementJeu + 1);
     monde.portes.forEach(curEle => {
       let newPorte = new ElementJeu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
-      newPorte.intitule = curEle.nom;
+      newPorte.intitule = curEle.determinant + curEle.nom;
       newPorte.description = curEle.description;
       curEle.attributs.forEach(at => {
         newPorte.etats.push(at);

@@ -1,15 +1,15 @@
 import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
 
+import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../models/jeu/element-jeu';
+import { ElementsJeuUtils } from './elements-jeu-utils';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
-import { TypeElement } from '../models/commun/type-element.enum';
-import { ConditionsUtils } from './conditions-utils';
 import { StringUtils } from './string.utils';
-import { ElementsJeuUtils } from './elements-jeu-utils';
+import { TypeElement } from '../models/commun/type-element.enum';
 
 export class OutilsCommandes {
 
@@ -158,7 +158,7 @@ export class OutilsCommandes {
   afficherCurSalle() {
     if (this.eju.curSalle) {
       return "—————————————————\n" +
-        (this.eju.curSalle.intitule ? (this.eju.curSalle.intitule) : (this.eju.curSalle.determinant + this.eju.curSalle.nom))
+        this.eju.curSalle.intitule
         + "\n—————————————————\n"
         + (this.eju.curSalle.description ? (this.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
@@ -218,7 +218,7 @@ export class OutilsCommandes {
   afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
     let retVal: string = null;
     let salle = this.eju.getSalle(voisinIndex);
-    let salleIntitulle = (salle.intitule ? salle.intitule : (salle.determinant + salle.nom));
+    let salleIntitulle = salle.intitule;
     switch (localisation) {
       case Localisation.nord:
         retVal = "nord (n)" + (salle.visite ? (" − " + salleIntitulle) : '');
@@ -233,16 +233,16 @@ export class OutilsCommandes {
         retVal = "ouest (o)" + (salle.visite ? (" − " + salleIntitulle) : '');
         break;
       case Localisation.bas:
-        retVal = "descendre " + salleIntitulle + " (de)";
+        retVal = "descendre (de) − " + salleIntitulle;
         break;
       case Localisation.haut:
-        retVal = "monter " + salleIntitulle + " (mo)";
+        retVal = "monter (mo) − " + salleIntitulle;
         break;
       case Localisation.exterieur:
-        retVal = "sortir " + salleIntitulle + " (so)";
+        retVal = "sortir (so) − " + salleIntitulle;
         break;
       case Localisation.interieur:
-        retVal = "entrer " + salleIntitulle + " (en)";
+        retVal = "entrer (en) − " + salleIntitulle;
         break;
 
       default:

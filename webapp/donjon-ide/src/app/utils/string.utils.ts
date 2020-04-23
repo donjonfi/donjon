@@ -18,18 +18,27 @@ export class StringUtils {
     return fileName;
   }
 
+  /** Retirer déterminant et caractères spéciaux et mettre le mot en minuscules */
   static normaliserMot(mot: string) {
     let retVal = "";
     if (mot) {
       retVal = mot
+        // minuscules
         .toLocaleLowerCase()
+        // transformer caractères spéciaux
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
         .replace(/éèêë/g, 'e')
         .replace(/ï/g, 'i')
         .replace(/àä/g, 'a')
-        .replace(/ç/g, 'c');
+        .replace(/ç/g, 'c')
+        // retirer déterminants
+        .replace(/^(un |une |des |le |la |l'|les )/, '');
     }
+
+console.log("normaliserMot >>> mot=", mot, "norm=", retVal);
+
+    
     return retVal;
   }
 }
