@@ -103,12 +103,12 @@ export class OutilsCommandes {
 
 
   positionnerJoueur(position: string) {
-    position = position.replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
+    position = position.trim().replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
     // chercher la salle
     let sallesTrouvees = this.jeu.salles.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
     // si on n’a pas trouvé
     if (sallesTrouvees.length == 0) {
-      console.warn("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
+      console.error("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
       // si on a trouvé une salle
     } else if (sallesTrouvees.length == 1) {
       this.jeu.position = sallesTrouvees[0].id;

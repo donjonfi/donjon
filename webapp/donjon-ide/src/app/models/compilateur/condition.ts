@@ -1,3 +1,5 @@
+import { GroupeNominal } from '../commun/groupe-nominal';
+
 export enum LienCondition {
     aucun = "-",
     et = "et",
@@ -7,8 +9,7 @@ export enum LienCondition {
 export class Condition {
     constructor(
         public typeLien: LienCondition,
-        public determinant: string,
-        public sujet: string,
+        public sujet: GroupeNominal,
         public verbe: string,
         public complement: string
     ) { }

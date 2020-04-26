@@ -6,7 +6,7 @@ Avant le jeu commence:
 	dire "Bienvenue dans « Le château de la terreur » !";
 	dire "Ton objectif est de repartir avec le trésor.";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
-	changer le joueur se trouve au départ;
+	changer le joueur se trouve dans le cimetière;
   changer le joueur possède la clé rouillée.
 
 -- (pas encore géré).
@@ -37,16 +37,17 @@ Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
 Il y a des torches (f) dans l'allée. Ce sont des objets.
 -- (pas encore géré).
-Si le joueur possède une torche, le lieu est éclairé.
+Si le joueur possède une torche, changer le lieu est éclairé.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
 "Vous êtes dans un cimetière lugubre. Il y a un vingtaine de tombes mal entretenues. L'une d'elles est entre-ouverte. Mieux vaut ne pas trop vous en approcher. Vous entendez des bruits vraiment étranges qui ne vous inspirent pas confiance. Il y a aussi un caveau qui s'enfonce dans le sol. De la végétation s'est développée un peu partout.".
 -- (pas encore géré).
 Si le cimetière est obscur:
-  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
-  son intitulé est "?".
+  changer sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  changer son intitulé est "?".
 Il y a des tombes (f) dans le cimetière. Ce sont des décors.
+"Je préfère ne pas m'en approcher."
 -- Chapitre 3b - Le caveau.
 Le caveau est une salle obscure à l'intérieur du cimetière.
 "Vous entendez de petits bruissements d'ailes. Probablement des chauves-souris. Quelqu'un est passé avant vous: certains cercueils ont été détruits et des os jonchent le sol.".
@@ -63,8 +64,8 @@ Le verger est un lieu obscur à l'ouest de l'allée.
 "Vous êtes dans un verger. Il y a de nombreux arbres. Il y a de vieux fruits en décomposition au sol".
 -- (pas encore géré).
 Si le verger est obscur:
-  sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
-  son intitulé est "?".
+  changer sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  changer son intitulé est "?".
 Il y a des arbres dans le verger. Ce sont des décors.
 "Ce sont de grands pommiers. Ils ont été plantés là il y a longtemps.".
 Il y a des fruits dans le verger. Ce sont des décors.

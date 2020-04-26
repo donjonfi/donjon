@@ -1,8 +1,8 @@
-import { Jeu } from '../models/jeu/jeu';
-import { PhraseUtils } from './phrase-utils';
-import { OutilsCommandes } from './outils-commandes';
-import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { ElementsJeuUtils } from './elements-jeu-utils';
+import { EmplacementElement } from '../models/jeu/emplacement-element';
+import { Jeu } from '../models/jeu/jeu';
+import { OutilsCommandes } from './outils-commandes';
+import { PhraseUtils } from './phrase-utils';
 
 export class ConditionsUtils {
 
@@ -18,14 +18,18 @@ export class ConditionsUtils {
 
   siEstVrai(condition: string) {
     let retVal = false;
-    const els = PhraseUtils.decomposerPhrase(condition);
+    const els = PhraseUtils.decomposerCondition(condition);
     if (els) {
       // concerne le joueur
-      if (els.sujet === "joueur") {
+      if (els.sujet.nom === "joueur") {
 
         switch (els.verbe) {
           case 'possède':
-
+            // retrouver l’objet dans l’inventaire
+            let trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.inventaire, false);
+            if (trouve) {
+              retVal = true;
+            }
             break;
 
           case 'est':
@@ -38,11 +42,11 @@ export class ConditionsUtils {
         }
 
         // concerne l'inventaire (du joueur)
-      } else if (els.sujet == "inventaire") {
+      } else if (els.sujet.nom == "inventaire") {
 
         // concerne un élément du jeu
       } else {
-        let eleJeu = this.eju.trouverElementJeu(["", els.sujet], EmplacementElement.iciEtInventaire, true);
+        let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
         if (eleJeu) {
           console.warn("siEstVrai: sujet trouvé:", eleJeu);
           switch (els.verbe) {

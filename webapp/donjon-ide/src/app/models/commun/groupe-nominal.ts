@@ -1,6 +1,4 @@
-import { GroupeNominal } from './groupe-nominal';
-
-export class ElementsPhrase {
+export class GroupeNominal {
 
   static readonly xDeterminantsArticles = /(le |la |les |l'|l’|un |une |des |du |de la )/i;
   static readonly xDeterminantsAdjectifsPossessifs = /(son |sa |ses |leur |leurs )/i;
@@ -8,14 +6,19 @@ export class ElementsPhrase {
   static readonly xPronomsDemonstratif = /(ce |c’|c')/i;
   static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l’|un |une |des |du |de la |son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c’|c')/i;
 
-  public infinitif: string;
-  public sujetComplement: GroupeNominal;
-  public preposition: string;
+  static readonly xDeterminantArticheNomEpithete = /^(le |la |les |l'|l’|un |une |des |du |de la )(\S+)(?: (\S+)|)$/i;
+
+  // un groupe nominal peut-être composé :
+  // - [déterminant +] nom [+ épithète]
+  // - pronom (mais pas encore géré ici)
 
   constructor(
-    public sujet: GroupeNominal,
-    public verbe: string,
-    public complement: string
+    /** Déterminant */
+    public determinant: string,
+    /** Nom */
+    public nom: string,
+    /** Épithète */
+    public epithete: string = null
   ) { }
 
 }

@@ -460,7 +460,7 @@ export class Compilateur {
             conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
           }
           console.log(">>> conBruNettoyee:", conBruNettoyee);
-          const els = PhraseUtils.decomposerPhrase(conBruNettoyee);
+          const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
           console.log(">>> decomposerPhrase:", els);
           if (els) {
             if (els.complement) {
@@ -542,9 +542,9 @@ export class Compilateur {
     // TODO: regarder les ET et les OU
     // TODO: regarder les ()
     // TODO: priorité des oppérateurs
-    let el = PhraseUtils.decomposerPhrase(condition);
-    if (el) {
-      return new Condition(LienCondition.aucun, el.determinant, el.sujet, el.verbe, el.complement);
+    const els = PhraseUtils.decomposerCondition(condition);
+    if (els) {
+      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.complement);
     } else {
       return null;
     }

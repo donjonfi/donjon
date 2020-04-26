@@ -38,7 +38,7 @@ export class Declancheur {
     auditeurs.forEach(aud => {
       console.log(">>> check", aud);
 
-      if (aud.sujet == evenement.sujet) {
+      if (aud.sujet.nom == evenement.sujet.nom) {
         if (aud.verbe == evenement.verbe) {
           aud.instructions.forEach(ins => {
             instructions.push(ins);

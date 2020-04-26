@@ -1,7 +1,9 @@
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
+import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
@@ -25,26 +27,20 @@ export class Commandes {
   // COMMANDES QUI MODIFIENT LE JEU
   // =========================================
 
-  prendre(mots: string[]) {
+  prendre(els: ElementsPhrase) {
 
-    if (this.verbeux) {
-      console.log("commande: PRENDRE >>>", mots);
-    }
+    if (els.sujet) {
 
-    // TODO: vérifier si on peut prendre l'objet...
-
-    if (mots[1]) {
-
-      if (mots[1] == 'les') {
+      if (els.sujet.determinant === 'les') {
         return "Une chose à la fois !";
       }
 
       // la, une et de (=> de la) sont féminin.
-      let estFeminin = (mots[1] == 'la' || mots[1] == 'une' || (mots[1] == 'de'));
+      let estFeminin = (els.sujet.determinant == 'la' || els.sujet.determinant == 'une' || (els.sujet.determinant == 'de'));
       let estSingulier = true;
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.eju.trouverElementJeu(mots, EmplacementElement.ici, false);
+      const objetTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, false);
       if (objetTrouve) {
 
         if (this.verbeux) {
@@ -94,66 +90,54 @@ export class Commandes {
     }
   }
 
-  aller(mots: string[]) {
+  aller(els: ElementsPhrase) {
 
     let destination: string;
 
-    if (mots[0] === 'aller' || mots[0] === 'a') {
-      if (mots[1] == 'en' || mots[1] == 'à' || mots[1] == 'au') {
-        destination = mots[2];
-      } else {
-        destination = mots[1];
-      }
-    } else {
-      destination = mots[0];
-    }
-
     let locDest: Localisation = Localisation.inconnu;
 
-    switch (destination) {
+    switch (els.infinitif) {
 
-      case "n":
-      case "no":
-      case "nord":
-        locDest = Localisation.nord;
+      case "aller":
+        // vérifier la direction
+        switch (els.sujet.nom) {
+          case "n":
+          case "nord":
+            locDest = Localisation.nord;
+            break;
+
+          case "s":
+          case "sud":
+            locDest = Localisation.sud;
+            break;
+
+          case "o":
+          case "ouest":
+          case "l'ouest":
+            locDest = Localisation.ouest;
+            break;
+
+          case "e":
+          case "est":
+          case "l'est":
+            locDest = Localisation.est;
+            break;
+
+          default:
+            break;
+        }
         break;
 
-      case "s":
-      case "su":
-      case "sud":
-        locDest = Localisation.sud;
-        break;
-
-      case "o":
-      case "ou":
-      case "ouest":
-      case "l'ouest":
-        locDest = Localisation.ouest;
-        break;
-
-      case "e":
-      case "es":
-      case "est":
-      case "l'est":
-        locDest = Localisation.est;
-        break;
-
-      case "so":
       case "sortir":
         locDest = Localisation.exterieur;
         break;
-      case "en":
       case "entrer":
         locDest = Localisation.interieur;
         break;
-      case "mo":
       case "monter":
-      case "haut":
         locDest = Localisation.haut;
         break;
-      case "de":
       case "descendre":
-      case "bas":
         locDest = Localisation.bas;
         break;
 
@@ -191,39 +175,21 @@ export class Commandes {
   // COMMANDES QUI NE MODIFIENT PAS LE JEU
   // =========================================
 
-  aide(mots: string[]) {
-    return "Quelques commandes utiles :\n"
-      + " - aide (?) : afficher les commandes de base\n"
-      + " - inventaire (i) : afficher le contenu de votre inventaire\n"
-      + " - aller nord (n) : aller vers le nord\n"
-      + " - prendre épée (p) : prendre l’épée\n"
-      + " - regarder bureau (r) : regarder le bureau\n"
-      + " - fouiller coffre (f) : fouiller le coffre\n"
-      + " - position (x) : afficher position actuelle\n"
-      + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
-  }
-
-  ou(mots: string[]) {
-    let retVal = "où… quoi ?";
-
-    if (mots[1]) {
-      // suis-je
-      switch (mots[1]) {
-        case "suis-je":
-        case "suis je":
-        case "es-tu":
-        case "es tu":
-        case "sommes-nous":
-        case "sommes nous":
-          retVal = this.ouSuisJe();
-          break;
-
-        default:
-          retVal = "Je n’ai pas compris où…";
-          break;
-      }
+  aide(els: ElementsPhrase) {
+    if (!els.sujet) {
+      return "Quelques commandes utiles :\n"
+        + " - aide (?) : afficher les commandes de base\n"
+        + " - inventaire (i) : afficher le contenu de votre inventaire\n"
+        + " - aller nord (n) : aller vers le nord\n"
+        + " - prendre épée (p) : prendre l’épée\n"
+        + " - regarder bureau (r) : regarder le bureau\n"
+        + " - fouiller coffre (f) : fouiller le coffre\n"
+        + " - position (x) : afficher position actuelle\n"
+        + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
+    } else {
+      return "Je n'ai pas encore d’informations à propos de ça.";
     }
-    return retVal;
+
   }
 
   ouSuisJe() {
@@ -236,23 +202,23 @@ export class Commandes {
     }
   }
 
-  deverrouiller(mots: string[]) {
-    if (mots.length == 1) {
+  deverrouiller(els: ElementsPhrase) {
+    if (!els.sujet) {
       return "Déverrouiller quoi ?";
-    } else if (mots.length < 4) {
+    } else if (!els.preposition || !els.sujetComplement) {
       return "Déverrouiller comment ?";
     } else {
-      return this.utiliser(mots);
+      return this.utiliser(els);
     }
   }
 
-  ouvrir(mots: string[]) {
-    if (mots.length == 1) {
+  ouvrir(els: ElementsPhrase) {
+    if (!els.sujet) {
       return "Ouvrir quoi ?";
-    } else if (mots.join(" ").match(/^ouvrir .+ avec .+/i)) {
-      return this.deverrouiller(mots);
+    } else if (els.infinitif == 'ouvrir' && els.preposition == 'avec') {
+      return this.deverrouiller(els);
     } else {
-      const porte = this.eju.trouverElementJeu(mots, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
@@ -273,11 +239,11 @@ export class Commandes {
     }
   }
 
-  fermer(mots: string[]) {
-    if (mots.length == 1) {
+  fermer(els: ElementsPhrase) {
+    if (!els.sujet) {
       return "Fermer quoi ?";
     } else {
-      const porte = this.eju.trouverElementJeu(mots, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
@@ -298,40 +264,28 @@ export class Commandes {
     }
   }
 
-  utiliser(mots: string[]) {
-    if (mots.length == 1) {
+  utiliser(els: ElementsPhrase) {
+    if (!els.sujet) {
       return "Utiliser quoi ?";
     } else {
-      const phrase = mots.join(" ");
-      // Utiliser AVEC => action (1), déterminantA (2), élémentA (3), avec/sur (4) déterminantB (5), élémentB (6)
-      // const exUtiliserAvec = /^(\S+(?:er|ir|re)) (la |le |un |une |l’|l'|)(.+) (avec|sur) (la |le |un |une |l’|l'|)(.+)/i;
-      const exUtiliserAvec = /^(\S+) (la |le |un |une |l’|l'|)(.+) (avec|sur) (la |le |un |une |l’|l'|)(.+)/i;
-      // Utiliser SEUL => action (1), déterminantA (2), élémentA (3)
-      // const exUtiliserSeul = /^(\S+(?:er|ir|re)) (la |le |un |une |l’|l'|)(.+)/i;
-      const exUtiliserSeul = /^(\S+) (la |le |un |une |l’|l'|)(.+)/i;
-
-      const resultExUtiliserAvec = phrase.match(exUtiliserAvec);
-
       // utiliser un objet avec un autre objet
-      if (resultExUtiliserAvec) {
-        return this.utiliserAvec(resultExUtiliserAvec[1], resultExUtiliserAvec[3], resultExUtiliserAvec[6]);
-      } else {
+      if (els.preposition && els.sujetComplement) {
+        return this.utiliserAvec(els.infinitif, els.sujet, els.sujetComplement);
+      } else if (els.sujet) {
         // utiliser un objet seul
-        const resultExUtiliserSeul = phrase.match(exUtiliserSeul);
-        if (resultExUtiliserSeul) {
-          return this.utiliserSeul(resultExUtiliserAvec[1], resultExUtiliserSeul[3]);
-          // pas compris
-        } else {
-          return ("Désolé… je n’ai pas compris comment je devais utiliser cela.\nExemple de commande : « utiliser A avec B »");
-        }
+        return this.utiliserSeul(els.infinitif, els.sujet);
+        // pas compris
+      } else {
+        return ("Désolé… je n’ai pas compris comment je devais utiliser cela.\nExemple de commande : « utiliser A avec B »");
       }
     }
   }
 
-  utiliserAvec(infinitif: string, elA: string, elB: string) {
+
+  utiliserAvec(infinitif: string, elA: GroupeNominal, elB: GroupeNominal) {
     // retrouver les 2 éléments
-    const eleJeuA = this.eju.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
-    const eleJeuB = this.eju.trouverElementJeu(["", elB], EmplacementElement.iciEtInventaire, true);
+    const eleJeuA = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true);
+    const eleJeuB = this.eju.trouverElementJeu(elB, EmplacementElement.iciEtInventaire, true);
     // Les 2 objets ont été trouvés
     if (eleJeuA && eleJeuB) {
       // 2x le même objet
@@ -370,7 +324,7 @@ export class Commandes {
       ElementsJeuUtils.retirerEtat(porte, "verrouillé", "verrouillée");
       // ouvrir la porte en plus si le verbe utilisé est ouvrir
       console.log("utiliserObjetAvecPorte >>> infinitif:", infinitif);
-      
+
       if (infinitif.toLowerCase() === 'ouvrir' && ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
         ElementsJeuUtils.ajouterEtat(porte, (porte.genre === Genre.f ? "ouverte" : "ouvert"));
         return "Á présent c'est ouvert.";
@@ -392,11 +346,11 @@ export class Commandes {
 
 
 
-  utiliserSeul(infinitif: string, elA: string) {
+  utiliserSeul(infinitif: string, elA: GroupeNominal) {
 
     let eleTrouve: ElementJeu;
     //todo: inclure les portes ou pas ?
-    eleTrouve = this.eju.trouverElementJeu(["", elA], EmplacementElement.iciEtInventaire, true);
+    eleTrouve = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true);
 
     if (eleTrouve) {
 
@@ -412,8 +366,8 @@ export class Commandes {
     }
   }
 
-  attaquer(mots: string[]) {
-    if (mots.length == 1) {
+  attaquer(els: ElementsPhrase) {
+    if (!els.sujet) {
       return "Attaquer qui ?";
     } else {
       // TODO: changer ça…
@@ -421,22 +375,22 @@ export class Commandes {
     }
   }
 
-  examiner(mots: string[]) {
+  examiner(els: ElementsPhrase) {
 
-    if (mots.length == 1) {
+    if (!els.sujet) {
       return "Que dois-je examiner ?";
     } else {
       // TODO: changer ça…
-      return this.regarder(mots);
+      return this.regarder(els);
     }
 
   }
 
-  regarder(mots: string[]) {
+  regarder(els: ElementsPhrase) {
     let retVal: string;
 
     // regarder la salle actuelle
-    if (mots.length === 1) {
+    if (!els.sujet) {
       if (this.eju.curSalle) {
         if (this.eju.curSalle.description) {
           retVal = this.outils.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription)
@@ -451,7 +405,7 @@ export class Commandes {
       // regarder un élément en particulier
     } else {
       // regarder dans les éléments de jeu
-      const trouve = this.eju.trouverElementJeu(mots, EmplacementElement.iciEtInventaire, true);
+      const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
       if (trouve) {
         if (trouve.description) {
           retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
@@ -469,11 +423,11 @@ export class Commandes {
     return retVal;
   }
 
-  sorties(mots: string[]) {
+  sorties() {
     return this.outils.afficherSorties();
   }
 
-  fouiller(mots: string[]) {
+  fouiller(els: ElementsPhrase) {
     return "Je n’ai pas le courage de fouiller ça.";
   }
 

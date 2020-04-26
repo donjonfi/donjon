@@ -256,7 +256,6 @@ export class Generateur {
   static getAuditeur(regle: Regle) {
     let auditeur = new Auditeur();
     auditeur.type = regle.typeRegle;
-    auditeur.determinant = regle.condition.determinant;
     auditeur.sujet = regle.condition.sujet;
     auditeur.verbe = regle.condition.verbe;
     auditeur.complement = regle.condition.complement;

@@ -1,5 +1,6 @@
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
+import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
@@ -126,7 +127,8 @@ export class ElementsJeuUtils {
     return found ? found.id : -1;
   }
 
-  trouverElementJeu(mots: string[], emplacement: EmplacementElement, inclurePortes: boolean) {
+  trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclurePortes: boolean) {
+    // trouverElementJeu(mots: string[], emplacement: EmplacementElement, inclurePortes: boolean) {
 
     let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
 
@@ -191,18 +193,9 @@ export class ElementsJeuUtils {
 
     let retVal: ElementJeu = null;
 
-    // commencer par chercher avec le 2e mot
-    let determinant = '';
-    let premierMot: string;
-    if (mots[1] == 'la' || mots[1] == 'le' || mots[1] === 'les' || mots[1] == 'l’' || mots[1] == 'l\'' || mots[1] == 'du' || mots[1] == 'un' || mots[1] == 'une') {
-      determinant = mots[1];
-      premierMot = mots[2];
-    } else {
-      premierMot = mots[1];
-    }
 
     // remplacer les carctères doubles et les accents
-    premierMot = StringUtils.normaliserMot(premierMot);
+    let premierMot = StringUtils.normaliserMot(sujet.nom);
 
     // ON CHERCHE DANS L'INTITULÉ SINGULIER (si il y en a un...)
     let eleJeuTrouves = listeEleJeu.filter(x => StringUtils.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
@@ -220,7 +213,7 @@ export class ElementsJeuUtils {
     }
 
     if (this.verbeux) {
-      console.log("trouverElementJeu >>> det=", determinant, "mot=", premierMot, "retVal=", retVal);
+      console.log("trouverElementJeu >>> mot=", premierMot, "retVal=", retVal);
     }
     return retVal;
   }
