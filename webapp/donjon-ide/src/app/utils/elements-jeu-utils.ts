@@ -128,7 +128,6 @@ export class ElementsJeuUtils {
   }
 
   trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclurePortes: boolean) {
-    // trouverElementJeu(mots: string[], emplacement: EmplacementElement, inclurePortes: boolean) {
 
     let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
 
@@ -173,7 +172,7 @@ export class ElementsJeuUtils {
           listeEleJeu = this.jeu.elements;
           // ne pas inclure les portes
         } else {
-          listeEleJeu = this.jeu.elements.filter(x => x.type !== TypeElement.porte)
+          listeEleJeu = this.jeu.elements.filter(x => x.type !== TypeElement.porte);
         }
         break;
 
@@ -191,6 +190,7 @@ export class ElementsJeuUtils {
 
     console.log("trouverElementJeu >>> listeEleJeu=", listeEleJeu);
 
+    
     let retVal: ElementJeu = null;
 
 

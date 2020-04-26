@@ -287,7 +287,6 @@ export class OutilsCommandes {
       statut.conditionDebutee = ConditionDebutee.fois;
       const nbFois = Number.parseInt(resultFois[1], 10);
       statut.nbChoix = this.calculerNbChoix(statut);
-      console.log("resultFois:", resultFois, "nbFois:", nbFois);
       retVal = (statut.nbAffichage === nbFois);
       // Au hasard
       // TODO: au hasard
@@ -310,7 +309,7 @@ export class OutilsCommandes {
       statut.conditionDebutee = ConditionDebutee.si;
       // TODO: vérifier le si
       statut.siVrai = this.cond.siEstVrai(conditionLC);
-      retVal = true;
+      retVal = statut.siVrai;
     } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
       retVal = false;
       switch (conditionLC) {

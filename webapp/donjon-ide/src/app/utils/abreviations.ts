@@ -275,8 +275,6 @@ export class Abreviations {
           retVal = "aide";
           break;
 
-
-
         default:
           break;
       }

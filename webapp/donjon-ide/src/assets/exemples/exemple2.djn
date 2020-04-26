@@ -6,15 +6,8 @@ Avant le jeu commence:
 	dire "Bienvenue dans « Le château de la terreur » !";
 	dire "Ton objectif est de repartir avec le trésor.";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
-	changer le joueur se trouve dans le cimetière;
+	changer le joueur se trouve dans le cellier;
   changer le joueur possède la clé rouillée.
-
--- (pas encore géré).
-La capacité de l'inventaire vaut 2.
-
--- (pas encore géré).
-Si l'inventaire est plein,
-	remplacer prendre un objet par dire "Vous ne pouvez plus rien tenir de plus.".
 
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.
@@ -37,7 +30,7 @@ Il y a des torches tout le long du chemin.
 Elles vous permettent d'y voir un peu."
 Il y a des torches (f) dans l'allée. Ce sont des objets.
 -- (pas encore géré).
-Si le joueur possède une torche, changer le lieu est éclairé.
+Si le joueur possède une torche, maintenant le lieu est éclairé.
 
 -- Chapitre 3 - Le cimetière.
 Le cimetière est un lieu obscur à l'est de l'allée.
@@ -61,23 +54,26 @@ Ils permettent de se transformer en monstre.
 
 -- Chapitre 4 - Le verger.
 Le verger est un lieu obscur à l'ouest de l'allée.
-"Vous êtes dans un verger. Il y a de nombreux arbres. Il y a de vieux fruits en décomposition au sol".
+"Vous êtes dans un verger. Il y a de nombreux arbres. Il y a de vieux fruits en décomposition au sol.[si le seau se trouve ici] Il y a un objet brillant par terre.[fin si]".
 -- (pas encore géré).
 Si le verger est obscur:
   changer sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
   changer son intitulé est "?".
 Il y a des arbres dans le verger. Ce sont des décors.
-"Ce sont de grands pommiers. Ils ont été plantés là il y a longtemps.".
+"Ce sont de grands pommiers. Ils ont été plantés là il y a longtemps.[si le seau se trouve ici] Il y a un seau au pied de l'un d'eux.[fin si]".
 Il y a des fruits dans le verger. Ce sont des décors.
-"Pas très ragoutant.".
+"Ces vieux fruits en décomposition ne sont vraiment pas très ragoutant.".
 -- (pas encore géré).
 Le seau est un contenant dans le verger.
 "C'est un grand seau rouge qui semble solide.".
 La capacité du seau vaut 4.
+-- (pas encore géré).
+Si le seau est plein,
+	remplacer mettre un objet dans le seau par dire "Le seau est déjà rempli".
 Le cellier est une salle obscure au nord du verger.
 "Les étagères sont vides mis à part quelques restes de nourriture avariée.
-[si le coupe-branches est ici]Il y a un coupe-branches sur l'une d'elles.[fin si]".
-Il y a un coupe-branches dans le cellier. C'est un objet.
+[si le coupe-branches se trouve ici]Il y a un coupe-branches sur l'une d'elles.[fin si]".
+Il y a un coupe-branches dans le cellier. C'est un objet. "Il s'agit d'un coupe-branche robuste.[si le joueur possède le seau] Il devrait tenir dans le seau.[fin si]"
 Les restes de nourriture sont des décors dans le cellier.
 
 -- Partie 2 - Dans le château du comte Von Hohenberg.

@@ -26,10 +26,8 @@ export class ConditionsUtils {
         switch (els.verbe) {
           case 'possède':
             // retrouver l’objet dans l’inventaire
-            let trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.inventaire, false);
-            if (trouve) {
-              retVal = true;
-            }
+            let trouve = this.eju.trouverElementJeu(els.sujetComplement, EmplacementElement.inventaire, false);
+            retVal = (trouve !== null);
             break;
 
           case 'est':
@@ -46,25 +44,37 @@ export class ConditionsUtils {
 
         // concerne un élément du jeu
       } else {
-        let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
-        if (eleJeu) {
-          console.warn("siEstVrai: sujet trouvé:", eleJeu);
-          switch (els.verbe) {
-            // état
-            case 'est':
-
+        switch (els.verbe) {
+          // état
+          case 'est':
+            let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
+            // élément trouvé
+            if (eleJeu) {
               retVal = ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, els.complement);
-              if (this.verbeux) {
-                console.warn("siEstVrai: est:", els.complement, retVal);
-              }
-              break;
+              // élément pas trouvé
+            } else {
+              retVal = false;
+            }
+            break;
 
-            default:
-              console.warn("siEstVrai: verbe pas connu::", els.verbe);
-              break;
-          }
-        } else {
-          console.warn("siEstVrai: sujet pas trouvé:", els.sujet);
+          case 'se trouve':
+          case 'se trouvent':
+            // vérifier si un élément est présent dans la pièce actuelle
+            if (els.complement === 'ici') {
+              let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, false);
+              retVal = (eleJeu !== null);
+              // vérifier si un élément est à un endroit particulier
+            } else {
+              // TODO: chercher un élément dans une autre pièce
+              console.warn("se trouve xxxx pas encore géré...", els.complement);
+              return false;
+            }
+            console.warn("se trouve ici:", retVal, els.complement);
+            break;
+
+          default:
+            console.error("siEstVrai: verbe pas connu::", els.verbe);
+            break;
         }
       }
     } else {

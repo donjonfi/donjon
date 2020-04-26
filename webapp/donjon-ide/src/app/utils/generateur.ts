@@ -187,6 +187,9 @@ export class Generateur {
           const salleTrouvee = jeu.salles.find(x => x.id === salleID);
           salleTrouvee.inventaire.objets.push(newEleJeu);
         }
+
+        jeu.elements.push(newEleJeu);
+
         // élément pas positionné
       } else {
         jeu.elements.push(newEleJeu);

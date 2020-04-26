@@ -26,7 +26,7 @@ export class PhraseUtils {
    */
   static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
 
-  static readonly regexCondition = /^(?:si |avant |après |)(le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)? ((?:se \S+)|est|possède|commence)( .+|)$/i;
+  static readonly regexCondition = /^(?:si |avant |après |)(le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)? ((?:se \S+)|est|possède|commence)(?: (.+)|)$/i;
 
   /**
    * Instruction : verbe + complément
@@ -54,6 +54,13 @@ export class PhraseUtils {
       const verbe = res[4];
       const compl = res[5];
       els = new ElementsPhrase(sujet, verbe, compl);
+
+      // décomposer le complément si possible
+      const resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
+      if (resCompl) {
+        els.sujetComplement = new GroupeNominal(resCompl[1], resCompl[2], resCompl[3]);
+      }
+
     }
     return els;
   }
