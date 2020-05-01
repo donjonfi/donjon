@@ -30,7 +30,7 @@
     </div>
 
     <!-- <div class="card content-container mb-2"> -->
-    <div class="card mb-2" [style.height]="(2 + (tailleTexte * nbLignesCode)) + 'px'">
+    <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
       <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
       </ace>
     </div>

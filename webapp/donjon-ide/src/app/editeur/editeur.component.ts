@@ -37,6 +37,7 @@ export class EditeurComponent implements OnInit {
 
   nbLignesCode = 10;
   tailleTexte = 18;
+  hauteurLigneCode = 18;
 
   public config: AceConfigInterface = {
     // mode: 'text',
@@ -122,6 +123,9 @@ export class EditeurComponent implements OnInit {
       this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
       this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
       this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+      this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
+      //console.error("lineHeight >>> " + this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight);
+       
     }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
   }
 
