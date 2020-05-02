@@ -23,7 +23,8 @@
               <ul>
                 <li>Action : {{ins.infinitif}}</li>
                 <li *ngIf="ins.sujet">
-                  Sujet : {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
+                  Sujet :
+                  {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
                 </li>
                 <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
                 <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
@@ -35,6 +36,53 @@
     </li>
   </ng-template>
 </ul>
+
+<h3>Actions</h3>
+<p *ngIf="!actions">Veuillez commencer par interpréter le code.</p>
+<p *ngIf="actions && actions.length == 0">Aucune action trouvée.</p>
+<ul>
+  <ng-template ngFor let-act [ngForOf]="actions">
+    <li>
+      <b>{{act.verbe}}</b>
+      <ul>
+        <li *ngIf="act.cibleA && act.cibleA.determinant != 'deux'">
+          Cible A : {{act.cibleA.determinant}} {{act.cibleA.nom}} {{act.cibleA.epithete}}
+        </li>
+        <li *ngIf="act.cibleB && act.cibleA.determinant != 'deux'">
+          Cible B : {{act.cibleA.determinant}} {{act.cibleB.nom}} {{act.cibleB.epithete}}
+        </li>
+        <li *ngIf="act.cibleA && act.cibleA.determinant == 'deux'">
+          Cibles : {{act.cibleA.determinant}} {{act.cibleA.nom}} {{act.cibleA.epithete}}
+        </li>
+        <!-- <li>Condition:
+          <ul *ngIf="re.condition">
+            <li>
+              Sujet :{{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
+            </li>
+            <li>Verbe : {{re.condition.verbe}}</li>
+            <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
+          </ul>
+        </li>
+        <li>Conséquences:
+          <ul>
+            <li *ngFor="let ins of re.instructions; index as i">
+              Conséquence {{(i+1)}} :
+              <ul>
+                <li>Action : {{ins.infinitif}}</li>
+                <li *ngIf="ins.sujet">
+                  Sujet : {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
+                </li>
+                <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+              </ul>
+            </li>
+          </ul>
+        </li> -->
+      </ul>
+    </li>
+  </ng-template>
+</ul>
+
 
 <h3>Éléments du donjon</h3>
 <p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
@@ -53,26 +101,6 @@
     </ng-template>
   </ul>
 
-  <!-- <h4>Décors</h4>
-  <p *ngIf="monde.decors && monde.decors.length == 0">Aucune décor trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.decors">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul> -->
-
-  <!-- <h4>Contenant</h4>
-  <p *ngIf="monde.contenants && monde.contenants.length == 0">Aucune contenant trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.contenants">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul> -->
-
   <h4>Portes</h4>
   <p *ngIf="monde.portes && monde.portes.length == 0">Aucune porte trouvée.</p>
   <ul>
@@ -82,27 +110,6 @@
       </li>
     </ng-template>
   </ul>
-
-  <!-- <h4>Clés</h4>
-  <p *ngIf="monde.cles && monde.cles.length == 0">Aucune cle trouvée.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.cles">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-
-    </ng-template>
-  </ul> -->
-
-  <!-- <h4>Animaux</h4>
-  <p *ngIf="monde.animaux && monde.animaux.length == 0">Aucun animal trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.animaux">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
-  </ul> -->
 
   <h4>Objets et animaux</h4>
   <p *ngIf="monde.objets && monde.objets.length == 0">Aucun objet trouvé.</p>

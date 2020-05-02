@@ -53,19 +53,20 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "quand |avant |après |si |sinon|fin si|" +
+          regex: "quand |avant |après |si |sinon|fin si|vérifier |exécuter |finaliser |" +
             "au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|puis|fin choix|" +
             "et\\b|ou\\b",
           caseInsensitive: true
         },
         {
           token: "constant.language",
-          regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|"
-            + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)"
+          regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |"
+            + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)|"
+            + " ça| avec| ici"
         }, {
           token: "storage.type",
-          regex: "une (salle|clé|porte|personne)|un (lieu|objet|animal|décor|contenant|nombre)|" +
-            "des (salles|clés|portes|personnes|lieux|objets|animaux|décors|contenants|nombres)"
+          regex: "une (salle|clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+            "des (salles|clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
         }, {
           // token: "support.variable",
           token: "variable.parameter",

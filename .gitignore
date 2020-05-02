@@ -288,3 +288,5 @@ __pycache__/
 *.xsd.cs
 /webapp/donjon-ide/src/assets/exemples/ca.djn
 /ressources/v1_vs_v2.PNG
+/saves/ca.djn
+/saves/pas.djn

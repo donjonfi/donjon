@@ -18,6 +18,7 @@ import * as FileSaver from 'file-saver';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
+import { Action } from '../models/compilateur/action';
 import { Compilateur } from '../utils/compilateur';
 import { Generateur } from '../utils/generateur';
 import { HttpClient } from '@angular/common/http';
@@ -60,6 +61,7 @@ export class EditeurComponent implements OnInit {
 
   monde: Monde = null;
   regles: Regle[] = null;
+  actions: Action[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
   codeSource = "";
@@ -115,17 +117,14 @@ export class EditeurComponent implements OnInit {
     this.majTailleAce();
   }
 
-
-
   majTailleAce() {
     setTimeout(() => {
       this.codeEditorElmRef["directiveRef"].ace().resize();
       this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
       this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
       this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+      // en fonction du navigateur cette valeur est variable !
       this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
-      //console.error("lineHeight >>> " + this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight);
-       
     }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
   }
 
@@ -177,6 +176,7 @@ export class EditeurComponent implements OnInit {
       let resultat = Compilateur.parseCode(this.codeSource);
       this.monde = resultat.monde;
       this.regles = resultat.regles;
+      this.actions = resultat.actions;
       this.erreurs = resultat.erreurs;
       // voir le résultat
       this.mode = "apercu";
@@ -192,6 +192,7 @@ export class EditeurComponent implements OnInit {
       let resultat = Compilateur.parseCode(this.codeSource);
       this.monde = resultat.monde;
       this.regles = resultat.regles;
+      this.actions = resultat.actions;
       this.erreurs = resultat.erreurs;
       // générer le jeu
       this.jeu = Generateur.genererJeu(this.monde, this.regles);

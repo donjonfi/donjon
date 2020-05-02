@@ -1,9 +1,11 @@
 import { Condition, LienCondition } from '../models/compilateur/condition';
 
+import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { Genre } from '../models/commun/genre.enum';
+import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
@@ -23,13 +25,13 @@ export class Compilateur {
   // DESCRIPTION DU DONJON
 
   // Caractères réservés:
-  // 🚦 et 🏁 − commentaire
+  // Ƶ et ƶ − commentaire
   static readonly caractereDebutCommentaire = 'Ƶ';
   static readonly caractereFinCommentaire = 'ƶ';
   static readonly xCaracteresCommentaire = /Ƶ|ƶ/g;
   static readonly xCaractereDebutCommentaire = /Ƶ/g;
   static readonly xCaractereFinCommentaire = /ƶ/g;
-  //   ↪ − retour à la ligne
+  //   Ʒ − retour à la ligne
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
 
@@ -41,7 +43,7 @@ export class Compilateur {
    * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
    * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
    */
-  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un |une )))(.+)/i;
+  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:(?:dans|sur) (?:la |le |l'|les |un |une )))(.+)/i;
   // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
 
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
@@ -59,7 +61,7 @@ export class Compilateur {
    *  - son|sa propriété(1) est|vaut(4) valeur(5)
    *  - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(4) valeur(5)
    */
-  static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l')(\S+) (?:du |de la|de l')(\S+))) (est|vaut)( .+|)/i;
+  static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l')(\S+) (?:du |de la |de l')(\S+))) (est|vaut)( .+|)/i;
 
   /** capacité -> verbe(1) complément(2) */
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d')(se \S+|\S+)( .+|)/i;
@@ -70,6 +72,12 @@ export class Compilateur {
   static readonly xElementSimpleAttribut = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des |dans )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
+
+  /** nouvelle action => verbe(1) [ ça(2)[ avec(3)]] est une action[ qui concerne un|une|deux(4) typeObjetA(5) attributObjetA(6) [et un|une(7) typeObjetB(8) attributObjetB(9)]]
+   * ex: Jeter est une action qui concerne un objet possédé.
+   * ex: Examiner est une action qui concerne un objet visible.
+   */
+  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ça)(?: (avec))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
 
   // INSTRUCTION
 
@@ -85,16 +93,23 @@ export class Compilateur {
     let monde = new Monde();
     let regles = new Array<Regle>();
     let erreurs = new Array<string>();
+    let actions = new Array<Action>();
 
     let dernierePropriete: Propriete = null;
     let dernierElementGenerique: ElementGenerique = null;
 
+    // gestion des commentaires de ligne (--)
+    // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)
+    // à la fin de la ligne pour éviter que l’utilisateur ne soit obligé de terminer ses
+    // commentaires par un «.».
+    const CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
+
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
-    const blocTexte = source.replace(/(\r\n|\r|\n)/g, this.caractereRetourLigne).replace(/( +)/g, " ").trim();
+    const blocTexte = CommentairesCorriges.replace(/(\r\n|\r|\n)/g, this.caractereRetourLigne).replace(/( +)/g, " ").trim();
 
-    // séparer les commentaires (entre " ") du code
+    // séparer les chaines de caractères (entre " ") du code
     const blocsCodeEtCommentaire = blocTexte.split('"');
 
     let phrases = new Array<Phrase>();
@@ -202,30 +217,39 @@ export class Compilateur {
         }
 
         // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
-        if (phrase.phrase[0].slice(0, 1) === "-") {
+        if (phrase.phrase[0].slice(0, 2) === "--") {
           phrase.traitee = true;
           if (Compilateur.verbeux) {
             console.log("Je passe le commentaire &: ", phrase);
           }
         } else {
 
-          let elementGeneriqueFound = false;
-          let regleFound = false;
-          let proprieteFound = false;
+          let elementGeneriqueTrouve = false;
+          let regleTrouvee = false;
+          let actionTrouvee = false;
+          let proprieteTrouvee = false;
           // ===============================================
           // RÈGLES
           // ===============================================
 
-          regleFound = Compilateur.testerRegle(regles, phrase, erreurs);
+          regleTrouvee = Compilateur.testerRegle(regles, phrase, erreurs);
+
+          // ===============================================
+          // ACTIONS
+          // ===============================================
+
+          if (!regleTrouvee) {
+            actionTrouvee = Compilateur.testerAction(actions, phrase, erreurs);
+          }
 
           // ===============================================
           // MONDE
           // ===============================================
 
-          if (!regleFound) {
+          if (!regleTrouvee && !actionTrouvee) {
 
             // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
-            elementGeneriqueFound = true;
+            elementGeneriqueTrouve = true;
 
             // 1 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT AVEC POSITION
             let elementConcerne = Compilateur.testerPosition(elementsGeneriques, phrase);
@@ -290,7 +314,7 @@ export class Compilateur {
 
                       if (result) {
 
-                        proprieteFound = true;
+                        proprieteTrouvee = true;
 
                         // cas 1 (son/sa xxx est)
                         if (result[1]) {
@@ -326,7 +350,7 @@ export class Compilateur {
                           }
                         } else {
                           // et bien finalement on n’a rien trouvé…
-                          elementGeneriqueFound = false;
+                          elementGeneriqueTrouve = false;
                           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
                           if (Compilateur.verbeux) {
                             console.warn("Pas trouvé la signification de la phrase.");
@@ -342,12 +366,12 @@ export class Compilateur {
           } // fin test monde
 
           // si on a trouvé est un élément générique
-          if (elementGeneriqueFound) {
+          if (elementGeneriqueTrouve) {
             // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
             if (phrase.phrase.length > 1) {
               // si le dernier élément trouvé est une propriété, il s'agit de
               // la valeur de cette propriété
-              if (proprieteFound) {
+              if (proprieteTrouvee) {
                 if (this.verbeux) {
                   console.log(">>> Ajout de la description à la dernière propriété.");
                 }
@@ -369,9 +393,13 @@ export class Compilateur {
               }
             }
             // si on a trouvé une règle
-          } else if (regleFound) {
+          } else if (regleTrouvee) {
             if (this.verbeux) {
-              console.log(">>> regleFound");
+              console.log(">>> regleTrouvee");
+            }
+          } else if (actionTrouvee) {
+            if (this.verbeux) {
+              console.log(">>> actionTrouvee");
             }
           }
 
@@ -396,23 +424,6 @@ export class Compilateur {
           monde.portes.push(el);
           break;
 
-        // case TypeElement.decor:
-        //   monde.decors.push(el);
-        //   break;
-
-        // case TypeElement.contenant:
-        //   monde.contenants.push(el);
-        //   break;
-
-        // case TypeElement.animal:
-        //   monde.animaux.push(el);
-        //   break;
-
-
-        // case TypeElement.cle:
-        //   monde.cles.push(el);
-        //   break;
-
         case TypeElement.joueur:
           monde.joueurs.push(el);
           break;
@@ -424,6 +435,7 @@ export class Compilateur {
         case TypeElement.objet:
         case TypeElement.decor:
         case TypeElement.contenant:
+        case TypeElement.support:
         case TypeElement.animal:
         case TypeElement.cle:
           // case TypeElement.inconnu:
@@ -479,6 +491,7 @@ export class Compilateur {
       console.log("==================\n");
       console.log("monde:", monde);
       console.log("règles:", regles);
+      console.log("actions:", actions);
       console.log("typesUtilisateur:", typesUtilisateur);
       console.log("==================\n");
     }
@@ -486,6 +499,7 @@ export class Compilateur {
     let resultat = new ResultatCompilation();
     resultat.monde = monde;
     resultat.regles = regles;
+    resultat.actions = actions;
     resultat.erreurs = erreurs;
     return resultat;
   }
@@ -547,6 +561,45 @@ export class Compilateur {
       return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.complement);
     } else {
       return null;
+    }
+  }
+
+  /**
+   * Rechercher une description d’action
+   * @param actions 
+   * @param phrase 
+   * @param erreurs 
+   */
+  private static testerAction(actions: Action[], phrase: Phrase, erreurs: string[]) {
+    let result = Compilateur.xAction.exec(phrase.phrase[0]);
+
+    console.log("testerAction >>>>", phrase.phrase, " => ", result);
+
+
+    if (result !== null) {
+
+      let action = new Action(result[1]);
+
+      // concerne un élément ?
+      if (result[2] == 'ça') {
+        action.cibleA = new GroupeNominal(result[4], result[5], result[6]);
+        // concerne également un 2e élément ?
+        if (result[3] == 'avec') {
+          if (result[4] === 'deux') {
+            action.cibleB = new GroupeNominal(result[4], result[5], result[6]);
+          } else {
+            action.cibleB = new GroupeNominal(result[7], result[8], result[9]);
+          }
+        }
+      }
+      if (Compilateur.verbeux) {
+        console.log("Action:", action);
+      }
+      actions.push(action);
+
+      return true; // trouvé un résultat
+    } else {
+      return false; // rien trouvé
     }
   }
 
@@ -880,7 +933,6 @@ export class Compilateur {
         } else {
           nom = result[2 + offset];
         }
-
         position = new PositionSujetString(result[2], result[10], result[9]);
 
         newElementGenerique = new ElementGenerique(
@@ -970,6 +1022,10 @@ export class Compilateur {
         case "contenant":
         case "contenants":
           retVal = TypeElement.contenant;
+          break;
+        case "support":
+        case "supports":
+          retVal = TypeElement.support;
           break;
         case "décors":
         case "décor":

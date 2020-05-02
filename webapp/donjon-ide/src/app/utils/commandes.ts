@@ -178,13 +178,12 @@ export class Commandes {
   aide(els: ElementsPhrase) {
     if (!els.sujet) {
       return "Quelques commandes utiles :\n"
-        + " - aide (?) : afficher les commandes de base\n"
-        + " - inventaire (i) : afficher le contenu de votre inventaire\n"
-        + " - aller nord (n) : aller vers le nord\n"
-        + " - prendre épée (p) : prendre l’épée\n"
-        + " - regarder bureau (r) : regarder le bureau\n"
-        + " - fouiller coffre (f) : fouiller le coffre\n"
-        + " - position (x) : afficher position actuelle\n"
+        + " - inventaire : afficher le contenu de votre inventaire\n"
+        + " - aller nord : aller vers le nord\n"
+        + " - examiner table : examiner la table (pour y trouver des objets)\n"
+        + " - prendre épée : prendre l’épée\n"
+        + " - position : afficher votre position actuelle\n"
+        + " - ouvrir porte avec clé dorée : ouvrir la porte à l’aide de la clé dorée\n"
         + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
     } else {
       return "Je n'ai pas encore d’informations à propos de ça.";
