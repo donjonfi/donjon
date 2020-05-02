@@ -73,16 +73,21 @@ export class Compilateur {
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
 
-  /** nouvelle action => verbe(1) [ ça(2)[ avec(3)]] est une action[ qui concerne un|une|deux(4) typeObjetA(5) attributObjetA(6) [et un|une(7) typeObjetB(8) attributObjetB(9)]]
+  /** nouvelle action => verbe(1) [ ceci(2)[(?: \S+) cela(3)]] est une action[ qui concerne un|une|deux(4) typeObjetA(5) attributObjetA(6) [et un|une(7) typeObjetB(8) attributObjetB(9)]]
    * ex: Jeter est une action qui concerne un objet possédé.
    * ex: Examiner est une action qui concerne un objet visible.
    */
-  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ça)(?: (avec))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+
+  /** Description d'une action => [refuser|exécuter|finaliser]\(1) verbe(2) [ceci(3) [(avec|et) cela(4)]]: instructions(5) */
+  static readonly xDescriptionAction = /^(refuser|exécuter|finaliser) ((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)?\s?:(.+)$/i;
 
   // INSTRUCTION
 
-  /** condition/événement -> avant|après|remplacer|si(1), {condition}(2), {conséquences}(3) */
+  /** condition/événement -> avant|après|remplacer|si\(1) {condition}(2), {conséquences}(3) */
   static readonly rAvantApresRemplacerSi = /^(avant|après|remplacer|si) (.+)(?:,|:)(.+)/i;
+   /** condition -> si(1) {condition}(2), {conséquences}(3) */
+  static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
 
   /**
    * Interpréter le code source fourni et renvoyer le jeu correspondant.
@@ -220,7 +225,7 @@ export class Compilateur {
         if (phrase.phrase[0].slice(0, 2) === "--") {
           phrase.traitee = true;
           if (Compilateur.verbeux) {
-            console.log("Je passe le commentaire &: ", phrase);
+            console.log("Je passe le commentaire");
           }
         } else {
 
@@ -536,6 +541,7 @@ export class Compilateur {
       let regle = new Regle(typeRegle, condition, result[3]);
       regles.push(regle);
 
+      // si phrase morcelée, rassembler les morceaux
       if (phrase.phrase.length > 1) {
         for (let index = 1; index < phrase.phrase.length; index++) {
           regle.consequencesBrutes += phrase.phrase[index];
@@ -572,23 +578,20 @@ export class Compilateur {
    */
   private static testerAction(actions: Action[], phrase: Phrase, erreurs: string[]) {
     let result = Compilateur.xAction.exec(phrase.phrase[0]);
-
-    console.log("testerAction >>>>", phrase.phrase, " => ", result);
-
-
     if (result !== null) {
-
-      let action = new Action(result[1]);
-
+      let verbe = result[1].toLocaleLowerCase();
+      let ceci = result[2] === 'ceci';
+      let cela = result[3] === 'cela';
+      let action = new Action(verbe, ceci, cela);
       // concerne un élément ?
-      if (result[2] == 'ça') {
-        action.cibleA = new GroupeNominal(result[4], result[5], result[6]);
+      if (ceci) {
+        action.cibleCeci = new GroupeNominal(result[4], result[5], result[6]);
         // concerne également un 2e élément ?
-        if (result[3] == 'avec') {
+        if (cela) {
           if (result[4] === 'deux') {
-            action.cibleB = new GroupeNominal(result[4], result[5], result[6]);
+            action.cibleCela = new GroupeNominal(result[4], result[5], result[6]);
           } else {
-            action.cibleB = new GroupeNominal(result[7], result[8], result[9]);
+            action.cibleCela = new GroupeNominal(result[7], result[8], result[9]);
           }
         }
       }
@@ -599,7 +602,55 @@ export class Compilateur {
 
       return true; // trouvé un résultat
     } else {
-      return false; // rien trouvé
+      let result = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
+      console.log("testerDescriptionAction >>>>", phrase.phrase, " => ", result);
+      if (result) {
+        const motCle = result[1].toLocaleLowerCase();
+        const verbe = result[2].toLocaleLowerCase();
+        const ceci = result[3] == 'ceci';
+        const cela = result[4] == 'cela';
+
+        let complement = result[5];
+
+        // si phrase morcelée, rassembler les morceaux
+        if (phrase.phrase.length > 1) {
+          for (let index = 1; index < phrase.phrase.length; index++) {
+            complement += phrase.phrase[index];
+          }
+        }
+        // retrouver l'action correspondante
+        let action = actions.find(x => x.verbe === verbe && x.ceci == ceci && x.cela == cela);
+        if (action) {
+          switch (motCle) {
+            case 'refuser':
+              action.verificationsBrutes = complement;
+              break;
+            case 'exécuter':
+              action.instructionsBrutes = complement;
+              break;
+            case 'finaliser':
+              action.instructionsFinalesBrutes = complement;
+              break;
+
+            default:
+              console.error("xDescriptionAction >>> motCle pas gérée:", motCle);
+              break;
+          }
+
+        } else {
+          if (this.verbeux) {
+            console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
+          }
+          erreurs.push(("0000" + phrase.ligne).slice(-5) + " : action pas trouvée : " + phrase.phrase);
+        }
+
+        console.log("action màj:", action);
+
+
+        return true; // trouvé un résultat
+      } else {
+        return false; // rien trouvé
+      }
     }
   }
 

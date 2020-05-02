@@ -9,22 +9,21 @@ Avant le jeu commence:
 	changer le joueur se trouve dans le cellier;
   changer le joueur possède la clé rouillée.
 
-Lire ça est une action qui concerne un objet visible.
+Lire ceci est une action qui concerne un objet visible.
 
-Vérifier lire ça:
-  si ça n’est pas lisible, dire "Je ne peux pas le lire.".
+Refuser lire ceci:
+  si ceci n’est pas lisible, dire "Je ne peux pas le lire.".
 
-Exécuter lire ça:
-  changer ça est lu.
+Exécuter lire ceci:
+  changer ceci est lu.
 
-Finaliser lire ça:
+Finaliser lire ceci:
   dire "Ok, j’ai tout lu.".
 
 Sauter est une action.
-Jeter ça est une action qui concerne un objet possédé.
-Ouvrir ça avec est une action qui concerne un objet possédé et une porte.
-Combiner ça avec est une action qui concerne deux objets possédés.
-
+Jeter ceci est une action qui concerne un objet possédé.
+Ouvrir ceci avec cela est une action qui concerne un objet possédé et une porte.
+Combiner ceci avec cela est une action qui concerne deux objets possédés.
 
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.

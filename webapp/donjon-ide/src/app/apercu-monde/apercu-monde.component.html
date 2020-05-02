@@ -10,7 +10,7 @@
         <li>Condition:
           <ul *ngIf="re.condition">
             <li>
-              Sujet :{{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
+              Sujet :{{re.condition.sujet.determinant ? ("["+re.condition.sujet.determinant.trim()+ "] ") : ""}}{{re.condition.sujet.nom}}{{(re.condition.sujet.epithete ? re.condition.sujet.epithete : '')}}
             </li>
             <li>Verbe : {{re.condition.verbe}}</li>
             <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
@@ -24,7 +24,7 @@
                 <li>Action : {{ins.infinitif}}</li>
                 <li *ngIf="ins.sujet">
                   Sujet :
-                  {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
+                  {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
                 </li>
                 <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
                 <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
@@ -43,17 +43,20 @@
 <ul>
   <ng-template ngFor let-act [ngForOf]="actions">
     <li>
-      <b>{{act.verbe}}</b>
+      <b>{{act.verbe}}</b> {{act.ceci ? 'ceci': ''}} {{act.cela ? 'avec cela': ''}}
       <ul>
-        <li *ngIf="act.cibleA && act.cibleA.determinant != 'deux'">
-          Cible A : {{act.cibleA.determinant}} {{act.cibleA.nom}} {{act.cibleA.epithete}}
+        <li *ngIf="act.cibleCeci && act.cibleCeci.determinant != 'deux'">
+          ceci : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
         </li>
-        <li *ngIf="act.cibleB && act.cibleA.determinant != 'deux'">
-          Cible B : {{act.cibleA.determinant}} {{act.cibleB.nom}} {{act.cibleB.epithete}}
+        <li *ngIf="act.cibleCela && act.cibleCeci.determinant != 'deux'">
+          cela : {{act.cibleCela.determinant}} {{act.cibleCela.nom}} {{act.cibleCela.epithete}}
         </li>
-        <li *ngIf="act.cibleA && act.cibleA.determinant == 'deux'">
-          Cibles : {{act.cibleA.determinant}} {{act.cibleA.nom}} {{act.cibleA.epithete}}
+        <li *ngIf="act.cibleCeci && act.cibleCeci.determinant == 'deux'">
+          ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
         </li>
+        <li>Refus: {{act.verificationsBrutes}}</li>
+        <li>Exécution: {{act.instructionsBrutes}}</li>
+        <li>Finalisation: {{act.instructionsFinalesBrutes}}</li>
         <!-- <li>Condition:
           <ul *ngIf="re.condition">
             <li>
