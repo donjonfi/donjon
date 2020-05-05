@@ -4,6 +4,7 @@ import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Monde } from '../models/compilateur/monde';
@@ -17,6 +18,7 @@ import { ResultatCompilation } from '../models/compilateur/resultat-compilation'
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { TypeValeur } from '../models/compilateur/type-valeur';
+import { Verification } from '../models/compilateur/verification';
 
 export class Compilateur {
 
@@ -86,7 +88,7 @@ export class Compilateur {
 
   /** condition/événement -> avant|après|remplacer|si\(1) {condition}(2), {conséquences}(3) */
   static readonly rAvantApresRemplacerSi = /^(avant|après|remplacer|si) (.+)(?:,|:)(.+)/i;
-   /** condition -> si(1) {condition}(2), {conséquences}(3) */
+  /** condition -> si(1) {condition}(2), {conséquence}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
 
   /**
@@ -465,29 +467,7 @@ export class Compilateur {
 
     regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        const consBru = regle.consequencesBrutes.split(';');
-        consBru.forEach(conBru => {
-          let conBruNettoyee = conBru
-            .trim()
-            // convertir marque commentaire
-            .replace(this.xCaractereDebutCommentaire, ' "')
-            .replace(this.xCaractereFinCommentaire, '" ');
-          // enlever le point final
-          if (conBruNettoyee.endsWith('.')) {
-            conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
-          }
-          console.log(">>> conBruNettoyee:", conBruNettoyee);
-          const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
-          console.log(">>> decomposerPhrase:", els);
-          if (els) {
-            if (els.complement) {
-              els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
-            }
-            regle.instructions.push(els);
-          } else {
-            erreurs.push("conséquence : " + conBruNettoyee);
-          }
-        });
+        regle.instructions = Compilateur.separerConsequences(regle.consequencesBrutes, erreurs);
       }
       console.log(">>> regle:", regle);
     });
@@ -509,6 +489,57 @@ export class Compilateur {
     return resultat;
   }
 
+  private static separerConsequences(consequencesBrutes: string, erreurs: string[]) {
+
+    const consBru = consequencesBrutes.split(';');
+    let instructions: ElementsPhrase[] = [];
+    consBru.forEach(conBru => {
+      let conBruNettoyee = conBru
+        .trim()
+        // convertir marque commentaire
+        .replace(this.xCaractereDebutCommentaire, ' "')
+        .replace(this.xCaractereFinCommentaire, '" ');
+      // enlever le point final
+      if (conBruNettoyee.endsWith('.')) {
+        conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
+      }
+      const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
+      if (els) {
+        if (els.complement) {
+          els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
+        }
+        instructions.push(els);
+      } else {
+        erreurs.push("conséquence : " + conBruNettoyee);
+      }
+    });
+    return instructions;
+  }
+
+  private static testerRefuser(complement: string, phrase: Phrase, erreurs: string[]) {
+    let verification: Verification[] = [];
+
+    // séparer les conditions avec le ";"
+    const conditions = complement.split(';');
+
+    conditions.forEach(cond => {
+      let result = Compilateur.rRefuser.exec(cond.trim());
+      if (result) {
+        const typeRefuser = result[1]; // si uniquement pour l'instant
+        const condition = Compilateur.getCondition(result[2]);
+        if (!condition) {
+          erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
+        }
+        const consequences = Compilateur.separerConsequences(result[3], erreurs);
+        verification.push(new Verification([condition], consequences));
+      } else {
+        console.error("testerRefuser: format pas reconu:", cond);
+        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : refuser : " + cond);
+      }
+    });
+
+    return verification;
+  }
 
   private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
     let result = Compilateur.rAvantApresRemplacerSi.exec(phrase.phrase[0]);
@@ -559,12 +590,14 @@ export class Compilateur {
   }
 
   private static getCondition(condition: string) {
+
     // TODO: regarder les ET et les OU
     // TODO: regarder les ()
     // TODO: priorité des oppérateurs
     const els = PhraseUtils.decomposerCondition(condition);
+    console.warn("getCondition:", condition, "els:", els);
     if (els) {
-      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.complement);
+      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement);
     } else {
       return null;
     }
@@ -618,18 +651,23 @@ export class Compilateur {
             complement += phrase.phrase[index];
           }
         }
+
+        complement = complement.trim();
         // retrouver l'action correspondante
         let action = actions.find(x => x.verbe === verbe && x.ceci == ceci && x.cela == cela);
         if (action) {
           switch (motCle) {
             case 'refuser':
               action.verificationsBrutes = complement;
+              action.verifications = this.testerRefuser(complement, phrase, erreurs);
               break;
             case 'exécuter':
               action.instructionsBrutes = complement;
+              action.instructions = Compilateur.separerConsequences(complement, erreurs);
               break;
             case 'finaliser':
               action.instructionsFinalesBrutes = complement;
+              action.instructionsFinales = Compilateur.separerConsequences(complement, erreurs);
               break;
 
             default:

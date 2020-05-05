@@ -56,7 +56,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       this.resultat += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
 
-      let evLeJeuCommence = new ElementsPhrase(new GroupeNominal('le', 'jeu'), 'commence', null);
+      let evLeJeuCommence = new ElementsPhrase(new GroupeNominal('le', 'jeu'), 'commence', null, null);
 
       // éxécuter les instructions AVANT le jeu commence
       this.executerInstructions(this.dec.avant(evLeJeuCommence));

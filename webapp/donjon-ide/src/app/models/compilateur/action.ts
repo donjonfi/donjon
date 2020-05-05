@@ -1,6 +1,5 @@
-import { Condition } from './condition';
+import { ElementsPhrase } from '../commun/elements-phrase';
 import { GroupeNominal } from '../commun/groupe-nominal';
-import { Instruction } from '../jouer/instruction';
 import { Verification } from './verification';
 
 export class Action {
@@ -14,9 +13,9 @@ export class Action {
     public verificationsBrutes: string = null,
     public verifications: Verification[] = [],
     public instructionsBrutes: string = null,
-    public instructions: Instruction[] = [],
+    public instructions: ElementsPhrase[] = [],
     public instructionsFinalesBrutes: string = null,
-    public instructionsFinales: Instruction[] = []
+    public instructionsFinales: ElementsPhrase[] = []
   ) { }
 
 }

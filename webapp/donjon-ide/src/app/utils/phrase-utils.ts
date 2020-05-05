@@ -26,7 +26,10 @@ export class PhraseUtils {
    */
   static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
 
-  static readonly regexCondition = /^(?:si |avant |après |)(le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)? ((?:se \S+)|est|possède|commence)(?: (.+)|)$/i;
+  /**
+   * si|avant|après (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7)
+   */
+  static readonly regexCondition = /^(?:si |avant |après |)((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne)?((?:se \S+)|est|possède|commence)(?: (pas))?)(?: (.+))?$/i;
 
   /**
    * Instruction : verbe + complément
@@ -50,10 +53,11 @@ export class PhraseUtils {
     let els: ElementsPhrase = null;
     const res = PhraseUtils.regexCondition.exec(condition);
     if (res) {
-      const sujet = res[2] ? new GroupeNominal(res[1], res[2], res[3] ? res[3] : null) : null;
-      const verbe = res[4];
-      const compl = res[5];
-      els = new ElementsPhrase(sujet, verbe, compl);
+      const sujet = res[3] ? (new GroupeNominal(res[2], res[3], res[4] ? res[4] : null)) : (res[1] ? new GroupeNominal(null, res[1], null) : null);
+      const verbe = res[5];
+      const negation = res[6];
+      const compl = res[7];
+      els = new ElementsPhrase(sujet, verbe, negation, compl);
 
       // décomposer le complément si possible
       const resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
@@ -70,13 +74,13 @@ export class PhraseUtils {
     let els: ElementsPhrase = null;
     let res = PhraseUtils.xCommandeSpeciale.exec(commande);
     if (res) {
-      els = new ElementsPhrase(null, null, null);
+      els = new ElementsPhrase(null, null, null, null);
       els.infinitif = res[1]; // Ce n'est pas un infinitif mais bon...
     } else {
       res = PhraseUtils.xCommandeInfinitif.exec(commande);
       if (res) {
         const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
-        els = new ElementsPhrase(sujet, null, null);
+        els = new ElementsPhrase(sujet, null, null, null);
         els.infinitif = res[1];
         els.preposition = res[5] ? res[5] : null;
         els.sujetComplement = res[7] ? new GroupeNominal(res[6], res[7], res[8] ? res[8] : null) : null;
@@ -93,7 +97,7 @@ export class PhraseUtils {
     // infinitif, complément
     let res = PhraseUtils.xInstruction.exec(instruction);
     if (res) {
-      els = new ElementsPhrase(null, null, res[2]);
+      els = new ElementsPhrase(null, null, null, res[2]);
       els.infinitif = res[1];
 
       // décomposer ce qui suit l'infinitif si possible

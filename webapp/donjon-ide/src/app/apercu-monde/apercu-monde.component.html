@@ -54,33 +54,93 @@
         <li *ngIf="act.cibleCeci && act.cibleCeci.determinant == 'deux'">
           ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
         </li>
-        <li>Refus: {{act.verificationsBrutes}}</li>
-        <li>Exécution: {{act.instructionsBrutes}}</li>
-        <li>Finalisation: {{act.instructionsFinalesBrutes}}</li>
-        <!-- <li>Condition:
-          <ul *ngIf="re.condition">
-            <li>
-              Sujet :{{re.condition.determinant ? ("["+re.condition.determinant.trim()+ "] ") : ""}}{{re.condition.sujet}}
-            </li>
-            <li>Verbe : {{re.condition.verbe}}</li>
-            <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
-          </ul>
-        </li>
-        <li>Conséquences:
+        <li>Refus :
           <ul>
-            <li *ngFor="let ins of re.instructions; index as i">
-              Conséquence {{(i+1)}} :
+            <li>Verifications :
               <ul>
-                <li>Action : {{ins.infinitif}}</li>
-                <li *ngIf="ins.sujet">
-                  Sujet : {{ins.determinant ? ("["+ins.determinant.trim()+ "] ") : ""}}{{ins.pronom ? ("["+ins.pronom.trim()+ "] ") : ""}}{{ins.sujet}}
+                <li *ngFor="let ver of act.verifications; index as k">
+                  Vérification {{(k+1)}} :
+                  <ul>
+                    <li>
+                      Conditions :
+                      <ul>
+                        <li *ngFor="let cond of ver.conditions; index as j">
+                          Condition {{(j+1)}} :
+                          <ul>
+                            <li>Sujet :
+                              {{cond.sujet.determinant ? ("["+cond.sujet.determinant.trim()+ "] ") : ""}}{{cond.sujet.pronom ? ("["+cond.sujet.pronom.trim()+ "] ") : ""}}{{cond.sujet.nom}}
+                            </li>
+                            <li>Verbe : {{cond.verbe}}</li>
+                            <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
+                            <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      Resultats :
+                      <ul>
+                        <li *ngFor="let ins of ver.resultats; index as i">
+                          Instruction {{(i+1)}} :
+                          <ul>
+                            <li>Action : {{ins.infinitif}}</li>
+                            <li *ngIf="ins.sujet">
+                              Sujet :
+                              {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
+                            </li>
+                            <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                            <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
                 </li>
-                <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
               </ul>
             </li>
           </ul>
-        </li> -->
+        </li>
+        <li>Exécution :
+          <ul>
+            <li>Instructions :
+              <ul>
+                <li *ngFor="let ins of act.instructions; index as i">
+                  Instruction {{(i+1)}} :
+                  <ul>
+                    <li>Action : {{ins.infinitif}}</li>
+                    <li *ngIf="ins.sujet">
+                      Sujet :
+                      {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
+                    </li>
+                    <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                    <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li>Finalisation :
+          <ul>
+            <li>Instructions :
+              <ul>
+                <li *ngFor="let ins of act.instructionsFinales; index as i">
+                  Instruction {{(i+1)}} :
+                  <ul>
+                    <li>Action : {{ins.infinitif}}</li>
+                    <li *ngIf="ins.sujet">
+                      Sujet :
+                      {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
+                    </li>
+                    <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                    <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ng-template>

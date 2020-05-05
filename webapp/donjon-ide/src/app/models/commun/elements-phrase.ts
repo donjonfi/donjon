@@ -15,6 +15,7 @@ export class ElementsPhrase {
   constructor(
     public sujet: GroupeNominal,
     public verbe: string,
+    public negation: string,
     public complement: string
   ) { }
 

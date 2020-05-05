@@ -1,12 +1,12 @@
 import { Condition } from './condition';
-import { Instruction } from '../jouer/instruction';
+import { ElementsPhrase } from '../commun/elements-phrase';
 
 export class Verification {
 
   constructor(
 
-    public condition: Condition[],
-    public resultatSiVerifiee: Instruction[]
+    public conditions: Condition[],
+    public resultats: ElementsPhrase[]
   ) { }
 
 }
