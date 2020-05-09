@@ -4,7 +4,6 @@ import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instruction } from '../models/compilateur/instruction';
@@ -39,7 +38,7 @@ export class Compilateur {
   static readonly xCaractereRetourLigne = /Ʒ/g;
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
+  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
 
   // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** élément générique positionné par rapport à complément :
@@ -55,7 +54,7 @@ export class Compilateur {
   static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
 
   /** pronom personnel position -> position(1), complément(2) */
-  static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|un |une )|de (?:la |l(?:’|'))|du ))(.+)/i;
+  static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |les |l(?:’|')|un |une )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** pronom personnel -> attributs(1) */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
@@ -71,7 +70,7 @@ export class Compilateur {
   /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
    * ex: Le champignon est brun et on peut le cuillir.
    */
-  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des |dans )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
 
@@ -446,7 +445,7 @@ export class Compilateur {
         case TypeElement.contenant:
         case TypeElement.support:
         case TypeElement.animal:
-        case TypeElement.cle:
+        case TypeElement.humain:
           // case TypeElement.inconnu:
           // case TypeElement.aucun:
           monde.objets.push(el);
@@ -1008,6 +1007,22 @@ export class Compilateur {
         }
       }
 
+      // Pour les humains, on peut déterminer le genre selon que c'est un homme ou une femme
+      switch (newElementGenerique.intituleType) {
+        case 'homme':
+        case 'hommmes':
+          newElementGenerique.genre = Genre.m;
+          break;
+
+        case 'femme':
+        case 'femmes':
+          newElementGenerique.genre = Genre.f;
+          break;
+
+        default:
+          break;
+      }
+
       // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
     } else {
       result = Compilateur.xPositionElementGeneriqueIndefini.exec(phrase.phrase[0]);
@@ -1140,6 +1155,13 @@ export class Compilateur {
         case "animal":
         case "animaux":
           retVal = TypeElement.animal;
+          break;
+        case "humain":
+        case "homme":
+        case "hommes":
+        case "femme":
+        case "femmes":
+          retVal = TypeElement.humain;
           break;
         case "clé":
         case "cle":

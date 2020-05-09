@@ -6,7 +6,6 @@ import { Generateur } from '../utils/generateur';
 import { HttpClient } from '@angular/common/http';
 import { Jeu } from '../models/jeu/jeu';
 import { StringUtils } from '../utils/string.utils';
-import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-jouer',

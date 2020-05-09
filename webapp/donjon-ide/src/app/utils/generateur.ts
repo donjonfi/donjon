@@ -6,7 +6,6 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
-import { OutilsCommandes } from './outils-commandes';
 import { Regle } from '../models/compilateur/regle';
 import { Salle } from '../models/jeu/salle';
 import { TypeElement } from '../models/commun/type-element.enum';
@@ -180,7 +179,7 @@ export class Generateur {
         const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
         // élément pas trouvé
         if (salleID === -1) {
-          console.log("position élément jeu pas trouvé: ", curEle.nom, curEle.positionString);
+          console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
           jeu.elements.push(newEleJeu);
           // élément trouvé
         } else {
@@ -236,7 +235,7 @@ export class Generateur {
       const foundSalleID = Generateur.getSalleID(salles, elVoisin.positionString.complement);
 
       if (localisation === Localisation.inconnu || foundSalleID === -1) {
-        console.log("positionString pas trouvé: ", elVoisin.positionString);
+        console.log("positionString pas trouvé:", elVoisin.positionString);
       } else {
         // ajouter à la salle trouvée, le voisin elVoisin
         const opposeVoisin = new Voisin(idElVoisin, elVoisin.type, localisation);
@@ -297,10 +296,10 @@ export class Generateur {
       if (nbFound === 1) {
         retVal = candidats[0].id;
       } else {
-        console.log("complément position pas trouvé : ", intituleSalle);
+        console.log("complément position pas trouvé :", intituleSalle);
       }
     } else {
-      console.log("complément position pas trouvé (plusieurs candidats) : ", intituleSalle);
+      console.log("complément position pas trouvé (plusieurs candidats) :", intituleSalle);
 
     }
 
