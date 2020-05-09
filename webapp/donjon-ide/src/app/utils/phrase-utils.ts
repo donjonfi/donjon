@@ -125,9 +125,6 @@ export class PhraseUtils {
         }
       }
     }
-
-    console.log("decomposerInstruction >>>", instruction, "els:", els);
-
     return els;
   }
 

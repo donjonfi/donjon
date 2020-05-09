@@ -177,14 +177,19 @@ export class Generateur {
       if (curEle.positionString) {
         // const localisation = Generateur.getLocalisation(curEle.positionString.position);
         const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
-        // élément pas trouvé
-        if (salleID === -1) {
-          console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
-          jeu.elements.push(newEleJeu);
-          // élément trouvé
-        } else {
+        // salle trouvée
+        if (salleID !== -1) {
           const salleTrouvee = jeu.salles.find(x => x.id === salleID);
           salleTrouvee.inventaire.objets.push(newEleJeu);
+          // pas de salle trouvée
+        } else {
+          // chercher un contenant ou un support
+          const contenantSupport = Generateur.getContenantSupport(jeu.elements, curEle.positionString.complement);
+          if (contenantSupport) {
+            contenantSupport.inventaire.objets.push(newEleJeu);
+          } else {
+            console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+          }
         }
 
         jeu.elements.push(newEleJeu);
@@ -304,6 +309,20 @@ export class Generateur {
     }
 
     return retVal;
+  }
+
+  static getContenantSupport(objets: ElementJeu[], nomObjet: string) {
+    const candidats = objets.filter(x => x.type == TypeElement.contenant || x.type == TypeElement.support);
+
+    let trouve: ElementJeu = null;
+
+    candidats.forEach(el => {
+      if (el.nom == nomObjet) {
+        trouve = el;
+      }
+    });
+
+    return trouve;
   }
 
   /**

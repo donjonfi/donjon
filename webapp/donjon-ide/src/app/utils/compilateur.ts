@@ -191,10 +191,6 @@ export class Compilateur {
       }
     });
 
-    if (Compilateur.verbeux) {
-      console.log("Voici les phrases: ", phrases);
-    }
-
     // retrouver les éléments dans le code source
     let typesUtilisateur: Map<string, Definition> = new Map();
     let elementsGeneriques = new Array<ElementGenerique>();
@@ -228,13 +224,13 @@ export class Compilateur {
         if (phrase.phrase[0].slice(0, 2) === "--") {
           phrase.traitee = true;
           if (Compilateur.verbeux) {
-            console.log("Je passe le commentaire");
+            console.log("=> commentaire");
           }
         } else {
 
           let elementGeneriqueTrouve = false;
-          let regleTrouvee = false;
-          let actionTrouvee = false;
+          let regleTrouvee: Regle = null;
+          let actionTrouvee: Action = null;
           let proprieteTrouvee = false;
           // ===============================================
           // RÈGLES
@@ -264,7 +260,7 @@ export class Compilateur {
             if (elementConcerne) {
               dernierElementGenerique = elementConcerne;
               if (Compilateur.verbeux) {
-                console.log("Réslultat: test 1:", dernierElementGenerique);
+                console.log("=> trouvé testerPosition:", dernierElementGenerique);
               }
             } else {
               // 2 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT SANS POSITION
@@ -272,7 +268,7 @@ export class Compilateur {
               if (elementConcerne) {
                 dernierElementGenerique = elementConcerne;
                 if (Compilateur.verbeux) {
-                  console.log("Réslultat: test 2:", dernierElementGenerique);
+                  console.log("=> trouvé testerElementSimple:", dernierElementGenerique);
                 }
               } else {
                 // 3 - TESTER LES INFORMATIONS SE RAPPORTANT AU DERNIER ÉLÉMENT
@@ -288,7 +284,7 @@ export class Compilateur {
                     dernierElementGenerique.attributs.push(result[3]);
                   }
                   if (Compilateur.verbeux) {
-                    console.log("Réslultat: test 3:", dernierElementGenerique);
+                    console.log("=> trouvé xPronomDemonstratif:", dernierElementGenerique);
                   }
                 } else {
                   // pronom personnel position
@@ -299,7 +295,7 @@ export class Compilateur {
                     // attributs de l'élément précédent
                     dernierElementGenerique.positionString = new PositionSujetString(dernierElementGenerique.nom, result[2], result[1]);
                     if (Compilateur.verbeux) {
-                      console.log("Réslultat: test 4:", dernierElementGenerique);
+                      console.log("=> trouvé xPronomPersonnelPosition:", dernierElementGenerique);
                     }
                   } else {
                     // pronom personnel attributs
@@ -315,22 +311,20 @@ export class Compilateur {
                       dernierElementGenerique.genre = Compilateur.getGenre(phrase.phrase[0].split(" ")[0], null);
 
                       if (Compilateur.verbeux) {
-                        console.log("Réslultat: test 5:", dernierElementGenerique);
+                        console.log("=> trouvé xPronomPersonnelAttribut:", dernierElementGenerique);
                       }
                     } else {
                       result = Compilateur.xAttribut.exec(phrase.phrase[0]);
-
                       if (result) {
-
                         proprieteTrouvee = true;
-
                         // cas 1 (son/sa xxx est)
                         if (result[1]) {
                           dernierePropriete = new Propriete(result[1], (result[4] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[5]);
                           // ajouter la propriété au dernier élément
                           dernierElementGenerique.proprietes.push(dernierePropriete);
+
                           if (Compilateur.verbeux) {
-                            console.log("Réslultat: test 6:", dernierElementGenerique);
+                            console.log("=> trouvé xAttribut(A):", dernierElementGenerique);
                           }
                           // cas 2 (la xxx de yyy est)
                         } else {
@@ -342,10 +336,14 @@ export class Compilateur {
                           let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
                           if (foundElementGenerique) {
                             foundElementGenerique.proprietes.push(dernierePropriete);
+                            if (Compilateur.verbeux) {
+                              console.log("=> trouvé xAttribut(B):", foundElementGenerique);
+                            }
                           } else {
-                            console.warn("Test 6: Pas trouvé le complément:", complement);
+                            console.warn("xAttribut: Pas trouvé le complément:", complement);
                           }
                         }
+
                       } else {
                         result = Compilateur.xCapacite.exec(phrase.phrase[0]);
 
@@ -354,14 +352,14 @@ export class Compilateur {
                           // ajouter la capacité au dernier élément
                           dernierElementGenerique.capacites.push(capacite);
                           if (Compilateur.verbeux) {
-                            console.log("Réslultat: test 7:", dernierElementGenerique);
+                            console.log("=> trouvé pour xCapacite:", dernierElementGenerique);
                           }
                         } else {
                           // et bien finalement on n’a rien trouvé…
                           elementGeneriqueTrouve = false;
                           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
                           if (Compilateur.verbeux) {
-                            console.warn("Pas trouvé la signification de la phrase.");
+                            console.warn("=> PAS trouvé de signification.");
                           }
                         }
                       }
@@ -380,9 +378,9 @@ export class Compilateur {
               // si le dernier élément trouvé est une propriété, il s'agit de
               // la valeur de cette propriété
               if (proprieteTrouvee) {
-                if (this.verbeux) {
-                  console.log(">>> Ajout de la description à la dernière propriété.");
-                }
+                // if (this.verbeux) {
+                //   console.log(">>> Ajout de la description à la dernière propriété.");
+                // }
                 // ajouter la valeur en enlevant les caractères spéciaux
                 dernierePropriete.valeur = phrase.phrase[1]
                   .replace(this.xCaractereDebutCommentaire, '')
@@ -391,9 +389,9 @@ export class Compilateur {
 
                 // sinon c’est la description du dernier élément
               } else {
-                if (this.verbeux) {
-                  console.log(">>> Ajout de la description au dernier élément générique.");
-                }
+                // if (this.verbeux) {
+                //   console.log(">>> Ajout de la description au dernier élément générique.");
+                // }
                 // ajouter la description en enlevant les caractères spéciaux
                 dernierElementGenerique.description = phrase.phrase[1]
                   .replace(this.xCaracteresCommentaire, '')
@@ -403,11 +401,11 @@ export class Compilateur {
             // si on a trouvé une règle
           } else if (regleTrouvee) {
             if (this.verbeux) {
-              console.log(">>> regleTrouvee");
+              console.log("=> trouvé Règle:", regleTrouvee);
             }
           } else if (actionTrouvee) {
             if (this.verbeux) {
-              console.log(">>> actionTrouvee");
+              console.log("=> trouvé Action:", actionTrouvee);
             }
           }
 
@@ -557,12 +555,12 @@ export class Compilateur {
   }
 
   private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
-    let result = Compilateur.rAvantApresRemplacerSi.exec(phrase.phrase[0]);
+    let resultRegle = Compilateur.rAvantApresRemplacerSi.exec(phrase.phrase[0]);
 
-    if (result !== null) {
+    if (resultRegle !== null) {
 
       let typeRegle: TypeRegle;
-      let motCle = result[1].toLowerCase();
+      let motCle = resultRegle[1].toLowerCase();
       switch (motCle) {
         case 'quand':
         case 'si':
@@ -573,34 +571,29 @@ export class Compilateur {
           break;
 
         default:
-          console.error("tester regle: opérateur inconnu:", result[1]);
+          console.error("tester regle: opérateur inconnu:", resultRegle[1]);
           typeRegle = TypeRegle.inconnu;
           break;
       }
 
-      const condition = Compilateur.getCondition(result[2]);
+      const condition = Compilateur.getCondition(resultRegle[2]);
 
       if (!condition) {
-        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
+        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
       }
 
-      let regle = new Regle(typeRegle, condition, result[3]);
-      regles.push(regle);
+      let nouvelleRegle = new Regle(typeRegle, condition, resultRegle[3]);
+      regles.push(nouvelleRegle);
 
       // si phrase morcelée, rassembler les morceaux
       if (phrase.phrase.length > 1) {
         for (let index = 1; index < phrase.phrase.length; index++) {
-          regle.consequencesBrutes += phrase.phrase[index];
+          nouvelleRegle.consequencesBrutes += phrase.phrase[index];
         }
       }
-
-      if (Compilateur.verbeux) {
-        console.log("Règle:", regle);
-      }
-
-      return true; // trouvé un résultat
+      return nouvelleRegle; // trouvé une règle
     } else {
-      return false; // rien trouvé
+      return null; // rien trouvé
     }
   }
 
@@ -610,10 +603,10 @@ export class Compilateur {
     // TODO: regarder les ()
     // TODO: priorité des oppérateurs
     const els = PhraseUtils.decomposerCondition(condition);
-    console.warn("getCondition:", condition, "els:", els);
     if (els) {
       return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement);
     } else {
+      console.warn("decomposerCondition: pas pu décomposer:", condition);
       return null;
     }
   }
@@ -643,30 +636,22 @@ export class Compilateur {
           }
         }
       }
-      if (Compilateur.verbeux) {
-        console.log("Action:", action);
-      }
       actions.push(action);
-
-      return true; // trouvé un résultat (action)
+      return action; // nouvelle action
     } else {
       let resultDescriptionAction = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
-      console.log("testerDescriptionAction >>>>", phrase.phrase, " => ", resultDescriptionAction);
       if (resultDescriptionAction) {
         const motCle = resultDescriptionAction[1].toLocaleLowerCase();
         const verbe = resultDescriptionAction[2].toLocaleLowerCase();
         const ceci = resultDescriptionAction[3] == 'ceci';
         const cela = resultDescriptionAction[4] == 'cela';
-
         let complement = resultDescriptionAction[5];
-
         // si phrase morcelée, rassembler les morceaux
         if (phrase.phrase.length > 1) {
           for (let index = 1; index < phrase.phrase.length; index++) {
             complement += phrase.phrase[index];
           }
         }
-
         complement = complement.trim();
         // retrouver l'action correspondante
         let action = actions.find(x => x.verbe === verbe && x.ceci == ceci && x.cela == cela);
@@ -696,11 +681,7 @@ export class Compilateur {
           }
           erreurs.push(("0000" + phrase.ligne).slice(-5) + " : action pas trouvée : " + phrase.phrase);
         }
-
-        console.log("action màj:", action);
-
-
-        return true; // trouvé un résultat (description action)
+        return action; // action existante mise à jour avec nouvelle description.
       } else {
         let resultActionSimple = this.xActionSimple.exec(phrase.phrase[0]);
         // Trouvé action simple
@@ -724,9 +705,9 @@ export class Compilateur {
           action.instructions = Compilateur.separerConsequences(complement, erreurs, false);
 
           actions.push(action);
-          return true; // trouvé un résultat (action simple)
+          return action; // trouvé action simple
         } else {
-          return false; // rien trouvé
+          return null; // rien trouvé
         }
       }
     }
@@ -751,9 +732,6 @@ export class Compilateur {
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
     let result = Compilateur.xDefinitionTypeElement.exec(phrase.phrase[0]);
     if (result !== null) {
-
-      console.log("testerElementSimple >>> result=", result);
-
       let genreSingPlur = result[3];
       let estFeminin = false;
       let autreForme: string = null;
@@ -956,10 +934,6 @@ export class Compilateur {
     // élément positionné défini (la, le, les)
     let result = Compilateur.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
     if (result !== null) {
-
-      console.log("testerPosition >>>>> ", result);
-
-
       let genreSingPlur = result[3];
       let estFeminin = false;
       let autreForme: string = null;

@@ -35,10 +35,6 @@ export class StringUtils {
         // retirer déterminants
         .replace(/^(un |une |des |le |la |l'|les )/, '');
     }
-
-console.log("normaliserMot >>> mot=", mot, "norm=", retVal);
-
-    
     return retVal;
   }
 }
