@@ -1,5 +1,6 @@
 import { Auditeur } from '../models/jouer/auditeur';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Instruction } from '../models/compilateur/instruction';
 import { TypeRegle } from '../models/compilateur/type-regle';
 
 export class Declancheur {
@@ -33,8 +34,8 @@ export class Declancheur {
     });
   }
 
-  private retrouverInstructions(auditeurs: Auditeur[], evenement: ElementsPhrase): ElementsPhrase[] {
-    let instructions = new Array<ElementsPhrase>();
+  private retrouverInstructions(auditeurs: Auditeur[], evenement: ElementsPhrase): Instruction[] {
+    let instructions = new Array<Instruction>();
     auditeurs.forEach(aud => {
       console.log(">>> check", aud);
 

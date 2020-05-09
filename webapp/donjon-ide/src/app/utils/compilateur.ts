@@ -7,6 +7,7 @@ import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { Instruction } from '../models/compilateur/instruction';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Phrase } from '../models/compilateur/phrase';
@@ -38,24 +39,23 @@ export class Compilateur {
   static readonly xCaractereRetourLigne = /Ʒ/g;
 
   /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-  static readonly xPositionElementGeneriqueDefini = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les |un | une )|de (?:la |l')|du ))(.+)/i;
+  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
 
-  // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )|de (?:la |l')|du ))(.+)/i;
+  // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** élément générique positionné par rapport à complément :
    * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
    * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
    */
-  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l'|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l')(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l'intérieur|à l'extérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:(?:dans|sur) (?:la |le |l'|les |un |une )))(.+)/i;
-  // readonly xPositionElementGeneriqueIlya = /^il y a (un |une |des |du |de l')(.+?)(\(f\))? ((?:(?:à l'intérieur|au sud|au nord|à l'est|à l'ouest) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|les )))(.+)/i;
+  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l(?:’|')|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l(?:’|'))(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
 
   /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
-  static readonly xDefinitionTypeElement = /^(le |la |l'|les )(.+?)(\(.+\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
+  static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
 
   /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
   static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
 
   /** pronom personnel position -> position(1), complément(2) */
-  static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l'intérieur|au sud|au nord|à l'est|à l'ouest|en haut|en bas) (?:du |de la |de l'|des ))|(?:dans (?:la |le |l'|un |une )|de (?:la |l')|du ))(.+)/i;
+  static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|un |une )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** pronom personnel -> attributs(1) */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
@@ -63,15 +63,15 @@ export class Compilateur {
    *  - son|sa propriété(1) est|vaut(4) valeur(5)
    *  - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(4) valeur(5)
    */
-  static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l')(\S+) (?:du |de la |de l')(\S+))) (est|vaut)( .+|)/i;
+  static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l(?:’|'))(\S+) (?:du |de la |de l(?:’|'))(\S+))) (est|vaut)( .+|)/i;
 
   /** capacité -> verbe(1) complément(2) */
-  static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d')(se \S+|\S+)( .+|)/i;
+  static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;
 
   /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
    * ex: Le champignon est brun et on peut le cuillir.
    */
-  static readonly xElementSimpleAttribut = /^(le |la |l'|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des |dans )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des |dans )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
 
@@ -80,6 +80,8 @@ export class Compilateur {
    * ex: Examiner est une action qui concerne un objet visible.
    */
   static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  /** Le joueur peut verbe(1) [déterminant(2) nom(3) epithete(4)]: instructions(5) */
+  static readonly xActionSimple = /^Le joueur peut ((?:se )?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+)(?: (\S+))?)?:(.+)?$/i;
 
   /** Description d'une action => [refuser|exécuter|finaliser]\(1) verbe(2) [ceci(3) [(avec|et) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|finaliser) ((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)?\s?:(.+)$/i;
@@ -467,7 +469,7 @@ export class Compilateur {
 
     regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        regle.instructions = Compilateur.separerConsequences(regle.consequencesBrutes, erreurs);
+        regle.instructions = Compilateur.separerConsequences(regle.consequencesBrutes, erreurs, false);
       }
       console.log(">>> regle:", regle);
     });
@@ -489,28 +491,42 @@ export class Compilateur {
     return resultat;
   }
 
-  private static separerConsequences(consequencesBrutes: string, erreurs: string[]) {
+  private static separerConsequences(consequencesBrutes: string, erreurs: string[], sousConsequences: boolean) {
 
-    const consBru = consequencesBrutes.split(';');
-    let instructions: ElementsPhrase[] = [];
+    // les conséquences sont séparées par des ";"
+    // les sous-conséquences sont séparées par des ","
+    const consBru = consequencesBrutes.split((sousConsequences ? ',' : ';'));
+    let instructions: Instruction[] = [];
     consBru.forEach(conBru => {
       let conBruNettoyee = conBru
         .trim()
         // convertir marque commentaire
         .replace(this.xCaractereDebutCommentaire, ' "')
         .replace(this.xCaractereFinCommentaire, '" ');
-      // enlever le point final
-      if (conBruNettoyee.endsWith('.')) {
+      // enlever le point final (ou le ; final pour les sous-conséquences)
+      if (conBruNettoyee.endsWith((sousConsequences ? ';' : '.'))) {
         conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
       }
+      // cas A: instruction simple
       const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
       if (els) {
         if (els.complement) {
           els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
         }
-        instructions.push(els);
+        instructions.push(new Instruction(els));
+        // cas B: instruction conditionnelle
       } else {
-        erreurs.push("conséquence : " + conBruNettoyee);
+        let resultSiCondCons = PhraseUtils.xSeparerSiConditionConsequences.exec(conBruNettoyee);
+        if (resultSiCondCons && !sousConsequences) {
+          const condition = Compilateur.getCondition(resultSiCondCons[1]);
+          const consequences = Compilateur.separerConsequences(resultSiCondCons[2], erreurs, true);
+
+          instructions.push(new Instruction(null, condition, consequences, null));
+
+          // pas compris
+        } else {
+          erreurs.push("conséquence : " + conBruNettoyee);
+        }
       }
     });
     return instructions;
@@ -530,7 +546,7 @@ export class Compilateur {
         if (!condition) {
           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
         }
-        const consequences = Compilateur.separerConsequences(result[3], erreurs);
+        const consequences = Compilateur.separerConsequences(result[3], erreurs, false);
         verification.push(new Verification([condition], consequences));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
@@ -633,17 +649,17 @@ export class Compilateur {
       }
       actions.push(action);
 
-      return true; // trouvé un résultat
+      return true; // trouvé un résultat (action)
     } else {
-      let result = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
-      console.log("testerDescriptionAction >>>>", phrase.phrase, " => ", result);
-      if (result) {
-        const motCle = result[1].toLocaleLowerCase();
-        const verbe = result[2].toLocaleLowerCase();
-        const ceci = result[3] == 'ceci';
-        const cela = result[4] == 'cela';
+      let resultDescriptionAction = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
+      console.log("testerDescriptionAction >>>>", phrase.phrase, " => ", resultDescriptionAction);
+      if (resultDescriptionAction) {
+        const motCle = resultDescriptionAction[1].toLocaleLowerCase();
+        const verbe = resultDescriptionAction[2].toLocaleLowerCase();
+        const ceci = resultDescriptionAction[3] == 'ceci';
+        const cela = resultDescriptionAction[4] == 'cela';
 
-        let complement = result[5];
+        let complement = resultDescriptionAction[5];
 
         // si phrase morcelée, rassembler les morceaux
         if (phrase.phrase.length > 1) {
@@ -663,11 +679,11 @@ export class Compilateur {
               break;
             case 'exécuter':
               action.instructionsBrutes = complement;
-              action.instructions = Compilateur.separerConsequences(complement, erreurs);
+              action.instructions = Compilateur.separerConsequences(complement, erreurs, false);
               break;
             case 'finaliser':
               action.instructionsFinalesBrutes = complement;
-              action.instructionsFinales = Compilateur.separerConsequences(complement, erreurs);
+              action.instructionsFinales = Compilateur.separerConsequences(complement, erreurs, false);
               break;
 
             default:
@@ -685,9 +701,34 @@ export class Compilateur {
         console.log("action màj:", action);
 
 
-        return true; // trouvé un résultat
+        return true; // trouvé un résultat (description action)
       } else {
-        return false; // rien trouvé
+        let resultActionSimple = this.xActionSimple.exec(phrase.phrase[0]);
+        // Trouvé action simple
+        if (resultActionSimple) {
+          let verbe = resultActionSimple[1].toLocaleLowerCase();
+          let ceci = resultActionSimple[3] !== null;
+          let complement = resultActionSimple[5];
+
+          // si phrase morcelée, rassembler les morceaux
+          if (phrase.phrase.length > 1) {
+            for (let index = 1; index < phrase.phrase.length; index++) {
+              complement += phrase.phrase[index];
+            }
+          }
+
+          let action = new Action(verbe, ceci, false);
+          if (ceci) {
+            action.cibleCeci = new GroupeNominal(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
+          }
+
+          action.instructions = Compilateur.separerConsequences(complement, erreurs, false);
+
+          actions.push(action);
+          return true; // trouvé un résultat (action simple)
+        } else {
+          return false; // rien trouvé
+        }
       }
     }
   }
@@ -1195,6 +1236,7 @@ export class Compilateur {
         case "le":
         case "la":
         case "l'":
+        case "l’":
         case "1":
         case "un":
         case "une":
@@ -1213,6 +1255,7 @@ export class Compilateur {
         case "du":
         case "de la":
         case "de l'":
+        case "de l’":
           retVal = -1;
           break;
 

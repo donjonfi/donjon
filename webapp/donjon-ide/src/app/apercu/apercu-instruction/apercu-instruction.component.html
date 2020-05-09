@@ -1,0 +1,37 @@
+<ul *ngIf="!ins.condition">
+  <li>Action : {{ins.instruction.infinitif}}</li>
+  <li *ngIf="ins.instruction.sujet">
+    <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
+  </li>
+  <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
+  <li *ngIf="ins.instruction.complement">Compl : {{ins.instruction.complement}}</li>
+</ul>
+
+<ul *ngIf="ins.condition">
+  <li>Condition :
+    <ul>
+      <li><app-apercu-sujet [sujet]="ins.condition.sujet"></app-apercu-sujet></li>
+      <li>Verbe : {{ins.condition.verbe}}</li>
+      <li *ngIf="ins.condition.negation">Négation : {{ins.condition.negation}}</li>
+      <li *ngIf="ins.condition.complement">Complement : {{ins.condition.complement}}</li>
+    </ul>
+  </li>
+
+  <li>Instructions (si condition remplie) :
+    <ul>
+      <li *ngFor="let ins of ins.instructionsSiConditionVerifiee; index as k">
+        Instruction {{(k+1)}} :
+        <ul *ngIf="!ins.condition">
+          <li>Action : {{ins.instruction.infinitif}}</li>
+          <li *ngIf="ins.instruction.sujet">
+            <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
+          </li>
+          <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
+          <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
+          <li *ngIf="ins.instruction.complement">Compl : {{ins.instruction.complement}}</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+
+</ul>

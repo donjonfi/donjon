@@ -7,6 +7,7 @@ import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { Instruction } from '../models/compilateur/instruction';
 import { Jeu } from '../models/jeu/jeu';
 import { PhraseUtils } from '../utils/phrase-utils';
 
@@ -77,7 +78,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
 
 
-  private executerInstructions(instructions: ElementsPhrase[]): boolean {
+  private executerInstructions(instructions: Instruction[]): boolean {
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
         this.executerInstruction(ins);
@@ -88,18 +89,24 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  private executerInstruction(instruction: ElementsPhrase) {
+  private executerInstruction(instruction: Instruction) {
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction);
     }
-
-    if (instruction.infinitif) {
-      //if (instruction.sujet == null && instruction.verbe) {
-      this.executerInfinitif(instruction);
-      // } else if (instruction.sujet) {
-      // this.executerSujetVerbe(instruction);
+    // instruction conditionnelle
+    if (instruction.condition) {
+      // TODO: instruction conditionnelle
+      console.warn("Instructions conditionnelles pas encore gérées...");
+      // instruction simple
     } else {
-      console.warn("executerInstruction : pas d'infinitif :", instruction);
+      if (instruction.instruction.infinitif) {
+        //if (instruction.sujet == null && instruction.verbe) {
+        this.executerInfinitif(instruction.instruction);
+        // } else if (instruction.sujet) {
+        // this.executerSujetVerbe(instruction);
+      } else {
+        console.warn("executerInstruction : pas d'infinitif :", instruction);
+      }
     }
   }
 

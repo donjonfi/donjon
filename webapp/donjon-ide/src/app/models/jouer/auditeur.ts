@@ -1,5 +1,5 @@
-import { ElementsPhrase } from '../commun/elements-phrase';
 import { GroupeNominal } from '../commun/groupe-nominal';
+import { Instruction } from '../compilateur/instruction';
 import { TypeRegle } from '../compilateur/type-regle';
 
 export class Auditeur {
@@ -7,5 +7,5 @@ export class Auditeur {
   sujet: GroupeNominal;
   verbe: string;
   complement: string;
-  instructions: ElementsPhrase[];
+  instructions: Instruction[];
 }

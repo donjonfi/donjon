@@ -27,9 +27,18 @@ export class PhraseUtils {
   static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
 
   /**
-   * si|avant|après (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7)
+   * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly regexCondition = /^(?:si |avant |après |)((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne)?((?:se \S+)|est|possède|commence)(?: (pas))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après )?((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?$/i;
+  /**
+   * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
+   */
+  static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
+
+  /**
+   * si (condition)(1) :|, (consequences)(2)
+   */
+  static readonly xSeparerSiConditionConsequences = /^si (.+?)(?: )?(?::|,)(?: )?(.+)$/i;
 
   /**
    * Instruction : verbe + complément
@@ -39,10 +48,12 @@ export class PhraseUtils {
    */
   static readonly xInstruction = /^(\S+(?:ir|er|re)) (.+|)$/i;
 
+
+
   /**
-   * Le(1) joueur(2) se trouve(3) dans la piscine(4).
+   * Le(1) joueur(2) [ne] se trouve(3) [pas|plus]\(4) dans la piscine(5).
    */
-  static readonly xPhraseSimpleDeterminant = /^(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
+  static readonly xPhraseSimpleDeterminant = /^(le |la |les |l'|du |de la|des |un |une )(\S+) (?:ne |n(?:'|’))?((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
 
   /**
    * Son(1) sac(2) est(3) ouvert(4)
@@ -51,12 +62,12 @@ export class PhraseUtils {
 
   static decomposerCondition(condition: string) {
     let els: ElementsPhrase = null;
-    const res = PhraseUtils.regexCondition.exec(condition);
-    if (res) {
-      const sujet = res[3] ? (new GroupeNominal(res[2], res[3], res[4] ? res[4] : null)) : (res[1] ? new GroupeNominal(null, res[1], null) : null);
-      const verbe = res[5];
-      const negation = res[6];
-      const compl = res[7];
+    const resCondition = PhraseUtils.xCondition.exec(condition);
+    if (resCondition) {
+      const sujet = resCondition[3] ? (new GroupeNominal(resCondition[2], resCondition[3], resCondition[4] ? resCondition[4] : null)) : (resCondition[1] ? new GroupeNominal(null, resCondition[1], null) : null);
+      const verbe = resCondition[5];
+      const negation = resCondition[6];
+      const compl = resCondition[7];
       els = new ElementsPhrase(sujet, verbe, negation, compl);
 
       // décomposer le complément si possible
@@ -95,17 +106,18 @@ export class PhraseUtils {
     let els: ElementsPhrase = null;
 
     // infinitif, complément
-    let res = PhraseUtils.xInstruction.exec(instruction);
-    if (res) {
-      els = new ElementsPhrase(null, null, null, res[2]);
-      els.infinitif = res[1];
+    let resInfinitifCompl = PhraseUtils.xInstruction.exec(instruction);
+    if (resInfinitifCompl) {
+      els = new ElementsPhrase(null, null, null, resInfinitifCompl[2]);
+      els.infinitif = resInfinitifCompl[1];
 
       // décomposer ce qui suit l'infinitif si possible
       let resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
       if (resSuite) {
         els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
         els.verbe = resSuite[3];
-        els.complement = resSuite[4] ? resSuite[4].trim() : null;
+        els.negation = resSuite[4];
+        els.complement = resSuite[5] ? resSuite[5].trim() : null;
         // décomposer le nouveau complément si possible
         let resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
         if (resCompl) {

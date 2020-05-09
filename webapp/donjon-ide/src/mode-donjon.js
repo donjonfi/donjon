@@ -70,7 +70,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "se (trouve)|est|sont|vaut|contient|possède"
+          regex: "se (trouve)|n(’|')est pas|n(’|')est plus|est|sont|vaut|contient|possède|peut"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

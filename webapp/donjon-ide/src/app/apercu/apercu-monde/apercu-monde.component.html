@@ -19,16 +19,8 @@
         <li>Conséquences:
           <ul>
             <li *ngFor="let ins of re.instructions; index as i">
-              Conséquence {{(i+1)}} :
-              <ul>
-                <li>Action : {{ins.infinitif}}</li>
-                <li *ngIf="ins.sujet">
-                  Sujet :
-                  {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
-                </li>
-                <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
-              </ul>
+              Instruction {{(i+1)}} :
+              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
             </li>
           </ul>
         </li>
@@ -82,15 +74,7 @@
                       <ul>
                         <li *ngFor="let ins of ver.resultats; index as i">
                           Instruction {{(i+1)}} :
-                          <ul>
-                            <li>Action : {{ins.infinitif}}</li>
-                            <li *ngIf="ins.sujet">
-                              Sujet :
-                              {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
-                            </li>
-                            <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                            <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
-                          </ul>
+                          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
                         </li>
                       </ul>
                     </li>
@@ -106,15 +90,7 @@
               <ul>
                 <li *ngFor="let ins of act.instructions; index as i">
                   Instruction {{(i+1)}} :
-                  <ul>
-                    <li>Action : {{ins.infinitif}}</li>
-                    <li *ngIf="ins.sujet">
-                      Sujet :
-                      {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
-                    </li>
-                    <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                    <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
-                  </ul>
+                  <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
                 </li>
               </ul>
             </li>
