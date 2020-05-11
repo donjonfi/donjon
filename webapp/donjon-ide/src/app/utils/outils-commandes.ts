@@ -125,9 +125,9 @@ export class OutilsCommandes {
     } else if (porte.type !== TypeElement.porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
-      let ouvrable = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'ouvrable');
-      let ouvert = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'ouvert', 'ouverte');
-      let verrou = ElementsJeuUtils.possedeUnDeCesEtats(porte, 'verrouillé', 'verrouillée');
+      let ouvrable = ElementsJeuUtils.possedeCetEtat(porte, 'ouvrable');
+      let ouvert = ElementsJeuUtils.possedeCetEtatAutoF(porte, 'ouvert');
+      let verrou = ElementsJeuUtils.possedeCetEtatAutoF(porte, 'verrouillé');
 
       if (porte.genre == Genre.f) {
         if (ouvert) {
@@ -193,7 +193,25 @@ export class OutilsCommandes {
     } else {
       retVal = "\nContenu de l'inventaire :";
       objets.forEach(o => {
-        retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
+        if (o.quantite > 0) {
+          retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
+        }
+      });
+    }
+    return retVal;
+  }
+
+  afficherContenu(el: ElementJeu, phraseSiVide = "Il n’y a rien d’intéressant.") {
+    let retVal: string;
+    let objets = el.inventaire.objets.filter(x => x.quantite !== 0);
+    if (objets.length == 0) {
+      retVal = phraseSiVide;
+    } else {
+      retVal = "Vous trouvez :";
+      objets.forEach(o => {
+        if (o.quantite > 0) {
+          retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
+        }
       });
     }
     return retVal;

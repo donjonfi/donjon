@@ -26,7 +26,7 @@ export class ConditionsUtils {
         switch (els.verbe) {
           case 'possède':
             // retrouver l’objet dans l’inventaire
-            let trouve = this.eju.trouverElementJeu(els.sujetComplement, EmplacementElement.inventaire, false);
+            let trouve = this.eju.trouverElementJeu(els.sujetComplement, EmplacementElement.inventaire, true, false);
             retVal = (trouve !== null);
             break;
 
@@ -47,10 +47,10 @@ export class ConditionsUtils {
         switch (els.verbe) {
           // état
           case 'est':
-            let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
+            let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
             // élément trouvé
             if (eleJeu) {
-              retVal = ElementsJeuUtils.possedeUnDeCesEtats(eleJeu, els.complement);
+              retVal = ElementsJeuUtils.possedeCetEtat(eleJeu, els.complement);
               // élément pas trouvé
             } else {
               retVal = false;
@@ -61,7 +61,7 @@ export class ConditionsUtils {
           case 'se trouvent':
             // vérifier si un élément est présent dans la pièce actuelle
             if (els.complement === 'ici') {
-              let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, false);
+              let eleJeu = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, true, false);
               retVal = (eleJeu !== null);
               // vérifier si un élément est à un endroit particulier
             } else {

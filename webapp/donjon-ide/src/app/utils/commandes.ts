@@ -40,13 +40,19 @@ export class Commandes {
       let estSingulier = true;
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
-      const objetTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, false);
+      const objetTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, true, false);
       if (objetTrouve) {
 
         if (this.verbeux) {
           console.log("l’ojet a été trouvé:", objetTrouve);
         }
 
+        // on ne peut pas prendre les éléments fixés
+        if (ElementsJeuUtils.possedeCetEtatAutoF(objetTrouve, "fixé")) {
+          return "C’est fixé.";
+        }
+
+        // vérîfier le type de l’objet
         switch (objetTrouve.type) {
           // on ne prend pas les animaux
           case TypeElement.animal:
@@ -217,14 +223,14 @@ export class Commandes {
     } else if (els.infinitif == 'ouvrir' && els.preposition == 'avec') {
       return this.deverrouiller(els);
     } else {
-      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (ElementsJeuUtils.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!ElementsJeuUtils.possedeCetEtat(porte, "ouvrable")) {
           return "Je ne sais pas l’ouvrir.";
           // porte pas verrouillée et ouvrable => on l’ouvre
         } else {
@@ -233,7 +239,7 @@ export class Commandes {
         }
         // pas trouvé la porte
       } else {
-        return "Je n’ai pas trouvé ça.";
+        return "Je n’ai pas trouvé ça (porte).";
       }
     }
   }
@@ -242,14 +248,14 @@ export class Commandes {
     if (!els.sujet) {
       return "Fermer quoi ?";
     } else {
-      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, true);
+      const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
       // porte trouvée
       if (porte) {
         // porte verrouillée
-        if (ElementsJeuUtils.possedeUnDeCesEtats(porte, "verrouillé", "verrouillée")) {
+        if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
           return "C’est verrouillé.";
           // porte pas ouvrable
-        } else if (!ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
+        } else if (!ElementsJeuUtils.possedeCetEtat(porte, "ouvrable")) {
           return "Je ne sais pas la fermer.";
           // porte pas verrouillée et ouvrable => on la ferme
         } else {
@@ -283,8 +289,8 @@ export class Commandes {
 
   utiliserAvec(infinitif: string, elA: GroupeNominal, elB: GroupeNominal) {
     // retrouver les 2 éléments
-    const eleJeuA = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true);
-    const eleJeuB = this.eju.trouverElementJeu(elB, EmplacementElement.iciEtInventaire, true);
+    const eleJeuA = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true, true);
+    const eleJeuB = this.eju.trouverElementJeu(elB, EmplacementElement.iciEtInventaire, true, true);
     // Les 2 objets ont été trouvés
     if (eleJeuA && eleJeuB) {
       // 2x le même objet
@@ -324,7 +330,7 @@ export class Commandes {
       // ouvrir la porte en plus si le verbe utilisé est ouvrir
       console.log("utiliserObjetAvecPorte >>> infinitif:", infinitif);
 
-      if (infinitif.toLowerCase() === 'ouvrir' && ElementsJeuUtils.possedeUnDeCesEtats(porte, "ouvrable")) {
+      if (infinitif.toLowerCase() === 'ouvrir' && ElementsJeuUtils.possedeCetEtat(porte, "ouvrable")) {
         ElementsJeuUtils.ajouterEtat(porte, (porte.genre === Genre.f ? "ouverte" : "ouvert"));
         return "Á présent c'est ouvert.";
         // sinon juste déverrouiller
@@ -349,7 +355,7 @@ export class Commandes {
 
     let eleTrouve: ElementJeu;
     //todo: inclure les portes ou pas ?
-    eleTrouve = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true);
+    eleTrouve = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true, true);
 
     if (eleTrouve) {
 
@@ -376,13 +382,41 @@ export class Commandes {
 
   examiner(els: ElementsPhrase) {
 
+    let retVal: string;
+
+    // si on ne sait pas ce qu’il faut examiner
     if (!els.sujet) {
       return "Que dois-je examiner ?";
+      // examiner un élément en particulier
     } else {
-      // TODO: changer ça…
-      return this.regarder(els);
-    }
+      // regarder dans les éléments de jeu
+      const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
+      if (trouve) {
 
+        switch (trouve.type) {
+          // Contenant
+          case TypeElement.contenant:
+            retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dedans.");
+            break;
+          // Support
+          case TypeElement.support:
+            retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dessus.");
+            break;
+          // Porte
+          case TypeElement.porte:
+            retVal += "\n" + this.outils.afficherStatutPorte(trouve);
+
+          default:
+            retVal = this.outils.afficherContenu(trouve);
+            break;
+        }
+
+        // rien trouvé
+      } else {
+        retVal = "Je ne vois pas ça.";
+      }
+    }
+    return retVal;
   }
 
   regarder(els: ElementsPhrase) {
@@ -404,7 +438,7 @@ export class Commandes {
       // regarder un élément en particulier
     } else {
       // regarder dans les éléments de jeu
-      const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true);
+      const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
       if (trouve) {
         if (trouve.description) {
           retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
