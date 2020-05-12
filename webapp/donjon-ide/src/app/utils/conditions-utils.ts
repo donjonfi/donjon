@@ -66,7 +66,7 @@ export class ConditionsUtils {
               // vérifier si un élément est à un endroit particulier
             } else {
               // TODO: chercher un élément dans une autre pièce
-              console.warn("se trouve xxxx pas encore géré...", els.complement);
+              console.warn("se trouve xxxx pas encore géré :", els.complement);
               return false;
             }
             console.warn("se trouve ici:", retVal, els.complement);

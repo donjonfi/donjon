@@ -308,7 +308,27 @@ export class ElementsJeuUtils {
     if (this.curSalle) {
       listeObjets = this.curSalle.inventaire.objets;
       indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
+
+      // si pas trouvé dans l’inventaire de la salle, regarder dans d’inventaire des contenants de la salle
+      if (indexEleJeu == -1) {
+        let supportsEtContenants: ElementJeu[] = [];
+        listeObjets.forEach(el => {
+          // pas besoin de continuer à chercher si déjà trouvé
+          if (indexEleJeu == -1) {
+            // si on à affaire à un support ou un contenant, regarder leur inventaire
+            if ((el.type == TypeElement.support) ||
+              (el.type == TypeElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé")))) {
+              indexEleJeu = el.inventaire.objets.findIndex(x => x.id == eleJeuID);
+              // trouvé
+              if (indexEleJeu != -1) {
+                listeObjets = el.inventaire.objets;
+              }
+            }
+          }
+        });
+      }
     }
+
     // si pas trouvé, on recherche dans la liste globale
     if (indexEleJeu == -1) {
       listeObjets = this.jeu.elements;

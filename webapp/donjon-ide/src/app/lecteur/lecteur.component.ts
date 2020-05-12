@@ -175,7 +175,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   ajouterInventaire(intitule: GroupeNominal) {
     if (intitule) {
-      let objetTrouve = this.eju.trouverElementJeu(intitule, EmplacementElement.partout, false);
+      let objetTrouve = this.eju.trouverElementJeu(intitule, EmplacementElement.partout, true, false);
       if (objetTrouve) {
         const nouvelObjet = this.eju.prendreElementJeu(objetTrouve.id);
         let cible = nouvelObjet;

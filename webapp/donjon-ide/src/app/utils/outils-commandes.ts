@@ -31,7 +31,7 @@ export class OutilsCommandes {
 
   /**
    * Obtenir l'accord ('', 'e' ou 'es') en fonction de l'objet.
-   * @param ej 
+   * @param ej élément à tester
    * @param estFeminin forcer féminin
    * @param estSingulier forcer singulier
    */

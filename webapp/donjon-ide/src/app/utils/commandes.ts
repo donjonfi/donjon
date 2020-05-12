@@ -61,6 +61,13 @@ export class Commandes {
             }
             return "Ça ne me parait pas très prudent.";
             break;
+          // on ne prend pas les humain
+          case TypeElement.humain:
+            if (this.verbeux) {
+              console.log("on ne prend pas les humains.");
+            }
+            return "Dites donc !";
+            break;
           // on ne prend pas les décors
           case TypeElement.decor:
             if (this.verbeux) {
