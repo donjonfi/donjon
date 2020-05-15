@@ -193,7 +193,7 @@ export class ElementsJeuUtils {
     return found ? found.id : -1;
   }
 
-  trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean) {
+  trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean): ElementJeu | -1 {
 
     let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
 
@@ -276,8 +276,10 @@ export class ElementsJeuUtils {
     let retVal: ElementJeu = null;
 
 
-    // remplacer les carctères doubles et les accents
+    // remplacer les caractères doubles et les accents
     let premierMot = StringUtils.normaliserMot(sujet.nom);
+    let deuxiemeMot = StringUtils.normaliserMot(sujet.epithete);
+    console.log("trouverElementJeu >>> premierMot=", premierMot, "deuxiemeMot=", deuxiemeMot);
 
     // ON CHERCHE DANS L'INTITULÉ SINGULIER (si il y en a un...)
     let eleJeuTrouves = listeEleJeu.filter(x => StringUtils.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);

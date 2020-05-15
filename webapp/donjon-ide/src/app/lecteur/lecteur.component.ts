@@ -114,7 +114,14 @@ export class LecteurComponent implements OnInit, OnChanges {
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        this.resultat += "\n" + instruction.complement.trim().slice(1, instruction.complement.length - 1).trim();
+        const complement = instruction.complement.trim();
+        this.resultat += "\n" + complement.slice(1, complement.length - 1).trim();
+        // si la chaine se termine par un espace, ajouter un saut de ligne.
+        if (complement.endsWith(' "')) {
+          this.resultat += "\n";
+        } else {
+          console.log("nope >>>", complement, ">>>");
+        }
         break;
 
       case 'changer':
