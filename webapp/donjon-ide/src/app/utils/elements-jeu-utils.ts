@@ -273,7 +273,7 @@ export class ElementsJeuUtils {
     console.log("trouverElementJeu >>> listeEleJeu=", listeEleJeu);
 
 
-    let retVal: ElementJeu = null;
+    let retVal: ElementJeu | -1 = null;
 
 
     // remplacer les caractères doubles et les accents
@@ -293,7 +293,7 @@ export class ElementsJeuUtils {
       // si on a trouvé plusiers objets différents
     } else if (eleJeuTrouves.length > 1) {
       // TODO: ajouter des mots en plus
-
+      retVal = -1;
     }
 
     if (this.verbeux) {

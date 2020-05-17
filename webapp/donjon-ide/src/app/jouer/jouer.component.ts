@@ -49,7 +49,7 @@ export class JouerComponent implements OnInit {
               // interpréter le code
               const resultat = Compilateur.parseCode(this.codeSource);
               // générer le jeu
-              this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles);
+              this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions);
             } else {
               this.erreurs = ["Pas de code source dans le fichier."];
             }

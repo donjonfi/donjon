@@ -6,7 +6,7 @@ import { Verification } from './verification';
 export class Action {
 
   constructor(
-    public verbe: string,
+    public infinitif: string,
     public ceci: boolean,
     public cela: boolean,
     public cibleCeci: GroupeNominal = null,

@@ -41,8 +41,9 @@ export class Commandes {
 
       // TODO: objets dont l'intitulé comprend plusieurs mots !
       const objetTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.ici, true, false);
-      if (objetTrouve) {
-
+      if (objetTrouve === -1) {
+        return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+      } else if (objetTrouve) {
         if (this.verbeux) {
           console.log("l’ojet a été trouvé:", objetTrouve);
         }
@@ -231,8 +232,11 @@ export class Commandes {
       return this.deverrouiller(els);
     } else {
       const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
-      // porte trouvée
-      if (porte) {
+      // plusiers portes trouvées
+      if (porte === -1) {
+        return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+        // porte trouvée
+      } else if (porte) {
         // porte verrouillée
         if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
           return "C’est verrouillé.";
@@ -256,8 +260,10 @@ export class Commandes {
       return "Fermer quoi ?";
     } else {
       const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
-      // porte trouvée
-      if (porte) {
+      if (porte === -1) {
+        return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+        // porte trouvée
+      } else if (porte) {
         // porte verrouillée
         if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
           return "C’est verrouillé.";
@@ -299,7 +305,11 @@ export class Commandes {
     const eleJeuA = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true, true);
     const eleJeuB = this.eju.trouverElementJeu(elB, EmplacementElement.iciEtInventaire, true, true);
     // Les 2 objets ont été trouvés
-    if (eleJeuA && eleJeuB) {
+    if (eleJeuA === -1) {
+      return "J'ai trouvé plusieurs éléments correspondant à " + elA.nom + ". Pouvez-vous être plus précis ?";
+    } else if (eleJeuB === -1) {
+      return "J'ai trouvé plusieurs éléments correspondant à " + elB.nom + ". Pouvez-vous être plus précis ?";
+    } else if (eleJeuA && eleJeuB) {
       // 2x le même objet
       if (eleJeuA == eleJeuB) {
         return "Je ne peux pas l’utiliser sur " + (eleJeuA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
@@ -360,12 +370,11 @@ export class Commandes {
 
   utiliserSeul(infinitif: string, elA: GroupeNominal) {
 
-    let eleTrouve: ElementJeu;
     //todo: inclure les portes ou pas ?
-    eleTrouve = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true, true);
-
-    if (eleTrouve) {
-
+    const eleTrouve = this.eju.trouverElementJeu(elA, EmplacementElement.iciEtInventaire, true, true);
+    if (eleTrouve === -1) {
+      return "J'ai trouvé plusieurs éléments correspondant à " + elA.nom + ". Pouvez-vous être plus précis ?";
+    } else if (eleTrouve) {
       if (eleTrouve.type === TypeElement.animal || eleTrouve.type === TypeElement.humain) {
         return "Pas de ça ici !";
       } else if (eleTrouve.type == TypeElement.decor) {
@@ -398,7 +407,9 @@ export class Commandes {
     } else {
       // regarder dans les éléments de jeu
       const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
-      if (trouve) {
+      if (trouve === -1) {
+        retVal = "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+      } else if (trouve) {
 
         switch (trouve.type) {
           // Contenant
@@ -446,7 +457,9 @@ export class Commandes {
     } else {
       // regarder dans les éléments de jeu
       const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
-      if (trouve) {
+      if (trouve == -1) {
+        retVal = "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+      } else if (trouve) {
         if (trouve.description) {
           retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
         } else {

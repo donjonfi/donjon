@@ -1,3 +1,5 @@
+import { Condition, LienCondition } from '../models/compilateur/condition';
+
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 
@@ -60,7 +62,7 @@ export class PhraseUtils {
    */
   static readonly xPhraseSimplePronom = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
 
-  static decomposerCondition(condition: string) {
+  private static decomposerCondition(condition: string) {
     let els: ElementsPhrase = null;
     const resCondition = PhraseUtils.xCondition.exec(condition);
     if (resCondition) {
@@ -78,6 +80,20 @@ export class PhraseUtils {
 
     }
     return els;
+  }
+
+  public static getCondition(condition: string) {
+
+    // TODO: regarder les ET et les OU
+    // TODO: regarder les ()
+    // TODO: priorité des oppérateurs
+    const els = PhraseUtils.decomposerCondition(condition);
+    if (els) {
+      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement, els.sujetComplement);
+    } else {
+      console.warn("decomposerCondition: pas pu décomposer:", condition);
+      return null;
+    }
   }
 
   static decomposerCommande(commande: string) {

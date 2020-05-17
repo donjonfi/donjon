@@ -515,7 +515,7 @@ export class Compilateur {
       } else {
         let resultSiCondCons = PhraseUtils.xSeparerSiConditionConsequences.exec(conBruNettoyee);
         if (resultSiCondCons && !sousConsequences) {
-          const condition = Compilateur.getCondition(resultSiCondCons[1]);
+          const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
           const consequences = Compilateur.separerConsequences(resultSiCondCons[2], erreurs, true);
 
           instructions.push(new Instruction(null, condition, consequences, null));
@@ -539,7 +539,7 @@ export class Compilateur {
       let result = Compilateur.rRefuser.exec(cond.trim());
       if (result) {
         const typeRefuser = result[1]; // si uniquement pour l'instant
-        const condition = Compilateur.getCondition(result[2]);
+        const condition = PhraseUtils.getCondition(result[2]);
         if (!condition) {
           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
         }
@@ -576,7 +576,7 @@ export class Compilateur {
           break;
       }
 
-      const condition = Compilateur.getCondition(resultRegle[2]);
+      const condition = PhraseUtils.getCondition(resultRegle[2]);
 
       if (!condition) {
         erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
@@ -594,20 +594,6 @@ export class Compilateur {
       return nouvelleRegle; // trouvé une règle
     } else {
       return null; // rien trouvé
-    }
-  }
-
-  private static getCondition(condition: string) {
-
-    // TODO: regarder les ET et les OU
-    // TODO: regarder les ()
-    // TODO: priorité des oppérateurs
-    const els = PhraseUtils.decomposerCondition(condition);
-    if (els) {
-      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement);
-    } else {
-      console.warn("decomposerCondition: pas pu décomposer:", condition);
-      return null;
     }
   }
 
@@ -643,8 +629,8 @@ export class Compilateur {
       if (resultDescriptionAction) {
         const motCle = resultDescriptionAction[1].toLocaleLowerCase();
         const verbe = resultDescriptionAction[2].toLocaleLowerCase();
-        const ceci = resultDescriptionAction[3] == 'ceci';
-        const cela = resultDescriptionAction[4] == 'cela';
+        const ceci = resultDescriptionAction[3] === 'ceci';
+        const cela = resultDescriptionAction[4] === 'cela';
         let complement = resultDescriptionAction[5];
         // si phrase morcelée, rassembler les morceaux
         if (phrase.phrase.length > 1) {
@@ -654,7 +640,7 @@ export class Compilateur {
         }
         complement = complement.trim();
         // retrouver l'action correspondante
-        let action = actions.find(x => x.verbe === verbe && x.ceci == ceci && x.cela == cela);
+        let action = actions.find(x => x.infinitif === verbe && x.ceci == ceci && x.cela == cela);
         if (action) {
           switch (motCle) {
             case 'refuser':
@@ -686,8 +672,9 @@ export class Compilateur {
         let resultActionSimple = this.xActionSimple.exec(phrase.phrase[0]);
         // Trouvé action simple
         if (resultActionSimple) {
+
           let verbe = resultActionSimple[1].toLocaleLowerCase();
-          let ceci = resultActionSimple[3] !== null;
+          let ceci = resultActionSimple[3] !== undefined;
           let complement = resultActionSimple[5];
 
           // si phrase morcelée, rassembler les morceaux

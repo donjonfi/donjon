@@ -35,7 +35,7 @@
 <ul>
   <ng-template ngFor let-act [ngForOf]="actions">
     <li>
-      <b>{{act.verbe}}</b> {{act.ceci ? 'ceci': ''}} {{act.cela ? 'avec cela': ''}}
+      <b>{{act.infinitif}}</b> {{act.ceci ? 'ceci': ''}} {{act.cela ? 'avec cela': ''}}
       <ul>
         <li *ngIf="act.cibleCeci && act.cibleCeci.determinant != 'deux'">
           ceci : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}

@@ -325,7 +325,7 @@ export class OutilsCommandes {
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
       // TODO: vérifier le si
-      statut.siVrai = this.cond.siEstVrai(conditionLC);
+      statut.siVrai = this.cond.siEstVrai(conditionLC, null);
       retVal = statut.siVrai;
     } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
       retVal = false;

@@ -1,3 +1,4 @@
+import { Action } from '../compilateur/action';
 import { Auditeur } from '../jouer/auditeur';
 import { ElementJeu } from './element-jeu';
 import { Inventaire } from './inventaire';
@@ -32,7 +33,15 @@ export class Jeu {
    */
   auditeurs: Auditeur[] = [];
 
+  /**
+   * Règles ajoutées au jeu.
+   */
   regles: Regle[] = [];
+
+  /**
+   * Actions ajoutées au jeu.
+   */
+  actions: Action[] = [];
 
   /**
    * Objets du jeu en possession du joueur.

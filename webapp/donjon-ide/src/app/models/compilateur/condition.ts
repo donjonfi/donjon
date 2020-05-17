@@ -12,7 +12,8 @@ export class Condition {
     public sujet: GroupeNominal,
     public verbe: string,
     public negation: string,
-    public complement: string
+    public complement: string,
+    public sujetComplement: GroupeNominal,
   ) { }
 
   lien: Condition;

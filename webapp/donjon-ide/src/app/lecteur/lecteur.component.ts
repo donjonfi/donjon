@@ -1,7 +1,9 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/abreviations';
+import { Action } from '../models/compilateur/action';
 import { Commandes } from '../utils/commandes';
+import { ConditionsUtils } from '../utils/conditions-utils';
 import { Declancheur } from '../utils/declancheur';
 import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -34,18 +36,14 @@ export class LecteurComponent implements OnInit, OnChanges {
   private eju: ElementsJeuUtils;
 
   private dec: Declancheur;
+  private cond: ConditionsUtils;
 
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
-
   constructor() { }
 
-
-
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
@@ -54,6 +52,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.com = new Commandes(this.jeu, this.verbeux);
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
+      this.cond = new ConditionsUtils(this.jeu, this.verbeux);
 
       this.resultat += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
 
@@ -76,8 +75,6 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-
-
   private executerInstructions(instructions: Instruction[]): boolean {
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
@@ -95,8 +92,11 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
     // instruction conditionnelle
     if (instruction.condition) {
-      // TODO: instruction conditionnelle
-      console.warn("Instructions conditionnelles pas encore gérées...");
+      if (this.cond.siEstVrai(null, instruction.condition)) {
+        this.executerInstructions(instruction.instructionsSiConditionVerifiee);
+      } else {
+        this.executerInstructions(instruction.instructionsSiConditionPasVerifiee);
+      }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
@@ -119,11 +119,8 @@ export class LecteurComponent implements OnInit, OnChanges {
         // si la chaine se termine par un espace, ajouter un saut de ligne.
         if (complement.endsWith(' "')) {
           this.resultat += "\n";
-        } else {
-          console.log("nope >>>", complement, ">>>");
         }
         break;
-
       case 'changer':
         this.executerChanger(instruction);
         break;
@@ -183,7 +180,9 @@ export class LecteurComponent implements OnInit, OnChanges {
   ajouterInventaire(intitule: GroupeNominal) {
     if (intitule) {
       let objetTrouve = this.eju.trouverElementJeu(intitule, EmplacementElement.partout, true, false);
-      if (objetTrouve) {
+      if (objetTrouve === -1) {
+        console.warn("ajouterInventaire > plusieurs objets trouvés:", intitule);
+      } else if (objetTrouve) {
         const nouvelObjet = this.eju.prendreElementJeu(objetTrouve.id);
         let cible = nouvelObjet;
         // si l'inventaire contient déjà le même objet, augmenter la quantité
@@ -259,9 +258,11 @@ export class LecteurComponent implements OnInit, OnChanges {
       // compléter la commande
       const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
 
-      const result = this.doCommande(commandeComplete.trim());
       this.resultat += "\n > " + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ")") : '');
-      this.resultat += "\n" + result;
+      const result = this.doCommande(commandeComplete.trim());
+      if (result) {
+        this.resultat += "\n" + result;
+      }
       this.commande = "";
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
@@ -361,13 +362,89 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         default:
-          retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
+          const action = this.trouverActionPersonnalisee(els);
+          if (action === -1) {
+            retVal = "Je comprend « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
+          } else if (action) {
+            retVal = this.executerAction(action, els);
+          } else {
+            retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
+          }
           break;
       }
     } else {
       retVal = "Désolé, je n'ai pas compris « " + commande + " ».";
     }
     return retVal;
+  }
+
+
+  private executerAction(action: Action, els: ElementsPhrase) {
+    this.executerInstructions(action.instructions);
+    return "";
+  }
+
+  private trouverActionPersonnalisee(els: ElementsPhrase): Action | -1 {
+
+    let candidats: Action[] = [];
+    let resultat: Action | -1 = null;
+
+    // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
+    this.jeu.actions.forEach(action => {
+      // vérifier infinitif
+      if (els.infinitif === action.infinitif) {
+        resultat = -1; // le verbe est connu.
+        // vérifier sujet
+        if ((els.sujet && action.ceci) || (!els.sujet && !action.ceci)) {
+          // vérifier complément
+          if ((els.sujetComplement && action.cela) || (!els.sujetComplement && !action.cela)) {
+            candidats.push(action);
+          }
+        }
+      }
+    });
+
+    // console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
+
+    // TODO: prise en charge des sujets génériques (objet, humain, portes, ...)
+
+    // infinitif + sujet (+complément), vérifier que celui de la commande correspond
+    if (els.sujet) {
+      candidats.forEach(candidat => {
+        let candidatCorrespond = false;
+        // vérifier sujet
+        if (candidat.cibleCeci.nom == els.sujet.nom && candidat.cibleCeci.epithete == els.sujet.epithete) {
+          // s'il y a un complément
+          if (els.sujetComplement) {
+            // vérifier complément
+            if (candidat.cibleCela.nom == els.sujet.nom && candidat.cibleCela.epithete == els.sujetComplement.epithete) {
+              candidatCorrespond = true;
+            }
+            // sujet validé, pas de complément
+          } else {
+            candidatCorrespond = true;
+          }
+        }
+        if (candidatCorrespond) {
+          if (resultat === -1) {
+            resultat = candidat;
+          } else {
+            console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
+          }
+        }
+      });
+      // infinitif simple
+    } else {
+      if (candidats.length >= 0) {
+        resultat = candidats[0];
+        if (candidats.length > 1) {
+          console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
+        }
+      }
+    }
+
+    // console.warn("testerCommandePersonnalisee >>> resultat:", resultat);
+    return resultat;
   }
 
 }

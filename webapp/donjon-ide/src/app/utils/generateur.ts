@@ -1,3 +1,4 @@
+import { Action } from '../models/compilateur/action';
 import { Auditeur } from '../models/jouer/auditeur';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementJeu } from '../models/jeu/element-jeu';
@@ -14,7 +15,7 @@ import { Voisin } from '../models/jeu/voisin';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[]): Jeu {
+  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[]): Jeu {
 
     let indexElementJeu = 0;
     let jeu = new Jeu();
@@ -222,6 +223,12 @@ export class Generateur {
         default:
           break;
       }
+    });
+
+    // GÉNÉRER LES ACTIONS
+    // *******************
+    actions.forEach(action => {
+      jeu.actions.push(action);
     });
 
     return jeu;

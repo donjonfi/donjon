@@ -195,7 +195,7 @@ export class EditeurComponent implements OnInit {
       this.actions = resultat.actions;
       this.erreurs = resultat.erreurs;
       // générer le jeu
-      this.jeu = Generateur.genererJeu(this.monde, this.regles);
+      this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions);
       // commencer le jeu
       this.mode = "jeu";
     } else {
