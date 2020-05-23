@@ -1,11 +1,9 @@
-import { GroupeNominal } from '../commun/groupe-nominal';
+import { Evenement } from './evenement';
 import { Instruction } from '../compilateur/instruction';
 import { TypeRegle } from '../compilateur/type-regle';
 
 export class Auditeur {
   type: TypeRegle;
-  sujet: GroupeNominal;
-  verbe: string;
-  complement: string;
+  evenement: Evenement;
   instructions: Instruction[];
 }

@@ -9,10 +9,12 @@ import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
+import { Evenement } from '../models/jouer/evenement';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instruction } from '../models/compilateur/instruction';
 import { Jeu } from '../models/jeu/jeu';
 import { PhraseUtils } from '../utils/phrase-utils';
+import { Resultat } from '../models/jouer/resultat';
 
 @Component({
   selector: 'app-lecteur',
@@ -28,7 +30,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 10;
 
-  resultat: string = null;
+  sortieJoueur: string = null;
   commande = "";
   historiqueCommandes = new Array<string>();
   curseurHistorique = -1;
@@ -49,98 +51,118 @@ export class LecteurComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
-      this.resultat = "";
+      this.sortieJoueur = "";
       this.com = new Commandes(this.jeu, this.verbeux);
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);
 
-      this.resultat += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
+      this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
 
-      let evLeJeuCommence = new ElementsPhrase(new GroupeNominal('le', 'jeu'), 'commence', null, null);
+      let evCommencerJeu = new Evenement('commencer', 'jeu');
 
       // éxécuter les instructions AVANT le jeu commence
-      this.executerInstructions(this.dec.avant(evLeJeuCommence));
+      let resultatAvant = this.executerInstructions(this.dec.avant(evCommencerJeu));
+      this.sortieJoueur += resultatAvant.sortie;
 
       // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-      if (!this.executerInstructions(this.dec.remplacer(evLeJeuCommence))) {
+      let resultatRemplacer = this.executerInstructions(this.dec.remplacer(evCommencerJeu));
+      if (resultatRemplacer.nombre === 0) {
         // afficher où on est.
-        this.resultat += "\n" + this.com.ouSuisJe();
+        this.sortieJoueur += "\n" + this.com.ouSuisJe();
       }
 
       // éxécuter les instructions APRÈS le jeu commence
-      this.executerInstructions(this.dec.apres(evLeJeuCommence));
+      const resultatApres = this.executerInstructions(this.dec.apres(evCommencerJeu));
+      this.sortieJoueur += resultatApres.sortie;
 
     } else {
       console.warn("pas de jeu :(");
     }
   }
 
-  private executerInstructions(instructions: Instruction[]): boolean {
+  private executerInstructions(instructions: Instruction[]): Resultat {
+    let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
-        this.executerInstruction(ins);
+        const subResultat = this.executerInstruction(ins);
+        resultat.nombre += subResultat.nombre;
+        resultat.succes = (resultat.succes && subResultat.succes);
+        resultat.sortie += subResultat.sortie;
       });
-      return true;
-    } else {
-      return false;
     }
+    return resultat;
   }
 
-  private executerInstruction(instruction: Instruction) {
+  private executerInstruction(instruction: Instruction): Resultat {
+
+    let resultat = new Resultat(true, '', 1);
+    let sousResultat: Resultat;
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction);
     }
     // instruction conditionnelle
     if (instruction.condition) {
+
       if (this.cond.siEstVrai(null, instruction.condition)) {
-        this.executerInstructions(instruction.instructionsSiConditionVerifiee);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee);
       } else {
-        this.executerInstructions(instruction.instructionsSiConditionPasVerifiee);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee);
       }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
         //if (instruction.sujet == null && instruction.verbe) {
-        this.executerInfinitif(instruction.instruction);
+        sousResultat = this.executerInfinitif(instruction.instruction);
         // } else if (instruction.sujet) {
         // this.executerSujetVerbe(instruction);
       } else {
         console.warn("executerInstruction : pas d'infinitif :", instruction);
       }
     }
+    resultat.sortie += sousResultat.sortie;
+    return resultat;
   }
 
-  private executerInfinitif(instruction: ElementsPhrase) {
+  private executerInfinitif(instruction: ElementsPhrase): Resultat {
+    let resultat = new Resultat(true, '', 1);
+    let sousResultat: Resultat;
+
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         const complement = instruction.complement.trim();
-        this.resultat += "\n" + complement.slice(1, complement.length - 1).trim();
+        resultat.sortie += "\n" + complement.slice(1, complement.length - 1).trim();
         // si la chaine se termine par un espace, ajouter un saut de ligne.
         if (complement.endsWith(' "')) {
-          this.resultat += "\n";
+          resultat.sortie += "\n";
         }
         break;
       case 'changer':
-        this.executerChanger(instruction);
+        sousResultat = this.executerChanger(instruction);
+        resultat.succes = sousResultat.succes;
         break;
 
       default:
         console.warn("executerVerbe : pas compris instruction:", instruction);
         break;
     }
+
+    return resultat;
   }
 
-  private executerChanger(instruction: ElementsPhrase) {
+  private executerChanger(instruction: ElementsPhrase): Resultat {
+
+    let resultat = new Resultat(false, '', 1);
+
     if (instruction.sujet) {
       switch (instruction.sujet.nom.toLowerCase()) {
         case 'joueur':
-          this.executerJoueur(instruction);
+          resultat = this.executerJoueur(instruction);
           break;
 
         case 'inventaire':
-          this.executerInventaire(instruction);
+          resultat = this.executerInventaire(instruction);
           break;
 
         default:
@@ -148,7 +170,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           if (elementJeu === -1) {
             console.error("executerChanger: plusieurs éléments de jeu trouvés pour " + instruction.sujet);
           } else if (elementJeu) {
-            this.executerElementJeu(elementJeu, instruction);
+            resultat = this.executerElementJeu(elementJeu, instruction);
           } else {
             console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
           }
@@ -157,37 +179,46 @@ export class LecteurComponent implements OnInit, OnChanges {
     } else {
       console.error("executerChanger : pas de sujet, instruction:", instruction);
     }
+
+    return resultat;
   }
 
-  private executerJoueur(instruction: ElementsPhrase) {
+  private executerJoueur(instruction: ElementsPhrase): Resultat {
+    let resultat = new Resultat(false, '', 1);
+
     switch (instruction.verbe.toLowerCase()) {
       case 'se trouve':
-        this.com.outils.positionnerJoueur(instruction.complement);
+        resultat = this.com.outils.positionnerJoueur(instruction.complement);
         break;
       case 'possède':
-        this.ajouterInventaire(instruction.sujetComplement);
+        resultat = this.ajouterInventaire(instruction.sujetComplement);
         break;
 
       default:
-        console.warn("executerJoueur : pas compris verbe", instruction.verbe, instruction);
+        console.error("executerJoueur : pas compris verbe", instruction.verbe, instruction);
         break;
     }
+    return resultat;
   }
 
-  private executerInventaire(instruction: ElementsPhrase) {
+  private executerInventaire(instruction: ElementsPhrase): Resultat {
+    let resultat = new Resultat(false, '', 1);
+
     switch (instruction.verbe.toLowerCase()) {
       case 'contient':
-        this.ajouterInventaire(instruction.sujetComplement);
+        resultat = this.ajouterInventaire(instruction.sujetComplement);
         break;
 
       default:
+        console.error("executerInventaire : pas compris verbe", instruction.verbe, instruction);
         break;
     }
+    return resultat;
   }
 
-  private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase) {
+  private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
 
-    console.log("executerElementJeu:", instruction);
+    let resultat = new Resultat(true, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
       case 'est':
@@ -203,12 +234,17 @@ export class LecteurComponent implements OnInit, OnChanges {
         break;
 
       default:
+        resultat.succes = false;
         console.warn("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
         break;
     }
+    return resultat;
   }
 
-  ajouterInventaire(intitule: GroupeNominal) {
+  ajouterInventaire(intitule: GroupeNominal): Resultat {
+
+    let resultat = new Resultat(false, '', 1);
+
     if (intitule) {
       let objetTrouve = this.eju.trouverElementJeu(intitule, EmplacementElement.partout, true, false);
       if (objetTrouve === -1) {
@@ -224,13 +260,14 @@ export class LecteurComponent implements OnInit, OnChanges {
         } else {
           this.jeu.inventaire.objets.push(nouvelObjet);
         }
+        resultat.succes = true;
       } else {
         console.warn("ajouterInventaire > objet pas trouvé:", intitule);
       }
     } else {
       console.error("ajouterInventaire >>> intitulé est null.");
-
     }
+    return resultat;
   }
 
   /**
@@ -289,10 +326,10 @@ export class LecteurComponent implements OnInit, OnChanges {
       // compléter la commande
       const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
 
-      this.resultat += "\n > " + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ")") : '');
+      this.sortieJoueur += "\n > " + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ")") : '');
       const result = this.doCommande(commandeComplete.trim());
       if (result) {
-        this.resultat += "\n" + result;
+        this.sortieJoueur += "\n" + result;
       }
       this.commande = "";
       setTimeout(() => {
@@ -320,6 +357,10 @@ export class LecteurComponent implements OnInit, OnChanges {
     let retVal = null;
 
     if (els) {
+
+      const ceci = els.sujet ? els.sujet.nom : null;
+      const cela = els.sujetComplement ? els.sujetComplement.nom : null;
+      let evenement = new Evenement(els.infinitif, ceci, null, cela);
 
       switch (els.infinitif) {
 
@@ -349,9 +390,15 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         case "donner":
+          // avant la commande
+          const resultatAvant = this.executerInstructions(this.dec.avant(evenement));
+          retVal += resultatAvant.sortie;
           retVal = this.com.donner(els);
+          // après la commande
+          const resultatApres = this.executerInstructions(this.dec.apres(evenement));
+          retVal += resultatApres.sortie;
           break;
-          
+
         case "observer":
         case "regarder":
           retVal = this.com.regarder(els);
@@ -396,7 +443,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         case "effacer":
         case "ef": // effacer
-          this.resultat = "";
+          this.sortieJoueur = "";
           retVal = this.com.effacer();
           break;
 
@@ -404,6 +451,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           const action = this.trouverActionPersonnalisee(els);
           if (action === -1) {
             retVal = "Je comprend « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
+            console.warn("commande: ", els);
           } else if (action) {
             retVal = this.executerAction(action, els);
           } else {
@@ -419,8 +467,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
 
   private executerAction(action: Action, els: ElementsPhrase) {
-    this.executerInstructions(action.instructions);
-    return "";
+    const resultat = this.executerInstructions(action.instructions);
+    return resultat.sortie;
   }
 
   private trouverActionPersonnalisee(els: ElementsPhrase): Action | -1 {
@@ -474,7 +522,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       });
       // infinitif simple
     } else {
-      if (candidats.length >= 0) {
+      if (candidats.length > 0) {
         resultat = candidats[0];
         if (candidats.length > 1) {
           console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);

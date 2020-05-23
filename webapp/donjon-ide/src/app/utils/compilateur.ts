@@ -4,6 +4,8 @@ import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Evenement } from '../models/jouer/evenement';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instruction } from '../models/compilateur/instruction';
@@ -15,6 +17,7 @@ import { PositionSujetString } from '../models/compilateur/position-sujet';
 import { Propriete } from '../models/compilateur/propriete';
 import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
+import { StringUtils } from './string.utils';
 import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { TypeValeur } from '../models/compilateur/type-valeur';
@@ -88,7 +91,7 @@ export class Compilateur {
   // INSTRUCTION
 
   /** condition/événement -> avant|après|remplacer|si\(1) {condition}(2), {conséquences}(3) */
-  static readonly rAvantApresRemplacerSi = /^(avant|après|remplacer|si) (.+)(?:,|:)(.+)/i;
+  static readonly rAvantApresRemplacerSi = /^(avant|après|apres|remplacer|si) (.+)(?:,|:)(.+)/i;
   /** condition -> si(1) {condition}(2), {conséquence}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
 
@@ -560,29 +563,47 @@ export class Compilateur {
     if (resultRegle !== null) {
 
       let typeRegle: TypeRegle;
-      let motCle = resultRegle[1].toLowerCase();
+      let motCle = StringUtils.normaliserMot(resultRegle[1]);
+      let condition: Condition = null;
+      let evenement: Evenement = null;
+      let commande: ElementsPhrase = null;
+      console.warn("testerRegle >>> motCle=", motCle);
+
       switch (motCle) {
-        case 'quand':
         case 'si':
+          typeRegle = TypeRegle.si;
+          condition = PhraseUtils.getCondition(resultRegle[2]);
+          if (!condition) {
+            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
+          }
+          break;
+
+        case 'quand':
         case 'avant':
-        case 'après':
-        case 'remplacer':
+        case 'apres':
           typeRegle = TypeRegle[motCle];
+          evenement = PhraseUtils.getEvenement(resultRegle[2]);
+          if (!evenement) {
+            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement : " + resultRegle[2]);
+          }
+          break;
+
+        case 'remplacer':
+          typeRegle = TypeRegle.remplacer;
+          commande = PhraseUtils.getCommande(resultRegle[2]);
+          if (!commande) {
+            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : commande : " + resultRegle[2]);
+          }
           break;
 
         default:
+          erreurs.push(("00000" + phrase.ligne).slice(-5) + " : type règle : " + resultRegle[2]);
           console.error("tester regle: opérateur inconnu:", resultRegle[1]);
           typeRegle = TypeRegle.inconnu;
           break;
       }
 
-      const condition = PhraseUtils.getCondition(resultRegle[2]);
-
-      if (!condition) {
-        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
-      }
-
-      let nouvelleRegle = new Regle(typeRegle, condition, resultRegle[3]);
+      let nouvelleRegle = new Regle(typeRegle, condition, evenement, commande, resultRegle[3]);
       regles.push(nouvelleRegle);
 
       // si phrase morcelée, rassembler les morceaux

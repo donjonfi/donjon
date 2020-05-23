@@ -270,9 +270,7 @@ export class Generateur {
   static getAuditeur(regle: Regle) {
     let auditeur = new Auditeur();
     auditeur.type = regle.typeRegle;
-    auditeur.sujet = regle.condition.sujet;
-    auditeur.verbe = regle.condition.verbe;
-    auditeur.complement = regle.condition.complement;
+    auditeur.evenement = regle.evenement;
     auditeur.instructions = regle.instructions;
     return auditeur;
   }

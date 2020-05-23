@@ -7,6 +7,7 @@ import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
+import { Resultat } from '../models/jouer/resultat';
 import { StringUtils } from './string.utils';
 import { TypeElement } from '../models/commun/type-element.enum';
 
@@ -101,20 +102,28 @@ export class OutilsCommandes {
 
 
 
-  positionnerJoueur(position: string) {
+  positionnerJoueur(position: string): Resultat {
+
+    let resultat = new Resultat(true, '', 1);
+
     position = position.trim().replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
     // chercher la salle
     let sallesTrouvees = this.jeu.salles.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
     // si on n’a pas trouvé
     if (sallesTrouvees.length == 0) {
       console.error("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
+      resultat.succes = false;
       // si on a trouvé une salle
     } else if (sallesTrouvees.length == 1) {
       this.jeu.position = sallesTrouvees[0].id;
       // si on a trouvé plusieurs salles différentes
     } else if (sallesTrouvees.length > 1) {
       // TODO: ajouter des mots en plus
+      console.error("positionnerJoueur : plusieurs salles trouvées pour la position", position);
+      resultat.succes = false;
     }
+
+    return resultat;
   }
 
   afficherStatutPorte(porte: ElementJeu) {

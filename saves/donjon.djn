@@ -2,7 +2,7 @@
 
 -- Partie 1 - Devant le château.
 
-Avant le jeu commence:
+avant commencer le jeu:
 	dire "Bienvenue dans « Le château de la terreur » !";
 	dire "Ton objectif est de repartir avec le trésor.";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";

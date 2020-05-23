@@ -7,8 +7,9 @@
     <li>
       <ul>
         <li>Type: <b>{{re.typeRegle}}</b></li>
-        <li>Condition:
-          <ul *ngIf="re.condition">
+
+        <li *ngIf="re.condition">Condition :
+          <ul>
             <li>
               Sujet :{{re.condition.sujet.determinant ? ("["+re.condition.sujet.determinant.trim()+ "] ") : ""}}{{re.condition.sujet.nom}}{{(re.condition.sujet.epithete ? re.condition.sujet.epithete : '')}}
             </li>
@@ -16,6 +17,15 @@
             <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
           </ul>
         </li>
+
+        <li *ngIf="re.evenement">Évènement :
+          <ul>
+            <li>Infinitif : {{re.evenement.infinitif}}</li>
+            <li *ngIf="re.evenement.ceci">Ceci : {{re.evenement.ceci}}</li>
+            <li *ngIf="re.evenement.cela">Cela : {{re.evenement.cela}}</li>
+          </ul>
+        </li>
+
         <li>Conséquences:
           <ul>
             <li *ngFor="let ins of re.instructions; index as i">

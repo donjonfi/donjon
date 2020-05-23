@@ -1,5 +1,6 @@
 import { Auditeur } from '../models/jouer/auditeur';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Evenement } from '../models/jouer/evenement';
 import { Instruction } from '../models/compilateur/instruction';
 import { TypeRegle } from '../models/compilateur/type-regle';
 
@@ -34,44 +35,44 @@ export class Declancheur {
     });
   }
 
-  private retrouverInstructions(auditeurs: Auditeur[], evenement: ElementsPhrase): Instruction[] {
+  private retrouverInstructions(auditeurs: Auditeur[], evenement: Evenement): Instruction[] {
     let instructions = new Array<Instruction>();
     auditeurs.forEach(aud => {
       console.log(">>> check", aud);
-
-      if (aud.sujet.nom == evenement.sujet.nom) {
-        if (aud.verbe == evenement.verbe) {
+      if (aud.evenement.infinitif == evenement.infinitif) {
+        if ((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci)) {
           aud.instructions.forEach(ins => {
             instructions.push(ins);
           });
           if (this.verbeux) {
-            console.log(">>> sujet et verbe trouvés: ", aud.sujet, aud.verbe);
+            console.log(">>> infinitif et ceci trouvés: ", aud.evenement.infinitif, aud.evenement.ceci);
           }
         } else {
           if (this.verbeux) {
-            console.log(">>> sujet seul trouvé: ", aud.sujet);
+            console.log(">>> infinitif seul trouvé: ", aud.evenement.infinitif);
           }
         }
       }
+
     });
     return instructions;
   }
 
-  avant(evenement: ElementsPhrase) {
+  avant(evenement: Evenement) {
     if (this.verbeux) {
       console.log("Declancheur >>> AVANT", evenement);
     }
     return this.retrouverInstructions(this.auditeursAvant, evenement);
   }
 
-  apres(evenement: ElementsPhrase) {
+  apres(evenement: Evenement) {
     if (this.verbeux) {
       console.log("Declancheur >>> APRÈS", evenement);
     }
     return this.retrouverInstructions(this.auditeursApres, evenement);
   }
 
-  remplacer(evenement: ElementsPhrase) {
+  remplacer(evenement: Evenement) {
     if (this.verbeux) {
       console.log("Declancheur >>> REMPLACER", evenement);
     }

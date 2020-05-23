@@ -1,6 +1,7 @@
 import { Condition, LienCondition } from '../models/compilateur/condition';
 
 import { ElementsPhrase } from '../models/commun/elements-phrase';
+import { Evenement } from '../models/jouer/evenement';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 
 export class PhraseUtils {
@@ -17,9 +18,9 @@ export class PhraseUtils {
    * - utiliser la clé rouge avec la porte verte
    * - donner la pièce au pirate
    * - jeter l’épée
-   * => utiliser(1) la(2) clé(3) rouge(4) sur(5) la(6) porte(7) verte(8)
+   * => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+)(?: (\S+))?(?: (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+)(?: (\S+)|))?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+)(?: (\S+))?( (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+)(?: (\S+)|))?)?$/i;
   /**
    * il y a aussi des commandes spéciales:
    * - position
@@ -32,11 +33,11 @@ export class PhraseUtils {
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si |avant |après )?((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?$/i;
   /**
    * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
    */
-  static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
+  static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
 
   /**
    * si (condition)(1) :|, (consequences)(2)
@@ -71,7 +72,7 @@ export class PhraseUtils {
       const verbe = resCondition[5];
       const negation = resCondition[6];
       const compl = resCondition[7];
-      els = new ElementsPhrase(sujet, verbe, negation, compl);
+      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
 
       // décomposer le complément si possible
       const resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
@@ -97,21 +98,45 @@ export class PhraseUtils {
     }
   }
 
+  public static getCommande(commande: string) {
+    const els = PhraseUtils.decomposerCommande(commande);
+    if (els) {
+      return els;
+    } else {
+      console.warn("getCommande >> decomposerCommande: pas pu décomposer:", commande);
+      return null;
+    }
+  }
+
+  public static getEvenement(evenement: string) {
+    // soit c’est une commande
+    let els = PhraseUtils.decomposerCommande(evenement);
+
+    console.error('getEvenement: evenement=', evenement, 'els=', els);
+    
+
+    // si on a trouvé une formulation correcte
+    if (els) {
+      return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null, (els.sujetComplement ? els.sujetComplement.nom : null));
+    } else {
+      console.warn("getEvenement >> decomposerCommande: pas pu décomposer:", evenement);
+      return null;
+    }
+  }
+
   static decomposerCommande(commande: string) {
-    // 
     let els: ElementsPhrase = null;
     let res = PhraseUtils.xCommandeSpeciale.exec(commande);
     if (res) {
-      els = new ElementsPhrase(null, null, null, null);
-      els.infinitif = res[1]; // Ce n'est pas un infinitif mais bon...
+      // Ce n'est pas un infinitif mais bon...
+      els = new ElementsPhrase(res[1], null, null, null, null);
     } else {
       res = PhraseUtils.xCommandeInfinitif.exec(commande);
       if (res) {
         const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
-        els = new ElementsPhrase(sujet, null, null, null);
-        els.infinitif = res[1];
-        els.preposition = res[5] ? res[5] : null;
-        els.sujetComplement = res[7] ? new GroupeNominal(res[6], res[7], res[8] ? res[8] : null) : null;
+        els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
+        els.preposition = res[6] ? res[6] : null;
+        els.sujetComplement = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
       }
     }
     return els;
@@ -125,8 +150,7 @@ export class PhraseUtils {
     // infinitif, complément
     let resInfinitifCompl = PhraseUtils.xInstruction.exec(instruction);
     if (resInfinitifCompl) {
-      els = new ElementsPhrase(null, null, null, resInfinitifCompl[2]);
-      els.infinitif = resInfinitifCompl[1];
+      els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
 
       // décomposer ce qui suit l'infinitif si possible
       let resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
@@ -145,57 +169,4 @@ export class PhraseUtils {
     return els;
   }
 
-
-  // static ancienDecomposerPhrase(phrase: string) {
-  //   let el: ElementsPhrase = null;
-  //   const regexIDSVC = /^(?:(?:(\S+(?:ir|er|re))|si) )?(le |la |les |l'|du |de la|des |un |une )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
-  //   const regexPSVC = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
-  //   const regexIC = /^(\S+(?:ir|er|re)) (.+|)$/i;
-  //   // Déterminant, Sujet, Verbe, Complément
-  //   const resultDSVC = regexIDSVC.exec(phrase);
-  //   if (resultDSVC) {
-  //     el = new ElementsPhrase(null, resultDSVC[2], resultDSVC[3], resultDSVC[4], resultDSVC[5]);
-  //     el.infinitif = resultDSVC[1];
-  //     // Pronom, Sujet, Verbe, Complément
-  //   } else {
-  //     const resultPSVC = regexPSVC.exec(phrase);
-  //     if (resultPSVC) {
-  //       el = new ElementsPhrase(resultPSVC[1], null, resultPSVC[2], resultPSVC[3], resultPSVC[4]);
-  //     } else {
-  //       // infinitif, complément
-  //       const resultIC = regexIC.exec(phrase);
-  //       if (resultIC) {
-  //         el = new ElementsPhrase(null, null, resultIC[2]);
-  //         el.infinitif = resultIC[1];
-  //       }
-  //     }
-  //   }
-
-  //   if (el) {
-  //     // nettoyer les valeurs
-  //     if (el.determinant) {
-  //       el.determinant = el.determinant.toLowerCase();
-  //     }
-  //     if (el.pronom) {
-  //       el.pronom = el.pronom.toLowerCase();
-  //     }
-  //     if (el.sujet) {
-  //       el.sujet = el.sujet.toLowerCase().trim();
-  //     }
-  //     if (el.verbe) {
-  //       el.verbe = el.verbe.toLowerCase().trim();
-  //     }
-  //     if (el.infinitif) {
-  //       el.infinitif = el.infinitif.toLowerCase().trim();
-  //     }
-  //     if (el.complement) {
-  //       // ne PAS changer la casse, c’est peut-être un texte à conserver tel quel !
-  //       el.complement = el.complement.trim();
-  //     }
-  //   }
-
-  //   console.log("decomposerPhrase >>> phrase:", phrase, "el:", el);
-
-  //   return el;
-  // }
 }

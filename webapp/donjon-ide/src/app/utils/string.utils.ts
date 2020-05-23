@@ -28,9 +28,9 @@ export class StringUtils {
         // transformer caractères spéciaux
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
-        .replace(/éèêë/g, 'e')
+        .replace(/(é|è|ê|ë)/g, 'e')
         .replace(/ï/g, 'i')
-        .replace(/àä/g, 'a')
+        .replace(/(à|ä)/g, 'a')
         .replace(/ç/g, 'c')
         // retirer déterminants
         .replace(/^(un |une |des |le |la |l'|les )/, '');

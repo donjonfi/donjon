@@ -259,9 +259,6 @@ export class ElementsJeuUtils {
       let elementsEnPlus: ElementJeu[] = [];
       listeEleJeu.forEach(el => {
 
-        console.warn("TrouverElelementJeu >>> inclureContenu > el:", el);
-
-
         if (el.type == TypeElement.support) {
           elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
         } else if (el.type == TypeElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé"))) {
