@@ -104,6 +104,52 @@ export class Commandes {
     }
   }
 
+  jeter(els: ElementsPhrase) {
+    const objetTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.inventaire, true, false);
+    if (objetTrouve === -1) {
+      return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+    } else if (objetTrouve) {
+      const result = this.jeu.inventaire.objets.splice(this.jeu.inventaire.objets.findIndex(x => x.id === objetTrouve.id), 1);
+      this.eju.curSalle.inventaire.objets.push(result[0]);
+      return "Vous jetez ça.";
+    } else {
+      return "Je ne possède pas ça.";
+    }
+  }
+
+  donner(els: ElementsPhrase) {
+
+    if (els.sujetComplement == null) {
+      return "Donner ça à qui ?";
+    } else {
+      // trouver l’élément à donner
+      const elementTrouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.inventaire, true, false);
+      if (elementTrouve === -1) {
+        return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
+      } else if (elementTrouve) {
+
+        // trouver le destinataire
+        const destinataireTrouve = this.eju.trouverElementJeu(els.sujetComplement, EmplacementElement.ici, false, false);
+
+        if (destinataireTrouve === -1) {
+          return " J’ai trouvé plusieurs éléments correspondants à " + els.sujetComplement.nom + ". Pouvez-vous être plus précis ?";
+        } else if (destinataireTrouve) {
+          const result = this.jeu.inventaire.objets.splice(this.jeu.inventaire.objets.findIndex(x => x.id === elementTrouve.id), 1);
+          destinataireTrouve.inventaire.objets.push(result[0]);
+          return "Vous donnez ça.";
+        } else {
+          return "Je ne vois pas le destinataire.";
+        }
+
+
+      } else {
+        return "Je ne possède pas ça.";
+      }
+    }
+
+
+  }
+
   aller(els: ElementsPhrase) {
 
     let destination: string;

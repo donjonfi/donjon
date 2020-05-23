@@ -5,6 +5,7 @@ import { Action } from '../models/compilateur/action';
 import { Commandes } from '../utils/commandes';
 import { ConditionsUtils } from '../utils/conditions-utils';
 import { Declancheur } from '../utils/declancheur';
+import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
@@ -143,7 +144,14 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         default:
-          console.warn("executerChanger : pas compris instruction:", instruction);
+          let elementJeu = this.eju.trouverElementJeu(instruction.sujet, EmplacementElement.partout, true, true);
+          if (elementJeu === -1) {
+            console.error("executerChanger: plusieurs éléments de jeu trouvés pour " + instruction.sujet);
+          } else if (elementJeu) {
+            this.executerElementJeu(elementJeu, instruction);
+          } else {
+            console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
+          }
           break;
       }
     } else {
@@ -173,6 +181,29 @@ export class LecteurComponent implements OnInit, OnChanges {
         break;
 
       default:
+        break;
+    }
+  }
+
+  private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase) {
+
+    console.log("executerElementJeu:", instruction);
+
+    switch (instruction.verbe.toLowerCase()) {
+      case 'est':
+        // retirer un état
+        if (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus') {
+          console.log("executerElementJeu: retirer l’état ", instruction.complement);
+          ElementsJeuUtils.retirerEtat(element, instruction.complement, null);
+          // ajouter un état
+        } else {
+          console.log("executerElementJeu: ajouter l’état ", instruction.complement);
+          ElementsJeuUtils.ajouterEtat(element, instruction.complement);
+        }
+        break;
+
+      default:
+        console.warn("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
         break;
     }
   }
@@ -313,6 +344,14 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.prendre(els);
           break;
 
+        case "jeter":
+          retVal = this.com.jeter(els);
+          break;
+
+        case "donner":
+          retVal = this.com.donner(els);
+          break;
+          
         case "observer":
         case "regarder":
           retVal = this.com.regarder(els);

@@ -15,10 +15,11 @@ export class PhraseUtils {
    * - effacer
    * - utiliser la clé rouge avec la porte
    * - utiliser la clé rouge avec la porte verte
-   *
+   * - donner la pièce au pirate
+   * - jeter l’épée
    * => utiliser(1) la(2) clé(3) rouge(4) sur(5) la(6) porte(7) verte(8)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+)(?: (\S+)|)(?: (avec|sur) (le |la |les |l'|du |de la|des |un |une |au |à l'|à l’)?(\S+)(?: (\S+)|))?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+)(?: (\S+))?(?: (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+)(?: (\S+)|))?)?$/i;
   /**
    * il y a aussi des commandes spéciales:
    * - position

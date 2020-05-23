@@ -255,9 +255,13 @@ export class ElementsJeuUtils {
     }
 
     // ajouter le contenu des supports et des contenants ouverts
-    if (inclureContenu && listeEleJeu.length > 0) {
+    if (inclureContenu && emplacement != EmplacementElement.partout && listeEleJeu.length > 0) {
       let elementsEnPlus: ElementJeu[] = [];
       listeEleJeu.forEach(el => {
+
+        console.warn("TrouverElelementJeu >>> inclureContenu > el:", el);
+
+
         if (el.type == TypeElement.support) {
           elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
         } else if (el.type == TypeElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé"))) {
