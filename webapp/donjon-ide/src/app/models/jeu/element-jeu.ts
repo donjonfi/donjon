@@ -1,8 +1,8 @@
 import { Capacite } from '../compilateur/capacite';
+import { ClasseElement } from '../commun/type-element.enum';
 import { Genre } from '../commun/genre.enum';
 import { Inventaire } from './inventaire';
 import { Nombre } from '../commun/nombre.enum';
-import { TypeElement } from '../commun/type-element.enum';
 
 export class ElementJeu {
 
@@ -12,15 +12,15 @@ export class ElementJeu {
     /**
      * Type de l’élément
      * - Objet
-     * - Salle
+     * - Lieu
      * - Porte
-     * - Humain
+     * - Personne
      * - Animal
      * - Contenant
      * - Support
      * - …
      */
-    public type: TypeElement,
+    public type: ClasseElement,
     /** Déterminant de l’élément */
     public determinant: string,
     /** Nom de l’élément */

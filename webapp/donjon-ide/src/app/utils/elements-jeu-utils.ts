@@ -1,3 +1,4 @@
+import { ClasseElement } from '../models/commun/type-element.enum';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
@@ -5,7 +6,6 @@ import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { StringUtils } from './string.utils';
-import { TypeElement } from '../models/commun/type-element.enum';
 
 export class ElementsJeuUtils {
 
@@ -168,29 +168,33 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  get curSalle() {
-    // TODO: retenir la salle
-    const retVal = this.jeu.salles.find(x => x.id === this.jeu.position);
+  get curLieu() {
+    // TODO: retenir le lieu
+    const retVal = this.jeu.lieux.find(x => x.id === this.jeu.position);
     if (retVal) {
-      // la salle a été visité par le joueur
+      // le lieu a été visité par le joueur
       retVal.visite = true;
     } else {
-      console.warn("Pas trouvé la curSalle:", this.jeu.position);
+      console.warn("Pas trouvé la curLieu:", this.jeu.position);
     }
     return retVal;
   }
 
-  getSalle(index: number) {
-    return this.jeu.salles.find(x => x.id === index);
+  getLieu(index: number) {
+    return this.jeu.lieux.find(x => x.id === index);
   }
 
   getPorte(index: number) {
     return this.jeu.elements.find(x => x.id === index);
   }
 
-  getVoisins(loc: Localisation, type: TypeElement) {
-    let found = this.curSalle.voisins.find(x => x.type === type && x.localisation === loc);
+  getVoisins(loc: Localisation, type: ClasseElement) {
+    let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc);
     return found ? found.id : -1;
+  }
+
+  getPrecisionTypeElement(typeElement: ClasseElement) {
+    
   }
 
   trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean): ElementJeu | -1 {
@@ -199,13 +203,13 @@ export class ElementsJeuUtils {
 
     switch (emplacement) {
 
-      // chercher dans la salle actuelle
+      // chercher dans le lieu actuel
       case EmplacementElement.ici:
-        // inventaire de la salle actuelle
-        listeEleJeu = listeEleJeu.concat(this.curSalle.inventaire.objets);
+        // inventaire de le lieu actuel
+        listeEleJeu = listeEleJeu.concat(this.curLieu.inventaire.objets);
         // ajouter les portes adjacentes
         if (inclurePortes) {
-          const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
+          const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseElement.porte).map(x => x.id);
           portesVisiblesID.forEach(porteID => {
             listeEleJeu.push(this.getPorte(porteID));
           });
@@ -217,12 +221,12 @@ export class ElementsJeuUtils {
         listeEleJeu = this.jeu.inventaire.objets;
         break;
 
-      // chercher dans la salle actuelle et dans l’inventaire du joueur
+      // chercher dans le lieu actuel et dans l’inventaire du joueur
       case EmplacementElement.iciEtInventaire:
-        listeEleJeu = listeEleJeu.concat(this.curSalle.inventaire.objets);
+        listeEleJeu = listeEleJeu.concat(this.curLieu.inventaire.objets);
         // ajouter les portes adjacentes
         if (inclurePortes) {
-          const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
+          const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseElement.porte).map(x => x.id);
           portesVisiblesID.forEach(porteID => {
             listeEleJeu.push(this.getPorte(porteID));
           });
@@ -238,13 +242,13 @@ export class ElementsJeuUtils {
           listeEleJeu = listeEleJeu.concat(this.jeu.elements);
           // ne pas inclure les portes
         } else {
-          listeEleJeu = this.jeu.elements.filter(x => x.type !== TypeElement.porte);
+          listeEleJeu = this.jeu.elements.filter(x => x.type !== ClasseElement.porte);
         }
         break;
 
       case EmplacementElement.portes:
         listeEleJeu = new Array<ElementJeu>();
-        const portesVisiblesID = this.curSalle.voisins.filter(x => x.type === TypeElement.porte).map(x => x.id);
+        const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseElement.porte).map(x => x.id);
         portesVisiblesID.forEach(porteID => {
           listeEleJeu.push(this.getPorte(porteID));
         });
@@ -259,9 +263,9 @@ export class ElementsJeuUtils {
       let elementsEnPlus: ElementJeu[] = [];
       listeEleJeu.forEach(el => {
 
-        if (el.type == TypeElement.support) {
+        if (el.type == ClasseElement.support) {
           elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
-        } else if (el.type == TypeElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé"))) {
+        } else if (el.type == ClasseElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé"))) {
           elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
         }
       });
@@ -307,20 +311,20 @@ export class ElementsJeuUtils {
     let retVal: ElementJeu = null;
     let listeObjets: ElementJeu[] = null;
     let indexEleJeu = -1;
-    // on recherche en priorité l'objet dans la salle actuelle
-    if (this.curSalle) {
-      listeObjets = this.curSalle.inventaire.objets;
+    // on recherche en priorité l'objet dans le lieu actuel
+    if (this.curLieu) {
+      listeObjets = this.curLieu.inventaire.objets;
       indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
 
-      // si pas trouvé dans l’inventaire de la salle, regarder dans d’inventaire des contenants de la salle
+      // si pas trouvé dans l’inventaire du lieu, regarder dans d’inventaire des contenants de le lieu
       if (indexEleJeu == -1) {
         let supportsEtContenants: ElementJeu[] = [];
         listeObjets.forEach(el => {
           // pas besoin de continuer à chercher si déjà trouvé
           if (indexEleJeu == -1) {
             // si on à affaire à un support ou un contenant, regarder leur inventaire
-            if ((el.type == TypeElement.support) ||
-              (el.type == TypeElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé")))) {
+            if ((el.type == ClasseElement.support) ||
+              (el.type == ClasseElement.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé")))) {
               indexEleJeu = el.inventaire.objets.findIndex(x => x.id == eleJeuID);
               // trouvé
               if (indexEleJeu != -1) {

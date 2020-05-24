@@ -65,8 +65,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "ceci|cela|ici"
         }, {
           token: "storage.type",
-          regex: "une (salle|clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-            "des (salles|clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
+          regex: "une (clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+            "des (clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
         }, {
           // token: "support.variable",
           token: "variable.parameter",

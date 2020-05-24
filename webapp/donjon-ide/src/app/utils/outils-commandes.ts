@@ -1,5 +1,6 @@
 import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
 
+import { ClasseElement } from '../models/commun/type-element.enum';
 import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
@@ -9,7 +10,6 @@ import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Resultat } from '../models/jouer/resultat';
 import { StringUtils } from './string.utils';
-import { TypeElement } from '../models/commun/type-element.enum';
 
 export class OutilsCommandes {
 
@@ -107,19 +107,19 @@ export class OutilsCommandes {
     let resultat = new Resultat(true, '', 1);
 
     position = position.trim().replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
-    // chercher la salle
-    let sallesTrouvees = this.jeu.salles.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
+    // chercher le lieu
+    let lieuxTrouves = this.jeu.lieux.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
     // si on n’a pas trouvé
-    if (sallesTrouvees.length == 0) {
-      console.error("positionnerJoueur : pas pu trouver la salle correspondant à la position", position);
+    if (lieuxTrouves.length == 0) {
+      console.error("positionnerJoueur : pas pu trouver le lieu correspondant à la position", position);
       resultat.succes = false;
-      // si on a trouvé une salle
-    } else if (sallesTrouvees.length == 1) {
-      this.jeu.position = sallesTrouvees[0].id;
-      // si on a trouvé plusieurs salles différentes
-    } else if (sallesTrouvees.length > 1) {
+      // si on a trouvé un lieu
+    } else if (lieuxTrouves.length === 1) {
+      this.jeu.position = lieuxTrouves[0].id;
+      // si on a trouvé plusieurs lieux différents
+    } else if (lieuxTrouves.length > 1) {
       // TODO: ajouter des mots en plus
-      console.error("positionnerJoueur : plusieurs salles trouvées pour la position", position);
+      console.error("positionnerJoueur : plusieurs lieux trouvés pour la position", position);
       resultat.succes = false;
     }
 
@@ -130,7 +130,7 @@ export class OutilsCommandes {
     let retVal = "";
     if (!porte) {
       console.error("afficherStatutPorte >> porte pas définie");
-    } else if (porte.type !== TypeElement.porte) {
+    } else if (porte.type !== ClasseElement.porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
       let ouvrable = ElementsJeuUtils.possedeCetEtat(porte, 'ouvrable');
@@ -163,15 +163,15 @@ export class OutilsCommandes {
 
 
 
-  afficherCurSalle() {
-    if (this.eju.curSalle) {
+  afficherCurLieu() {
+    if (this.eju.curLieu) {
       return "—————————————————\n" +
-        this.eju.curSalle.intitule
+        this.eju.curLieu.intitule
         + "\n—————————————————\n"
-        + (this.eju.curSalle.description ? (this.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription) + "\n") : "")
+        + (this.eju.curLieu.description ? (this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
     } else {
-      console.warn("Pas trouvé de curSalle :(");
+      console.warn("Pas trouvé de curLieu :(");
       return "Je suis où moi ? :(";
     }
 
@@ -180,11 +180,11 @@ export class OutilsCommandes {
   afficherSorties() {
     let retVal: string;
 
-    if (this.eju.curSalle.voisins.length > 0) {
+    if (this.eju.curLieu.voisins.length > 0) {
       retVal = "Sorties :";
-      this.eju.curSalle.voisins.forEach(voisin => {
-        if (voisin.type == TypeElement.salle) {
-          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curSalle.id, voisin.id));
+      this.eju.curLieu.voisins.forEach(voisin => {
+        if (voisin.type == ClasseElement.lieu) {
+          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
         }
       });
     } else {
@@ -225,10 +225,10 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  afficherObjetsCurSalle() {
+  afficherObjetsCurLieu() {
     let retVal: string;
 
-    let objets = this.eju.curSalle.inventaire.objets.filter(x => x.quantite !== 0);
+    let objets = this.eju.curLieu.inventaire.objets.filter(x => x.quantite !== 0);
 
     if (objets.length == 0) {
       retVal = "\nJe ne vois pas d’objet ici.";
@@ -241,34 +241,34 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  afficherLocalisation(localisation: Localisation, curSalleIndex: number, voisinIndex: number) {
+  afficherLocalisation(localisation: Localisation, curLieuIndex: number, voisinIndex: number) {
     let retVal: string = null;
-    let salle = this.eju.getSalle(voisinIndex);
-    let salleIntitulle = salle.intitule;
+    let lieu = this.eju.getLieu(voisinIndex);
+    let intituleLieu = lieu.intitule;
     switch (localisation) {
       case Localisation.nord:
-        retVal = "nord (n)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        retVal = "nord (n)" + (lieu.visite ? (" − " + intituleLieu) : '');
         break;
       case Localisation.sud:
-        retVal = "sud (s) " + (salle.visite ? (" − " + salleIntitulle) : '');
+        retVal = "sud (s) " + (lieu.visite ? (" − " + intituleLieu) : '');
         break;
       case Localisation.est:
-        retVal = "est (e)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        retVal = "est (e)" + (lieu.visite ? (" − " + intituleLieu) : '');
         break;
       case Localisation.ouest:
-        retVal = "ouest (o)" + (salle.visite ? (" − " + salleIntitulle) : '');
+        retVal = "ouest (o)" + (lieu.visite ? (" − " + intituleLieu) : '');
         break;
       case Localisation.bas:
-        retVal = "descendre (de) − " + salleIntitulle;
+        retVal = "descendre (de) − " + intituleLieu;
         break;
       case Localisation.haut:
-        retVal = "monter (mo) − " + salleIntitulle;
+        retVal = "monter (mo) − " + intituleLieu;
         break;
       case Localisation.exterieur:
-        retVal = "sortir (so) − " + salleIntitulle;
+        retVal = "sortir (so) − " + intituleLieu;
         break;
       case Localisation.interieur:
-        retVal = "entrer (en) − " + salleIntitulle;
+        retVal = "entrer (en) − " + intituleLieu;
         break;
 
       default:

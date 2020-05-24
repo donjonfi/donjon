@@ -1,0 +1,22 @@
+"Commandes de base"
+
+prendre est une action.
+
+exécuter prendre:
+  dire "prendre quoi ?".
+
+prendre ceci est une action qui concerne un objet visible.
+
+refuser prendre ceci:
+  si ceci est possédé, dire "Vous l’avez déjà.";
+  si ceci est fixé, dire "C'est fixé.";
+  si ceci est une personne, dire "Dites-donc !";
+  si ceci est un animal, dire "Ça ne me parait pas très prudent.";
+  si ceci est un décor, dire "Je préfère ne pas m’encombrer avec ça.".
+
+exécuter prendre ceci:
+  déplacer ceci vers inventaire.
+  
+finaliser prendre ceci:
+  dire "[ceci] a été ajouté[accord ceci] à votre inventaire.";
+  

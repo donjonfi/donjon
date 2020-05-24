@@ -1,10 +1,10 @@
 import { Capacite } from './capacite';
+import { ClasseElement } from '../commun/type-element.enum';
 import { ElementDonjon } from './element-donjon';
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
 import { Propriete } from './propriete';
-import { TypeElement } from '../commun/type-element.enum';
 
 export class ElementGenerique implements ElementDonjon {
 
@@ -20,7 +20,7 @@ export class ElementGenerique implements ElementDonjon {
     public determinant: string,
     public nom: string,
     public intituleType: string,
-    public type: TypeElement,
+    public type: ClasseElement,
     public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,

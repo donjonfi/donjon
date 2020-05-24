@@ -2,6 +2,7 @@ import { Condition, LienCondition } from '../models/compilateur/condition';
 
 import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
+import { ClasseElement } from '../models/commun/type-element.enum';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -18,7 +19,6 @@ import { Propriete } from '../models/compilateur/propriete';
 import { Regle } from '../models/compilateur/regle';
 import { ResultatCompilation } from '../models/compilateur/resultat-compilation';
 import { StringUtils } from './string.utils';
-import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { TypeValeur } from '../models/compilateur/type-valeur';
 import { Verification } from '../models/compilateur/verification';
@@ -82,6 +82,10 @@ export class Compilateur {
    * ex: Examiner est une action qui concerne un objet visible.
    */
   static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  /**
+   * nouvelle action spéciale => mot_clé (1) est une action spéciale.
+   */
+  // static readonly xActionSpeciale = /^(\S+) est une action spéciale(?: )?:(.+)?$/i;
   /** Le joueur peut verbe(1) [déterminant(2) nom(3) epithete(4)]: instructions(5) */
   static readonly xActionSimple = /^Le joueur peut ((?:se )?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+)(?: (\S+))?)?:(.+)?$/i;
 
@@ -200,8 +204,8 @@ export class Compilateur {
     let result: RegExpExecArray;
 
     // ajouter le joueur au monde
-    elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", TypeElement.joueur, null, Genre.m, Nombre.s, 1, null));
-    elementsGeneriques.push(new ElementGenerique("l’", "inventaire", "inventaire", TypeElement.inventaire, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", ClasseElement.joueur, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("l’", "inventaire", "inventaire", ClasseElement.inventaire, null, Genre.m, Nombre.s, 1, null));
 
     phrases.forEach(phrase => {
 
@@ -280,7 +284,7 @@ export class Compilateur {
                 if (result !== null) {
                   // définir type de l'élément précédent
                   if (result[2] && result[2].trim() !== '') {
-                    dernierElementGenerique.type = Compilateur.getTypeElement(result[2]);
+                    dernierElementGenerique.type = Compilateur.getClasseElement(result[2]);
                   }
                   // attributs de l'élément précédent
                   if (result[3] && result[3].trim() !== '') {
@@ -425,35 +429,33 @@ export class Compilateur {
     elementsGeneriques.forEach(el => {
 
       switch (el.type) {
-        case TypeElement.salle:
-          monde.salles.push(el);
+        case ClasseElement.lieu:
+          monde.lieux.push(el);
           break;
 
-        case TypeElement.porte:
+        case ClasseElement.porte:
           monde.portes.push(el);
           break;
 
-        case TypeElement.joueur:
+        case ClasseElement.joueur:
           monde.joueurs.push(el);
           break;
 
-        case TypeElement.inventaire:
+        case ClasseElement.inventaire:
           monde.inventaires.push(el);
           break;
 
-        case TypeElement.objet:
-        case TypeElement.decor:
-        case TypeElement.contenant:
-        case TypeElement.support:
-        case TypeElement.animal:
-        case TypeElement.humain:
-          // case TypeElement.inconnu:
-          // case TypeElement.aucun:
+        case ClasseElement.objet:
+        case ClasseElement.decor:
+        case ClasseElement.contenant:
+        case ClasseElement.support:
+        case ClasseElement.animal:
+        case ClasseElement.personne:
           monde.objets.push(el);
           break;
 
-        case TypeElement.aucun:
-        case TypeElement.inconnu:
+        case ClasseElement.aucun:
+        case ClasseElement.inconnu:
           monde.aucuns.push(el);
           break;
 
@@ -645,7 +647,16 @@ export class Compilateur {
       }
       actions.push(action);
       return action; // nouvelle action
-    } else {
+    }
+    // else {
+    //   let resultActionSpeciale = Compilateur.xActionSpeciale.exec(phrase.phrase[0]);
+    //   if (resultActionSpeciale) {
+    //     let action = new Action(resultActionSpeciale[1], null, null);
+    //     actions.push(action);
+    //     return action;
+    //   } 
+
+    else {
       let resultDescriptionAction = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
       if (resultDescriptionAction) {
         const motCle = resultDescriptionAction[1].toLocaleLowerCase();
@@ -718,7 +729,8 @@ export class Compilateur {
           return null; // rien trouvé
         }
       }
-    }
+    } 
+    // }
   }
 
   // Élement simple non positionné
@@ -729,7 +741,7 @@ export class Compilateur {
     let determinant: string;
     let nom: string;
     let intituleType: string;
-    let type: TypeElement;
+    let type: ClasseElement;
     let genre: Genre;
     let attributsString: string;
     let attributs: string[];
@@ -771,7 +783,7 @@ export class Compilateur {
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
       intituleType = result[4];
-      type = Compilateur.getTypeElement(result[4]);
+      type = Compilateur.getClasseElement(result[4]);
       genre = Compilateur.getGenre(result[1], estFeminin);
       nombre = Compilateur.getNombre(result[1]);
       quantite = Compilateur.getQuantite(result[1]);
@@ -843,7 +855,7 @@ export class Compilateur {
           result[1] ? result[1].toLowerCase() : null,
           result[2],
           "",
-          TypeElement.aucun,
+          ClasseElement.aucun,
           null,
           Compilateur.getGenre(result[1], estFeminin),
           Compilateur.getNombre(result[1]),
@@ -876,9 +888,9 @@ export class Compilateur {
         elementConcerne = elementGeneriqueTrouve;
 
         // - type d'élément
-        if (nouvelElementGenerique.type !== TypeElement.aucun) {
+        if (nouvelElementGenerique.type !== ClasseElement.aucun) {
           // s'il y avait déjà un type défini, c'est un autre élément donc finalement on va quand même l’ajouter
-          if (elementGeneriqueTrouve.type !== TypeElement.aucun) {
+          if (elementGeneriqueTrouve.type !== ClasseElement.aucun) {
             elementsGeneriques.push(nouvelElementGenerique);
             // finalement c’est le nouvel élément qui est concerné
             elementConcerne = nouvelElementGenerique;
@@ -931,7 +943,7 @@ export class Compilateur {
     let determinant: string;
     let nom: string;
     let intituleType: string;
-    let type: TypeElement;
+    let type: ClasseElement;
     let genre: Genre;
     let genreString: string;
     let attributsString: string;
@@ -973,7 +985,7 @@ export class Compilateur {
         result[1] ? result[1].toLowerCase() : null,
         result[2],
         result[4],
-        Compilateur.getTypeElement(result[4]),
+        Compilateur.getClasseElement(result[4]),
         new PositionSujetString(result[2], result[7], result[6]),
         Compilateur.getGenre(result[1], estFeminin),
         Compilateur.getNombre(result[1]),
@@ -1015,7 +1027,7 @@ export class Compilateur {
         determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
         nombre = Compilateur.getNombre(result[1 + offset]);
         intituleType = result[2 + offset];
-        type = Compilateur.getTypeElement(intituleType);
+        type = Compilateur.getClasseElement(intituleType);
         genreString = result[4 + offset];
         attributsString = result[3 + offset];
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
@@ -1114,7 +1126,7 @@ export class Compilateur {
           elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
         }
         // - màj type élément de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.type !== TypeElement.inconnu && newElementGenerique.type !== TypeElement.aucun) {
+        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.type !== ClasseElement.inconnu && newElementGenerique.type !== ClasseElement.aucun) {
           elementConcerne.type = newElementGenerique.type;
         }
 
@@ -1129,21 +1141,21 @@ export class Compilateur {
 
 
 
-  private static getTypeElement(typeElement: string): TypeElement {
-    let retVal = TypeElement.aucun;
+  private static getClasseElement(classeElement: string): ClasseElement {
+    let retVal = ClasseElement.aucun;
 
-    if (typeElement) {
-      switch (typeElement.trim().toLocaleLowerCase()) {
+    if (classeElement) {
+      switch (classeElement.trim().toLocaleLowerCase()) {
         case "animal":
         case "animaux":
-          retVal = TypeElement.animal;
+          retVal = ClasseElement.animal;
           break;
-        case "humain":
+        case "personne":
         case "homme":
         case "hommes":
         case "femme":
         case "femmes":
-          retVal = TypeElement.humain;
+          retVal = ClasseElement.personne;
           break;
         case "clé":
         case "cle":
@@ -1151,46 +1163,44 @@ export class Compilateur {
         case "clefs":
         case "clés":
         case "cles":
-          retVal = TypeElement.cle;
+          retVal = ClasseElement.cle;
           break;
         case "contenant":
         case "contenants":
-          retVal = TypeElement.contenant;
+          retVal = ClasseElement.contenant;
           break;
         case "support":
         case "supports":
-          retVal = TypeElement.support;
+          retVal = ClasseElement.support;
           break;
         case "décors":
         case "décor":
         case "decor":
         case "decors":
-          retVal = TypeElement.decor;
+          retVal = ClasseElement.decor;
           break;
-        case "humain":
-        case "humains":
-          retVal = TypeElement.humain;
+        case "personne":
+        case "personnes":
+          retVal = ClasseElement.personne;
           break;
         case "objet":
         case "objets":
-          retVal = TypeElement.objet;
+          retVal = ClasseElement.objet;
           break;
         case "porte":
         case "portes":
-          retVal = TypeElement.porte;
+          retVal = ClasseElement.porte;
           break;
-        case "salle":
         case "lieu":
-        case "endroit":
-          retVal = TypeElement.salle;
+          retVal = ClasseElement.lieu;
           break;
 
         case "joueur":
-          retVal = TypeElement.joueur;
+          retVal = ClasseElement.joueur;
           break;
 
         default:
-          retVal = TypeElement.inconnu;
+          retVal = ClasseElement.objet;
           break;
       }
     }

@@ -3,7 +3,7 @@ import { ElementGenerique } from './element-generique';
 export class Monde {
 
     titre: string;
-    salles: ElementGenerique[] = [];
+    lieux: ElementGenerique[] = [];
     // decors: ElementGenerique[] = [];
     // contenants: ElementGenerique[] = [];
     portes: ElementGenerique[] = [];

@@ -1,3 +1,4 @@
+import { ClasseElement } from '../models/commun/type-element.enum';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -7,7 +8,6 @@ import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
-import { TypeElement } from '../models/commun/type-element.enum';
 
 export class Commandes {
 
@@ -56,21 +56,21 @@ export class Commandes {
         // vérîfier le type de l’objet
         switch (objetTrouve.type) {
           // on ne prend pas les animaux
-          case TypeElement.animal:
+          case ClasseElement.animal:
             if (this.verbeux) {
               console.log("on ne prend pas les animaux.");
             }
             return "Ça ne me parait pas très prudent.";
             break;
-          // on ne prend pas les humain
-          case TypeElement.humain:
+          // on ne prend pas les personnes
+          case ClasseElement.personne:
             if (this.verbeux) {
-              console.log("on ne prend pas les humains.");
+              console.log("on ne prend pas les personnes.");
             }
             return "Dites donc !";
             break;
           // on ne prend pas les décors
-          case TypeElement.decor:
+          case ClasseElement.decor:
             if (this.verbeux) {
               console.log("on ne prend pas les décors.");
             }
@@ -110,7 +110,7 @@ export class Commandes {
       return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
     } else if (objetTrouve) {
       const result = this.jeu.inventaire.objets.splice(this.jeu.inventaire.objets.findIndex(x => x.id === objetTrouve.id), 1);
-      this.eju.curSalle.inventaire.objets.push(result[0]);
+      this.eju.curLieu.inventaire.objets.push(result[0]);
       return "Vous jetez ça.";
     } else {
       return "Je ne possède pas ça.";
@@ -203,8 +203,8 @@ export class Commandes {
         break;
     }
 
-    const voisinSalle = this.eju.getSalle(this.eju.getVoisins(locDest, TypeElement.salle));
-    const voisinPorte = this.eju.getPorte(this.eju.getVoisins(locDest, TypeElement.porte));
+    const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, ClasseElement.lieu));
+    const voisinPorte = this.eju.getPorte(this.eju.getVoisins(locDest, ClasseElement.porte));
 
     // TODO: vérifier accès…
     if (voisinPorte && !ElementsJeuUtils.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
@@ -217,9 +217,9 @@ export class Commandes {
       } else {
         console.log("pas de porte");
       }
-      if (voisinSalle) {
-        this.jeu.position = voisinSalle.id;
-        return this.outils.afficherCurSalle();
+      if (voisinLieu) {
+        this.jeu.position = voisinLieu.id;
+        return this.outils.afficherCurLieu();
       } else {
         return "Pas pu aller par là.";
       }
@@ -246,27 +246,19 @@ export class Commandes {
     } else {
       return "Je n'ai pas encore d’informations à propos de ça.";
     }
-
   }
 
   ouSuisJe() {
     if (this.jeu.position == -1) {
       return "Je ne sais pas où je suis";
     } else {
-      // return "Votre position : " + (this.outils.curSalle.intitule ? (this.outils.curSalle.intitule) : (this.outils.curSalle.determinant + this.outils.curSalle.nom)) + ".\n"
-      return this.outils.afficherCurSalle();
-
+      // return "Votre position : " + (this.outils.curLieu.intitule ? (this.outils.curLieu.intitule) : (this.curLieu.determinant + this.outils.curLieu.nom)) + ".\n"
+      return this.outils.afficherCurLieu();
     }
   }
 
   deverrouiller(els: ElementsPhrase) {
-    if (!els.sujet) {
-      return "Déverrouiller quoi ?";
-    } else if (!els.preposition || !els.sujetComplement) {
-      return "Déverrouiller comment ?";
-    } else {
       return this.utiliser(els);
-    }
   }
 
   ouvrir(els: ElementsPhrase) {
@@ -358,12 +350,12 @@ export class Commandes {
       if (eleJeuA == eleJeuB) {
         return "Je ne peux pas l’utiliser sur " + (eleJeuA.genre == Genre.f ? 'elle' : 'lui') + "-même.";
         // 2x une porte
-      } else if (eleJeuA.type === TypeElement.porte && eleJeuB.type === TypeElement.porte) {
+      } else if (eleJeuA.type === ClasseElement.porte && eleJeuB.type === ClasseElement.porte) {
         return "Hum… essayons autre chose !";
         // 1x un objet et 1x une porte
-      } else if (eleJeuA.type === TypeElement.porte && eleJeuB.type !== TypeElement.porte) {
+      } else if (eleJeuA.type === ClasseElement.porte && eleJeuB.type !== ClasseElement.porte) {
         return this.utiliserObjetAvecPorte(infinitif, eleJeuB, eleJeuA);
-      } else if (eleJeuB.type === TypeElement.porte && eleJeuA.type !== TypeElement.porte) {
+      } else if (eleJeuB.type === ClasseElement.porte && eleJeuA.type !== ClasseElement.porte) {
         return this.utiliserObjetAvecPorte(infinitif, eleJeuA, eleJeuB);
         // 2x un objet
       } else {
@@ -419,9 +411,9 @@ export class Commandes {
     if (eleTrouve === -1) {
       return "J'ai trouvé plusieurs éléments correspondant à " + elA.nom + ". Pouvez-vous être plus précis ?";
     } else if (eleTrouve) {
-      if (eleTrouve.type === TypeElement.animal || eleTrouve.type === TypeElement.humain) {
+      if (eleTrouve.type === ClasseElement.animal || eleTrouve.type === ClasseElement.personne) {
         return "Pas de ça ici !";
-      } else if (eleTrouve.type == TypeElement.decor) {
+      } else if (eleTrouve.type == ClasseElement.decor) {
         return "Et comment comptes-tu t’y prendre ?";
       } else {
         return "Et si on combinait avec autre chose ?";
@@ -457,15 +449,15 @@ export class Commandes {
 
         switch (trouve.type) {
           // Contenant
-          case TypeElement.contenant:
+          case ClasseElement.contenant:
             retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dedans.");
             break;
           // Support
-          case TypeElement.support:
+          case ClasseElement.support:
             retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dessus.");
             break;
           // Porte
-          case TypeElement.porte:
+          case ClasseElement.porte:
             retVal += "\n" + this.outils.afficherStatutPorte(trouve);
 
           default:
@@ -484,15 +476,15 @@ export class Commandes {
   regarder(els: ElementsPhrase) {
     let retVal: string;
 
-    // regarder la salle actuelle
+    // regarder le lieu actuel
     if (!els.sujet) {
-      if (this.eju.curSalle) {
-        if (this.eju.curSalle.description) {
-          retVal = this.outils.calculerDescription(this.eju.curSalle.description, ++this.eju.curSalle.nbAffichageDescription)
-            + this.outils.afficherObjetsCurSalle();
+      if (this.eju.curLieu) {
+        if (this.eju.curLieu.description) {
+          retVal = this.outils.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription)
+            + this.outils.afficherObjetsCurLieu();
         } else {
-          retVal = "Votre position : " + this.eju.curSalle.intitule + ".\n"
-            + this.outils.afficherObjetsCurSalle();
+          retVal = "Votre position : " + this.eju.curLieu.intitule + ".\n"
+            + this.outils.afficherObjetsCurLieu();
         }
       } else {
         retVal = "Mais où suis-je ?";
@@ -509,7 +501,7 @@ export class Commandes {
         } else {
           retVal = (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntitule(trouve, false, null);
         }
-        if (trouve.type == TypeElement.porte) {
+        if (trouve.type == ClasseElement.porte) {
           retVal += "\n" + this.outils.afficherStatutPorte(trouve)
         }
         // rien trouvé
@@ -536,7 +528,7 @@ export class Commandes {
    * au préalable, il faut avoir vidé la console !
    */
   effacer() {
-    return this.outils.afficherCurSalle();
+    return this.outils.afficherCurLieu();
   }
 
 }

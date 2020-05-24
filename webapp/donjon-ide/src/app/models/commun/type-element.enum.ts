@@ -1,17 +1,19 @@
-export enum TypeElement {
-  aucun = '-',
-  inconnu = '?',
+export enum ClasseElement {
+  lieu = 'lieu',
   objet = 'objet',
-  decor = 'décor',
+  vivant = 'vivant',
+  inerte = 'inerte',
   animal = 'animal',
-  humain = 'humain',
-  salle = 'salle',
+  personne = 'personne',
+  // types spéciaux :
+  joueur = 'joueur',
+  inventaire = 'inventaire',
+}
+
+export enum CaracteristiqueElement {
   cle = 'clé',
   porte = 'porte',
   contenant = 'contenant',
   support = 'support',
-  // types spéciaux connus d’avance :
-  joueur = 'joueur',
-  inventaire = 'inventaire',
-
+  decor = 'décor',
 }

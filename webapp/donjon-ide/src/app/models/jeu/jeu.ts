@@ -2,8 +2,8 @@ import { Action } from '../compilateur/action';
 import { Auditeur } from '../jouer/auditeur';
 import { ElementJeu } from './element-jeu';
 import { Inventaire } from './inventaire';
+import { Lieu } from './lieu';
 import { Regle } from '../compilateur/regle';
-import { Salle } from './salle';
 
 export class Jeu {
 
@@ -13,17 +13,17 @@ export class Jeu {
   titre: string;
 
   /**
-   * Salles qui constituent le jeu.
+   * Lieux qui constituent le jeu.
    */
-  salles: Salle[] = [];
+  lieux: Lieu[] = [];
 
   // /**
-  //  * Portes qui séparent les salles.
+  //  * Portes qui séparent les lieux.
   //  */
   // portes: Porte[] = [];
 
   /**
-   * Tous les éléments du jeu excepté les salles.
+   * Tous les éléments du jeu excepté les lieux.
    */
   elements: ElementJeu[] = [];
 
@@ -55,7 +55,7 @@ export class Jeu {
 
   /**
    * Position du joueur.
-   * ID d’une Salle du jeu.
+   * ID d’un lieu du jeu.
    */
   position: number;
 }

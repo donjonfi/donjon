@@ -1,15 +1,15 @@
 import { Action } from '../models/compilateur/action';
 import { Auditeur } from '../models/jouer/auditeur';
+import { ClasseElement } from '../models/commun/type-element.enum';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Jeu } from '../models/jeu/jeu';
+import { Lieu } from '../models/jeu/lieu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Regle } from '../models/compilateur/regle';
-import { Salle } from '../models/jeu/salle';
-import { TypeElement } from '../models/commun/type-element.enum';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { Voisin } from '../models/jeu/voisin';
 
@@ -22,29 +22,29 @@ export class Generateur {
 
     jeu.titre = monde.titre;
 
-    // AJOUTER LES SALLES
+    // AJOUTER LES LIEUX
     // ******************
-    let premierIndexSalle = (indexElementJeu + 1);
-    monde.salles.forEach(curEle => {
-      let newSalle = new Salle(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
-      newSalle.intitule = curEle.determinant + curEle.nom;
-      newSalle.description = curEle.description;
-      // parcourir les propriétés de la salle
+    let premierIndexLieu = (indexElementJeu + 1);
+    monde.lieux.forEach(curEle => {
+      let nouvLieu = new Lieu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
+      nouvLieu.intitule = curEle.determinant + curEle.nom;
+      nouvLieu.description = curEle.description;
+      // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
-            newSalle.description = pro.valeur;
+            nouvLieu.description = pro.valeur;
             break;
 
           case 'intitulé':
-            newSalle.intitule = pro.valeur;
+            nouvLieu.intitule = pro.valeur;
             break;
 
           default:
             break;
         }
       });
-      jeu.salles.push(newSalle);
+      jeu.lieux.push(nouvLieu);
     });
 
     // AJOUTER LES PORTES
@@ -63,7 +63,7 @@ export class Generateur {
         newPorte.etats.push("ouvrable");
       }
 
-      // parcourir les propriétés de la salle
+      // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
@@ -81,31 +81,31 @@ export class Generateur {
       jeu.elements.push(newPorte);
     });
 
-    // DÉFINIR LES VOISINS (SALLES)
+    // DÉFINIR LES VOISINS (LIEUX)
     // ****************************
-    for (let index = 0; index < monde.salles.length; index++) {
-      const curEle = monde.salles[index];
-      Generateur.ajouterVoisin(jeu.salles, curEle, (premierIndexSalle + index));
+    for (let index = 0; index < monde.lieux.length; index++) {
+      const curEle = monde.lieux[index];
+      Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index));
     }
 
     // DÉFINIR LES VOISINS (PORTES)
     // ****************************
     for (let index = 0; index < monde.portes.length; index++) {
       const curEle = monde.portes[index];
-      Generateur.ajouterVoisin(jeu.salles, curEle, (premierIndexPorte + index));
+      Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexPorte + index));
     }
 
     // PLACER LE JOUEUR
     // ****************
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
       const localisation = Generateur.getLocalisation(monde.joueurs[0].positionString.position);
-      const salleID = Generateur.getSalleID(jeu.salles, monde.joueurs[0].positionString.complement);
-      if (salleID != -1) {
-        jeu.position = salleID;
+      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
+      if (lieuID != -1) {
+        jeu.position = lieuID;
       }
     }
 
-    // PLACER LES ÉLÉMENTS DU JEU DANS LES SALLES (ET DANS LA LISTE COMMUNE)
+    // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
     let premierIndexObjet = (indexElementJeu + 1);
 
@@ -177,12 +177,12 @@ export class Generateur {
       // POSITION de l’élément
       if (curEle.positionString) {
         // const localisation = Generateur.getLocalisation(curEle.positionString.position);
-        const salleID = Generateur.getSalleID(jeu.salles, curEle.positionString.complement);
-        // salle trouvée
-        if (salleID !== -1) {
-          const salleTrouvee = jeu.salles.find(x => x.id === salleID);
-          salleTrouvee.inventaire.objets.push(newEleJeu);
-          // pas de salle trouvée
+        const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement);
+        // lieu trouvé
+        if (lieuID !== -1) {
+          const lieuTrouve = jeu.lieux.find(x => x.id === lieuID);
+          lieuTrouve.inventaire.objets.push(newEleJeu);
+          // pas de lieu trouvé
         } else {
           // chercher un contenant ou un support
           const contenantSupport = Generateur.getContenantSupport(jeu.elements, curEle.positionString.complement);
@@ -203,10 +203,10 @@ export class Generateur {
 
     // PLACEMENT DU JOUEUR
     // *******************
-    // si pas de position définie, on commence dans la première salle
+    // si pas de position définie, on commence dans le premier lieu
     if (!jeu.position) {
-      if (jeu.salles.length > 0) {
-        jeu.position = jeu.salles[0].id;
+      if (jeu.lieux.length > 0) {
+        jeu.position = jeu.lieux[0].id;
       }
     }
 
@@ -236,30 +236,30 @@ export class Generateur {
   }
 
   /**
-   * Ajout d'un voisin (salle ou porte) à une salle 
+   * Ajout d'un voisin (lieu ou porte) à un lieu 
    */
-  static ajouterVoisin(salles: Salle[], elVoisin: ElementGenerique, idElVoisin: number) {
+  static ajouterVoisin(lieux: Lieu[], elVoisin: ElementGenerique, idElVoisin: number) {
 
     console.log("ajouterVoisin >>> ", elVoisin);
 
     if (elVoisin.positionString) {
       const localisation = Generateur.getLocalisation(elVoisin.positionString.position);
-      const foundSalleID = Generateur.getSalleID(salles, elVoisin.positionString.complement);
+      const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement);
 
-      if (localisation === Localisation.inconnu || foundSalleID === -1) {
+      if (localisation === Localisation.inconnu || lieuTrouveID === -1) {
         console.log("positionString pas trouvé:", elVoisin.positionString);
       } else {
-        // ajouter à la salle trouvée, le voisin elVoisin
+        // ajouter au lieu trouvé, le voisin elVoisin
         const opposeVoisin = new Voisin(idElVoisin, elVoisin.type, localisation);
-        const salle = salles.find(x => x.id == foundSalleID);
-        salle.voisins.push(opposeVoisin);
+        const lieu = lieux.find(x => x.id == lieuTrouveID);
+        lieu.voisins.push(opposeVoisin);
 
-        // la salle trouvée, est la voisine de la salle elVoisin.
-        if (elVoisin.type == TypeElement.salle) {
-          // ajouter la salle trouvée aux voisins de elVoisin
-          const newVoisin = new Voisin(foundSalleID, elVoisin.type, this.getOpposePosition(localisation));
-          const salleTrouvee = salles.find(x => x.id === idElVoisin);
-          salleTrouvee.voisins.push(newVoisin);
+        // le lieu trouvé, est le voisin du lieu elVoisin.
+        if (elVoisin.type == ClasseElement.lieu) {
+          // ajouter le lieu trouvé aux voisins de elVoisin
+          const newVoisin = new Voisin(lieuTrouveID, elVoisin.type, this.getOpposePosition(localisation));
+          const lieuTrouve = lieux.find(x => x.id === idElVoisin);
+          lieuTrouve.voisins.push(newVoisin);
         }
       }
     } else {
@@ -275,19 +275,19 @@ export class Generateur {
     return auditeur;
   }
   /**
-   * Retrouver une salle sur base de son intitulé.
-   * @param salles 
-   * @param intituleSalle 
-   * @returns ID de la salle ou -1 si pas trouvée.
+   * Retrouver un lieu sur base de son intitulé.
+   * @param lieux 
+   * @param intituleLieu
+   * @returns ID du lieu ou -1 si pas trouvée.
    */
-  static getSalleID(salles: Salle[], intituleSalle: string) {
+  static getLieuID(lieux: Lieu[], intituleLieu: string) {
 
-    let candidats: Salle[] = [];
+    let candidats: Lieu[] = [];
     let retVal = -1;
     // trouver le sujet complet
-    salles.forEach(salle => {
-      if (salle.nom == intituleSalle) {
-        candidats.push(salle);
+    lieux.forEach(lieu => {
+      if (lieu.nom == intituleLieu) {
+        candidats.push(lieu);
       }
     });
     // sujet trouvé
@@ -297,19 +297,19 @@ export class Generateur {
     } else if (candidats.length === 0) {
       let nbFound = 0;
       // trouver un début de sujet
-      salles.forEach(salle => {
-        if (salle.nom.startsWith(intituleSalle)) {
-          candidats.push(salle);
+      lieux.forEach(lieu => {
+        if (lieu.nom.startsWith(intituleLieu)) {
+          candidats.push(lieu);
           nbFound += 1;
         }
       });
       if (nbFound === 1) {
         retVal = candidats[0].id;
       } else {
-        console.log("complément position pas trouvé :", intituleSalle);
+        console.log("complément position pas trouvé :", intituleLieu);
       }
     } else {
-      console.log("complément position pas trouvé (plusieurs candidats) :", intituleSalle);
+      console.log("complément position pas trouvé (plusieurs candidats) :", intituleLieu);
 
     }
 
@@ -317,7 +317,7 @@ export class Generateur {
   }
 
   static getContenantSupport(objets: ElementJeu[], nomObjet: string) {
-    const candidats = objets.filter(x => x.type == TypeElement.contenant || x.type == TypeElement.support);
+    const candidats = objets.filter(x => x.type == ClasseElement.contenant || x.type == ClasseElement.support);
 
     let trouve: ElementJeu = null;
 

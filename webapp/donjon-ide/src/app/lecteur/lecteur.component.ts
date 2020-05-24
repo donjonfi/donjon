@@ -400,9 +400,9 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.inventaire();
           break;
 
-        case "prendre":
-          retVal = this.com.prendre(els);
-          break;
+        // case "prendre":
+        //   retVal = this.com.prendre(els);
+        //   break;
 
         case "jeter":
           retVal = this.com.jeter(els);
@@ -515,7 +515,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     // console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
 
-    // TODO: prise en charge des sujets génériques (objet, humain, portes, ...)
+    // TODO: prise en charge des sujets génériques (objet, personne, portes, ...)
 
     // infinitif + sujet (+complément), vérifier que celui de la commande correspond
     if (els.sujet) {
