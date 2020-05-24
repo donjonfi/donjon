@@ -120,7 +120,6 @@ export class Commandes {
   donner(els: ElementsPhrase) {
 
     if (els.sujetComplement == null) {
-      
       return "Donner ça à qui ?";
     } else {
       // trouver l’élément à donner
@@ -146,7 +145,6 @@ export class Commandes {
         return "Je ne possède pas ça.";
       }
     }
-
 
   }
 

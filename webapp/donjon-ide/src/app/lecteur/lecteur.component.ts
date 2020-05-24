@@ -82,6 +82,10 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private executerInstructions(instructions: Instruction[]): Resultat {
+
+    console.warn("BEGIN exInstructionS >>> instructionS=", instructions);
+
+
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
@@ -91,6 +95,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         resultat.sortie += subResultat.sortie;
       });
     }
+
+    console.warn("END exInstructionS >>> instructionS=", instructions, "resultat=", resultat);
+
     return resultat;
   }
 
@@ -121,6 +128,9 @@ export class LecteurComponent implements OnInit, OnChanges {
       }
     }
     resultat.sortie += sousResultat.sortie;
+
+    console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
+
     return resultat;
   }
 
@@ -141,6 +151,16 @@ export class LecteurComponent implements OnInit, OnChanges {
       case 'changer':
         sousResultat = this.executerChanger(instruction);
         resultat.succes = sousResultat.succes;
+        break;
+
+      case 'sauver':
+        console.log("executerInfinitif >> sauver=", instruction.complement);
+        if (instruction.complement) {
+          this.jeu.sauvegardes.push(instruction.complement);
+          resultat.succes = true;
+        } else {
+          resultat.succes = false;
+        }
         break;
 
       default:
@@ -381,7 +401,6 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         case "prendre":
-        case "attraper":
           retVal = this.com.prendre(els);
           break;
 
@@ -396,10 +415,14 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.donner(els);
           // après la commande
           const resultatApres = this.executerInstructions(this.dec.apres(evenement));
+
+          
+        console.warn("resultatApres >>>", resultatApres);
+        
+
           retVal += resultatApres.sortie;
           break;
 
-        case "observer":
         case "regarder":
           retVal = this.com.regarder(els);
           break;
@@ -442,7 +465,6 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         case "effacer":
-        case "ef": // effacer
           this.sortieJoueur = "";
           retVal = this.com.effacer();
           break;

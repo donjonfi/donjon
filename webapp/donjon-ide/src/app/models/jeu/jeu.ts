@@ -44,6 +44,11 @@ export class Jeu {
   actions: Action[] = [];
 
   /**
+   * États sauvegardés
+   */
+  sauvegardes: string[] = [];
+
+  /**
    * Objets du jeu en possession du joueur.
    */
   inventaire: Inventaire = new Inventaire();

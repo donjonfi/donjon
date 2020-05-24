@@ -21,11 +21,11 @@ export class Declancheur {
           break;
 
         case TypeRegle.apres:
-          this.auditeursAvant.push(aud);
+          this.auditeursApres.push(aud);
           break;
 
         case TypeRegle.remplacer:
-          this.auditeursAvant.push(aud);
+          this.auditeursRemplacer.push(aud);
           break;
 
         default:
