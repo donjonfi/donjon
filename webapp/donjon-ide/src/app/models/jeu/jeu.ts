@@ -3,6 +3,7 @@ import { Auditeur } from '../jouer/auditeur';
 import { ElementJeu } from './element-jeu';
 import { Inventaire } from './inventaire';
 import { Lieu } from './lieu';
+import { Objet } from './objet';
 import { Regle } from '../compilateur/regle';
 
 export class Jeu {
@@ -22,10 +23,12 @@ export class Jeu {
   //  */
   // portes: Porte[] = [];
 
+  joueur: Objet;
+
   /**
-   * Tous les éléments du jeu excepté les lieux.
+   * Tous les objets du jeu
    */
-  elements: ElementJeu[] = [];
+  objets: Objet[] = [];
 
   /** Un auditeur écoute un évènement en particulier.
    * Lorsque l'évènement se déclanche, on exécute les actions
@@ -51,11 +54,11 @@ export class Jeu {
   /**
    * Objets du jeu en possession du joueur.
    */
-  inventaire: Inventaire = new Inventaire();
+  // inventaire: Inventaire = new Inventaire();
 
   /**
    * Position du joueur.
    * ID d’un lieu du jeu.
    */
-  position: number;
+  // position: number;
 }

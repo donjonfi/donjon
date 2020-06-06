@@ -1,5 +1,4 @@
 import { Capacite } from './capacite';
-import { ClasseElement } from '../commun/type-element.enum';
 import { ElementDonjon } from './element-donjon';
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
@@ -15,12 +14,16 @@ export class ElementGenerique implements ElementDonjon {
   public nomM: string;
   public nomS: string;
   public nomP: string;
+  public epitheteS: string;
+  public epitheteP: string;
+
 
   constructor(
     public determinant: string,
     public nom: string,
+    public epithete: string,
     public intituleType: string,
-    public type: ClasseElement,
+    public type: string,
     public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,

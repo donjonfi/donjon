@@ -2,7 +2,7 @@ import { Condition, LienCondition } from '../models/compilateur/condition';
 
 import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
-import { ClasseElement } from '../models/commun/type-element.enum';
+import { ClasseRacine } from '../models/commun/classe';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -40,8 +40,11 @@ export class Compilateur {
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
 
-  /** élément générique positionné par rapport à complément -> determinant(1), nom(2), féminin?(3), type(4), attributs(5), position(6), genre complément(7), complément(8) */
-  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:|(?:un|une|des) (.+?)(| .+?) )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
+  /** élément générique positionné par rapport à complément
+   * ex: La (1) pomme de terre(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) dans le(7) jardin(8).
+   * -> determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
+   */
+  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:|(?:un|une|des) (.+?)(?:(?: )(.+?))? )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
 
   // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** élément générique positionné par rapport à complément :
@@ -50,8 +53,9 @@ export class Compilateur {
    */
   static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l(?:’|')|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l(?:’|'))(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
 
-  /** élément générique simple -> determinant(1), nom(2), féminin?(3), type(4), attributs(5) */
-  static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(.+?)(\(.+\))? (?:est|sont) (?:un|une|des) (\S+)( .+|)/i;
+  /** élément générique simple
+   * ex => Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
+  static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
 
   /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
   static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
@@ -70,10 +74,10 @@ export class Compilateur {
   /** capacité -> verbe(1) complément(2) */
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;
 
-  /** élément générique -> déterminant (1), nom (2), féminin?(3) attributs(4).
-   * ex: Le champignon est brun et on peut le cuillir.
+  /** élément générique ->
+   * Les (1) pommes de terre (2) pourries (3) [(f, pomme de terre)]\(4) sont mauves, odorantes et humides (5).
    */
-  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(.+?)(\(f\))? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
 
@@ -204,8 +208,8 @@ export class Compilateur {
     let result: RegExpExecArray;
 
     // ajouter le joueur au monde
-    elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", ClasseElement.joueur, null, Genre.m, Nombre.s, 1, null));
-    elementsGeneriques.push(new ElementGenerique("l’", "inventaire", "inventaire", ClasseElement.inventaire, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", ClasseRacine.joueur, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("l’", "inventaire", "inventaire", ClasseRacine.inventaire, null, Genre.m, Nombre.s, 1, null));
 
     phrases.forEach(phrase => {
 
@@ -429,37 +433,33 @@ export class Compilateur {
     elementsGeneriques.forEach(el => {
 
       switch (el.type) {
-        case ClasseElement.lieu:
+        case ClasseRacine.lieu:
           monde.lieux.push(el);
           break;
 
-        case ClasseElement.porte:
+        case ClasseRacine.porte:
           monde.portes.push(el);
           break;
 
-        case ClasseElement.joueur:
+        case ClasseRacine.joueur:
           monde.joueurs.push(el);
           break;
 
-        case ClasseElement.inventaire:
+        case ClasseRacine.inventaire:
           monde.inventaires.push(el);
           break;
 
-        case ClasseElement.objet:
-        case ClasseElement.decor:
-        case ClasseElement.contenant:
-        case ClasseElement.support:
-        case ClasseElement.animal:
-        case ClasseElement.personne:
+        case ClasseRacine.objet:
+        case ClasseRacine.contenant:
+        case ClasseRacine.support:
+        case ClasseRacine.vivant:
+        case ClasseRacine.animal:
+        case ClasseRacine.personne:
           monde.objets.push(el);
           break;
 
-        case ClasseElement.aucun:
-        case ClasseElement.inconnu:
-          monde.aucuns.push(el);
-          break;
-
         default:
+          console.error("ParseCode > el.type inconnu:", el.type);
           break;
       }
 
@@ -729,7 +729,7 @@ export class Compilateur {
           return null; // rien trouvé
         }
       }
-    } 
+    }
     // }
   }
 
@@ -741,7 +741,7 @@ export class Compilateur {
     let determinant: string;
     let nom: string;
     let intituleType: string;
-    let type: ClasseElement;
+    let type: string;
     let genre: Genre;
     let attributsString: string;
     let attributs: string[];
@@ -796,6 +796,7 @@ export class Compilateur {
       nouvelElementGenerique = new ElementGenerique(
         determinant,
         nom,
+        epithete,
         intituleType,
         type,
         position,
@@ -817,8 +818,8 @@ export class Compilateur {
       // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
       result = Compilateur.xElementSimpleAttribut.exec(phrase.phrase[0]);
       if (result != null) {
-
-        let genreSingPlur = result[3];
+        // (f) / (f, autre forme) / (autre forme)
+        let genreSingPlur = result[4];
         let estFeminin = false;
         let autreForme: string = null;
         if (genreSingPlur) {
@@ -847,15 +848,18 @@ export class Compilateur {
 
         // attributs ?
         let attributs = null;
-        if (result[4] && result[4].trim() !== '') {
+        if (result[5] && result[5].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = Compilateur.getAttributs(result[4]);
+          attributs = Compilateur.getAttributs(result[5]);
         }
+
+
         nouvelElementGenerique = new ElementGenerique(
           result[1] ? result[1].toLowerCase() : null,
           result[2],
+          result[3],
           "",
-          ClasseElement.aucun,
+          ClasseRacine.objet,
           null,
           Compilateur.getGenre(result[1], estFeminin),
           Compilateur.getNombre(result[1]),
@@ -888,9 +892,9 @@ export class Compilateur {
         elementConcerne = elementGeneriqueTrouve;
 
         // - type d'élément
-        if (nouvelElementGenerique.type !== ClasseElement.aucun) {
+        if (nouvelElementGenerique.type !== ClasseRacine.objet) {
           // s'il y avait déjà un type défini, c'est un autre élément donc finalement on va quand même l’ajouter
-          if (elementGeneriqueTrouve.type !== ClasseElement.aucun) {
+          if (elementGeneriqueTrouve.type !== ClasseRacine.objet) {
             elementsGeneriques.push(nouvelElementGenerique);
             // finalement c’est le nouvel élément qui est concerné
             elementConcerne = nouvelElementGenerique;
@@ -942,8 +946,9 @@ export class Compilateur {
 
     let determinant: string;
     let nom: string;
+    let epithete: string;
     let intituleType: string;
-    let type: ClasseElement;
+    let type: string;
     let genre: Genre;
     let genreString: string;
     let attributsString: string;
@@ -972,6 +977,7 @@ export class Compilateur {
         // s'il y a 2 arguments
         if (argSupp.length > 1) {
           // le 2e argument est le signe féminin
+          // TODO: épithète
           if (argSupp[1].trim() == 'f') {
             estFeminin = true;
             // le 2e argument est l'autre forme (singulier ou pluriel)
@@ -980,17 +986,19 @@ export class Compilateur {
           }
         }
       }
-
+      Compilateur.xPositionElementGeneriqueDefini;
       newElementGenerique = new ElementGenerique(
         result[1] ? result[1].toLowerCase() : null,
         result[2],
-        result[4],
-        Compilateur.getClasseElement(result[4]),
-        new PositionSujetString(result[2], result[7], result[6]),
+        result[3],
+        result[5],
+        Compilateur.getClasseElement(result[5]),
+        // TODO: épithète
+        new PositionSujetString(result[2], result[8], result[7]),
         Compilateur.getGenre(result[1], estFeminin),
         Compilateur.getNombre(result[1]),
         Compilateur.getQuantite(result[1]),
-        (result[5] ? new Array<string>(result[5]) : new Array<string>()),
+        (result[5] ? new Array<string>(result[6]) : new Array<string>()),
       );
 
       if (autreForme) {
@@ -1066,9 +1074,11 @@ export class Compilateur {
         // retrouver les attributs
         attributs = Compilateur.getAttributs(attributsString);
 
-        // s'il y a des attributs, prendre uniquement le 1er pour le nom
+        // s'il y a des attributs, prendre uniquement le 1er pour l’épithète
         if (attributs.length > 0) {
-          nom = result[2 + offset] + " " + attributs[0];
+          // nom = result[2 + offset] + " " + attributs[0];
+          epithete = attributs[0];
+          nom = result[2 + offset];
         } else {
           nom = result[2 + offset];
         }
@@ -1077,6 +1087,7 @@ export class Compilateur {
         newElementGenerique = new ElementGenerique(
           determinant,
           nom,
+          epithete,
           intituleType,
           type,
           position,
@@ -1126,7 +1137,7 @@ export class Compilateur {
           elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
         }
         // - màj type élément de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.type !== ClasseElement.inconnu && newElementGenerique.type !== ClasseElement.aucun) {
+        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.type !== ClasseRacine.objet) {
           elementConcerne.type = newElementGenerique.type;
         }
 
@@ -1141,66 +1152,66 @@ export class Compilateur {
 
 
 
-  private static getClasseElement(classeElement: string): ClasseElement {
-    let retVal = ClasseElement.aucun;
+  private static getClasseElement(classeElement: string): ClasseRacine {
+    let retVal = ClasseRacine.objet;
 
     if (classeElement) {
       switch (classeElement.trim().toLocaleLowerCase()) {
         case "animal":
         case "animaux":
-          retVal = ClasseElement.animal;
+          retVal = ClasseRacine.animal;
           break;
         case "personne":
         case "homme":
         case "hommes":
         case "femme":
         case "femmes":
-          retVal = ClasseElement.personne;
+          retVal = ClasseRacine.personne;
           break;
-        case "clé":
-        case "cle":
-        case "clef":
-        case "clefs":
-        case "clés":
-        case "cles":
-          retVal = ClasseElement.cle;
-          break;
+        // case "clé":
+        // case "cle":
+        // case "clef":
+        // case "clefs":
+        // case "clés":
+        // case "cles":
+        //   retVal = ClasseRacine.cle;
+        //   break;
         case "contenant":
         case "contenants":
-          retVal = ClasseElement.contenant;
+          retVal = ClasseRacine.contenant;
           break;
         case "support":
         case "supports":
-          retVal = ClasseElement.support;
+          retVal = ClasseRacine.support;
           break;
-        case "décors":
-        case "décor":
-        case "decor":
-        case "decors":
-          retVal = ClasseElement.decor;
-          break;
+        // case "décors":
+        // case "décor":
+        // case "decor":
+        // case "decors":
+        //   retVal = ClasseRacine.decor;
+        //   break;
         case "personne":
         case "personnes":
-          retVal = ClasseElement.personne;
+          retVal = ClasseRacine.personne;
           break;
         case "objet":
         case "objets":
-          retVal = ClasseElement.objet;
+          retVal = ClasseRacine.objet;
           break;
         case "porte":
         case "portes":
-          retVal = ClasseElement.porte;
+          retVal = ClasseRacine.porte;
           break;
         case "lieu":
-          retVal = ClasseElement.lieu;
+          retVal = ClasseRacine.lieu;
           break;
 
         case "joueur":
-          retVal = ClasseElement.joueur;
+          retVal = ClasseRacine.joueur;
           break;
 
         default:
-          retVal = ClasseElement.objet;
+          retVal = ClasseRacine.objet;
           break;
       }
     }

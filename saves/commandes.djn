@@ -5,6 +5,10 @@ prendre est une action.
 exécuter prendre:
   dire "prendre quoi ?".
 
+
+le joueur peut prendre la tomate:
+  dire "J’ai pris une tomate!".
+  
 prendre ceci est une action qui concerne un objet visible.
 
 refuser prendre ceci:
@@ -18,5 +22,7 @@ exécuter prendre ceci:
   déplacer ceci vers inventaire.
   
 finaliser prendre ceci:
-  dire "[ceci] a été ajouté[accord ceci] à votre inventaire.";
-  
+  dire "[ceci] a été ajouté[accord ceci] à votre inventaire.".
+
+le bureau est un lieu.
+il y a une pièce dans le bureau.

@@ -1,14 +1,18 @@
+import { PositionObjet, PrepositionSpatiale } from '../models/jeu/position-objet';
+
 import { Action } from '../models/compilateur/action';
 import { Auditeur } from '../models/jouer/auditeur';
-import { ClasseElement } from '../models/commun/type-element.enum';
+import { ClasseRacine } from '../models/commun/classe';
 import { ElementGenerique } from '../models/compilateur/element-generique';
-import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
+import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Lieu } from '../models/jeu/lieu';
 import { Localisation } from '../models/jeu/localisation';
 import { Monde } from '../models/compilateur/monde';
+import { MotUtils } from './mot-utils';
 import { Nombre } from '../models/commun/nombre.enum';
+import { Objet } from '../models/jeu/objet';
 import { Regle } from '../models/compilateur/regle';
 import { TypeRegle } from '../models/compilateur/type-regle';
 import { Voisin } from '../models/jeu/voisin';
@@ -26,8 +30,10 @@ export class Generateur {
     // ******************
     let premierIndexLieu = (indexElementJeu + 1);
     monde.lieux.forEach(curEle => {
-      let nouvLieu = new Lieu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
-      nouvLieu.intitule = curEle.determinant + curEle.nom;
+
+      let titre = curEle.determinant + curEle.nom;
+
+      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, titre, curEle.type);
       nouvLieu.description = curEle.description;
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
@@ -36,8 +42,9 @@ export class Generateur {
             nouvLieu.description = pro.valeur;
             break;
 
+          case 'titre':
           case 'intitulé':
-            nouvLieu.intitule = pro.valeur;
+            nouvLieu.titre = pro.valeur;
             break;
 
           default:
@@ -51,8 +58,8 @@ export class Generateur {
     // ******************
     let premierIndexPorte = (indexElementJeu + 1);
     monde.portes.forEach(curEle => {
-      let newPorte = new ElementJeu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
-      newPorte.intitule = curEle.determinant + curEle.nom;
+      const intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let newPorte = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.type, curEle.quantite, curEle.genre);
       newPorte.description = curEle.description;
       curEle.attributs.forEach(at => {
         newPorte.etats.push(at);
@@ -71,14 +78,15 @@ export class Generateur {
             break;
 
           case 'intitulé':
-            newPorte.intitule = pro.valeur;
+          case 'titre':
+            newPorte.titre = pro.valeur;
             break;
 
           default:
             break;
         }
       });
-      jeu.elements.push(newPorte);
+      jeu.objets.push(newPorte);
     });
 
     // DÉFINIR LES VOISINS (LIEUX)
@@ -98,10 +106,10 @@ export class Generateur {
     // PLACER LE JOUEUR
     // ****************
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
-      const localisation = Generateur.getLocalisation(monde.joueurs[0].positionString.position);
+      const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
       const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
-      if (lieuID != -1) {
-        jeu.position = lieuID;
+      if (lieuID !== -1) {
+        jeu.joueur.position = new PositionObjet(ps, ClasseRacine.lieu, lieuID);
       }
     }
 
@@ -110,50 +118,34 @@ export class Generateur {
     let premierIndexObjet = (indexElementJeu + 1);
 
     monde.objets.forEach(curEle => {
-      let newEleJeu = new ElementJeu(++indexElementJeu, curEle.type, curEle.determinant, curEle.nom, curEle.genre, curEle.nombre, curEle.quantite);
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.type, curEle.quantite, curEle.genre);
 
-      newEleJeu.intitule = curEle.nom;
-      newEleJeu.description = curEle.description;
-      newEleJeu.etats = curEle.attributs;
-      newEleJeu.capacites = curEle.capacites;
+      newObjet.description = curEle.description;
+      newObjet.etats = curEle.attributs;
+      newObjet.capacites = curEle.capacites;
 
-      // Déterminer PLURIEL
-      if (curEle.nombre == Nombre.p) {
-        newEleJeu.intituleP = curEle.nom;
+      // Déterminer le SINGULIER à partir du pluriel.
+      if (curEle.nombre === Nombre.p) {
+        // on a déjà le pluriel
+        newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         // le singulier est fourni
         if (curEle.nomS) {
-          newEleJeu.intituleS = curEle.nomS;
+          newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
           // le singulier est calculé
         } else {
-          // essayer de déterminer le singulier sur base des règles les plus communes
-          if (curEle.nom.endsWith('eaux') || curEle.nom.endsWith('eux')) {
-            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
-          } else if (curEle.nom.endsWith('aux')) {
-            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 2) + 'l';
-          } else if (curEle.nom.endsWith('s')) {
-            newEleJeu.intituleS = curEle.nom.slice(0, curEle.nom.length - 1);
-          } else {
-            newEleJeu.intituleS = curEle.nom;
-          }
+          newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulier(curEle.nom), MotUtils.getSingulier(curEle.epithete));
         }
-        // Déterminer SINGULIER
+        // Déterminer PLURIEL à partir du singulier.
       } else if (curEle.nombre == Nombre.s) {
-        newEleJeu.intituleS = curEle.nom;
+        // on a déjà le singulier
+        newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         // le pluriel est fourni
         if (curEle.nomP) {
-          newEleJeu.intituleP = curEle.nomP;
+          newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
           // le pluriel est calculé
         } else {
-          // essayer de déterminer le pluriel sur base des règles les plus communes
-          if (curEle.nom.endsWith('al')) {
-            newEleJeu.intituleP = curEle.nom.slice(0, curEle.nom.length - 1) + 'ux';
-          } else if (curEle.nom.endsWith('au') || curEle.nom.endsWith('eu')) {
-            newEleJeu.intituleP = curEle.nom + 'x';
-          } else if (curEle.nom.endsWith('s') || curEle.nom.endsWith('x') || curEle.nom.endsWith('z')) {
-            newEleJeu.intituleP = curEle.nom;
-          } else {
-            newEleJeu.intituleP = curEle.nom + 's';
-          }
+          newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
         }
       }
 
@@ -161,11 +153,12 @@ export class Generateur {
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
-            newEleJeu.description = pro.valeur;
+            newObjet.description = pro.valeur;
             break;
 
           case 'intitulé':
-            newEleJeu.intitule = pro.valeur;
+            // TODO: gérer groupe nominal ?
+            newObjet.intitule = new GroupeNominal(null, pro.valeur);
             break;
 
           default:
@@ -180,33 +173,32 @@ export class Generateur {
         const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement);
         // lieu trouvé
         if (lieuID !== -1) {
-          const lieuTrouve = jeu.lieux.find(x => x.id === lieuID);
-          lieuTrouve.inventaire.objets.push(newEleJeu);
+          newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), ClasseRacine.lieu, lieuID);
           // pas de lieu trouvé
         } else {
           // chercher un contenant ou un support
-          const contenantSupport = Generateur.getContenantSupport(jeu.elements, curEle.positionString.complement);
+          const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
           if (contenantSupport) {
-            contenantSupport.inventaire.objets.push(newEleJeu);
+            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), ClasseRacine.objet, contenantSupport.id);
           } else {
             console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
           }
         }
 
-        jeu.elements.push(newEleJeu);
+        jeu.objets.push(newObjet);
 
         // élément pas positionné
       } else {
-        jeu.elements.push(newEleJeu);
+        jeu.objets.push(newObjet);
       }
     });
 
     // PLACEMENT DU JOUEUR
     // *******************
     // si pas de position définie, on commence dans le premier lieu
-    if (!jeu.position) {
+    if (!jeu.joueur.position) {
       if (jeu.lieux.length > 0) {
-        jeu.position = jeu.lieux[0].id;
+        jeu.joueur.position = new PositionObjet(PrepositionSpatiale.dans, ClasseRacine.lieu, jeu.lieux[0].id);
       }
     }
 
@@ -255,7 +247,7 @@ export class Generateur {
         lieu.voisins.push(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
-        if (elVoisin.type == ClasseElement.lieu) {
+        if (elVoisin.type == ClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
           const newVoisin = new Voisin(lieuTrouveID, elVoisin.type, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
@@ -316,13 +308,15 @@ export class Generateur {
     return retVal;
   }
 
-  static getContenantSupport(objets: ElementJeu[], nomObjet: string) {
-    const candidats = objets.filter(x => x.type == ClasseElement.contenant || x.type == ClasseElement.support);
+  static getContenantSupport(objets: Objet[], nomObjet: string) {
 
-    let trouve: ElementJeu = null;
+    // TODO: check si contenant ou support ?
+    // mais quid pour « sous » ?
 
-    candidats.forEach(el => {
-      if (el.nom == nomObjet) {
+    let trouve: Objet = null;
+
+    objets.forEach(el => {
+      if (el.nom === nomObjet) {
         trouve = el;
       }
     });

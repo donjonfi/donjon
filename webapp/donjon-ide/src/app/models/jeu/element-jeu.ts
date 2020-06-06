@@ -1,6 +1,6 @@
 import { Capacite } from '../compilateur/capacite';
-import { ClasseElement } from '../commun/type-element.enum';
 import { Genre } from '../commun/genre.enum';
+import { GroupeNominal } from '../commun/groupe-nominal';
 import { Inventaire } from './inventaire';
 import { Nombre } from '../commun/nombre.enum';
 
@@ -9,6 +9,17 @@ export class ElementJeu {
   constructor(
     /** Identifiant unique de l’élément */
     public id: number,
+
+    /** Nom de l’élément */
+    public nom: string,
+    /**
+     * Genre de l’élément
+     * - Féminin
+     * - Masculin
+     * - Neutre
+     */
+
+
     /**
      * Type de l’élément
      * - Objet
@@ -20,47 +31,48 @@ export class ElementJeu {
      * - Support
      * - …
      */
-    public type: ClasseElement,
-    /** Déterminant de l’élément */
-    public determinant: string,
-    /** Nom de l’élément */
-    public nom: string,
-    /**
-     * Genre de l’élément
-     * - Féminin
-     * - Masculin
-     * - Neutre
-     */
-    public genre: Genre,
-    /**
-     * Nombre de l’élément:
-     * - Singulier
-     * - Pluriel
-     * - Indéfini
-     */
-    public nombre: Nombre,
-    /**
-     * Quantité disponible de l’élément.
-     * > -1: illimité.
-     */
-    public quantite: number,
-  ) { }
+    public classe: string,
 
+  ) {
+
+  }
+
+
+
+
+
+
+  public genre: Genre;
   /**
-   * Intitulé de l’élément pour le joueur.
-   * Il remplace le déterminant/nom à l’affichage
+   * Nombre de l’élément:
+   * - Singulier
+   * - Pluriel
+   * - Indéfini
    */
-  public intitule: string = null;
+  public nombre: Nombre;
+  /**
+   * Quantité disponible de l’élément.
+   * > -1: illimité.
+   */
+  public quantite: number;
+
+
   /** Intitulé (pluriel) */
-  public intituleP: string = null;
+  public intituleP: GroupeNominal = null;
   /** Intitulé (singulier) */
-  public intituleS: string = null;
+  public intituleS: GroupeNominal = null;
   /** Intitulé (masculin) */
-  public intituleM: string = null;
+  public intituleM: GroupeNominal = null;
   /** Intitulé (féminin) */
-  public intituleF: string = null;
+  public intituleF: GroupeNominal = null;
+
+  public titre: string = null;
+
   /** Description de l’élément */
   public description: string = null;
+  /** L’élément a-t-il déjà été décrit au joueur */
+  decrit: boolean;
+
   /**
    * États actuels de l’élément
    * - ouvrable
@@ -75,7 +87,7 @@ export class ElementJeu {
   /** Capacités de l’élément */
   public capacites: Capacite[] = [];
 
-  public inventaire: Inventaire = new Inventaire();
+  // public inventaire: Inventaire = new Inventaire();
 
   // STATISTIQUES
 

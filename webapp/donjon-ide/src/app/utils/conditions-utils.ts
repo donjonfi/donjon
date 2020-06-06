@@ -24,59 +24,58 @@ export class ConditionsUtils {
     }
     if (condition) {
       // concerne le joueur
-      if (condition.sujet.nom === "joueur") {
+      // if (condition.sujet.nom === "joueur") {
 
-        switch (condition.verbe) {
-          case 'possède':
-            // retrouver l’objet dans l’inventaire
-            let trouve = this.eju.trouverElementJeu(condition.sujetComplement, EmplacementElement.inventaire, true, false);
-            if (trouve === -1) {
-              console.warn("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujetComplement, condition);
-            }
-            retVal = (trouve !== null && trouve !== -1);
-            break;
+      //   switch (condition.verbe) {
+      //     case 'possède':
+      //       // retrouver l’objet dans l’inventaire
+      //       let trouve = this.eju.trouverElementJeu(condition.sujetComplement, EmplacementElement.inventaire, true, false);
+      //       if (trouve === -1) {
+      //         console.warn("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujetComplement, condition);
+      //       }
+      //       retVal = (trouve !== null && trouve !== -1);
+      //       break;
 
-          case 'est':
-            console.warn("siEstVrai: joueur est: pas géré", condition);
-            break;
+      //     case 'est':
+      //       console.warn("siEstVrai: joueur est: pas géré", condition);
+      //       break;
 
-          default:
-            console.warn("siEstVrai: verbe pas connu:", condition);
-            break;
-        }
+      //     default:
+      //       console.warn("siEstVrai: verbe pas connu:", condition);
+      //       break;
+      //   }
 
         // concerne l'inventaire (du joueur)
-      } else if (condition.sujet.nom == "inventaire") {
+      // } else 
+      if (condition.sujet.nom == "inventaire") {
 
         // concerne un élément du jeu
       } else {
         switch (condition.verbe) {
           // état
           case 'est':
-            let eleJeu = this.eju.trouverElementJeu(condition.sujet, EmplacementElement.iciEtInventaire, true, true);
-            // élément trouvé
-            if (eleJeu === -1) {
-              console.warn("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujet, condition);
-            } else if (eleJeu) {
+            const correspondances = this.eju.trouverCorrespondance(condition.sujet);
+
+            if (correspondances.elements.length == 1) {
+              let eleJeu = correspondances.elements[0];
               retVal = ElementsJeuUtils.possedeCetEtat(eleJeu, condition.complement);
-              // élément pas trouvé
+            } else if (correspondances.elements.length > 1) {
+              console.error("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujet, condition);
             } else {
-              retVal = false;
+              console.error("siEstVrai >>> pas l’élément trouvé pour", condition.sujet, condition);
             }
+            break;
+
+          case 'possède':
+          case 'possèdent':
+            console.error("siEstVrais > condition « possède » pas encore gérée.");
             break;
 
           case 'se trouve':
           case 'se trouvent':
             // vérifier si un élément est présent dans la pièce actuelle
-            if (condition.complement === 'ici') {
-              let eleJeu = this.eju.trouverElementJeu(condition.sujet, EmplacementElement.ici, true, false);
-              retVal = (eleJeu !== null);
-              // vérifier si un élément est à un endroit particulier
-            } else {
-              // TODO: chercher un élément dans une autre pièce
-              console.warn("se trouve xxxx pas encore géré :", condition.complement);
-              return false;
-            }
+            this.eju.getObjetsQuiSeTrouventLa(condition.complement);
+            console.error("siEstVrais > condition « se trouve » pas encore gérée.");
             break;
 
           default:

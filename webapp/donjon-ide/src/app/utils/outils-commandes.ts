@@ -1,6 +1,6 @@
 import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
 
-import { ClasseElement } from '../models/commun/type-element.enum';
+import { ClasseRacine } from '../models/commun/classe';
 import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
@@ -8,6 +8,7 @@ import { Genre } from '../models/commun/genre.enum';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
+import { Objet } from '../models/jeu/objet';
 import { Resultat } from '../models/jouer/resultat';
 import { StringUtils } from './string.utils';
 
@@ -69,7 +70,7 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  static afficherQuantiteIntitule(ej: ElementJeu, majuscule: boolean, estFeminin: boolean) {
+  static afficherQuantiteIntitule(ej: Objet, majuscule: boolean, estFeminin: boolean) {
 
     let determinant = OutilsCommandes.afficherUnUneDesQuantite(ej, majuscule, estFeminin, null);
     let intitule = ej.intitule;
@@ -85,10 +86,10 @@ export class OutilsCommandes {
 
 
 
-  static objetPossedeCapaciteAction(ej: ElementJeu, actionA: string, actionB: string = null): boolean {
-    if (ej) {
+  static objetPossedeCapaciteAction(obj: Objet, actionA: string, actionB: string = null): boolean {
+    if (obj) {
       var retVal = false;
-      ej.capacites.forEach(cap => {
+      obj.capacites.forEach(cap => {
         const curAction = cap.verbe.toLocaleLowerCase().trim();
         if ((curAction === actionA.toLocaleLowerCase().trim()) || (actionB && curAction === actionB.toLocaleLowerCase().trim())) {
           retVal = true;
@@ -102,35 +103,13 @@ export class OutilsCommandes {
 
 
 
-  positionnerJoueur(position: string): Resultat {
 
-    let resultat = new Resultat(true, '', 1);
 
-    position = position.trim().replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
-    // chercher le lieu
-    let lieuxTrouves = this.jeu.lieux.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
-    // si on n’a pas trouvé
-    if (lieuxTrouves.length == 0) {
-      console.error("positionnerJoueur : pas pu trouver le lieu correspondant à la position", position);
-      resultat.succes = false;
-      // si on a trouvé un lieu
-    } else if (lieuxTrouves.length === 1) {
-      this.jeu.position = lieuxTrouves[0].id;
-      // si on a trouvé plusieurs lieux différents
-    } else if (lieuxTrouves.length > 1) {
-      // TODO: ajouter des mots en plus
-      console.error("positionnerJoueur : plusieurs lieux trouvés pour la position", position);
-      resultat.succes = false;
-    }
-
-    return resultat;
-  }
-
-  afficherStatutPorte(porte: ElementJeu) {
+  afficherStatutPorte(porte: Objet) {
     let retVal = "";
     if (!porte) {
       console.error("afficherStatutPorte >> porte pas définie");
-    } else if (porte.type !== ClasseElement.porte) {
+    } else if (porte.classe !== ClasseRacine.porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
       let ouvrable = ElementsJeuUtils.possedeCetEtat(porte, 'ouvrable');
@@ -166,7 +145,7 @@ export class OutilsCommandes {
   afficherCurLieu() {
     if (this.eju.curLieu) {
       return "—————————————————\n" +
-        this.eju.curLieu.intitule
+        this.eju.curLieu.titre
         + "\n—————————————————\n"
         + (this.eju.curLieu.description ? (this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
@@ -183,7 +162,7 @@ export class OutilsCommandes {
     if (this.eju.curLieu.voisins.length > 0) {
       retVal = "Sorties :";
       this.eju.curLieu.voisins.forEach(voisin => {
-        if (voisin.type == ClasseElement.lieu) {
+        if (voisin.type == ClasseRacine.lieu) {
           retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
         }
       });
@@ -195,7 +174,7 @@ export class OutilsCommandes {
 
   afficherInventaire() {
     let retVal: string;
-    let objets = this.jeu.inventaire.objets.filter(x => x.quantite !== 0);
+    const objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.objet && x.position.cibleId === this.jeu.joueur.id && x.quantite !== 0);
     if (objets.length == 0) {
       retVal = "\nVotre inventaire est vide.";
     } else {
@@ -209,9 +188,9 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  afficherContenu(el: ElementJeu, phraseSiVide = "Il n’y a rien d’intéressant.") {
+  afficherContenu(obj: Objet, phraseSiVide = "Il n’y a rien d’intéressant.") {
     let retVal: string;
-    let objets = el.inventaire.objets.filter(x => x.quantite !== 0);
+    let objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.objet && x.position.cibleId == obj.id);
     if (objets.length == 0) {
       retVal = phraseSiVide;
     } else {
@@ -228,7 +207,7 @@ export class OutilsCommandes {
   afficherObjetsCurLieu() {
     let retVal: string;
 
-    let objets = this.eju.curLieu.inventaire.objets.filter(x => x.quantite !== 0);
+    let objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.lieu && x.position.cibleId === this.eju.curLieu.id);
 
     if (objets.length == 0) {
       retVal = "\nJe ne vois pas d’objet ici.";
@@ -244,31 +223,31 @@ export class OutilsCommandes {
   afficherLocalisation(localisation: Localisation, curLieuIndex: number, voisinIndex: number) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
-    let intituleLieu = lieu.intitule;
+    let titreLieu = lieu.titre;
     switch (localisation) {
       case Localisation.nord:
-        retVal = "nord (n)" + (lieu.visite ? (" − " + intituleLieu) : '');
+        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : '');
         break;
       case Localisation.sud:
-        retVal = "sud (s) " + (lieu.visite ? (" − " + intituleLieu) : '');
+        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : '');
         break;
       case Localisation.est:
-        retVal = "est (e)" + (lieu.visite ? (" − " + intituleLieu) : '');
+        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : '');
         break;
       case Localisation.ouest:
-        retVal = "ouest (o)" + (lieu.visite ? (" − " + intituleLieu) : '');
+        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : '');
         break;
       case Localisation.bas:
-        retVal = "descendre (de) − " + intituleLieu;
+        retVal = "descendre (de) − " + titreLieu;
         break;
       case Localisation.haut:
-        retVal = "monter (mo) − " + intituleLieu;
+        retVal = "monter (mo) − " + titreLieu;
         break;
       case Localisation.exterieur:
-        retVal = "sortir (so) − " + intituleLieu;
+        retVal = "sortir (so) − " + titreLieu;
         break;
       case Localisation.interieur:
-        retVal = "entrer (en) − " + intituleLieu;
+        retVal = "entrer (en) − " + titreLieu;
         break;
 
       default:

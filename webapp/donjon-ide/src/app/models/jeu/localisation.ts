@@ -26,5 +26,9 @@ export enum Localisation {
     /** Intérieur */
     interieur = 'i',
     /** Extérieur */
-    exterieur = 'x'
+    exterieur = 'x',
+    /** Dessous */
+    dessous = 'd',
+    /** Dessus */
+    dessus = 'u',
 }

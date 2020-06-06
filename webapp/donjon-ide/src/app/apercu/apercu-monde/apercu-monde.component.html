@@ -56,37 +56,33 @@
         <li *ngIf="act.cibleCeci && act.cibleCeci.determinant == 'deux'">
           ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
         </li>
-        <li>Refus :
-          <ul>
-            <li>Verifications :
+        <li>Refus : <i *ngIf="act.verifications.length == 0">(aucune vérification)</i>
+          <ul *ngIf="act.verifications.length != 0">
+            <li *ngFor="let ver of act.verifications; index as k">
+              Vérification {{(k+1)}} :
               <ul>
-                <li *ngFor="let ver of act.verifications; index as k">
-                  Vérification {{(k+1)}} :
+                <li>
+                  Conditions :
                   <ul>
-                    <li>
-                      Conditions :
+                    <li *ngFor="let cond of ver.conditions; index as j">
+                      Condition {{(j+1)}} :
                       <ul>
-                        <li *ngFor="let cond of ver.conditions; index as j">
-                          Condition {{(j+1)}} :
-                          <ul>
-                            <li>Sujet :
-                              {{cond.sujet.determinant ? ("["+cond.sujet.determinant.trim()+ "] ") : ""}}{{cond.sujet.pronom ? ("["+cond.sujet.pronom.trim()+ "] ") : ""}}{{cond.sujet.nom}}
-                            </li>
-                            <li>Verbe : {{cond.verbe}}</li>
-                            <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
-                            <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
-                          </ul>
+                        <li>Sujet :
+                          {{cond.sujet.determinant ? ("["+cond.sujet.determinant.trim()+ "] ") : ""}}{{cond.sujet.pronom ? ("["+cond.sujet.pronom.trim()+ "] ") : ""}}{{cond.sujet.nom}}
                         </li>
+                        <li>Verbe : {{cond.verbe}}</li>
+                        <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
+                        <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
                       </ul>
                     </li>
-                    <li>
-                      Resultats :
-                      <ul>
-                        <li *ngFor="let ins of ver.resultats; index as i">
-                          Instruction {{(i+1)}} :
-                          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-                        </li>
-                      </ul>
+                  </ul>
+                </li>
+                <li>
+                  Resultats :
+                  <ul>
+                    <li *ngFor="let ins of ver.resultats; index as i">
+                      Instruction {{(i+1)}} :
+                      <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
                     </li>
                   </ul>
                 </li>
@@ -96,19 +92,15 @@
         </li>
         <li>Exécution :
           <ul>
-            <li>Instructions :
-              <ul>
-                <li *ngFor="let ins of act.instructions; index as i">
-                  Instruction {{(i+1)}} :
-                  <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-                </li>
-              </ul>
+            <li *ngFor="let ins of act.instructions; index as i">
+              Instruction {{(i+1)}} :
+              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
             </li>
           </ul>
         </li>
 
-        <li>Finalisation :
-          <ul>
+        <li>Finalisation : <i *ngIf="act.instructionsFinales.length == 0">(aucune instruction)</i>
+          <ul *ngIf="act.instructionsFinales.length != 0">
             <li>Instructions :
               <ul>
                 <li *ngFor="let ins of act.instructionsFinales; index as i">

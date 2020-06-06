@@ -1,8 +1,8 @@
 
 export enum EmplacementElement {
+  joueur = 'inv',
   ici = 'ici',
-  partout = 'partout',
-  inventaire = 'inv',
-  iciEtInventaire = 'ici_et_inv',
   portes = 'portes',
+  lieux = 'lieux',
+  partout = 'partout',
 }
