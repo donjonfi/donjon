@@ -1,10 +1,11 @@
-import { ClasseRacine } from '../models/commun/classe';
+import { EClasseRacine } from '../models/commun/classe';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { Instructions } from './instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
@@ -13,9 +14,10 @@ export class Commandes {
 
   constructor(
     public jeu: Jeu,
+    public ins: Instructions,
     private verbeux: boolean,
   ) {
-    this.outils = new OutilsCommandes(this.jeu, this.verbeux);
+    this.outils = new OutilsCommandes(this.jeu, this.ins, this.verbeux);
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
   }
 
@@ -203,8 +205,8 @@ export class Commandes {
         break;
     }
 
-    const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, ClasseRacine.lieu));
-    const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, ClasseRacine.porte));
+    const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, EClasseRacine.lieu));
+    const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, EClasseRacine.porte));
 
     // TODO: vérifier accès…
     if (voisinPorte && !ElementsJeuUtils.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
@@ -218,7 +220,7 @@ export class Commandes {
         console.log("pas de porte");
       }
       if (voisinLieu) {
-        this.jeu.joueur.position.cibleType = ClasseRacine.lieu;
+        this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
         this.jeu.joueur.position.cibleId = voisinLieu.id;
         return this.outils.afficherCurLieu();
       } else {
@@ -520,7 +522,8 @@ export class Commandes {
   }
 
   inventaire() {
-    return this.outils.afficherInventaire();
+    // return this.outils.afficherInventaire();
+    return this.ins.executerAfficherContenu(this.jeu.joueur).sortie;
   }
 
   /**

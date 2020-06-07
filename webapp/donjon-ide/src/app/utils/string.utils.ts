@@ -33,7 +33,7 @@ export class StringUtils {
         .replace(/(à|ä)/g, 'a')
         .replace(/ç/g, 'c')
         // retirer déterminants
-        .replace(/^(un |une |des |le |la |l'|les )/, '');
+        .replace(/^(un |une |des |le |la |l'|l’|les )/, '');
     }
     return retVal;
   }

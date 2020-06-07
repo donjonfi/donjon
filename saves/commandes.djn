@@ -1,13 +1,25 @@
 "Commandes de base"
 
+le joueur peut regarder:
+  dire "[description ici]".
+  
+regarder ceci est une action qui concerne un objet visible.
+
+exécuter regarder ceci:
+  dire "[description ceci]".
+
+jeter ceci est une action qui concerne un objet possédé.
+
+exécuter jeter ceci:
+  déplacer ceci vers ici.
+  
+finaliser jeter ceci:
+  dire "Vous avez jeté [intitulé ceci]".
+
 prendre est une action.
 
 exécuter prendre:
   dire "prendre quoi ?".
-
-
-le joueur peut prendre la tomate:
-  dire "J’ai pris une tomate!".
   
 prendre ceci est une action qui concerne un objet visible.
 
@@ -22,7 +34,12 @@ exécuter prendre ceci:
   déplacer ceci vers inventaire.
   
 finaliser prendre ceci:
-  dire "[ceci] a été ajouté[accord ceci] à votre inventaire.".
+  dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
 
-le bureau est un lieu.
-il y a une pièce dans le bureau.
+le joueur peut manger la tomate:
+  dire "J’ai mangé une tomate!".
+
+la salle est un lieu. "Vous êtes dans une salle vide à l’exception d’une chaise.".
+il y a une chaise dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
+
+il y a une tomate dans le bureau.

@@ -1,5 +1,7 @@
-import { ClasseRacine } from '../commun/classe';
+import { Classe, ClassesRacines, EClasseRacine } from '../commun/classe';
+
 import { ElementJeu } from './element-jeu';
+import { GroupeNominal } from '../commun/groupe-nominal';
 import { Voisin } from './voisin';
 
 export class Lieu extends ElementJeu {
@@ -7,11 +9,11 @@ export class Lieu extends ElementJeu {
   constructor(
     id: number,
     nom: string,
+    intitule: GroupeNominal = null,
     public titre: string,
-    // intitule: GroupeNominal = null,
-    classe: string = ClasseRacine.lieu,
+    classe: Classe = ClassesRacines.Lieu,
   ) {
-    super(id, nom, classe);
+    super(id, nom, intitule, classe);
   }
 
   voisins: Voisin[] = [];

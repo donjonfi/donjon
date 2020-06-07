@@ -1,9 +1,12 @@
+import { Action, ActionCeciCela } from '../models/compilateur/action';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/abreviations';
-import { Action } from '../models/compilateur/action';
+import { ApercuSujetComponent } from '../apercu/apercu-sujet/apercu-sujet.component';
+import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/commandes';
 import { ConditionsUtils } from '../utils/conditions-utils';
+import { Correspondance } from '../utils/correspondance';
 import { Declancheur } from '../utils/declancheur';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
@@ -14,6 +17,8 @@ import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from '../utils/instructions';
 import { Jeu } from '../models/jeu/jeu';
+import { Lieu } from '../models/jeu/lieu';
+import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/phrase-utils';
 import { Resultat } from '../models/jouer/resultat';
 
@@ -53,10 +58,10 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.sortieJoueur = "";
-      this.com = new Commandes(this.jeu, this.verbeux);
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
+      this.com = new Commandes(this.jeu, this.ins, this.verbeux);
 
       this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
 
@@ -82,7 +87,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  
+
 
   /**
    * Historique: aller en arrière.
@@ -172,15 +177,17 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     if (els) {
 
-      const ceci = els.sujet ? els.sujet.nom : null;
-      const cela = els.sujetComplement ? els.sujetComplement.nom : null;
-      let evenement = new Evenement(els.infinitif, ceci, null, cela);
+      const ceciIntitule = els.sujet;
+      const celaIntitule = els.sujetComplement;
+      const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
+      const celaNom = celaIntitule ? celaIntitule.nom : null;
+      let evenement = new Evenement(els.infinitif, ceciNom, null, celaNom);
 
-      const resultatCeci = this.eju.trouverCorrespondance(els.sujet);
-      const resultatCela = this.eju.trouverCorrespondance(els.sujetComplement);
+      const resultatCeci = this.eju.trouverCorrespondance(ceciIntitule);
+      const resultatCela = this.eju.trouverCorrespondance(celaIntitule);
 
-      console.log(" >>>>>>>>> resultatCeci:", resultatCeci);
-      console.log(" >>>>>>>>> resultatCela:", resultatCela);
+      console.log(" >>>>>>>>> ceciIntitule:", ceciIntitule, "ceciNom:", ceciNom, "resultatCeci", resultatCeci);
+      console.log(" >>>>>>>>> celaIntitule:", celaIntitule, "celaNom:", celaNom, "resultatCela", resultatCela);
 
       switch (els.infinitif) {
 
@@ -268,12 +275,20 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
 
         default:
-          const action = this.trouverActionPersonnalisee(els);
-          if (action === -1) {
+          const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
+          if (actionCeciCela === -1) {
             retVal = "Je comprend « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
             console.warn("commande: ", els);
-          } else if (action) {
-            retVal = this.executerAction(action, els);
+          } else if (actionCeciCela) {
+
+            // vérifier l’action
+            
+            // exécuter l’action
+            retVal = this.executerAction(actionCeciCela);
+
+            // finaliser l’action
+            retVal += this.finaliserAction(actionCeciCela);
+
           } else {
             retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
           }
@@ -285,16 +300,22 @@ export class LecteurComponent implements OnInit, OnChanges {
     return retVal;
   }
 
-
-  private executerAction(action: Action, els: ElementsPhrase) {
-    const resultat = this.ins.executerInstructions(action.instructions);
+  private executerAction(action: ActionCeciCela) {
+    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela);
     return resultat.sortie;
   }
 
-  private trouverActionPersonnalisee(els: ElementsPhrase): Action | -1 {
+  private finaliserAction(action: ActionCeciCela) {
+    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela);
+    return resultat.sortie;
+  }
+
+  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela | -1 {
 
     let candidats: Action[] = [];
-    let resultat: Action | -1 = null;
+    let matchCeci: ElementJeu | -1 = null;
+    let matchCela: ElementJeu | -1 = null;
+    let resultat: ActionCeciCela | -1 = null;
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
@@ -317,68 +338,99 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     // infinitif + sujet (+complément), vérifier que celui de la commande correspond
     if (els.sujet) {
+
       candidats.forEach(candidat => {
         let candidatCorrespond = false;
+        matchCeci = null;
+        matchCela = null;
+
         // vérifier sujet (CECI)
-        if (candidat.cibleCeci && this.verifierCandidatCeciCela(els.sujet, candidat.cibleCeci)) {
-
-          if (els.complement) {
-
-            if (candidat.cibleCela && this.verifierCandidatCeciCela(els.sujetComplement, candidat.cibleCela)) {
-
+        if (candidat.cibleCeci) {
+          matchCeci = this.verifierCandidatCeciCela(ceci, candidat.cibleCeci);
+          if (matchCeci !== null) {
+            if (matchCeci === -1) {
+              // plusieurs éléments trouvés => il faut être plus précis.
+              console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Ceci:", ceci);
+            } else {
+              if (els.complement) {
+                if (candidat.cibleCela) {
+                  matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
+                  if (matchCela !== null) {
+                    if (matchCela === -1) {
+                      // plusieurs éléments trouvés => il faut être plus précis.
+                      console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Cela:", cela);
+                    } else {
+                      candidatCorrespond = true;
+                    }
+                  }
+                }
+              } else {
+                candidatCorrespond = true;
+              }
             }
-
           }
-
         } else {
           // candidat ne correspond pas.
         }
 
-        if (candidatCorrespond) {
+        if (candidatCorrespond && matchCeci !== -1 && matchCela !== -1) {
           if (resultat === -1) {
-            resultat = candidat;
+            resultat = new ActionCeciCela(candidat, matchCeci, matchCela);
           } else {
+            // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
             console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
           }
         }
 
-      })
+      });
       // infinitif simple
     } else {
-
-    }
-
-    if (candidats.length > 0) {
-      resultat = candidats[0];
-      if (candidats.length > 1) {
+      if (candidats.length == 1) {
+        resultat = new ActionCeciCela(candidats[0], null, null);
+      } else {
+        // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
         console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
       }
     }
-  
     // console.warn("testerCommandePersonnalisee >>> resultat:", resultat);
     return resultat;
   }
 
-  private verifierCandidatCeciCela(sujet: GroupeNominal, candidatCeciCela: GroupeNominal): boolean {
-  let correspond = false;
+  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: GroupeNominal): ElementJeu | -1 {
+    let retVal: ElementJeu | -1 = null;
 
-  // il s’agit d’un sujet précis
-  if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
-    console.log("cibleCeci > sujet précis");
-    // vérifier s’il s’agit du sujet précis
-    if (candidatCeciCela.nom === sujet.nom && candidatCeciCela.epithete === sujet.epithete) {
-      correspond = true;
+    // il s’agit d’un sujet précis
+    if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
+      console.log("cibleCeci > sujet précis");
+      // vérifier s’il s’agit du sujet précis
+
+      ceciCela.elements.forEach(ele => {
+        if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
+          if (retVal === null) {
+            retVal = ele;
+          } else {
+            // déjà un match, on en a plusieurs.
+            retVal = -1;
+          }
+        }
+      });
+      // todo: vérifier début de nom si aucune correspondance exacte
+
+      // il s’agit d’un type
+    } else if (candidatCeciCela.determinant.match(/^(un|une|des)( )?$/)) {
+      // TODO: vérifier s’il s’agit du type
+      ceciCela.elements.forEach(ele => {
+        if (Classe.heriteDe(ele.classe, candidatCeciCela.nom)) {
+          if (retVal === null) {
+            retVal = ele;
+          } else {
+            // déjà un match, on en a plusieurs.
+            retVal = -1;
+          }
+        }
+      });
     }
-    // il s’agit d’un type
-  } else if (candidatCeciCela.determinant.match(/^(un|une|des)( )?$/)) {
-    // TODO: vérifier s’il s’agit du type
-    console.log("candidatCeciCela > sujet type");
-    correspond = true;
-  } else {
-    console.error("candidatCeciCela > déterminant pas reconnu");
+    return retVal;
   }
-
-  return correspond;
-}
 
 }

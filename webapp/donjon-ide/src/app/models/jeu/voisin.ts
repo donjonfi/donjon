@@ -1,4 +1,4 @@
-import { ClasseRacine } from '../commun/classe';
+import { EClasseRacine } from '../commun/classe';
 import { Localisation } from './localisation';
 
 export class Voisin {

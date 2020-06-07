@@ -1,8 +1,8 @@
+import { ClassesRacines, EClasseRacine } from '../models/commun/classe';
 import { PositionObjet, PrepositionSpatiale } from '../models/jeu/position-objet';
 
 import { Action } from '../models/compilateur/action';
 import { Auditeur } from '../models/jouer/auditeur';
-import { ClasseRacine } from '../models/commun/classe';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Genre } from '../models/commun/genre.enum';
@@ -25,19 +25,23 @@ export class Generateur {
     let indexElementJeu = 0;
     let jeu = new Jeu();
 
+    // DÉFINIR LE TITRE
+    // ****************
     jeu.titre = monde.titre;
 
-
+    // DÉFINIR LES CLASSES
+    // *******************
+    jeu.classes = monde.classes;
 
     // PLACER LE JOUEUR
     // ****************
-    jeu.joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClasseRacine.vivant, 1, Genre.m);
+    jeu.joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClassesRacines.Vivant, 1, Genre.m);
 
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
       const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
       const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
       if (lieuID !== -1) {
-        jeu.joueur.position = new PositionObjet(ps, ClasseRacine.lieu, lieuID);
+        jeu.joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
       }
     }
 
@@ -48,7 +52,7 @@ export class Generateur {
 
       let titre = curEle.determinant + curEle.nom;
 
-      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, titre, curEle.type);
+      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, null, titre);
       nouvLieu.description = curEle.description;
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
@@ -74,7 +78,7 @@ export class Generateur {
     let premierIndexPorte = (indexElementJeu + 1);
     monde.portes.forEach(curEle => {
       const intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-      let newPorte = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.type, curEle.quantite, curEle.genre);
+      let newPorte = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
       newPorte.description = curEle.description;
       curEle.attributs.forEach(at => {
         newPorte.etats.push(at);
@@ -125,7 +129,7 @@ export class Generateur {
 
     monde.objets.forEach(curEle => {
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-      let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.type, curEle.quantite, curEle.genre);
+      let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
 
       newObjet.description = curEle.description;
       newObjet.etats = curEle.attributs;
@@ -179,13 +183,13 @@ export class Generateur {
         const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement);
         // lieu trouvé
         if (lieuID !== -1) {
-          newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), ClasseRacine.lieu, lieuID);
+          newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
           // pas de lieu trouvé
         } else {
           // chercher un contenant ou un support
           const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
           if (contenantSupport) {
-            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), ClasseRacine.objet, contenantSupport.id);
+            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
           } else {
             console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
           }
@@ -204,7 +208,7 @@ export class Generateur {
     // si pas de position définie, on commence dans le premier lieu
     if (!jeu.joueur.position) {
       if (jeu.lieux.length > 0) {
-        jeu.joueur.position = new PositionObjet(PrepositionSpatiale.dans, ClasseRacine.lieu, jeu.lieux[0].id);
+        jeu.joueur.position = new PositionObjet(PrepositionSpatiale.dans, EClasseRacine.lieu, jeu.lieux[0].id);
       }
     }
 
@@ -248,14 +252,14 @@ export class Generateur {
         console.log("positionString pas trouvé:", elVoisin.positionString);
       } else {
         // ajouter au lieu trouvé, le voisin elVoisin
-        const opposeVoisin = new Voisin(idElVoisin, elVoisin.type, localisation);
+        const opposeVoisin = new Voisin(idElVoisin, elVoisin.classe.nom, localisation);
         const lieu = lieux.find(x => x.id == lieuTrouveID);
         lieu.voisins.push(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
-        if (elVoisin.type == ClasseRacine.lieu) {
+        if (elVoisin.classeIntitule == EClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
-          const newVoisin = new Voisin(lieuTrouveID, elVoisin.type, this.getOpposePosition(localisation));
+          const newVoisin = new Voisin(lieuTrouveID, elVoisin.classe.nom, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
           lieuTrouve.voisins.push(newVoisin);
         }

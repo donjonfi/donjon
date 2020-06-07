@@ -48,13 +48,13 @@
       <b>{{act.infinitif}}</b> {{act.ceci ? 'ceci': ''}} {{act.cela ? 'avec cela': ''}}
       <ul>
         <li *ngIf="act.cibleCeci && act.cibleCeci.determinant != 'deux'">
-          ceci : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
+          ceci : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} <i>{{act.cibleCeci.epithete}}</i>
         </li>
         <li *ngIf="act.cibleCela && act.cibleCeci.determinant != 'deux'">
-          cela : {{act.cibleCela.determinant}} {{act.cibleCela.nom}} {{act.cibleCela.epithete}}
+          cela : {{act.cibleCela.determinant}} {{act.cibleCela.nom}} <i>{{act.cibleCela.epithete}}</i>
         </li>
         <li *ngIf="act.cibleCeci && act.cibleCeci.determinant == 'deux'">
-          ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} {{act.cibleCeci.epithete}}
+          ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} <i>{{act.cibleCela.epithete}}</i>
         </li>
         <li>Refus : <i *ngIf="act.verifications.length == 0">(aucune vérification)</i>
           <ul *ngIf="act.verifications.length != 0">

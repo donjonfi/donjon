@@ -1,4 +1,5 @@
 import { Capacite } from '../compilateur/capacite';
+import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Inventaire } from './inventaire';
@@ -19,7 +20,12 @@ export class ElementJeu {
      * - Neutre
      */
 
-
+    /**
+     * Intitulé de l’élément pour le joueur.
+     * Il remplace le déterminant/nom à l’affichage
+     */
+    public intitule: GroupeNominal,
+    
     /**
      * Type de l’élément
      * - Objet
@@ -31,7 +37,7 @@ export class ElementJeu {
      * - Support
      * - …
      */
-    public classe: string,
+    public classe: Classe,
 
   ) {
 

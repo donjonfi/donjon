@@ -1,3 +1,4 @@
+import { Classe } from '../commun/classe';
 import { ElementJeu } from "./element-jeu";
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
@@ -8,16 +9,12 @@ export class Objet extends ElementJeu {
   constructor(
     id: number,
     nom: string,
-    /**
-     * Intitulé de l’élément pour le joueur.
-     * Il remplace le déterminant/nom à l’affichage
-     */
-    public intitule: GroupeNominal,
-    classe: string,
+    intitule: GroupeNominal,
+    classe: Classe,
     public quantite: number,
     public genre: Genre,
   ) {
-    super(id, nom, classe);
+    super(id, nom, intitule, classe);
   }
 
   denombrable: boolean;

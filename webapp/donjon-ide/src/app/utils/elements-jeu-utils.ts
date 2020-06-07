@@ -1,4 +1,4 @@
-import { Classe, ClasseRacine } from '../models/commun/classe';
+import { Classe, EClasseRacine } from '../models/commun/classe';
 
 import { Correspondance } from './correspondance';
 import { ElementJeu } from '../models/jeu/element-jeu';
@@ -188,7 +188,7 @@ export class ElementsJeuUtils {
   getLieuObjet(obj: Objet) {
     if (obj.position == null) {
       return null;
-    } else if (obj.position.cibleType === ClasseRacine.lieu) {
+    } else if (obj.position.cibleType === EClasseRacine.lieu) {
       return obj.position.cibleId;
     } else {
       const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
@@ -200,7 +200,7 @@ export class ElementsJeuUtils {
     return this.jeu.lieux.find(x => x.id === id);
   }
 
-  getVoisins(loc: Localisation, type: ClasseRacine) {
+  getVoisins(loc: Localisation, type: EClasseRacine) {
     let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc);
     return found ? found.id : -1;
   }
@@ -220,29 +220,36 @@ export class ElementsJeuUtils {
   }
 
   trouverCorrespondance(sujet: GroupeNominal): Correspondance {
+    let cor: Correspondance = null;
 
-    let cor = new Correspondance();
+    if (sujet) {
+      cor = new Correspondance();
+      console.warn("trouverCorrespondance sujet:", sujet);
 
-    console.warn("trouverCorrespondance sujet:", sujet);
+      // 1. Chercher dans les directions.
+      cor.localisation = this.trouverLocalisation(sujet);
 
-    // 1. Chercher dans les directions.
-    cor.localisation = this.trouverLocalisation(sujet);
+      // 2. Chercher dans la liste des lieux.
+      cor.lieux = this.trouverLieu(sujet);
 
-    // 2. Chercher dans la liste des lieux.
-    cor.lieux = this.trouverLieu(sujet);
+      // 3. Chercher parmis les objets
+      cor.objets = this.trouverObjet(sujet);
 
-    // 3. Chercher parmis les objets
-    cor.objets = this.trouverObjet(sujet);
+      console.log(" >>>> cor.objets=", cor.objets);
 
-    cor.elements = [];
-    // ajouter les objets aux éléments
-    if (cor.objets && cor.objets.length > 0) {
-      cor.elements = cor.elements.concat(cor.objets);
+
+      cor.elements = [];
+      // ajouter les objets aux éléments
+      if (cor.objets && cor.objets.length > 0) {
+        cor.elements = cor.elements.concat(cor.objets);
+      }
+      // ajouter les lieux aux éléments
+      if (cor.lieux && cor.lieux.length > 0) {
+        cor.elements = cor.elements.concat(cor.lieux);
+      }
     }
-    // ajouter les lieux aux éléments
-    if (cor.lieux && cor.lieux.length > 0) {
-      cor.elements = cor.elements.concat(cor.lieux);
-    }
+
+
 
     return cor;
   }
@@ -287,10 +294,17 @@ export class ElementsJeuUtils {
 
   }
 
-
   trouverObjet(sujet: GroupeNominal): Objet[] {
 
-    return [];
+    let retVal: Objet[] = [];
+
+    this.jeu.objets.forEach(obj => {
+      if (obj.intitule.nom === sujet.nom && obj.intitule.epithete === sujet.epithete) {
+        retVal.push(obj);
+      }
+    });
+
+    return retVal;
   }
 
   trouverLieu(sujet: GroupeNominal): Lieu[] {

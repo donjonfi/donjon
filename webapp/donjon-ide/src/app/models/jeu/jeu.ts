@@ -1,5 +1,6 @@
 import { Action } from '../compilateur/action';
 import { Auditeur } from '../jouer/auditeur';
+import { Classe } from '../commun/classe';
 import { ElementJeu } from './element-jeu';
 import { Inventaire } from './inventaire';
 import { Lieu } from './lieu';
@@ -9,13 +10,15 @@ import { Regle } from '../compilateur/regle';
 export class Jeu {
 
   constructor() {
-    
+
   }
 
   /**
    * Titre du jeu.
    */
   titre: string;
+
+  classes: Classe[] = [];
 
   /**
    * Lieux qui constituent le jeu.

@@ -1,4 +1,5 @@
 import { Capacite } from './capacite';
+import { Classe } from '../commun/classe';
 import { ElementDonjon } from './element-donjon';
 import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
@@ -22,8 +23,8 @@ export class ElementGenerique implements ElementDonjon {
     public determinant: string,
     public nom: string,
     public epithete: string,
-    public intituleType: string,
-    public type: string,
+    public classeIntitule: string,
+    public classe: Classe,
     public positionString: PositionSujetString,
     public genre: Genre,
     public nombre: Nombre,

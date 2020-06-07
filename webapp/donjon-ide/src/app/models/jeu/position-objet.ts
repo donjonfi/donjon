@@ -1,10 +1,10 @@
-import { ClasseRacine } from '../commun/classe';
+import { EClasseRacine } from '../commun/classe';
 
 export class PositionObjet {
 
   constructor(
     public pre: PrepositionSpatiale,
-    public cibleType: ClasseRacine.objet | ClasseRacine.lieu,
+    public cibleType: EClasseRacine.objet | EClasseRacine.lieu,
     public cibleId: number,
   ) { }
 

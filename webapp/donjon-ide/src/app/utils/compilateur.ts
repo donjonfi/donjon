@@ -1,8 +1,8 @@
+import { Classe, ClassesRacines, EClasseRacine } from '../models/commun/classe';
 import { Condition, LienCondition } from '../models/compilateur/condition';
 
 import { Action } from '../models/compilateur/action';
 import { Capacite } from '../models/compilateur/capacite';
-import { ClasseRacine } from '../models/commun/classe';
 import { Definition } from '../models/compilateur/definition';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -117,6 +117,7 @@ export class Compilateur {
     let erreurs = new Array<string>();
     let actions = new Array<Action>();
 
+
     let dernierePropriete: Propriete = null;
     let dernierElementGenerique: ElementGenerique = null;
 
@@ -211,7 +212,7 @@ export class Compilateur {
     let result: RegExpExecArray;
 
     // ajouter le joueur au monde
-    elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClasseRacine.joueur, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
     // elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, "inventaire", ClasseRacine.inventaire, null, Genre.m, Nombre.s, 1, null));
 
     phrases.forEach(phrase => {
@@ -291,7 +292,7 @@ export class Compilateur {
                 if (result !== null) {
                   // définir type de l'élément précédent
                   if (result[2] && result[2].trim() !== '') {
-                    dernierElementGenerique.type = Compilateur.getClasseElement(result[2]);
+                    dernierElementGenerique.classeIntitule = Compilateur.getClasseIntitule(result[2]);
                   }
                   // attributs de l'élément précédent
                   if (result[3] && result[3].trim() !== '') {
@@ -435,36 +436,48 @@ export class Compilateur {
     // *****************************
     elementsGeneriques.forEach(el => {
 
-      switch (el.type) {
-        case ClasseRacine.lieu:
-          monde.lieux.push(el);
-          break;
+      el.classe = Compilateur.trouverClasse(monde.classes, el.classeIntitule);
 
-        case ClasseRacine.porte:
-          monde.portes.push(el);
-          break;
-
-        case ClasseRacine.joueur:
-          monde.joueurs.push(el);
-          break;
-
-        case ClasseRacine.inventaire:
-          monde.inventaires.push(el);
-          break;
-
-        case ClasseRacine.objet:
-        case ClasseRacine.contenant:
-        case ClasseRacine.support:
-        case ClasseRacine.vivant:
-        case ClasseRacine.animal:
-        case ClasseRacine.personne:
-          monde.objets.push(el);
-          break;
-
-        default:
-          console.error("ParseCode > el.type inconnu:", el.type);
-          break;
+      // objets
+      if (Classe.heriteDe(el.classe, EClasseRacine.objet)) {
+        monde.objets.push(el);
+        // lieux
+      } else if (Classe.heriteDe(el.classe, EClasseRacine.lieu)) {
+        monde.lieux.push(el);
+      } else {
+        console.error("ParseCode >>> classe racine pas prise en charge:", el.classe);
       }
+
+      // switch (el.classeIntitule) {
+      //   case EClasseRacine.lieu:
+      //     monde.lieux.push(el);
+      //     break;
+
+      //   case EClasseRacine.porte:
+      //     monde.portes.push(el);
+      //     break;
+
+      //   case EClasseRacine.joueur:
+      //     monde.joueurs.push(el);
+      //     break;
+
+      //   case EClasseRacine.inventaire:
+      //     monde.inventaires.push(el);
+      //     break;
+
+      //   case EClasseRacine.objet:
+      //   case EClasseRacine.contenant:
+      //   case EClasseRacine.support:
+      //   case EClasseRacine.vivant:
+      //   case EClasseRacine.animal:
+      //   case EClasseRacine.personne:
+      //     monde.objets.push(el);
+      //     break;
+
+      //   default:
+      //     console.error("ParseCode > el.type inconnu:", el.classeIntitule);
+      //     break;
+      // }
 
     });
 
@@ -494,6 +507,16 @@ export class Compilateur {
     resultat.actions = actions;
     resultat.erreurs = erreurs;
     return resultat;
+  }
+
+  private static trouverClasse(classes: Classe[], nom: string): Classe {
+    const recherche = StringUtils.normaliserMot(nom);
+    let retVal = classes.find(x => x.nom === recherche);
+    // renvoyer un objet par défaut (?)
+    if (retVal == null) {
+      retVal = ClassesRacines.Objet;
+    }
+    return retVal;
   }
 
   private static separerConsequences(consequencesBrutes: string, erreurs: string[], sousConsequences: boolean) {
@@ -744,7 +767,7 @@ export class Compilateur {
     let determinant: string;
     let nom: string;
     let epithete: string;
-    let intituleType: string;
+    let intituleClasse: string;
     let classe: string;
     let genre: Genre;
     let attributsString: string;
@@ -786,8 +809,7 @@ export class Compilateur {
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
       epithete = result[3];
-      intituleType = result[4];
-      classe = Compilateur.getClasseElement(result[5]);
+      intituleClasse = Compilateur.getClasseIntitule(result[5]);
       genre = Compilateur.getGenre(result[1], estFeminin);
       nombre = Compilateur.getNombre(result[1]);
       quantite = Compilateur.getQuantite(result[1]);
@@ -795,14 +817,14 @@ export class Compilateur {
       attributs = Compilateur.getAttributs(attributsString);
       position = null;
 
-      Compilateur.addOrUpdDefinition(dictionnaire, nom, nombre, intituleType, attributs);
+      Compilateur.addOrUpdDefinition(dictionnaire, nom, nombre, intituleClasse, attributs);
 
       nouvelElementGenerique = new ElementGenerique(
         determinant,
         nom,
         epithete,
-        intituleType,
-        classe,
+        intituleClasse,
+        null,
         position,
         genre,
         nombre,
@@ -861,8 +883,8 @@ export class Compilateur {
           result[1] ? result[1].toLowerCase() : null,
           result[2],
           result[3],
-          "",
-          ClasseRacine.objet,
+          EClasseRacine.objet,
+          null,
           null,
           Compilateur.getGenre(result[1], estFeminin),
           Compilateur.getNombre(result[1]),
@@ -895,15 +917,15 @@ export class Compilateur {
         elementConcerne = elementGeneriqueTrouve;
 
         // - type d'élément
-        if (nouvelElementGenerique.type !== ClasseRacine.objet) {
+        if (nouvelElementGenerique.classeIntitule !== EClasseRacine.objet) {
           // s'il y avait déjà un type défini, c'est un autre élément donc finalement on va quand même l’ajouter
-          if (elementGeneriqueTrouve.type !== ClasseRacine.objet) {
+          if (elementGeneriqueTrouve.classeIntitule !== EClasseRacine.objet) {
             elementsGeneriques.push(nouvelElementGenerique);
             // finalement c’est le nouvel élément qui est concerné
             elementConcerne = nouvelElementGenerique;
           } else {
             // sinon, mettre à jour le type de l’élément retrouvé
-            elementGeneriqueTrouve.type = nouvelElementGenerique.type;
+            elementGeneriqueTrouve.classeIntitule = nouvelElementGenerique.classeIntitule;
           }
         }
         // - attributs
@@ -950,7 +972,7 @@ export class Compilateur {
     let determinant: string;
     let nom: string;
     let epithete: string;
-    let intituleType: string;
+    let intituleClasse: string;
     let type: string;
     let genre: Genre;
     let attributsString: string;
@@ -996,8 +1018,8 @@ export class Compilateur {
         result[1] ? result[1].toLowerCase() : null,
         result[2],
         result[3],
-        result[5],
-        Compilateur.getClasseElement(result[5]),
+        Compilateur.getClasseIntitule(result[5]),
+        null,
         // TODO: épithète
         new PositionSujetString(result[2], result[8], result[7]),
         Compilateur.getGenre(result[1], estFeminin),
@@ -1015,7 +1037,7 @@ export class Compilateur {
       }
 
       // Pour les humains, on peut déterminer le genre selon que c'est un homme ou une femme
-      switch (newElementGenerique.intituleType) {
+      switch (newElementGenerique.classeIntitule) {
         case 'homme':
         case 'hommmes':
           newElementGenerique.genre = Genre.m;
@@ -1042,8 +1064,8 @@ export class Compilateur {
         nom = result[2 + offset];
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
-        intituleType = nom;
-        type = Compilateur.getClasseElement(intituleType);
+        intituleClasse = nom;
+        type = Compilateur.getClasseIntitule(intituleClasse);
         attributsString = epithete;
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
@@ -1084,8 +1106,8 @@ export class Compilateur {
           determinant,
           nom,
           epithete,
-          intituleType,
-          type,
+          intituleClasse,
+          null,
           position,
           genre,
           nombre,
@@ -1133,8 +1155,8 @@ export class Compilateur {
           elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
         }
         // - màj type élément de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.type !== ClasseRacine.objet) {
-          elementConcerne.type = newElementGenerique.type;
+        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.classeIntitule !== EClasseRacine.objet) {
+          elementConcerne.classeIntitule = newElementGenerique.classeIntitule;
         }
 
       } else {
@@ -1148,21 +1170,21 @@ export class Compilateur {
 
 
 
-  private static getClasseElement(classeElement: string): ClasseRacine {
-    let retVal = ClasseRacine.objet;
+  private static getClasseIntitule(classeElement: string): EClasseRacine {
+    let retVal = EClasseRacine.objet;
 
     if (classeElement) {
       switch (classeElement.trim().toLocaleLowerCase()) {
         case "animal":
         case "animaux":
-          retVal = ClasseRacine.animal;
+          retVal = EClasseRacine.animal;
           break;
         case "personne":
         case "homme":
         case "hommes":
         case "femme":
         case "femmes":
-          retVal = ClasseRacine.personne;
+          retVal = EClasseRacine.personne;
           break;
         // case "clé":
         // case "cle":
@@ -1174,11 +1196,11 @@ export class Compilateur {
         //   break;
         case "contenant":
         case "contenants":
-          retVal = ClasseRacine.contenant;
+          retVal = EClasseRacine.contenant;
           break;
         case "support":
         case "supports":
-          retVal = ClasseRacine.support;
+          retVal = EClasseRacine.support;
           break;
         // case "décors":
         // case "décor":
@@ -1188,26 +1210,26 @@ export class Compilateur {
         //   break;
         case "personne":
         case "personnes":
-          retVal = ClasseRacine.personne;
+          retVal = EClasseRacine.personne;
           break;
         case "objet":
         case "objets":
-          retVal = ClasseRacine.objet;
+          retVal = EClasseRacine.objet;
           break;
         case "porte":
         case "portes":
-          retVal = ClasseRacine.porte;
+          retVal = EClasseRacine.porte;
           break;
         case "lieu":
-          retVal = ClasseRacine.lieu;
+          retVal = EClasseRacine.lieu;
           break;
 
         case "joueur":
-          retVal = ClasseRacine.joueur;
+          retVal = EClasseRacine.joueur;
           break;
 
         default:
-          retVal = ClasseRacine.objet;
+          retVal = EClasseRacine.objet;
           break;
       }
     }

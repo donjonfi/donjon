@@ -1,10 +1,11 @@
-import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
+import { ClassesRacines, EClasseRacine } from '../models/commun/classe';
 
-import { ClasseRacine } from '../models/commun/classe';
 import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Genre } from '../models/commun/genre.enum';
+import { Instruction } from '../models/compilateur/instruction';
+import { Instructions } from './instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
@@ -16,6 +17,7 @@ export class OutilsCommandes {
 
   constructor(
     private jeu: Jeu,
+    private ins: Instructions,
     private verbeux: boolean,
   ) {
 
@@ -109,7 +111,7 @@ export class OutilsCommandes {
     let retVal = "";
     if (!porte) {
       console.error("afficherStatutPorte >> porte pas définie");
-    } else if (porte.classe !== ClasseRacine.porte) {
+    } else if (porte.classe !== ClassesRacines.Porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
       let ouvrable = ElementsJeuUtils.possedeCetEtat(porte, 'ouvrable');
@@ -147,7 +149,7 @@ export class OutilsCommandes {
       return "—————————————————\n" +
         this.eju.curLieu.titre
         + "\n—————————————————\n"
-        + (this.eju.curLieu.description ? (this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription) + "\n") : "")
+        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription) + "\n") : "")
         + this.afficherSorties();
     } else {
       console.warn("Pas trouvé de curLieu :(");
@@ -162,7 +164,7 @@ export class OutilsCommandes {
     if (this.eju.curLieu.voisins.length > 0) {
       retVal = "Sorties :";
       this.eju.curLieu.voisins.forEach(voisin => {
-        if (voisin.type == ClasseRacine.lieu) {
+        if (voisin.type == EClasseRacine.lieu) {
           retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
         }
       });
@@ -174,7 +176,7 @@ export class OutilsCommandes {
 
   afficherInventaire() {
     let retVal: string;
-    const objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.objet && x.position.cibleId === this.jeu.joueur.id && x.quantite !== 0);
+    const objets = this.jeu.objets.filter(x => x.position.cibleType == EClasseRacine.objet && x.position.cibleId === this.jeu.joueur.id && x.quantite !== 0);
     if (objets.length == 0) {
       retVal = "\nVotre inventaire est vide.";
     } else {
@@ -190,7 +192,7 @@ export class OutilsCommandes {
 
   afficherContenu(obj: Objet, phraseSiVide = "Il n’y a rien d’intéressant.") {
     let retVal: string;
-    let objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.objet && x.position.cibleId == obj.id);
+    let objets = this.jeu.objets.filter(x => x.position.cibleType == EClasseRacine.objet && x.position.cibleId == obj.id);
     if (objets.length == 0) {
       retVal = phraseSiVide;
     } else {
@@ -207,7 +209,7 @@ export class OutilsCommandes {
   afficherObjetsCurLieu() {
     let retVal: string;
 
-    let objets = this.jeu.objets.filter(x => x.position.cibleType == ClasseRacine.lieu && x.position.cibleId === this.eju.curLieu.id);
+    let objets = this.jeu.objets.filter(x => x.position.cibleType == EClasseRacine.lieu && x.position.cibleId === this.eju.curLieu.id);
 
     if (objets.length == 0) {
       retVal = "\nJe ne vois pas d’objet ici.";
@@ -256,150 +258,4 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  calculerDescription(description: string, nbAffichage: number) {
-
-    const morceaux = description.split(/\[|\]/);
-    let statut = new StatutCondition(nbAffichage, morceaux, 0);
-    let suivantEstCondition = description.trim().startsWith("[");
-    let afficherMorceauSuivant = true;
-    let retVal = "";
-
-    for (let index = 0; index < morceaux.length; index++) {
-      statut.curMorceauIndex = index;
-      const curMorceau = morceaux[index];
-      if (suivantEstCondition) {
-        afficherMorceauSuivant = this.estConditionRemplie(curMorceau, statut);
-        suivantEstCondition = false;
-      } else {
-        if (afficherMorceauSuivant) {
-          retVal += curMorceau;
-        }
-        suivantEstCondition = true;
-      }
-    }
-
-    return retVal;
-  }
-
-
-  estConditionRemplie(condition: string, statut: StatutCondition): boolean {
-
-    let retVal = false;
-    let conditionLC = condition.toLowerCase();
-    const resultFois = conditionLC.match(xFois);
-
-    if (resultFois) {
-      statut.conditionDebutee = ConditionDebutee.fois;
-      const nbFois = Number.parseInt(resultFois[1], 10);
-      statut.nbChoix = this.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage === nbFois);
-      // Au hasard
-      // TODO: au hasard
-    } else if (conditionLC === "au hasard") {
-      statut.conditionDebutee = ConditionDebutee.hasard;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = this.calculerNbChoix(statut);
-      // choisir un choix au hasard
-      const rand = Math.random();
-      statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
-      retVal = (statut.choixAuHasard == 1);
-    } else if (conditionLC === "en boucle") {
-      statut.conditionDebutee = ConditionDebutee.boucle;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = this.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage % statut.nbChoix === 1);
-    } else if (conditionLC.startsWith("si ")) {
-      statut.conditionDebutee = ConditionDebutee.si;
-      // TODO: vérifier le si
-      statut.siVrai = this.cond.siEstVrai(conditionLC, null);
-      retVal = statut.siVrai;
-    } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
-      retVal = false;
-      switch (conditionLC) {
-
-        case 'ou':
-          if (statut.conditionDebutee == ConditionDebutee.hasard) {
-            retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
-          } else {
-            console.warn("[ou] sans 'au hasard'.");
-          }
-          break;
-
-        case 'puis':
-          if (statut.conditionDebutee === ConditionDebutee.fois) {
-            // toutes les fois suivant le dernier Xe fois
-            retVal = (statut.nbAffichage > statut.plusGrandChoix);
-          } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
-            // boucler
-            statut.dernIndexChoix += 1;
-            retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
-          } else {
-            console.warn("[puis] sans 'fois' ou 'boucle'.");
-          }
-          break;
-
-        case 'sinon':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
-            retVal = !statut.siVrai;
-          } else {
-            console.warn("[sinon] sans 'si'.");
-            retVal = false;
-          }
-          break;
-
-        case 'fin choix':
-          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard) {
-            retVal = true;
-          } else {
-            console.warn("[fin choix] sans 'fois', 'boucle' ou 'hasard'.");
-          }
-          break;
-
-        case 'fin si':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
-            retVal = true;
-          } else {
-            console.warn("[fin si] sans 'si'.");
-          }
-          break;
-
-        default:
-          console.warn("je ne sais pas quoi faire pour:", conditionLC);
-          break;
-      }
-    }
-
-    console.log("estConditionRemplie", condition, statut, retVal);
-
-    return retVal;
-  }
-
-
-
-  private calculerNbChoix(statut: StatutCondition) {
-    let nbChoix = 0;
-    let index = statut.curMorceauIndex;
-    do {
-      index += 2;
-      nbChoix += 1;
-    } while (statut.morceaux[index] !== 'fin choix' && (index < (statut.morceaux.length - 3)));
-
-    // si on est dans une balise fois et si il y a un "puis"
-    // => récupérer le dernier élément fois pour avoir le plus élevé
-    if (statut.conditionDebutee == ConditionDebutee.fois) {
-
-      if (statut.morceaux[index - 2] == "puis") {
-        const result = statut.morceaux[index - 4].match(xFois);
-        if (result) {
-          statut.plusGrandChoix = Number.parseInt(result[1], 10);
-        } else {
-          console.warn("'puis' ne suit pas un 'Xe fois'");
-        }
-      }
-    }
-
-    return nbChoix;
-  }
 }
