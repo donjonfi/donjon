@@ -5,6 +5,7 @@ import { Auditeur } from '../models/jouer/auditeur';
 import { ClasseRacine } from '../models/commun/classe';
 import { ElementGenerique } from '../models/compilateur/element-generique';
 import { ElementsJeuUtils } from './elements-jeu-utils';
+import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Lieu } from '../models/jeu/lieu';
@@ -25,6 +26,20 @@ export class Generateur {
     let jeu = new Jeu();
 
     jeu.titre = monde.titre;
+
+
+
+    // PLACER LE JOUEUR
+    // ****************
+    jeu.joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClasseRacine.vivant, 1, Genre.m);
+
+    if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
+      const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
+      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
+      if (lieuID !== -1) {
+        jeu.joueur.position = new PositionObjet(ps, ClasseRacine.lieu, lieuID);
+      }
+    }
 
     // AJOUTER LES LIEUX
     // ******************
@@ -103,15 +118,6 @@ export class Generateur {
       Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexPorte + index));
     }
 
-    // PLACER LE JOUEUR
-    // ****************
-    if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
-      const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
-      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
-      if (lieuID !== -1) {
-        jeu.joueur.position = new PositionObjet(ps, ClasseRacine.lieu, lieuID);
-      }
-    }
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************

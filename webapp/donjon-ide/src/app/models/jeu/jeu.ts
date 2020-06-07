@@ -8,6 +8,10 @@ import { Regle } from '../compilateur/regle';
 
 export class Jeu {
 
+  constructor() {
+    
+  }
+
   /**
    * Titre du jeu.
    */

@@ -41,20 +41,23 @@ export class Compilateur {
   static readonly xCaractereRetourLigne = /Ʒ/g;
 
   /** élément générique positionné par rapport à complément
-   * ex: La (1) pomme de terre(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) dans le(7) jardin(8).
-   * -> determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
+   * - ex1: La (1) pomme de terre(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) dans le(7) jardin(8).
+   * - => determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
    */
   static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:|(?:un|une|des) (.+?)(?:(?: )(.+?))? )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
 
-  // readonly xPositionElementGeneriqueIndefini = /^(un |une |des )(\S+?) (.+?)(\(f\))? (?:est|sont) ((?:(?:à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest) (?:du |de la |de l(?:’|')|des ))|(?:dans (?:la |le |l(?:’|')|les )|de (?:la |l(?:’|'))|du ))(.+)/i;
   /** élément générique positionné par rapport à complément :
-   * -> soit : determinant(1)), type(2), nom(2+3), attributs(3), féminin?(4), position(9), complément(10)
-   * -> soit : determinant(5), type(6), nom(6+7), attributs(7), féminin?(8), position(9), complément(10)
+   * - ex1: Il y a des pommes de terre anciennes (f, pomme de terre) dans le champ.
+   * - => déterminant(1), nom (2), épithète (3), féminin+autre forme(4), position(9), complément(10).
+   * - ex2: Une canne à pèche neuve (cannes à pèche) est sur le bord du lac.
+   * - => déterminant(5), nom (6), épithète (7), féminin+autre forme(8), position(9), complément(10).
    */
-  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l(?:’|')|[1-9]\d* )(\S+)(?: (.+?))?(\(f\))?)|(?:(un |une |des |du |de l(?:’|'))(\S+)(?: (.+?))?(\(.+\))? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
+  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
 
   /** élément générique simple
-   * ex => Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
+   * - ex1: Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
+   * - => Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6).
+   */
   static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
 
   /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
@@ -208,8 +211,8 @@ export class Compilateur {
     let result: RegExpExecArray;
 
     // ajouter le joueur au monde
-    elementsGeneriques.push(new ElementGenerique("le ", "joueur", "joueur", ClasseRacine.joueur, null, Genre.m, Nombre.s, 1, null));
-    elementsGeneriques.push(new ElementGenerique("l’", "inventaire", "inventaire", ClasseRacine.inventaire, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClasseRacine.joueur, null, Genre.m, Nombre.s, 1, null));
+    // elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, "inventaire", ClasseRacine.inventaire, null, Genre.m, Nombre.s, 1, null));
 
     phrases.forEach(phrase => {
 
@@ -627,11 +630,11 @@ export class Compilateur {
    * @param erreurs 
    */
   private static testerAction(actions: Action[], phrase: Phrase, erreurs: string[]) {
-    let result = Compilateur.xAction.exec(phrase.phrase[0]);
+    const result = Compilateur.xAction.exec(phrase.phrase[0]);
     if (result !== null) {
-      let verbe = result[1].toLocaleLowerCase();
-      let ceci = result[2] === 'ceci';
-      let cela = result[3] === 'cela';
+      const verbe = result[1].toLocaleLowerCase();
+      const ceci = result[2] === 'ceci';
+      const cela = result[3] === 'cela';
       let action = new Action(verbe, ceci, cela);
       // concerne un élément ?
       if (ceci) {
@@ -647,16 +650,16 @@ export class Compilateur {
       }
       actions.push(action);
       return action; // nouvelle action
-    }
-    // else {
-    //   let resultActionSpeciale = Compilateur.xActionSpeciale.exec(phrase.phrase[0]);
-    //   if (resultActionSpeciale) {
-    //     let action = new Action(resultActionSpeciale[1], null, null);
-    //     actions.push(action);
-    //     return action;
-    //   } 
 
-    else {
+      //   }
+      // else {
+      //   let resultActionSpeciale = Compilateur.xActionSpeciale.exec(phrase.phrase[0]);
+      //   if (resultActionSpeciale) {
+      //     let action = new Action(resultActionSpeciale[1], null, null);
+      //     actions.push(action);
+      //     return action;
+
+    } else {
       let resultDescriptionAction = Compilateur.xDescriptionAction.exec(phrase.phrase[0]);
       if (resultDescriptionAction) {
         const motCle = resultDescriptionAction[1].toLocaleLowerCase();
@@ -701,12 +704,12 @@ export class Compilateur {
         }
         return action; // action existante mise à jour avec nouvelle description.
       } else {
-        let resultActionSimple = this.xActionSimple.exec(phrase.phrase[0]);
+        const resultActionSimple = this.xActionSimple.exec(phrase.phrase[0]);
         // Trouvé action simple
         if (resultActionSimple) {
 
-          let verbe = resultActionSimple[1].toLocaleLowerCase();
-          let ceci = resultActionSimple[3] !== undefined;
+          const verbe = resultActionSimple[1].toLocaleLowerCase();
+          const ceci = resultActionSimple[3] !== undefined;
           let complement = resultActionSimple[5];
 
           // si phrase morcelée, rassembler les morceaux
@@ -740,8 +743,9 @@ export class Compilateur {
 
     let determinant: string;
     let nom: string;
+    let epithete: string;
     let intituleType: string;
-    let type: string;
+    let classe: string;
     let genre: Genre;
     let attributsString: string;
     let attributs: string[];
@@ -752,7 +756,7 @@ export class Compilateur {
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
     let result = Compilateur.xDefinitionTypeElement.exec(phrase.phrase[0]);
     if (result !== null) {
-      let genreSingPlur = result[3];
+      let genreSingPlur = result[4];
       let estFeminin = false;
       let autreForme: string = null;
       if (genreSingPlur) {
@@ -761,7 +765,7 @@ export class Compilateur {
         // séparer les arguments sur la virgule
         const argSupp = genreSingPlur.split(',');
         // le premier argument est le signe féminin
-        if (argSupp[0].trim() == 'f') {
+        if (argSupp[0].trim() === 'f') {
           estFeminin = true;
           // le premier argument est l'autre forme (singulier ou pluriel)
         } else {
@@ -770,7 +774,7 @@ export class Compilateur {
         // s'il y a 2 arguments
         if (argSupp.length > 1) {
           // le 2e argument est le signe féminin
-          if (argSupp[1].trim() == 'f') {
+          if (argSupp[1].trim() === 'f') {
             estFeminin = true;
             // le 2e argument est l'autre forme (singulier ou pluriel)
           } else {
@@ -779,15 +783,15 @@ export class Compilateur {
         }
       }
 
-
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
+      epithete = result[3];
       intituleType = result[4];
-      type = Compilateur.getClasseElement(result[4]);
+      classe = Compilateur.getClasseElement(result[5]);
       genre = Compilateur.getGenre(result[1], estFeminin);
       nombre = Compilateur.getNombre(result[1]);
       quantite = Compilateur.getQuantite(result[1]);
-      attributsString = result[5];
+      attributsString = result[6];
       attributs = Compilateur.getAttributs(attributsString);
       position = null;
 
@@ -798,7 +802,7 @@ export class Compilateur {
         nom,
         epithete,
         intituleType,
-        type,
+        classe,
         position,
         genre,
         nombre,
@@ -807,7 +811,7 @@ export class Compilateur {
       );
 
       if (autreForme) {
-        if (nouvelElementGenerique.nombre == Nombre.s) {
+        if (nouvelElementGenerique.nombre === Nombre.s) {
           nouvelElementGenerique.nomP = autreForme;
         } else {
           nouvelElementGenerique.nomS = autreForme;
@@ -847,12 +851,11 @@ export class Compilateur {
         }
 
         // attributs ?
-        let attributs = null;
-        if (result[5] && result[5].trim() !== '') {
+        attributs = null;
+        if (result[6] && result[6].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = Compilateur.getAttributs(result[5]);
+          attributs = Compilateur.getAttributs(result[6]);
         }
-
 
         nouvelElementGenerique = new ElementGenerique(
           result[1] ? result[1].toLowerCase() : null,
@@ -884,7 +887,7 @@ export class Compilateur {
       elementConcerne = nouvelElementGenerique;
 
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let filtered = elementsGeneriques.filter(x => x.nom === nouvelElementGenerique.nom);
+      const filtered = elementsGeneriques.filter(x => x.nom === nouvelElementGenerique.nom);
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let elementGeneriqueTrouve = filtered[filtered.length - 1];
@@ -950,8 +953,10 @@ export class Compilateur {
     let intituleType: string;
     let type: string;
     let genre: Genre;
-    let genreString: string;
     let attributsString: string;
+    let genreSingPlur: string;
+    let estFeminin: boolean;
+    let autreForme: string;
     let attributs: string[];
     let nombre: Nombre;
     let position: PositionSujetString;
@@ -959,16 +964,16 @@ export class Compilateur {
     // élément positionné défini (la, le, les)
     let result = Compilateur.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
     if (result !== null) {
-      let genreSingPlur = result[3];
-      let estFeminin = false;
-      let autreForme: string = null;
+      genreSingPlur = result[3];
+      estFeminin = false;
+      autreForme = null;
       if (genreSingPlur) {
         // retirer parenthèses
         genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
         // séparer les arguments sur la virgule
         const argSupp = genreSingPlur.split(',');
         // le premier argument est le signe féminin
-        if (argSupp[0].trim() == 'f') {
+        if (argSupp[0].trim() === 'f') {
           estFeminin = true;
           // le premier argument est l'autre forme (singulier ou pluriel)
         } else {
@@ -978,7 +983,7 @@ export class Compilateur {
         if (argSupp.length > 1) {
           // le 2e argument est le signe féminin
           // TODO: épithète
-          if (argSupp[1].trim() == 'f') {
+          if (argSupp[1].trim() === 'f') {
             estFeminin = true;
             // le 2e argument est l'autre forme (singulier ou pluriel)
           } else {
@@ -1002,7 +1007,7 @@ export class Compilateur {
       );
 
       if (autreForme) {
-        if (newElementGenerique.nombre == Nombre.s) {
+        if (newElementGenerique.nombre === Nombre.s) {
           newElementGenerique.nomP = autreForme;
         } else {
           newElementGenerique.nomS = autreForme;
@@ -1034,38 +1039,37 @@ export class Compilateur {
         let offset = result[1] ? 0 : 4;
         determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
         nombre = Compilateur.getNombre(result[1 + offset]);
-        intituleType = result[2 + offset];
+        nom = result[2 + offset];
+        epithete = result[3 + offset];
+        genreSingPlur = result[4 + offset];
+        intituleType = nom;
         type = Compilateur.getClasseElement(intituleType);
-        genreString = result[4 + offset];
-        attributsString = result[3 + offset];
+        attributsString = epithete;
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
-        let estFeminin = false;
-        let autreForme: string = null;
-        if (attributsString && attributsString.startsWith('(') && attributsString.endsWith(')')) {
-          let genreSingPlur = attributsString;
-          attributsString = '';
-          if (genreSingPlur) {
-            // retirer parenthèses
-            genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
-            // séparer les arguments sur la virgule
-            const argSupp = genreSingPlur.split(',');
-            // le premier argument est le signe féminin
-            if (argSupp[0].trim() == 'f') {
+        estFeminin = false;
+        autreForme = null;
+
+        if (genreSingPlur) {
+          // retirer parenthèses
+          genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
+          // séparer les arguments sur la virgule
+          const argSupp = genreSingPlur.split(',');
+          // le premier argument est le signe féminin
+          if (argSupp[0].trim() === 'f') {
+            estFeminin = true;
+            // le premier argument est l'autre forme (singulier ou pluriel)
+          } else {
+            autreForme = argSupp[0].trim();
+          }
+          // s'il y a 2 arguments
+          if (argSupp.length > 1) {
+            // le 2e argument est le signe féminin
+            if (argSupp[1].trim() === 'f') {
               estFeminin = true;
-              // le premier argument est l'autre forme (singulier ou pluriel)
+              // le 2e argument est l'autre forme (singulier ou pluriel)
             } else {
-              autreForme = argSupp[0].trim();
-            }
-            // s'il y a 2 arguments
-            if (argSupp.length > 1) {
-              // le 2e argument est le signe féminin
-              if (argSupp[1].trim() == 'f') {
-                estFeminin = true;
-                // le 2e argument est l'autre forme (singulier ou pluriel)
-              } else {
-                autreForme = argSupp[1].trim();
-              }
+              autreForme = argSupp[1].trim();
             }
           }
         }
@@ -1074,14 +1078,6 @@ export class Compilateur {
         // retrouver les attributs
         attributs = Compilateur.getAttributs(attributsString);
 
-        // s'il y a des attributs, prendre uniquement le 1er pour l’épithète
-        if (attributs.length > 0) {
-          // nom = result[2 + offset] + " " + attributs[0];
-          epithete = attributs[0];
-          nom = result[2 + offset];
-        } else {
-          nom = result[2 + offset];
-        }
         position = new PositionSujetString(result[2], result[10], result[9]);
 
         newElementGenerique = new ElementGenerique(
@@ -1114,7 +1110,7 @@ export class Compilateur {
       elementConcerne = newElementGenerique;
 
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let filtered = elementsGeneriques.filter(x => x.nom === newElementGenerique.nom);
+      const filtered = elementsGeneriques.filter(x => x.nom === newElementGenerique.nom);
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let elementGeneriqueFound = filtered[filtered.length - 1];
