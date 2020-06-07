@@ -277,7 +277,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         default:
           const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
           if (actionCeciCela === -1) {
-            retVal = "Je comprend « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
+            retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
