@@ -1,6 +1,6 @@
-<div class="card mb-4 shadow-sm">
+<div class="card mb-2 shadow-sm">
 
-  <div class="card-body">
+  <div class="card-body p-2">
     <div class="row">
       <div class="col-md-auto">
         <h3>Code source</h3>
@@ -97,9 +97,9 @@
   </div>
 </div>
 <!-- Compilation -->
-<div *ngIf="erreurs" class="card mb-4 shadow-sm">
-  <div class="card-body">
-    <h3>Résultat de la compilation</h3>
+<div *ngIf="erreurs" class="card mb-2 shadow-sm">
+  <div class="card-body p-2">
+    <h4>Résultat de la compilation</h4>
 
     <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
       <div>
