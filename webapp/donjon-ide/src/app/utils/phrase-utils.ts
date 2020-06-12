@@ -60,6 +60,14 @@ export class PhraseUtils {
   static readonly xPhraseSimpleDeterminant = /^(le |la |les |l'|du |de la|des |un |une )(\S+) (?:ne |n(?:'|’))?((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
 
   /**
+   * - Manger tomate(2).
+   * - Déplacer le(1) trésor(2) vers(4) le(5) joueur(6).
+   * - Utiliser l’(1)arc à flèches(2) rouillé(3) avec(4) la(5) flèche(6) rouge(7).
+   * - => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
+   */
+  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?)?$/i;
+
+  /**
    * Son(1) sac(2) est(3) ouvert(4)
    */
   static readonly xPhraseSimplePronom = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
@@ -75,9 +83,10 @@ export class PhraseUtils {
       els = new ElementsPhrase(null, sujet, verbe, negation, compl);
 
       // décomposer le complément si possible
-      const resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
+      const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
       if (resCompl) {
-        els.sujetComplement = new GroupeNominal(resCompl[1], resCompl[2], resCompl[3]);
+        els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+        els.preposition = resCompl[1] ? resCompl[1] : null;
       }
 
     }
@@ -113,7 +122,7 @@ export class PhraseUtils {
     let els = PhraseUtils.decomposerCommande(evenement);
 
     console.error('getEvenement: evenement=', evenement, 'els=', els);
-    
+
 
     // si on a trouvé une formulation correcte
     if (els) {
@@ -148,21 +157,32 @@ export class PhraseUtils {
     let els: ElementsPhrase = null;
 
     // infinitif, complément
-    let resInfinitifCompl = PhraseUtils.xInstruction.exec(instruction);
+    const resInfinitifCompl = PhraseUtils.xInstruction.exec(instruction);
     if (resInfinitifCompl) {
       els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
-
       // décomposer ce qui suit l'infinitif si possible
-      let resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
+      const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
       if (resSuite) {
         els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
         els.verbe = resSuite[3];
         els.negation = resSuite[4];
         els.complement = resSuite[5] ? resSuite[5].trim() : null;
         // décomposer le nouveau complément si possible
-        let resCompl = GroupeNominal.xDeterminantArticheNomEpithete.exec(els.complement);
+        const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
         if (resCompl) {
-          els.sujetComplement = new GroupeNominal(resCompl[1], resCompl[2], resCompl[3]);
+          els.complement = null;
+          els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+          els.preposition = resCompl[1] ? resCompl[1] : null;
+        }
+      } else {
+        const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
+        if (res1ou2elements) {
+          els.verbe = null;
+          els.negation = null;
+          els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
+          els.complement = null;
+          els.preposition = res1ou2elements[4];
+          els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
         }
       }
     }

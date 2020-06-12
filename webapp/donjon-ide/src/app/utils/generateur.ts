@@ -242,7 +242,7 @@ export class Generateur {
    */
   static ajouterVoisin(lieux: Lieu[], elVoisin: ElementGenerique, idElVoisin: number) {
 
-    console.log("ajouterVoisin >>> ", elVoisin);
+    // console.log("ajouterVoisin >>> ", elVoisin);
 
     if (elVoisin.positionString) {
       const localisation = Generateur.getLocalisation(elVoisin.positionString.position);

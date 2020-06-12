@@ -60,21 +60,21 @@ export class Declancheur {
 
   avant(evenement: Evenement) {
     if (this.verbeux) {
-      console.log("Declancheur >>> AVANT", evenement);
+      // console.log("Declancheur >>> AVANT", evenement);
     }
     return this.retrouverInstructions(this.auditeursAvant, evenement);
   }
 
   apres(evenement: Evenement) {
     if (this.verbeux) {
-      console.log("Declancheur >>> APRÈS", evenement);
+      // console.log("Declancheur >>> APRÈS", evenement);
     }
     return this.retrouverInstructions(this.auditeursApres, evenement);
   }
 
   remplacer(evenement: Evenement) {
     if (this.verbeux) {
-      console.log("Declancheur >>> REMPLACER", evenement);
+      // console.log("Declancheur >>> REMPLACER", evenement);
     }
     return this.retrouverInstructions(this.auditeursRemplacer, evenement);
   }

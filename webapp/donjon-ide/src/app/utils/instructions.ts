@@ -29,8 +29,6 @@ export class Instructions {
 
   public executerInstructions(instructions: Instruction[], ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
 
-    console.warn("BEGIN exInstructionS >>> instructionS=", instructions);
-
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
@@ -40,8 +38,6 @@ export class Instructions {
         resultat.sortie += subResultat.sortie;
       });
     }
-
-    console.warn("END exInstructionS >>> instructionS=", instructions, "resultat=", resultat);
 
     return resultat;
   }
@@ -74,7 +70,7 @@ export class Instructions {
     }
     resultat.sortie += sousResultat.sortie;
 
-    console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
+    // console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
 
     return resultat;
   }
@@ -138,6 +134,8 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
+    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, ")");
+
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
@@ -156,7 +154,7 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        sousResultat = this.executerDeplacer(instruction.preposition, ceci as Objet, cela);
+        sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement, ceci as Objet, cela);
         resultat.succes = sousResultat.succes;
         break;
 
@@ -187,6 +185,9 @@ export class Instructions {
 
     console.log(">>>>>>>>>> executerAfficherContenu >>>>>>>>>>>>>>> ");
 
+    console.log("this.jeu.objets=", this.jeu.objets);
+
+
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
       let els: Objet[] = null;
@@ -210,15 +211,61 @@ export class Instructions {
     return resultat;
   }
 
-  private executerDeplacer(preposition: string, ceci: Objet = null, cela: ElementJeu = null): Resultat {
+  private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: Objet = null, cela: ElementJeu = null): Resultat {
+
+    console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
+
     let resultat = new Resultat(false, '', 1);
-    if (ceci && cela) {
+
+    if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur') {
+      console.error("executerDeplacer >>> préposition pas reconnue:", preposition);
+    }
+
+    let objet: Objet;
+    let destination: ElementJeu;
+
+    // trouver l’élément à déplacer
+
+    switch (sujet.nom) {
+      case "ceci":
+        objet = ceci;
+        break;
+      case "joueur":
+        objet = this.jeu.joueur;
+        break;
+      default:
+        // TODO: trouver l’objet
+        console.warn("executerDeplacer >> Je ne sais pas encore trouver cet objet:", sujet.nom);
+        break;
+    }
+
+    switch (complement.nom) {
+      case 'cela':
+        destination = cela;
+        break;
+
+      case 'joueur':
+        destination = this.jeu.joueur;
+        break;
+
+      case 'ici':
+        destination = this.eju.curLieu;
+        break;
+
+      default:
+        // TODO: trouver la destination.
+        console.warn("executerDeplacer >> Je ne sais pas encore trouver cette destination:", complement.nom);
+        break;
+    }
+
+    // si on a trouver le sujet et la distination, effectuer le déplacement.
+    if (objet && destination) {
       // TODO: vérifications
-      ceci.position = new PositionObjet(
+      objet.position = new PositionObjet(
         PrepositionSpatiale[preposition],
-        Classe.heriteDe(cela.classe, EClasseRacine.lieu) ? EClasseRacine.lieu : EClasseRacine.objet,
-        cela.id
-      )
+        Classe.heriteDe(destination.classe, EClasseRacine.lieu) ? EClasseRacine.lieu : EClasseRacine.objet,
+        destination.id
+      );
       resultat.succes = true;
     }
     return resultat;
@@ -300,10 +347,10 @@ export class Instructions {
 
     switch (instruction.verbe.toLowerCase()) {
       case 'se trouve':
-        resultat = this.deplacerObjetVersLieu(instruction.sujet, instruction.complement)
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement);
         break;
       case 'possède':
-        resultat = this.deplacerObjetVersObjet(instruction.sujetComplement, instruction.sujet);
+        resultat = this.executerDeplacer(instruction.sujetComplement, "vers", instruction.sujet);
         break;
 
       default:
@@ -311,13 +358,6 @@ export class Instructions {
         break;
     }
     return resultat;
-  }
-
-  deplacerObjetVersLieu(obj: GroupeNominal, destination: string) {
-    return new Resultat(false, 'objet délpacé vers le lieu.', 1);
-  }
-  deplacerObjetVersObjet(obj: GroupeNominal, destination: GroupeNominal) {
-    return new Resultat(false, 'objet déplacé vers l’objet.', 1);
   }
 
   // positionnerJoueur(position: string): Resultat {
@@ -423,7 +463,7 @@ export class Instructions {
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
       let afficherMorceauSuivant = true;
-      console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
+      // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
       for (let index = 0; index < morceaux.length; index++) {
         statut.curMorceauIndex = index;
         const curMorceau = morceaux[index];

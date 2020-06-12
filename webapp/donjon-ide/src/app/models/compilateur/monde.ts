@@ -28,7 +28,6 @@ export class Monde {
   // cles: ElementGenerique[] = [];
   // animaux: ElementGenerique[] = [];
   objets: ElementGenerique[] = [];
-  aucuns: ElementGenerique[] = [];
   joueurs: ElementGenerique[] = [];
   inventaires: ElementGenerique[] = [];
 

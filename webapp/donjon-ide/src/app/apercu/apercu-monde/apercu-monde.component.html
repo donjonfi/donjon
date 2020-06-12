@@ -14,7 +14,7 @@
               Sujet :{{re.condition.sujet.determinant ? ("["+re.condition.sujet.determinant.trim()+ "] ") : ""}}{{re.condition.sujet.nom}}{{(re.condition.sujet.epithete ? re.condition.sujet.epithete : '')}}
             </li>
             <li>Verbe : {{re.condition.verbe}}</li>
-            <li *ngIf="re.condition.complement">Compl.: {{re.condition.complement}}</li>
+            <li *ngIf="re.condition.complement">Complément : {{re.condition.complement}}</li>
           </ul>
         </li>
 
@@ -67,12 +67,15 @@
                     <li *ngFor="let cond of ver.conditions; index as j">
                       Condition {{(j+1)}} :
                       <ul>
-                        <li>Sujet :
-                          {{cond.sujet.determinant ? ("["+cond.sujet.determinant.trim()+ "] ") : ""}}{{cond.sujet.pronom ? ("["+cond.sujet.pronom.trim()+ "] ") : ""}}{{cond.sujet.nom}}
+                        <li>
+                          <app-apercu-sujet [sujet]="cond.sujet" [titre]="'Sujet'"></app-apercu-sujet>
                         </li>
                         <li>Verbe : {{cond.verbe}}</li>
                         <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
                         <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
+                        <li *ngIf="cond.sujetComplement">
+                          <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+                        </li>
                       </ul>
                     </li>
                   </ul>
@@ -112,6 +115,10 @@
                       {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
                     </li>
                     <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                    <li *ngIf="ins.preposition">Préposition : {{ins.preposition}}</li>
+                    <li *ngIf="ins.sujetComplement">
+                      <app-apercu-sujet [sujet]="ins.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+                    </li>
                     <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
                   </ul>
                 </li>
@@ -175,7 +182,7 @@
         </ng-template>
       </ul>
     </li>
-    <li>
+    <!-- <li>
       Inventaire
       <p *ngIf="monde.inventaires && monde.inventaires.length == 0">Aucun inventaire trouvé.</p>
       <ul>
@@ -185,17 +192,7 @@
           </li>
         </ng-template>
       </ul>
-    </li>
-  </ul>
-
-  <h4>Sans type</h4>
-  <p *ngIf="monde.aucuns && monde.aucuns.length == 0">Aucun élément sans type trouvé.</p>
-  <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.aucuns">
-      <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
-      </li>
-    </ng-template>
+    </li> -->
   </ul>
 
 </div>

@@ -214,9 +214,18 @@ export class ElementsJeuUtils {
   }
 
   getObjetsQuiSeTrouventLa(position: string): Objet[] {
+    let retVal: Objet[] = [];
 
-    console.warn("getObjetsQuiSeTrouventLa:", position);
-    return [];
+    if (position === 'ici') {
+      this.jeu.objets.forEach(obj => {
+        if (obj.position && obj.position.cibleType === EClasseRacine.lieu && obj.position.cibleId === this.curLieu.id) {
+          retVal.push(obj);
+        }
+      });
+    } else {
+      console.warn("getObjetsQuiSeTrouventLa >>> position pas encore gérée:", position);
+    }
+    return retVal;
   }
 
   trouverCorrespondance(sujet: GroupeNominal): Correspondance {

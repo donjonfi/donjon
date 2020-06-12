@@ -63,7 +63,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
 
-      this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================") : "");
+      this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
 
       let evCommencerJeu = new Evenement('commencer', 'jeu');
 

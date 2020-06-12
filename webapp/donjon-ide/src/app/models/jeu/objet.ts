@@ -17,18 +17,18 @@ export class Objet extends ElementJeu {
     super(id, nom, intitule, classe);
   }
 
-  denombrable: boolean;
-  mangeable: boolean;
-  buvable: boolean;
+  denombrable = false;
+  mangeable = false;
+  buvable = false;
 
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
-  position: PositionObjet;
+  position: PositionObjet = null;
 
   /** Texte s’affichant lorsqu’on voit l’ojet lors de la description de la salle qui contient l’objet. */
-  apercu: string;
+  apercu: string = null;
   /** Texte s’affichant l’orsqu’on examine l’objet. */
-  examen: string;
+  examen: string = null;
   /** L’ojbet a-t-il déjà été examiné par le joueur. */
-  examine: boolean;
+  examine = false;
 
 }

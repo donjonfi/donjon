@@ -4,6 +4,7 @@ import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Jeu } from '../models/jeu/jeu';
 import { OutilsCommandes } from './outils-commandes';
 import { PhraseUtils } from './phrase-utils';
+import { log } from 'console';
 
 export class ConditionsUtils {
 
@@ -45,7 +46,7 @@ export class ConditionsUtils {
       //       break;
       //   }
 
-        // concerne l'inventaire (du joueur)
+      // concerne l'inventaire (du joueur)
       // } else 
       if (condition.sujet.nom == "inventaire") {
 
@@ -73,9 +74,28 @@ export class ConditionsUtils {
 
           case 'se trouve':
           case 'se trouvent':
-            // vérifier si un élément est présent dans la pièce actuelle
-            this.eju.getObjetsQuiSeTrouventLa(condition.complement);
-            console.error("siEstVrais > condition « se trouve » pas encore gérée.");
+            // vérifier si un élément est présent à l’endroit indiqué
+            // (pour l’instant seul « ici » est géré.)
+            const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
+
+            console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
+
+            // singulier
+            if (condition.verbe.endsWith('e')) {
+              objetsTrouves.forEach(obj => {
+                if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
+                  retVal = true;
+                }
+              });
+              // pluriel
+            } else {
+              objetsTrouves.forEach(obj => {
+                if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
+                  retVal = true;
+                }
+              });
+            }
+
             break;
 
           default:

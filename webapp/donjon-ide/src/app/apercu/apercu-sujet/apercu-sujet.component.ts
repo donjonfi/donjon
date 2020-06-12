@@ -10,6 +10,7 @@ import { GroupeNominal } from 'src/app/models/commun/groupe-nominal';
 export class ApercuSujetComponent implements OnInit {
 
   @Input() sujet: GroupeNominal;
+  @Input() titre: string = 'Sujet';
   
   constructor() { }
 

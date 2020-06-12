@@ -7,7 +7,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
   var DonjonHighlightRules = function () {
 
     var variableLanguage = (
-      "joueur|inventaire|intitulé|description|capacité"
+      "joueur|inventaire|intitulé|description|capacité|accord"
     );
 
     var builtinFunctions = (
