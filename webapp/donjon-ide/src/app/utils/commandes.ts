@@ -209,7 +209,7 @@ export class Commandes {
     const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, EClasseRacine.porte));
 
     // TODO: vérifier accès…
-    if (voisinPorte && !ElementsJeuUtils.possedeUnDeCesEtats(voisinPorte, 'ouvert', 'ouverte')) {
+    if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
       // La porte est fermée
       // TODO: gérer majuscule
       return (voisinPorte.intitule + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
@@ -222,6 +222,9 @@ export class Commandes {
       if (voisinLieu) {
         this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
         this.jeu.joueur.position.cibleId = voisinLieu.id;
+
+        this.eju.majVisibiliteDesObjets();
+
         return this.outils.afficherCurLieu();
       } else {
         return "Pas pu aller par là.";

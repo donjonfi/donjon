@@ -13,4 +13,6 @@ export class Correspondance {
   /** Reprend les lieux et les objets trouvés */
   elements: ElementJeu[] = [];
 
+  nbCor = 0;
+
 }

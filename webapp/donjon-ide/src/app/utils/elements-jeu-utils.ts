@@ -185,7 +185,56 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  getLieuObjet(obj: Objet) {
+  majVisibiliteDesObjets() {
+    this.jeu.objets.forEach(obj => {
+      this.majVisibiliteObjet(obj);
+    });
+  }
+
+  majVisibiliteObjet(obj: Objet) {
+    // les objets possedes sont visibles
+    if (obj.possede) {
+      obj.visible = true;
+      // les objets non possedes peuvent être visibles seulement si positionnés
+    } else if (obj.position) {
+      // seuls les objets dans le lieu du joueur peuvent être visibles
+      if (this.getLieuObjet(obj) === this.curLieu.id) {
+        // si l'objet est directement dans la salle, il est visible
+        if (obj.position.cibleType === EClasseRacine.lieu) {
+          obj.visible = true;
+          // si l'objet est dans un contenant, vérifier le contenant
+        } else {
+          const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
+          if (!contenant) {
+            console.error("majVisibiliteDesObjets >>> contenant de l'objet pas trouvé >>>", obj);
+            obj.visible = false;
+          } else {
+            // les objets sur des supports sont visibles
+            if (Classe.heriteDe(contenant.classe, EClasseRacine.support)) {
+              obj.visible = true;
+              // les objets dans des contenants sont parfois visibles
+            } else if (Classe.heriteDe(contenant.classe, EClasseRacine.contenant)) {
+              if (ElementsJeuUtils.possedeCetEtatAutoF(contenant, "ouvert")) {
+                obj.visible = true;
+              } else {
+                obj.visible = false;
+              }
+              // les autres ne sont pas visibles
+            } else {
+              obj.visible = false;
+            }
+          }
+        }
+      } else {
+        obj.visible = false;
+      }
+      // si l'objet n'est pas posibionné, il n'est pas visible.
+    } else {
+      obj.visible = false;
+    }
+  }
+
+  getLieuObjet(obj: Objet): number {
     if (obj.position == null) {
       return null;
     } else if (obj.position.cibleType === EClasseRacine.lieu) {
@@ -241,20 +290,24 @@ export class ElementsJeuUtils {
       // 1. Chercher dans les directions.
       cor.localisation = this.trouverLocalisation(sujet);
 
-      // 2. Chercher dans la liste des lieux.
-      cor.lieux = this.trouverLieu(sujet);
+      if (cor.localisation !== Localisation.inconnu) {
+        cor.nbCor = 1;
+      } else {
+        // 2. Chercher dans la liste des lieux.
+        cor.lieux = this.trouverLieu(sujet);
+        // ajouter les lieux aux éléments
+        if (cor.lieux.length > 0) {
+          cor.elements = cor.elements.concat(cor.lieux);
+          cor.nbCor += cor.lieux.length;
+        }
 
-      // 3. Chercher parmis les objets
-      cor.objets = this.trouverObjet(sujet);
-
-      cor.elements = [];
-      // ajouter les objets aux éléments
-      if (cor.objets && cor.objets.length > 0) {
-        cor.elements = cor.elements.concat(cor.objets);
-      }
-      // ajouter les lieux aux éléments
-      if (cor.lieux && cor.lieux.length > 0) {
-        cor.elements = cor.elements.concat(cor.lieux);
+        // 3. Chercher parmis les objets
+        cor.objets = this.trouverObjet(sujet);
+        // ajouter les objets aux éléments
+        if (cor.objets.length > 0) {
+          cor.elements = cor.elements.concat(cor.objets);
+          cor.nbCor += cor.objets.length;
+        }
       }
 
       console.log(" >>>> éléments trouvés:", cor.elements);

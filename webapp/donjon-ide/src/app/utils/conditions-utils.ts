@@ -106,7 +106,7 @@ export class ConditionsUtils {
       console.error("siEstVrai: condition pas comprise:", condition);
     }
 
-    console.error("siEstVrai: ", condition, retVal);
+    console.info("siEstVrai: ", condition, retVal);
 
     return retVal;
   }

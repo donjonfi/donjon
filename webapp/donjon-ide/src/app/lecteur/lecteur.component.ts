@@ -1,9 +1,9 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
+import { Classe, EClasseRacine } from '../models/commun/classe';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/abreviations';
 import { ApercuSujetComponent } from '../apercu/apercu-sujet/apercu-sujet.component';
-import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/commandes';
 import { ConditionsUtils } from '../utils/conditions-utils';
 import { Correspondance } from '../utils/correspondance';
@@ -173,7 +173,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     // COMPRENDRE LA COMMANDE
     const els = PhraseUtils.decomposerCommande(commande);
 
-    let retVal = null;
+    let retVal = "";
 
     if (els) {
 
@@ -182,9 +182,33 @@ export class LecteurComponent implements OnInit, OnChanges {
       const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
       const celaNom = celaIntitule ? celaIntitule.nom : null;
       let evenement = new Evenement(els.infinitif, ceciNom, null, celaNom);
+      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule) : null;
+      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule) : null;
 
-      const resultatCeci = this.eju.trouverCorrespondance(ceciIntitule);
-      const resultatCela = this.eju.trouverCorrespondance(celaIntitule);
+      // vérifier si on a trouvé les éléments de la commande.
+      if (ceciIntitule && resultatCeci.nbCor === 0) {
+        retVal += "Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».\n";
+      }
+      if (celaIntitule && resultatCela.nbCor === 0) {
+        retVal += "Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».\n";
+      }
+
+      // vérifier si les objets de la commande sont visibles
+      if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
+        if (!resultatCeci.objets[0].visible) {
+          retVal += "Je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».\n";
+        }
+      }
+      if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+        if (!resultatCela.objets[0].visible) {
+          retVal += "Je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».\n";
+        }
+      }
+
+      // si on a déjà une erreur, ne pas continuer.
+      if (retVal.length > 0) {
+        return retVal;
+      }
 
       console.log(" >>>>>>>>> ceciIntitule:", ceciIntitule, "ceciNom:", ceciNom, "resultatCeci", resultatCeci);
       console.log(" >>>>>>>>> celaIntitule:", celaIntitule, "celaNom:", celaNom, "resultatCela", resultatCela);
@@ -282,7 +306,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           } else if (actionCeciCela) {
 
             // vérifier l’action
-            
+
             // exécuter l’action
             retVal = this.executerAction(actionCeciCela);
 

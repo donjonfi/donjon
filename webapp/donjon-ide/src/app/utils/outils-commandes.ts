@@ -4,6 +4,7 @@ import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Genre } from '../models/commun/genre.enum';
+import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from './instructions';
 import { Jeu } from '../models/jeu/jeu';
@@ -186,6 +187,20 @@ export class OutilsCommandes {
           retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
         }
       });
+    }
+    return retVal;
+  }
+
+  afficherIntitule(intitule: GroupeNominal) {
+    let retVal = "";
+    if (intitule) {
+      if (intitule.determinant) {
+        retVal += intitule.determinant;
+      }
+      retVal += intitule.nom;
+      if (intitule.epithete) {
+        retVal += intitule.epithete;
+      }
     }
     return retVal;
   }

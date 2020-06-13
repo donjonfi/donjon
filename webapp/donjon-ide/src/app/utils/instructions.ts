@@ -193,10 +193,10 @@ export class Instructions {
     if (ceci) {
       let els: Objet[] = null;
       if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-        els = this.jeu.objets.filter(x => x.position && x.position.cibleType == EClasseRacine.objet);
+        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
         resultat.succes = true;
       } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-        els = this.jeu.objets.filter(x => x.position && x.position.cibleType == EClasseRacine.lieu);
+        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
         resultat.succes = true;
       } else {
         console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
@@ -235,8 +235,17 @@ export class Instructions {
         objet = this.jeu.joueur;
         break;
       default:
-        // TODO: trouver l’objet
-        console.warn("executerDeplacer >> Je ne sais pas encore trouver cet objet:", sujet.nom);
+        let correspondanceSujet = this.eju.trouverCorrespondance(sujet);
+        // un élément trouvé
+        if (correspondanceSujet.elements.length === 1) {
+          objet = correspondanceSujet.objets[0];
+          // aucun élément trouvé
+        } else if (correspondanceSujet.elements.length === 0) {
+          console.error("executerDeplacer >>> je n’ai pas trouvé l’objet:", sujet);
+          // plusieurs éléments trouvés
+        } else {
+          console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour l’objet:", sujet);
+        }
         break;
     }
 
@@ -254,12 +263,12 @@ export class Instructions {
         break;
 
       default:
-        let correspondance = this.eju.trouverCorrespondance(complement);
+        let correspondanceCompl = this.eju.trouverCorrespondance(complement);
         // un élément trouvé
-        if (correspondance.elements.length === 1) {
-          destination = correspondance.elements[0];
+        if (correspondanceCompl.elements.length === 1) {
+          destination = correspondanceCompl.elements[0];
           // aucun élément trouvé
-        } else if (correspondance.elements.length === 0) {
+        } else if (correspondanceCompl.elements.length === 0) {
           console.error("executerDeplacer >>> je n’ai pas trouvé la destination:", complement);
           // plusieurs éléments trouvés
         } else {
@@ -276,10 +285,45 @@ export class Instructions {
         Classe.heriteDe(destination.classe, EClasseRacine.lieu) ? EClasseRacine.lieu : EClasseRacine.objet,
         destination.id
       );
+
+      // si l'objet à déplacer est le joueur, modifier la visibilité des objets
+      if (objet.id === this.jeu.joueur.id) {
+        // la visibilité des objets a changé
+        this.eju.majVisibiliteDesObjets();
+
+        // si l'objet à déplacer n'est pas le joueur
+      } else {
+        // si la destination est un lieu
+        if (objet.position.cibleType === EClasseRacine.lieu) {
+          // l'objet n'est pas possédé
+          objet.possede = false;
+          // si la destination est le lieu actuel, l'objet est visible
+          if (objet.position.cibleId === this.eju.curLieu.id) {
+            objet.visible = true;
+            // si c'est un autre lieu, il n'est pas visible.
+          } else {
+            objet.visible = false;
+          }
+          // si la destination est un objet
+        } else {
+          // si la destination est le joueur, l'objet est visible et possédé
+          if (destination.id === this.jeu.joueur.id) {
+            objet.visible = true;
+            objet.possede = true;
+            // sinon, on va analyser le contenant qui est forcément un objet.
+          } else {
+            // forcément l'objet n'est pas possédé
+            objet.possede = false;
+            this.eju.majVisibiliteObjet(objet);
+          }
+        }
+      }
       resultat.succes = true;
     }
     return resultat;
   }
+
+
 
   private executerEffacer(ceci: ElementJeu = null): Resultat {
     let resultat = new Resultat(false, '', 1);

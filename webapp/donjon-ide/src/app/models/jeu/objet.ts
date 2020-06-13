@@ -17,6 +17,10 @@ export class Objet extends ElementJeu {
     super(id, nom, intitule, classe);
   }
 
+  visible = false;
+  possede = false;
+  porte = false;
+
   denombrable = false;
   mangeable = false;
   buvable = false;
