@@ -3,6 +3,7 @@ import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut
 import { PositionObjet, PrepositionSpatiale } from '../models/jeu/position-objet';
 
 import { ConditionsUtils } from './conditions-utils';
+import { Correspondance } from './correspondance';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -253,8 +254,17 @@ export class Instructions {
         break;
 
       default:
-        // TODO: trouver la destination.
-        console.warn("executerDeplacer >> Je ne sais pas encore trouver cette destination:", complement.nom);
+        let correspondance = this.eju.trouverCorrespondance(complement);
+        // un élément trouvé
+        if (correspondance.elements.length === 1) {
+          destination = correspondance.elements[0];
+          // aucun élément trouvé
+        } else if (correspondance.elements.length === 0) {
+          console.error("executerDeplacer >>> je n’ai pas trouvé la destination:", complement);
+          // plusieurs éléments trouvés
+        } else {
+          console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour la destination:", complement);
+        }
         break;
     }
 

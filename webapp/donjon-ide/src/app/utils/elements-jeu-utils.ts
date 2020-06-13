@@ -231,6 +231,9 @@ export class ElementsJeuUtils {
   trouverCorrespondance(sujet: GroupeNominal): Correspondance {
     let cor: Correspondance = null;
 
+    console.log(" >>>> objets du jeu:", this.jeu.objets);
+    console.log(" >>>> lieux du jeu:", this.jeu.lieux);
+
     if (sujet) {
       cor = new Correspondance();
       console.warn("trouverCorrespondance sujet:", sujet);
@@ -244,9 +247,6 @@ export class ElementsJeuUtils {
       // 3. Chercher parmis les objets
       cor.objets = this.trouverObjet(sujet);
 
-      console.log(" >>>> cor.objets=", cor.objets);
-
-
       cor.elements = [];
       // ajouter les objets aux éléments
       if (cor.objets && cor.objets.length > 0) {
@@ -256,6 +256,11 @@ export class ElementsJeuUtils {
       if (cor.lieux && cor.lieux.length > 0) {
         cor.elements = cor.elements.concat(cor.lieux);
       }
+
+      console.log(" >>>> éléments trouvés:", cor.elements);
+      console.log(" >>>> objets trouvés:", cor.objets);
+      console.log(" >>>> lieux trouvés:", cor.lieux);
+
     }
 
 
@@ -308,7 +313,7 @@ export class ElementsJeuUtils {
     let retVal: Objet[] = [];
 
     this.jeu.objets.forEach(obj => {
-      if (obj.intitule.nom === sujet.nom && obj.intitule.epithete === sujet.epithete) {
+      if (obj.intitule.nom === sujet.nom && (!sujet.epithete || obj.intitule.epithete === sujet.epithete)) {
         retVal.push(obj);
       }
     });
@@ -317,7 +322,16 @@ export class ElementsJeuUtils {
   }
 
   trouverLieu(sujet: GroupeNominal): Lieu[] {
-    return [];
+
+    let retVal: Lieu[] = [];
+
+    this.jeu.lieux.forEach(li => {
+      if (li.intitule.nom === sujet.nom && (!sujet.epithete || li.intitule.epithete === sujet.epithete)) {
+        retVal.push(li);
+      }
+    });
+
+    return retVal;
   }
 
   // trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean): ElementJeu | -1 {

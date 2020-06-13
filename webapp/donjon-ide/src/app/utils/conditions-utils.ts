@@ -4,7 +4,6 @@ import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Jeu } from '../models/jeu/jeu';
 import { OutilsCommandes } from './outils-commandes';
 import { PhraseUtils } from './phrase-utils';
-import { log } from 'console';
 
 export class ConditionsUtils {
 

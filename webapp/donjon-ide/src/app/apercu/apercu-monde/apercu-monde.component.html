@@ -4,38 +4,7 @@
 <p *ngIf="regles && regles.length == 0">Aucune règle trouvée.</p>
 <ul>
   <ng-template ngFor let-re [ngForOf]="regles">
-    <li>
-      <ul>
-        <li>Type: <b>{{re.typeRegle}}</b></li>
-
-        <li *ngIf="re.condition">Condition :
-          <ul>
-            <li>
-              Sujet :{{re.condition.sujet.determinant ? ("["+re.condition.sujet.determinant.trim()+ "] ") : ""}}{{re.condition.sujet.nom}}{{(re.condition.sujet.epithete ? re.condition.sujet.epithete : '')}}
-            </li>
-            <li>Verbe : {{re.condition.verbe}}</li>
-            <li *ngIf="re.condition.complement">Complément : {{re.condition.complement}}</li>
-          </ul>
-        </li>
-
-        <li *ngIf="re.evenement">Évènement :
-          <ul>
-            <li>Infinitif : {{re.evenement.infinitif}}</li>
-            <li *ngIf="re.evenement.ceci">Ceci : {{re.evenement.ceci}}</li>
-            <li *ngIf="re.evenement.cela">Cela : {{re.evenement.cela}}</li>
-          </ul>
-        </li>
-
-        <li>Conséquences:
-          <ul>
-            <li *ngFor="let ins of re.instructions; index as i">
-              Instruction {{(i+1)}} :
-              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
+    <app-apercu-regle [regle]="re"></app-apercu-regle>
   </ng-template>
 </ul>
 
@@ -44,90 +13,7 @@
 <p *ngIf="actions && actions.length == 0">Aucune action trouvée.</p>
 <ul>
   <ng-template ngFor let-act [ngForOf]="actions">
-    <li>
-      <b>{{act.infinitif}}</b> {{act.ceci ? 'ceci': ''}} {{act.cela ? 'avec cela': ''}}
-      <ul>
-        <li *ngIf="act.cibleCeci && act.cibleCeci.determinant != 'deux'">
-          ceci : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} <i>{{act.cibleCeci.epithete}}</i>
-        </li>
-        <li *ngIf="act.cibleCela && act.cibleCeci.determinant != 'deux'">
-          cela : {{act.cibleCela.determinant}} {{act.cibleCela.nom}} <i>{{act.cibleCela.epithete}}</i>
-        </li>
-        <li *ngIf="act.cibleCeci && act.cibleCeci.determinant == 'deux'">
-          ceci et cela : {{act.cibleCeci.determinant}} {{act.cibleCeci.nom}} <i>{{act.cibleCela.epithete}}</i>
-        </li>
-        <li>Refus : <i *ngIf="act.verifications.length == 0">(aucune vérification)</i>
-          <ul *ngIf="act.verifications.length != 0">
-            <li *ngFor="let ver of act.verifications; index as k">
-              Vérification {{(k+1)}} :
-              <ul>
-                <li>
-                  Conditions :
-                  <ul>
-                    <li *ngFor="let cond of ver.conditions; index as j">
-                      Condition {{(j+1)}} :
-                      <ul>
-                        <li>
-                          <app-apercu-sujet [sujet]="cond.sujet" [titre]="'Sujet'"></app-apercu-sujet>
-                        </li>
-                        <li>Verbe : {{cond.verbe}}</li>
-                        <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
-                        <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
-                        <li *ngIf="cond.sujetComplement">
-                          <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  Resultats :
-                  <ul>
-                    <li *ngFor="let ins of ver.resultats; index as i">
-                      Instruction {{(i+1)}} :
-                      <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li>Exécution :
-          <ul>
-            <li *ngFor="let ins of act.instructions; index as i">
-              Instruction {{(i+1)}} :
-              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-            </li>
-          </ul>
-        </li>
-
-        <li>Finalisation : <i *ngIf="act.instructionsFinales.length == 0">(aucune instruction)</i>
-          <ul *ngIf="act.instructionsFinales.length != 0">
-            <li>Instructions :
-              <ul>
-                <li *ngFor="let ins of act.instructionsFinales; index as i">
-                  Instruction {{(i+1)}} :
-                  <ul>
-                    <li>Action : {{ins.infinitif}}</li>
-                    <li *ngIf="ins.sujet">
-                      Sujet :
-                      {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
-                    </li>
-                    <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                    <li *ngIf="ins.preposition">Préposition : {{ins.preposition}}</li>
-                    <li *ngIf="ins.sujetComplement">
-                      <app-apercu-sujet [sujet]="ins.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                    </li>
-                    <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
+    <app-apercu-action [action]="act"></app-apercu-action>
   </ng-template>
 </ul>
 
@@ -144,7 +30,7 @@
   <ul>
     <ng-template ngFor let-el [ngForOf]="monde.lieux">
       <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
+        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>
@@ -154,7 +40,7 @@
   <ul>
     <ng-template ngFor let-el [ngForOf]="monde.portes">
       <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
+        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>
@@ -164,7 +50,7 @@
   <ul>
     <ng-template ngFor let-el [ngForOf]="monde.objets">
       <li>
-        <app-vue-element-generique [el]=el></app-vue-element-generique>
+        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>
@@ -177,7 +63,7 @@
       <ul>
         <ng-template ngFor let-el [ngForOf]="monde.joueurs">
           <li>
-            <app-vue-element-generique [el]=el></app-vue-element-generique>
+            <app-apercu-element-generique [el]=el></app-apercu-element-generique>
           </li>
         </ng-template>
       </ul>

@@ -128,14 +128,14 @@
 </div>
 <!-- Jeu -->
 <div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm">
-  <div class="card-body">
+  <div class="card-body p-2">
     <h3>Jeu</h3>
     <app-lecteur [jeu]="jeu" [verbeux]="true"></app-lecteur>
   </div>
 </div>
 <!-- Aperçu -->
 <div *ngIf="mode == 'apercu'" class="card mb-4 shadow-sm">
-  <div class="card-body">
+  <div class="card-body p-2">
     <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions"></app-apercu-monde>
   </div>
 </div>

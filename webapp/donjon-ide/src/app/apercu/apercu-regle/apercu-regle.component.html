@@ -1,0 +1,32 @@
+<li>
+  <ul>
+    <li>Type: <b>{{regle.typeRegle}}</b></li>
+
+    <li *ngIf="regle.condition">Condition :
+      <ul>
+        <li>
+          Sujet :{{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ") : ""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete : '')}}
+        </li>
+        <li>Verbe : {{regle.condition.verbe}}</li>
+        <li *ngIf="regle.condition.complement">Complément : {{regle.condition.complement}}</li>
+      </ul>
+    </li>
+
+    <li *ngIf="regle.evenement">Évènement :
+      <ul>
+        <li>Infinitif : {{regle.evenement.infinitif}}</li>
+        <li *ngIf="regle.evenement.ceci">Ceci : {{regle.evenement.ceci}}</li>
+        <li *ngIf="regle.evenement.cela">Cela : {{regle.evenement.cela}}</li>
+      </ul>
+    </li>
+
+    <li>Conséquences:
+      <ul>
+        <li *ngFor="let ins of regle.instructions; index as i">
+          Instruction {{(i+1)}} :
+          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>

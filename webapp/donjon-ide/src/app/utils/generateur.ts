@@ -50,9 +50,10 @@ export class Generateur {
     let premierIndexLieu = (indexElementJeu + 1);
     monde.lieux.forEach(curEle => {
 
-      let titre = curEle.determinant + curEle.nom;
+      let titre = curEle.determinant + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
-      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, null, titre);
+      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
       nouvLieu.description = curEle.description;
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
@@ -62,7 +63,6 @@ export class Generateur {
             break;
 
           case 'titre':
-          case 'intitulé':
             nouvLieu.titre = pro.valeur;
             break;
 

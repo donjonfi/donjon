@@ -1,4 +1,5 @@
 import 'brace';
+import 'brace/ext/searchbox';
 import 'brace/mode/text';
 import '../../mode-donjon.js';
 // import 'brace/mode/javascript';
