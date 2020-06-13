@@ -20,7 +20,7 @@ export class PhraseUtils {
    * - jeter l’épée
    * => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+)(?: (\S+))?( (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+)(?: (\S+)|))?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?( (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?)?$/i;
   /**
    * il y a aussi des commandes spéciales:
    * - position
@@ -121,12 +121,10 @@ export class PhraseUtils {
     // soit c’est une commande
     let els = PhraseUtils.decomposerCommande(evenement);
 
-    console.error('getEvenement: evenement=', evenement, 'els=', els);
-
-
     // si on a trouvé une formulation correcte
     if (els) {
-      return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null, (els.sujetComplement ? els.sujetComplement.nom : null));
+      return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null,
+        els.preposition, (els.sujetComplement ? els.sujetComplement.nom : null));
     } else {
       console.warn("getEvenement >> decomposerCommande: pas pu décomposer:", evenement);
       return null;

@@ -47,7 +47,7 @@ export class JouerComponent implements OnInit {
             this.codeSource = codeSource;
             if (this.codeSource.trim() != '') {
               // interpréter le code
-              const resultat = Compilateur.parseCode(this.codeSource);
+              const resultat = Compilateur.parseCode(this.codeSource, false);
               // générer le jeu
               this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions);
             } else {

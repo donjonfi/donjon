@@ -44,7 +44,7 @@ export class Compilateur {
    * - ex1: La (1) pomme de terre(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) dans le(7) jardin(8).
    * - => determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
    */
-  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:|(?:un|une|des) (.+?)(?:(?: )(.+?))? )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
+  static readonly xPositionElementGeneriqueDefini = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:|(?:un|une|des) (\S+?)(?:(?: )(\S+?))? )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un | une )|de (?:la |l(?:’|'))|du ))(.+)/i;
 
   /** élément générique positionné par rapport à complément :
    * - ex1: Il y a des pommes de terre anciennes (f, pomme de terre) dans le champ.
@@ -52,13 +52,13 @@ export class Compilateur {
    * - ex2: Une canne à pèche neuve (cannes à pèche) est sur le bord du lac.
    * - => déterminant(5), nom (6), épithète (7), féminin+autre forme(8), position(9), complément(10).
    */
-  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
+  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de la |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |l(?:’|')|les |un |une )))(.+)/i;
 
   /** élément générique simple
    * - ex1: Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
    * - => Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6).
    */
-  static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
+  static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
 
   /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
   static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
@@ -80,7 +80,7 @@ export class Compilateur {
   /** élément générique ->
    * Les (1) pommes de terre (2) pourries (3) [(f, pomme de terre)]\(4) sont mauves, odorantes et humides (5).
    */
-  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
+  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   static readonly xNombrePluriel = /^[2-9]\d*$/;
 
@@ -94,7 +94,7 @@ export class Compilateur {
    */
   // static readonly xActionSpeciale = /^(\S+) est une action spéciale(?: )?:(.+)?$/i;
   /** Le joueur peut verbe(1) [déterminant(2) nom(3) epithete(4)]: instructions(5) */
-  static readonly xActionSimple = /^Le joueur peut ((?:se )?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+)(?: (\S+))?)?:(.+)?$/i;
+  static readonly xActionSimple = /^Le joueur peut ((?:se )?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?:(.+)?$/i;
 
   /** Description d'une action => [refuser|exécuter|finaliser]\(1) verbe(2) [ceci(3) [(avec|et) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|finaliser) ((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)?\s?:(.+)$/i;
@@ -110,13 +110,18 @@ export class Compilateur {
    * Interpréter le code source fourni et renvoyer le jeu correspondant.
    * @param source Code à interpréter.
    */
-  public static parseCode(source: string): ResultatCompilation {
+  public static parseCode(source: string, verbeux: boolean): ResultatCompilation {
+
     // le monde qui est décrit
     let monde = new Monde();
     let regles = new Array<Regle>();
     let erreurs = new Array<string>();
     let actions = new Array<Action>();
 
+
+    Compilateur.verbeux = verbeux;
+
+    console.warn("Compilateur.verbeux=", Compilateur.verbeux);
 
     let dernierePropriete: Propriete = null;
     let dernierElementGenerique: ElementGenerique = null;
@@ -489,7 +494,9 @@ export class Compilateur {
       if (regle.consequencesBrutes) {
         regle.instructions = Compilateur.separerConsequences(regle.consequencesBrutes, erreurs, false);
       }
-      console.log(">>> regle:", regle);
+      if (Compilateur.verbeux) {
+        console.log(">>> regle:", regle);
+      }
     });
 
     if (Compilateur.verbeux) {
@@ -595,7 +602,6 @@ export class Compilateur {
       let condition: Condition = null;
       let evenement: Evenement = null;
       let commande: ElementsPhrase = null;
-      console.warn("testerRegle >>> motCle=", motCle);
 
       switch (motCle) {
         case 'si':

@@ -174,7 +174,7 @@ export class EditeurComponent implements OnInit {
     this.sauvegarderSession();
     if (this.codeSource.trim() != '') {
       // interpréter le code
-      let resultat = Compilateur.parseCode(this.codeSource);
+      let resultat = Compilateur.parseCode(this.codeSource, true);
       this.monde = resultat.monde;
       this.regles = resultat.regles;
       this.actions = resultat.actions;
@@ -190,7 +190,7 @@ export class EditeurComponent implements OnInit {
     this.sauvegarderSession();
     if (this.codeSource.trim() != '') {
       // interpréter le code
-      let resultat = Compilateur.parseCode(this.codeSource);
+      let resultat = Compilateur.parseCode(this.codeSource, false);
       this.monde = resultat.monde;
       this.regles = resultat.regles;
       this.actions = resultat.actions;
