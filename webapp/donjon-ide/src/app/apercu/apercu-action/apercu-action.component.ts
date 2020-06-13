@@ -11,6 +11,8 @@ export class ApercuActionComponent implements OnInit {
 
   @Input() action: Action;
 
+  replie = true;
+  
   constructor() { }
 
   ngOnInit(): void {

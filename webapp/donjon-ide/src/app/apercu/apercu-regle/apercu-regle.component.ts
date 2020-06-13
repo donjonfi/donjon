@@ -11,6 +11,8 @@ export class ApercuRegleComponent implements OnInit {
 
   @Input() regle: Regle;
 
+  replie = true;
+
   constructor() { }
 
   ngOnInit(): void {

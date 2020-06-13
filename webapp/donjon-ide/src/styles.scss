@@ -1,5 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'variables';
-@import '../node_modules/bootstrap/scss/bootstrap';
+@import "variables";
+@import "../node_modules/bootstrap/scss/bootstrap";
 
+.evenement {
+  font-weight: normal;
+}
+
+.objet {
+  color: $primary;
+  .epithete {
+    font-style: italic;
+  }
+}
+
+.preposition {
+  color: black;
+}
+
+.lieu {
+  color: red;
+}
+
+.infinitif {
+  color: $danger;
+  font-style: italic;
+}

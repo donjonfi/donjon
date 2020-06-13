@@ -11,6 +11,8 @@ export class ApercuElementGeneriqueComponent implements OnInit {
 
   @Input() el: ElementGenerique;
 
+  replie = true;
+  
   constructor() { }
 
   ngOnInit(): void {

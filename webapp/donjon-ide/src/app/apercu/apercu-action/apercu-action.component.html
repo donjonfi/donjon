@@ -1,84 +1,113 @@
-<li>
-  <b>{{action.infinitif}}</b> {{action.ceci ? 'ceci': ''}} {{action.cela ? 'avec cela': ''}}
-  <ul>
-    <li *ngIf="action.cibleCeci && action.cibleCeci.determinant != 'deux'">
-      ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
-    </li>
-    <li *ngIf="action.cibleCela && action.cibleCeci.determinant != 'deux'">
-      cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
-    </li>
-    <li *ngIf="action.cibleCeci && action.cibleCeci.determinant == 'deux'">
-      ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
-    </li>
-    <li>Refus : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
-      <ul *ngIf="action.verifications.length != 0">
-        <li *ngFor="let ver of action.verifications; index as k">
-          Vérification {{(k+1)}} :
-          <ul>
-            <li>
-              Conditions :
-              <ul>
-                <li *ngFor="let cond of ver.conditions; index as j">
-                  Condition {{(j+1)}} :
-                  <ul>
-                    <li>
-                      <app-apercu-sujet [sujet]="cond.sujet" [titre]="'Sujet'"></app-apercu-sujet>
-                    </li>
-                    <li>Verbe : {{cond.verbe}}</li>
-                    <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
-                    <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
-                    <li *ngIf="cond.sujetComplement">
-                      <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li>
-              Resultats :
-              <ul>
-                <li *ngFor="let ins of ver.resultats; index as i">
-                  Instruction {{(i+1)}} :
-                  <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-    <li>Exécution :
-      <ul>
-        <li *ngFor="let ins of action.instructions; index as i">
-          Instruction {{(i+1)}} :
-          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-        </li>
-      </ul>
-    </li>
+<div>
 
-    <li>Finalisation : <i *ngIf="action.instructionsFinales.length == 0">(aucune instruction)</i>
-      <ul *ngIf="action.instructionsFinales.length != 0">
-        <li>Instructions :
-          <ul>
-            <li *ngFor="let ins of action.instructionsFinales; index as i">
-              Instruction {{(i+1)}} :
-              <ul>
-                <li>Action : {{ins.infinitif}}</li>
-                <li *ngIf="ins.sujet">
-                  Sujet :
-                  {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
-                </li>
-                <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                <li *ngIf="ins.preposition">Préposition : {{ins.preposition}}</li>
-                <li *ngIf="ins.sujetComplement">
-                  <app-apercu-sujet [sujet]="ins.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                </li>
-                <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</li>
+  <div class="row">
+    <div class="col-auto">
+      <button class="btn btn-sm btn-outline-secondary my-1 py-0" (click)="replie = !replie">
+        {{(replie ? 'afficher' : 'masquer' )}}
+      </button>
+    </div>
+
+    <div class="col">
+      <span class="infinitif"> {{action.infinitif}}</span>
+
+      <span *ngIf="action.ceci">
+        ceci (<span
+          class="objet">{{action.cibleCeci.nom}}<span *ngIf="action.cibleCeci.epithete" class="epithete"> {{action.cibleCeci.epithete}}</span></span>)
+      </span>
+
+      <span *ngIf="action.cela">
+        cela (<span
+          class="objet">{{action.cibleCela.nom}}<span *ngIf="action.cibleCela.epithete" class="epithete"> {{action.cibleCela.epithete}}</span></span>)
+      </span>
+
+    </div>
+
+  </div>
+
+  <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
+
+    <ul>
+      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant != 'deux'">
+        ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
+      </li>
+      <li *ngIf="action.cibleCela && action.cibleCeci.determinant != 'deux'">
+        cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
+      </li>
+      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant == 'deux'">
+        ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
+      </li>
+      <li>Refus : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
+        <ul *ngIf="action.verifications.length != 0">
+          <li *ngFor="let ver of action.verifications; index as k">
+            Vérification {{(k+1)}} :
+            <ul>
+              <li>
+                Conditions :
+                <ul>
+                  <li *ngFor="let cond of ver.conditions; index as j">
+                    Condition {{(j+1)}} :
+                    <ul>
+                      <li>
+                        <app-apercu-sujet [sujet]="cond.sujet" [titre]="'Sujet'"></app-apercu-sujet>
+                      </li>
+                      <li>Verbe : {{cond.verbe}}</li>
+                      <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
+                      <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
+                      <li *ngIf="cond.sujetComplement">
+                        <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Resultats :
+                <ul>
+                  <li *ngFor="let ins of ver.resultats; index as i">
+                    Instruction {{(i+1)}} :
+                    <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Exécution :
+        <ul>
+          <li *ngFor="let ins of action.instructions; index as i">
+            Instruction {{(i+1)}} :
+            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+          </li>
+        </ul>
+      </li>
+
+      <li>Finalisation : <i *ngIf="action.instructionsFinales.length == 0">(aucune instruction)</i>
+        <ul *ngIf="action.instructionsFinales.length != 0">
+          <li>Instructions :
+            <ul>
+              <li *ngFor="let ins of action.instructionsFinales; index as i">
+                Instruction {{(i+1)}} :
+                <ul>
+                  <li>Action : {{ins.infinitif}}</li>
+                  <li *ngIf="ins.sujet">
+                    Sujet :
+                    {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
+                  </li>
+                  <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
+                  <li *ngIf="ins.preposition">Préposition : {{ins.preposition}}</li>
+                  <li *ngIf="ins.sujetComplement">
+                    <app-apercu-sujet [sujet]="ins.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+                  </li>
+                  <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+
+</div>
