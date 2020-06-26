@@ -8,9 +8,7 @@
     <!-- Éditeur -->
     <div class="col-md-6 text-danger">
       <h3 class="mb-0">Créer</h3>
-      <a class="btn btn-danger mt-1 d-block d-sm-none" routerLink="/editeur" role="button">Éditeur de donjons</a>
-      <a class="btn btn-danger mt-1 d-none d-sm-inline-block" routerLink="/editeur" role="button">Éditeur de donjons</a>
-
+      <a class="btn btn-danger mt-1 d-block d-sm-inline-block" routerLink="/editeur" role="button">Éditeur de donjons</a>
     </div>
     <!-- Jouer -->
     <div class="col-md-6 text-success mt-3 mt-md-0">
@@ -20,10 +18,18 @@
           <option [ngValue]="'exemple2'">Le château de la terreur</option>
           <option [ngValue]="'exemple1'">Le nain qui voulait un trésor</option>
         </select>
-        <a class="btn btn-success form-control ml-sm-2 mt-2 mt-sm-0" routerLink="/jouer/{{nomJeu}}" role="button">Jouer</a>
+        <a class="btn btn-success form-control ml-sm-2 mt-2 mt-sm-0" routerLink="/jouer/{{nomJeu}}"
+          role="button">Jouer</a>
       </form>
     </div>
+  </div>
 
+  <div class="row mt-4">
+    <!-- Apprendre à créer -->
+    <div class="col-md-6 text-secondary">
+      <h3 class="mb-0">Apprendre</h3>
+      <a class="btn btn-secondary mt-1 d-block d-sm-inline-block" href="https://wiki.donjon.xax.be" target="_blank" role="button">Wiki Joueur et Écrivain</a>
+    </div>
   </div>
 
 </div>

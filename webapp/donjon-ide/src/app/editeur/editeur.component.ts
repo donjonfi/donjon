@@ -172,7 +172,7 @@ export class EditeurComponent implements OnInit {
 
   onApercu() {
     this.sauvegarderSession();
-    if (this.codeSource.trim() != '') {
+    if (this.codeSource && this.codeSource.trim() !== '') {
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource, true);
       this.monde = resultat.monde;
@@ -188,7 +188,7 @@ export class EditeurComponent implements OnInit {
 
   onJouer() {
     this.sauvegarderSession();
-    if (this.codeSource.trim() != '') {
+    if (this.codeSource && this.codeSource.trim() != '') {
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource, false);
       this.monde = resultat.monde;
