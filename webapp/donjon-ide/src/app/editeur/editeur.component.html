@@ -5,6 +5,7 @@
       <div class="col-md-auto">
         <h3>Code source</h3>
       </div>
+      <!-- Sauvegarder, Charger, Exemples -->
       <div class="col-12 col-md">
         <div class="row">
           <div class="col-auto">
@@ -29,12 +30,7 @@
       </div>
     </div>
 
-    <!-- <div class="card content-container mb-2"> -->
-    <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-      <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
-      </ace>
-    </div>
-    <div class="row">
+    <div class="row mb-4">
       <div class="col-auto">
         <button type="button" (click)="onApercu()" class="btn btn-success mr-2">Aperçu</button>
       </div>
@@ -94,6 +90,13 @@
         </select>
       </div>
     </div>
+
+    <!-- <div class="card content-container mb-2"> -->
+    <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
+      <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
+      </ace>
+    </div>
+
   </div>
 </div>
 <!-- Compilation -->
