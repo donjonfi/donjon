@@ -3,6 +3,7 @@ import { Classe, EClasseRacine } from '../models/commun/classe';
 import { Correspondance } from './correspondance';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { EmplacementElement } from '../models/jeu/emplacement-element';
+import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Jeu } from '../models/jeu/jeu';
 import { Lieu } from '../models/jeu/lieu';
@@ -28,6 +29,7 @@ export class ElementsJeuUtils {
           retVal = true;
         }
       });
+      
       return retVal;
     } else {
       console.error("possedeCetEtat >> ElementJeu pas défini.");

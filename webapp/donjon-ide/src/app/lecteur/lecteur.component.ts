@@ -1,9 +1,8 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
-import { Classe, EClasseRacine } from '../models/commun/classe';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/abreviations';
-import { ApercuSujetComponent } from '../apercu/apercu-sujet/apercu-sujet.component';
+import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/commandes';
 import { ConditionsUtils } from '../utils/conditions-utils';
 import { Correspondance } from '../utils/correspondance';
@@ -11,16 +10,11 @@ import { Declancheur } from '../utils/declancheur';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Evenement } from '../models/jouer/evenement';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from '../utils/instructions';
 import { Jeu } from '../models/jeu/jeu';
-import { Lieu } from '../models/jeu/lieu';
-import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/phrase-utils';
-import { Resultat } from '../models/jouer/resultat';
 
 @Component({
   selector: 'app-lecteur',
@@ -44,6 +38,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   private com: Commandes;
   private ins: Instructions;
   private eju: ElementsJeuUtils;
+  private cond: ConditionsUtils;
 
   private dec: Declancheur;
 
@@ -62,8 +57,11 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
-
+      this.cond = new ConditionsUtils(this.jeu, this.verbeux);
       this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
+
+      // définir visibilité des objets initiale
+      this.eju.majVisibiliteDesObjets();
 
       let evCommencerJeu = new Evenement('commencer', 'jeu');
 
@@ -305,13 +303,31 @@ export class LecteurComponent implements OnInit, OnChanges {
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
-            // vérifier l’action
+            // vérifier cette action action
+            let refus = false;
+            if (actionCeciCela.action.verifications) {
+              console.log("vérifications en cours pour la commande…");
 
-            // exécuter l’action
-            retVal = this.executerAction(actionCeciCela);
+              // parcourir les vérifications
+              actionCeciCela.action.verifications.forEach(verif => {
+                if (this.cond.conditionsRemplies(verif.conditions, actionCeciCela.ceci, actionCeciCela.cela)) {
+                  console.warn("> commande vérifie cela:", verif);
+                  let resultat = this.ins.executerInstructions(verif.resultats);
+                  retVal = resultat.sortie;
+                  refus = true;
+                }
+              });
+            }
 
-            // finaliser l’action
-            retVal += this.finaliserAction(actionCeciCela);
+            // exécuter l’action si pas refusée
+            if (!refus) {
+              // exécuter l’action
+              retVal = this.executerAction(actionCeciCela);
+
+              // finaliser l’action
+              retVal += this.finaliserAction(actionCeciCela);
+            }
+
 
           } else {
             retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";

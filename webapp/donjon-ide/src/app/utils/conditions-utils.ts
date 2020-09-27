@@ -1,8 +1,10 @@
+import { Classe, EClasseRacine } from '../models/commun/classe';
+
 import { Condition } from '../models/compilateur/condition';
+import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
-import { EmplacementElement } from '../models/jeu/emplacement-element';
 import { Jeu } from '../models/jeu/jeu';
-import { OutilsCommandes } from './outils-commandes';
+import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from './phrase-utils';
 
 export class ConditionsUtils {
@@ -16,6 +18,92 @@ export class ConditionsUtils {
 
   /** Utilitaires - Éléments du jeu */
   private eju: ElementsJeuUtils;
+
+  conditionsRemplies(conditions: Condition[], ceci: ElementJeu, cela: ElementJeu) {
+    if (conditions.length === 0) {
+      console.warn("conditions-utils > conditionsRemplies: aucune condition à vérier.", conditions);
+      return true;
+    } else if (conditions.length === 1) {
+      // console.warn("conditions-utils > conditionsRemplies: à vérifier…", conditions);
+      const curCondition = conditions[0];
+      let resultCondition = false;
+      if (curCondition.verbe === 'est') {
+        if (curCondition.sujet.nom === 'ceci') {
+          resultCondition = this.verifierConditionElementJeuEst(curCondition, ceci);
+        } else if (curCondition.sujet.nom === 'cela') {
+          resultCondition = this.verifierConditionElementJeuEst(curCondition, cela);
+        } else {
+          console.error("conditionsRemplies: sujet pas supporté:", curCondition.sujet);
+        }
+        console.error("conditionsRemplies >>>> resultat:", resultCondition);
+        return resultCondition;
+      } else {
+        console.error("conditionsRemplies: verbe pas supporté:", curCondition.verbe);
+        return false;
+      }
+    } else {
+      console.error("conditions-utils > conditionsRemplies: ne gère pas encore plusieurs conditions.", conditions);
+      return false;
+    }
+  }
+
+  private verifierConditionElementJeuEst(cond: Condition, el: ElementJeu) {
+    let resultCondition = null;
+
+    console.log(">>>> verifierConditionElementJeuEst", cond, el);
+
+
+    if (!cond.sujetComplement || !cond.sujetComplement.determinant) {
+      console.log(">>>>>> pas de déterminant…");
+
+      // s’il s’agit d’un objet, on vérifier d’abord les attributs
+      if (Classe.heriteDe(el.classe, EClasseRacine.objet)) {
+        console.log(">>>>>> objet…");
+        const obj = el as Objet;
+        // attributs spécifiques aux objets
+        // - possede
+        if (obj.possede && cond.complement.startsWith('possédé')) {
+          resultCondition = true;
+          console.log(">>>>>> possédé");
+        } else if (obj.visible && cond.complement.startsWith('visible')) {
+          resultCondition = true;
+          console.log(">>>>>> visible");
+        }
+      }
+      // si pas un objet ou pas un attribut spécifique, vérifier la liste des états
+      if (resultCondition === null) {
+        console.log(">>>>>> possedeCetEtat? …");
+        resultCondition = ElementsJeuUtils.possedeCetEtat(el, cond.complement);
+      }
+    } else {
+      switch (cond.sujetComplement.determinant) {
+        case "un ":
+        case "une ":
+        case "des ":
+        case "de la ":
+        case "du ":
+        case "de l’":
+        case "de l'":
+          resultCondition = Classe.heriteDe(el.classe, cond.sujetComplement.nom);
+          break;
+
+        case "la ":
+        case "le ":
+        case "l’":
+        case "l'":
+        case "les ":
+          resultCondition = (el.intitule.nom === cond.sujetComplement.nom);
+          break;
+
+        default:
+          console.error("verifierConditionElementJeuEst : déterminant pas géré:", cond.sujetComplement.determinant);
+          resultCondition = false;
+          break;
+      }
+    }
+    return resultCondition;
+
+  }
 
   siEstVrai(conditionString: string, condition: Condition) {
     let retVal = false;
