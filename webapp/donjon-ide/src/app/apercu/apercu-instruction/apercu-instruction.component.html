@@ -4,7 +4,7 @@
     <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
   </li>
   <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
-  <li *ngIf="ins.instruction.preposition">Préposition: {{ins.instruction.preposition}}</li>
+  <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
   <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
   <li *ngIf="ins.instruction.sujetComplement">
     <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
@@ -19,7 +19,7 @@
       </li>
       <li>Verbe : {{ins.condition.verbe}}</li>
       <li *ngIf="ins.condition.negation">Négation : {{ins.condition.negation}}</li>
-      <li *ngIf="ins.condition.complement">Complement : {{ins.condition.complement}}</li>
+      <li *ngIf="ins.condition.complement">Complément : {{ins.condition.complement}}</li>
       <li *ngIf="ins.condition.sujetComplement">
         <app-apercu-sujet [sujet]="ins.condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
       </li>

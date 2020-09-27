@@ -13,6 +13,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { CommonModule } from '@angular/common';
 import { EditeurComponent } from './editeur/editeur.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -20,6 +21,7 @@ import { JouerComponent } from './jouer/jouer.component';
 import { LecteurComponent } from './lecteur/lecteur.component';
 import { NgModule } from '@angular/core';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -43,12 +45,14 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
 
   ],
   imports: [
+    CommonModule,
     BrowserAnimationsModule,
-    CollapseModule.forRoot(),
     FormsModule,
-    AppRoutingModule,
-    AceModule,
     HttpClientModule,
+    AppRoutingModule,
+    CollapseModule.forRoot(),
+    TabsModule.forRoot(),
+    AceModule,
   ],
   providers: [
     {

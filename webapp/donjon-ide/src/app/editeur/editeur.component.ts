@@ -27,6 +27,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Monde } from '../models/compilateur/monde';
 import { Regle } from '../models/compilateur/regle';
 import { StringUtils } from '../utils/string.utils';
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
 
 @Component({
   selector: 'app-editeur',
@@ -67,6 +68,12 @@ export class EditeurComponent implements OnInit {
   jeu: Jeu = null;
   codeSource = "";
   nomExemple = "exemple2";
+
+  afficherPreferences = false;
+
+  @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
+  compilationEnCours = false;
+  compilationTerminee = false;
 
   constructor(
     private http: HttpClient,
@@ -137,6 +144,7 @@ export class EditeurComponent implements OnInit {
       this.monde = null;
       this.erreurs = null;
       this.regles = null;
+      this.compilationTerminee = false;
     }
   }
 
@@ -156,6 +164,8 @@ export class EditeurComponent implements OnInit {
       this.monde = null;
       this.erreurs = null;
       this.regles = null;
+      this.compilationTerminee = false;
+
     }
   }
 
@@ -170,25 +180,33 @@ export class EditeurComponent implements OnInit {
     FileSaver.saveAs(file);
   }
 
-  onApercu() {
-    this.sauvegarderSession();
-    if (this.codeSource && this.codeSource.trim() !== '') {
-      // interpréter le code
-      let resultat = Compilateur.parseCode(this.codeSource, true);
-      this.monde = resultat.monde;
-      this.regles = resultat.regles;
-      this.actions = resultat.actions;
-      this.erreurs = resultat.erreurs;
-      // voir le résultat
-      this.mode = "apercu";
-    } else {
-      this.erreurs = [];
+  showTab(tab: string) {
+    switch (tab) {
+      case 'editeur':
+        this.editeurTabs.tabs[0].active = true;
+        break;
+      case 'compilation':
+        this.editeurTabs.tabs[1].active = true;
+        break;
+      case 'jouer':
+        this.editeurTabs.tabs[2].active = true;
+        break;
+      case 'apercu':
+        this.editeurTabs.tabs[3].active = true;
+        break;
+      default:
+        break;
     }
   }
 
-  onJouer() {
+  onCompiler() {
+    this.showTab('compilation');
     this.sauvegarderSession();
+
     if (this.codeSource && this.codeSource.trim() != '') {
+      this.compilationEnCours = true;
+      this.compilationTerminee = false;
+
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource, false);
       this.monde = resultat.monde;
@@ -197,8 +215,10 @@ export class EditeurComponent implements OnInit {
       this.erreurs = resultat.erreurs;
       // générer le jeu
       this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions);
-      // commencer le jeu
-      this.mode = "jeu";
+
+      this.compilationEnCours = false;
+      this.compilationTerminee = true;
+
     } else {
       this.erreurs = [];
     }

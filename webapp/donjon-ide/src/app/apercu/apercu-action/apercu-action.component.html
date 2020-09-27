@@ -52,7 +52,7 @@
                       </li>
                       <li>Verbe : {{cond.verbe}}</li>
                       <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
-                      <li *ngIf="cond.complement">Complement : {{cond.complement}}</li>
+                      <li *ngIf="cond.complement">Complément : {{cond.complement}}</li>
                       <li *ngIf="cond.sujetComplement">
                         <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
                       </li>
@@ -89,17 +89,17 @@
               <li *ngFor="let ins of action.instructionsFinales; index as i">
                 Instruction {{(i+1)}} :
                 <ul>
-                  <li>Action : {{ins.infinitif}}</li>
-                  <li *ngIf="ins.sujet">
+                  <li>Action : {{ins.instruction.infinitif}}</li>
+                  <li *ngIf="ins.instruction.sujet">
                     Sujet :
-                    {{ins.sujet.determinant ? ("["+ins.sujet.determinant.trim()+ "] ") : ""}}{{ins.sujet.pronom ? ("["+ins.sujet.pronom.trim()+ "] ") : ""}}{{ins.sujet.nom}}
+                    {{ins.instruction.sujet.determinant ? ("["+ins.instruction.sujet.determinant.trim()+ "] ") : ""}}{{ins.instruction.sujet.pronom ? ("["+ins.instruction.sujet.pronom.trim()+ "] ") : ""}}{{ins.instruction.sujet.nom}}
                   </li>
-                  <li *ngIf="ins.verbe">Verbe : {{ins.verbe}}</li>
-                  <li *ngIf="ins.preposition">Préposition : {{ins.preposition}}</li>
-                  <li *ngIf="ins.sujetComplement">
-                    <app-apercu-sujet [sujet]="ins.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+                  <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
+                  <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
+                  <li *ngIf="ins.instruction.sujetComplement">
+                    <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
                   </li>
-                  <li *ngIf="ins.complement">Compl : {{ins.complement}}</li>
+                  <li *ngIf="ins.instruction.complement">Compl : {{ins.instruction.complement}}</li>
                 </ul>
               </li>
             </ul>
