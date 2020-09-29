@@ -1019,7 +1019,6 @@ export class Compilateur {
           }
         }
       }
-      Compilateur.xPositionElementGeneriqueDefini;
       newElementGenerique = new ElementGenerique(
         result[1] ? result[1].toLowerCase() : null,
         result[2],
@@ -1031,7 +1030,7 @@ export class Compilateur {
         Compilateur.getGenre(result[1], estFeminin),
         Compilateur.getNombre(result[1]),
         Compilateur.getQuantite(result[1]),
-        (result[5] ? new Array<string>(result[6]) : new Array<string>()),
+        (result[6] ? new Array<string>(result[6]) : new Array<string>()),
       );
 
       if (autreForme) {

@@ -312,7 +312,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               actionCeciCela.action.verifications.forEach(verif => {
                 if (this.cond.conditionsRemplies(verif.conditions, actionCeciCela.ceci, actionCeciCela.cela)) {
                   console.warn("> commande vérifie cela:", verif);
-                  let resultat = this.ins.executerInstructions(verif.resultats);
+                  let resultat = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
                   retVal = resultat.sortie;
                   refus = true;
                 }

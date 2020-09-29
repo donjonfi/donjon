@@ -15,8 +15,11 @@ exécuter regarder ceci:
 
 -- JETER
   
-jeter ceci est une action qui concerne un objet possédé.
+jeter ceci est une action qui concerne un objet visible.
 
+refuser jeter ceci:
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]".
+  
 exécuter jeter ceci:
   déplacer ceci vers ici.
   
@@ -52,7 +55,7 @@ le joueur peut manger la tomate:
   dire "J’ai mangé une tomate!".
 
 le bureau est un lieu. "Vous êtes dans une salle vide à l’exception d’une chaise.".
-il y a une chaise dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
+La chaise est un objet fixé dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
 
 il y a une tomate dans le bureau. "Elle a l'air hyper bonne!".
 il y a un abricot dans le bureau. "Il n'a pas l'air mangeable.".

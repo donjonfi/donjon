@@ -62,19 +62,23 @@ export class ConditionsUtils {
         const obj = el as Objet;
         // attributs spécifiques aux objets
         // - possede
-        if (obj.possede && cond.complement.startsWith('possédé')) {
-          resultCondition = true;
-          console.log(">>>>>> possédé");
-        } else if (obj.visible && cond.complement.startsWith('visible')) {
-          resultCondition = true;
-          console.log(">>>>>> visible");
+        if (cond.complement.startsWith('possédé')) {
+          resultCondition = obj.possede;
+        } else if (cond.complement.startsWith('visible')) {
+          resultCondition = obj.visible;
+
         }
       }
       // si pas un objet ou pas un attribut spécifique, vérifier la liste des états
       if (resultCondition === null) {
-        console.log(">>>>>> possedeCetEtat? …");
+        console.log(">>>>>> possedeCetEtat? … (cond.complement=", cond.complement, ",");
         resultCondition = ElementsJeuUtils.possedeCetEtat(el, cond.complement);
       }
+
+      if (resultCondition !== null && cond.negation) {
+        resultCondition = !resultCondition;
+      }
+
     } else {
       switch (cond.sujetComplement.determinant) {
         case "un ":
