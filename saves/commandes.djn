@@ -50,12 +50,25 @@ finaliser prendre ceci:
 
 -- MANGER
 
-le joueur peut manger la tomate:
-  effacer la tomate;
-  dire "J’ai mangé une tomate!".
 
-le bureau est un lieu. "Vous êtes dans une salle vide à l’exception d’une chaise.".
+--le joueur peut manger la tomate:
+--  effacer la tomate;
+--  dire "J’ai mangé une tomate!".
+
+manger ceci est une action qui concerne un objet visible.
+
+refuser manger ceci:
+  si ceci n’est pas un légume, dire "Ça ne se mange pas.".
+  
+exécuter manger ceci:
+  dire "Vous avez mangé [intitulé ceci].".
+
+
+le bureau est un lieu. "Vous êtes dans une salle vide à l’exception d’une chaise, d’un troll est d’un veil homme.".
 La chaise est un objet fixé dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
 
-il y a une tomate dans le bureau. "Elle a l'air hyper bonne!".
-il y a un abricot dans le bureau. "Il n'a pas l'air mangeable.".
+il y a un troll dans le bureau. C’est un animal.
+Le veil homme est une personne dans le bureau.
+
+il y a une tomate dans le bureau. C’est un légume. "Elle a l'air hyper bonne!".
+il y a un abricot dans le bureau. C’est un légume. "Il n'a pas l'air mangeable.".

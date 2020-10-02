@@ -61,7 +61,7 @@ export class Compilateur {
   static readonly xDefinitionTypeElement = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
 
   /** pronom démonstratif -> determinant(1), type(2), attributs(3) */
-  static readonly xPronomDemonstratif = /^((?:c'est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
+  static readonly xPronomDemonstratif = /^((?:c(?:’|')est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
 
   /** pronom personnel position -> position(1), complément(2) */
   static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(à l(?:’|')intérieur|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de la |de l(?:’|')|des ))|(?:(?:dans|sur) (?:la |le |les |l(?:’|')|un |une )|de (?:la |l(?:’|'))|du ))(.+)/i;
@@ -518,11 +518,18 @@ export class Compilateur {
 
   private static trouverClasse(classes: Classe[], nom: string): Classe {
     const recherche = StringUtils.normaliserMot(nom);
+
+    console.log("TROUVER CLASSE: recherche=", recherche, "classes=", classes);
+
+
     let retVal = classes.find(x => x.nom === recherche);
-    // renvoyer un objet par défaut (?)
+
+    // si aucune classe trouvée, créer nouvelle classe dérivée d’un objet.
     if (retVal == null) {
-      retVal = ClassesRacines.Objet;
+      retVal = new Classe(recherche, nom, ClassesRacines.Objet, 2, []);
+      classes.push(retVal);
     }
+
     return retVal;
   }
 
@@ -1175,8 +1182,8 @@ export class Compilateur {
 
 
 
-  private static getClasseIntitule(classeElement: string): EClasseRacine {
-    let retVal = EClasseRacine.objet;
+  private static getClasseIntitule(classeElement: string): EClasseRacine | string {
+    let retVal: EClasseRacine | string = EClasseRacine.objet;
 
     if (classeElement) {
       switch (classeElement.trim().toLocaleLowerCase()) {
@@ -1234,7 +1241,7 @@ export class Compilateur {
           break;
 
         default:
-          retVal = EClasseRacine.objet;
+          retVal = classeElement; // EClasseRacine.objet;
           break;
       }
     }

@@ -11,6 +11,8 @@ export class Monde {
     this.classes.push(ClassesRacines.Lieu);
     this.classes.push(ClassesRacines.Objet);
     this.classes.push(ClassesRacines.Vivant);
+    this.classes.push(ClassesRacines.Animal);
+    this.classes.push(ClassesRacines.Personne);
     this.classes.push(ClassesRacines.Porte);
     this.classes.push(ClassesRacines.Contenant);
     this.classes.push(ClassesRacines.Support);

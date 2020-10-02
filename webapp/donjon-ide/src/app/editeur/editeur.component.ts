@@ -38,7 +38,7 @@ export class EditeurComponent implements OnInit {
 
   @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
 
-  nbLignesCode = 10;
+  nbLignesCode = 20;
   tailleTexte = 18;
   hauteurLigneCode = 18;
 

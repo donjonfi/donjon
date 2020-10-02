@@ -75,11 +75,13 @@ export class ConditionsUtils {
         resultCondition = ElementsJeuUtils.possedeCetEtat(el, cond.complement);
       }
 
-      if (resultCondition !== null && cond.negation) {
-        resultCondition = !resultCondition;
-      }
 
     } else {
+
+      console.log(">>>>>> il y A un déterminant…");
+
+
+
       switch (cond.sujetComplement.determinant) {
         case "un ":
         case "une ":
@@ -88,7 +90,16 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
+
+
+          console.log(">>>>>> un, une, des, …");
+
           resultCondition = Classe.heriteDe(el.classe, cond.sujetComplement.nom);
+
+          console.log("resultCondition=", resultCondition, "el.classe=", el.classe, "sujetComp.nom=", cond.sujetComplement.nom);
+
+
+
           break;
 
         case "la ":
@@ -104,7 +115,14 @@ export class ConditionsUtils {
           resultCondition = false;
           break;
       }
+      
     }
+
+    // négation de la condition ?
+    if (resultCondition !== null && cond.negation) {
+      resultCondition = !resultCondition;
+    }
+
     return resultCondition;
 
   }
