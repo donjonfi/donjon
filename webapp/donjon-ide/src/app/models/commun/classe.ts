@@ -1,4 +1,5 @@
 import { Etat } from './etat';
+import { StringUtils } from 'src/app/utils/string.utils';
 
 export class Classe {
 
@@ -13,7 +14,8 @@ export class Classe {
   static heriteDe(candidat: Classe, classe: string): boolean {
     let retVal = false;
     if (candidat) {
-      if (candidat.nom == classe) {
+      const recherche = StringUtils.normaliserMot(classe);
+      if (candidat.nom === recherche || candidat.intitule === classe) {
         retVal = true;
       } else {
         retVal = Classe.heriteDe(candidat.parent, classe);

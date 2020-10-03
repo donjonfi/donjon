@@ -3,18 +3,25 @@
 -- PARTIE 1 : COMMANDES DE BASE
 -- =========================================================
 
--- REGARDER
+-- action: REGARDER
 
+-- a) regarder
 le joueur peut regarder:
   dire "[description ici]".
   
+-- b) regarder ceci
 regarder ceci est une action qui concerne un objet visible.
 
 exécuter regarder ceci:
   dire "[description ceci]".
 
--- JETER
+-- action: JETER
+
+-- a) jeter
+le joueur peut jeter:
+  dire "jeter quoi ?".
   
+-- b) jeter ceci
 jeter ceci est une action qui concerne un objet visible.
 
 refuser jeter ceci:
@@ -26,13 +33,14 @@ exécuter jeter ceci:
 finaliser jeter ceci:
   dire "Vous avez jeté [intitulé ceci]".
 
--- PRENDRE
-
+-- action: PRENDRE
+-- a) prendre
 prendre est une action.
 
 exécuter prendre:
   dire "prendre quoi ?".
   
+-- b) prendre ceci
 prendre ceci est une action qui concerne un objet visible.
 
 refuser prendre ceci:
@@ -49,25 +57,33 @@ finaliser prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
 
 -- MANGER
-
-
---le joueur peut manger la tomate:
---  effacer la tomate;
---  dire "J’ai mangé une tomate!".
-
+-- a) manger
+le joueur peut manger:
+  dire "Manger quoi ?".
+-- b) manger ceci
 manger ceci est une action qui concerne un objet visible.
 
 refuser manger ceci:
-  si ceci n’est pas un légume, dire "Ça ne se mange pas.".
+  si ceci est le troll, dire "Grouph! Je pense que c’est plutôt lui qui a faim…";
+  si ceci est un animal, dire "Je ne mange pas les animaux crus.";
+  si ceci est une personne, dire "Drole d’idée.";
+  si ceci n’est pas un légume, dire "Je ne mange que des légumes.".
   
 exécuter manger ceci:
+  effacer ceci.
+  
+finaliser manger ceci:
   dire "Vous avez mangé [intitulé ceci].".
 
+-- =========================================================
+-- PARTIE 2 : De quoi TESTER les commandes
+-- =========================================================
 
 le bureau est un lieu. "Vous êtes dans une salle vide à l’exception d’une chaise, d’un troll est d’un veil homme.".
-La chaise est un objet fixé dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
+La chaise est un décor dans le bureau. "[1ère fois]Il s’agit d’une chaise en bois verni.[puis]Elle n’a pas changé de couleur.[fin choix]".
 
 il y a un troll dans le bureau. C’est un animal.
+la vache est dans le bureau. C’est un animal.
 Le veil homme est une personne dans le bureau.
 
 il y a une tomate dans le bureau. C’est un légume. "Elle a l'air hyper bonne!".
