@@ -94,6 +94,34 @@ export class Instructions {
       }
     }
 
+    // examen
+    if (contenu.includes("[examen")) {
+      if (contenu.includes("[examen ici]")) {
+        const examenIci = this.calculerDescription(this.eju.curLieu.examen, ++this.eju.curLieu.nbAffichageExamen);
+        contenu = contenu.replace(/\[examen ici\]/g, examenIci);
+      }
+      if (contenu.includes("[examen ceci]")) {
+        const examenCeci = this.calculerDescription(ceci.examen, ++ceci.nbAffichageExamen);
+        contenu = contenu.replace(/\[examen ceci\]/g, examenCeci);
+      }
+      if (contenu.includes("[examen cela]")) {
+        const examenCela = this.calculerDescription(cela.examen, ++cela.nbAffichageExamen);
+        contenu = contenu.replace(/\[examen cela\]/g, examenCela);
+      }
+    }
+
+    // contenu
+    if (contenu.includes("[contenu")) {
+      if (contenu.includes("[contenu ceci]")) {
+        const contenuCeci = this.executerAfficherContenu(ceci);
+        contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+      }
+      if (contenu.includes("[contenu cela]")) {
+        const contenuCela = this.executerAfficherContenu(cela);
+        contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
+      }
+    }
+
     // intitulé
     if (contenu.includes("[intitulé")) {
       if (contenu.includes("[intitulé ici]")) {
@@ -183,12 +211,6 @@ export class Instructions {
   }
 
   public executerAfficherContenu(ceci: ElementJeu): Resultat {
-
-    console.log(">>>>>>>>>> executerAfficherContenu >>>>>>>>>>>>>>> ");
-
-    console.log("this.jeu.objets=", this.jeu.objets);
-
-
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
       let els: Objet[] = null;
@@ -532,7 +554,7 @@ export class Instructions {
         }
       }
     } else {
-      retVal = "Je ne vois rien de particulier.";
+      retVal = "(Je ne vois rien de particulier.)";
     }
     return retVal;
   }

@@ -25,7 +25,7 @@ export class ElementJeu {
      * Il remplace le déterminant/nom à l’affichage
      */
     public intitule: GroupeNominal,
-    
+
     /**
      * Type de l’élément
      * - Objet
@@ -76,6 +76,7 @@ export class ElementJeu {
 
   /** Description de l’élément */
   public description: string = null;
+  public examen: string = null;
   /** L’élément a-t-il déjà été décrit au joueur */
   decrit: boolean;
 
@@ -99,6 +100,7 @@ export class ElementJeu {
 
   /** Nombre d'affichages de la description */
   nbAffichageDescription = 0;
+  nbAffichageExamen = 0;
 
 
 

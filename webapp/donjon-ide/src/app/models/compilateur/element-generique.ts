@@ -9,6 +9,7 @@ import { Propriete } from './propriete';
 export class ElementGenerique implements ElementDonjon {
 
   public description: string;
+  public examen: string;
   public proprietes = new Array<Propriete>();
   public capacites = new Array<Capacite>();
   public nomF: string;

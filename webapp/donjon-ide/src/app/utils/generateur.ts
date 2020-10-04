@@ -55,11 +55,16 @@ export class Generateur {
 
       let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
       nouvLieu.description = curEle.description;
+      nouvLieu.examen = curEle.examen;
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
             nouvLieu.description = pro.valeur;
+            break;
+
+          case 'examen':
+            nouvLieu.examen = pro.valeur;
             break;
 
           case 'titre':
@@ -80,6 +85,7 @@ export class Generateur {
       const intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
       let newPorte = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
       newPorte.description = curEle.description;
+      newPorte.examen = curEle.examen;
       curEle.attributs.forEach(at => {
         newPorte.etats.push(at);
       });
@@ -95,7 +101,9 @@ export class Generateur {
           case 'description':
             newPorte.description = pro.valeur;
             break;
-
+          case 'examen':
+            newPorte.examen = pro.valeur;
+            break;
           case 'intitulé':
           case 'titre':
             newPorte.titre = pro.valeur;
@@ -132,6 +140,7 @@ export class Generateur {
       let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
 
       newObjet.description = curEle.description;
+      newObjet.examen = curEle.examen;
       newObjet.etats = curEle.attributs;
       newObjet.capacites = curEle.capacites;
 
@@ -164,6 +173,9 @@ export class Generateur {
         switch (pro.nom) {
           case 'description':
             newObjet.description = pro.valeur;
+            break;
+          case 'examen':
+            newObjet.examen = pro.valeur;
             break;
 
           case 'intitulé':

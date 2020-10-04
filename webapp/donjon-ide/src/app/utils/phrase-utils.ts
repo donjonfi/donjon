@@ -45,6 +45,11 @@ export class PhraseUtils {
   static readonly xSeparerSiConditionConsequences = /^si (.+?)(?: )?(?::|,)(?: )?(.+)$/i;
 
   /**
+   * sinon(1) :|, (consequences)(2)
+   */
+  static readonly xSeparerSinonConsequences = /^(sinon)(?: )?(?::|,)(?: )?(.+)$/i;
+
+  /**
    * Instruction : verbe + complément
    * - Dire '.......'
    * - Remplacer ....... par .....
@@ -73,6 +78,7 @@ export class PhraseUtils {
   static readonly xPhraseSimplePronom = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
 
   private static decomposerCondition(condition: string) {
+
     let els: ElementsPhrase = null;
     const resCondition = PhraseUtils.xCondition.exec(condition);
     if (resCondition) {
@@ -90,21 +96,27 @@ export class PhraseUtils {
       }
 
     }
+
     return els;
   }
 
   public static getCondition(condition: string) {
 
+    // // tester s’il s’agit d’un sinon
+    // if (condition.trim() === 'sinon') {
+    //   return new Condition(true , LienCondition.aucun, null, null, null, null, null);
+    // } else {
     // TODO: regarder les ET et les OU
     // TODO: regarder les ()
     // TODO: priorité des oppérateurs
     const els = PhraseUtils.decomposerCondition(condition);
     if (els) {
-      return new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement, els.sujetComplement);
+      return new Condition(false, LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement, els.sujetComplement);
     } else {
       console.warn("decomposerCondition: pas pu décomposer:", condition);
       return null;
     }
+    // }
   }
 
   public static getCommande(commande: string) {
@@ -156,10 +168,12 @@ export class PhraseUtils {
 
     // infinitif, complément
     const resInfinitifCompl = PhraseUtils.xInstruction.exec(instruction);
+
     if (resInfinitifCompl) {
       els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
       // décomposer ce qui suit l'infinitif si possible
       const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
+
       if (resSuite) {
         els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
         els.verbe = resSuite[3];
@@ -167,23 +181,32 @@ export class PhraseUtils {
         els.complement = resSuite[5] ? resSuite[5].trim() : null;
         // décomposer le nouveau complément si possible
         const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
+
         if (resCompl) {
           els.complement = null;
           els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
           els.preposition = resCompl[1] ? resCompl[1] : null;
         }
       } else {
-        const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
-        if (res1ou2elements) {
-          els.verbe = null;
-          els.negation = null;
-          els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
-          els.complement = null;
-          els.preposition = res1ou2elements[4];
-          els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+
+        // ne pas décomposer um complément qui commence par « " ».
+        if (!els.complement.trim().startsWith('"')) {
+          const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
+
+          if (res1ou2elements) {
+            els.verbe = null;
+            els.negation = null;
+            els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
+            els.complement = null;
+            els.preposition = res1ou2elements[4];
+            els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+          }
         }
       }
     }
+
+
+
     return els;
   }
 

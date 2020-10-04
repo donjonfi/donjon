@@ -499,14 +499,14 @@ export class Compilateur {
       }
     });
 
-    if (Compilateur.verbeux) {
-      console.log("==================\n");
-      console.log("monde:", monde);
-      console.log("règles:", regles);
-      console.log("actions:", actions);
-      console.log("typesUtilisateur:", typesUtilisateur);
-      console.log("==================\n");
-    }
+    //if (Compilateur.verbeux) {
+    console.log("==================\n");
+    console.log("monde:", monde);
+    console.log("règles:", regles);
+    console.log("actions:", actions);
+    console.log("typesUtilisateur:", typesUtilisateur);
+    console.log("==================\n");
+    //}
 
     let resultat = new ResultatCompilation();
     resultat.monde = monde;
@@ -537,37 +537,63 @@ export class Compilateur {
 
     // les conséquences sont séparées par des ";"
     // les sous-conséquences sont séparées par des ","
-    const consBru = consequencesBrutes.split((sousConsequences ? ',' : ';'));
+    const listeConsequences = consequencesBrutes.split((sousConsequences ? ',' : ';'));
+
     let instructions: Instruction[] = [];
-    consBru.forEach(conBru => {
-      let conBruNettoyee = conBru
+    listeConsequences.forEach(curConsequence => {
+      let conBruNettoyee = curConsequence
         .trim()
         // convertir marque commentaire
         .replace(this.xCaractereDebutCommentaire, ' "')
-        .replace(this.xCaractereFinCommentaire, '" ');
+        .replace(this.xCaractereFinCommentaire, '" ')
+        // enlever les espaces en double
+        .replace(/( +)/g, " ");
       // enlever le point final (ou le ; final pour les sous-conséquences)
       if (conBruNettoyee.endsWith((sousConsequences ? ';' : '.'))) {
         conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
       }
-      // cas A: instruction simple
+
       const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
+      // cas A: INSTRUCTION SIMPLE
       if (els) {
         if (els.complement) {
           els.complement = els.complement.replace(this.xCaractereRetourLigne, ' ');
         }
         instructions.push(new Instruction(els));
-        // cas B: instruction conditionnelle
+        // cas B: INSTRUCTION CONDITIONNELLE
       } else {
+
         let resultSiCondCons = PhraseUtils.xSeparerSiConditionConsequences.exec(conBruNettoyee);
+
+        // cas B.1 => SI
         if (resultSiCondCons && !sousConsequences) {
           const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
           const consequences = Compilateur.separerConsequences(resultSiCondCons[2], erreurs, true);
 
           instructions.push(new Instruction(null, condition, consequences, null));
 
-          // pas compris
+          // pas de si trouvé
         } else {
-          erreurs.push("conséquence : " + conBruNettoyee);
+          // cas B.2 => SINON
+          let resultSinonCondCons = PhraseUtils.xSeparerSinonConsequences.exec(conBruNettoyee);
+          if (resultSinonCondCons && !sousConsequences) {
+
+            const consequences = Compilateur.separerConsequences(resultSinonCondCons[2], erreurs, true);
+
+            // récupérer la dernière instruction et remplir le sinon
+            let precInstruction = instructions.pop();
+
+            if (precInstruction.condition) {
+              precInstruction.instructionsSiConditionPasVerifiee = consequences;
+              instructions.push(precInstruction);
+            } else {
+              erreurs.push("« sinon » orphelin : " + conBruNettoyee);
+            }
+            // cas C => RIEN TROUVÉ
+          } else {
+            console.error("separerConsequences > RIEN TROUVÉ resultSiCondCons= ", resultSiCondCons, "sousConsequences=", sousConsequences);
+            erreurs.push("conséquence : " + conBruNettoyee);
+          }
         }
       }
     });

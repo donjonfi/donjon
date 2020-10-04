@@ -29,7 +29,7 @@ export class ElementsJeuUtils {
           retVal = true;
         }
       });
-      
+
       return retVal;
     } else {
       console.error("possedeCetEtat >> ElementJeu pas défini.");
@@ -159,6 +159,7 @@ export class ElementsJeuUtils {
     // TODO: attribuer un nouvel id aux clones ?
     let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre);
     retVal.description = original.description;
+    retVal.examen = original.examen;
     retVal.intituleF = original.intituleF;
     retVal.intituleM = original.intituleM;
     retVal.intituleS = original.intituleS;
@@ -166,6 +167,7 @@ export class ElementsJeuUtils {
 
     // TODO: faut-il copier le nombre d’affichage de la description ?
     retVal.nbAffichageDescription = original.nbAffichageDescription;
+    retVal.nbAffichageExamen = original.nbAffichageExamen;
 
     // TODO: copier les états
     // TODO: copier les capacités
@@ -281,14 +283,8 @@ export class ElementsJeuUtils {
 
   trouverCorrespondance(sujet: GroupeNominal): Correspondance {
     let cor: Correspondance = null;
-
-    console.log(" >>>> objets du jeu:", this.jeu.objets);
-    console.log(" >>>> lieux du jeu:", this.jeu.lieux);
-
     if (sujet) {
       cor = new Correspondance();
-      console.warn("trouverCorrespondance sujet:", sujet);
-
       // 1. Chercher dans les directions.
       cor.localisation = this.trouverLocalisation(sujet);
 

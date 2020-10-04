@@ -208,9 +208,6 @@ export class LecteurComponent implements OnInit, OnChanges {
         return retVal;
       }
 
-      console.log(" >>>>>>>>> ceciIntitule:", ceciIntitule, "ceciNom:", ceciNom, "resultatCeci", resultatCeci);
-      console.log(" >>>>>>>>> celaIntitule:", celaIntitule, "celaNom:", celaNom, "resultatCela", resultatCela);
-
       switch (els.infinitif) {
 
         case "aide":
@@ -335,7 +332,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
       }
     } else {
-      retVal = "Désolé, je n'ai pas compris « " + commande + " ».";
+      retVal = "Désolé, je n'ai pas compris la commande « " + commande + " ».";
     }
     return retVal;
   }

@@ -15,6 +15,23 @@ regarder ceci est une action qui concerne un objet visible.
 exécuter regarder ceci:
   dire "[description ceci]".
 
+-- action: EXAMINER
+
+-- a) examiner
+le joueur peut examiner:
+  dire "Que dois-je examiner ?".
+
+-- b) examiner ceci
+examiner ceci est une action qui concerne un objet visible.
+
+exécuter examiner ceci:
+  dire "[examen ceci] ";
+  si ceci est une porte :
+    dire "[statut ceci]";
+  sinon:
+    dire "Vous trouvez: ",
+    dire "[contenu ceci]".
+
 -- action: JETER
 
 -- a) jeter
