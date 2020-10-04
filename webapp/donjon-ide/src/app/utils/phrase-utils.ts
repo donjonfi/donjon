@@ -33,11 +33,11 @@ export class PhraseUtils {
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|contient|commence)(?: (pas|plus))?)(?: (.+))?$/i;
   /**
    * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
    */
-  static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|commence)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
+  static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
 
   /**
    * si (condition)(1) :|, (consequences)(2)

@@ -385,6 +385,29 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+  /**
+   * Renvoyer true si ceci contient au moins un objet.
+   * TODO: tenir compte de la visibilité des objets.
+   * @param ceci objet ou lieu.
+   */
+  public verifierContientObjet(ceci: ElementJeu): boolean {
+    let retVal = false;
+    if (ceci) {
+      let els: Objet[] = null;
+      if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
+      } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
+      } else {
+        console.error("verifierContientObjet: classe racine pas pris en charge:", ceci.classe);
+      }
+      if (els) {
+        retVal = els.length !== 0;
+      }
+    }
+    return retVal;
+  }
+
   // trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean): ElementJeu | -1 {
 
   //   let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();

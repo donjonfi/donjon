@@ -53,7 +53,7 @@ export class Instructions {
     // instruction conditionnelle
     if (instruction.condition) {
 
-      if (this.cond.siEstVrai(null, instruction.condition)) {
+      if (this.cond.siEstVrai(null, instruction.condition, ceci, cela)) {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
       } else {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
@@ -210,6 +210,11 @@ export class Instructions {
     return resultat;
   }
 
+
+
+  /**
+   * Afficher le contenu d'un objet ou d'un lieu.
+   */
   public executerAfficherContenu(ceci: ElementJeu): Resultat {
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
@@ -591,7 +596,7 @@ export class Instructions {
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
       // TODO: vérifier le si
-      statut.siVrai = this.cond.siEstVrai(conditionLC, null);
+      statut.siVrai = this.cond.siEstVrai(conditionLC, null, null, null);
       retVal = statut.siVrai;
     } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
       retVal = false;

@@ -103,7 +103,7 @@ export class ConditionsUtils {
 
   }
 
-  siEstVrai(conditionString: string, condition: Condition) {
+  siEstVrai(conditionString: string, condition: Condition, ceci: ElementJeu, cela: ElementJeu) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -148,8 +148,25 @@ export class ConditionsUtils {
             } else if (correspondances.elements.length > 1) {
               console.error("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujet, condition);
             } else {
-              console.error("siEstVrai >>> pas l’élément trouvé pour", condition.sujet, condition);
+              console.error("siEstVrai >>> pas d’élément trouvé pour", condition.sujet, condition);
             }
+            break;
+
+          case 'contient':
+            if (condition.sujet.nom === 'ceci') {
+              if (condition.complement === 'un objet') {
+                retVal = this.eju.verifierContientObjet(ceci);
+              } else {
+                console.error("siEstVari > ceci contient YYYYY pas encore gérée.");
+              }
+            } else if (condition.sujet.nom === 'cela') {
+              if (condition.complement === 'un objet') {
+                retVal = this.eju.verifierContientObjet(cela);
+              } else {
+                console.error("siEstVari > cela contient YYYYY pas encore gérée.");
+              }
+            }
+
             break;
 
           case 'possède':
