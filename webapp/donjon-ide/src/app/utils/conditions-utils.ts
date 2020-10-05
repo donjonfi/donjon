@@ -109,69 +109,63 @@ export class ConditionsUtils {
       condition = PhraseUtils.getCondition(conditionString);
     }
     if (condition) {
-      // concerne le joueur
-      // if (condition.sujet.nom === "joueur") {
 
-      //   switch (condition.verbe) {
-      //     case 'possède':
-      //       // retrouver l’objet dans l’inventaire
-      //       let trouve = this.eju.trouverElementJeu(condition.sujetComplement, EmplacementElement.inventaire, true, false);
-      //       if (trouve === -1) {
-      //         console.warn("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujetComplement, condition);
-      //       }
-      //       retVal = (trouve !== null && trouve !== -1);
-      //       break;
+      // 1 - Trouver le sujet
+      // ++++++++++++++++++++
+      let sujet: ElementJeu = null;
 
-      //     case 'est':
-      //       console.warn("siEstVrai: joueur est: pas géré", condition);
-      //       break;
+      if (condition.sujet) {
+        if (condition.sujet.nom === 'ceci') {
+          sujet = ceci;
+        } else if (condition.sujet.nom === 'cela') {
+          sujet = cela;
+        } else {
+          const correspondances = this.eju.trouverCorrespondance(condition.sujet);
+          if (correspondances.elements.length == 1) {
+            sujet = correspondances.elements[0];
+          } else if (correspondances.elements.length > 1) {
+            console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition);
+          } else {
+            console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition);
+          }
+        }
+      }
 
-      //     default:
-      //       console.warn("siEstVrai: verbe pas connu:", condition);
-      //       break;
-      //   }
 
-      // concerne l'inventaire (du joueur)
-      // } else 
-      if (condition.sujet.nom == "inventaire") {
+      if (sujet) {
 
-        // concerne un élément du jeu
-      } else {
+        // 2 - Trouver le verbe
+        // ++++++++++++++++++++
+
         switch (condition.verbe) {
           // état
           case 'est':
-            const correspondances = this.eju.trouverCorrespondance(condition.sujet);
-
-            if (correspondances.elements.length == 1) {
-              let eleJeu = correspondances.elements[0];
-              retVal = ElementsJeuUtils.possedeCetEtat(eleJeu, condition.complement);
-            } else if (correspondances.elements.length > 1) {
-              console.error("siEstVrai >>> plusieurs éléments trouvés pour", condition.sujet, condition);
-            } else {
-              console.error("siEstVrai >>> pas d’élément trouvé pour", condition.sujet, condition);
+            // faire le test
+            if (sujet) {
+              retVal = ElementsJeuUtils.possedeCetEtat(sujet, condition.complement);
             }
             break;
 
           case 'contient':
-            if (condition.sujet.nom === 'ceci') {
-              if (condition.complement === 'un objet') {
-                retVal = this.eju.verifierContientObjet(ceci);
-              } else {
-                console.error("siEstVari > ceci contient YYYYY pas encore gérée.");
-              }
-            } else if (condition.sujet.nom === 'cela') {
-              if (condition.complement === 'un objet') {
-                retVal = this.eju.verifierContientObjet(cela);
-              } else {
-                console.error("siEstVari > cela contient YYYYY pas encore gérée.");
-              }
+            if (condition.complement === 'un objet') {
+              retVal = this.eju.verifierContientObjet(sujet);
+            } else {
+              console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);
             }
+            break;
 
+          case 'aucun': // forme "aucun xxxx pour yyyy"
+            if (condition.complement === 'description') {
+              retVal = (!sujet.description);
+            } else if (condition.complement === 'examen') {
+              retVal = (!sujet.examen);
+            } else {
+              console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
+            }
             break;
 
           case 'possède':
-          case 'possèdent':
-            console.error("siEstVrais > condition « possède » pas encore gérée.");
+            console.error("siEstVrai > condition « possède » pas encore gérée.");
             break;
 
           case 'se trouve':
@@ -204,7 +198,13 @@ export class ConditionsUtils {
             console.error("siEstVrai: verbe pas connu::", condition.verbe);
             break;
         }
+
+        // pas de sujet
+      } else {
+        console.error("Condition sans sujet pas gérée:", condition);
+
       }
+
     } else {
       console.error("siEstVrai: condition pas comprise:", condition);
     }

@@ -5,14 +5,11 @@ import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from './elements-jeu-utils';
 import { Genre } from '../models/commun/genre.enum';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from './instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Localisation } from '../models/jeu/localisation';
 import { Nombre } from '../models/commun/nombre.enum';
 import { Objet } from '../models/jeu/objet';
-import { Resultat } from '../models/jouer/resultat';
-import { StringUtils } from './string.utils';
 
 export class OutilsCommandes {
 
@@ -199,7 +196,7 @@ export class OutilsCommandes {
       }
       retVal += intitule.nom;
       if (intitule.epithete) {
-        retVal += intitule.epithete;
+        retVal += ' ' + intitule.epithete;
       }
     }
     return retVal;

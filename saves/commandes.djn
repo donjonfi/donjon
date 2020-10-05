@@ -25,12 +25,15 @@ le joueur peut examiner:
 examiner ceci est une action qui concerne un objet visible.
 
 exécuter examiner ceci:
-  dire "[examen ceci] ";
   si ceci est une porte :
     dire "[statut ceci]";
-  sinon:
-    dire "Vous trouvez: ",
-    dire "[contenu ceci]".
+  si ceci contient un objet :
+      dire "[examen ceci] ",
+      dire "Vous trouvez: ",
+      dire "[contenu ceci]",
+      changer le joueur possède le contenu de ceci;
+  sinon :
+      dire "[examen ceci][si aucun examen pour ceci]Vous ne trouvez rien[fin si]".
 
 -- action: JETER
 

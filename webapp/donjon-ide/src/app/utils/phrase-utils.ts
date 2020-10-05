@@ -34,6 +34,11 @@ export class PhraseUtils {
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) [pas|plus(6)] complément(7)
    */
   static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|contient|commence)(?: (pas|plus))?)(?: (.+))?$/i;
+  /** 
+   * si aucun(1) complément(2) pour (le|la|les|...(4) xxx(5) yyy(6))|(ceci|cela)(3)
+   */
+  static readonly xConditionAucunPour = /^(?:si )?(aucun(?:e)?) (\S+) pour ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela)$/i;
+
   /**
    * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
    */
@@ -95,6 +100,14 @@ export class PhraseUtils {
         els.preposition = resCompl[1] ? resCompl[1] : null;
       }
 
+    } else {
+      const resConditionAucunPour = PhraseUtils.xConditionAucunPour.exec(condition);
+      if (resConditionAucunPour) {
+        const sujet = resConditionAucunPour[5] ? (new GroupeNominal(resConditionAucunPour[4], resConditionAucunPour[5], resConditionAucunPour[6] ? resConditionAucunPour[6] : null)) : (resConditionAucunPour[3] ? new GroupeNominal(null, resConditionAucunPour[3], null) : null);
+        const verbe = "aucun"; // "aucun"
+        const compl = resConditionAucunPour[2]; // description, examen, ...
+        els = new ElementsPhrase(null, sujet, verbe, null, compl);
+      }
     }
 
     return els;
