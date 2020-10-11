@@ -1,0 +1,17 @@
+-- EXAMINER
+
+le joueur peut examiner:
+  dire "Que dois-je examiner ?".
+
+examiner ceci est une action qui concerne un objet visible.
+
+exécuter examiner ceci:
+  si ceci est une porte :
+    dire "[statut ceci]";
+  si ceci contient un objet :
+      dire "[examen ceci] ",
+      dire "Vous trouvez: ",
+      dire "[contenu ceci]";
+      déplacer contenu ceci
+  sinon :
+      dire "[examen ceci][si aucun examen pour ceci]Vous ne trouvez rien[fin si]".

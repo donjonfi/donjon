@@ -44,7 +44,7 @@ $language_data = array (
             'action', 'objet', 'lieu', 'support', 'contenant', 'porte', 'vivant', 'élément', 'décor', 'animal', 'personne'
             ),
         3 => array(
-            'si', 'remplacer', 'exécuter', 'refuser', 'terminer', 'peut', 'est', 'sont', 'pas', 'plus', 'possède'
+            'si', 'sinon', 'remplacer', 'exécuter', 'refuser', 'terminer', 'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient'
             ),
         4 => array(
             'intitulé','accord','joueur', 'ceci', 'cela', 'ici', 'description', 'nom', 'titre'
