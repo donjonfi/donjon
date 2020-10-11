@@ -1,20 +1,20 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
-import { Abreviations } from '../utils/abreviations';
+import { Abreviations } from '../utils/jeu/abreviations';
 import { Classe } from '../models/commun/classe';
-import { Commandes } from '../utils/commandes';
-import { ConditionsUtils } from '../utils/conditions-utils';
-import { Correspondance } from '../utils/correspondance';
-import { Declancheur } from '../utils/declancheur';
+import { Commandes } from '../utils/jeu/commandes';
+import { ConditionsUtils } from '../utils/jeu/conditions-utils';
+import { Correspondance } from '../utils/jeu/correspondance';
+import { Declancheur } from '../utils/jeu/declancheur';
 import { ElementJeu } from '../models/jeu/element-jeu';
-import { ElementsJeuUtils } from '../utils/elements-jeu-utils';
+import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Evenement } from '../models/jouer/evenement';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Instructions } from '../utils/instructions';
+import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
-import { PhraseUtils } from '../utils/phrase-utils';
+import { PhraseUtils } from '../utils/commun/phrase-utils';
 
 @Component({
   selector: 'app-lecteur',
@@ -226,13 +226,18 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.inventaire();
           break;
 
-        // case "prendre":
-        //   retVal = this.com.prendre(els);
-        //   break;
+        case "sorties":
+          retVal = this.com.sorties();
+          break;
 
-        // case "jeter":
-        //   retVal = this.com.jeter(els);
-        //   break;
+        case "position":
+          retVal = this.com.ouSuisJe();
+          break;
+
+        case "effacer":
+          this.sortieJoueur = "";
+          retVal = this.com.effacer();
+          break;
 
         // case "donner":
         //   // avant la commande
@@ -247,21 +252,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         //   retVal += resultatApres.sortie;
         //   break;
 
-        // case "regarder":
-        //   retVal = this.com.regarder(els);
-        //   break;
-
         // case "déverrouiller":
         //   retVal = this.com.deverrouiller(els);
         //   break;
-
-        // case "utiliser":
-        //   retVal = this.com.utiliser(els);
-        //   break;
-
-        case "attaquer":
-          retVal = this.com.attaquer(els);
-          break;
 
         // case "ouvrir":
         //   retVal = this.com.ouvrir(els);
@@ -271,26 +264,12 @@ export class LecteurComponent implements OnInit, OnChanges {
         //   retVal = this.com.fermer(els);
         //   break;
 
-        // case "examiner":
-        //   // TODO: changer ça
-        //   retVal = this.com.examiner(els);
+        // case "utiliser":
+        //   retVal = this.com.utiliser(els);
         //   break;
-
-        case "sorties":
-          retVal = this.com.sorties();
-          break;
 
         case "fouiller":
           retVal = this.com.fouiller(els);
-          break;
-
-        case "position":
-          retVal = this.com.ouSuisJe();
-          break;
-
-        case "effacer":
-          this.sortieJoueur = "";
-          retVal = this.com.effacer();
           break;
 
         default:

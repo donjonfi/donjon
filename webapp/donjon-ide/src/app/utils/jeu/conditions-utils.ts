@@ -1,11 +1,11 @@
-import { Classe, EClasseRacine } from '../models/commun/classe';
+import { Classe, EClasseRacine } from '../../models/commun/classe';
 
-import { Condition } from '../models/compilateur/condition';
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { ElementsJeuUtils } from './elements-jeu-utils';
-import { Jeu } from '../models/jeu/jeu';
-import { Objet } from '../models/jeu/objet';
-import { PhraseUtils } from './phrase-utils';
+import { Condition } from '../../models/compilateur/condition';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { Jeu } from '../../models/jeu/jeu';
+import { Objet } from '../../models/jeu/objet';
+import { PhraseUtils } from '../commun/phrase-utils';
 
 export class ConditionsUtils {
 

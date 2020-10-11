@@ -1,7 +1,7 @@
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { Lieu } from '../models/jeu/lieu';
-import { Localisation } from '../models/jeu/localisation';
-import { Objet } from '../models/jeu/objet';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { Lieu } from '../../models/jeu/lieu';
+import { Localisation } from '../../models/jeu/localisation';
+import { Objet } from '../../models/jeu/objet';
 
 export class Correspondance {
 

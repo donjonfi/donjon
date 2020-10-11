@@ -1,16 +1,16 @@
-import { Classe, EClasseRacine } from '../models/commun/classe';
+import { Classe, EClasseRacine } from '../../models/commun/classe';
 
-import { Correspondance } from './correspondance';
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { EmplacementElement } from '../models/jeu/emplacement-element';
-import { Genre } from '../models/commun/genre.enum';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Jeu } from '../models/jeu/jeu';
-import { Lieu } from '../models/jeu/lieu';
-import { Localisation } from '../models/jeu/localisation';
-import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
-import { PositionObjet } from '../models/jeu/position-objet';
+import { Correspondance } from '../jeu/correspondance';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { EmplacementElement } from '../../models/jeu/emplacement-element';
+import { Genre } from '../../models/commun/genre.enum';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from '../../models/jeu/lieu';
+import { Localisation } from '../../models/jeu/localisation';
+import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
+import { PositionObjet } from '../../models/jeu/position-objet';
 import { StringUtils } from './string.utils';
 
 export class ElementsJeuUtils {

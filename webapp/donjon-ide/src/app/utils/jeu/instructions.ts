@@ -1,20 +1,18 @@
-import { Classe, EClasseRacine } from '../models/commun/classe';
-import { ConditionDebutee, StatutCondition, xFois } from '../models/jouer/statut-conditions';
-import { PositionObjet, PrepositionSpatiale } from '../models/jeu/position-objet';
+import { Classe, EClasseRacine } from '../../models/commun/classe';
+import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { ConditionsUtils } from './conditions-utils';
-import { Correspondance } from './correspondance';
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { ElementsJeuUtils } from './elements-jeu-utils';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { Genre } from '../models/commun/genre.enum';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Instruction } from '../models/compilateur/instruction';
-import { Jeu } from '../models/jeu/jeu';
-import { Lieu } from '../models/jeu/lieu';
-import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
-import { Resultat } from '../models/jouer/resultat';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { ElementsPhrase } from '../../models/commun/elements-phrase';
+import { Genre } from '../../models/commun/genre.enum';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { Instruction } from '../../models/compilateur/instruction';
+import { Jeu } from '../../models/jeu/jeu';
+import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
+import { Resultat } from '../../models/jouer/resultat';
 
 export class Instructions {
 

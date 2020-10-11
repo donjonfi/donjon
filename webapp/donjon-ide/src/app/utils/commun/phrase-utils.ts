@@ -1,8 +1,8 @@
-import { Condition, LienCondition } from '../models/compilateur/condition';
+import { Condition, LienCondition } from '../../models/compilateur/condition';
 
-import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { Evenement } from '../models/jouer/evenement';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { ElementsPhrase } from '../../models/commun/elements-phrase';
+import { Evenement } from '../../models/jouer/evenement';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
 
 export class PhraseUtils {
 

@@ -1,22 +1,22 @@
-import { ClassesRacines, EClasseRacine } from '../models/commun/classe';
-import { PositionObjet, PrepositionSpatiale } from '../models/jeu/position-objet';
+import { ClassesRacines, EClasseRacine } from '../../models/commun/classe';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
-import { Action } from '../models/compilateur/action';
-import { Auditeur } from '../models/jouer/auditeur';
-import { ElementGenerique } from '../models/compilateur/element-generique';
-import { ElementsJeuUtils } from './elements-jeu-utils';
-import { Genre } from '../models/commun/genre.enum';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
-import { Jeu } from '../models/jeu/jeu';
-import { Lieu } from '../models/jeu/lieu';
-import { Localisation } from '../models/jeu/localisation';
-import { Monde } from '../models/compilateur/monde';
-import { MotUtils } from './mot-utils';
-import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
-import { Regle } from '../models/compilateur/regle';
-import { TypeRegle } from '../models/compilateur/type-regle';
-import { Voisin } from '../models/jeu/voisin';
+import { Action } from '../../models/compilateur/action';
+import { Auditeur } from '../../models/jouer/auditeur';
+import { ElementGenerique } from '../../models/compilateur/element-generique';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { Genre } from '../../models/commun/genre.enum';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from '../../models/jeu/lieu';
+import { Localisation } from '../../models/jeu/localisation';
+import { Monde } from '../../models/compilateur/monde';
+import { MotUtils } from '../commun/mot-utils';
+import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
+import { Regle } from '../../models/compilateur/regle';
+import { TypeRegle } from '../../models/compilateur/type-regle';
+import { Voisin } from '../../models/jeu/voisin';
 
 export class Generateur {
 

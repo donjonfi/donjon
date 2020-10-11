@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { Compilateur } from '../utils/compilateur';
-import { Generateur } from '../utils/generateur';
+import { Compilateur } from '../utils/compilation/compilateur';
+import { Generateur } from '../utils/compilation/generateur';
 import { HttpClient } from '@angular/common/http';
 import { Jeu } from '../models/jeu/jeu';
-import { StringUtils } from '../utils/string.utils';
+import { StringUtils } from '../utils/commun/string.utils';
 
 @Component({
   selector: 'app-jouer',

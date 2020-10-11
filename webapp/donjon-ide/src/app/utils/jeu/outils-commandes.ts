@@ -1,15 +1,15 @@
-import { ClassesRacines, EClasseRacine } from '../models/commun/classe';
+import { ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 
 import { ConditionsUtils } from './conditions-utils';
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { ElementsJeuUtils } from './elements-jeu-utils';
-import { Genre } from '../models/commun/genre.enum';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { Genre } from '../../models/commun/genre.enum';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instructions } from './instructions';
-import { Jeu } from '../models/jeu/jeu';
-import { Localisation } from '../models/jeu/localisation';
-import { Nombre } from '../models/commun/nombre.enum';
-import { Objet } from '../models/jeu/objet';
+import { Jeu } from '../../models/jeu/jeu';
+import { Localisation } from '../../models/jeu/localisation';
+import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
 
 export class OutilsCommandes {
 
@@ -147,7 +147,7 @@ export class OutilsCommandes {
       return "—————————————————\n" +
         this.eju.curLieu.titre
         + "\n—————————————————\n"
-        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription) + "\n") : "")
+        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null) + "\n") : "")
         + this.afficherSorties();
     } else {
       console.warn("Pas trouvé de curLieu :(");

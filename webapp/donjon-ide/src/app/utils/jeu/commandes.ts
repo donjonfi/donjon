@@ -1,13 +1,13 @@
-import { EClasseRacine } from '../models/commun/classe';
-import { ElementJeu } from '../models/jeu/element-jeu';
-import { ElementsJeuUtils } from './elements-jeu-utils';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { EmplacementElement } from '../models/jeu/emplacement-element';
-import { Genre } from '../models/commun/genre.enum';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
+import { EClasseRacine } from '../../models/commun/classe';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { ElementsPhrase } from '../../models/commun/elements-phrase';
+import { EmplacementElement } from '../../models/jeu/emplacement-element';
+import { Genre } from '../../models/commun/genre.enum';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instructions } from './instructions';
-import { Jeu } from '../models/jeu/jeu';
-import { Localisation } from '../models/jeu/localisation';
+import { Jeu } from '../../models/jeu/jeu';
+import { Localisation } from '../../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
 
 export class Commandes {
@@ -426,15 +426,6 @@ export class Commandes {
   //     return "Je n’ai pas trouvé ce que je dois utiliser.";
   //   }
   // }
-
-  attaquer(els: ElementsPhrase) {
-    if (!els.sujet) {
-      return "Attaquer qui ?";
-    } else {
-      // TODO: changer ça…
-      return "Je ne suis pas quelqu’un de violent.";
-    }
-  }
 
   // examiner(els: ElementsPhrase) {
 
