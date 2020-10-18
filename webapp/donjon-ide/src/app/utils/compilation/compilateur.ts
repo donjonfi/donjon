@@ -104,10 +104,16 @@ export class Compilateur {
     // commentaires par un «.».
     const CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
 
+    const ChevronsCorriges = CommentairesCorriges
+      .replace(/<< /g, "« ")
+      .replace(/ >>/g, " »");
+
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
-    const blocTexte = CommentairesCorriges.replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne).replace(/( +)/g, " ").trim();
+    const blocTexte = ChevronsCorriges
+      .replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne)
+      .replace(/( +)/g, " ").trim();
 
     // séparer les chaines de caractères (entre " ") du code
     const blocsCodeEtCommentaire = blocTexte.split('"');
