@@ -243,7 +243,7 @@ export class Instructions {
   }
 
   /**
-   * Afficher le contenu d'un objet ou d'un lieu.
+   * Renvoyer le contenu d'un objet ou d'un lieu.
    */
   public obtenirContenu(ceci: ElementJeu): Objet[] {
     let els: Objet[] = null;

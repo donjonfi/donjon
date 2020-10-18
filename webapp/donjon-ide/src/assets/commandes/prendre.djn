@@ -17,5 +17,5 @@ refuser prendre ceci:
 exécuter prendre ceci:
   déplacer ceci vers joueur.
   
-finaliser prendre ceci:
+terminer prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".

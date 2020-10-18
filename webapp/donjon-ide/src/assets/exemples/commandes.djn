@@ -20,7 +20,7 @@ jeter ceci est une action qui concerne un objet possédé.
 exécuter jeter ceci:
   déplacer ceci vers ici.
   
-finaliser jeter ceci:
+terminer jeter ceci:
   dire "Vous avez jeté [intitulé ceci]".
 
 -- PRENDRE
@@ -42,7 +42,7 @@ refuser prendre ceci:
 exécuter prendre ceci:
   déplacer ceci vers joueur.
   
-finaliser prendre ceci:
+terminer prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
 
 -- MANGER

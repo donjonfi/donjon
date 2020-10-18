@@ -579,7 +579,7 @@ export class Analyseur {
               action.instructionsBrutes = complement;
               action.instructions = Analyseur.separerConsequences(complement, erreurs, false);
               break;
-            case 'finaliser':
+            case 'terminer':
               action.instructionsFinalesBrutes = complement;
               action.instructionsFinales = Analyseur.separerConsequences(complement, erreurs, false);
               break;

@@ -5,6 +5,6 @@ jeter ceci est une action qui concerne un objet possédé.
 exécuter jeter ceci:
   déplacer ceci vers ici.
   
-finaliser jeter ceci:
+terminer jeter ceci:
   dire "Vous avez jeté [intitulé ceci]".
   
