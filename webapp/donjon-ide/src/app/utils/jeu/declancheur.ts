@@ -40,7 +40,9 @@ export class Declancheur {
     auditeurs.forEach(aud => {
       console.log(">>> check", aud);
       if (aud.evenement.infinitif == evenement.infinitif) {
-        if ((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci)) {
+        if (((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci))
+          && ((!aud.evenement.cela && !evenement.cela) || (aud.evenement.cela === evenement.cela))
+        ) {
           aud.instructions.forEach(ins => {
             instructions.push(ins);
           });
