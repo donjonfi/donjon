@@ -179,7 +179,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       const celaIntitule = els.sujetComplement;
       const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
       const celaNom = celaIntitule ? celaIntitule.nom : null;
-      let evenement = new Evenement(els.infinitif, ceciNom, null, celaNom);
+      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
       const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule) : null;
       const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule) : null;
 
@@ -279,7 +279,11 @@ export class LecteurComponent implements OnInit, OnChanges {
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
-            // vérifier cette action action
+            // avant la commande (qu'elle soit refusée ou non)
+            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement));
+            retVal = resultatAvant.sortie;
+
+            // vérifier si l'action est refusée
             let refus = false;
             if (actionCeciCela.action.verifications) {
               console.log("vérifications en cours pour la commande…");
@@ -297,11 +301,20 @@ export class LecteurComponent implements OnInit, OnChanges {
 
             // exécuter l’action si pas refusée
             if (!refus) {
-              // exécuter l’action
-              retVal = this.executerAction(actionCeciCela);
 
-              // finaliser l’action
-              retVal += this.finaliserAction(actionCeciCela);
+              // exécuter l’action
+              retVal += this.executerAction(actionCeciCela);
+
+              // après la commande
+              const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement));
+              retVal += resultatApres.sortie;
+
+              // terminer l'action seulement s'il n'y avait pas de " après ".
+              if (resultatApres.nombre === 0) {
+                // terminer l’action
+                retVal += this.finaliserAction(actionCeciCela);
+              }
+
             }
 
 
@@ -421,15 +434,25 @@ export class LecteurComponent implements OnInit, OnChanges {
       // vérifier s’il s’agit du sujet précis
 
       ceciCela.elements.forEach(ele => {
+        console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
+        console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+        console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+
         if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
           if (retVal === null) {
             retVal = ele;
+            console.log("XXXX > ok on a un truc");
+
           } else {
             // déjà un match, on en a plusieurs.
             retVal = -1;
           }
         }
       });
+
+      console.log("XXXXX > retVal=", retVal);
+
+
       // todo: vérifier début de nom si aucune correspondance exacte
 
       // il s’agit d’un type
