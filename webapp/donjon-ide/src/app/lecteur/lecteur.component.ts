@@ -6,7 +6,7 @@ import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
 import { Correspondance } from '../utils/jeu/correspondance';
-import { Declancheur } from '../utils/jeu/declancheur';
+import { Declencheur } from '../utils/jeu/declencheur';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -40,7 +40,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   private eju: ElementsJeuUtils;
   private cond: ConditionsUtils;
 
-  private dec: Declancheur;
+  private dec: Declencheur;
 
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
@@ -54,7 +54,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       console.warn("jeu: ", this.jeu);
       this.sortieJoueur = "";
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
-      this.dec = new Declancheur(this.jeu.auditeurs, this.verbeux);
+      this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);

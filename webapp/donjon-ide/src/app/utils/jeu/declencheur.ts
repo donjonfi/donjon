@@ -4,7 +4,7 @@ import { Evenement } from '../../models/jouer/evenement';
 import { Instruction } from '../../models/compilateur/instruction';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 
-export class Declancheur {
+export class Declencheur {
 
   private auditeursAvant: Auditeur[] = [];
   private auditeursApres: Auditeur[] = [];
@@ -29,7 +29,7 @@ export class Declancheur {
           break;
 
         default:
-          console.error("Declancheur > type d’auditeur inconnu:", aud.type);
+          console.error("Declencheur > type d’auditeur inconnu:", aud.type);
           break;
       }
     });
@@ -62,21 +62,21 @@ export class Declancheur {
 
   avant(evenement: Evenement) {
     if (this.verbeux) {
-      // console.log("Declancheur >>> AVANT", evenement);
+      // console.log("Declencheur >>> AVANT", evenement);
     }
     return this.retrouverInstructions(this.auditeursAvant, evenement);
   }
 
   apres(evenement: Evenement) {
     if (this.verbeux) {
-      // console.log("Declancheur >>> APRÈS", evenement);
+      // console.log("Declencheur >>> APRÈS", evenement);
     }
     return this.retrouverInstructions(this.auditeursApres, evenement);
   }
 
   remplacer(evenement: Evenement) {
     if (this.verbeux) {
-      // console.log("Declancheur >>> REMPLACER", evenement);
+      // console.log("Declencheur >>> REMPLACER", evenement);
     }
     return this.retrouverInstructions(this.auditeursRemplacer, evenement);
   }
