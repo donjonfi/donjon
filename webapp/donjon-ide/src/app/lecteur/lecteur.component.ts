@@ -1,8 +1,8 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
+import { Classe, ClassesRacines, EClasseRacine } from '../models/commun/classe';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
-import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
 import { Correspondance } from '../utils/jeu/correspondance';
@@ -14,6 +14,7 @@ import { Evenement } from '../models/jouer/evenement';
 import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
+import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
 
 @Component({
@@ -191,17 +192,17 @@ export class LecteurComponent implements OnInit, OnChanges {
         retVal += "Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».\n";
       }
 
-      // vérifier si les objets de la commande sont visibles
-      if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
-        if (!resultatCeci.objets[0].visible) {
-          retVal += "Je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».\n";
-        }
-      }
-      if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
-        if (!resultatCela.objets[0].visible) {
-          retVal += "Je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».\n";
-        }
-      }
+      // // vérifier si les objets de la commande sont visibles
+      // if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
+      //   if (!resultatCeci.objets[0].visible) {
+      //     retVal += "Je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».\n";
+      //   }
+      // }
+      // if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+      //   if (!resultatCela.objets[0].visible) {
+      //     retVal += "Je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».\n";
+      //   }
+      // }
 
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
@@ -274,8 +275,22 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         default:
           const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
+
           if (actionCeciCela === -1) {
             retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
+
+            // vérifier si les objets de la commande sont visibles
+            if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
+              if (!resultatCeci.objets[0].visible) {
+                retVal += "\nJe ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».";
+              }
+            }
+            if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+              if (!resultatCela.objets[0].visible) {
+                retVal += "\nJe ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».";
+              }
+            }
+
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
@@ -461,7 +476,15 @@ export class LecteurComponent implements OnInit, OnChanges {
       ceciCela.elements.forEach(ele => {
         if (Classe.heriteDe(ele.classe, candidatCeciCela.nom)) {
           if (retVal === null) {
-            retVal = ele;
+            // s'il doit s'agir d'un objet visible, vérifier
+            // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
+            if (candidatCeciCela.epithete) {
+              if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
+                retVal = ele;
+              }
+            } else {
+              retVal = ele;
+            }
           } else {
             // déjà un match, on en a plusieurs.
             retVal = -1;
