@@ -170,27 +170,40 @@ export class ConditionsUtils {
 
           case 'se trouve':
           case 'se trouvent':
-            // vérifier si un élément est présent à l’endroit indiqué
-            // (pour l’instant seul « ici » est géré.)
-            const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
 
-            console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
+            // trouver l'objet
+            let trouvailles = this.eju.trouverObjet(condition.sujet);
 
-            // singulier
-            if (condition.verbe.endsWith('e')) {
-              objetsTrouves.forEach(obj => {
-                if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
-                  retVal = true;
-                }
-              });
-              // pluriel
-            } else {
-              objetsTrouves.forEach(obj => {
-                if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
+            if (trouvailles.length > 0) {
+              const curLieu = this.eju.getLieuObjet(this.jeu.joueur);
+              trouvailles.forEach(el => {
+                if (this.eju.getLieuObjet(el) === curLieu) {
                   retVal = true;
                 }
               });
             }
+
+            // // vérifier si un élément est présent à l’endroit indiqué
+            // // (pour l’instant seul « ici » est géré.)
+            // const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
+
+            // console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
+
+            // // singulier
+            // if (condition.verbe.endsWith('e')) {
+            //   objetsTrouves.forEach(obj => {
+            //     if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
+            //       retVal = true;
+            //     }
+            //   });
+            //   // pluriel
+            // } else {
+            //   objetsTrouves.forEach(obj => {
+            //     if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
+            //       retVal = true;
+            //     }
+            //   });
+            // }
 
             break;
 

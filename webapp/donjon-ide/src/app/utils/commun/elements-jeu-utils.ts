@@ -12,6 +12,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PositionObjet } from '../../models/jeu/position-objet';
 import { StringUtils } from './string.utils';
+import { error } from 'console';
 
 export class ElementsJeuUtils {
 
@@ -239,13 +240,26 @@ export class ElementsJeuUtils {
   }
 
   getLieuObjet(obj: Objet): number {
+    // objet pas positionné
     if (obj.position == null) {
       return null;
+      // objet dans un lieu
     } else if (obj.position.cibleType === EClasseRacine.lieu) {
       return obj.position.cibleId;
+      // objet possédé (par le joueur)
+    } else if (obj.position.cibleId === this.jeu.joueur.id) {
+      // objet contenu dans un autre objet
+      return null;
     } else {
+      // objet dans un contenant qui est dans un lieu
       const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
-      return this.getLieuObjet(contenant);
+      if (contenant) {
+        return this.getLieuObjet(contenant);
+        // objet porté par le joueur => pas de lieu
+      } else {
+        console.error("getLieuObjet: contenant pas trouvé pour", obj);
+        return null;
+      }
     }
   }
 
