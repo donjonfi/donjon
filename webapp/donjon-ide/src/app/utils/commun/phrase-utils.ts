@@ -21,7 +21,31 @@ export class PhraseUtils {
    * => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
   static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?( (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?)?$/i;
+
   /**
+   * Interpréter la commande parler/demander (sens: sujet puis personne)
+   * - parler de la fourchette rouge au nain jaune.
+   * - discuter de la fourchette avec le nain.
+   * - demander la fourchette au nain.
+   * - demander fourchettte au nain.
+   * - => parler(1) de la(2) clé(3) rouge(4) avec le(5) chevalier(6) blanc(7)
+   */
+  static readonly xCommandeParlerSujetPers = /^(demander|questionner|interroger|parler|discuter)(?: ((?:(?:(?:à propos )?de |concernant )?(?:l'|l’|la |le ))|de |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?) (au |à (?:la |l'|l’)?|avec (?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?$/i;
+
+  /**
+   * Interpréter la commande parler/demander (sens: personne puis sujet)
+   * - parler au nain jaune
+   * - parler au nain jaune de la fourchette rouge.
+   * - parler au nain jaune de fourchette rouge.
+   * - discuter avec nain jaune de la fourchette rouge.
+   * - demander au nain jaune la fourchette rouge.
+   * - interroger le nain jaune sur la fourchette rouge.
+   * - questionner le nain jaune à propos de la fourchette rouge.
+   * - => demander(1) au(2) chevalier(3) blanc(4) la(5) clé(6) rouge(7)
+   */
+  static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |à propos de |concernant |de )?(?:l'|l’|la |le ))|du |un |une )?((?!au)\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
+
+  /** 
    * il y a aussi des commandes spéciales:
    * - position
    * - sorties
@@ -159,16 +183,49 @@ export class PhraseUtils {
   static decomposerCommande(commande: string) {
     let els: ElementsPhrase = null;
     let res = PhraseUtils.xCommandeSpeciale.exec(commande);
+    // commande SPÉCIALE (pas un infinitif)
     if (res) {
       // Ce n'est pas un infinitif mais bon...
       els = new ElementsPhrase(res[1], null, null, null, null);
+      // commande DIALOGUE
     } else {
-      res = PhraseUtils.xCommandeInfinitif.exec(commande);
+      // le phrase peut-être tournée de 2 manière différentes, on veut pouvoir
+      // détecter les 2.
+      res = PhraseUtils.xCommandeParlerPersSujet.exec(commande);
+      let sensPersSujet = true;
+      if (!res) {
+        sensPersSujet = false;
+        res = PhraseUtils.xCommandeParlerSujetPers.exec(commande);
+      }
+      // c'est un dialogue (parler, demander, …)
       if (res) {
-        const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
-        els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
-        els.preposition = res[6] ? res[6] : null;
-        els.sujetComplement = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
+        let personne: GroupeNominal = null;
+        let sujetDialogue: GroupeNominal = null;
+        let preposition: string;
+        if (sensPersSujet) {
+          // déterminant difficile à déterminer donc on met rien
+          personne = new GroupeNominal(null, res[3], res[4]);
+          if (res[6]) {
+            sujetDialogue = new GroupeNominal(null, res[6], res[7]);
+          }
+          preposition = "";
+        } else {
+          personne = new GroupeNominal(null, res[6], res[7]);
+          sujetDialogue = new GroupeNominal(null, res[3], res[4]);
+          preposition = "";
+        }
+        els = new ElementsPhrase(res[1], personne, null, null, (sujetDialogue ? sujetDialogue.nom : null));
+        els.preposition = preposition;
+        els.sujetComplement = sujetDialogue;
+        // commande NORMALE (infinitif)
+      } else {
+        res = PhraseUtils.xCommandeInfinitif.exec(commande);
+        if (res) {
+          const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
+          els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
+          els.preposition = res[6] ? res[6] : null;
+          els.sujetComplement = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
+        }
       }
     }
     return els;

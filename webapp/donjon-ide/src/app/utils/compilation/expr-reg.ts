@@ -61,7 +61,7 @@ export class ExprReg {
    * ex: Jeter est une action qui concerne un objet possédé.
    * ex: Examiner est une action qui concerne un objet visible.
    */
-  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
   /**
    * nouvelle action spéciale => mot_clé (1) est une action spéciale.
    */
@@ -70,7 +70,7 @@ export class ExprReg {
   static readonly xActionSimple = /^Le joueur peut ((?:se )?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?:(.+)?$/i;
 
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et) cela(4)]]: instructions(5) */
-  static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se )?\S+(?:ir|er|re))(?: (ceci)(?:(?: \S+) (cela))?)?\s?:(.+)$/i;
+  static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se )?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+) (cela))?)?\s?:(.+)$/i;
 
   // INSTRUCTION
 

@@ -104,6 +104,10 @@ export class Abreviations {
           retVal = "descendre";
           break;
 
+        case 'dem':
+          retVal = "demander ";
+          break;
+
         case 'dev':
         case 'dév':
           retVal = "déverrouiller";
@@ -215,10 +219,16 @@ export class Abreviations {
           retVal = "prendre ";
           break;
 
+        case 'pa':
+        case 'par':
+          retVal = "parler ";
+          break;
+
         case 'po':
         case 'pos':
           retVal = "position";
           break;
+
 
         // ======================
         //           R
@@ -252,7 +262,7 @@ export class Abreviations {
         case 'so':
           retVal = 'sortir';
           break;
-          
+
         case 'sor':
           retVal = "sorties";
           break;
