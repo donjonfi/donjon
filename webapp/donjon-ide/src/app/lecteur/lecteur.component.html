@@ -3,8 +3,13 @@
 </p>
 
 <!-- resultat -->
-<textarea #taResultat readonly class="form-control mb-2" name="taResultat" id="taResultat"
-  rows="20">{{sortieJoueur}}</textarea>
+
+<div id="taResultat" #taResultat class="card my-2" [style.height]="'500px'"
+  style="width:100%;overflow:auto;background-color:rgb(241, 241, 232); padding:5px;"
+  [innerHTML]="sortieJoueur">
+</div>
+<!-- <textarea #taResultat readonly class="form-control mb-2" name="taResultat" id="taResultat"
+  rows="20">{{sortieJoueur}}</textarea> -->
 
 <!-- entrée utilisateur -->
 <div class="input-group mb-3">

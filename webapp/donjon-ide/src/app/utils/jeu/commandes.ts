@@ -242,13 +242,13 @@ export class Commandes {
   aide(els: ElementsPhrase) {
     if (!els.sujet) {
       return "Quelques commandes utiles :\n"
-        + " - inventaire : afficher le contenu de votre inventaire\n"
-        + " - aller nord : aller vers le nord\n"
-        + " - examiner table : examiner la table (pour y trouver des objets)\n"
-        + " - prendre épée : prendre l’épée\n"
-        + " - position : afficher votre position actuelle\n"
-        + " - ouvrir porte avec clé dorée : ouvrir la porte à l’aide de la clé dorée\n"
-        + "[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]";
+        + " - (-inventaire-) : afficher le contenu de votre inventaire\n"
+        + " - (-aller nord-) : aller vers le nord\n"
+        + " - (-examiner table-) : examiner la table (pour y trouver des objets)\n"
+        + " - (-prendre épée-) : prendre l’épée\n"
+        + " - (-position-) : afficher votre position actuelle\n"
+        + " - (-ouvrir porte avec clé dorée-) : ouvrir la porte à l’aide de la clé dorée\n"
+        + "(+[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]+)";
     } else {
       return "Je n'ai pas encore d’informations à propos de ça.";
     }
@@ -517,7 +517,11 @@ export class Commandes {
 
   inventaire() {
     // return this.outils.afficherInventaire();
-    return this.ins.executerAfficherContenu(this.jeu.joueur).sortie;
+    let retVal = this.ins.executerAfficherContenu(this.jeu.joueur).sortie;
+    if (!retVal) {
+      retVal = "(/Votre inventaire est vide./)";
+    }
+    return retVal;
   }
 
   /**

@@ -1,8 +1,8 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
-import { Classe, ClassesRacines, EClasseRacine } from '../models/commun/classe';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
+import { Classe } from '../models/commun/classe';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
 import { Correspondance } from '../utils/jeu/correspondance';
@@ -48,6 +48,48 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   constructor() { }
 
+  private static doHtml(texte: string): string {
+    texte = LecteurComponent.retirerBalisesHtml(texte);
+    texte = LecteurComponent.ajouterBalisesHtml(texte);
+    return texte;
+  }
+
+  /**
+   * Retirer les tags html du texte.
+   */
+  private static retirerBalisesHtml(texte: string): string {
+    const retVal = texte.replace(/<[^>]*>/g, '');
+    return retVal;
+  }
+
+  /**
+   * Ajouter des tags HTML
+   */
+  private static ajouterBalisesHtml(texte: string): string {
+    // texte avec une partie en (*gras*) et le reste normal.
+    // texte avec une partie en (/italique/) et le reste normal.
+    // gras: (*texte*)
+    let retVal = texte.replace(/\(\//g, '<i>');
+    retVal = retVal.replace(/\/\)/g, '</i>');
+    // italique: (/texte/)
+    retVal = retVal.replace(/\(\*/g, '<b>');
+    retVal = retVal.replace(/\*\)/g, '</b>');
+    // souligner (_texte_)
+    retVal = retVal.replace(/\(_/g, '<u>');
+    retVal = retVal.replace(/_\)/g, '</u>');
+    // texte DANGER (+texte+)
+    retVal = retVal.replace(/\(\+/g, '<span class="text-danger">');
+    retVal = retVal.replace(/\+\)/g, '</span>');
+    // texte PRIMARY (-texte-)
+    retVal = retVal.replace(/\(-/g, '<span class="text-primary">');
+    retVal = retVal.replace(/-\)/g, '</span>');
+    // retour à la ligne \n
+    retVal = retVal.replace(/\(r\)/g, '<br>');
+    retVal = retVal.replace(/\n/g, '<br>');
+    return retVal;
+  }
+
+
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,32 +101,40 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);
-      this.sortieJoueur += (this.jeu.titre ? (this.jeu.titre + "\n==============================\n") : "");
+      this.sortieJoueur += (this.jeu.titre ? ("<h3>" + LecteurComponent.retirerBalisesHtml(this.jeu.titre) + "</h3>") : "");
 
       // définir visibilité des objets initiale
       this.eju.majVisibiliteDesObjets();
 
+      this.sortieJoueur += "<p>";
+
+      // évènement COMMENCER JEU
       let evCommencerJeu = new Evenement('commencer', 'jeu');
 
       // éxécuter les instructions AVANT le jeu commence
       let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
-      this.sortieJoueur += resultatAvant.sortie;
+      if (resultatAvant.sortie) {
+        this.sortieJoueur += LecteurComponent.doHtml(resultatAvant.sortie) + "<br>";
+      }
 
       // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
       let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
       if (resultatRemplacer.nombre === 0) {
         // afficher où on est.
-        this.sortieJoueur += "\n" + this.com.ouSuisJe();
+        this.sortieJoueur += LecteurComponent.doHtml(this.com.ouSuisJe());
       }
 
       // éxécuter les instructions APRÈS le jeu commence
       const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-      this.sortieJoueur += resultatApres.sortie;
+      this.sortieJoueur += LecteurComponent.doHtml(resultatApres.sortie);
+
+      this.sortieJoueur += "</p>";
 
     } else {
       console.warn("pas de jeu :(");
     }
   }
+
 
 
 
@@ -144,11 +194,12 @@ export class LecteurComponent implements OnInit, OnChanges {
       // compléter la commande
       const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
 
-      this.sortieJoueur += "\n > " + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ")") : '');
+      this.sortieJoueur += '<p><span class="text-primary">' + LecteurComponent.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
       const result = this.doCommande(commandeComplete.trim());
       if (result) {
-        this.sortieJoueur += "\n" + result;
+        this.sortieJoueur += LecteurComponent.doHtml(result);
       }
+      this.sortieJoueur += "</p>";
       this.commande = "";
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
@@ -157,6 +208,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     }
   }
+
+
 
   doCommande(commande: string): string {
 
@@ -187,8 +240,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       // vérifier si on a trouvé les éléments de la commande.
       if (ceciIntitule && resultatCeci.nbCor === 0) {
         retVal += "Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».\n";
-      }
-      if (celaIntitule && resultatCela.nbCor === 0) {
+      } else if (celaIntitule && resultatCela.nbCor === 0) {
         retVal += "Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».\n";
       }
 
@@ -284,8 +336,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               if (!resultatCeci.objets[0].visible) {
                 retVal += "\nJe ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».";
               }
-            }
-            if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+            } else if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
               if (!resultatCela.objets[0].visible) {
                 retVal += "\nJe ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».";
               }
