@@ -89,19 +89,7 @@
             <ul>
               <li *ngFor="let ins of action.instructionsFinales; index as i">
                 Instruction {{(i+1)}} :
-                <ul>
-                  <li>Action : {{ins.instruction.infinitif}}</li>
-                  <li *ngIf="ins.instruction.sujet">
-                    Sujet :
-                    {{ins.instruction.sujet.determinant ? ("["+ins.instruction.sujet.determinant.trim()+ "] ") : ""}}{{ins.instruction.sujet.pronom ? ("["+ins.instruction.sujet.pronom.trim()+ "] ") : ""}}{{ins.instruction.sujet.nom}}
-                  </li>
-                  <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
-                  <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
-                  <li *ngIf="ins.instruction.sujetComplement">
-                    <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                  </li>
-                  <li *ngIf="ins.instruction.complement">Compl : {{ins.instruction.complement}}</li>
-                </ul>
+                <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
               </li>
             </ul>
           </li>

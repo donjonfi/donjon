@@ -1,14 +1,20 @@
 <ul *ngIf="!ins.condition">
-  <li>Action : {{ins.instruction.infinitif}}</li>
-  <li *ngIf="ins.instruction.sujet">
-    <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
-  </li>
-  <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
-  <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
-  <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
-  <li *ngIf="ins.instruction.sujetComplement">
-    <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-  </li>
+  <ng-container *ngIf="ins.instruction">
+    <li>Action : {{ins.instruction.infinitif}}</li>
+    <li *ngIf="ins.instruction.sujet">
+      <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
+    </li>
+    <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
+    <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
+    <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
+    <li *ngIf="ins.instruction.sujetComplement">
+      <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+    </li>
+  </ng-container>
+  <ng-container *ngIf="!ins.instruction">
+    <li><i class="text-error">Pas d’instruction</i></li>
+  </ng-container>
+  
 </ul>
 
 <ul *ngIf="ins.condition">
