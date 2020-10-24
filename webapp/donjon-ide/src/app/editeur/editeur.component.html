@@ -1,5 +1,5 @@
 <tabset #editeurTabs>
-  <tab heading="Code source" id="tab1">
+  <tab heading="Code source" id="code_source">
     <!-- <div class="card mb-2 shadow-sm"> -->
     <div class="mt-2">
       <!-- <div class="card-body p-2"> -->
@@ -7,34 +7,35 @@
         <div class="col-md-auto">
           <h4>Code source</h4>
         </div>
-        <!-- Sauvegarder, Charger, Exemples -->
-        <div class="col-12 col-md">
-          <div class="row">
-            <div class="col-auto">
-              <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger">Sauvegarder</button>
-            </div>
-            <div class="col-auto">
-              <label class="btn btn-primary btn-file">
-                Charger<input type="file" accept=".djn,.txt" style="display: none;" (change)="onOuvrirFichier($event)">
-              </label>
-            </div>
-            <div class="col-12 col-md-auto">
-              <div class="input-group mb-3">
-                <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
-                  placeholder="nom d’un exemple">
-                <div class="input-group-append">
-                  <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerExemple()" type="button"
-                    id="btExecuter">Charger ex.</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- préférences -->
         <div class="col-auto">
-          <button type="button" (click)="afficherPreferences = !afficherPreferences" class="btn btn-success mr-2">Préférences</button>
+          <button type="button" (click)="afficherPreferences = !afficherPreferences"
+            class="btn btn-success mr-2">Préférences</button>
         </div>
+        <!-- compiler -->
         <div class="col-auto">
           <button type="button" (click)="onCompiler()" class="btn btn-warning">Compiler</button>
+        </div>
+        <!-- sauvegarder -->
+        <div class="col-auto">
+          <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger">Sauvegarder</button>
+        </div>
+        <!-- charger fichier -->
+        <div class="col-auto">
+          <label class="btn btn-primary btn-file">
+            Charger<input type="file" [(ngModel)]="fichierCharge" accept=".djn,.txt" style="display: none;"
+              (change)="onOuvrirFichier($event)">
+          </label>
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="input-group mb-3">
+            <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
+              placeholder="nom d’un exemple">
+            <div class="input-group-append">
+              <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerExemple()" type="button"
+                id="btExecuter">Charger ex.</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -104,7 +105,7 @@
     <!-- </div> -->
 
   </tab>
-  <tab heading="Compilation">
+  <tab heading="Compilation" [disabled]="!compilationTerminee && !compilationEnCours">
     <!-- Compilation -->
     <!-- <div *ngIf="erreurs" class="card mb-2 shadow-sm"> -->
 
@@ -135,8 +136,10 @@
       </ng-container>
 
       <p class="p-5">
-        <button (click)="showTab('jouer')" type="button" class="btn btn-primary">Jouer</button>
-        <button (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
+        <button *ngIf="monde" (click)="showTab('jouer')" type="button" class="btn btn-primary">Jouer</button>
+        <button *ngIf="monde" (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
+        <button *ngIf="!monde" (click)="showTab('editeur')" type="button" class="btn btn-primary ml-2">Code
+          source</button>
       </p>
 
       <code class="text-danger">
@@ -147,7 +150,7 @@
     </div>
     <!-- </div> -->
   </tab>
-  <tab heading="Jouer">
+  <tab heading="Jouer" [disabled]="!compilationTerminee || monde == null">
     <!-- Jeu -->
     <!-- <div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm"> -->
     <div *ngIf="compilationTerminee" class="mt-2">
@@ -157,7 +160,7 @@
       <!-- </div> -->
     </div>
   </tab>
-  <tab heading="Aperçu">
+  <tab heading="Aperçu" [disabled]="!compilationTerminee || monde == null">
     <!-- Aperçu -->
     <!-- <div *ngIf="mode == 'apercu'" class="card mb-4 shadow-sm"> -->
     <div *ngIf="compilationTerminee" class="mt-4">
