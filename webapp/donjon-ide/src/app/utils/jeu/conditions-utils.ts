@@ -138,7 +138,7 @@ export class ConditionsUtils {
         // ++++++++++++++++++++
 
         switch (condition.verbe) {
-          // état
+          // ÉTAT
           case 'est':
             // faire le test
             if (sujet) {
@@ -146,6 +146,7 @@ export class ConditionsUtils {
             }
             break;
 
+          // CONTENU
           case 'contient':
             if (condition.complement === 'un objet') {
               retVal = this.eju.verifierContientObjet(sujet);
@@ -154,6 +155,9 @@ export class ConditionsUtils {
             }
             break;
 
+
+          // PAS DE (aucun)
+          case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
           case 'aucun': // forme "aucun xxxx pour yyyy"
             if (condition.complement === 'description') {
               retVal = (!sujet.description);
@@ -164,10 +168,12 @@ export class ConditionsUtils {
             }
             break;
 
+          // POSSESSION
           case 'possède':
             console.error("siEstVrai > condition « possède » pas encore gérée.");
             break;
 
+          // LOCALISATION
           case 'se trouve':
           case 'se trouvent':
 
@@ -207,6 +213,18 @@ export class ConditionsUtils {
 
             break;
 
+          case 'réagit':
+          case 'réagissent':
+            if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
+              retVal = true;
+            } else {
+              retVal = false;
+            }
+            if (condition.negation) {
+              retVal = !retVal;
+            }
+            break;
+
           default:
             console.error("siEstVrai: verbe pas connu::", condition.verbe);
             break;
@@ -222,7 +240,7 @@ export class ConditionsUtils {
       console.error("siEstVrai: condition pas comprise:", condition);
     }
 
-    console.info("siEstVrai: ", condition, retVal);
+    console.log("siEstVrai: ", condition, retVal);
 
     return retVal;
   }

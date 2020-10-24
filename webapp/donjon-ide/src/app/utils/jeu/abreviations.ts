@@ -78,7 +78,7 @@ export class Abreviations {
   static premierMotCommande(premierMot: string, avecEspaceFinal: boolean) {
     let retVal = premierMot;
 
-    if (premierMot && premierMot.length > 0 && premierMot.length < 4) {
+    if (premierMot && premierMot.length > 0 && premierMot.length <= 10) {
       switch (premierMot) {
 
         // ======================
@@ -155,10 +155,15 @@ export class Abreviations {
         //           I
         // ======================
 
+
         case 'i':
         case 'in':
         case 'inv':
           retVal = "inventaire";
+          break;
+
+        case 'int':
+          retVal = "interroger ";
           break;
 
         // ======================
@@ -229,6 +234,12 @@ export class Abreviations {
           retVal = "position";
           break;
 
+        // ======================
+        //           Q
+        // ======================
+        case 'que':
+          retVal = "questionner";
+          break;
 
         // ======================
         //           R

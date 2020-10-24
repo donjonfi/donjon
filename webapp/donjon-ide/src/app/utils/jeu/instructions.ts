@@ -51,9 +51,15 @@ export class Instructions {
     // instruction conditionnelle
     if (instruction.condition) {
 
-      if (this.cond.siEstVrai(null, instruction.condition, ceci, cela)) {
+      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela);
+      if (this.verbeux) {
+        console.log(">>>> estVrai=", estVrai);
+        
+      }
+      if (estVrai) {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
       } else {
+
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
       }
       // instruction simple

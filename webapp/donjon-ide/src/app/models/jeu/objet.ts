@@ -3,6 +3,7 @@ import { ElementJeu } from "./element-jeu";
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { PositionObjet } from './position-objet';
+import { Reaction } from '../compilateur/reaction';
 
 export class Objet extends ElementJeu {
 
@@ -17,6 +18,8 @@ export class Objet extends ElementJeu {
     super(id, nom, intitule, classe);
   }
 
+  reactions: Reaction[] = null;
+
   visible = false;
   possede = false;
   porte = false;
@@ -30,9 +33,5 @@ export class Objet extends ElementJeu {
 
   /** Texte s’affichant lorsqu’on voit l’ojet lors de la description de la salle qui contient l’objet. */
   apercu: string = null;
-  /** Texte s’affichant l’orsqu’on examine l’objet. */
-  examen: string = null;
-  /** L’ojbet a-t-il déjà été examiné par le joueur. */
-  examine = false;
 
 }

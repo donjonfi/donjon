@@ -57,11 +57,13 @@ export class ExprReg {
   static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
 
-  /** nouvelle action => verbe(1) [ ceci(2)[(?: \S+) cela(3)]] est une action[ qui concerne un|une|deux(4) typeObjetA(5) attributObjetA(6) [et un|une(7) typeObjetB(8) attributObjetB(9)]]
-   * ex: Jeter est une action qui concerne un objet possédé.
-   * ex: Examiner est une action qui concerne un objet visible.
+  /** nouvelle action 
+   * - verbe(1) [[à/de/…]\(2) ceci(3)[[ à/de/sur/…]\(4) cela(5)]] est une action[ qui concerne un|une|deux(6) typeObjetA(7) attributObjetA(8) [et un|une(9) typeObjetB(10) attributObjetB(11)]]
+   * - ex: Jeter est une action qui concerne un objet possédé.
+   * - ex: Examiner est une action qui concerne un objet visible.
    */
-  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  // static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se )?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+)) (cela))?)? est une action(?: qui concerne (un|une|deux) (\S+)(?: (\S+))?(?: et (un|une) (\S+)(?: (\S+))?)?)?$/i;
   /**
    * nouvelle action spéciale => mot_clé (1) est une action spéciale.
    */

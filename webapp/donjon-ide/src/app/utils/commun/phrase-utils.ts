@@ -43,7 +43,7 @@ export class PhraseUtils {
    * - questionner le nain jaune à propos de la fourchette rouge.
    * - => demander(1) au(2) chevalier(3) blanc(4) la(5) clé(6) rouge(7)
    */
-  static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |à propos de |concernant |de )?(?:l'|l’|la |le ))|du |un |une )?((?!au)\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
+  static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:\S+ (?:à (?!propos)|en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |concernant |de )?(?:l'|l’|la |le ))|à propos (?:de (?:l'|l’|la )|du )|du |de |un |une )?((?!au)\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
 
   /** 
    * il y a aussi des commandes spéciales:
@@ -57,7 +57,7 @@ export class PhraseUtils {
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|contient|commence)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après |apres )?((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n'|n’|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
   /** 
    * si aucun(1) complément(2) pour (le|la|les|...(4) xxx(5) yyy(6))|(ceci|cela)(3)
    */
@@ -76,7 +76,7 @@ export class PhraseUtils {
   /**
    * sinon(1) :|, (consequences)(2)
    */
-  static readonly xSeparerSinonConsequences = /^(sinon)(?: )?(?::|,)(?: )?(.+)$/i;
+  static readonly xSeparerSinonConsequences = /^(sinon)(?: )?(?::|,)?(?: )?(.+)$/i;
 
   /**
    * Instruction : verbe + complément

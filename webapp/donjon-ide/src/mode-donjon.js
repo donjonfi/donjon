@@ -62,6 +62,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           token: "constant.language",
           regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |"
             + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)|"
+            + "visible|disponible|possédé|"
             + "ceci|cela|ici"
         }, {
           token: "storage.type",
@@ -70,7 +71,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "se (trouve)|n(’|')est pas|n(’|')est plus|est|sont|vaut|contient|possède|peut"
+          regex: "se (trouve)|n(’|')est pas|n(’|')est plus|est|sont|vaut|contient|possède|réagit|réagissent|peut"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

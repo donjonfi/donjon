@@ -27,8 +27,6 @@ import { Verification } from 'src/app/models/compilateur/verification';
 export class Analyseur {
 
 
-
-
   public static analyserPhrases(phrases: Phrase[], monde: Monde, elementsGeneriques: ElementGenerique[], regles: Regle[], actions: Action[], typesUtilisateur: Map<string, Definition>, erreurs: string[], verbeux: boolean) {
 
     let dernierePropriete: Propriete = null;
@@ -526,31 +524,23 @@ export class Analyseur {
     const result = ExprReg.xAction.exec(phrase.phrase[0]);
     if (result !== null) {
       const verbe = result[1].toLocaleLowerCase();
-      const ceci = result[2] === 'ceci';
-      const cela = result[3] === 'cela';
+      const ceci = result[3] === 'ceci';
+      const cela = result[5] === 'cela';
       let action = new Action(verbe, ceci, cela);
       // concerne un élément ?
       if (ceci) {
-        action.cibleCeci = new GroupeNominal(result[4], result[5], result[6]);
+        action.cibleCeci = new GroupeNominal(result[6], result[7], result[8]);
         // concerne également un 2e élément ?
         if (cela) {
           if (result[4] === 'deux') {
-            action.cibleCela = new GroupeNominal(result[4], result[5], result[6]);
+            action.cibleCela = new GroupeNominal(result[6], result[7], result[8]);
           } else {
-            action.cibleCela = new GroupeNominal(result[7], result[8], result[9]);
+            action.cibleCela = new GroupeNominal(result[9], result[10], result[11]);
           }
         }
       }
       actions.push(action);
       return action; // nouvelle action
-
-      //   }
-      // else {
-      //   let resultActionSpeciale = ExprReg.xActionSpeciale.exec(phrase.phrase[0]);
-      //   if (resultActionSpeciale) {
-      //     let action = new Action(resultActionSpeciale[1], null, null);
-      //     actions.push(action);
-      //     return action;
 
     } else {
       let resultDescriptionAction = ExprReg.xDescriptionAction.exec(phrase.phrase[0]);
@@ -913,10 +903,11 @@ export class Analyseur {
             // récupérer la dernière instruction et remplir le sinon
             let precInstruction = instructions.pop();
 
-            if (precInstruction.condition) {
+            if (precInstruction && precInstruction.condition) {
               precInstruction.instructionsSiConditionPasVerifiee = consequences;
               instructions.push(precInstruction);
             } else {
+              console.error("« sinon » orphelin : " + conBruNettoyee);
               erreurs.push("« sinon » orphelin : " + conBruNettoyee);
             }
             // cas C => RIEN TROUVÉ

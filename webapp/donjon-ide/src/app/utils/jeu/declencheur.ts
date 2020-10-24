@@ -38,7 +38,7 @@ export class Declencheur {
   private retrouverInstructions(auditeurs: Auditeur[], evenement: Evenement): Instruction[] {
     let instructions = new Array<Instruction>();
     auditeurs.forEach(aud => {
-      console.log(">>> check", aud);
+      // console.log(">>> check", aud);
       if (aud.evenement.infinitif == evenement.infinitif) {
         if (((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci))
           && ((!aud.evenement.cela && !evenement.cela) || (aud.evenement.cela === evenement.cela))

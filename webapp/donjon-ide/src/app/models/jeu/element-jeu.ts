@@ -76,9 +76,8 @@ export class ElementJeu {
 
   /** Description de l’élément */
   public description: string = null;
+  /** Texte s’affichant l’orsqu’on examine l’objet. */
   public examen: string = null;
-  /** L’élément a-t-il déjà été décrit au joueur */
-  decrit: boolean;
 
   /**
    * États actuels de l’élément
@@ -97,11 +96,12 @@ export class ElementJeu {
   // public inventaire: Inventaire = new Inventaire();
 
   // STATISTIQUES
-
   /** Nombre d'affichages de la description */
   nbAffichageDescription = 0;
   nbAffichageExamen = 0;
-
-
+  /** L’élément a-t-il déjà été décrit au joueur */
+  decrit = false;
+  /** L’ojbet a-t-il déjà été examiné par le joueur. */
+  examine = false;
 
 }
