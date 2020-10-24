@@ -75,6 +75,8 @@ export class EditeurComponent implements OnInit {
   compilationEnCours = false;
   compilationTerminee = false;
 
+  fichierCharge = null;
+
   constructor(
     private http: HttpClient,
   ) {
@@ -149,23 +151,28 @@ export class EditeurComponent implements OnInit {
   }
 
   onOuvrirFichier(evenement) {
-    // fichier choisi par l’utilisateur
-    const file = evenement.target.files[0];
-    if (file) {
-      let fileReader = new FileReader();
-      // quand lu, l’attribuer au code source
-      fileReader.onload = (progressEvent) => {
-        this.codeSource = fileReader.result as string;
-        console.log(">>> fichier chargé.");
 
-      };
-      // lire le fichier
-      fileReader.readAsText(file);
-      this.monde = null;
-      this.erreurs = null;
-      this.regles = null;
-      this.compilationTerminee = false;
+    if (this.fichierCharge) {
+      // fichier choisi par l’utilisateur
+      const file = evenement.target.files[0];
+      if (file) {
+        this.codeSource = "";
+        this.monde = null;
+        this.erreurs = null;
+        this.regles = null;
+        this.compilationTerminee = false;
 
+        this.fichierCharge = null;
+
+        let fileReader = new FileReader();
+        // quand lu, l’attribuer au code source
+        fileReader.onloadend = (progressEvent) => {
+          this.codeSource = fileReader.result as string;
+          console.log(">>> fichier chargé.");
+        };
+        // lire le fichier
+        fileReader.readAsText(file);
+      }
     }
   }
 
@@ -200,12 +207,14 @@ export class EditeurComponent implements OnInit {
   }
 
   onCompiler() {
-    this.showTab('compilation');
+    this.compilationEnCours = true;
+    this.compilationTerminee = false;
+    setTimeout(() => {
+      this.showTab('compilation');
+    }, 100);
     this.sauvegarderSession();
 
     if (this.codeSource && this.codeSource.trim() != '') {
-      this.compilationEnCours = true;
-      this.compilationTerminee = false;
 
       // interpréter le code
       let resultat = Compilateur.parseCode(this.codeSource, false);
@@ -215,13 +224,14 @@ export class EditeurComponent implements OnInit {
       this.erreurs = resultat.erreurs;
       // générer le jeu
       this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions);
-
-      this.compilationEnCours = false;
-      this.compilationTerminee = true;
-
     } else {
+      this.monde = null;
+      this.regles = null;
+      this.actions = null;
       this.erreurs = [];
     }
+    this.compilationEnCours = false;
+    this.compilationTerminee = true;
 
   }
 
