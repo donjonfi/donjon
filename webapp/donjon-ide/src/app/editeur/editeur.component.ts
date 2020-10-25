@@ -220,7 +220,9 @@ export class EditeurComponent implements OnInit {
       let resultat = Compilateur.parseCode(this.codeSource, false);
       this.monde = resultat.monde;
       this.regles = resultat.regles;
-      this.actions = resultat.actions;
+      this.actions = resultat.actions.sort((a, b) => (
+        (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
+      ));
       this.erreurs = resultat.erreurs;
       // générer le jeu
       this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions);

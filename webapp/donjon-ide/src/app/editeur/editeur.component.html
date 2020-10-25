@@ -7,33 +7,41 @@
         <div class="col-md-auto">
           <h4>Code source</h4>
         </div>
-        <!-- préférences -->
-        <div class="col-auto">
-          <button type="button" (click)="afficherPreferences = !afficherPreferences"
-            class="btn btn-success mr-2">Préférences</button>
-        </div>
         <!-- compiler -->
-        <div class="col-auto">
-          <button type="button" (click)="onCompiler()" class="btn btn-warning">Compiler</button>
+        <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="onCompiler()" class="btn btn-warning" title="Analyser le code source"><i
+              class="fas fa-magic"></i><span class="ml-2 d-none d-md-inline">Analyser</span></button>
         </div>
         <!-- sauvegarder -->
-        <div class="col-auto">
-          <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger">Sauvegarder</button>
+        <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger"
+            title="Sauvegarder le code source"><i class="fas fa-download"></i><span
+              class="ml-2 d-none d-lg-inline">Sauvegarder</span></button>
         </div>
         <!-- charger fichier -->
-        <div class="col-auto">
+        <div class="col-auto px-1 px-lg-2">
           <label class="btn btn-primary btn-file">
-            Charger<input type="file" [(ngModel)]="fichierCharge" accept=".djn,.txt" style="display: none;"
-              (change)="onOuvrirFichier($event)">
+            <i class="fas fa-upload"></i><span class="ml-2 d-none d-lg-inline"
+              title="Charger un code existant">Charger</span><input type="file" [(ngModel)]="fichierCharge"
+              accept=".djn,.txt" style="display: none;" (change)="onOuvrirFichier($event)">
           </label>
         </div>
-        <div class="col-12 col-md-auto">
+         <!-- préférences -->
+         <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="afficherPreferences = !afficherPreferences" class="btn btn-secondary"
+            title="Afficher les préférences"><i class="fas fa-sliders-h"></i><span
+              class="ml-2 d-none d-xl-inline">Préférences</span></button>
+        </div>
+        <!-- exemple -->
+        <div class="col-auto px-1 px-lg-2">
           <div class="input-group mb-3">
             <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
               placeholder="nom d’un exemple">
             <div class="input-group-append">
               <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerExemple()" type="button"
-                id="btExecuter">Charger ex.</button>
+                id="btExecuter" title="Charger l’exemple"><i class="fas fa-cloud-upload-alt"></i><span
+                  class="ml-2 d-none d-xl-inline">Charger
+                  ex.</span></button>
             </div>
           </div>
         </div>
@@ -95,31 +103,30 @@
         </div>
       </div>
 
-      <!-- <div class="card content-container mb-2"> -->
-      <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-        <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme">
-        </ace>
+      <!-- CODE SOURCE -->
+      <div class="card mb-2 mt-n1" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
+        <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme"></ace>
       </div>
 
     </div>
     <!-- </div> -->
 
   </tab>
-  <tab heading="Compilation" [disabled]="!compilationTerminee && !compilationEnCours">
+  <tab heading="Analyse" [disabled]="!compilationTerminee && !compilationEnCours">
     <!-- Compilation -->
     <!-- <div *ngIf="erreurs" class="card mb-2 shadow-sm"> -->
 
     <div *ngIf="compilationEnCours">
-      <p>Compilation en cours …</p>
+      <p>Analyse en cours …</p>
     </div>
 
     <div *ngIf="compilationTerminee" class="mt-2">
       <!-- <div class="card-body p-2"> -->
-      <h5>Résultat de la compilation</h5>
+      <h5>Résultat de l’analyse</h5>
 
       <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
         <div>
-          <span class="text-warning">Moi je veux bien mais il n’y a aucun code source à traiter. 🙄</span><br>
+          <span class="text-warning">Moi je veux bien mais il n’y a aucun code source à analyser. 🙄</span><br>
           <span class="text-primary">Pssst! Il est possible de charger un exemple pour commencer. 😉</span>
         </div>
       </ng-container>
