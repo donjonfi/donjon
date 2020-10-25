@@ -66,25 +66,23 @@ export class LecteurComponent implements OnInit, OnChanges {
    * Ajouter des tags HTML
    */
   private static ajouterBalisesHtml(texte: string): string {
-    // texte avec une partie en (*gras*) et le reste normal.
-    // texte avec une partie en (/italique/) et le reste normal.
-    // gras: (*texte*)
-    let retVal = texte.replace(/\(\//g, '<i>');
-    retVal = retVal.replace(/\/\)/g, '</i>');
-    // italique: (/texte/)
-    retVal = retVal.replace(/\(\*/g, '<b>');
-    retVal = retVal.replace(/\*\)/g, '</b>');
-    // souligner (_texte_)
-    retVal = retVal.replace(/\(_/g, '<u>');
-    retVal = retVal.replace(/_\)/g, '</u>');
-    // texte DANGER (+texte+)
-    retVal = retVal.replace(/\(\+/g, '<span class="text-danger">');
-    retVal = retVal.replace(/\+\)/g, '</span>');
-    // texte PRIMARY (-texte-)
-    retVal = retVal.replace(/\(-/g, '<span class="text-primary">');
-    retVal = retVal.replace(/-\)/g, '</span>');
-    // retour à la ligne \n
-    retVal = retVal.replace(/\(r\)/g, '<br>');
+    // italique: texte avec une partie en {/italique/} et le reste normal.
+    let retVal = texte.replace(/\{\//g, '<i>');
+    retVal = retVal.replace(/\/\}/g, '</i>');
+    // gras: texte avec une partie en {*gras*} et le reste normal.
+    retVal = retVal.replace(/\{\*/g, '<b>');
+    retVal = retVal.replace(/\*\}/g, '</b>');
+    // souligner. texte avec une partie {_soulignée_} et le reste normal.
+    retVal = retVal.replace(/\{_/g, '<u>');
+    retVal = retVal.replace(/_\}/g, '</u>');
+    // texte DANGER {+texte+}
+    retVal = retVal.replace(/\{\+/g, '<span class="text-danger">');
+    retVal = retVal.replace(/\+\}/g, '</span>');
+    // texte PRIMARY {-texte-}
+    retVal = retVal.replace(/\{-/g, '<span class="text-primary">');
+    retVal = retVal.replace(/-\}/g, '</span>');
+    // nouvelle ligne {n} ou \n
+    retVal = retVal.replace(/\{n\}/g, '<br>');
     retVal = retVal.replace(/\n/g, '<br>');
     return retVal;
   }
@@ -334,11 +332,13 @@ export class LecteurComponent implements OnInit, OnChanges {
             // vérifier si les objets de la commande sont visibles
             if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
               if (!resultatCeci.objets[0].visible) {
-                retVal += "\nJe ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».";
+                retVal += "\n(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)";
               }
-            } else if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+            }
+
+            if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
               if (!resultatCela.objets[0].visible) {
-                retVal += "\nJe ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».";
+                retVal += "\n(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)";
               }
             }
 
