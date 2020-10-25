@@ -5,6 +5,7 @@ import { Genre } from '../commun/genre.enum';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
 import { Propriete } from './propriete';
+import { Reaction } from './reaction';
 
 export class ElementGenerique implements ElementDonjon {
 
@@ -12,6 +13,7 @@ export class ElementGenerique implements ElementDonjon {
   public examen: string;
   public proprietes = new Array<Propriete>();
   public capacites = new Array<Capacite>();
+  public reactions = new Array<Reaction>();
   public nomF: string;
   public nomM: string;
   public nomS: string;

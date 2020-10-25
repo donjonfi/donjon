@@ -1,7 +1,8 @@
 <div class="row">
-  <div class="col-auto">
-    <button class="btn btn-sm btn-outline-secondary my-1 py-0" (click)="replie = !replie">
-      {{(replie ? 'afficher' : 'masquer' )}}
+  <div class="col-auto pr-1">
+    <button class="btn btn-sm my-1 py-0 text-monospace"
+      [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}" (click)="replie = !replie">
+      {{(replie ? 'montrer' : 'masquer' )}}
     </button>
   </div>
 
@@ -34,6 +35,13 @@
     <li>Capacitées :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
       <ul *ngIf="el.capacites">
         <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
+      </ul>
+    </li>
+    <li>Réactions :<span *ngIf="!el.reactions || el.reactions.length == 0"> (aucune)</span>
+      <ul *ngIf="el.reactions">
+        <li *ngFor="let rea of el.reactions">
+          <app-apercu-reaction [reaction]="rea"></app-apercu-reaction>
+        </li>
       </ul>
     </li>
     <li>Position : <span *ngIf="! el.positionString"> ?</span>

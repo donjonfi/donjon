@@ -7,11 +7,13 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
   var DonjonHighlightRules = function () {
 
     var variableLanguage = (
-      "joueur|inventaire|intitulé|description|capacité|accord"
+      "joueur|inventaire|historique|intitulé|description|capacité|accord"
     );
 
     var builtinFunctions = (
-      "dire|changer|déplacer|effacer|maintenant|remplacer|par|verrouiller|déverrouiller|ouvrir|fermer"
+      "dire|changer|déplacer|effacer|sauver|remplacer|par|"
+      + "verrouiller|déverrouiller|ouvrir|fermer|"
+      + "|maintenant"
     );
 
     var keywordMapper = this.createKeywordMapper({
@@ -127,10 +129,10 @@ ace.define("ace/mode/donjon", ["require", "exports", "module", "ace/lib/oop", "a
 });
 /*
 (function() {
-	ace.require(["ace/mode/donjon"], function(m) {
-		if (typeof module == "object" && typeof exports == "object" && module) {
-			module.exports = m;
-		}
-	});
+  ace.require(["ace/mode/donjon"], function(m) {
+    if (typeof module == "object" && typeof exports == "object" && module) {
+      module.exports = m;
+    }
+  });
 })();
 */

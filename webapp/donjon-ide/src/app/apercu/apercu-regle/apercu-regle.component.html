@@ -1,8 +1,9 @@
 <div>
   <div class="row">
-    <div class="col-auto">
-      <button class="btn btn-sm btn-outline-secondary my-1 py-0" (click)="replie = !replie">
-        {{(replie ? 'afficher' : 'masquer' )}}
+    <div class="col-auto pr-1">
+      <button class="btn btn-sm my-1 py-0 text-monospace" [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}"
+        (click)="replie = !replie">
+        {{(replie ? 'montrer' : 'masquer' )}}
       </button>
     </div>
 

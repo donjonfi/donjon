@@ -109,138 +109,153 @@ export class ConditionsUtils {
       condition = PhraseUtils.getCondition(conditionString);
     }
     if (condition) {
-
-      // 1 - Trouver le sujet
-      // ++++++++++++++++++++
-      let sujet: ElementJeu = null;
-
-      if (condition.sujet) {
-        if (condition.sujet.nom === 'ceci') {
-          sujet = ceci;
-        } else if (condition.sujet.nom === 'cela') {
-          sujet = cela;
+      // condition spéciale: « historique contient "xxxxx"»
+      if (condition.sujet.nom === 'historique' && condition.verbe === "contient") {
+        const recherche = condition.complement?.trim();
+        if (recherche) {
+          retVal = this.jeu.sauvegardes.includes(recherche);
         } else {
-          const correspondances = this.eju.trouverCorrespondance(condition.sujet);
-          if (correspondances.elements.length == 1) {
-            sujet = correspondances.elements[0];
-          } else if (correspondances.elements.length > 1) {
-            console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition);
+          console.error("check si l’historique contient >>> recherche vide");
+        }
+
+        // conditions normales
+      } else {
+        // 1 - Trouver le sujet
+        // ++++++++++++++++++++
+        let sujet: ElementJeu = null;
+
+        if (condition.sujet) {
+          if (condition.sujet.nom === 'ceci') {
+            sujet = ceci;
+            if (!ceci) {
+              console.warn("siEstVrai: le « ceci » de la condition est null.");
+            }
+          } else if (condition.sujet.nom === 'cela') {
+            sujet = cela;
+            if (!cela) {
+              console.warn("siEstVrai: le « cela » de la condition est null.");
+            }
           } else {
-            console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition);
+            const correspondances = this.eju.trouverCorrespondance(condition.sujet);
+            if (correspondances.elements.length == 1) {
+              sujet = correspondances.elements[0];
+            } else if (correspondances.elements.length > 1) {
+              console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition);
+            } else {
+              console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition);
+            }
           }
         }
-      }
 
 
-      if (sujet) {
+        if (sujet) {
 
-        // 2 - Trouver le verbe
-        // ++++++++++++++++++++
+          // 2 - Trouver le verbe
+          // ++++++++++++++++++++
 
-        switch (condition.verbe) {
-          // ÉTAT
-          case 'est':
-            // faire le test
-            if (sujet) {
-              retVal = ElementsJeuUtils.possedeCetEtat(sujet, condition.complement);
-            }
-            break;
+          switch (condition.verbe) {
+            // ÉTAT
+            case 'est':
+              // faire le test
+              if (sujet) {
+                retVal = ElementsJeuUtils.possedeCetEtat(sujet, condition.complement);
+              }
+              break;
 
-          // CONTENU
-          case 'contient':
-            if (condition.complement === 'un objet') {
-              retVal = this.eju.verifierContientObjet(sujet);
-            } else {
-              console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);
-            }
-            break;
+            // CONTENU
+            case 'contient':
+              if (condition.complement === 'un objet') {
+                retVal = this.eju.verifierContientObjet(sujet);
+              } else {
+                console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);
+              }
+              break;
 
 
-          // PAS DE (aucun)
-          case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
-          case 'aucun': // forme "aucun xxxx pour yyyy"
-            if (condition.complement === 'description') {
-              retVal = (!sujet.description);
-            } else if (condition.complement === 'examen') {
-              retVal = (!sujet.examen);
-            } else {
-              console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
-            }
-            break;
+            // PAS DE (aucun)
+            case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
+            case 'aucun': // forme "aucun xxxx pour yyyy"
+              if (condition.complement === 'description') {
+                retVal = (!sujet.description);
+              } else if (condition.complement === 'examen') {
+                retVal = (!sujet.examen);
+              } else {
+                console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
+              }
+              break;
 
-          // POSSESSION
-          case 'possède':
-            console.error("siEstVrai > condition « possède » pas encore gérée.");
-            break;
+            // POSSESSION
+            case 'possède':
+              console.error("siEstVrai > condition « possède » pas encore gérée.");
+              break;
 
-          // LOCALISATION
-          case 'se trouve':
-          case 'se trouvent':
+            // LOCALISATION
+            case 'se trouve':
+            case 'se trouvent':
 
-            // trouver l'objet
-            let trouvailles = this.eju.trouverObjet(condition.sujet);
+              // trouver l'objet
+              let trouvailles = this.eju.trouverObjet(condition.sujet);
 
-            if (trouvailles.length > 0) {
-              const curLieu = this.eju.getLieuObjet(this.jeu.joueur);
-              trouvailles.forEach(el => {
-                if (this.eju.getLieuObjet(el) === curLieu) {
-                  retVal = true;
-                }
-              });
-            }
+              if (trouvailles.length > 0) {
+                const curLieu = this.eju.getLieuObjet(this.jeu.joueur);
+                trouvailles.forEach(el => {
+                  if (this.eju.getLieuObjet(el) === curLieu) {
+                    retVal = true;
+                  }
+                });
+              }
 
-            // // vérifier si un élément est présent à l’endroit indiqué
-            // // (pour l’instant seul « ici » est géré.)
-            // const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
+              // // vérifier si un élément est présent à l’endroit indiqué
+              // // (pour l’instant seul « ici » est géré.)
+              // const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
 
-            // console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
+              // console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
 
-            // // singulier
-            // if (condition.verbe.endsWith('e')) {
-            //   objetsTrouves.forEach(obj => {
-            //     if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
-            //       retVal = true;
-            //     }
-            //   });
-            //   // pluriel
-            // } else {
-            //   objetsTrouves.forEach(obj => {
-            //     if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
-            //       retVal = true;
-            //     }
-            //   });
-            // }
+              // // singulier
+              // if (condition.verbe.endsWith('e')) {
+              //   objetsTrouves.forEach(obj => {
+              //     if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
+              //       retVal = true;
+              //     }
+              //   });
+              //   // pluriel
+              // } else {
+              //   objetsTrouves.forEach(obj => {
+              //     if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
+              //       retVal = true;
+              //     }
+              //   });
+              // }
 
-            break;
+              break;
 
-          case 'réagit':
-          case 'réagissent':
-            if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
-              retVal = true;
-            } else {
-              retVal = false;
-            }
-            if (condition.negation) {
-              retVal = !retVal;
-            }
-            break;
+            case 'réagit':
+            case 'réagissent':
+              if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
+                retVal = true;
+              } else {
+                retVal = false;
+              }
+              break;
 
-          default:
-            console.error("siEstVrai: verbe pas connu::", condition.verbe);
-            break;
+            default:
+              console.error("siEstVrai: verbe pas connu::", condition.verbe);
+              break;
+          }
+        } else {
+          console.error("siEstVrai: Condition sans sujet pas gérée:", condition);
         }
-
-        // pas de sujet
-      } else {
-        console.error("Condition sans sujet pas gérée:", condition);
-
       }
-
     } else {
       console.error("siEstVrai: condition pas comprise:", condition);
     }
 
     console.log("siEstVrai: ", condition, retVal);
+
+    // prise en compte de la négation
+    if (condition.negation) {
+      retVal = !retVal;
+    }
 
     return retVal;
   }

@@ -66,12 +66,28 @@ export class Compilateur {
     // *************************
     // SÉPARER LES CONSÉQUENCES
     // *************************
+    // - DES RÈGLES
     regles.forEach(regle => {
       if (regle.consequencesBrutes) {
         regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, false);
       }
       if (Compilateur.verbeux) {
         console.log(">>> regle:", regle);
+      }
+    });
+    // - DES RÉACTIONS
+    monde.objets.forEach(objet => {
+      if (objet.reactions && objet.reactions.length > 0) {
+        objet.reactions.forEach(reaction => {
+          // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
+          if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutCommentaire)) {
+            reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
+          }
+          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, false);
+        });
+        if (Compilateur.verbeux) {
+          console.log(">>> objet avec réactions :", objet);
+        }
       }
     });
 
@@ -146,7 +162,10 @@ export class Compilateur {
             const finie = ((k < (phrasesBrutes.length - 1)) || (trimBloc.lastIndexOf(".") === (trimBloc.length - 1)));
 
             // enlever le "." et remplacer les retours à la ligne par des espaces
-            const phraseNettoyee = phraseBrute.replace('.', '').replace(ExprReg.xCaractereRetourLigne, " ").trim();
+            const phraseNettoyee = phraseBrute
+              .replace('.', '')
+              .replace(ExprReg.xCaractereRetourLigne, " ")
+              .trim();
 
             // nouvelle phrase
             if (!phrasePrecedente || phrasePrecedente.finie) {
@@ -168,12 +187,17 @@ export class Compilateur {
         } else {
           // compte le nombre de lignes pour ne pas se décaller !
           const nbLignes = (bloc.match(ExprReg.xCaractereRetourLigne) || []).length;
-          // remplacer les caractereRetourLigne par des espaces
-          const phraseNettoyee = bloc.replace(ExprReg.xCaractereRetourLigne, ' ').trim();
+
+          // // remplacer les caractereRetourLigne par des espaces
+          // let phraseNettoyee = bloc.replace(ExprReg.xCaractereRetourLigne, ' ').trim();
+
+          // pour éviter que les , et ; des commentaires soient interprétés, on les remplace par des caractères différents
+          let commentaireNettoye = bloc.replace(/\,/g, ExprReg.caractereVirgule).trim();
+          commentaireNettoye = commentaireNettoye.replace(/\;/g, ExprReg.caracterePointVirgule).trim();
 
           // le commentaire concerne toujours la phrase précédente (s'il y en a une)
           if (phrasePrecedente) {
-            phrasePrecedente.phrase.push(ExprReg.caractereDebutCommentaire + bloc + ExprReg.caractereFinCommentaire);
+            phrasePrecedente.phrase.push(ExprReg.caractereDebutCommentaire + commentaireNettoye + ExprReg.caractereFinCommentaire);
             // sinon, le commentaire est seul (c'est le titre)
           } else {
             phrases.push(new Phrase([bloc], true, false, null, indexPhrase++, numeroLigne, true));
@@ -196,7 +220,7 @@ export class Compilateur {
   private static trouverClasse(classes: Classe[], nom: string): Classe {
     const recherche = StringUtils.normaliserMot(nom);
 
-    console.log("TROUVER CLASSE: recherche=", recherche, "classes=", classes);
+    // console.log("TROUVER CLASSE: recherche=", recherche, "classes=", classes);
 
 
     let retVal = classes.find(x => x.nom === recherche);

@@ -39,7 +39,7 @@ export class Generateur {
 
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
       const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
-      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement);
+      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement, true);
       if (lieuID !== -1) {
         jeu.joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
       }
@@ -130,7 +130,6 @@ export class Generateur {
       Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexPorte + index));
     }
 
-
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
     let premierIndexObjet = (indexElementJeu + 1);
@@ -143,6 +142,7 @@ export class Generateur {
       newObjet.examen = curEle.examen;
       newObjet.etats = curEle.attributs;
       newObjet.capacites = curEle.capacites;
+      newObjet.reactions = curEle.reactions;
 
       // Déterminer le SINGULIER à partir du pluriel.
       if (curEle.nombre === Nombre.p) {
@@ -192,7 +192,7 @@ export class Generateur {
       // POSITION de l’élément
       if (curEle.positionString) {
         // const localisation = Generateur.getLocalisation(curEle.positionString.position);
-        const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement);
+        const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
         // lieu trouvé
         if (lieuID !== -1) {
           newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
@@ -258,7 +258,7 @@ export class Generateur {
 
     if (elVoisin.positionString) {
       const localisation = Generateur.getLocalisation(elVoisin.positionString.position);
-      const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement);
+      const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement, true);
 
       if (localisation === Localisation.inconnu || lieuTrouveID === -1) {
         console.log("positionString pas trouvé:", elVoisin.positionString);
@@ -294,7 +294,7 @@ export class Generateur {
    * @param intituleLieu
    * @returns ID du lieu ou -1 si pas trouvée.
    */
-  static getLieuID(lieux: Lieu[], intituleLieu: string) {
+  static getLieuID(lieux: Lieu[], intituleLieu: string, erreurSiPasTrouve: boolean) {
 
     let candidats: Lieu[] = [];
     let retVal = -1;
@@ -319,12 +319,11 @@ export class Generateur {
       });
       if (nbFound === 1) {
         retVal = candidats[0].id;
-      } else {
-        console.log("complément position pas trouvé :", intituleLieu);
+      } else if (erreurSiPasTrouve) {
+        console.log("complément position pas trouvé : intituleLieu=", intituleLieu, "lieux=", lieux);
       }
-    } else {
+    } else if (erreurSiPasTrouve) {
       console.log("complément position pas trouvé (plusieurs candidats) :", intituleLieu);
-
     }
 
     return retVal;

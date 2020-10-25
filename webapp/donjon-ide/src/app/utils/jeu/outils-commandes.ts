@@ -144,7 +144,7 @@ export class OutilsCommandes {
 
   afficherCurLieu() {
     if (this.eju.curLieu) {
-      return "(_(*" + this.eju.curLieu.titre + "*)_)\n"
+      return "{_{*" + this.eju.curLieu.titre + "*}_}\n"
         + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null) + "\n\n") : "")
         + this.afficherSorties();
     } else {

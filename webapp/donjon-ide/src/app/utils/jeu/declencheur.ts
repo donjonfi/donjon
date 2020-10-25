@@ -39,7 +39,7 @@ export class Declencheur {
     let instructions = new Array<Instruction>();
     auditeurs.forEach(aud => {
       // console.log(">>> check", aud);
-      if (aud.evenement.infinitif == evenement.infinitif) {
+      if (aud.evenement.infinitif === evenement.infinitif) {
         if (((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci))
           && ((!aud.evenement.cela && !evenement.cela) || (aud.evenement.cela === evenement.cela))
         ) {
@@ -47,11 +47,7 @@ export class Declencheur {
             instructions.push(ins);
           });
           if (this.verbeux) {
-            console.log(">>> infinitif et ceci trouvés: ", aud.evenement.infinitif, aud.evenement.ceci);
-          }
-        } else {
-          if (this.verbeux) {
-            console.log(">>> infinitif seul trouvé: ", aud.evenement.infinitif);
+            console.log(">> déclanchement pour : ", aud.evenement.infinitif, (aud.evenement.ceci ? aud.evenement.ceci : '-'), (aud.evenement.cela ? aud.evenement.cela : '-'));
           }
         }
       }

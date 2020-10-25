@@ -18,6 +18,7 @@ import { Phrase } from 'src/app/models/compilateur/phrase';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionSujetString } from 'src/app/models/compilateur/position-sujet';
 import { Propriete } from 'src/app/models/compilateur/propriete';
+import { Reaction } from 'src/app/models/compilateur/reaction';
 import { Regle } from 'src/app/models/compilateur/regle';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from 'src/app/models/compilateur/type-regle';
@@ -30,6 +31,7 @@ export class Analyseur {
   public static analyserPhrases(phrases: Phrase[], monde: Monde, elementsGeneriques: ElementGenerique[], regles: Regle[], actions: Action[], typesUtilisateur: Map<string, Definition>, erreurs: string[], verbeux: boolean) {
 
     let dernierePropriete: Propriete = null;
+    let derniereReaction: Reaction = null;
     let dernierElementGenerique: ElementGenerique = null;
     let result: RegExpExecArray;
 
@@ -65,6 +67,7 @@ export class Analyseur {
           let regleTrouvee: Regle = null;
           let actionTrouvee: Action = null;
           let proprieteTrouvee = false;
+          let reactionTrouvee = false;
           // ===============================================
           // RÈGLES
           // ===============================================
@@ -149,31 +152,82 @@ export class Analyseur {
                     } else {
                       result = ExprReg.xAttribut.exec(phrase.phrase[0]);
                       if (result) {
-                        proprieteTrouvee = true;
                         // cas 1 (son/sa xxx est)
                         if (result[1]) {
-                          dernierePropriete = new Propriete(result[1], (result[4] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[5]);
-                          // ajouter la propriété au dernier élément
-                          dernierElementGenerique.proprietes.push(dernierePropriete);
-
-                          if (verbeux) {
-                            console.log("=> trouvé xAttribut(A):", dernierElementGenerique);
+                          // réaction
+                          if (result[1] === ("réaction")) {
+                            reactionTrouvee = true;
+                            elementGeneriqueTrouve = false;
+                            const nomSujet = result[5];
+                            const epitheteSujet = null;
+                            const sujet = nomSujet ? new GroupeNominal("", nomSujet, epitheteSujet) : null;
+                            let instructionsBrutes = result[7];
+                            // si phrase morcelée, rassembler les morceaux (réaction complète)
+                            if (phrase.phrase.length > 1) {
+                              for (let index = 1; index < phrase.phrase.length; index++) {
+                                instructionsBrutes += phrase.phrase[index];
+                              }
+                            }
+                            instructionsBrutes = instructionsBrutes.trim();
+                            derniereReaction = new Reaction(sujet, instructionsBrutes, null);
+                            // retrouver l’objet qui réagit et lui ajouter la réaction
+                            dernierElementGenerique.reactions.push(derniereReaction);
+                            if (verbeux) {
+                              console.log("=> trouvé xAttribut réaction (A):", dernierElementGenerique);
+                            }
+                            // propriété classique
+                          } else {
+                            proprieteTrouvee = true;
+                            dernierePropriete = new Propriete(result[1], (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
+                            // ajouter la propriété au dernier élément
+                            dernierElementGenerique.proprietes.push(dernierePropriete);
+                            if (verbeux) {
+                              console.log("=> trouvé xAttribut(A):", dernierElementGenerique);
+                            }
                           }
                           // cas 2 (la xxx de yyy est)
                         } else {
                           const complement = result[3];
-                          dernierePropriete = new Propriete(result[2], (result[4] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[5]);
 
-                          // récupérer l’élément concerné
-                          // TODO: Check que c'est le bon qui est rouvé !!!
-                          let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
-                          if (foundElementGenerique) {
-                            foundElementGenerique.proprietes.push(dernierePropriete);
-                            if (verbeux) {
-                              console.log("=> trouvé xAttribut(B):", foundElementGenerique);
+                          if (result[2] === 'réaction') {
+                            reactionTrouvee = true;
+                            elementGeneriqueTrouve = false;
+                            const nomSujet = result[5];
+                            const epitheteSujet = null;
+                            const sujet = nomSujet ? new GroupeNominal("", nomSujet, epitheteSujet) : null;
+                            let instructionsBrutes = result[7];
+                            // si phrase morcelée, rassembler les morceaux (réaction complète)
+                            if (phrase.phrase.length > 1) {
+                              for (let index = 1; index < phrase.phrase.length; index++) {
+                                instructionsBrutes += phrase.phrase[index];
+                              }
+                            }
+                            instructionsBrutes = instructionsBrutes.trim();
+                            derniereReaction = new Reaction(sujet, instructionsBrutes, null);
+                            // retrouver l’objet qui réagit et lui ajouter la réaction
+                            let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
+                            if (foundElementGenerique) {
+                              foundElementGenerique.reactions.push(derniereReaction);
+                              if (verbeux) {
+                                console.log("=> trouvé xAttribut réaction (B):", foundElementGenerique);
+                              }
+                            } else {
+                              console.warn("xAttribut: Pas trouvé le complément:", complement);
                             }
                           } else {
-                            console.warn("xAttribut: Pas trouvé le complément:", complement);
+                            proprieteTrouvee = true;
+                            dernierePropriete = new Propriete(result[2], (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
+                            // récupérer l’élément concerné
+                            // TODO: Check que c'est le bon qui est rouvé !!!
+                            let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
+                            if (foundElementGenerique) {
+                              foundElementGenerique.proprietes.push(dernierePropriete);
+                              if (verbeux) {
+                                console.log("=> trouvé xAttribut(B):", foundElementGenerique);
+                              }
+                            } else {
+                              console.warn("xAttribut: Pas trouvé le complément:", complement);
+                            }
                           }
                         }
 
@@ -207,10 +261,13 @@ export class Analyseur {
           // ===============================================
           // IMPORT D’UN AUTRE FICHIER DE CODE
           // ===============================================
-          if (!regleTrouvee && !actionTrouvee && !elementGeneriqueTrouve) {
+          if (!regleTrouvee && !actionTrouvee && !elementGeneriqueTrouve && !reactionTrouvee) {
 
           } // fin test import
 
+          // ===============================================
+          // FINALISATION
+          // ===============================================
           // si on a trouvé est un élément générique
           if (elementGeneriqueTrouve) {
             // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
@@ -222,15 +279,30 @@ export class Analyseur {
                 dernierePropriete.valeur = phrase.phrase[1]
                   .replace(ExprReg.xCaractereDebutCommentaire, '')
                   .replace(ExprReg.xCaractereFinCommentaire, '')
-                  .replace(ExprReg.xCaractereRetourLigne, '\n');
+                  .replace(ExprReg.xCaractereRetourLigne, '\n')
+                  .replace(ExprReg.xCaracterePointVirgule, ';')
+                  .replace(ExprReg.xCaractereVirgule, ',');
+
+
+                // si dernier élémént trouvé est une réaction, il s’agit de
+                // la vealeur de cette réaction (dire).
+              } else if (reactionTrouvee) {
+
 
                 // sinon c’est la description du dernier élément
               } else {
                 // ajouter la description en enlevant les caractères spéciaux
                 dernierElementGenerique.description = phrase.phrase[1]
                   .replace(ExprReg.xCaracteresCommentaire, '')
-                  .replace(ExprReg.xCaractereRetourLigne, '\n');
+                  .replace(ExprReg.xCaractereRetourLigne, '\n')
+                  .replace(ExprReg.xCaracterePointVirgule, ';')
+                  .replace(ExprReg.xCaractereVirgule, ',');
               }
+            }
+            // si on a trouvé une réaction (réponse à une conversation)
+          } else if (reactionTrouvee) {
+            if (verbeux) {
+              console.log("=> trouvé Réaction:", reactionTrouvee);
             }
             // si on a trouvé une règle
           } else if (regleTrouvee) {
@@ -559,6 +631,7 @@ export class Analyseur {
         complement = complement.trim();
         // retrouver l'action correspondante
         let action = actions.find(x => x.infinitif === verbe && x.ceci == ceci && x.cela == cela);
+        // déterminer les instructions pour 'refuser', 'exécuter' ou 'terminer'
         if (action) {
           switch (motCle) {
             case 'refuser':
@@ -877,7 +950,11 @@ export class Analyseur {
       // cas A: INSTRUCTION SIMPLE
       if (els) {
         if (els.complement) {
-          els.complement = els.complement.replace(ExprReg.xCaractereRetourLigne, ' ');
+          els.complement = els.complement
+            .replace(ExprReg.xCaractereRetourLigne, ' ')
+            // remettre les , et les ; initiaux dans les commentaires
+            .replace(ExprReg.xCaracterePointVirgule, ';')
+            .replace(ExprReg.xCaractereVirgule, ',');
         }
         instructions.push(new Instruction(els));
         // cas B: INSTRUCTION CONDITIONNELLE

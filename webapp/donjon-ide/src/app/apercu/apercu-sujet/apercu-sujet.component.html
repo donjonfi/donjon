@@ -1,1 +1,1 @@
-{{titre}}: {{sujet.determinant ? ("["+sujet.determinant.trim()+ "] ") : ""}}{{sujet.nom}}
+<span *ngIf="titre">{{titre}} : </span>{{sujet.determinant ? ("["+sujet.determinant.trim()+ "] ") : ""}}{{sujet.nom}}

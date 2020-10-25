@@ -10,8 +10,8 @@ import { GroupeNominal } from 'src/app/models/commun/groupe-nominal';
 export class ApercuSujetComponent implements OnInit {
 
   @Input() sujet: GroupeNominal;
-  @Input() titre: string = 'Sujet';
-  
+  @Input() titre = 'Sujet';
+
   constructor() { }
 
   ngOnInit(): void {

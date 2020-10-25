@@ -91,7 +91,7 @@ export class PhraseUtils {
   /**
    * Le(1) joueur(2) [ne] se trouve(3) [pas|plus]\(4) dans la piscine(5).
    */
-  static readonly xPhraseSimpleDeterminant = /^(le |la |les |l'|du |de la|des |un |une )(\S+) (?:ne |n(?:'|’))?((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
+  static readonly xPhraseSimpleDeterminant = /^(le |la |les |l(?:'|’)|du |de la|des |un |une )(\S+) (?:ne |n(?:'|’))?((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
 
   /**
    * - Manger tomate(2).
@@ -123,7 +123,12 @@ export class PhraseUtils {
         els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
         els.preposition = resCompl[1] ? resCompl[1] : null;
       }
-
+      //   // condition  « sauvé "xxxxxxx x xxxx" ».
+      // } else if (condition.startsWith('sauvé "')) {
+      //   const sujet = null;
+      //   const verbe = "sauvé";
+      //   const compl = condition.replace('sauvé ', '');
+      //   els = new ElementsPhrase(null, null, verbe, null, compl);
     } else {
       const resConditionAucunPour = PhraseUtils.xConditionAucunPour.exec(condition);
       if (resConditionAucunPour) {
@@ -241,35 +246,39 @@ export class PhraseUtils {
 
     if (resInfinitifCompl) {
       els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
-      // décomposer ce qui suit l'infinitif si possible
-      const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
 
-      if (resSuite) {
-        els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
-        els.verbe = resSuite[3];
-        els.negation = resSuite[4];
-        els.complement = resSuite[5] ? resSuite[5].trim() : null;
-        // décomposer le nouveau complément si possible
-        const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
-
-        if (resCompl) {
-          els.complement = null;
-          els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-          els.preposition = resCompl[1] ? resCompl[1] : null;
-        }
-      } else {
-
-        // ne pas décomposer um complément qui commence par « " ».
-        if (!els.complement.trim().startsWith('"')) {
-          const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
-
-          if (res1ou2elements) {
-            els.verbe = null;
-            els.negation = null;
-            els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
-            els.complement = null;
-            els.preposition = res1ou2elements[4];
-            els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+      // s’il y a un complément qui suit l’infinitif, essayer de le décomposer
+      if (els.complement) {
+        els.complement = els.complement.trim();
+        // Ne PAS essayer de décomposer le complément s’il commence par « " » ou s’il s’agit de l’instruction exécuter.)
+        if (!els.complement.startsWith('"') && els.infinitif !== 'exécuter') {
+          // tester si le complément est une phrase simple
+          // ex: le joueur ne se trouve plus dans la piscine.
+          const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
+          if (resSuite) {
+            els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
+            els.verbe = resSuite[3];
+            els.negation = resSuite[4];
+            els.complement = resSuite[5] ? resSuite[5].trim() : null;
+            // décomposer le nouveau complément si possible
+            const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
+            if (resCompl) {
+              els.complement = null;
+              els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+              els.preposition = resCompl[1] ? resCompl[1] : null;
+            }
+            // tester si le complément est une instruction à 1 ou 2 compléments
+            // ex: déplacer le trésor vers le joueur.
+          } else {
+            const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
+            if (res1ou2elements) {
+              els.verbe = null;
+              els.negation = null;
+              els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
+              els.complement = null;
+              els.preposition = res1ou2elements[4];
+              els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+            }
           }
         }
       }

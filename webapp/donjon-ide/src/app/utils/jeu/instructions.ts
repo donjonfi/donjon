@@ -12,6 +12,7 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Jeu } from '../../models/jeu/jeu';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { Reaction } from 'src/app/models/compilateur/reaction';
 import { Resultat } from '../../models/jouer/resultat';
 
 export class Instructions {
@@ -48,13 +49,16 @@ export class Instructions {
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction);
     }
+    // incrémenter le nombre de fois que l’instruction a déjà été exécutée
+    instruction.nbExecutions += 1;
+
     // instruction conditionnelle
     if (instruction.condition) {
 
       const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
-        
+
       }
       if (estVrai) {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
@@ -66,7 +70,7 @@ export class Instructions {
     } else {
       if (instruction.instruction.infinitif) {
         //if (instruction.sujet == null && instruction.verbe) {
-        sousResultat = this.executerInfinitif(instruction.instruction, ceci, cela);
+        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela);
         // } else if (instruction.sujet) {
         // this.executerSujetVerbe(instruction);
       } else {
@@ -80,7 +84,10 @@ export class Instructions {
     return resultat;
   }
 
-  private interpreterContenuDire(contenu: string, ceci: ElementJeu = null, cela: ElementJeu = null) {
+  private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu = null, cela: ElementJeu = null) {
+
+
+    // console.log("interpreterContenuDire >>> contenu=", contenu, " nbExecutions=", nbExecutions, "ceci=", ceci, "cela=", cela);
 
     // description
     if (contenu.includes("[description")) {
@@ -161,25 +168,25 @@ export class Instructions {
 
     // interpréter les balises encore présentes
     if (contenu.includes("[")) {
-      contenu = this.calculerDescription(contenu, 0, ceci, cela);
+      contenu = this.calculerDescription(contenu, nbExecutions, ceci, cela);
     }
 
     return contenu;
 
   }
 
-  private executerInfinitif(instruction: ElementsPhrase, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
-    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, ")");
+    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
 
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         const complement = instruction.complement.trim();
         let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.interpreterContenuDire(contenu, ceci, cela);
+        contenu = this.interpreterContenuDire(contenu, nbExecutions, ceci, cela);
         resultat.sortie += contenu;
         // si la chaine se termine par un espace, ajouter un saut de ligne.
         if (complement.endsWith(' "')) {
@@ -207,6 +214,19 @@ export class Instructions {
           this.jeu.sauvegardes.push(instruction.complement);
           resultat.succes = true;
         } else {
+          resultat.succes = false;
+        }
+        break;
+
+      case 'exécuter':
+        console.log("executerInfinitif >> exécuter=", instruction);
+        if (instruction.complement && instruction.complement.startsWith('réaction ')) {
+          console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
+          sousResultat = this.executerReaction(instruction, ceci, cela);
+          resultat.sortie = sousResultat.sortie;
+          resultat.succes = sousResultat.succes;
+        } else {
+          console.error("executerInfinitif >> complément autre que  « réaction de … » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;
@@ -418,6 +438,10 @@ export class Instructions {
           resultat = this.executerJoueur(instruction, ceci, cela);
           break;
 
+        case 'historique':
+          resultat = this.executerHistorique(instruction);
+          break;
+
         // case 'inventaire':
         //   resultat = this.executerInventaire(instruction);
         //   break;
@@ -455,6 +479,106 @@ export class Instructions {
     return resultat;
   }
 
+  private executerReaction(instruction: ElementsPhrase, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+
+    let resultat = new Resultat(false, '', 1);
+
+    if (instruction.complement) {
+      switch (instruction.complement.toLocaleLowerCase()) {
+        case 'réaction de ceci':
+          resultat = this.suiteExecuterReaction(ceci, null);
+          break;
+        case 'réaction de cela':
+          resultat = this.suiteExecuterReaction(cela, null);
+          break;
+        case 'réaction de ceci concernant cela':
+        case 'réaction de ceci à cela':
+          resultat = this.suiteExecuterReaction(ceci, cela);
+          break;
+        case 'réaction de cela concernant ceci':
+        case 'réaction de cela à ceci':
+          resultat = this.suiteExecuterReaction(cela, ceci);
+          break;
+
+        default:
+          console.error("executerReaction : sujet autre que « réaction de ceci », « réaction de cela », « réaction de ceci à cela » pas pris en charge, instruction:", instruction);
+      }
+    } else {
+      console.error("executerReaction : pas de sujet, instruction:", instruction);
+    }
+
+    return resultat;
+  }
+
+  /**
+   * 
+   */
+  private suiteExecuterReaction(personne: ElementJeu, sujet: ElementJeu) {
+
+    let resultat = new Resultat(false, '', 1);
+    let reaction: Reaction = null;
+
+    // vérifier que la personne est bien un objet
+    if (!personne) {
+      console.error("suiteExecuterReaction: la personne est null");
+    }
+    if (!Classe.heriteDe(personne.classe, EClasseRacine.personne)) {
+      if (!Classe.heriteDe(personne.classe, EClasseRacine.objet)) {
+        console.error("suiteExecuterReaction: la personne qui doit réagir n’est ni une personne, ni un objet:", personne);
+      } else {
+        console.warn("suiteExecuterReaction: la personne qui doit réagir n’est pas une personne:", personne);
+      }
+    }
+
+    // réaction à un sujet
+    if (sujet) {
+      console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
+      reaction = (personne as Objet).reactions.find(x => x.sujet && x.sujet.nom === sujet.intitule.nom && x.sujet.epithete == sujet.intitule.epithete);
+    }
+    // si pas de réaction à un sujet, prendre réaction par défaut (sujet null)
+    if (!reaction) {
+      console.log("suiteExecuterReaction: sujet par défaut");
+      reaction = (personne as Objet).reactions.find(x => x.sujet == null);
+    }
+    // on a trouvé une réaction
+    if (reaction) {
+      // TODO: faut-il fournir ceci et cela ?
+      resultat = this.executerInstructions(reaction.instructions, null, null);
+      // on n’a pas trouvé de réaction
+    } else {
+      // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.
+      console.error("suiteExecuterReaction : cette personne n’a pas de réaction par défaut:", personne);
+    }
+
+    return resultat;
+  }
+
+  private executerHistorique(instruction: ElementsPhrase) {
+    let resultat = new Resultat(false, '', 1);
+    if (instruction.verbe.toLocaleLowerCase() === 'contient') {
+      let valeur = instruction.complement.trim();
+      // trouver valeur dans l’historique
+      let foundIndex = this.jeu.sauvegardes.indexOf(valeur);
+
+      // SUPPRIMER la valeur de l’historique
+      if (instruction.negation) {
+        // supprimer seulement si présente
+        if (foundIndex !== -1) {
+          this.jeu.sauvegardes.splice(foundIndex, 1);
+          resultat.succes = true;
+        }
+        // AJOUTER une valeur à l’historique
+      } else {
+        // ajouter seulement si pas encore présente
+        if (foundIndex === -1) {
+          this.jeu.sauvegardes.push(valeur);
+          resultat.succes = true;
+        }
+      }
+    }
+    return resultat;
+  }
+
   private executerJoueur(instruction: ElementsPhrase, ceci: ElementJeu, cela: ElementJeu): Resultat {
     let resultat = new Resultat(false, '', 1);
 
@@ -463,7 +587,7 @@ export class Instructions {
         resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement);
         break;
       case 'possède':
-        console.error("POSSÈDE : ", instruction);
+        // console.error("POSSÈDE : ", instruction);
         if (instruction.sujetComplement) {
           resultat = this.executerDeplacer(instruction.sujetComplement, "vers", instruction.sujet);
         } else if (instruction.complement) {

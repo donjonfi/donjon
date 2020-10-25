@@ -9,7 +9,10 @@ export class Instruction {
     public condition: Condition = null,
     public instructionsSiConditionVerifiee: Instruction[] = null,
     public instructionsSiConditionPasVerifiee: Instruction[] = null,
+
   ) { }
 
+  /** Nombre de fois que cette instruction a déjà été exécutée. */
+  public nbExecutions = 0;
 
 }

@@ -1,0 +1,36 @@
+<div>
+  <!--  <div class="row">
+    <div class="col-auto pr-1">
+      <button class="btn btn-sm my-1 py-0 text-monospace"
+        [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}" (click)="replie = !replie">
+        {{(replie ? 'montrer' : 'masquer' )}}
+      </button>
+    </div>
+
+    <div class="col">
+      -->
+  Sujet :
+  <span class="text-primary">
+    <app-apercu-sujet *ngIf="reaction.sujet" [titre]="''" [sujet]="reaction.sujet">
+    </app-apercu-sujet>
+    <span *ngIf="!reaction.sujet" class="font-italic">par défaut</span>
+  </span>
+  <!-- </div>
+</div>-->
+
+
+  <!-- <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2"> -->
+  <ul>
+    <li>Instructions:
+      <ul>
+        <li *ngFor="let ins of reaction.instructions; index as i">
+          Instruction {{(i+1)}} :
+          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <!-- </div> -->
+
+
+</div>
