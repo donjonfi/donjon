@@ -184,7 +184,7 @@ export class Instructions {
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        const complement = instruction.complement.trim();
+        const complement = instruction.complement1.trim();
         let contenu = complement.slice(1, complement.length - 1).trim();
         contenu = this.interpreterContenuDire(contenu, nbExecutions, ceci, cela);
         resultat.sortie += contenu;
@@ -199,7 +199,7 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement, ceci as Objet, cela);
+        sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
         resultat.succes = sousResultat.succes;
         break;
 
@@ -209,9 +209,9 @@ export class Instructions {
         break;
 
       case 'sauver':
-        console.log("executerInfinitif >> sauver=", instruction.complement);
-        if (instruction.complement) {
-          this.jeu.sauvegardes.push(instruction.complement);
+        console.log("executerInfinitif >> sauver=", instruction.complement1);
+        if (instruction.complement1) {
+          this.jeu.sauvegardes.push(instruction.complement1);
           resultat.succes = true;
         } else {
           resultat.succes = false;
@@ -220,7 +220,7 @@ export class Instructions {
 
       case 'exécuter':
         console.log("executerInfinitif >> exécuter=", instruction);
-        if (instruction.complement && instruction.complement.startsWith('réaction ')) {
+        if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
           console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
           sousResultat = this.executerReaction(instruction, ceci, cela);
           resultat.sortie = sousResultat.sortie;
@@ -483,8 +483,8 @@ export class Instructions {
 
     let resultat = new Resultat(false, '', 1);
 
-    if (instruction.complement) {
-      switch (instruction.complement.toLocaleLowerCase()) {
+    if (instruction.complement1) {
+      switch (instruction.complement1.toLocaleLowerCase()) {
         case 'réaction de ceci':
           resultat = this.suiteExecuterReaction(ceci, null);
           break;
@@ -556,7 +556,7 @@ export class Instructions {
   private executerHistorique(instruction: ElementsPhrase) {
     let resultat = new Resultat(false, '', 1);
     if (instruction.verbe.toLocaleLowerCase() === 'contient') {
-      let valeur = instruction.complement.trim();
+      let valeur = instruction.complement1.trim();
       // trouver valeur dans l’historique
       let foundIndex = this.jeu.sauvegardes.indexOf(valeur);
 
@@ -584,17 +584,17 @@ export class Instructions {
 
     switch (instruction.verbe.toLowerCase()) {
       case 'se trouve':
-        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement);
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1);
         break;
       case 'possède':
         // console.error("POSSÈDE : ", instruction);
-        if (instruction.sujetComplement) {
-          resultat = this.executerDeplacer(instruction.sujetComplement, "vers", instruction.sujet);
-        } else if (instruction.complement) {
+        if (instruction.sujetComplement1) {
+          resultat = this.executerDeplacer(instruction.sujetComplement1, "vers", instruction.sujet);
+        } else if (instruction.complement1) {
           let els: Objet[] = null;
-          if (instruction.complement.endsWith('contenu de ceci')) {
+          if (instruction.complement1.endsWith('contenu de ceci')) {
             els = this.obtenirContenu(ceci);
-          } else if (instruction.complement.endsWith('contenu de cela')) {
+          } else if (instruction.complement1.endsWith('contenu de cela')) {
             els = this.obtenirContenu(cela);
           }
           if (els) {
@@ -659,12 +659,12 @@ export class Instructions {
       case 'est':
         // retirer un état
         if (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus') {
-          console.log("executerElementJeu: retirer l’état ", instruction.complement);
-          ElementsJeuUtils.retirerEtat(element, instruction.complement, null);
+          console.log("executerElementJeu: retirer l’état ", instruction.complement1);
+          ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
           // ajouter un état
         } else {
-          console.log("executerElementJeu: ajouter l’état ", instruction.complement);
-          ElementsJeuUtils.ajouterEtat(element, instruction.complement);
+          console.log("executerElementJeu: ajouter l’état ", instruction.complement1);
+          ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
         }
         break;
 

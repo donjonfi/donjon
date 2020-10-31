@@ -949,8 +949,8 @@ export class Analyseur {
       const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
       // cas A: INSTRUCTION SIMPLE
       if (els) {
-        if (els.complement) {
-          els.complement = els.complement
+        if (els.complement1) {
+          els.complement1 = els.complement1
             .replace(ExprReg.xCaractereRetourLigne, ' ')
             // remettre les , et les ; initiaux dans les commentaires
             .replace(ExprReg.xCaracterePointVirgule, ';')

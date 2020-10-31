@@ -1,0 +1,20 @@
+<ng-container *ngIf="!condition.estSinon">
+  <ul>
+    <li>
+      <app-apercu-sujet [sujet]="condition.sujet"></app-apercu-sujet>
+    </li>
+    <li>Verbe : {{condition.verbe}}</li>
+    <li *ngIf="condition.negation">Négation : {{condition.negation}}</li>
+    <li *ngIf="condition.complement">Complément : {{condition.complement}}</li>
+    <li *ngIf="condition.sujetComplement">
+      <app-apercu-sujet [sujet]="condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+    </li>
+  </ul>
+  <ng-container *ngIf="condition.lien">
+    <b>{{condition.lien.typeLien}}</b>
+    <app-apercu-condition [condition]="condition.lien"></app-apercu-condition>
+  </ng-container>
+</ng-container>
+<ul *ngIf="condition.estSinon">
+  <li>sinon</li>
+</ul>

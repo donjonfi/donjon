@@ -228,7 +228,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (els) {
 
       const ceciIntitule = els.sujet;
-      const celaIntitule = els.sujetComplement;
+      const celaIntitule = els.sujetComplement1;
       const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
       const celaNom = celaIntitule ? celaIntitule.nom : null;
       let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
@@ -420,7 +420,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         // vérifier sujet
         if ((els.sujet && action.ceci) || (!els.sujet && !action.ceci)) {
           // vérifier complément
-          if ((els.sujetComplement && action.cela) || (!els.sujetComplement && !action.cela)) {
+          if ((els.sujetComplement1 && action.cela) || (!els.sujetComplement1 && !action.cela)) {
             candidats.push(action);
           }
         }
@@ -447,7 +447,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               // plusieurs éléments trouvés => il faut être plus précis.
               console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Ceci:", ceci);
             } else {
-              if (els.complement) {
+              if (els.complement1) {
                 if (candidat.cibleCela) {
                   matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
                   if (matchCela !== null) {

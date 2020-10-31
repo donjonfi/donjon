@@ -58,7 +58,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           token: "keyword",
           regex: "quand |avant |après |si |sinon|fin si|refuser |exécuter |terminer |" +
             "au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|puis|fin choix|" +
-            "et\\b|ou\\b",
+            "et\\b|ou\\b|ni\\b|soit\\b|mais pas",
           caseInsensitive: true
         },
         {
@@ -84,7 +84,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "[a-zA-Zéèàê_$][a-zA-Z0-9éèà_$]*"
         }, {
           token: "keyword.operator",
-          regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|=|pas|et|ou"
+          regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|="
         }, {
           token: "paren.lparen",
           regex: "[\\(]"

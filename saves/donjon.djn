@@ -1,29 +1,190 @@
 "Le château de la terreur".
 
+-- action: PARLER
+-- a) parler
+le joueur peut parler:
+  dire "Je pourrais parler tout seul, c’est vrai.".
+-- b) parler à ceci
+parler à ceci est une action qui concerne un objet visible.
+
+refuser parler à ceci:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+terminer parler à ceci:
+  si ceci réagit, exécuter réaction de ceci;
+  sinon dire "(Et ils eurent une conversation peu intéressante.)".
+  
+-- c) parler à ceci de cela
+parler à ceci de cela est une action qui concerne un objet visible et un objet.
+
+refuser parler à ceci de cela:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+exécuter parler à ceci de cela:
+  si cela réagit, exécuter réaction de ceci concernant cela.
+  
+terminer parler à ceci de cela:
+  si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+
+-- action: INTERROGER
+
+-- a) interroger
+le joueur peut interroger:
+  dire "Je veux bien interroger quelqu’un mais il faut me dire qui et à quel sujet.".
+
+-- b) interroger ceci
+interroger ceci est une action qui concerne un objet visible.
+
+refuser interroger à ceci:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+  
+exécuter interroger à ceci:
+  dire "Je veux bien l’interroger mais à quel sujet ?".
+  
+-- c) interroger ceci sur cela
+interroger ceci sur cela est une action qui concerne un objet visible et un objet.
+
+refuser interroger ceci sur cela:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+exécuter interroger ceci sur cela:
+  si cela réagit, exécuter réaction de ceci concernant cela.
+
+terminer interroger ceci sur cela:
+  si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+
+-- action: REGARDER
+
+-- a) regarder
+le joueur peut regarder:
+  dire "[description ici]".
+  
+-- b) regarder ceci
+regarder ceci est une action qui concerne un objet visible.
+
+exécuter regarder ceci:
+   dire "[description ceci]";
+   si aucune description pour ceci, dire "C'est [intitulé ceci].".
+
+-- action: EXAMINER
+
+-- a) examiner
+le joueur peut examiner:
+  dire "Que dois-je examiner ?".
+
+-- b) examiner ceci
+examiner ceci est une action qui concerne un objet visible.
+
+refuser examiner ceci:
+  si ceci est une personne, dire "Pas sûr qu'il ait envie de jouer au docteur.".
+
+exécuter examiner ceci:
+  si ceci est une porte :
+    dire "[statut ceci]";
+  si ceci contient un objet :
+      dire "[examen ceci] ",
+      dire "Vous trouvez: ",
+      dire "[contenu ceci]",
+      changer le joueur possède le contenu de ceci;
+  sinon :
+      dire "[examen ceci][si aucun examen pour ceci]Vous ne trouvez rien d’intéressant.[fin si]".
+
+-- action: JETER
+
+-- a) jeter
+le joueur peut jeter:
+  dire "jeter quoi ?".
+  
+-- b) jeter ceci
+jeter ceci est une action qui concerne un objet visible.
+
+refuser jeter ceci:
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]".
+  
+exécuter jeter ceci:
+  déplacer ceci vers ici.
+  
+terminer jeter ceci:
+  dire "Vous avez jeté [intitulé ceci]".
+
+-- action: PRENDRE
+-- a) prendre
+prendre est une action.
+
+exécuter prendre:
+  dire "prendre quoi ?".
+  
+-- b) prendre ceci
+prendre ceci est une action qui concerne un objet visible.
+
+refuser prendre ceci:
+  si ceci est possédé, dire "Vous l’avez déjà.";
+  si ceci est fixé, dire "C'est fixé.";
+  si ceci est une personne, dire "Dites-donc !";
+  si ceci est un animal, dire "Ça ne me parait pas très prudent.";
+  si ceci est un décor, dire "Je préfère ne pas m’encombrer avec ça.".
+
+exécuter prendre ceci:
+  déplacer ceci vers joueur.
+  
+terminer prendre ceci:
+  dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
+
+-- action: DONNER
+
+-- a) donner
+le joueur peut donner:
+  dire "Donner quoi ?".
+ 
+-- b) donner ceci
+-- donner ceci est une action qui concerne un objet visible.
+le joueur peut donner le doublon:
+  dire "Donner le doublon à qui du coup ?".
+  
+-- c) donner ceci à cela
+donner ceci à cela est une action qui concerne un objet visible et un vivant visible.
+
+refuser donner ceci à cela:
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
+  si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.".
+
+exécuter donner ceci à cela:
+  déplacer ceci vers cela.
+
+terminer donner ceci à cela:
+  dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
+
+-- MANGER
+-- a) manger
+le joueur peut manger:
+  dire "Manger quoi ?".
+-- b) manger ceci
+manger ceci est une action qui concerne un objet visible.
+
+refuser manger ceci:
+  si ceci est le troll, dire "Grouph! Je pense que c’est plutôt lui qui a faim…";
+  si ceci est un animal, dire "Je ne mange pas les animaux crus.";
+  si ceci est une personne, dire "Drole d’idée.";
+  si ceci n’est pas un légume, dire "Je ne mange que des légumes.".
+  
+exécuter manger ceci:
+  effacer ceci.
+  
+terminer manger ceci:
+  dire "Vous avez mangé [intitulé ceci].".
+
 -- Partie 1 - Devant le château.
 
 avant commencer le jeu:
-	dire "Bienvenue dans « Le château de la terreur » !";
-	dire "Ton objectif est de repartir avec le trésor.";
+	dire "Bienvenue dans {+Le château de la terreur+} !{n}";
+	dire "Ton objectif est de repartir avec le trésor.{n}";
 	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
 	changer le joueur se trouve dans le cellier;
   changer le joueur possède la clé rouillée.
 
-Lire ceci est une action qui concerne un objet visible.
-
-Refuser lire ceci:
-  si ceci n’est pas lisible, dire "Je ne peux pas le lire.".
-
-Exécuter lire ceci:
-  changer ceci est lu.
-
-Finaliser lire ceci:
-  dire "Ok, j’ai tout lu.".
-
-Sauter est une action.
-Jeter ceci est une action qui concerne un objet possédé.
-Ouvrir ceci avec cela est une action qui concerne un objet possédé et une porte.
-Combiner ceci avec cela est une action qui concerne deux objets possédés.
+sauter est une action.
+ouvrir ceci avec cela est une action qui concerne un objet possédé et une porte.
+combiner ceci avec cela est une action qui concerne deux objets possédés.
 
 -- Chapitre 1 - Devant le portique.
 Le départ est un lieu.

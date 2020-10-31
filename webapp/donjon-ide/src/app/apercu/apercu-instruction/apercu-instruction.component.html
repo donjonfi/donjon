@@ -6,9 +6,9 @@
     </li>
     <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
     <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
-    <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
-    <li *ngIf="ins.instruction.sujetComplement">
-      <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+    <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
+    <li *ngIf="ins.instruction.sujetComplement1">
+      <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
     </li>
   </ng-container>
   <ng-container *ngIf="!ins.instruction">
@@ -19,20 +19,7 @@
 
 <ul *ngIf="ins.condition">
   <li>Condition :
-    <ul *ngIf="!ins.condition.estSinon">
-      <li>
-        <app-apercu-sujet [sujet]="ins.condition.sujet"></app-apercu-sujet>
-      </li>
-      <li>Verbe : {{ins.condition.verbe}}</li>
-      <li *ngIf="ins.condition.negation">Négation : {{ins.condition.negation}}</li>
-      <li *ngIf="ins.condition.complement">Complément : {{ins.condition.complement}}</li>
-      <li *ngIf="ins.condition.sujetComplement">
-        <app-apercu-sujet [sujet]="ins.condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-      </li>
-    </ul>
-    <ul *ngIf="ins.condition.estSinon">
-      <li>sinon</li>
-    </ul>
+    <app-apercu-condition [condition]="ins.condition"></app-apercu-condition>
   </li>
 
   <li>Instructions (si condition remplie) :
@@ -47,10 +34,10 @@
           <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
           <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
           <li *ngIf="ins.instruction.preposition">Préposition: {{ins.instruction.preposition}}</li>
-          <li *ngIf="ins.instruction.sujetComplement">
-            <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+          <li *ngIf="ins.instruction.sujetComplement1">
+            <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
           </li>
-          <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
+          <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
         </ul>
       </li>
     </ul>
@@ -68,10 +55,10 @@
           <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
           <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
           <li *ngIf="ins.instruction.preposition">Préposition: {{ins.instruction.preposition}}</li>
-          <li *ngIf="ins.instruction.sujetComplement">
-            <app-apercu-sujet [sujet]="ins.instruction.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+          <li *ngIf="ins.instruction.sujetComplement1">
+            <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
           </li>
-          <li *ngIf="ins.instruction.complement">Complément : {{ins.instruction.complement}}</li>
+          <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
         </ul>
       </li>
     </ul>

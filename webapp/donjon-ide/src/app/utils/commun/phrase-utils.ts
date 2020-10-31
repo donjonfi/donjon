@@ -59,9 +59,13 @@ export class PhraseUtils {
    */
   static readonly xCondition = /^(?:si |avant |après |apres )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
 
-  static readonly xConditionNiNi = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )(est|possède|contient)(?: (ni|soit) )(?:(.+?))(?: ni | soit )(.+?)(?:(?: ni | soit )(.+?))?$/i;
   /**
-   * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas](6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
+   * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)]
+   */
+  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|possède|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?$/i;
+
+  /**
+   * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
    * - Si le joueur ne possède pas le jouet mais bien la trompette
    * - le seau contient la mèche mais pas le briquet
    * - Si ceci est vivant mais pas une personne
@@ -122,34 +126,81 @@ export class PhraseUtils {
   private static decomposerCondition(condition: string) {
 
     let els: ElementsPhrase = null;
-    const resCondition = PhraseUtils.xCondition.exec(condition);
-    if (resCondition) {
-      const sujet = resCondition[3] ? (new GroupeNominal(resCondition[2], resCondition[3], resCondition[4] ? resCondition[4] : null)) : (resCondition[1] ? new GroupeNominal(null, resCondition[1], null) : null);
-      const verbe = resCondition[5];
-      const negation = resCondition[6];
-      const compl = resCondition[7];
-      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
 
-      // décomposer le complément si possible
-      const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
-      if (resCompl) {
-        els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-        els.preposition = resCompl[1] ? resCompl[1] : null;
+    let resCond: RegExpExecArray = null;
+    let resCondNiSoit: RegExpExecArray = null;
+    let resCondMaisPasEtOu: RegExpExecArray = null;
+    let resCondSimple: RegExpExecArray = null;
+    let resConditionAucunPour: RegExpExecArray = null;
+
+    // A. tester la formulation  [ni ni | soit soit]
+    resCondNiSoit = PhraseUtils.xConditionNiSoit.exec(condition);
+    resCond = resCondNiSoit;
+
+    if (resCondNiSoit) {
+      console.log("resCondNiSoit=", resCondNiSoit);
+      
+    }
+
+    if (!resCondNiSoit) {
+      // B. tester la formulation [mais pas | mais bien | et | ou]
+      resCondMaisPasEtOu = PhraseUtils.xConditionMaisPasEtOu.exec(condition);
+      resCond = resCondMaisPasEtOu;
+      if (!resCondMaisPasEtOu) {
+        // C. tester la formulation simple
+        resCondSimple = PhraseUtils.xCondition.exec(condition);
+        resCond = resCondSimple;
+        if (!resCondSimple) {
+          // D. tester la formulation [aucun pour]
+          resConditionAucunPour = PhraseUtils.xConditionAucunPour.exec(condition);
+        }
       }
-      //   // condition  « sauvé "xxxxxxx x xxxx" ».
-      // } else if (condition.startsWith('sauvé "')) {
-      //   const sujet = null;
-      //   const verbe = "sauvé";
-      //   const compl = condition.replace('sauvé ', '');
-      //   els = new ElementsPhrase(null, null, verbe, null, compl);
-    } else {
-      const resConditionAucunPour = PhraseUtils.xConditionAucunPour.exec(condition);
-      if (resConditionAucunPour) {
-        const sujet = resConditionAucunPour[5] ? (new GroupeNominal(resConditionAucunPour[4], resConditionAucunPour[5], resConditionAucunPour[6] ? resConditionAucunPour[6] : null)) : (resConditionAucunPour[3] ? new GroupeNominal(null, resConditionAucunPour[3], null) : null);
-        const verbe = "aucun"; // "aucun"
-        const compl = resConditionAucunPour[2]; // description, examen, ...
-        els = new ElementsPhrase(null, sujet, verbe, null, compl);
+    }
+
+    // si une des formulations autre que AucunPour
+    if (resCond) {
+      const sujet = resCond[3] ? (new GroupeNominal(resCond[2], resCond[3], resCond[4] ? resCond[4] : null)) : (resCond[1] ? new GroupeNominal(null, resCond[1], null) : null);
+      const verbe = resCond[5];
+      const negation = resCond[6];
+      const compl1 = resCond[7];
+      // éventuellement un 2e complément
+      const compl2 = (resCondMaisPasEtOu || resCondNiSoit) ? resCond[9] : null;
+      // éventuellement un 3e complément
+      const compl3 = resCondNiSoit ? resCond[10] : null;
+
+      els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
+      els.complement2 = compl2;
+      els.complement3 = compl3;
+      els.conjonction = (resCondMaisPasEtOu || resCondNiSoit) ? resCond[8] : null;
+
+      // décomposer les compléments si possible
+      // complément1
+      if (els.complement1) {
+        const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
+        if (resCompl) {
+          els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+          els.preposition = resCompl[1] ? resCompl[1] : null;
+        }
+        // complément2
+        if (els.complement2) {
+          const resCompl2 = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement2);
+          if (resCompl2) {
+            els.sujetComplement2 = new GroupeNominal(resCompl2[2], resCompl2[3], (resCompl2[4] ? resCompl2[4] : null));
+          }
+          // complément3
+          if (els.complement3) {
+            const resCompl3 = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement3);
+            if (resCompl3) {
+              els.sujetComplement3 = new GroupeNominal(resCompl3[2], resCompl3[3], (resCompl3[4] ? resCompl3[4] : null));
+            }
+          }
+        }
       }
+    } else if (resConditionAucunPour) {
+      const sujet = resConditionAucunPour[5] ? (new GroupeNominal(resConditionAucunPour[4], resConditionAucunPour[5], resConditionAucunPour[6] ? resConditionAucunPour[6] : null)) : (resConditionAucunPour[3] ? new GroupeNominal(null, resConditionAucunPour[3], null) : null);
+      const verbe = "aucun"; // "aucun"
+      const compl = resConditionAucunPour[2]; // description, examen, ...
+      els = new ElementsPhrase(null, sujet, verbe, null, compl);
     }
 
     return els;
@@ -166,7 +217,37 @@ export class PhraseUtils {
     // TODO: priorité des oppérateurs
     const els = PhraseUtils.decomposerCondition(condition);
     if (els) {
-      return new Condition(false, LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement, els.sujetComplement);
+      let retVal = new Condition(false, LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement1, els.sujetComplement1);
+
+      // s’il s’agit d’une condition composée (ni ni, mais pas, et, ou, …)
+      if (els.conjonction) {
+        // ajouter la (les) condition(s) supplémentaire(s)
+        switch (els.conjonction) {
+          case 'et':
+          case 'ni':
+            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            break;
+          case 'ou':
+            retVal.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            break;
+          case 'soit':
+            retVal.negation = ""; // correction: soit n’est pas une négation
+            retVal.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            break;
+          case 'mais pas':
+            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
+            break;
+          case 'mais bien':
+            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, null, els.complement2, els.sujetComplement2);
+            break;
+
+          default:
+            console.error("getCondition >> conjonction non supportée:", els.conjonction, els);
+            break;
+        }
+      }
+      return retVal;
+
     } else {
       console.warn("decomposerCondition: pas pu décomposer:", condition);
       return null;
@@ -191,7 +272,7 @@ export class PhraseUtils {
     // si on a trouvé une formulation correcte
     if (els) {
       return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null,
-        els.preposition, (els.sujetComplement ? els.sujetComplement.nom : null));
+        els.preposition, (els.sujetComplement1 ? els.sujetComplement1.nom : null));
     } else {
       console.warn("getEvenement >> decomposerCommande: pas pu décomposer:", evenement);
       return null;
@@ -234,7 +315,7 @@ export class PhraseUtils {
         }
         els = new ElementsPhrase(res[1], personne, null, null, (sujetDialogue ? sujetDialogue.nom : null));
         els.preposition = preposition;
-        els.sujetComplement = sujetDialogue;
+        els.sujetComplement1 = sujetDialogue;
         // commande NORMALE (infinitif)
       } else {
         res = PhraseUtils.xCommandeInfinitif.exec(commande);
@@ -242,7 +323,7 @@ export class PhraseUtils {
           const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
           els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
           els.preposition = res[6] ? res[6] : null;
-          els.sujetComplement = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
+          els.sujetComplement1 = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
         }
       }
     }
@@ -261,36 +342,36 @@ export class PhraseUtils {
       els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
 
       // s’il y a un complément qui suit l’infinitif, essayer de le décomposer
-      if (els.complement) {
-        els.complement = els.complement.trim();
+      if (els.complement1) {
+        els.complement1 = els.complement1.trim();
         // Ne PAS essayer de décomposer le complément s’il commence par « " » ou s’il s’agit de l’instruction exécuter.)
-        if (!els.complement.startsWith('"') && els.infinitif !== 'exécuter') {
+        if (!els.complement1.startsWith('"') && els.infinitif !== 'exécuter') {
           // tester si le complément est une phrase simple
           // ex: le joueur ne se trouve plus dans la piscine.
-          const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement);
+          const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement1);
           if (resSuite) {
             els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
             els.verbe = resSuite[3];
             els.negation = resSuite[4];
-            els.complement = resSuite[5] ? resSuite[5].trim() : null;
+            els.complement1 = resSuite[5] ? resSuite[5].trim() : null;
             // décomposer le nouveau complément si possible
-            const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement);
+            const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
             if (resCompl) {
-              els.complement = null;
-              els.sujetComplement = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+              els.complement1 = null;
+              els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
               els.preposition = resCompl[1] ? resCompl[1] : null;
             }
             // tester si le complément est une instruction à 1 ou 2 compléments
             // ex: déplacer le trésor vers le joueur.
           } else {
-            const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement);
+            const res1ou2elements = PhraseUtils.xComplementInstruction1ou2elements.exec(els.complement1);
             if (res1ou2elements) {
               els.verbe = null;
               els.negation = null;
               els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
-              els.complement = null;
+              els.complement1 = null;
               els.preposition = res1ou2elements[4];
-              els.sujetComplement = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+              els.sujetComplement1 = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
             }
           }
         }

@@ -1,9 +1,14 @@
 import { GroupeNominal } from '../commun/groupe-nominal';
 
 export enum LienCondition {
+  /** aucun lien */
   aucun = "-",
+  /** lien et */
   et = "et",
+  /** lien ou inclusif */
   ou = "ou",
+  /** lien ou exclusif */
+  soit = "soit",
 }
 
 export class Condition {

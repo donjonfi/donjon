@@ -23,6 +23,7 @@ import { NgModule } from '@angular/core';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { ApercuReactionComponent } from './apercu/apercu-reaction/apercu-reaction.component';
+import { ApercuConditionComponent } from './apercu/apercu-condition/apercu-condition.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -43,6 +44,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     ApercuRegleComponent,
     ApercuActionComponent,
     ApercuReactionComponent,
+    ApercuConditionComponent,
 
 
   ],
