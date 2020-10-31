@@ -1,128 +1,102 @@
-"Port aux Singes ".
+"Le château de la terreur".
 
--- =========================================================
--- PARTIE 1 : COMMANDES DE BASE
--- =========================================================
-
--- REGARDER
-
-le joueur peut regarder:
-  dire "[description ici]".
-  
-regarder ceci est une action qui concerne un objet visible.
-
-exécuter regarder ceci:
-  dire "[description ceci]".
-
--- JETER
-  
-jeter ceci est une action qui concerne un objet possédé.
-
-exécuter jeter ceci:
-  déplacer ceci vers ici.
-  
-finaliser jeter ceci:
-  dire "Vous avez jeté [intitulé ceci]".
-
--- PRENDRE
-
-prendre est une action.
-
-exécuter prendre:
-  dire "prendre quoi ?".
-  
-prendre ceci est une action qui concerne un objet visible.
-
-refuser prendre ceci:
-  si ceci est possédé, dire "Vous l’avez déjà.";
-  si ceci est fixé, dire "C'est fixé.";
-  si ceci est une personne, dire "Dites-donc !";
-  si ceci est un animal, dire "Ça ne me parait pas très prudent.";
-  si ceci est un décor, dire "Je préfère ne pas m’encombrer avec ça.".
-
-exécuter prendre ceci:
-  déplacer ceci vers joueur.
-  
-finaliser prendre ceci:
-  dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
-
-
--- SAUTER --
-
-Le joueur peut sauter:
-  dire "Vous sautez.".
-
--- =========================================================
--- PARTIE 2 : MISE EN PLACE
--- =========================================================
+-- Partie 1 - Devant le château.
 
 avant commencer le jeu:
-  dire "Le scénario de ce jeu est basé sur « Bienvenue à Port aux Singes » écrit par Ludovic Papaïs, offert en téléchargement sur le site internet de l'éditeur Iello (iello.fr) pour la promotion du jeu « Chateau aventure ». ";
-  dire "Bienvenue à Port aux Singes ! ";
-  changer le joueur possède le doublon;
-  changer le joueur se trouve dans le bateau.
-  
--- QUARTIERS DU CAPITAINE
+	dire "Bienvenue dans « Le château de la terreur » !";
+	dire "Ton objectif est de repartir avec le trésor.";
+	dire "Si c’est ta première partie, utilise la commande « aide » pour en savoir plus sur les commandes disponibles.";
+	changer le joueur se trouve dans le cellier;
+  changer le joueur possède la clé rouillée.
 
-Les quartiers du capitaine sont un lieu.
-"Vous êtes dans vos quartiers. Il y a un lit simple et un bureau digne des plus grands pirates.[si la feuille se trouve ici] Une feuille enroulée se trouve sur votre bureau.[fin si]".
+Lire ceci est une action qui concerne un objet visible.
 
-Le lit est un support fixé dans les quartiers.
-Il y a 2 doublons sur le lit. Ce sont des objets.
-Le bureau est un support fixé dans les quartiers.
-Il y a une feuille enroulée sur le bureau. C'est un objet. "Il y a quelque chose écrit dessus."
-Son aperçu est "Une feuille [si la feuille est enroulée]enroulée[fin si] se trouve [si la feuille se trouve sur le bureau]sur votre bureau[sinon] ici[fin si].".
-Son examen est "Je dois pouvoir lire ce qui est écrit dessus.".
-La chaise bleue est un décor dans les quartiers.
-La chaise rouge est un décor dans les quartiers.
+Refuser lire ceci:
+  si ceci n’est pas lisible, dire "Je ne peux pas le lire.".
 
-Le ruban est un objet. "Il s'agit d'un ruban rouge un peu abîmé.".
+Exécuter lire ceci:
+  changer ceci est lu.
 
-Le joueur peut lire la feuille:
-  si la feuille est enroulée:
-    dire "Vous déroulez la feuille en prenant soin de dénouer le ruban qui se trouve dessus.",
-    dire "Vous mettez le ruban dans votre poche.",
-    changer la feuille n’est plus enroulée,
-    changer le joueur possède le ruban;
-  dire "Vous lisez : « Tâche importante à réaliser : voler la carte aux trésors »".
+Finaliser lire ceci:
+  dire "Ok, j’ai tout lu.".
 
--- BATEAU
+Sauter est une action.
+Jeter ceci est une action qui concerne un objet possédé.
+Ouvrir ceci avec cela est une action qui concerne un objet possédé et une porte.
+Combiner ceci avec cela est une action qui concerne deux objets possédés.
 
-Le bateau est un lieu à l'extérieur des quartiers.
-Sa description est "Vous êtes sur le pont de la Bellissima, votre splendide bateau de pirate.[si le mousse se trouve ici] Votre mousse se tient là prêt à obéir à vos ordres.[fin si]".
+-- Chapitre 1 - Devant le portique.
+Le départ est un lieu.
+Son intitulé est "Devant le portique".
+Sa description est "Vous êtes devant le portique du domaine du comte Von Hohenberg. [si le portique est ouvert] Il est ouvert.[sinon] Il est fermé.[fin si] [1ère fois]La nuit va tomber.[2e fois]La nuit vient de tomber.[3e fois]Il fait nuit.[fin choix] Vous entendez encore des grillons.
+Vous distinguez une faible lueur à travers les bareaux.".
+Il y a des grillons dans le départ. Ce sont des animaux.
+"Vous sentez plus que vous ne voyez des petites formes qui se déplacent dans les herbes hautes (il fait noir.)".
+-- Chapitre 1b - Le portique.
+Le portique est une porte au sud du départ.
+"Il s’agit d’un portique en métal. Il est sale et rouillé mais il semble toujours bien solide.".
+Il est fermé, verrouillé, rouillé et froid.
+La clé rouillée est une clé. "Il s'agit d'une grosse clée rouillée. Probablement celle du portique."
+Elle permet de déverrouiller le portique.
 
-Le somnifère est un objet. "Il s’agit d’une fiole qui contient un somnifère puissant.".
+-- Chapitre 2 - L'allée.
+L'allée (f) est un lieu au sud du départ.
+"Vous êtes dans l'allée qui mène à l'entrée du château.
+Il y a des torches tout le long du chemin.
+Elles vous permettent d'y voir un peu."
+Il y a des torches (f) dans l'allée. Ce sont des objets.
+-- (pas encore géré).
+Si le joueur possède une torche, maintenant le lieu est éclairé.
 
-Le mousse est un homme sur le bateau.
-La discution du mousse est:
-  - sans thème:
-      dire "(Il a l'air très fatigué)[]Capitaine, je n'arrive pas à dormir !";
-  - concernant le somnifère:
-      si sauvé "somnifère donné", dire "J’espère qu’il vous a été utile.";
-      sinon dire "[1ère fois]Contre un doublon je peux aller vous chercher un somnifère en ville.[puis]Désolé, je n’ai pas de quoi le payer.[fin choix]".
-  
-après donner doublon au mousse:
-  dire "Le mousse récupère un puissant somnifère et vous le donne.";
-  changer le joueur possède le somnifère;
-  sauver "somnifère donné".
-  
--- PONTON
+-- Chapitre 3 - Le cimetière.
+Le cimetière est un lieu obscur à l'est de l'allée.
+"Vous êtes dans un cimetière lugubre. Il y a un vingtaine de tombes mal entretenues. L'une d'elles est entre-ouverte. Mieux vaut ne pas trop vous en approcher. Vous entendez des bruits vraiment étranges qui ne vous inspirent pas confiance. Il y a aussi un caveau qui s'enfonce dans le sol. De la végétation s'est développée un peu partout.".
+-- (pas encore géré).
+Si le cimetière est obscur:
+  changer sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  changer son intitulé est "?".
+Il y a des tombes (f) dans le cimetière. Ce sont des décors.
+"Je préfère ne pas m'en approcher."
+-- Chapitre 3b - Le caveau.
+Le caveau est une salle obscure à l'intérieur du cimetière.
+"Vous entendez de petits bruissements d'ailes. Probablement des chauves-souris. Quelqu'un est passé avant vous: certains cercueils ont été détruits et des os jonchent le sol.".
+Il y a des chauves-souris (f, chauve-souris) dans le caveau. Ce sont des animaux.
+Il y a des os (os) dans le caveau. Ce sont des objets.
+-- (permet de tester les pluriels irréguliers).
+Il y a 2 yeux (œil) dans le cimetière. Ce sont des objets.
+Sa description est "On dirait bien qu'il s'agit d'un œil humain. Pas très rassurant.".
+-- (pas encore géré).
+Ils permettent de se transformer en monstre.
 
-Le ponton est un lieu à l'extérieur du bateau.
-Sa description est "Vous êtes sur le ponton de Port aux Singes, devant vous s'étend la cité portuaire de port aux Singes. Votre second se trouve là près de vous.".
-Le second est un homme sur le ponton.
-Sa réponse est "Capitaine, la révolte gronde. Si vous n'arrivez pas à vous emparer de la carte aux trésors du gouverneur, vous risquez la mutinerie.".
+-- Chapitre 4 - Le verger.
+Le verger est un lieu obscur à l'ouest de l'allée.
+"Vous êtes dans un verger. Il y a de nombreux arbres. Il y a de vieux fruits en décomposition au sol.[si le seau se trouve ici] Il y a un objet brillant par terre.[fin si]".
+-- (pas encore géré).
+Si le verger est obscur:
+  changer sa description est "Vous êtes dans… hum… difficile à dire avec cette obscurité.";
+  changer son intitulé est "?".
+Il y a des arbres dans le verger. Ce sont des décors.
+"Ce sont de grands pommiers. Ils ont été plantés là il y a longtemps.[si le seau se trouve ici] Il y a un seau au pied de l'un d'eux.[fin si]".
+Il y a des fruits dans le verger. Ce sont des décors.
+"Ces vieux fruits en décomposition ne sont vraiment pas très ragoutant.".
+-- (pas encore géré).
+Le seau est un contenant dans le verger.
+"C'est un grand seau rouge qui semble solide.".
+La capacité du seau vaut 4.
+-- (pas encore géré).
+Si le seau est plein,
+	remplacer mettre un objet dans le seau par dire "Le seau est déjà rempli".
+Le cellier est une salle obscure au nord du verger.
+"Les étagères sont vides mis à part quelques restes de nourriture avariée.
+[si le coupe-branches se trouve ici]Il y a un coupe-branches sur l'une d'elles.[fin si]".
+Il y a un coupe-branches dans le cellier. C'est un objet. "Il s'agit d'un coupe-branche robuste.[si le joueur possède le seau] Il devrait tenir dans le seau.[fin si]"
+Les restes de nourriture sont des décors dans le cellier.
 
--- PLACE DE LA VILLE
+-- Partie 2 - Dans le château du comte Von Hohenberg.
 
-La place est un lieu au nord du ponton.
-"Vous êtes sur la grande place de Port aux Singes. Une colporteuse vend toutes sortes de choses. Une estrade se trouve là avec une affiche."
-
-L'affiche est un décor de la place. "Il y a quelque chose d'écrit dessus.".
-
-Le joueur peut lire l'affiche:
-  dire "Apparemment vous avez raté un concert de la célèbre Maria Carabas. Il avait lieu hier.".
-  
-La colporteuse est une femme sur la place.
-Sa réponse est "Potions potions potions potions potions…";
-Sa réponse à propos du somnifère est "Vous n'avez pas besoin de somnifère, vous ne vous sentez pas fatigué.";
+L'entrée est une salle au sud de l'allée.
+"Vous êtes devant la porte du château du comte Von Hohenberg.".
+Son intitulé est "Devant la porte du château".
+La porte d'entrée est une porte au sud de l'entrée.
+Elle est fermée, ouvrable et verrouillée.
+"Il s'agit d'une porte imposante. Elle est cadenassée."

@@ -45,7 +45,8 @@ $language_data = array (
             ),
         3 => array(
             'si', 'sinon', 'remplacer', 'exécuter', 'refuser', 'terminer', 
-			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit'
+			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit',
+			'ni', 'soit', 'ou', 'et', 'mais'
             ),
         4 => array(
             'intitulé', 'accord', 'joueur', 'historique', 'ceci', 'cela', 'ici', 'description', 'nom', 'titre', 'réaction'

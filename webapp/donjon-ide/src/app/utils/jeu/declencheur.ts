@@ -1,5 +1,4 @@
 import { Auditeur } from '../../models/jouer/auditeur';
-import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { Instruction } from '../../models/compilateur/instruction';
 import { TypeRegle } from '../../models/compilateur/type-regle';
