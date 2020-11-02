@@ -2,10 +2,11 @@ import { Capacite } from '../compilateur/capacite';
 import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
+import { Intitule } from './intitule';
 import { Inventaire } from './inventaire';
 import { Nombre } from '../commun/nombre.enum';
 
-export class ElementJeu {
+export class ElementJeu extends Intitule {
 
   constructor(
     /** Identifiant unique de l’élément */
@@ -40,12 +41,8 @@ export class ElementJeu {
     public classe: Classe,
 
   ) {
-
+    super(nom, intitule, classe);
   }
-
-
-
-
 
 
   public genre: Genre;

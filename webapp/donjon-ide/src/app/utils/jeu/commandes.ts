@@ -87,11 +87,15 @@ export class Commandes {
     const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, EClasseRacine.lieu));
     const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, EClasseRacine.porte));
 
+    console.log("voisinLieu", voisinLieu);
+    console.log("voisinPorte", voisinPorte);
+    
+
     // TODO: vérifier accès…
     if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
       // La porte est fermée
       // TODO: gérer majuscule
-      return (voisinPorte.intitule + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
+      return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
     } else {
       if (voisinPorte) {
         console.log("porte ouverte :)");

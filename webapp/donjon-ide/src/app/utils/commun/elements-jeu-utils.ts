@@ -1,8 +1,9 @@
-import { Classe, EClasseRacine } from '../../models/commun/classe';
+import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 
 import { Correspondance } from '../jeu/correspondance';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Localisation } from '../../models/jeu/localisation';
@@ -109,7 +110,7 @@ export class ElementsJeuUtils {
       } else {
         console.error("Pas pu retirer l'état");
       }
-    } else if (ElementsJeuUtils.possedeCetEtat(eleJeu, etatB)) {
+    } else if (etatB && ElementsJeuUtils.possedeCetEtat(eleJeu, etatB)) {
       indexEtat = eleJeu.etats.findIndex(x => x === etatB);
       if (indexEtat !== -1) {
         eleJeu.etats.splice(indexEtat, 1);
@@ -293,6 +294,7 @@ export class ElementsJeuUtils {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
+      cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Mot);
       // 1. Chercher dans les directions.
       cor.localisation = this.trouverLocalisation(sujet);
 
@@ -319,10 +321,9 @@ export class ElementsJeuUtils {
       console.log(" >>>> éléments trouvés:", cor.elements);
       console.log(" >>>> objets trouvés:", cor.objets);
       console.log(" >>>> lieux trouvés:", cor.lieux);
+      console.log(" >>>> intitulé:", cor.intitule);
 
     }
-
-
 
     return cor;
   }

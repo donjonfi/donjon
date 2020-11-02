@@ -29,11 +29,23 @@ export class Classe {
 
     if (classeElement) {
       switch (classeElement.trim().toLocaleLowerCase()) {
+
+        case "intitulé":
+        case "intitule":
+          retVal = EClasseRacine.intitule;
+          break;
+
+        case "objet":
+        case "objets":
+          retVal = EClasseRacine.objet;
+          break;
+
         case "animal":
         case "animaux":
           retVal = EClasseRacine.animal;
           break;
         case "personne":
+        case "personnes":
         case "homme":
         case "hommes":
         case "femme":
@@ -62,14 +74,7 @@ export class Classe {
         // case "decors":
         //   retVal = ClasseRacine.decor;
         //   break;
-        case "personne":
-        case "personnes":
-          retVal = EClasseRacine.personne;
-          break;
-        case "objet":
-        case "objets":
-          retVal = EClasseRacine.objet;
-          break;
+
         case "porte":
         case "portes":
           retVal = EClasseRacine.porte;
@@ -94,6 +99,7 @@ export class Classe {
 
 
 export enum EClasseRacine {
+  intitule = 'intitule',
   element = 'element',
   lieu = 'lieu',
   objet = 'objet',
@@ -110,15 +116,16 @@ export enum EClasseRacine {
 
 export class ClassesRacines {
 
-  public static Element = new Classe(EClasseRacine.element, "Élément", null, 0, []);
-  public static Lieu = new Classe(EClasseRacine.lieu, "Lieu", ClassesRacines.Element, 1, []);
-  public static Objet = new Classe(EClasseRacine.objet, "Objet", ClassesRacines.Element, 1, []);
-  public static Vivant = new Classe(EClasseRacine.vivant, "Vivant", ClassesRacines.Objet, 2, []);
-  public static Animal = new Classe(EClasseRacine.animal, "Animal", ClassesRacines.Vivant, 3, []);
-  public static Personne = new Classe(EClasseRacine.personne, "Personne", ClassesRacines.Vivant, 3, []);
-  public static Porte = new Classe(EClasseRacine.porte, "Porte", ClassesRacines.Objet, 2, []);
-  public static Contenant = new Classe(EClasseRacine.contenant, "Contenant", ClassesRacines.Objet, 2, []);
-  public static Support = new Classe(EClasseRacine.support, "Support", ClassesRacines.Objet, 2, []);
+  public static Mot = new Classe(EClasseRacine.intitule, "Intitulé", null, 0, []);
+  public static Element = new Classe(EClasseRacine.element, "Élément", ClassesRacines.Mot, 1, []);
+  public static Lieu = new Classe(EClasseRacine.lieu, "Lieu", ClassesRacines.Element, 2, []);
+  public static Objet = new Classe(EClasseRacine.objet, "Objet", ClassesRacines.Element, 2, []);
+  public static Vivant = new Classe(EClasseRacine.vivant, "Vivant", ClassesRacines.Objet, 3, []);
+  public static Animal = new Classe(EClasseRacine.animal, "Animal", ClassesRacines.Vivant, 4, []);
+  public static Personne = new Classe(EClasseRacine.personne, "Personne", ClassesRacines.Vivant, 4, []);
+  public static Porte = new Classe(EClasseRacine.porte, "Porte", ClassesRacines.Objet, 3, []);
+  public static Contenant = new Classe(EClasseRacine.contenant, "Contenant", ClassesRacines.Objet, 3, []);
+  public static Support = new Classe(EClasseRacine.support, "Support", ClassesRacines.Objet, 3, []);
 
 }
 

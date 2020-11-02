@@ -54,15 +54,17 @@ export class PhraseUtils {
    */
   static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
 
+// ^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)?
+
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si |avant |après |apres )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après |apres )?((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)]
    */
-  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|possède|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?$/i;
+  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|possède|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
@@ -72,7 +74,7 @@ export class PhraseUtils {
    * - le joueur possède la mèche ou le briquet
    * - Si l’inventaire contient le sucre et la farine
    */
-  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|possède|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
+  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|possède|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
 
   // /**
   //  * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
@@ -106,9 +108,10 @@ export class PhraseUtils {
 
 
   /**
-   * Le(1) joueur(2) [ne] se trouve(3) [pas|plus]\(4) dans la piscine(5).
+   * (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) [ne] se trouve(5) [pas|plus]\(6) dans la piscine(7).
+   * 
    */
-  static readonly xPhraseSimpleDeterminant = /^(le |la |les |l(?:'|’)|du |de la|des |un |une )(\S+) (?:ne |n(?:'|’))?((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
+  static readonly xPhraseSimpleDeterminant = /^((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!|n'|n’|ne|d'|d’|se|possède|est|vaut|contient)\S+))?)|ceci|cela) (?:ne |n(?:'|’))?(?!vers)((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
 
   /**
    * - Manger tomate(2).
@@ -116,8 +119,7 @@ export class PhraseUtils {
    * - Utiliser l’(1)arc à flèches(2) rouillé(3) avec(4) la(5) flèche(6) rouge(7).
    * - => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?)?$/i;
-
+  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
   /**
    * Son(1) sac(2) est(3) ouvert(4)
    */
@@ -267,7 +269,7 @@ export class PhraseUtils {
 
   public static getEvenement(evenement: string) {
     // soit c’est une commande
-    let els = PhraseUtils.decomposerCommande(evenement);
+    let els = PhraseUtils.decomposerCommande(evenement.trim());
 
     // si on a trouvé une formulation correcte
     if (els) {
@@ -350,10 +352,10 @@ export class PhraseUtils {
           // ex: le joueur ne se trouve plus dans la piscine.
           const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement1);
           if (resSuite) {
-            els.sujet = new GroupeNominal(resSuite[1], resSuite[2], null);
-            els.verbe = resSuite[3];
-            els.negation = resSuite[4];
-            els.complement1 = resSuite[5] ? resSuite[5].trim() : null;
+            els.sujet = resSuite[3] ? (new GroupeNominal(resSuite[2], resSuite[3], resSuite[4] ? resSuite[4] : null)) : (resSuite[1] ? new GroupeNominal(null, resSuite[1], null) : null);
+            els.verbe = resSuite[5]?.trim();
+            els.negation = resSuite[6]?.trim();
+            els.complement1 = resSuite[7]?.trim();
             // décomposer le nouveau complément si possible
             const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
             if (resCompl) {

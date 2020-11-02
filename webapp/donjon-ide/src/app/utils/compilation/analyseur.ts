@@ -405,7 +405,8 @@ export class Analyseur {
     // élément positionné défini (la, le, les)
     let result = ExprReg.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
     if (result !== null) {
-      genreSingPlur = result[3];
+     // console.log("testerPosition", result);
+      genreSingPlur = result[4];
       estFeminin = false;
       autreForme = null;
       if (genreSingPlur) {

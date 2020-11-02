@@ -34,4 +34,7 @@ export class Objet extends ElementJeu {
   /** Texte s’affichant lorsqu’on voit l’ojet lors de la description de la salle qui contient l’objet. */
   apercu: string = null;
 
+  /** Ils s’agit des autres noms que le joueur peut donner à cet objet. */
+  synonymes: string[] = null;
+
 }
