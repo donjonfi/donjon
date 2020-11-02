@@ -1,0 +1,262 @@
+"Coincé".
+
+-- ==================================
+--  MONDE
+-- ==================================
+
+-- 1) LE SALON
+
+Le salon est un lieu.
+Sa description est "Vous êtes dans un petit salon.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
+Le fauteuil est un objet dans le salon.
+Son aperçu est "Il y a un vieux fauteuil en cuir au centre de la pièce.".
+Son examen est "Il y a un bout de papier coincé entre le coussin et l'accoudoir.".
+
+Il y a un bout de papier dans le fauteuil. C'est un objet.
+"Il y a quelque chose d'écrit dessus".
+
+Le joueur peut lire le bout de papier:
+  dire "Il est écrit << ne pas oublier: {+uaenna+} >>".
+  
+Le joueur peut pousser le fauteuil:
+  dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulée sous le fauteuil.";
+  changer le coffre est visible.
+  
+Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier. Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-tapper-} un code)".
+Il est invisible, fermé, ouvrable et verrouillé.
+
+-- Action TAPPER CECI
+tapper ceci est une action qui concerne un intitulé.
+
+refuser tapper ceci:
+  si le coffre ne se trouve pas ici, dire "Il n'y a pas de clavier ici.";
+  si le coffre est invisible, dire "Je ne vois pas de clavier.".
+
+exécuter tapper ceci:
+  si ceci vaut "anneau":
+    dire "Le coffre émet un déclic.",
+    changer le coffre est déverrouillé;
+  sinon
+    dire "Rien ne se passe. Ce n'est pas le bon code.".
+
+La porte cachée est une porte au nord du salon.
+Elle est fermée, verrouillée et invisible.
+
+Le mur est un support du salon. "Les murs de la pièce sont peints en vert."
+
+Il y a un tableau sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
+
+Son aperçu est "Il y a un tableau [si le tableau se trouve sur le mur]accroché au mur.[sinon]par terre.[fin si]".
+
+Le joueur peut décrocher le tableau:
+  si le tableau se trouve sur le mur:
+    dire "Vous décrochez le tableau et vous découvrez un bouton rond",
+    changer le bouton est visible;
+  sinon:
+    dire "Le taleau n'est pas accroché.".
+
+Le bouton est un objet fixé sur le mur.
+
+Le joueur peut actionner le bouton:
+  dire "Vous entendez un déclic.";
+  si la porte est fermée:
+    dire "{n}Une porte s'ouvre dans le mur nord de la pièce.",
+    changer la porte est ouverte,
+    changer la porte n'est plus fermée,
+    changer la porte n'est plus invisible,
+    changer la porte est visible.
+
+
+-- 2) LE CABINET
+Le cabinet est un lieu au nord du salon.
+
+La magicienne est une femme dans le cabinet.
+
+Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
+  
+après donner pièce à la magicienne:
+  dire "<< Elle ne semble pas magique malheureusement. >>".
+
+-- 3) objets non placés
+La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
+
+-- ==================================
+--  RÈGLES
+-- ==================================
+
+avant commencer le jeu :
+  changer le joueur se trouve dans le salon;
+  changer le joueur possède la pièce.
+
+-- ==================================
+--  ACTIONS
+-- ==================================
+
+-- action: OUVRIR
+-- a) ouvrir ceci
+ouvrir ceci est une action qui concerne un objet visible.
+
+refuser ouvrir ceci:
+  si ceci n'est pas ouvrable, dire "ça ne s'ouvre pas.";
+  si ceci est verrouillé, dire "C'est verrouillé.".
+  
+exécuter ouvrir ceci:
+  changer ceci est ouvert;
+  changer ceci n'est plus fermé.
+
+terminer ouvrir ceci:
+  dire "C'est ouvert.".
+
+-- action: PARLER
+-- a) parler
+le joueur peut parler:
+  dire "Je pourrais parler tout seul, c’est vrai.".
+-- b) parler à ceci
+parler à ceci est une action qui concerne un objet visible.
+
+refuser parler à ceci:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+terminer parler à ceci:
+  si ceci réagit, exécuter réaction de ceci;
+  sinon dire "(Et ils eurent une conversation peu intéressante.)".
+  
+-- c) parler à ceci de cela
+parler à ceci de cela est une action qui concerne un objet visible et un intitulé.
+
+refuser parler à ceci de cela:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+exécuter parler à ceci de cela:
+  si cela réagit, exécuter réaction de ceci concernant cela.
+  
+terminer parler à ceci de cela:
+  si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+
+-- action: INTERROGER
+
+-- a) interroger
+le joueur peut interroger:
+  dire "Je veux bien interroger quelqu’un mais il faut me dire qui et à quel sujet.".
+
+-- b) interroger ceci
+interroger ceci est une action qui concerne un objet visible.
+
+refuser interroger à ceci:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+  
+exécuter interroger à ceci:
+  dire "Je veux bien l’interroger mais à quel sujet ?".
+  
+-- c) interroger ceci sur cela
+interroger ceci sur cela est une action qui concerne un objet visible et un objet.
+
+refuser interroger ceci sur cela:
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+
+exécuter interroger ceci sur cela:
+  si cela réagit, exécuter réaction de ceci concernant cela.
+
+terminer interroger ceci sur cela:
+  si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+
+-- action: REGARDER
+
+-- a) regarder
+le joueur peut regarder:
+  dire "[description ici]".
+  
+-- b) regarder ceci
+regarder ceci est une action qui concerne un objet visible.
+
+exécuter regarder ceci:
+   dire "[description ceci]";
+   si aucune description pour ceci, dire "C'est [intitulé ceci].".
+
+-- action: EXAMINER
+
+-- a) examiner
+le joueur peut examiner:
+  dire "Que dois-je examiner ?".
+
+-- b) examiner ceci
+examiner ceci est une action qui concerne un objet visible.
+
+refuser examiner ceci:
+  si ceci est une personne, dire "Pas sûr qu'il ait envie de jouer au docteur.".
+
+exécuter examiner ceci:
+  si ceci est une porte :
+    dire "[statut ceci]";
+  si ceci contient un objet :
+      dire "[examen ceci] ",
+      dire "Vous trouvez: ",
+      dire "[contenu ceci]",
+      changer le joueur possède le contenu de ceci;
+  sinon :
+      dire "[examen ceci][si aucun examen pour ceci]Vous ne trouvez rien d’intéressant.[fin si]".
+
+-- action: JETER
+
+-- a) jeter
+le joueur peut jeter:
+  dire "jeter quoi ?".
+  
+-- b) jeter ceci
+jeter ceci est une action qui concerne un objet visible.
+
+refuser jeter ceci:
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]".
+  
+exécuter jeter ceci:
+  déplacer ceci vers ici.
+  
+terminer jeter ceci:
+  dire "Vous avez jeté [intitulé ceci]".
+
+-- action: PRENDRE
+-- a) prendre
+prendre est une action.
+
+exécuter prendre:
+  dire "prendre quoi ?".
+  
+-- b) prendre ceci
+prendre ceci est une action qui concerne un objet visible.
+
+refuser prendre ceci:
+  si ceci est possédé, dire "Vous l’avez déjà.";
+  si ceci est fixé, dire "C'est fixé.";
+  si ceci est une personne, dire "Dites-donc !";
+  si ceci est un animal, dire "Ça ne me parait pas très prudent.";
+  si ceci est un décor, dire "Je préfère ne pas m’encombrer avec ça.".
+
+exécuter prendre ceci:
+  déplacer ceci vers joueur.
+  
+terminer prendre ceci:
+  dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
+
+-- action: DONNER
+
+-- a) donner
+le joueur peut donner:
+  dire "Donner quoi ?".
+ 
+-- b) donner ceci
+-- donner ceci est une action qui concerne un objet visible.
+le joueur peut donner le doublon:
+  dire "Donner le doublon à qui du coup ?".
+  
+-- c) donner ceci à cela
+donner ceci à cela est une action qui concerne un objet visible et un vivant visible.
+
+refuser donner ceci à cela:
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
+  si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.".
+
+exécuter donner ceci à cela:
+  déplacer ceci vers cela.
+
+terminer donner ceci à cela:
+  dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
