@@ -1,4 +1,4 @@
-import { ClassesRacines, EClasseRacine } from '../../models/commun/classe';
+import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
@@ -78,56 +78,11 @@ export class Generateur {
       jeu.lieux.push(nouvLieu);
     });
 
-    // AJOUTER LES PORTES
-    // ******************
-    let premierIndexPorte = (indexElementJeu + 1);
-    monde.portes.forEach(curEle => {
-      const intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-      let newPorte = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
-      newPorte.description = curEle.description;
-      newPorte.examen = curEle.examen;
-      curEle.attributs.forEach(at => {
-        newPorte.etats.push(at);
-      });
-
-      // par défaut une porte est ouvrable (sauf si elle contient « pas ouvrable ».)
-      if (!ElementsJeuUtils.possedeUnDeCesEtats(newPorte, "pas ouvrable", "ouvrable")) {
-        newPorte.etats.push("ouvrable");
-      }
-
-      // parcourir les propriétés du lieu
-      curEle.proprietes.forEach(pro => {
-        switch (pro.nom) {
-          case 'description':
-            newPorte.description = pro.valeur;
-            break;
-          case 'examen':
-            newPorte.examen = pro.valeur;
-            break;
-          case 'intitulé':
-          case 'titre':
-            newPorte.titre = pro.valeur;
-            break;
-
-          default:
-            break;
-        }
-      });
-      jeu.objets.push(newPorte);
-    });
-
     // DÉFINIR LES VOISINS (LIEUX)
     // ****************************
     for (let index = 0; index < monde.lieux.length; index++) {
       const curEle = monde.lieux[index];
       Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index));
-    }
-
-    // DÉFINIR LES VOISINS (PORTES)
-    // ****************************
-    for (let index = 0; index < monde.portes.length; index++) {
-      const curEle = monde.portes[index];
-      Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexPorte + index));
     }
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
@@ -178,6 +133,10 @@ export class Generateur {
             newObjet.examen = pro.valeur;
             break;
 
+          case 'apercu':
+            newObjet.examen = pro.valeur;
+            break;
+
           case 'intitulé':
             // TODO: gérer groupe nominal ?
             newObjet.intitule = new GroupeNominal(null, pro.valeur);
@@ -188,31 +147,31 @@ export class Generateur {
         }
       });
 
-
       // POSITION de l’élément
-      if (curEle.positionString) {
-        // const localisation = Generateur.getLocalisation(curEle.positionString.position);
-        const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
-        // lieu trouvé
-        if (lieuID !== -1) {
-          newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
-          // pas de lieu trouvé
-        } else {
-          // chercher un contenant ou un support
-          const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
-          if (contenantSupport) {
-            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+      // -- PORTE
+      if (Classe.heriteDe(newObjet.classe, EClasseRacine.porte)) {
+        Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
+      } else {
+        // -- AUTRE TYPE D'OBJET
+        if (curEle.positionString) {
+          // const localisation = Generateur.getLocalisation(curEle.positionString.position);
+          const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
+          // lieu trouvé
+          if (lieuID !== -1) {
+            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
+            // pas de lieu trouvé
           } else {
-            console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+            // chercher un contenant ou un support
+            const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
+            if (contenantSupport) {
+              newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+            } else {
+              console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+            }
           }
         }
-
-        jeu.objets.push(newObjet);
-
-        // élément pas positionné
-      } else {
-        jeu.objets.push(newObjet);
       }
+      jeu.objets.push(newObjet);
     });
 
     // PLACEMENT DU JOUEUR
