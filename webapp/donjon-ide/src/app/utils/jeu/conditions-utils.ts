@@ -3,6 +3,7 @@ import { Classe, EClasseRacine } from '../../models/commun/classe';
 import { Condition } from '../../models/compilateur/condition';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
@@ -19,7 +20,7 @@ export class ConditionsUtils {
   /** Utilitaires - Éléments du jeu */
   private eju: ElementsJeuUtils;
 
-  conditionsRemplies(conditions: Condition[], ceci: ElementJeu, cela: ElementJeu) {
+  conditionsRemplies(conditions: Condition[], ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     if (conditions.length === 0) {
       console.warn("conditions-utils > conditionsRemplies: aucune condition à vérier.", conditions);
       return true;
@@ -29,9 +30,9 @@ export class ConditionsUtils {
       let resultCondition = false;
       if (curCondition.verbe === 'est') {
         if (curCondition.sujet.nom === 'ceci') {
-          resultCondition = this.verifierConditionElementJeuEst(curCondition, ceci);
+          resultCondition = this.verifierConditionElementJeuEst(curCondition, (ceci as ElementJeu));
         } else if (curCondition.sujet.nom === 'cela') {
-          resultCondition = this.verifierConditionElementJeuEst(curCondition, cela);
+          resultCondition = this.verifierConditionElementJeuEst(curCondition, (cela as ElementJeu));
         } else {
           console.error("conditionsRemplies: sujet pas supporté:", curCondition.sujet);
         }
@@ -103,7 +104,7 @@ export class ConditionsUtils {
 
   }
 
-  siEstVrai(conditionString: string, condition: Condition, ceci: ElementJeu, cela: ElementJeu) {
+  siEstVrai(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -122,7 +123,7 @@ export class ConditionsUtils {
       } else {
         // 1 - Trouver le sujet
         // ++++++++++++++++++++
-        let sujet: ElementJeu = null;
+        let sujet: ElementJeu | Intitule = null;
 
         if (condition.sujet) {
           if (condition.sujet.nom === 'ceci') {
@@ -158,14 +159,28 @@ export class ConditionsUtils {
             case 'est':
               // faire le test
               if (sujet) {
-                retVal = ElementsJeuUtils.possedeCetEtat(sujet, condition.complement);
+                // états spéciaux
+                if (condition.complement.startsWith("visible")) {
+                  retVal = (sujet as Objet).visible;
+                } else if (condition.complement.startsWith("possédé")) {
+                  retVal = (sujet as Objet).possede;
+                } else if (condition.complement.startsWith("porté")) {
+                  retVal = (sujet as Objet).porte;
+                } else if (condition.complement.startsWith("mangeable")) {
+                  retVal = (sujet as Objet).mangeable;
+                } else if (condition.complement.startsWith("buvable")) {
+                  retVal = (sujet as Objet).buvable;
+                } else {
+                  // autres états
+                  retVal = ElementsJeuUtils.possedeCetEtat(sujet as ElementJeu, condition.complement);
+                }
               }
               break;
 
             // CONTENU
             case 'contient':
               if (condition.complement === 'un objet') {
-                retVal = this.eju.verifierContientObjet(sujet);
+                retVal = this.eju.verifierContientObjet(sujet as ElementJeu);
               } else {
                 console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);
               }
@@ -176,9 +191,9 @@ export class ConditionsUtils {
             case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
             case 'aucun': // forme "aucun xxxx pour yyyy"
               if (condition.complement === 'description') {
-                retVal = (!sujet.description);
+                retVal = (!(sujet as ElementJeu).description);
               } else if (condition.complement === 'examen') {
-                retVal = (!sujet.examen);
+                retVal = (!(sujet as ElementJeu).examen);
               } else {
                 console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
               }
@@ -192,7 +207,6 @@ export class ConditionsUtils {
             // LOCALISATION
             case 'se trouve':
             case 'se trouvent':
-
               // trouver l'objet
               let trouvailles = this.eju.trouverObjet(condition.sujet);
 
@@ -232,6 +246,17 @@ export class ConditionsUtils {
             case 'réagit':
             case 'réagissent':
               if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
+                retVal = true;
+              } else {
+                retVal = false;
+              }
+              break;
+
+            case 'vaut':
+              // TODO: gérer plus de situations (en test)
+              console.warn("vaut condi=", condition, "ceci=", ceci, "cela=", cela);
+
+              if (('"' + sujet.nom + '"') === condition.complement) {
                 retVal = true;
               } else {
                 retVal = false;

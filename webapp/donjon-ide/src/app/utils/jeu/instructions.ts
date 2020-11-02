@@ -1,4 +1,4 @@
-import { Classe, EClasseRacine } from '../../models/commun/classe';
+import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
@@ -9,6 +9,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
+import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -27,7 +28,7 @@ export class Instructions {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
   }
 
-  public executerInstructions(instructions: Instruction[], ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
@@ -42,7 +43,7 @@ export class Instructions {
     return resultat;
   }
 
-  public executerInstruction(instruction: Instruction, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
@@ -84,8 +85,7 @@ export class Instructions {
     return resultat;
   }
 
-  private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu = null, cela: ElementJeu = null) {
-
+  private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
 
     // console.log("interpreterContenuDire >>> contenu=", contenu, " nbExecutions=", nbExecutions, "ceci=", ceci, "cela=", cela);
 
@@ -96,12 +96,20 @@ export class Instructions {
         contenu = contenu.replace(/\[description ici\]/g, descIci);
       }
       if (contenu.includes("[description ceci]")) {
-        const descCeci = this.calculerDescription(ceci.description, ++ceci.nbAffichageDescription, ceci, cela);
-        contenu = contenu.replace(/\[description ceci\]/g, descCeci);
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const descCeci = this.calculerDescription((ceci as Objet).description, ++(ceci as Objet).nbAffichageDescription, ceci, cela);
+          contenu = contenu.replace(/\[description ceci\]/g, descCeci);
+        } else {
+          console.error("interpreterContenuDire: Description de ceci: ceci n'est pas un objet");
+        }
       }
       if (contenu.includes("[description cela]")) {
-        const descCela = this.calculerDescription(cela.description, ++cela.nbAffichageDescription, ceci, cela);
-        contenu = contenu.replace(/\[description cela\]/g, descCela);
+        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, ceci, cela);
+          contenu = contenu.replace(/\[description cela\]/g, descCela);
+        } else {
+          console.error("interpreterContenuDire: Description de cela: cela n'est pas un objet");
+        }
       }
     }
 
@@ -112,24 +120,40 @@ export class Instructions {
         contenu = contenu.replace(/\[examen ici\]/g, examenIci);
       }
       if (contenu.includes("[examen ceci]")) {
-        const examenCeci = this.calculerDescription(ceci.examen, ++ceci.nbAffichageExamen, ceci, cela);
-        contenu = contenu.replace(/\[examen ceci\]/g, examenCeci);
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const examenCeci = this.calculerDescription((ceci as Objet).examen, ++(ceci as Objet).nbAffichageExamen, ceci, cela);
+          contenu = contenu.replace(/\[examen ceci\]/g, examenCeci);
+        } else {
+          console.error("interpreterContenuDire: examen de ceci: ceci n'est pas un objet");
+        }
       }
       if (contenu.includes("[examen cela]")) {
-        const examenCela = this.calculerDescription(cela.examen, ++cela.nbAffichageExamen, ceci, cela);
-        contenu = contenu.replace(/\[examen cela\]/g, examenCela);
+        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const examenCela = this.calculerDescription((cela as Objet).examen, ++(cela as Objet).nbAffichageExamen, ceci, cela);
+          contenu = contenu.replace(/\[examen cela\]/g, examenCela);
+        } else {
+          console.error("interpreterContenuDire: examen de cela: cela n'est pas un objet");
+        }
       }
     }
 
     // contenu
     if (contenu.includes("[contenu")) {
       if (contenu.includes("[contenu ceci]")) {
-        const contenuCeci = this.executerAfficherContenu(ceci);
-        contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const contenuCeci = this.executerAfficherContenu((ceci as Objet));
+          contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+        } else {
+          console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
+        }
       }
       if (contenu.includes("[contenu cela]")) {
-        const contenuCela = this.executerAfficherContenu(cela);
-        contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
+        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const contenuCela = this.executerAfficherContenu((cela as Objet));
+          contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
+        } else {
+          console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
+        }
       }
     }
 
@@ -157,12 +181,20 @@ export class Instructions {
         contenu = contenu.replace(/\[accord ici\]/g, accordIci);
       }
       if (contenu.includes("[accord ceci]")) {
-        const accordCeci = (ceci.genre === Genre.f ? "e" : "") + (ceci.nombre === Nombre.p ? "s" : "");
-        contenu = contenu.replace(/\[accord ceci\]/g, accordCeci);
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const accordCeci = ((ceci as Objet).genre === Genre.f ? "e" : "") + ((ceci as Objet).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[accord ceci\]/g, accordCeci);
+        } else {
+          console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
+        }
       }
       if (contenu.includes("[accord cela]")) {
-        const accordCela = (cela.genre === Genre.f ? "e" : "") + (cela.nombre === Nombre.p ? "s" : "");
-        contenu = contenu.replace(/\[accord cela\]/g, accordCela);
+        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const accordCela = ((cela as Objet).genre === Genre.f ? "e" : "") + ((cela as Objet).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[accord cela\]/g, accordCela);
+        } else {
+          console.error("interpreterContenuDire: accord cela: cela n'est pas un objet");
+        }
       }
     }
 
@@ -175,7 +207,7 @@ export class Instructions {
 
   }
 
-  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
@@ -199,13 +231,23 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
-        resultat.succes = sousResultat.succes;
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
+          resultat.succes = sousResultat.succes;
+        } else {
+          error("Exécuter infinitif: On ne peut pas déplacer un intitulé.");
+          resultat.succes = false;
+        }
         break;
 
       case 'effacer':
-        sousResultat = this.executerEffacer(ceci);
-        resultat.succes = sousResultat.succes;
+        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          sousResultat = this.executerEffacer(ceci as Objet);
+          resultat.succes = sousResultat.succes;
+        } else {
+          error("Exécuter infinitif: On ne peut pas effacer un intitulé.");
+          resultat.succes = false;
+        }
         break;
 
       case 'sauver':
@@ -285,7 +327,8 @@ export class Instructions {
     return els;
   }
 
-  private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: Objet = null, cela: ElementJeu = null): Resultat {
+  /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
+  private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: Objet = null, cela: ElementJeu | Intitule = null): Resultat {
 
     console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
 
@@ -324,7 +367,11 @@ export class Instructions {
 
     switch (complement.nom) {
       case 'cela':
-        destination = cela;
+        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          destination = cela as Objet;
+        } else {
+          console.error("Déplacer vers cela: cela n'est pas un objet.");
+        }
         break;
 
       case 'joueur':
@@ -428,7 +475,8 @@ export class Instructions {
     return resultat;
   }
 
-  private executerChanger(instruction: ElementsPhrase, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  /** Changer quelque chose dans le jeu */
+  private executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
@@ -445,6 +493,22 @@ export class Instructions {
         // case 'inventaire':
         //   resultat = this.executerInventaire(instruction);
         //   break;
+
+        case 'ceci':
+          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+            resultat = this.executerElementJeu(ceci as Objet, instruction);
+          } else {
+            console.error("executer changer ceci: ceci n'est pas un objet.");
+          }
+          break;
+
+        case 'cela':
+          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+            resultat = this.executerElementJeu(cela as Objet, instruction);
+          } else {
+            console.error("executer changer cela: cela n'est pas un objet.");
+          }
+          break;
 
         default:
           let correspondance = this.eju.trouverCorrespondance(instruction.sujet);
@@ -479,25 +543,41 @@ export class Instructions {
     return resultat;
   }
 
-  private executerReaction(instruction: ElementsPhrase, ceci: ElementJeu = null, cela: ElementJeu = null): Resultat {
+  private executerReaction(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
     if (instruction.complement1) {
       switch (instruction.complement1.toLocaleLowerCase()) {
         case 'réaction de ceci':
-          resultat = this.suiteExecuterReaction(ceci, null);
+          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(ceci as Objet, null);
+          } else {
+            console.error("Exécuter réaction de ceci: ceci n'est pas un objet");
+          }
           break;
         case 'réaction de cela':
-          resultat = this.suiteExecuterReaction(cela, null);
+          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(cela as Objet, null);
+          } else {
+            console.error("Exécuter réaction de cela: cela n'est pas un objet");
+          }
           break;
         case 'réaction de ceci concernant cela':
         case 'réaction de ceci à cela':
-          resultat = this.suiteExecuterReaction(ceci, cela);
+          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(ceci as Objet, cela);
+          } else {
+            console.error("Exécuter réaction de ceci à cela: ceci n'est pas un objet");
+          }
           break;
         case 'réaction de cela concernant ceci':
         case 'réaction de cela à ceci':
-          resultat = this.suiteExecuterReaction(cela, ceci);
+          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(cela as Objet, ceci);
+          } else {
+            console.error("Exécuter réaction de cela à ceci: cela n'est pas un objet");
+          }
           break;
 
         default:
@@ -513,7 +593,7 @@ export class Instructions {
   /**
    * 
    */
-  private suiteExecuterReaction(personne: ElementJeu, sujet: ElementJeu) {
+  private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule) {
 
     let resultat = new Resultat(false, '', 1);
     let reaction: Reaction = null;
@@ -553,6 +633,7 @@ export class Instructions {
     return resultat;
   }
 
+  /** Exécuter une instruction qui cible l'historique. */
   private executerHistorique(instruction: ElementsPhrase) {
     let resultat = new Resultat(false, '', 1);
     if (instruction.verbe.toLocaleLowerCase() === 'contient') {
@@ -579,7 +660,8 @@ export class Instructions {
     return resultat;
   }
 
-  private executerJoueur(instruction: ElementsPhrase, ceci: ElementJeu, cela: ElementJeu): Resultat {
+  /** Exécuter une instruction qui cible le joueur */
+  private executerJoueur(instruction: ElementsPhrase, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): Resultat {
     let resultat = new Resultat(false, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
@@ -593,9 +675,17 @@ export class Instructions {
         } else if (instruction.complement1) {
           let els: Objet[] = null;
           if (instruction.complement1.endsWith('contenu de ceci')) {
-            els = this.obtenirContenu(ceci);
+            if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+              els = this.obtenirContenu(ceci as Objet);
+            } else {
+              console.error("Joueur possède contenu de ceci: ceci n'est as un objet.");
+            }
           } else if (instruction.complement1.endsWith('contenu de cela')) {
-            els = this.obtenirContenu(cela);
+            if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+              els = this.obtenirContenu(cela as Objet);
+            } else {
+              console.error("Joueur possède contenu de cela: cela n'est as un objet.");
+            }
           }
           if (els) {
             els.forEach(el => {
@@ -657,20 +747,37 @@ export class Instructions {
 
     switch (instruction.verbe.toLowerCase()) {
       case 'est':
-        // retirer un état
-        if (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus') {
-          console.log("executerElementJeu: retirer l’état ", instruction.complement1);
-          ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
-          // ajouter un état
+        const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
+        // états spéciaux
+        if (instruction.complement1.startsWith("visible")) {
+          (element as Objet).visible = !nEstPas;
+        } else if (instruction.complement1.startsWith("invisible")) {
+          (element as Objet).visible = nEstPas; // (inverse de visible)
+        } else if (instruction.complement1.startsWith("possédé")) {
+          (element as Objet).possede = !nEstPas;
+        } else if (instruction.complement1.startsWith("porté")) {
+          (element as Objet).porte = !nEstPas;
+        } else if (instruction.complement1.startsWith("mangeable")) {
+          (element as Objet).mangeable = !nEstPas;
+        } else if (instruction.complement1.startsWith("buvable")) {
+          (element as Objet).buvable = !nEstPas;
+          // autres états
         } else {
-          console.log("executerElementJeu: ajouter l’état ", instruction.complement1);
-          ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
+          // n'est pas => retirer un état
+          if (nEstPas) {
+            console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
+            ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
+            // est => ajouter un état
+          } else {
+            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+            ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
+          }
         }
         break;
 
       default:
         resultat.succes = false;
-        console.warn("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
+        console.error("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
         break;
     }
     return resultat;
@@ -707,7 +814,7 @@ export class Instructions {
 
 
 
-  calculerDescription(description: string, nbAffichage: number, ceci: ElementJeu, cela: ElementJeu) {
+  calculerDescription(description: string, nbAffichage: number, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     let retVal = "";
     if (description) {
       const morceaux = description.split(/\[|\]/);
@@ -736,7 +843,7 @@ export class Instructions {
   }
 
 
-  estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu, cela: ElementJeu): boolean {
+  estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
 
     let retVal = false;
     let conditionLC = condition.toLowerCase();
