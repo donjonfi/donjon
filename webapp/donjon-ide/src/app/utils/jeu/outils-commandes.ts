@@ -157,12 +157,34 @@ export class OutilsCommandes {
   afficherSorties() {
     let retVal: string;
 
-    if (this.eju.curLieu.voisins.length > 0) {
-      retVal = "Sorties :";
-      this.eju.curLieu.voisins.forEach(voisin => {
-        if (voisin.type == EClasseRacine.lieu) {
-          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
+    // ne pas afficher les sorties séparrées par une porte cachée
+
+    // retrouver les voisins
+    // - lieux
+    let lieuxVoisins = this.eju.curLieu.voisins.filter(x => x.type === EClasseRacine.lieu);
+    // - portes
+    let portesVoisines = this.eju.curLieu.voisins.filter(x => x.type === EClasseRacine.porte);
+
+    // retirer de la liste les voisins séparrés par une porte invisible
+    if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
+      portesVoisines.forEach(voisinPorte => {
+        // retrouver la porte
+        const porte = this.eju.getObjet(voisinPorte.id);
+        // si la porte est invisible
+        if (porte && !porte.visible) {
+          // retirer de la liste le voisin lié
+          const voisinIndex = portesVoisines.findIndex(x => x.localisation == voisinPorte.localisation);
+          lieuxVoisins.splice(voisinIndex, 1);
         }
+      });
+    }
+
+    if (lieuxVoisins.length > 0) {
+      retVal = "Sorties :";
+      lieuxVoisins.forEach(voisin => {
+        // if (voisin.type == EClasseRacine.lieu) {
+          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
+        // }
       });
     } else {
       retVal = "Il n’y a pas de sortie.";
