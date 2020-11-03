@@ -11,6 +11,8 @@ import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from 'src/app/models/jeu/lieu';
+import { Localisation } from 'src/app/models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { Reaction } from 'src/app/models/compilateur/reaction';
@@ -27,6 +29,33 @@ export class Instructions {
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
   }
+
+
+  private static calculerNbChoix(statut: StatutCondition) {
+    let nbChoix = 0;
+    let index = statut.curMorceauIndex;
+    do {
+      index += 2;
+      nbChoix += 1;
+    } while (statut.morceaux[index] !== 'fin choix' && (index < (statut.morceaux.length - 3)));
+
+    // si on est dans une balise fois et si il y a un "puis"
+    // => récupérer le dernier élément fois pour avoir le plus élevé
+    if (statut.conditionDebutee == ConditionDebutee.fois) {
+
+      if (statut.morceaux[index - 2] == "puis") {
+        const result = statut.morceaux[index - 4].match(xFois);
+        if (result) {
+          statut.plusGrandChoix = Number.parseInt(result[1], 10);
+        } else {
+          console.warn("'puis' ne suit pas un 'Xe fois'");
+        }
+      }
+    }
+
+    return nbChoix;
+  }
+
 
   public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
@@ -92,12 +121,12 @@ export class Instructions {
     // description
     if (contenu.includes("[description")) {
       if (contenu.includes("[description ici]")) {
-        const descIci = this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, ceci, cela);
+        const descIci = this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, ceci, cela);
         contenu = contenu.replace(/\[description ici\]/g, descIci);
       }
       if (contenu.includes("[description ceci]")) {
         if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const descCeci = this.calculerDescription((ceci as Objet).description, ++(ceci as Objet).nbAffichageDescription, ceci, cela);
+          const descCeci = this.calculerDescription((ceci as Objet).description, ++(ceci as Objet).nbAffichageDescription, (ceci as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[description ceci\]/g, descCeci);
         } else {
           console.error("interpreterContenuDire: Description de ceci: ceci n'est pas un objet");
@@ -105,7 +134,7 @@ export class Instructions {
       }
       if (contenu.includes("[description cela]")) {
         if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, ceci, cela);
+          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, (cela as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[description cela\]/g, descCela);
         } else {
           console.error("interpreterContenuDire: Description de cela: cela n'est pas un objet");
@@ -116,12 +145,12 @@ export class Instructions {
     // examen
     if (contenu.includes("[examen")) {
       if (contenu.includes("[examen ici]")) {
-        const examenIci = this.calculerDescription(this.eju.curLieu.examen, ++this.eju.curLieu.nbAffichageExamen, ceci, cela);
+        const examenIci = this.calculerDescription(this.eju.curLieu.examen, ++this.eju.curLieu.nbAffichageExamen, null, ceci, cela);
         contenu = contenu.replace(/\[examen ici\]/g, examenIci);
       }
       if (contenu.includes("[examen ceci]")) {
         if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const examenCeci = this.calculerDescription((ceci as Objet).examen, ++(ceci as Objet).nbAffichageExamen, ceci, cela);
+          const examenCeci = this.calculerDescription((ceci as Objet).examen, ++(ceci as Objet).nbAffichageExamen, (ceci as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[examen ceci\]/g, examenCeci);
         } else {
           console.error("interpreterContenuDire: examen de ceci: ceci n'est pas un objet");
@@ -129,7 +158,7 @@ export class Instructions {
       }
       if (contenu.includes("[examen cela]")) {
         if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const examenCela = this.calculerDescription((cela as Objet).examen, ++(cela as Objet).nbAffichageExamen, ceci, cela);
+          const examenCela = this.calculerDescription((cela as Objet).examen, ++(cela as Objet).nbAffichageExamen, (cela as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[examen cela\]/g, examenCela);
         } else {
           console.error("interpreterContenuDire: examen de cela: cela n'est pas un objet");
@@ -139,17 +168,22 @@ export class Instructions {
 
     // contenu
     if (contenu.includes("[contenu")) {
+
+      if (contenu.includes("[contenu ici]")) {
+        const contenuIci = this.executerAfficherContenu(this.eju.curLieu, "{n}Vous voyez ", "");
+        contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
+      }
       if (contenu.includes("[contenu ceci]")) {
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const contenuCeci = this.executerAfficherContenu((ceci as Objet));
+        if (ceci && Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const contenuCeci = this.executerAfficherContenu((ceci as Objet), "{n}Vous trouvez ", "{n}Vous ne trouvez pas d'objet.");
           contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
         }
       }
       if (contenu.includes("[contenu cela]")) {
-        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const contenuCela = this.executerAfficherContenu((cela as Objet));
+        if (cela && Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const contenuCela = this.executerAfficherContenu((cela as Objet), "{n}Vous trouvez ", "{n}Vous ne trouvez pas d'objet.");
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
@@ -157,18 +191,30 @@ export class Instructions {
       }
     }
 
+    // sorties
+    if (contenu.includes("[sorties ici]")) {
+      const sortiesIci = this.afficherSorties(this.eju.curLieu);
+      contenu = contenu.replace(/\[sorties ici\]/g, sortiesIci);
+    }
+
+    // titre
+    if (contenu.includes("[titre ici]")) {
+      const titreIci = this.eju.curLieu.titre;
+      contenu = contenu.replace(/\[titre ici\]/g, titreIci);
+    }
+
     // intitulé
     if (contenu.includes("[intitulé")) {
       if (contenu.includes("[intitulé ici]")) {
-        const intIci = this.eju.curLieu.intitule.determinant + this.eju.curLieu.intitule.nom + this.eju.curLieu.intitule.epithete;
+        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu);
         contenu = contenu.replace(/\[intitulé ici\]/g, intIci);
       }
       if (contenu.includes("[intitulé ceci]")) {
-        const intCeci = ceci.intitule.determinant + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+        const intCeci = ElementsJeuUtils.calculerIntitule(ceci);
         contenu = contenu.replace(/\[intitulé ceci\]/g, intCeci);
       }
       if (contenu.includes("[intitulé cela]")) {
-        const intCela = cela.intitule.determinant + cela.intitule.nom + (cela.intitule.epithete ? (" " + cela.intitule.epithete) : "");
+        const intCela = ElementsJeuUtils.calculerIntitule(cela);
         contenu = contenu.replace(/\[intitulé cela\]/g, intCela);
       }
     }
@@ -200,7 +246,7 @@ export class Instructions {
 
     // interpréter les balises encore présentes
     if (contenu.includes("[")) {
-      contenu = this.calculerDescription(contenu, nbExecutions, ceci, cela);
+      contenu = this.calculerDescription(contenu, nbExecutions, null, ceci, cela);
     }
 
     return contenu;
@@ -235,7 +281,7 @@ export class Instructions {
           sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
           resultat.succes = sousResultat.succes;
         } else {
-          error("Exécuter infinitif: On ne peut pas déplacer un intitulé.");
+          console.error("Exécuter infinitif: On ne peut pas déplacer un intitulé.");
           resultat.succes = false;
         }
         break;
@@ -245,7 +291,7 @@ export class Instructions {
           sousResultat = this.executerEffacer(ceci as Objet);
           resultat.succes = sousResultat.succes;
         } else {
-          error("Exécuter infinitif: On ne peut pas effacer un intitulé.");
+          console.error("Exécuter infinitif: On ne peut pas effacer un intitulé.");
           resultat.succes = false;
         }
         break;
@@ -285,25 +331,55 @@ export class Instructions {
 
   /**
    * Afficher le contenu d'un objet ou d'un lieu.
+   * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerAfficherContenu(ceci: ElementJeu): Resultat {
+  public executerAfficherContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string): Resultat {
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
-      let els: Objet[] = null;
+      let objets: Objet[] = null;
+      // objet
       if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
+        // retrouver les objets {contenus dans/posés sur} cet objet
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id && ElementsJeuUtils.possedeCetEtat(x, "visible"));
         resultat.succes = true;
+        // lieu
       } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-        els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
+        // retrouver les objets présents dans le lieu
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+        console.warn("objets contenus dans le lieu:", objets);
         resultat.succes = true;
       } else {
         console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
       }
 
       if (resultat.succes) {
-        els.forEach(el => {
-          resultat.sortie += "- " + el.intitule.determinant + el.intitule.nom + (el.intitule.epithete ? (" " + el.intitule.epithete) : "") + "\n";
-        });
+
+        // afficher d'abord les aperçus
+
+        // - objets sans apercu
+        let objetsSansApercu = objets.filter(x => x.apercu === null);
+        const nbObjetsSansApercus = objetsSansApercu.length;
+        if (nbObjetsSansApercus > 0) {
+          resultat.sortie = texteSiQuelqueChose;
+          let curObjIndex = 0;
+          objetsSansApercu.forEach(obj => {
+            ++curObjIndex;
+            resultat.sortie += ElementsJeuUtils.calculerIntitule(obj);
+            if (curObjIndex < (nbObjetsSansApercus - 1)) {
+              resultat.sortie += ", ";
+            } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
+              resultat.sortie += " et ";
+            } else {
+              resultat.sortie += ".";
+            }
+          });
+        } else {
+          resultat.sortie = texteSiRien;
+        }
+
+        // - objets avec aperçu :
+        let objetsAvecApercu = objets.filter(x => x.apercu !== null);
+
       }
 
     }
@@ -812,13 +888,11 @@ export class Instructions {
   //   return resultat;
   // }
 
-
-
-  calculerDescription(description: string, nbAffichage: number, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+  calculerDescription(description: string, nbAffichage: number, initial: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     let retVal = "";
     if (description) {
       const morceaux = description.split(/\[|\]/);
-      let statut = new StatutCondition(nbAffichage, morceaux, 0);
+      let statut = new StatutCondition(nbAffichage, initial, morceaux, 0);
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
       let afficherMorceauSuivant = true;
@@ -842,6 +916,9 @@ export class Instructions {
     return retVal;
   }
 
+  calculerDescriptionContenu(element: ElementJeu, nbAffichage: number) {
+
+  }
 
   estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
 
@@ -852,7 +929,7 @@ export class Instructions {
     if (resultFois) {
       statut.conditionDebutee = ConditionDebutee.fois;
       const nbFois = Number.parseInt(resultFois[1], 10);
-      statut.nbChoix = this.calculerNbChoix(statut);
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
       retVal = (statut.nbAffichage === nbFois);
       // Au hasard
       // TODO: au hasard
@@ -860,7 +937,7 @@ export class Instructions {
       statut.conditionDebutee = ConditionDebutee.hasard;
       statut.dernIndexChoix = 1;
       // compter le nombre de choix
-      statut.nbChoix = this.calculerNbChoix(statut);
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
       // choisir un choix au hasard
       const rand = Math.random();
       statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
@@ -869,8 +946,11 @@ export class Instructions {
       statut.conditionDebutee = ConditionDebutee.boucle;
       statut.dernIndexChoix = 1;
       // compter le nombre de choix
-      statut.nbChoix = this.calculerNbChoix(statut);
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
       retVal = (statut.nbAffichage % statut.nbChoix === 1);
+    } else if (conditionLC === "initialement") {
+      statut.conditionDebutee = ConditionDebutee.initialement;
+      retVal = statut.initial;
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
       // TODO: vérifier le si
@@ -896,8 +976,11 @@ export class Instructions {
             // boucler
             statut.dernIndexChoix += 1;
             retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
+          } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
+            // quand on est plus dans initialement
+            retVal = !statut.initial;
           } else {
-            console.warn("[puis] sans 'fois' ou 'boucle'.");
+            console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
           }
           break;
 
@@ -911,10 +994,10 @@ export class Instructions {
           break;
 
         case 'fin choix':
-          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard) {
+          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee == ConditionDebutee.initialement) {
             retVal = true;
           } else {
-            console.warn("[fin choix] sans 'fois', 'boucle' ou 'hasard'.");
+            console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
           }
           break;
 
@@ -933,35 +1016,82 @@ export class Instructions {
     }
 
     console.log("estConditionRemplie", condition, statut, retVal);
-
     return retVal;
   }
 
+  afficherSorties(lieu: Lieu) {
+    let retVal: string;
 
+    // ne pas afficher les sorties séparrées par une porte cachée
 
-  private calculerNbChoix(statut: StatutCondition) {
-    let nbChoix = 0;
-    let index = statut.curMorceauIndex;
-    do {
-      index += 2;
-      nbChoix += 1;
-    } while (statut.morceaux[index] !== 'fin choix' && (index < (statut.morceaux.length - 3)));
+    // retrouver les voisins
+    // - lieux
+    let lieuxVoisins = lieu.voisins.filter(x => x.type === EClasseRacine.lieu);
+    // - portes
+    let portesVoisines = lieu.voisins.filter(x => x.type === EClasseRacine.porte);
 
-    // si on est dans une balise fois et si il y a un "puis"
-    // => récupérer le dernier élément fois pour avoir le plus élevé
-    if (statut.conditionDebutee == ConditionDebutee.fois) {
-
-      if (statut.morceaux[index - 2] == "puis") {
-        const result = statut.morceaux[index - 4].match(xFois);
-        if (result) {
-          statut.plusGrandChoix = Number.parseInt(result[1], 10);
-        } else {
-          console.warn("'puis' ne suit pas un 'Xe fois'");
+    // retirer de la liste les voisins séparrés par une porte invisible
+    if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
+      portesVoisines.forEach(voisinPorte => {
+        // retrouver la porte
+        const porte = this.eju.getObjet(voisinPorte.id);
+        // si la porte est invisible
+        if (porte && !porte.visible) {
+          // retirer de la liste le voisin lié
+          const voisinIndex = portesVoisines.findIndex(x => x.localisation == voisinPorte.localisation);
+          lieuxVoisins.splice(voisinIndex, 1);
         }
-      }
+      });
     }
 
-    return nbChoix;
+    if (lieuxVoisins.length > 0) {
+      retVal = "\nSorties :";
+      lieuxVoisins.forEach(voisin => {
+        // if (voisin.type == EClasseRacine.lieu) {
+        retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, lieu.id, voisin.id));
+        // }
+      });
+    } else {
+      retVal = "\nIl n’y a pas de sortie.";
+    }
+    return retVal;
   }
+
+  afficherLocalisation(localisation: Localisation, curLieuIndex: number, voisinIndex: number) {
+    let retVal: string = null;
+    let lieu = this.eju.getLieu(voisinIndex);
+    let titreLieu = lieu.titre;
+    switch (localisation) {
+      case Localisation.nord:
+        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : '');
+        break;
+      case Localisation.sud:
+        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : '');
+        break;
+      case Localisation.est:
+        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : '');
+        break;
+      case Localisation.ouest:
+        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : '');
+        break;
+      case Localisation.bas:
+        retVal = "descendre (de) − " + titreLieu;
+        break;
+      case Localisation.haut:
+        retVal = "monter (mo) − " + titreLieu;
+        break;
+      case Localisation.exterieur:
+        retVal = "sortir (so) − " + titreLieu;
+        break;
+      case Localisation.interieur:
+        retVal = "entrer (en) − " + titreLieu;
+        break;
+
+      default:
+        retVal = localisation.toString();
+    }
+    return retVal;
+  }
+
 
 }

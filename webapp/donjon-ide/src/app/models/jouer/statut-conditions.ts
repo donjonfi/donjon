@@ -8,6 +8,7 @@ export enum ConditionDebutee {
   hasard = 'hasard',
   boucle = 'boucle',
   fois = 'fois',
+  initialement = 'initialement',
 }
 
 export class StatutCondition {
@@ -21,6 +22,7 @@ export class StatutCondition {
 
   constructor(
     public nbAffichage: number,
+    public initial: boolean,
     public morceaux: string[],
     public curMorceauIndex: number,
 

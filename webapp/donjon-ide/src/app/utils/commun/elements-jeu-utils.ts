@@ -16,16 +16,25 @@ export class ElementsJeuUtils {
     private verbeux: boolean,
   ) { }
 
+  static calculerIntitule(ceci: Intitule) {
+    let retVal = ceci?.nom ?? "???";
+    if (ceci.intitule) {
+      retVal = ceci.intitule.determinant + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+    }
+    return retVal;
+  }
+
   static possedeCetEtat(ej: ElementJeu, etatA: string): boolean {
     if (ej) {
-      var retVal = false;
-      ej.etats.forEach(et => {
-        const curEt = et.toLocaleLowerCase().trim();
-        if (curEt === etatA.toLocaleLowerCase().trim()) {
-          retVal = true;
-        }
-      });
-
+      let retVal = false;
+      if (ej.etats) {
+        ej.etats.forEach(et => {
+          const curEt = et.toLocaleLowerCase().trim();
+          if (curEt === etatA.toLocaleLowerCase().trim()) {
+            retVal = true;
+          }
+        });
+      }
       return retVal;
     } else {
       console.error("possedeCetEtat >> ElementJeu pas défini.");
@@ -34,19 +43,21 @@ export class ElementsJeuUtils {
 
   static possedeUnDeCesEtats(ej: ElementJeu, etatA: string, etatB: string = null /*, etatC: string = null, etatD: string = null*/): boolean {
     if (ej) {
-      var retVal = false;
-      ej.etats.forEach(et => {
-        const curEt = et.toLocaleLowerCase().trim();
-        if (curEt === etatA.toLocaleLowerCase().trim()) {
-          retVal = true;
-        } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
-          retVal = true;
-          // } else if (etatC && curEt === etatC.toLocaleLowerCase().trim()) {
-          //   retVal = true;
-          // } else if (etatD && curEt === etatD.toLocaleLowerCase().trim()) {
-          //   retVal = true;
-        }
-      });
+      let retVal = false;
+      if (ej.etats) {
+        ej.etats.forEach(et => {
+          const curEt = et.toLocaleLowerCase().trim();
+          if (curEt === etatA.toLocaleLowerCase().trim()) {
+            retVal = true;
+          } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
+            retVal = true;
+            // } else if (etatC && curEt === etatC.toLocaleLowerCase().trim()) {
+            //   retVal = true;
+            // } else if (etatD && curEt === etatD.toLocaleLowerCase().trim()) {
+            //   retVal = true;
+          }
+        });
+      }
       return retVal;
     } else {
       console.error("possedeUnDeCesEtats >> ElementJeu pas défini.");
@@ -61,14 +72,16 @@ export class ElementsJeuUtils {
    */
   static possedeCetEtatAutoF(ej: ElementJeu, etatA: string): boolean {
     if (ej) {
-      var retVal = false;
-      ej.etats.forEach(et => {
-        const curEt = et.toLocaleLowerCase().trim();
-        // premier état + féminin
-        if (curEt === etatA || curEt === (etatA + 'e')) {
-          retVal = true;
-        }
-      });
+      let retVal = false;
+      if (ej.etats) {
+        ej.etats.forEach(et => {
+          const curEt = et.toLocaleLowerCase().trim();
+          // premier état + féminin
+          if (curEt === etatA || curEt === (etatA + 'e')) {
+            retVal = true;
+          }
+        });
+      }
       return retVal;
     } else {
       console.error("possedeCetEtatFemininAuto >> ElementJeu pas défini.");
@@ -83,17 +96,19 @@ export class ElementsJeuUtils {
    */
   static possedeUnDeCesEtatsAutoF(ej: ElementJeu, etatA: string, etatB: string = null): boolean {
     if (ej) {
-      var retVal = false;
-      ej.etats.forEach(et => {
-        const curEt = et.toLocaleLowerCase().trim();
-        // premier état + féminin
-        if (curEt === etatA || curEt === (etatA + 'e')) {
-          retVal = true;
-          // autre état + féminin
-        } else if (etatB && (curEt === etatB || curEt === (etatB + 'e'))) {
-          retVal = true;
-        }
-      });
+      let retVal = false;
+      if (ej.etats) {
+        ej.etats.forEach(et => {
+          const curEt = et.toLocaleLowerCase().trim();
+          // premier état + féminin
+          if (curEt === etatA || curEt === (etatA + 'e')) {
+            retVal = true;
+            // autre état + féminin
+          } else if (etatB && (curEt === etatB || curEt === (etatB + 'e'))) {
+            retVal = true;
+          }
+        });
+      }
       return retVal;
     } else {
       console.error("possedeUnDeCesEtatsFemininAuto >> ElementJeu pas défini.");
@@ -294,7 +309,7 @@ export class ElementsJeuUtils {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
-      cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Mot);
+      cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Intitule);
       // 1. Chercher dans les directions.
       cor.localisation = this.trouverLocalisation(sujet);
 

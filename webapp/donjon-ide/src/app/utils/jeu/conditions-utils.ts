@@ -153,7 +153,6 @@ export class ConditionsUtils {
 
           // 2 - Trouver le verbe
           // ++++++++++++++++++++
-
           switch (condition.verbe) {
             // ÉTAT
             case 'est':

@@ -140,56 +140,16 @@ export class OutilsCommandes {
     return retVal;
   }
 
-
-
   afficherCurLieu() {
     if (this.eju.curLieu) {
       return "{_{*" + this.eju.curLieu.titre + "*}_}\n"
-        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null) + "\n\n") : "")
-        + this.afficherSorties();
+        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null, null)) : "")
+        + this.ins.executerAfficherContenu(this.eju.curLieu, "{n}Vous voyez ", "").sortie
+        + "\n" + this.ins.afficherSorties(this.eju.curLieu);
     } else {
       console.warn("Pas trouvé de curLieu :(");
       return "Je suis où moi ? :(";
     }
-
-  }
-
-  afficherSorties() {
-    let retVal: string;
-
-    // ne pas afficher les sorties séparrées par une porte cachée
-
-    // retrouver les voisins
-    // - lieux
-    let lieuxVoisins = this.eju.curLieu.voisins.filter(x => x.type === EClasseRacine.lieu);
-    // - portes
-    let portesVoisines = this.eju.curLieu.voisins.filter(x => x.type === EClasseRacine.porte);
-
-    // retirer de la liste les voisins séparrés par une porte invisible
-    if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
-      portesVoisines.forEach(voisinPorte => {
-        // retrouver la porte
-        const porte = this.eju.getObjet(voisinPorte.id);
-        // si la porte est invisible
-        if (porte && !porte.visible) {
-          // retirer de la liste le voisin lié
-          const voisinIndex = portesVoisines.findIndex(x => x.localisation == voisinPorte.localisation);
-          lieuxVoisins.splice(voisinIndex, 1);
-        }
-      });
-    }
-
-    if (lieuxVoisins.length > 0) {
-      retVal = "Sorties :";
-      lieuxVoisins.forEach(voisin => {
-        // if (voisin.type == EClasseRacine.lieu) {
-          retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, this.eju.curLieu.id, voisin.id));
-        // }
-      });
-    } else {
-      retVal = "Il n’y a pas de sortie.";
-    }
-    return retVal;
   }
 
   afficherInventaire() {
@@ -254,40 +214,6 @@ export class OutilsCommandes {
     return retVal;
   }
 
-  afficherLocalisation(localisation: Localisation, curLieuIndex: number, voisinIndex: number) {
-    let retVal: string = null;
-    let lieu = this.eju.getLieu(voisinIndex);
-    let titreLieu = lieu.titre;
-    switch (localisation) {
-      case Localisation.nord:
-        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : '');
-        break;
-      case Localisation.sud:
-        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : '');
-        break;
-      case Localisation.est:
-        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : '');
-        break;
-      case Localisation.ouest:
-        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : '');
-        break;
-      case Localisation.bas:
-        retVal = "descendre (de) − " + titreLieu;
-        break;
-      case Localisation.haut:
-        retVal = "monter (mo) − " + titreLieu;
-        break;
-      case Localisation.exterieur:
-        retVal = "sortir (so) − " + titreLieu;
-        break;
-      case Localisation.interieur:
-        retVal = "entrer (en) − " + titreLieu;
-        break;
 
-      default:
-        retVal = localisation.toString();
-    }
-    return retVal;
-  }
 
 }

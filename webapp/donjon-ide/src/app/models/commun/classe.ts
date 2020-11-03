@@ -116,8 +116,8 @@ export enum EClasseRacine {
 
 export class ClassesRacines {
 
-  public static Mot = new Classe(EClasseRacine.intitule, "Intitulé", null, 0, []);
-  public static Element = new Classe(EClasseRacine.element, "Élément", ClassesRacines.Mot, 1, []);
+  public static Intitule = new Classe(EClasseRacine.intitule, "Intitulé", null, 0, []);
+  public static Element = new Classe(EClasseRacine.element, "Élément", ClassesRacines.Intitule, 1, []);
   public static Lieu = new Classe(EClasseRacine.lieu, "Lieu", ClassesRacines.Element, 2, []);
   public static Objet = new Classe(EClasseRacine.objet, "Objet", ClassesRacines.Element, 2, []);
   public static Vivant = new Classe(EClasseRacine.vivant, "Vivant", ClassesRacines.Objet, 3, []);

@@ -95,9 +95,17 @@ export class Generateur {
 
       newObjet.description = curEle.description;
       newObjet.examen = curEle.examen;
-      newObjet.etats = curEle.attributs;
+      newObjet.etats = curEle.attributs ?? [] ;
       newObjet.capacites = curEle.capacites;
       newObjet.reactions = curEle.reactions;
+
+      // états par défaut
+      if (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(newObjet, "invisible")) {
+        ElementsJeuUtils.ajouterEtat(newObjet, "visible");
+        newObjet.visible = true;
+      } else {
+        newObjet.visible = false;
+      }
 
       // Déterminer le SINGULIER à partir du pluriel.
       if (curEle.nombre === Nombre.p) {

@@ -8,12 +8,14 @@
 
 Le salon est un lieu.
 Sa description est "Vous êtes dans un petit salon.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
-Le fauteuil est un objet dans le salon.
-Son aperçu est "Il y a un vieux fauteuil en cuir au centre de la pièce.".
-Son examen est "Il y a un bout de papier coincé entre le coussin et l'accoudoir.".
+Le fauteuil est un objet dans le salon. "Il y a un fauteuil en cuir au centre de la pièce.".
+Son examen est "C’est un vieux fauteil en cuir brun bien patiné.".
 
-Il y a un bout de papier dans le fauteuil. C'est un objet.
-"Il y a quelque chose d'écrit dessus".
+Il y a une bille dans le salon. "C'est une bille en verre décorée de petits points bleus."
+
+Il y a un bout de papier sur le fauteuil. C'est un objet.
+Sa description est "[si le papier n’a pas été déplacé]Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.[fin si]".
+Son examen est "Il y a quelque chose d'écrit dessus".
 
 Le joueur peut lire le bout de papier:
   dire "Il est écrit << ne pas oublier: {+uaenna+} >>".
@@ -42,7 +44,7 @@ exécuter tapper ceci:
 La porte cachée est une porte au nord du salon.
 Elle est fermée, verrouillée et invisible.
 
-Le mur est un support du salon. "Les murs de la pièce sont peints en vert."
+Le mur est un support décoratif du salon. "Les murs de la pièce sont peints en vert."
 
 Il y a un tableau sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
 
@@ -73,7 +75,9 @@ Le cabinet est un lieu au nord du salon.
 La magicienne est une femme dans le cabinet.
 
 Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
-  
+Sa réaction concernant l'anneau est "<< Mon anneau magique m'a été dérobé. >>".
+Sa réaction concernant la sortie est "<< Grâce à mon anneau, j'aurais pu vous aider >>".
+
 après donner pièce à la magicienne:
   dire "<< Elle ne semble pas magique malheureusement. >>".
 
@@ -164,14 +168,14 @@ terminer interroger ceci sur cela:
 
 -- a) regarder
 le joueur peut regarder:
-  dire "[description ici]".
+  dire "{_[titre ici]_}{n}[description ici][contenu ici]{n}[sorties ici]".
   
 -- b) regarder ceci
 regarder ceci est une action qui concerne un objet visible.
 
 exécuter regarder ceci:
-   dire "[description ceci]";
-   si aucune description pour ceci, dire "C'est [intitulé ceci].".
+   dire "[description ceci][contenu ceci]";
+   si aucune description pour ceci, dire "C'est [intitulé ceci], rien de spécial.".
 
 -- action: EXAMINER
 

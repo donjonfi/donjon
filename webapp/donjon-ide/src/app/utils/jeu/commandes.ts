@@ -89,7 +89,7 @@ export class Commandes {
 
     console.log("voisinLieu", voisinLieu);
     console.log("voisinPorte", voisinPorte);
-    
+
 
     // TODO: vérifier accès…
     if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
@@ -391,7 +391,7 @@ export class Commandes {
   // }
 
   sorties() {
-    return this.outils.afficherSorties();
+    return this.ins.afficherSorties(this.eju.curLieu);
   }
 
   fouiller(els: ElementsPhrase) {
@@ -400,7 +400,7 @@ export class Commandes {
 
   inventaire() {
     // return this.outils.afficherInventaire();
-    let retVal = this.ins.executerAfficherContenu(this.jeu.joueur).sortie;
+    let retVal = this.ins.executerAfficherContenu(this.jeu.joueur, "Votre inventaire contient :{n}", "Votre inventaire est vide.").sortie;
     if (!retVal) {
       retVal = "{/Votre inventaire est vide./}";
     }
