@@ -115,17 +115,19 @@ export class LecteurComponent implements OnInit, OnChanges {
       if (resultatAvant.sortie) {
         this.sortieJoueur += LecteurComponent.doHtml(resultatAvant.sortie) + "<br>";
       }
+      // continuer l’exécution de l’action si elle n’a pas été arrêtée
+      if (resultatAvant.stopper !== true) {
+        // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
+        let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
+        if (resultatRemplacer.nombre === 0) {
+          // afficher où on est.
+          this.sortieJoueur += LecteurComponent.doHtml(this.com.ouSuisJe());
+        }
 
-      // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-      let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
-      if (resultatRemplacer.nombre === 0) {
-        // afficher où on est.
-        this.sortieJoueur += LecteurComponent.doHtml(this.com.ouSuisJe());
+        // éxécuter les instructions APRÈS le jeu commence
+        const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
+        this.sortieJoueur += LecteurComponent.doHtml(resultatApres.sortie);
       }
-
-      // éxécuter les instructions APRÈS le jeu commence
-      const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-      this.sortieJoueur += LecteurComponent.doHtml(resultatApres.sortie);
 
       this.sortieJoueur += "</p>";
 
@@ -236,25 +238,6 @@ export class LecteurComponent implements OnInit, OnChanges {
       const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule) : null;
       const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule) : null;
 
-      // // vérifier si on a trouvé les éléments de la commande.
-      // if (ceciIntitule && resultatCeci.nbCor === 0) {
-      //   retVal += "Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».\n";
-      // } else if (celaIntitule && resultatCela.nbCor === 0) {
-      //   retVal += "Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».\n";
-      // }
-
-      // // vérifier si les objets de la commande sont visibles
-      // if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
-      //   if (!resultatCeci.objets[0].visible) {
-      //     retVal += "Je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».\n";
-      //   }
-      // }
-      // if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
-      //   if (!resultatCela.objets[0].visible) {
-      //     retVal += "Je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».\n";
-      //   }
-      // }
-
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
         return retVal;
@@ -291,29 +274,8 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.effacer();
           break;
 
-        // case "donner":
-        //   // avant la commande
-        //   const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement));
-        //   retVal += resultatAvant.sortie;
-        //   retVal = this.com.donner(els);
-        //   // après la commande
-        //   const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement));
-
-        //   console.warn("resultatApres >>>", resultatApres);
-
-        //   retVal += resultatApres.sortie;
-        //   break;
-
         // case "déverrouiller":
         //   retVal = this.com.deverrouiller(els);
-        //   break;
-
-        // case "ouvrir":
-        //   retVal = this.com.ouvrir(els);
-        //   break;
-
-        // case "fermer":
-        //   retVal = this.com.fermer(els);
         //   break;
 
         // case "utiliser":
@@ -360,45 +322,40 @@ export class LecteurComponent implements OnInit, OnChanges {
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
-            // avant la commande (qu'elle soit refusée ou non)
+            // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
             const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement));
             retVal = resultatAvant.sortie;
-
-            // vérifier si l'action est refusée
-            let refus = false;
-            if (actionCeciCela.action.verifications) {
-              console.log("vérifications en cours pour la commande…");
-
-              // parcourir les vérifications
-              actionCeciCela.action.verifications.forEach(verif => {
-                if (!refus && this.cond.conditionsRemplies(verif.conditions, actionCeciCela.ceci, actionCeciCela.cela)) {
-                  console.warn("> commande vérifie cela:", verif);
-                  let resultat = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
-                  retVal = resultat.sortie;
-                  refus = true;
-                }
-              });
-            }
-
-            // exécuter l’action si pas refusée
-            if (!refus) {
-
-              // exécuter l’action
-              retVal += this.executerAction(actionCeciCela);
-
-              // après la commande
-              const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement));
-              retVal += resultatApres.sortie;
-
-              // terminer l'action seulement s'il n'y avait pas de " après ".
-              if (resultatApres.nombre === 0) {
-                // terminer l’action
-                retVal += this.finaliserAction(actionCeciCela);
+            // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
+            if (resultatAvant.stopper !== true) {
+              // PHASE REFUSER (vérifier l'action)
+              let refus = false;
+              if (actionCeciCela.action.verifications) {
+                console.log("vérifications en cours pour la commande…");
+                // parcourir les vérifications
+                actionCeciCela.action.verifications.forEach(verif => {
+                  if (!refus && this.cond.conditionsRemplies(verif.conditions, actionCeciCela.ceci, actionCeciCela.cela)) {
+                    console.warn("> commande vérifie cela:", verif);
+                    let resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
+                    retVal = resultatRefuser.sortie;
+                    refus = true;
+                  }
+                });
               }
 
+              // exécuter l’action si pas refusée
+              if (!refus) {
+                // PHASE EXÉCUTER l’action
+                retVal += this.executerAction(actionCeciCela);
+                // ÉVÈNEMENT APRÈS la commande
+                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement));
+                retVal += resultatApres.sortie;
+                // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
+                if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
+                  // terminer l’action
+                  retVal += this.finaliserAction(actionCeciCela);
+                }
+              }
             }
-
-
           } else {
             retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
           }
