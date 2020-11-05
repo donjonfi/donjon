@@ -100,10 +100,6 @@ export class OutilsCommandes {
     }
   }
 
-
-
-
-
   afficherStatutPorte(porte: Objet) {
     let retVal = "";
     if (!porte) {

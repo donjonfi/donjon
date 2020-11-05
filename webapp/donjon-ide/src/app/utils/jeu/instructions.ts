@@ -1,4 +1,4 @@
-import { Classe, EClasseRacine } from '../../models/commun/classe';
+import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
@@ -43,7 +43,7 @@ export class Instructions {
     // => récupérer le dernier élément fois pour avoir le plus élevé
     if (statut.conditionDebutee == ConditionDebutee.fois) {
 
-      if (statut.morceaux[index - 2] == "puis") {
+      if (statut.morceaux[index - 2] === "puis") {
         const result = statut.morceaux[index - 4].match(xFois);
         if (result) {
           statut.plusGrandChoix = Number.parseInt(result[1], 10);
@@ -125,6 +125,26 @@ export class Instructions {
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
+        }
+      }
+    }
+
+    // statut (porte, contenant)
+    if (contenu.includes("[statut")) {
+      if (contenu.includes("[statut ceci]")) {
+        if (ceci && Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const statutCeci = this.afficherStatut(ceci as Objet);
+          contenu = contenu.replace(/\[statut ceci\]/g, statutCeci);
+        } else {
+          console.error("interpreterContenuDire: statut de ceci: ceci n'est pas un objet");
+        }
+      }
+      if (contenu.includes("[statut cela]")) {
+        if (cela && Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const statutCela = this.afficherStatut(cela as Objet);
+          contenu = contenu.replace(/\[statut cela\]/g, statutCela);
+        } else {
+          console.error("interpreterContenuDire: statut de cela: cela n'est pas un objet");
         }
       }
     }
@@ -1077,19 +1097,42 @@ export class Instructions {
       case 'sont':
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
         // états spéciaux
+        //   - VISIBLE
         if (instruction.complement1.startsWith("visible")) {
           (element as Objet).visible = !nEstPas;
         } else if (instruction.complement1.startsWith("invisible")) {
           (element as Objet).visible = nEstPas; // (inverse de visible)
+          // - POSSÉDÉ
         } else if (instruction.complement1.startsWith("possédé")) {
           (element as Objet).possede = !nEstPas;
+          // - PORTÉ
         } else if (instruction.complement1.startsWith("porté")) {
           (element as Objet).porte = !nEstPas;
+          // - DÉNOMBRABLE
+        } else if (instruction.complement1.startsWith("dénombrable")) {
+          (element as Objet).denombrable = !nEstPas;
+          // - MANGEABLE
         } else if (instruction.complement1.startsWith("mangeable")) {
           (element as Objet).mangeable = !nEstPas;
+          // - BUVABLE
         } else if (instruction.complement1.startsWith("buvable")) {
           (element as Objet).buvable = !nEstPas;
-          // autres états
+          // - OUVERT
+        } else if (instruction.complement1.startsWith("ouvert")) {
+          (element as Objet).ouvert = !nEstPas;
+        } else if (instruction.complement1.startsWith("fermé")) {
+          (element as Objet).ouvert = nEstPas; // inverse de ouvert
+          // - OUVRABLE
+        } else if (instruction.complement1.startsWith("ouvrable")) {
+          (element as Objet).ouvrable = !nEstPas;
+          // - VERROUILLABLE
+        } else if (instruction.complement1.startsWith("verrouillable")) {
+          (element as Objet).verrouillable = !nEstPas;
+          // - VERROUILLÉ
+        } else if (instruction.complement1.startsWith("verrouillé")) {
+          (element as Objet).verrouille = !nEstPas;
+        } else if (instruction.complement1.startsWith("déverrouillé")) {
+          (element as Objet).verrouille = nEstPas; // inverse de verrouillé
         }
 
         // n'est pas => retirer un état
@@ -1101,7 +1144,7 @@ export class Instructions {
           console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
           ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
         }
-        
+
         break;
 
       case 'se trouve':
@@ -1147,6 +1190,40 @@ export class Instructions {
   //   return resultat;
   // }
 
+  afficherStatut(obj: Objet) {
+    let retVal: string;
+    if (Classe.heriteDe(obj.classe, EClasseRacine.contenant) || Classe.heriteDe(obj.classe, EClasseRacine.porte)) {
+
+      let ouvrable = obj.ouvrable;
+      let ouvert = obj.ouvert;
+      let verrou = obj.verrouille
+
+      if (obj.genre == Genre.f) {
+        if (ouvert) {
+          retVal += "Elle est ouverte.";
+        } else {
+          retVal += "Elle est fermée " + (verrou ? "et verrouillée." : "mais pas verrouillée.");
+        }
+        if (ouvrable && !verrou) {
+          retVal += " Vous pouvez " + (ouvert ? 'la fermer.' : 'l’ouvrir.');
+        }
+      } else {
+        if (ouvert) {
+          retVal += "Il est ouvert.";
+        } else {
+          retVal += "Il est fermé " + (verrou ? "et verrouillé." : "mais pas verrouillé.");
+        }
+        if (ouvrable && !verrou) {
+          retVal += " Vous pouvez " + (ouvert ? 'le fermer.' : 'l’ouvrir.');
+        }
+      }
+
+    }
+
+    console.warn("afficherStatut=", retVal);
+  
+    return retVal;
+  }
 
   afficherSorties(lieu: Lieu) {
     let retVal: string;
