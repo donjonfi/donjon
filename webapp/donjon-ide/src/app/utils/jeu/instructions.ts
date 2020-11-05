@@ -1,4 +1,4 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
+import { Classe, EClasseRacine } from '../../models/commun/classe';
 import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
@@ -56,68 +56,7 @@ export class Instructions {
     return nbChoix;
   }
 
-
-  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
-
-    let resultat = new Resultat(true, '', 0);
-    if (instructions && instructions.length > 0) {
-      instructions.forEach(ins => {
-        const subResultat = this.executerInstruction(ins, ceci, cela);
-        resultat.nombre += subResultat.nombre;
-        resultat.succes = (resultat.succes && subResultat.succes);
-        resultat.sortie += subResultat.sortie;
-      });
-    }
-
-    return resultat;
-  }
-
-  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
-
-    let resultat = new Resultat(true, '', 1);
-    let sousResultat: Resultat;
-    if (this.verbeux) {
-      console.log(">>> ex instruction:", instruction);
-    }
-    // incrémenter le nombre de fois que l’instruction a déjà été exécutée
-    instruction.nbExecutions += 1;
-
-    // instruction conditionnelle
-    if (instruction.condition) {
-
-      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela);
-      if (this.verbeux) {
-        console.log(">>>> estVrai=", estVrai);
-
-      }
-      if (estVrai) {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
-      } else {
-
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
-      }
-      // instruction simple
-    } else {
-      if (instruction.instruction.infinitif) {
-        //if (instruction.sujet == null && instruction.verbe) {
-        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela);
-        // } else if (instruction.sujet) {
-        // this.executerSujetVerbe(instruction);
-      } else {
-        console.warn("executerInstruction : pas d'infinitif :", instruction);
-      }
-    }
-    resultat.sortie += sousResultat.sortie;
-
-    // console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
-
-    return resultat;
-  }
-
   private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-
-    // console.log("interpreterContenuDire >>> contenu=", contenu, " nbExecutions=", nbExecutions, "ceci=", ceci, "cela=", cela);
-
     // description
     if (contenu.includes("[description")) {
       if (contenu.includes("[description ici]")) {
@@ -142,26 +81,22 @@ export class Instructions {
       }
     }
 
-    // examen
-    if (contenu.includes("[examen")) {
-      if (contenu.includes("[examen ici]")) {
-        const examenIci = this.calculerDescription(this.eju.curLieu.examen, ++this.eju.curLieu.nbAffichageExamen, null, ceci, cela);
-        contenu = contenu.replace(/\[examen ici\]/g, examenIci);
-      }
-      if (contenu.includes("[examen ceci]")) {
+    // Aperçu (d’un objet)
+    if (contenu.includes("[aperçu")) {
+      if (contenu.includes("[aperçu ceci]")) {
         if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const examenCeci = this.calculerDescription((ceci as Objet).examen, ++(ceci as Objet).nbAffichageExamen, (ceci as Objet).initial, ceci, cela);
-          contenu = contenu.replace(/\[examen ceci\]/g, examenCeci);
+          const apercuCeci = this.calculerDescription((ceci as Objet).apercu, ++(ceci as Objet).nbAffichageApercu, (ceci as Objet).initial, ceci, cela);
+          contenu = contenu.replace(/\[aperçu ceci\]/g, apercuCeci);
         } else {
-          console.error("interpreterContenuDire: examen de ceci: ceci n'est pas un objet");
+          console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un objet");
         }
       }
-      if (contenu.includes("[examen cela]")) {
+      if (contenu.includes("[aperçu cela]")) {
         if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const examenCela = this.calculerDescription((cela as Objet).examen, ++(cela as Objet).nbAffichageExamen, (cela as Objet).initial, ceci, cela);
-          contenu = contenu.replace(/\[examen cela\]/g, examenCela);
+          const apercuCela = this.calculerDescription((cela as Objet).apercu, ++(cela as Objet).nbAffichageApercu, (cela as Objet).initial, ceci, cela);
+          contenu = contenu.replace(/\[aperçu cela\]/g, apercuCela);
         } else {
-          console.error("interpreterContenuDire: examen de cela: cela n'est pas un objet");
+          console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un objet");
         }
       }
     }
@@ -170,12 +105,14 @@ export class Instructions {
     if (contenu.includes("[contenu")) {
 
       if (contenu.includes("[contenu ici]")) {
-        const contenuIci = this.executerAfficherContenu(this.eju.curLieu, "{n}Vous voyez ", "");
+        // (ne pas afficher les objets cachés de ici)
+        const contenuIci = this.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false);
         contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
       }
       if (contenu.includes("[contenu ceci]")) {
         if (ceci && Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const contenuCeci = this.executerAfficherContenu((ceci as Objet), "{n}Vous trouvez ", "{n}Vous ne trouvez pas d'objet.");
+          // (afficher les objets cachés de cela)
+          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
           contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
@@ -183,7 +120,8 @@ export class Instructions {
       }
       if (contenu.includes("[contenu cela]")) {
         if (cela && Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const contenuCela = this.executerAfficherContenu((cela as Objet), "{n}Vous trouvez ", "{n}Vous ne trouvez pas d'objet.");
+          // (afficher les objets cachés de cela)
+          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
@@ -248,10 +186,208 @@ export class Instructions {
     if (contenu.includes("[")) {
       contenu = this.calculerDescription(contenu, nbExecutions, null, ceci, cela);
     }
-
     return contenu;
-
   }
+
+
+  /** Exécuter une liste d’instructions */
+  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+
+    let resultat = new Resultat(true, '', 0);
+    if (instructions && instructions.length > 0) {
+      instructions.forEach(ins => {
+        const sousResultat = this.executerInstruction(ins, ceci, cela);
+        resultat.nombre += sousResultat.nombre;
+        resultat.succes = (resultat.succes && sousResultat.succes);
+        resultat.sortie += sousResultat.sortie;
+        resultat.stopper = resultat.stopper || sousResultat.stopper;
+        resultat.continuer = resultat.continuer || sousResultat.continuer;
+      });
+    }
+
+    return resultat;
+  }
+
+  /**
+   * Calculer une description en tenant compte des balises conditionnelles et des états actuels.
+   */
+  calculerDescription(description: string, nbAffichage: number, initial: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+    let retVal = "";
+    if (description) {
+      const morceaux = description.split(/\[|\]/);
+      let statut = new StatutCondition(nbAffichage, initial, morceaux, 0);
+      // jamais une condition au début car dans ce cas ça donne une première chaine vide.
+      let suivantEstCondition = false; // description.trim().startsWith("[");
+      let afficherMorceauSuivant = true;
+      // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
+      for (let index = 0; index < morceaux.length; index++) {
+        statut.curMorceauIndex = index;
+        const curMorceau = morceaux[index];
+        if (suivantEstCondition) {
+          afficherMorceauSuivant = this.estConditionRemplie(curMorceau, statut, ceci, cela);
+          suivantEstCondition = false;
+        } else {
+          if (afficherMorceauSuivant) {
+            retVal += curMorceau;
+          }
+          suivantEstCondition = true;
+        }
+      }
+    } else {
+      retVal = "";
+    }
+    return retVal;
+  }
+
+  calculerDescriptionContenu(element: ElementJeu, nbAffichage: number) {
+  }
+
+  /** Vérifier si une condition [] est remplie. */
+  private estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
+
+    let retVal = false;
+    let conditionLC = condition.toLowerCase();
+    const resultFois = conditionLC.match(xFois);
+
+    // X-ÈME FOIS
+    if (resultFois) {
+      statut.conditionDebutee = ConditionDebutee.fois;
+      const nbFois = Number.parseInt(resultFois[1], 10);
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
+      retVal = (statut.nbAffichage === nbFois);
+      // AU HASARD
+    } else if (conditionLC === "au hasard") {
+      statut.conditionDebutee = ConditionDebutee.hasard;
+      statut.dernIndexChoix = 1;
+      // compter le nombre de choix
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
+      // choisir un choix au hasard
+      const rand = Math.random();
+      statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
+      retVal = (statut.choixAuHasard == 1);
+      // EN BOUCLE
+    } else if (conditionLC === "en boucle") {
+      statut.conditionDebutee = ConditionDebutee.boucle;
+      statut.dernIndexChoix = 1;
+      // compter le nombre de choix
+      statut.nbChoix = Instructions.calculerNbChoix(statut);
+      retVal = (statut.nbAffichage % statut.nbChoix === 1);
+      // INITIALEMENT
+    } else if (conditionLC === "initialement") {
+      statut.conditionDebutee = ConditionDebutee.initialement;
+      retVal = statut.initial;
+      // SI
+    } else if (conditionLC.startsWith("si ")) {
+      statut.conditionDebutee = ConditionDebutee.si;
+      statut.siVrai = this.cond.siEstVrai(conditionLC, null, ceci, cela);
+      retVal = statut.siVrai;
+      // SUITES
+    } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
+      retVal = false;
+      switch (conditionLC) {
+        // OU
+        case 'ou':
+          if (statut.conditionDebutee == ConditionDebutee.hasard) {
+            retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
+          } else {
+            console.warn("[ou] sans 'au hasard'.");
+          }
+          break;
+        // PUIS
+        case 'puis':
+          if (statut.conditionDebutee === ConditionDebutee.fois) {
+            // toutes les fois suivant le dernier Xe fois
+            retVal = (statut.nbAffichage > statut.plusGrandChoix);
+          } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
+            // boucler
+            statut.dernIndexChoix += 1;
+            retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
+          } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
+            // quand on est plus dans initialement
+            retVal = !statut.initial;
+          } else {
+            console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
+          }
+          break;
+        // SINON
+        case 'sinon':
+          if (statut.conditionDebutee == ConditionDebutee.si) {
+            retVal = !statut.siVrai;
+          } else {
+            console.warn("[sinon] sans 'si'.");
+            retVal = false;
+          }
+          break;
+        // FIN CHOIX
+        case 'fin choix':
+          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee == ConditionDebutee.initialement) {
+            retVal = true;
+          } else {
+            console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
+          }
+          break;
+        // FIN SI
+        case 'fin si':
+          if (statut.conditionDebutee == ConditionDebutee.si) {
+            retVal = true;
+          } else {
+            console.warn("[fin si] sans 'si'.");
+          }
+          break;
+
+        default:
+          console.warn("estConditionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
+          break;
+      }
+    }
+
+    console.log("estConditionRemplie", condition, statut, retVal);
+    return retVal;
+  }
+
+
+  /** Exécuter une instruction */
+  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+
+    let resultat = new Resultat(true, '', 1);
+    let sousResultat: Resultat;
+    if (this.verbeux) {
+      console.log(">>> ex instruction:", instruction);
+    }
+    // incrémenter le nombre de fois que l’instruction a déjà été exécutée
+    instruction.nbExecutions += 1;
+
+    // instruction conditionnelle
+    if (instruction.condition) {
+
+      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela);
+      if (this.verbeux) {
+        console.log(">>>> estVrai=", estVrai);
+
+      }
+      if (estVrai) {
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
+      } else {
+
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
+      }
+      // instruction simple
+    } else {
+      if (instruction.instruction.infinitif) {
+        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela);
+      } else {
+        console.warn("executerInstruction : pas d'infinitif :", instruction);
+      }
+    }
+    resultat.sortie += sousResultat.sortie;
+    resultat.stopper = resultat.stopper || sousResultat.stopper;
+    resultat.continuer = resultat.continuer || sousResultat.continuer;
+
+    // console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
+
+    return resultat;
+  }
+
 
   private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
     let resultat = new Resultat(true, '', 1);
@@ -314,7 +450,29 @@ export class Instructions {
           resultat.sortie = sousResultat.sortie;
           resultat.succes = sousResultat.succes;
         } else {
-          console.error("executerInfinitif >> complément autre que  « réaction de … » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … » pas pris en charge. sujet=", instruction.sujet);
+          resultat.succes = false;
+        }
+        break;
+
+      case 'stopper':
+        // Stopper l’action en cours (évènement AVANT spécial)
+        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
+          resultat.stopper = true;
+          resultat.succes = true;
+        } else {
+          console.error("executerInfinitif >> stopper >> sujet autre que  « action » pas pris en charge. sujet=", instruction.sujet);
+          resultat.succes = false;
+        }
+        break;
+
+      case 'continuer':
+        // Il faut continuer l’action en cours (évènement APRÈS spécial)
+        if (instruction?.sujetComplement1.nom?.toLocaleLowerCase() === 'action') {
+          resultat.continuer = true;
+          resultat.succes = true;
+        } else {
+          console.error("executerInfinitif >> continuer >> complément autre que  « action » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;
@@ -327,61 +485,154 @@ export class Instructions {
     return resultat;
   }
 
-
-
-  /**
-   * Afficher le contenu d'un objet ou d'un lieu.
-   * Remarque: le contenu invisible n'est pas affiché.
+  /** 
+   * Retrouver les objets contenus dans ceci.
+   * En cas d’erreur null est retourné plutôt qu’on tableau d’objets.
    */
-  public executerAfficherContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string): Resultat {
-    let resultat = new Resultat(false, '', 1);
+  private trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean) {
+    let objets: Objet[] = null;
     if (ceci) {
-      let objets: Objet[] = null;
       // objet
       if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
         // retrouver les objets {contenus dans/posés sur} cet objet
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id && ElementsJeuUtils.possedeCetEtat(x, "visible"));
-        resultat.succes = true;
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id
+          && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+        // si on ne doit pas lister les objets cachés, les enlever
+        if (!inclureObjetsCachesDeCeci) {
+          objets = objets.filter(x => !ElementsJeuUtils.possedeCetEtat(x, "caché"));
+        }
+        console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
       } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         // retrouver les objets présents dans le lieu
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id && ElementsJeuUtils.possedeCetEtat(x, "visible"));
-        console.warn("objets contenus dans le lieu:", objets);
-        resultat.succes = true;
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
+          && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+        if (!inclureObjetsCachesDeCeci) {
+          objets = objets.filter(x => !ElementsJeuUtils.possedeCetEtat(x, "caché"));
+        }
+        console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
       } else {
         console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
       }
+    }
+    return objets;
+  }
 
-      if (resultat.succes) {
+  /**
+   * Lister le contenu d'un objet ou d'un lieu.
+   * Remarque: le contenu invisible n'est pas affiché.
+   */
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean): Resultat {
 
-        // afficher d'abord les aperçus
+    let resultat = new Resultat(false, '', 1);
+    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci);
 
-        // - objets sans apercu
-        let objetsSansApercu = objets.filter(x => x.apercu === null);
-        const nbObjetsSansApercus = objetsSansApercu.length;
-        if (nbObjetsSansApercus > 0) {
-          resultat.sortie = texteSiQuelqueChose;
-          let curObjIndex = 0;
-          objetsSansApercu.forEach(obj => {
-            ++curObjIndex;
-            resultat.sortie += ElementsJeuUtils.calculerIntitule(obj);
-            if (curObjIndex < (nbObjetsSansApercus - 1)) {
-              resultat.sortie += ", ";
-            } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
-              resultat.sortie += " et ";
-            } else {
-              resultat.sortie += ".";
-            }
-          });
-        } else {
-          resultat.sortie = texteSiRien;
-        }
+    // si la recherche n’a pas retourné d’erreur
+    if (objets !== null) {
+      resultat.succes = true;
 
-        // - objets avec aperçu :
-        let objetsAvecApercu = objets.filter(x => x.apercu !== null);
+      // AFFICHER LES ÉLÉMENTS DIRECTS
+      const nbObjets = objets.length;
+      if (nbObjets > 0) {
+        let curObjIndex = 0;
+        objets.forEach(obj => {
+          ++curObjIndex;
+          resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj);
+
+          // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
+          if (Classe.heriteDe(obj.classe, EClasseRacine.support)) {
+
+          }
+
+        });
+
+        // AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS
+        let supportsSansApercu = objets.filter(x => Classe.heriteDe(x.classe, EClasseRacine.support));
+        supportsSansApercu.forEach(support => {
+          // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+          const sousRes = this.executerListerContenu(support, false);
+          resultat.sortie += sousRes.sortie;
+        });
 
       }
 
+    }
+    return resultat;
+  }
+
+  /**
+   * Décrire le contenu d'un objet ou d'un lieu.
+   * Remarque: le contenu invisible n'est pas affiché.
+   */
+  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean): Resultat {
+
+    let resultat = new Resultat(false, '', 1);
+    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci);
+
+    // si la recherche n’a pas retourné d’erreur
+    if (objets !== null) {
+      resultat.succes = true;
+
+      // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
+
+      // - objets avec aperçu (ne pas lister les objets décoratifs):
+      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+      const nbObjetsAvecApercus = objetsAvecApercu.length;
+
+      objetsAvecApercu.forEach(obj => {
+        resultat.sortie += "{n}" + this.calculerDescription(obj.apercu, obj.nbAffichageApercu, obj.initial, null, null);
+        // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
+        if (Classe.heriteDe(obj.classe, EClasseRacine.support)) {
+          // ne pas afficher objets cachés du support, on ne l’examine pas directement
+          const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj) + " il y a "), "", false);
+          resultat.sortie += sousRes.sortie;
+        }
+      });
+
+      // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
+      let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && Classe.heriteDe(x.classe, EClasseRacine.support));
+
+      supportsDecoratifs.forEach(support => {
+        // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+        const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), "", false);
+        resultat.sortie += sousRes.sortie;
+      });
+
+      // C.1 AFFICHER ÉLÉMENTS SANS APERÇU
+
+      // - objets sans apercu (ne pas lister les éléments décoratifs)
+      let objetsSansApercu = objets.filter(x => x.apercu === null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+
+      const nbObjetsSansApercus = objetsSansApercu.length;
+      if (nbObjetsSansApercus > 0) {
+        resultat.sortie += texteSiQuelqueChose;
+        let curObjIndex = 0;
+        objetsSansApercu.forEach(obj => {
+          ++curObjIndex;
+          resultat.sortie += ElementsJeuUtils.calculerIntitule(obj);
+          if (curObjIndex < (nbObjetsSansApercus - 1)) {
+            resultat.sortie += ", ";
+          } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
+            resultat.sortie += " et ";
+          } else {
+            resultat.sortie += ".";
+          }
+        });
+
+        // C.2 AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS
+        let supportsSansApercu = objetsSansApercu.filter(x => Classe.heriteDe(x.classe, EClasseRacine.support));
+        supportsSansApercu.forEach(support => {
+          // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support)), false);
+          resultat.sortie += sousRes.sortie;
+        });
+
+      }
+
+      // si on n’a encore rien affiché, afficher le texte spécifique
+      if (!resultat.sortie) {
+        resultat.sortie = texteSiRien;
+      }
     }
     return resultat;
   }
@@ -823,6 +1074,7 @@ export class Instructions {
 
     switch (instruction.verbe.toLowerCase()) {
       case 'est':
+      case 'sont':
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
         // états spéciaux
         if (instruction.complement1.startsWith("visible")) {
@@ -838,17 +1090,24 @@ export class Instructions {
         } else if (instruction.complement1.startsWith("buvable")) {
           (element as Objet).buvable = !nEstPas;
           // autres états
-        } else {
-          // n'est pas => retirer un état
-          if (nEstPas) {
-            console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
-            ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
-            // est => ajouter un état
-          } else {
-            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
-            ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
-          }
         }
+
+        // n'est pas => retirer un état
+        if (nEstPas) {
+          console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
+          ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
+          // est => ajouter un état
+        } else {
+          console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+          ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
+        }
+        
+        break;
+
+      case 'se trouve':
+      case 'se trouvent':
+        console.log("executerElementJeu: se trouve:", instruction);
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1);
         break;
 
       default:
@@ -888,136 +1147,6 @@ export class Instructions {
   //   return resultat;
   // }
 
-  calculerDescription(description: string, nbAffichage: number, initial: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
-    let retVal = "";
-    if (description) {
-      const morceaux = description.split(/\[|\]/);
-      let statut = new StatutCondition(nbAffichage, initial, morceaux, 0);
-      // jamais une condition au début car dans ce cas ça donne une première chaine vide.
-      let suivantEstCondition = false; // description.trim().startsWith("[");
-      let afficherMorceauSuivant = true;
-      // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
-      for (let index = 0; index < morceaux.length; index++) {
-        statut.curMorceauIndex = index;
-        const curMorceau = morceaux[index];
-        if (suivantEstCondition) {
-          afficherMorceauSuivant = this.estConditionRemplie(curMorceau, statut, ceci, cela);
-          suivantEstCondition = false;
-        } else {
-          if (afficherMorceauSuivant) {
-            retVal += curMorceau;
-          }
-          suivantEstCondition = true;
-        }
-      }
-    } else {
-      retVal = "";
-    }
-    return retVal;
-  }
-
-  calculerDescriptionContenu(element: ElementJeu, nbAffichage: number) {
-
-  }
-
-  estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
-
-    let retVal = false;
-    let conditionLC = condition.toLowerCase();
-    const resultFois = conditionLC.match(xFois);
-
-    if (resultFois) {
-      statut.conditionDebutee = ConditionDebutee.fois;
-      const nbFois = Number.parseInt(resultFois[1], 10);
-      statut.nbChoix = Instructions.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage === nbFois);
-      // Au hasard
-      // TODO: au hasard
-    } else if (conditionLC === "au hasard") {
-      statut.conditionDebutee = ConditionDebutee.hasard;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = Instructions.calculerNbChoix(statut);
-      // choisir un choix au hasard
-      const rand = Math.random();
-      statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
-      retVal = (statut.choixAuHasard == 1);
-    } else if (conditionLC === "en boucle") {
-      statut.conditionDebutee = ConditionDebutee.boucle;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = Instructions.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage % statut.nbChoix === 1);
-    } else if (conditionLC === "initialement") {
-      statut.conditionDebutee = ConditionDebutee.initialement;
-      retVal = statut.initial;
-    } else if (conditionLC.startsWith("si ")) {
-      statut.conditionDebutee = ConditionDebutee.si;
-      // TODO: vérifier le si
-      statut.siVrai = this.cond.siEstVrai(conditionLC, null, ceci, cela);
-      retVal = statut.siVrai;
-    } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
-      retVal = false;
-      switch (conditionLC) {
-
-        case 'ou':
-          if (statut.conditionDebutee == ConditionDebutee.hasard) {
-            retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
-          } else {
-            console.warn("[ou] sans 'au hasard'.");
-          }
-          break;
-
-        case 'puis':
-          if (statut.conditionDebutee === ConditionDebutee.fois) {
-            // toutes les fois suivant le dernier Xe fois
-            retVal = (statut.nbAffichage > statut.plusGrandChoix);
-          } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
-            // boucler
-            statut.dernIndexChoix += 1;
-            retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
-          } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
-            // quand on est plus dans initialement
-            retVal = !statut.initial;
-          } else {
-            console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
-          }
-          break;
-
-        case 'sinon':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
-            retVal = !statut.siVrai;
-          } else {
-            console.warn("[sinon] sans 'si'.");
-            retVal = false;
-          }
-          break;
-
-        case 'fin choix':
-          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee == ConditionDebutee.initialement) {
-            retVal = true;
-          } else {
-            console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
-          }
-          break;
-
-        case 'fin si':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
-            retVal = true;
-          } else {
-            console.warn("[fin si] sans 'si'.");
-          }
-          break;
-
-        default:
-          console.warn("je ne sais pas quoi faire pour:", conditionLC);
-          break;
-      }
-    }
-
-    console.log("estConditionRemplie", condition, statut, retVal);
-    return retVal;
-  }
 
   afficherSorties(lieu: Lieu) {
     let retVal: string;
@@ -1045,14 +1174,14 @@ export class Instructions {
     }
 
     if (lieuxVoisins.length > 0) {
-      retVal = "\nSorties :";
+      retVal = "Sorties :";
       lieuxVoisins.forEach(voisin => {
         // if (voisin.type == EClasseRacine.lieu) {
         retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, lieu.id, voisin.id));
         // }
       });
     } else {
-      retVal = "\nIl n’y a pas de sortie.";
+      retVal = "Il n’y a pas de sortie.";
     }
     return retVal;
   }

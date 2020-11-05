@@ -18,7 +18,7 @@ export class PhraseUtils {
    * - utiliser la clé rouge avec la porte verte
    * - donner la pièce au pirate
    * - jeter l’épée
-   * => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
+   * - => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
   static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?: (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?( (avec|sur|au|à|au) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?)?$/i;
 
@@ -54,7 +54,7 @@ export class PhraseUtils {
    */
   static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
 
-// ^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)?
+  // ^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)?
 
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
@@ -65,6 +65,11 @@ export class PhraseUtils {
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)]
    */
   static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|possède|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?$/i;
+
+  /**
+   *  [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) (6)complément1(7) (et|ou)(8) complément2(9) [(et|ou) complément3(10)]
+   */
+  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (est|vaut|possède|contient)( )(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
@@ -108,10 +113,16 @@ export class PhraseUtils {
 
 
   /**
-   * (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) [ne] se trouve(5) [pas|plus]\(6) dans la piscine(7).
-   * 
+   * Phrase simple avec un verbe conjugé.
+   * [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n’|n'] ([se] verbe conjugé)(4) [pas|plus]\(5) complément(6).
+   * - la porte secrète n’est plus fermée
+   * - la canne à pèche rouge est ouverte
+   * - ceci n’est plus vide
+   * - cela se trouve dans le jardin
+   * - les chauves-souris ne sont pas fixées
+   * - la porte close est ouverte
    */
-  static readonly xPhraseSimpleDeterminant = /^((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!|n'|n’|ne|d'|d’|se|possède|est|vaut|contient)\S+))?)|ceci|cela) (?:ne |n(?:'|’))?(?!vers)((?:se \S+)|\S+)( pas| plus)?( .+)?$/i;
+  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
 
   /**
    * - Manger tomate(2).
@@ -119,7 +130,7 @@ export class PhraseUtils {
    * - Utiliser l’(1)arc à flèches(2) rouillé(3) avec(4) la(5) flèche(6) rouge(7).
    * - => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
+  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )(\S+))?(?: (vers|avec|sur|sous) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
   /**
    * Son(1) sac(2) est(3) ouvert(4)
    */
@@ -131,22 +142,34 @@ export class PhraseUtils {
 
     let resCond: RegExpExecArray = null;
     let resCondNiSoit: RegExpExecArray = null;
+    let resCondEtOu: RegExpExecArray = null;
     let resCondMaisPasEtOu: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
     let resConditionAucunPour: RegExpExecArray = null;
+
+    console.log("condition:", condition);
+
 
     // A. tester la formulation  [ni ni | soit soit]
     resCondNiSoit = PhraseUtils.xConditionNiSoit.exec(condition);
     resCond = resCondNiSoit;
 
-    if (resCondNiSoit) {
-      console.log("resCondNiSoit=", resCondNiSoit);
-      
-    }
+    console.log(">> resCondNiSoit:", resCondNiSoit);
+
 
     if (!resCondNiSoit) {
+      resCondEtOu = PhraseUtils.xConditionOuEt.exec(condition);
+      resCond = resCondEtOu;
+    }
+    console.log(">> resCondEtOu:", resCondEtOu);
+
+    if (!resCondNiSoit && !resCondEtOu) {
       // B. tester la formulation [mais pas | mais bien | et | ou]
       resCondMaisPasEtOu = PhraseUtils.xConditionMaisPasEtOu.exec(condition);
+
+      console.log(">> resCondMaisPasEtOu:", resCondMaisPasEtOu);
+
+
       resCond = resCondMaisPasEtOu;
       if (!resCondMaisPasEtOu) {
         // C. tester la formulation simple
@@ -163,17 +186,17 @@ export class PhraseUtils {
     if (resCond) {
       const sujet = resCond[3] ? (new GroupeNominal(resCond[2], resCond[3], resCond[4] ? resCond[4] : null)) : (resCond[1] ? new GroupeNominal(null, resCond[1], null) : null);
       const verbe = resCond[5];
-      const negation = resCond[6];
+      const negation = resCond[6]?.trim() ? resCond[6] : null;
       const compl1 = resCond[7];
       // éventuellement un 2e complément
-      const compl2 = (resCondMaisPasEtOu || resCondNiSoit) ? resCond[9] : null;
+      const compl2 = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[9] : null;
       // éventuellement un 3e complément
-      const compl3 = resCondNiSoit ? resCond[10] : null;
+      const compl3 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
 
       els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
       els.complement2 = compl2;
       els.complement3 = compl3;
-      els.conjonction = (resCondMaisPasEtOu || resCondNiSoit) ? resCond[8] : null;
+      els.conjonction = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[8] : null;
 
       // décomposer les compléments si possible
       // complément1
@@ -201,7 +224,7 @@ export class PhraseUtils {
     } else if (resConditionAucunPour) {
       const sujet = resConditionAucunPour[5] ? (new GroupeNominal(resConditionAucunPour[4], resConditionAucunPour[5], resConditionAucunPour[6] ? resConditionAucunPour[6] : null)) : (resConditionAucunPour[3] ? new GroupeNominal(null, resConditionAucunPour[3], null) : null);
       const verbe = "aucun"; // "aucun"
-      const compl = resConditionAucunPour[2]; // description, examen, ...
+      const compl = resConditionAucunPour[2]; // description, aperçu, ...
       els = new ElementsPhrase(null, sujet, verbe, null, compl);
     }
 
@@ -228,13 +251,25 @@ export class PhraseUtils {
           case 'et':
           case 'ni':
             retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            // 3e élément éventuel
+            if (els.complement3) {
+              retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+            }
             break;
           case 'ou':
             retVal.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            // 3e élément éventuel
+            if (els.complement3) {
+              retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+            }
             break;
           case 'soit':
             retVal.negation = ""; // correction: soit n’est pas une négation
             retVal.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            // 3e élément éventuel
+            if (els.complement3) {
+              retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+            }
             break;
           case 'mais pas':
             retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
@@ -350,12 +385,15 @@ export class PhraseUtils {
         if (!els.complement1.startsWith('"') && els.infinitif !== 'exécuter') {
           // tester si le complément est une phrase simple
           // ex: le joueur ne se trouve plus dans la piscine.
-          const resSuite = PhraseUtils.xPhraseSimpleDeterminant.exec(els.complement1);
+          const resSuite = PhraseUtils.xSuiteInstructionPhraseAvecVerbeConjugue.exec(els.complement1);
           if (resSuite) {
-            els.sujet = resSuite[3] ? (new GroupeNominal(resSuite[2], resSuite[3], resSuite[4] ? resSuite[4] : null)) : (resSuite[1] ? new GroupeNominal(null, resSuite[1], null) : null);
-            els.verbe = resSuite[5]?.trim();
-            els.negation = resSuite[6]?.trim();
-            els.complement1 = resSuite[7]?.trim();
+            let sujDet = (resSuite[1] ? resSuite[1] : null);
+            let sujNom = resSuite[2];
+            let sujAtt = (resSuite[3] ? resSuite[3] : null);
+            els.sujet = new GroupeNominal(sujDet, sujNom, sujAtt);
+            els.verbe = resSuite[4]?.trim();
+            els.negation = resSuite[5]?.trim();
+            els.complement1 = resSuite[6]?.trim();
             // décomposer le nouveau complément si possible
             const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
             if (resCompl) {

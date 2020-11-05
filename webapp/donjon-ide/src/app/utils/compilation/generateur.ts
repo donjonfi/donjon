@@ -55,16 +55,12 @@ export class Generateur {
 
       let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
       nouvLieu.description = curEle.description;
-      nouvLieu.examen = curEle.examen;
+
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
           case 'description':
             nouvLieu.description = pro.valeur;
-            break;
-
-          case 'examen':
-            nouvLieu.examen = pro.valeur;
             break;
 
           case 'titre':
@@ -94,8 +90,8 @@ export class Generateur {
       let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
 
       newObjet.description = curEle.description;
-      newObjet.examen = curEle.examen;
-      newObjet.etats = curEle.attributs ?? [] ;
+      newObjet.apercu = curEle.apercu;
+      newObjet.etats = curEle.attributs ?? [];
       newObjet.capacites = curEle.capacites;
       newObjet.reactions = curEle.reactions;
 
@@ -137,14 +133,9 @@ export class Generateur {
           case 'description':
             newObjet.description = pro.valeur;
             break;
-          case 'examen':
-            newObjet.examen = pro.valeur;
+          case 'aperçu':
+            newObjet.apercu = pro.valeur;
             break;
-
-          case 'apercu':
-            newObjet.examen = pro.valeur;
-            break;
-
           case 'intitulé':
             // TODO: gérer groupe nominal ?
             newObjet.intitule = new GroupeNominal(null, pro.valeur);

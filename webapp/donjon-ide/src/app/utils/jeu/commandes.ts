@@ -1,10 +1,7 @@
 import { EClasseRacine } from '../../models/commun/classe';
-import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
-import { EmplacementElement } from '../../models/jeu/emplacement-element';
 import { Genre } from '../../models/commun/genre.enum';
-import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation } from '../../models/jeu/localisation';
@@ -399,10 +396,11 @@ export class Commandes {
   }
 
   inventaire() {
-    // return this.outils.afficherInventaire();
-    let retVal = this.ins.executerAfficherContenu(this.jeu.joueur, "Votre inventaire contient :{n}", "Votre inventaire est vide.").sortie;
+    let retVal = this.ins.executerListerContenu(this.jeu.joueur, true).sortie;
     if (!retVal) {
       retVal = "{/Votre inventaire est vide./}";
+    } else {
+      retVal = "Votre inventaire contient:" + retVal;
     }
     return retVal;
   }

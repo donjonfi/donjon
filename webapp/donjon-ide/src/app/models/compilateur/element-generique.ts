@@ -9,17 +9,18 @@ import { Reaction } from './reaction';
 
 export class ElementGenerique implements ElementDonjon {
 
-  public description: string;
-  public examen: string;
+  public description: string = null;
+  public apercu: string = null;
+  // public examen: string;
   public proprietes = new Array<Propriete>();
   public capacites = new Array<Capacite>();
   public reactions = new Array<Reaction>();
-  public nomF: string;
-  public nomM: string;
-  public nomS: string;
-  public nomP: string;
-  public epitheteS: string;
-  public epitheteP: string;
+  public nomF: string = null;
+  public nomM: string = null;
+  public nomS: string = null;
+  public nomP: string = null;
+  public epitheteS: string = null;
+  public epitheteP: string = null;
 
 
   constructor(

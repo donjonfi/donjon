@@ -100,7 +100,7 @@ export class ExprReg {
   // INSTRUCTION
 
   /** condition/événement -> avant|après|remplacer|si\(1) {condition}(2), {conséquences}(3) */
-  static readonly rAvantApresRemplacerSi = /^(avant|après|apres|remplacer|si) (.+)(?:(?:,|:))(.+)/i;
+  static readonly rAvantApresRemplacerSi = /^(avant|après|apres|remplacer|si) (.+?)(?:(?: )?(?:,|:))(.+)/i;
   /** condition -> si(1) {condition}(2), {conséquence}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
 

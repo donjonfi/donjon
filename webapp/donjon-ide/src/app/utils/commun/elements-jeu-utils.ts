@@ -7,6 +7,7 @@ import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Localisation } from '../../models/jeu/localisation';
+import { Nombre } from 'src/app/models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 
 export class ElementsJeuUtils {
@@ -170,15 +171,15 @@ export class ElementsJeuUtils {
     // TODO: attribuer un nouvel id aux clones ?
     let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre);
     retVal.description = original.description;
-    retVal.examen = original.examen;
-    retVal.intituleF = original.intituleF;
-    retVal.intituleM = original.intituleM;
+    retVal.apercu = original.apercu;
+    // retVal.intituleF = original.intituleF;
+    // retVal.intituleM = original.intituleM;
     retVal.intituleS = original.intituleS;
     retVal.intituleP = original.intituleP;
 
     // TODO: faut-il copier le nombre d’affichage de la description ?
     retVal.nbAffichageDescription = original.nbAffichageDescription;
-    retVal.nbAffichageExamen = original.nbAffichageExamen;
+    retVal.nbAffichageApercu = original.nbAffichageApercu;
 
     // TODO: copier les états
     // TODO: copier les capacités
@@ -383,18 +384,49 @@ export class ElementsJeuUtils {
 
   }
 
-  trouverObjet(sujet: GroupeNominal): Objet[] {
+
+  /**
+   * Retrouver un objet parmis tous les objets sur base de son intitulé.
+   * Si pas d’épithète précisé, on ne regarde que le nom.
+   * Remarque: Il peut y avoir plus d’une correspondance.
+   * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
+   */
+  trouverObjet(sujet: GroupeNominal, nombre: Nombre = Nombre.i): Objet[] {
 
     let retVal: Objet[] = [];
 
-    this.jeu.objets.forEach(obj => {
-      if (obj.intitule.nom === sujet.nom && (!sujet.epithete || obj.intitule.epithete === sujet.epithete)) {
-        retVal.push(obj);
-      }
-    });
+    switch (nombre) {
+      case Nombre.i:
+        this.jeu.objets.forEach(obj => {
+          if (obj.intitule.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intitule.epithete)) {
+            retVal.push(obj);
+          }
+        });
+        break;
+
+      case Nombre.s:
+        this.jeu.objets.forEach(obj => {
+          if (obj.intituleS.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleS.epithete)) {
+            retVal.push(obj);
+          }
+        });
+        break;
+
+      case Nombre.p:
+        this.jeu.objets.forEach(obj => {
+          if (obj.intituleP.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleP.epithete)) {
+            retVal.push(obj);
+          }
+        });
+        break;
+
+      default:
+        break;
+    }
 
     return retVal;
   }
+
 
   trouverLieu(sujet: GroupeNominal): Lieu[] {
 
