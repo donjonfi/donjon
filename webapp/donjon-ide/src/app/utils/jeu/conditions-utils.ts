@@ -1,10 +1,11 @@
 import { Classe, EClasseRacine } from '../../models/commun/classe';
+import { Condition, LienCondition } from '../../models/compilateur/condition';
 
-import { Condition } from '../../models/compilateur/condition';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { Nombre } from 'src/app/models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 
@@ -25,25 +26,80 @@ export class ConditionsUtils {
       console.warn("conditions-utils > conditionsRemplies: aucune condition à vérier.", conditions);
       return true;
     } else if (conditions.length === 1) {
-      // console.warn("conditions-utils > conditionsRemplies: à vérifier…", conditions);
-      const curCondition = conditions[0];
-      let resultCondition = false;
-      if (curCondition.verbe === 'est') {
-        if (curCondition.sujet.nom === 'ceci') {
-          resultCondition = this.verifierConditionElementJeuEst(curCondition, (ceci as ElementJeu));
-        } else if (curCondition.sujet.nom === 'cela') {
-          resultCondition = this.verifierConditionElementJeuEst(curCondition, (cela as ElementJeu));
-        } else {
-          console.error("conditionsRemplies: sujet pas supporté:", curCondition.sujet);
+      const curCond = conditions[0];
+      const resultConditionA = this.conditionRemplie(curCond, ceci, cela);
+      let resultConditionB: boolean = null;
+      let resultConditionC: boolean = null;
+      let resultFinal = resultConditionA;
+      // une 2e condition est liée
+      if (curCond.lien) {
+        switch (curCond.lien.typeLien) {
+          // ET
+          case LienCondition.et:
+            // si c’est un ET et que la première condition est vraie, tester la 2e
+            if (resultFinal === true) {
+              resultFinal = this.conditionRemplie(curCond.lien, ceci, cela);
+              // si les 2 premières conditions sont vraies, tester la 3e
+              if (curCond.lien.lien && resultFinal === true) {
+                resultFinal = this.conditionRemplie(curCond.lien.lien, ceci, cela);
+              }
+            }
+            break;
+          // OU
+          case LienCondition.ou:
+            // si c’est un OU et que la premièr condition est fausse, tester la 2e
+            if (resultConditionA !== true) {
+              resultFinal = this.conditionRemplie(curCond.lien, ceci, cela);
+              // si les 2 premières conditions sont fausses, tester la 3e
+              if (curCond.lien.lien && resultFinal !== true) {
+                resultFinal = this.conditionRemplie(curCond.lien.lien, ceci, cela);
+              }
+            }
+            break;
+          // SOIT
+          case LienCondition.soit:
+            // si c’est un SOIT, tester la 2e
+            resultConditionB = this.conditionRemplie(curCond.lien, ceci, cela);
+            // si on a déjà 2 valeurs vérifiées, on est sûr que c’est faux.
+            if (resultConditionA === true && resultConditionB === true) {
+              resultFinal = false;
+            } else {
+              // si 1 des 2 est vérifiée, on a un résultat final (tomporaire) vrai
+              resultFinal = resultConditionA || resultConditionB;
+              // tester la 3e condition
+              if (curCond.lien.lien) {
+                // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
+                resultConditionC = this.conditionRemplie(curCond.lien.lien, ceci, cela);
+                resultFinal = resultFinal !== resultConditionC;
+              }
+            }
+            break;
+
+          default:
+            break;
         }
-        console.error("conditionsRemplies >>>> resultat:", resultCondition);
-        return resultCondition;
-      } else {
-        console.error("conditionsRemplies: verbe pas supporté:", curCondition.verbe);
-        return false;
       }
+      return resultFinal;
     } else {
       console.error("conditions-utils > conditionsRemplies: ne gère pas encore plusieurs conditions.", conditions);
+      return false;
+    }
+  }
+
+  conditionRemplie(condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+    let resultCondition = false;
+    if (condition.verbe === 'est') {
+      if (condition.sujet.nom === 'ceci') {
+        resultCondition = this.verifierConditionElementJeuEst(condition, (ceci as ElementJeu));
+      } else if (condition.sujet.nom === 'cela') {
+        resultCondition = this.verifierConditionElementJeuEst(condition, (cela as ElementJeu));
+      } else {
+        console.error("conditionRemplie: sujet pas supporté:", condition.sujet);
+      }
+      console.warn("conditionRemplie >>>> resultat:", resultCondition);
+      return resultCondition;
+    } else {
+      console.error("conditionRemplie: verbe pas supporté:", condition.verbe);
       return false;
     }
   }
@@ -191,8 +247,8 @@ export class ConditionsUtils {
             case 'aucun': // forme "aucun xxxx pour yyyy"
               if (condition.complement === 'description') {
                 retVal = (!(sujet as ElementJeu).description);
-              } else if (condition.complement === 'examen') {
-                retVal = (!(sujet as ElementJeu).examen);
+              } else if (condition.complement === 'aperçu') {
+                retVal = (!(sujet as ElementJeu).apercu);
               } else {
                 console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
               }
@@ -206,48 +262,46 @@ export class ConditionsUtils {
             // LOCALISATION
             case 'se trouve':
             case 'se trouvent':
-              // trouver l'objet
-              let trouvailles = this.eju.trouverObjet(condition.sujet);
 
-              if (trouvailles.length > 0) {
-                const curLieu = this.eju.getLieuObjet(this.jeu.joueur);
-                trouvailles.forEach(el => {
-                  if (this.eju.getLieuObjet(el) === curLieu) {
-                    retVal = true;
-                  }
-                });
+              // retrouver la destination
+              let destination: ElementJeu = null;
+              if (condition.sujetComplement.nom == "ici") {
+                destination = this.eju.curLieu;
+              } else {
+                const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement);
+                if (correspondances.nbCor === 1) {
+                  destination = correspondances.elements[0];
+                } else if (correspondances.nbCor === 0) {
+                  console.error("condition se trouve: pas de correspondance trouvée pour dest=", condition.sujetComplement);
+                } else if (correspondances.nbCor > 1) {
+                  console.error("condition se trouve: plusieurs correspondances trouvées pour dest=", condition.sujetComplement, "cor=", correspondances);
+                }
               }
 
-              // // vérifier si un élément est présent à l’endroit indiqué
-              // // (pour l’instant seul « ici » est géré.)
-              // const objetsTrouves = this.eju.getObjetsQuiSeTrouventLa(condition.complement);
+              // retrouver l’objet concerné
+              const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
+              let cible: Objet = null;
+              if (ciblesTrouvees.length === 1) {
+                cible = ciblesTrouvees[0];
+              } else if (ciblesTrouvees.length === 0) {
+                console.error("condition se trouve: pas de correspondance trouvée pour cible=", condition.sujet);
+              } else if (ciblesTrouvees.length > 1) {
+                console.error("condition se trouve: plusieurs correspondances trouvées pour cible=", condition.sujet, "cor=", ciblesTrouvees);
+              }
 
-              // console.log("siEstVrai >> se trouve >> objetsTrouves=", objetsTrouves);
-
-              // // singulier
-              // if (condition.verbe.endsWith('e')) {
-              //   objetsTrouves.forEach(obj => {
-              //     if (obj.intituleS.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleS.epithete)) {
-              //       retVal = true;
-              //     }
-              //   });
-              //   // pluriel
-              // } else {
-              //   objetsTrouves.forEach(obj => {
-              //     if (obj.intituleP.nom === condition.sujet.nom && (!condition.sujet.epithete || condition.sujet.epithete === obj.intituleP.epithete)) {
-              //       retVal = true;
-              //     }
-              //   });
-              // }
-
+              // si on a trouvé la cible et la destination
+              if (cible && destination) {
+                // vérifier que la cible se trouve au bon endroit
+                if (cible.position.cibleId === destination.id) {
+                  retVal = true;
+                }
+              }
               break;
 
             case 'réagit':
             case 'réagissent':
               if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
                 retVal = true;
-              } else {
-                retVal = false;
               }
               break;
 
@@ -257,8 +311,6 @@ export class ConditionsUtils {
 
               if (('"' + sujet.nom + '"') === condition.complement) {
                 retVal = true;
-              } else {
-                retVal = false;
               }
               break;
 
