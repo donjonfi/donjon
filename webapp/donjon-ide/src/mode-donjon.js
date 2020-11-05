@@ -8,12 +8,13 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|historique|"
-      + "intitulé|description|capacité|accord|réaction"
+      + "intitulé|description|aperçu|capacité|accord|réaction"
     );
 
     var builtinFunctions = (
       "dire|changer|déplacer|effacer|sauver|remplacer|par|"
       + "verrouiller|déverrouiller|ouvrir|fermer|"
+      + "stopper|continuer|"
       + "|maintenant"
     );
 
@@ -57,15 +58,16 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "keyword",
           regex: "quand |avant |après |si |sinon|fin si|refuser |exécuter |terminer |" +
-            "au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|puis|fin choix|" +
+            "au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|initialement|puis|fin choix|" +
             "et\\b|ou\\b|ni\\b|soit\\b|mais pas",
           caseInsensitive: true
         },
         {
           token: "constant.language",
-          regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |"
-            + "ouvrable|ouvert(e?)|fermé(e?)|verrouillé(e?)|vide|plein(e?)|"
-            + "visible|disponible|possédé|"
+          regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |"
+            + "ouvrable(s)?|ouvert(e)?(s)?|fermé(e)?|verrouillé(e)?(s)?|vide(s)?|plein(e)?(s)?|"
+            + "visible(s)?|invisible(s)?|caché(e)?(s)?|disponible(s)?|possédé(e)?(s)?|"
+            + "décorati(f|ve)(s)?|fixé(e)?(s)?|"
             + "ceci|cela|ici"
         }, {
           token: "storage.type",
@@ -80,8 +82,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
         }, {
           token: keywordMapper,
-          // regex : "[a-zA-Zéè_$][a-zA-Z0-9éè_$]*\\b"
-          regex: "[a-zA-Zéèàê_$][a-zA-Z0-9éèà_$]*"
+          regex: "[a-zA-Zéèàêç_$][a-zA-Z0-9éèàç_$]*"
         }, {
           token: "keyword.operator",
           regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|="
