@@ -5,7 +5,7 @@
     </li>
     <li>Verbe : {{condition.verbe}}</li>
     <li *ngIf="condition.negation">Négation : {{condition.negation}}</li>
-    <li *ngIf="condition.complement">Complément : {{condition.complement}}</li>
+    <li *ngIf="condition.complement && !condition.sujetComplement">Complément : {{condition.complement}}</li>
     <li *ngIf="condition.sujetComplement">
       <app-apercu-sujet [sujet]="condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
     </li>

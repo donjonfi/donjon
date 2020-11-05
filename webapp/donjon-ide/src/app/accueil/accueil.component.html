@@ -15,8 +15,7 @@
       <h3 class="mb-0">Jouer</h3>
       <form class="form-inline mt-1">
         <select [(ngModel)]="nomJeu" class="form-control" name="selNomFichier">
-          <option [ngValue]="'exemple2'">Le château de la terreur</option>
-          <option [ngValue]="'exemple1'">Le nain qui voulait un trésor</option>
+          <option [ngValue]="'coince'">Coincé</option>
         </select>
         <a class="btn btn-success form-control ml-sm-2 mt-2 mt-sm-0" routerLink="/jouer/{{nomJeu}}"
           role="button">Jouer</a>

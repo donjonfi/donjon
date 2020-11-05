@@ -47,18 +47,7 @@
                 <ul>
                   <li *ngFor="let cond of ver.conditions; index as j">
                     Condition {{(j+1)}} :
-                    <ul>
-                      <li>
-                        <app-apercu-sujet *ngIf="cond.sujet" [sujet]="cond.sujet" [titre]="'Sujet'"></app-apercu-sujet>
-                        <span *ngIf="!cond.sujet">(pas de sujet)</span>
-                      </li>
-                      <li>Verbe : {{cond.verbe}}</li>
-                      <li *ngIf="cond.negation">Negation : {{cond.negation}}</li>
-                      <li *ngIf="cond.complement">Complément : {{cond.complement}}</li>
-                      <li *ngIf="cond.sujetComplement">
-                        <app-apercu-sujet [sujet]="cond.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-                      </li>
-                    </ul>
+                    <app-apercu-condition [condition]="cond"></app-apercu-condition>
                   </li>
                 </ul>
               </li>

@@ -67,7 +67,7 @@ export class EditeurComponent implements OnInit {
   erreurs: string[] = null;
   jeu: Jeu = null;
   codeSource = "";
-  nomExemple = "exemple2";
+  nomExemple = "coince";
 
   afficherPreferences = false;
 

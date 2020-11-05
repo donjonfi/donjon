@@ -7,7 +7,6 @@ import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
-import { Localisation } from '../../models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 
@@ -144,8 +143,8 @@ export class OutilsCommandes {
     if (this.eju.curLieu) {
       return "{_{*" + this.eju.curLieu.titre + "*}_}\n"
         + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null, null)) : "")
-        + this.ins.executerAfficherContenu(this.eju.curLieu, "{n}Vous voyez ", "").sortie
-        + "\n" + this.ins.afficherSorties(this.eju.curLieu);
+        + this.ins.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false).sortie
+        + "\n\n" + this.ins.afficherSorties(this.eju.curLieu);
     } else {
       console.warn("Pas trouvé de curLieu :(");
       return "Je suis où moi ? :(";

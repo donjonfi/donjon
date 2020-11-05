@@ -6,7 +6,7 @@
     </li>
     <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
     <li *ngIf="ins.instruction.preposition">Préposition : {{ins.instruction.preposition}}</li>
-    <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
+    <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément : {{ins.instruction.complement1}}</li>
     <li *ngIf="ins.instruction.sujetComplement1">
       <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
     </li>
@@ -34,10 +34,10 @@
           <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
           <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
           <li *ngIf="ins.instruction.preposition">Préposition: {{ins.instruction.preposition}}</li>
+          <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément : {{ins.instruction.complement1}}</li>
           <li *ngIf="ins.instruction.sujetComplement1">
             <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
           </li>
-          <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
         </ul>
       </li>
     </ul>
@@ -55,10 +55,10 @@
           <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
           <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
           <li *ngIf="ins.instruction.preposition">Préposition: {{ins.instruction.preposition}}</li>
+          <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément : {{ins.instruction.complement1}}</li>
           <li *ngIf="ins.instruction.sujetComplement1">
             <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
           </li>
-          <li *ngIf="ins.instruction.complement1">Complément : {{ins.instruction.complement1}}</li>
         </ul>
       </li>
     </ul>
