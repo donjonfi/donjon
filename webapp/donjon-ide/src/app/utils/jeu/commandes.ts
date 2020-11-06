@@ -4,6 +4,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
+import { ListeEtats } from './liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
 import { OutilsCommandes } from './outils-commandes';
 
@@ -89,7 +90,8 @@ export class Commandes {
 
 
     // TODO: vérifier accès…
-    if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
+    // if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
+    if (voisinPorte && this.jeu.etats.possedeCetEtatElement(voisinPorte, ListeEtats.OUVERT, this.eju)) {
       // La porte est fermée
       // TODO: gérer majuscule
       return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
@@ -103,7 +105,7 @@ export class Commandes {
         this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
         this.jeu.joueur.position.cibleId = voisinLieu.id;
 
-        this.eju.majVisibiliteDesObjets();
+        this.eju.majPresenceDesObjets();
 
         return this.outils.afficherCurLieu();
       } else {

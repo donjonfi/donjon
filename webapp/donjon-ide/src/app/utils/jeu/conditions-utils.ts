@@ -107,20 +107,10 @@ export class ConditionsUtils {
   private verifierConditionElementJeuEst(cond: Condition, el: ElementJeu) {
     let resultCondition = null;
     if (!cond.sujetComplement || !cond.sujetComplement.determinant) {
-      // s’il s’agit d’un objet, on vérifier d’abord les attributs
-      if (Classe.heriteDe(el.classe, EClasseRacine.objet)) {
-        const obj = el as Objet;
-        // attributs spécifiques aux objets
-        // - possede
-        if (cond.complement.startsWith('possédé')) {
-          resultCondition = obj.possede;
-        } else if (cond.complement.startsWith('visible')) {
-          resultCondition = obj.visible;
-        }
-      }
-      // si pas un objet ou pas un attribut spécifique, vérifier la liste des états
+
+      // vérifier la liste des états
       if (resultCondition === null) {
-        resultCondition = ElementsJeuUtils.possedeCetEtat(el, cond.complement);
+        resultCondition = this.jeu.etats.possedeCetEtatElement(el, cond.complement, this.eju);
       }
 
     } else {
@@ -214,21 +204,8 @@ export class ConditionsUtils {
             case 'est':
               // faire le test
               if (sujet) {
-                // états spéciaux
-                if (condition.complement.startsWith("visible")) {
-                  retVal = (sujet as Objet).visible;
-                } else if (condition.complement.startsWith("possédé")) {
-                  retVal = (sujet as Objet).possede;
-                } else if (condition.complement.startsWith("porté")) {
-                  retVal = (sujet as Objet).porte;
-                } else if (condition.complement.startsWith("mangeable")) {
-                  retVal = (sujet as Objet).mangeable;
-                } else if (condition.complement.startsWith("buvable")) {
-                  retVal = (sujet as Objet).buvable;
-                } else {
-                  // autres états
-                  retVal = ElementsJeuUtils.possedeCetEtat(sujet as ElementJeu, condition.complement);
-                }
+                // autres états
+                retVal = this.jeu.etats.possedeCetEtatElement(sujet as ElementJeu, condition.complement, this.eju);
               }
               break;
 
@@ -336,6 +313,5 @@ export class ConditionsUtils {
     return retVal;
   }
 
-
-
 }
+//

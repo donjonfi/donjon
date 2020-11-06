@@ -12,6 +12,7 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from 'src/app/models/jeu/lieu';
+import { ListeEtats } from './liste-etats';
 import { Localisation } from 'src/app/models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -516,19 +517,20 @@ export class Instructions {
       if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
         // retrouver les objets {contenus dans/posés sur} cet objet
         objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id
-          && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+          // && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+          && this.jeu.etats.estVisible(x, this.eju));
         // si on ne doit pas lister les objets cachés, les enlever
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !ElementsJeuUtils.possedeCetEtat(x, "caché"));
+          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.CACHE, this.eju));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
       } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         // retrouver les objets présents dans le lieu
         objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
-          && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+          && this.jeu.etats.estVisible(x, this.eju));
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !ElementsJeuUtils.possedeCetEtat(x, "caché"));
+          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.CACHE, this.eju));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
       } else {
@@ -596,7 +598,8 @@ export class Instructions {
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
 
       // - objets avec aperçu (ne pas lister les objets décoratifs):
-      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju));
+      // let objetsAvecApercu = objets.filter(x => x.apercu !== null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
       const nbObjetsAvecApercus = objetsAvecApercu.length;
 
       objetsAvecApercu.forEach(obj => {
@@ -610,7 +613,8 @@ export class Instructions {
       });
 
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
-      let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && Classe.heriteDe(x.classe, EClasseRacine.support));
+      // let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && Classe.heriteDe(x.classe, EClasseRacine.support));
+      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju) && Classe.heriteDe(x.classe, EClasseRacine.support));
 
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
@@ -621,7 +625,8 @@ export class Instructions {
       // C.1 AFFICHER ÉLÉMENTS SANS APERÇU
 
       // - objets sans apercu (ne pas lister les éléments décoratifs)
-      let objetsSansApercu = objets.filter(x => x.apercu === null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+      // let objetsSansApercu = objets.filter(x => x.apercu === null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju));
 
       const nbObjetsSansApercus = objetsSansApercu.length;
       if (nbObjetsSansApercus > 0) {
@@ -765,32 +770,33 @@ export class Instructions {
     // si l'objet à déplacer est le joueur, modifier la visibilité des objets
     if (objet.id === this.jeu.joueur.id) {
       // la visibilité des objets a changé
-      this.eju.majVisibiliteDesObjets();
+      this.eju.majPresenceDesObjets();
 
       // si l'objet à déplacer n'est pas le joueur
     } else {
       // si la destination est un lieu
       if (objet.position.cibleType === EClasseRacine.lieu) {
         // l'objet n'est pas possédé
-        objet.possede = false;
-        // si la destination est le lieu actuel, l'objet est visible
+        this.jeu.etats.retirerEtatElement(objet, ListeEtats.POSSEDE);
+        // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
-          objet.visible = true;
-          // si c'est un autre lieu, il n'est pas visible.
+          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.PRESENT);
+          // si c'est un autre lieu, il n'est pas présent.
         } else {
-          objet.visible = false;
+          this.jeu.etats.retirerEtatElement(objet, ListeEtats.PRESENT);
         }
         // si la destination est un objet
       } else {
-        // si la destination est le joueur, l'objet est visible et possédé
+        // si la destination est le joueur, l'objet est présent et possédé
         if (destination.id === this.jeu.joueur.id) {
-          objet.visible = true;
-          objet.possede = true;
+          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.PRESENT);
+          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.POSSEDE);
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé
-          objet.possede = false;
-          this.eju.majVisibiliteObjet(objet);
+          // TODO: un objet dans un contenant possédé est-il possédé ?
+          this.jeu.etats.retirerEtatElement(objet, ListeEtats.POSSEDE);
+          this.eju.majPresenceObjet(objet);
         }
       }
     }
@@ -1096,53 +1102,15 @@ export class Instructions {
       case 'est':
       case 'sont':
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
-        // états spéciaux
-        //   - VISIBLE
-        if (instruction.complement1.startsWith("visible")) {
-          (element as Objet).visible = !nEstPas;
-        } else if (instruction.complement1.startsWith("invisible")) {
-          (element as Objet).visible = nEstPas; // (inverse de visible)
-          // - POSSÉDÉ
-        } else if (instruction.complement1.startsWith("possédé")) {
-          (element as Objet).possede = !nEstPas;
-          // - PORTÉ
-        } else if (instruction.complement1.startsWith("porté")) {
-          (element as Objet).porte = !nEstPas;
-          // - DÉNOMBRABLE
-        } else if (instruction.complement1.startsWith("dénombrable")) {
-          (element as Objet).denombrable = !nEstPas;
-          // - MANGEABLE
-        } else if (instruction.complement1.startsWith("mangeable")) {
-          (element as Objet).mangeable = !nEstPas;
-          // - BUVABLE
-        } else if (instruction.complement1.startsWith("buvable")) {
-          (element as Objet).buvable = !nEstPas;
-          // - OUVERT
-        } else if (instruction.complement1.startsWith("ouvert")) {
-          (element as Objet).ouvert = !nEstPas;
-        } else if (instruction.complement1.startsWith("fermé")) {
-          (element as Objet).ouvert = nEstPas; // inverse de ouvert
-          // - OUVRABLE
-        } else if (instruction.complement1.startsWith("ouvrable")) {
-          (element as Objet).ouvrable = !nEstPas;
-          // - VERROUILLABLE
-        } else if (instruction.complement1.startsWith("verrouillable")) {
-          (element as Objet).verrouillable = !nEstPas;
-          // - VERROUILLÉ
-        } else if (instruction.complement1.startsWith("verrouillé")) {
-          (element as Objet).verrouille = !nEstPas;
-        } else if (instruction.complement1.startsWith("déverrouillé")) {
-          (element as Objet).verrouille = nEstPas; // inverse de verrouillé
-        }
 
         // n'est pas => retirer un état
         if (nEstPas) {
           console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
-          ElementsJeuUtils.retirerEtat(element, instruction.complement1, null);
+          this.jeu.etats.retirerEtatElement(element, instruction.complement1);
           // est => ajouter un état
         } else {
           console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
-          ElementsJeuUtils.ajouterEtat(element, instruction.complement1);
+          this.jeu.etats.ajouterEtatElement(element, instruction.complement1);
         }
 
         break;
@@ -1194,9 +1162,9 @@ export class Instructions {
     let retVal: string;
     if (Classe.heriteDe(obj.classe, EClasseRacine.contenant) || Classe.heriteDe(obj.classe, EClasseRacine.porte)) {
 
-      let ouvrable = obj.ouvrable;
-      let ouvert = obj.ouvert;
-      let verrou = obj.verrouille
+      const ouvrable = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.OUVRABLE, this.eju);
+      const ouvert = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.OUVERT, this.eju);
+      const verrou = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.VERROUILLE, this.eju);
 
       if (obj.genre == Genre.f) {
         if (ouvert) {
@@ -1221,7 +1189,7 @@ export class Instructions {
     }
 
     console.warn("afficherStatut=", retVal);
-  
+
     return retVal;
   }
 
@@ -1242,9 +1210,9 @@ export class Instructions {
         // retrouver la porte
         const porte = this.eju.getObjet(voisinPorte.id);
         // si la porte est invisible
-        if (porte && !porte.visible) {
+        if (porte && !this.jeu.etats.estVisible(porte, this.eju)) {
           // retirer de la liste le voisin lié
-          const voisinIndex = portesVoisines.findIndex(x => x.localisation == voisinPorte.localisation);
+          const voisinIndex = portesVoisines.findIndex(x => x.localisation === voisinPorte.localisation);
           lieuxVoisins.splice(voisinIndex, 1);
         }
       });

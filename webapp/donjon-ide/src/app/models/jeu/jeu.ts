@@ -1,9 +1,9 @@
 import { Action } from '../compilateur/action';
 import { Auditeur } from '../jouer/auditeur';
 import { Classe } from '../commun/classe';
-import { ElementJeu } from './element-jeu';
-import { Inventaire } from './inventaire';
+import { ElementsJeuUtils } from 'src/app/utils/commun/elements-jeu-utils';
 import { Lieu } from './lieu';
+import { ListeEtats } from 'src/app/utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Regle } from '../compilateur/regle';
 
@@ -19,6 +19,8 @@ export class Jeu {
   titre: string;
 
   classes: Classe[] = [];
+
+  etats: ListeEtats = new ListeEtats();
 
   /**
    * Lieux qui constituent le jeu.

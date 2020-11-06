@@ -41,7 +41,7 @@ export class Objet extends ElementJeu {
   // /** L’objet est buvable */
   // buvable = false;
   // /*** l’objet est ouvrable */
-  
+
   // ouvrable = false;
   // /** l’objet est ouvert(/fermé) */
   // ouvert = false;

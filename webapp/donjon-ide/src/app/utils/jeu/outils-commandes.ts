@@ -7,6 +7,7 @@ import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
+import { ListeEtats } from './liste-etats';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 
@@ -107,9 +108,9 @@ export class OutilsCommandes {
     } else if (porte.classe !== ClassesRacines.Porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
-      let ouvrable = ElementsJeuUtils.possedeCetEtat(porte, 'ouvrable');
-      let ouvert = ElementsJeuUtils.possedeCetEtatAutoF(porte, 'ouvert');
-      let verrou = ElementsJeuUtils.possedeCetEtatAutoF(porte, 'verrouillé');
+      let ouvrable = this.jeu.etats.possedeCetEtatElement(porte, ListeEtats.OUVRABLE, this.eju);
+      let ouvert = this.jeu.etats.possedeCetEtatElement(porte, ListeEtats.OUVERT, this.eju);
+      let verrou = this.jeu.etats.possedeCetEtatElement(porte, ListeEtats.VERROUILLE, this.eju);
 
       if (porte.genre == Genre.f) {
         if (ouvert) {

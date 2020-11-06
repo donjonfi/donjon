@@ -2,6 +2,7 @@ import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/class
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
+import { Attribute } from '@angular/core';
 import { Auditeur } from '../../models/jouer/auditeur';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
@@ -91,17 +92,22 @@ export class Generateur {
 
       newObjet.description = curEle.description;
       newObjet.apercu = curEle.apercu;
-      newObjet.etats = curEle.attributs ?? [];
+      // newObjet.etats = curEle.attributs ?? [];
       newObjet.capacites = curEle.capacites;
       newObjet.reactions = curEle.reactions;
 
-      // états par défaut
-      if (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(newObjet, "invisible")) {
-        ElementsJeuUtils.ajouterEtat(newObjet, "visible");
-        newObjet.visible = true;
-      } else {
-        newObjet.visible = false;
-      }
+      // ajouter les états de l'objet
+      curEle.attributs.forEach(attribut => {
+        jeu.etats.ajouterEtatElement(newObjet, attribut);
+      });
+
+      // // états par défaut
+      // if (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(newObjet, "invisible")) {
+      //   ElementsJeuUtils.ajouterEtat(newObjet, "visible");
+      //   newObjet.visible = true;
+      // } else {
+      //   newObjet.visible = false;
+      // }
 
       // Déterminer le SINGULIER à partir du pluriel.
       if (curEle.nombre === Nombre.p) {

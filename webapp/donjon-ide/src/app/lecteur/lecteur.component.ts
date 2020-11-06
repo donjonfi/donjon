@@ -103,7 +103,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.sortieJoueur += (this.jeu.titre ? ("<h3>" + LecteurComponent.retirerBalisesHtml(this.jeu.titre) + "</h3>") : "");
 
       // définir visibilité des objets initiale
-      this.eju.majVisibiliteDesObjets();
+      this.eju.majPresenceDesObjets();
 
       this.sortieJoueur += "<p>";
 
@@ -300,7 +300,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                 // ON NE VOIT PAS L'OBJET
                 // vérifier si les objets de la commande sont visibles
                 if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
-                  if (!resultatCeci.objets[0].visible) {
+                  if (!this.jeu.etats.estVisible(resultatCeci.objets[0], this.eju)) {
                     retVal += "\n(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)";
                   }
                 }
@@ -312,7 +312,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               } else {
                 // ON NE VOIT PAS L'OBJET
                 if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
-                  if (!resultatCela.objets[0].visible) {
+                  if (!this.jeu.etats.estVisible(resultatCela.objets[0], this.eju)) {
                     retVal += "\n(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)";
                   }
                 }
@@ -505,7 +505,8 @@ export class LecteurComponent implements OnInit, OnChanges {
               // s'il doit s'agir d'un objet visible, vérifier
               // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
               if (candidatCeciCela.epithete) {
-                if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
+                // if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
+                if (this.jeu.etats.possedeCetEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
                   retVal = ele;
                 }
               } else {

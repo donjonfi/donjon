@@ -6,6 +6,7 @@ import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { ListeEtats } from '../jeu/liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
 import { Nombre } from 'src/app/models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -25,125 +26,125 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  static possedeCetEtat(ej: ElementJeu, etatA: string): boolean {
-    if (ej) {
-      let retVal = false;
-      if (ej.etats) {
-        ej.etats.forEach(et => {
-          const curEt = et.toLocaleLowerCase().trim();
-          if (curEt === etatA.toLocaleLowerCase().trim()) {
-            retVal = true;
-          }
-        });
-      }
-      return retVal;
-    } else {
-      console.error("possedeCetEtat >> ElementJeu pas défini.");
-    }
-  }
+  // static possedeCetEtat(ej: ElementJeu, etatA: string): boolean {
+  //   if (ej) {
+  //     let retVal = false;
+  //     if (ej.etats) {
+  //       ej.etats.forEach(et => {
+  //         const curEt = et.toLocaleLowerCase().trim();
+  //         if (curEt === etatA.toLocaleLowerCase().trim()) {
+  //           retVal = true;
+  //         }
+  //       });
+  //     }
+  //     return retVal;
+  //   } else {
+  //     console.error("possedeCetEtat >> ElementJeu pas défini.");
+  //   }
+  // }
 
-  static possedeUnDeCesEtats(ej: ElementJeu, etatA: string, etatB: string = null /*, etatC: string = null, etatD: string = null*/): boolean {
-    if (ej) {
-      let retVal = false;
-      if (ej.etats) {
-        ej.etats.forEach(et => {
-          const curEt = et.toLocaleLowerCase().trim();
-          if (curEt === etatA.toLocaleLowerCase().trim()) {
-            retVal = true;
-          } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
-            retVal = true;
-            // } else if (etatC && curEt === etatC.toLocaleLowerCase().trim()) {
-            //   retVal = true;
-            // } else if (etatD && curEt === etatD.toLocaleLowerCase().trim()) {
-            //   retVal = true;
-          }
-        });
-      }
-      return retVal;
-    } else {
-      console.error("possedeUnDeCesEtats >> ElementJeu pas défini.");
-    }
-  }
+  // static possedeUnDeCesEtats(ej: ElementJeu, etatA: string, etatB: string = null /*, etatC: string = null, etatD: string = null*/): boolean {
+  //   if (ej) {
+  //     let retVal = false;
+  //     if (ej.etats) {
+  //       ej.etats.forEach(et => {
+  //         const curEt = et.toLocaleLowerCase().trim();
+  //         if (curEt === etatA.toLocaleLowerCase().trim()) {
+  //           retVal = true;
+  //         } else if (etatB && curEt === etatB.toLocaleLowerCase().trim()) {
+  //           retVal = true;
+  //           // } else if (etatC && curEt === etatC.toLocaleLowerCase().trim()) {
+  //           //   retVal = true;
+  //           // } else if (etatD && curEt === etatD.toLocaleLowerCase().trim()) {
+  //           //   retVal = true;
+  //         }
+  //       });
+  //     }
+  //     return retVal;
+  //   } else {
+  //     console.error("possedeUnDeCesEtats >> ElementJeu pas défini.");
+  //   }
+  // }
 
-  /**
-   * On teste aussi en ajoutant e à la fin (féminin).
-   * @param ej 
-   * @param etatA trim() et toLowerCase() doivent déjà être faits pour cet argument.
-   * @param etatB trim() et toLowerCase() doivent déjà être faits pour cet argument.
-   */
-  static possedeCetEtatAutoF(ej: ElementJeu, etatA: string): boolean {
-    if (ej) {
-      let retVal = false;
-      if (ej.etats) {
-        ej.etats.forEach(et => {
-          const curEt = et.toLocaleLowerCase().trim();
-          // premier état + féminin
-          if (curEt === etatA || curEt === (etatA + 'e')) {
-            retVal = true;
-          }
-        });
-      }
-      return retVal;
-    } else {
-      console.error("possedeCetEtatFemininAuto >> ElementJeu pas défini.");
-    }
-  }
+  // /**
+  //  * On teste aussi en ajoutant e à la fin (féminin).
+  //  * @param ej 
+  //  * @param etatA trim() et toLowerCase() doivent déjà être faits pour cet argument.
+  //  * @param etatB trim() et toLowerCase() doivent déjà être faits pour cet argument.
+  //  */
+  // static possedeCetEtatAutoF(ej: ElementJeu, etatA: string): boolean {
+  //   if (ej) {
+  //     let retVal = false;
+  //     if (ej.etats) {
+  //       ej.etats.forEach(et => {
+  //         const curEt = et.toLocaleLowerCase().trim();
+  //         // premier état + féminin
+  //         if (curEt === etatA || curEt === (etatA + 'e')) {
+  //           retVal = true;
+  //         }
+  //       });
+  //     }
+  //     return retVal;
+  //   } else {
+  //     console.error("possedeCetEtatFemininAuto >> ElementJeu pas défini.");
+  //   }
+  // }
 
-  /**
-   * On teste aussi en ajoutant e à la fin (féminin).
-   * @param ej 
-   * @param etatA trim() et toLowerCase() doivent déjà être faits pour cet argument.
-   * @param etatB trim() et toLowerCase() doivent déjà être faits pour cet argument.
-   */
-  static possedeUnDeCesEtatsAutoF(ej: ElementJeu, etatA: string, etatB: string = null): boolean {
-    if (ej) {
-      let retVal = false;
-      if (ej.etats) {
-        ej.etats.forEach(et => {
-          const curEt = et.toLocaleLowerCase().trim();
-          // premier état + féminin
-          if (curEt === etatA || curEt === (etatA + 'e')) {
-            retVal = true;
-            // autre état + féminin
-          } else if (etatB && (curEt === etatB || curEt === (etatB + 'e'))) {
-            retVal = true;
-          }
-        });
-      }
-      return retVal;
-    } else {
-      console.error("possedeUnDeCesEtatsFemininAuto >> ElementJeu pas défini.");
-    }
-  }
+  // /**
+  //  * On teste aussi en ajoutant e à la fin (féminin).
+  //  * @param ej 
+  //  * @param etatA trim() et toLowerCase() doivent déjà être faits pour cet argument.
+  //  * @param etatB trim() et toLowerCase() doivent déjà être faits pour cet argument.
+  //  */
+  // static possedeUnDeCesEtatsAutoF(ej: ElementJeu, etatA: string, etatB: string = null): boolean {
+  //   if (ej) {
+  //     let retVal = false;
+  //     if (ej.etats) {
+  //       ej.etats.forEach(et => {
+  //         const curEt = et.toLocaleLowerCase().trim();
+  //         // premier état + féminin
+  //         if (curEt === etatA || curEt === (etatA + 'e')) {
+  //           retVal = true;
+  //           // autre état + féminin
+  //         } else if (etatB && (curEt === etatB || curEt === (etatB + 'e'))) {
+  //           retVal = true;
+  //         }
+  //       });
+  //     }
+  //     return retVal;
+  //   } else {
+  //     console.error("possedeUnDeCesEtatsFemininAuto >> ElementJeu pas défini.");
+  //   }
+  // }
 
-  static retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
-    // retirer l’état verrouillé
-    let indexEtat = -1;
-    if (ElementsJeuUtils.possedeCetEtat(eleJeu, etatA)) {
-      indexEtat = eleJeu.etats.findIndex(x => x === etatA);
-      if (indexEtat !== -1) {
-        eleJeu.etats.splice(indexEtat, 1);
-      } else {
-        console.error("Pas pu retirer l'état");
-      }
-    } else if (etatB && ElementsJeuUtils.possedeCetEtat(eleJeu, etatB)) {
-      indexEtat = eleJeu.etats.findIndex(x => x === etatB);
-      if (indexEtat !== -1) {
-        eleJeu.etats.splice(indexEtat, 1);
-      } else {
-        console.error("Pas pu retirer l'état");
-      }
-    } else {
-      console.log("retirerEtat >> Rien à retirer.");
-    }
-  }
+  // static retirerEtat(eleJeu: ElementJeu, etatA: string, etatB: string) {
+  //   // retirer l’état verrouillé
+  //   let indexEtat = -1;
+  //   if (ElementsJeuUtils.possedeCetEtat(eleJeu, etatA)) {
+  //     indexEtat = eleJeu.etats.findIndex(x => x === etatA);
+  //     if (indexEtat !== -1) {
+  //       eleJeu.etats.splice(indexEtat, 1);
+  //     } else {
+  //       console.error("Pas pu retirer l'état");
+  //     }
+  //   } else if (etatB && ElementsJeuUtils.possedeCetEtat(eleJeu, etatB)) {
+  //     indexEtat = eleJeu.etats.findIndex(x => x === etatB);
+  //     if (indexEtat !== -1) {
+  //       eleJeu.etats.splice(indexEtat, 1);
+  //     } else {
+  //       console.error("Pas pu retirer l'état");
+  //     }
+  //   } else {
+  //     console.log("retirerEtat >> Rien à retirer.");
+  //   }
+  // }
 
-  /** Ajoute l'état à l'objet si celui-ci ne possède pas déjà cet état (accordé de la même façon) */
-  static ajouterEtat(eleJeu: ElementJeu, etat: string) {
-    if (!ElementsJeuUtils.possedeCetEtat(eleJeu, etat)) {
-      eleJeu.etats.push(etat);
-    }
-  }
+  // /** Ajoute l'état à l'objet si celui-ci ne possède pas déjà cet état (accordé de la même façon) */
+  // static ajouterEtat(eleJeu: ElementJeu, etat: string) {
+  //   if (!ElementsJeuUtils.possedeCetEtat(eleJeu, etat)) {
+  //     eleJeu.etats.push(etat);
+  //   }
+  // }
 
 
   static possedeCapaciteActionCible(ej: ElementJeu, actionA: string, actionB: string = null, cible: string): boolean {
@@ -201,53 +202,55 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  majVisibiliteDesObjets() {
+  majPresenceDesObjets() {
     this.jeu.objets.forEach(obj => {
-      this.majVisibiliteObjet(obj);
+      this.majPresenceObjet(obj);
     });
   }
 
-  majVisibiliteObjet(obj: Objet) {
-    // les objets possedes sont visibles
-    if (obj.possede) {
-      obj.visible = true;
+  majPresenceObjet(obj: Objet) {
+    // les objets possedes sont présents
+    if (this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.POSSEDE, this)) {
+      this.jeu.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
       // les objets non possedes peuvent être visibles seulement si positionnés
-    } else if (obj.position) {
-      // seuls les objets dans le lieu du joueur peuvent être visibles
-      if (this.getLieuObjet(obj) === this.curLieu.id) {
-        // si l'objet est directement dans la salle, il est visible
-        if (obj.position.cibleType === EClasseRacine.lieu) {
-          obj.visible = true;
-          // si l'objet est dans un contenant, vérifier le contenant
-        } else {
-          const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
-          if (!contenant) {
-            console.error("majVisibiliteDesObjets >>> contenant de l'objet pas trouvé >>>", obj);
-            obj.visible = false;
-          } else {
-            // les objets sur des supports sont visibles
-            if (Classe.heriteDe(contenant.classe, EClasseRacine.support)) {
-              obj.visible = true;
-              // les objets dans des contenants sont parfois visibles
-            } else if (Classe.heriteDe(contenant.classe, EClasseRacine.contenant)) {
-              if (ElementsJeuUtils.possedeCetEtatAutoF(contenant, "ouvert")) {
-                obj.visible = true;
-              } else {
-                obj.visible = false;
-              }
-              // les autres ne sont pas visibles
-            } else {
-              obj.visible = false;
-            }
-          }
-        }
-      } else {
-        obj.visible = false;
-      }
-      // si l'objet n'est pas posibionné, il n'est pas visible.
+    } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
+
+      this.jeu.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
+
+      // // si l'objet est directement dans la salle, il est présent
+      // if (obj.position.cibleType === EClasseRacine.lieu) {
+      //   this.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
+      //   // si l'objet est dans un contenant, vérifier le contenant
+      // } else {
+      //   const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
+      //   if (!contenant) {
+      //     console.error("majVisibiliteDesObjets >>> contenant de l'objet pas trouvé >>>", obj);
+      //     obj.visible = false;
+      //   } else {
+      //     // les objets sur des supports sont visibles
+      //     if (Classe.heriteDe(contenant.classe, EClasseRacine.support)) {
+      //       obj.visible = true;
+      //       // les objets dans des contenants sont parfois visibles
+      //     } else if (Classe.heriteDe(contenant.classe, EClasseRacine.contenant)) {
+      //       // if (ElementsJeuUtils.possedeCetEtatAutoF(contenant, "ouvert", this)) {
+      //       if (this.etats.possedeCetEtatElement(contenant, ListeEtats.OUVERT, this)) {
+      //         obj.visible = true;
+      //       } else {
+      //         obj.visible = false;
+      //       }
+      //       // les autres ne sont pas visibles
+      //     } else {
+      //       obj.visible = false;
+      //     }
+      //   }
+      // }
     } else {
-      obj.visible = false;
+      this.jeu.etats.retirerEtatElement(obj, ListeEtats.PRESENT);
     }
+    // si l'objet n'est pas positionné, il n'est pas présent.
+    // } else {
+    // this.etats.retirerEtatElement(obj, ListeEtats.PRESENT);
+    // }
   }
 
   getLieuObjet(obj: Objet): number {
