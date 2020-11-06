@@ -44,6 +44,33 @@ export class MotUtils {
     return pluriel;
   }
 
+  /** essayer de déterminer le féminin sur base des règles les plus communes */
+  static getFeminin(nomM: string) {
+    let feminin = nomM;
+    if (nomM) {
+      // p ou f => ve
+      if (nomM.endsWith('p') || nomM.endsWith('f')) {
+        feminin = nomM.slice(0, nomM.length - 1) + 've';
+        // x => se
+      } else if (nomM.endsWith('x')) {
+        feminin = nomM.slice(0, nomM.length - 1) + 'se';
+        // el => elle
+      } else if (nomM.endsWith('el')) {
+        feminin = nomM + 'le';
+        // eau => elle
+      } else if (nomM.endsWith('eau')) {
+        feminin = nomM.slice(0, nomM.length - 2) + 'lle';
+        // e => ne pas changer
+      } else if (nomM.endsWith('e')) {
+        feminin = nomM;
+        // autres cas => +e
+      } else {
+        feminin = nomM + 'e';
+      }
+    }
+    return feminin;
+  }
+
 
   /**
    * Obtenir le genre d'un élément du donjon.

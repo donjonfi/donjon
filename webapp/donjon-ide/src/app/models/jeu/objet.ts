@@ -20,34 +20,35 @@ export class Objet extends ElementJeu {
 
   reactions: Reaction[] = null;
 
-  /** L’objet se trouve dans la même pièce que le joueur */
-  present = false;
-  /** L’objet est caché => on le trouve si on examine */
-  cache = false;
-  /** L’objet est couvert => on ne le trouve que si on enlève l’obstacle */
-  couvert = false;
-  /** L’objet est invisible => on ne le trouve jamais */
-  invisible = false;
-  /** L’objet est accessible(/inaccessible) */
-  accessible = false;
-  /** L’objet est possédé par le joueur(/disponible) */
-  possede = false;
-  /** L’objet est porté par le joueur */
-  porte = false;
-  /** L’ojet est dénombrable(/indénombrable) */
-  denombrable = false;
-  /** L’objet est mangeable */
-  mangeable = false;
-  /** L’objet est buvable */
-  buvable = false;
-  /*** l’objet est ouvrable */
-  ouvrable = false;
-  /** l’objet est ouvert(/fermé) */
-  ouvert = false;
-  /** l’objet est verrouillable */
-  verrouillable = false;
-  /** L’objet est verrouillé */
-  verrouille = false;
+  // /** L’objet se trouve dans la même pièce que le joueur */
+  // present = false;
+  // /** L’objet est caché => on le trouve si on examine */
+  // cache = false;
+  // /** L’objet est couvert => on ne le trouve que si on enlève l’obstacle */
+  // couvert = false;
+  // /** L’objet est invisible => on ne le trouve jamais */
+  // invisible = false;
+  // /** L’objet est accessible(/inaccessible) */
+  // accessible = false;
+  // /** L’objet est possédé par le joueur(/disponible) */
+  // possede = false;
+  // /** L’objet est porté par le joueur */
+  // porte = false;
+  // /** L’ojet est dénombrable(/indénombrable) */
+  // denombrable = false;
+  // /** L’objet est mangeable */
+  // mangeable = false;
+  // /** L’objet est buvable */
+  // buvable = false;
+  // /*** l’objet est ouvrable */
+  
+  // ouvrable = false;
+  // /** l’objet est ouvert(/fermé) */
+  // ouvert = false;
+  // /** l’objet est verrouillable */
+  // verrouillable = false;
+  // /** L’objet est verrouillé */
+  // verrouille = false;
 
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
   position: PositionObjet = null;

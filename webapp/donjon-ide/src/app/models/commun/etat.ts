@@ -1,11 +1,12 @@
 
 export class Etat {
-
-  intitule: string;
-  intituleMS: string;
-  intituleMP: string;
-  intituleFS: string;
-  intituleFP: string;
-  inverse: string;
-  valeur: boolean;
+  id: number;
+  nomTronque: string;
+  nomMS: string;
+  nomMP: string;
+  nomFS: string;
+  nomFP: string;
+  groupe: number;
+  // id de l'autre état de la bascule
+  bascule: number;
 }

@@ -59,15 +59,10 @@ export class ElementJeu extends Intitule {
    */
   public quantite: number = null;
 
-
-  /** Intitulé (pluriel) */
-  public intituleP: GroupeNominal = null;
   /** Intitulé (singulier) */
   public intituleS: GroupeNominal = null;
-  // /** Intitulé (masculin) */
-  // public intituleM: GroupeNominal = null;
-  // /** Intitulé (féminin) */
-  // public intituleF: GroupeNominal = null;
+  /** Intitulé (pluriel) */
+  public intituleP: GroupeNominal = null;
 
   public titre: string = null;
 
@@ -88,7 +83,9 @@ export class ElementJeu extends Intitule {
    * - cassé(e)
    * - …
    */
-  public etats: string[] = [];
+  // public etats: string[] = [];
+  public etats: number[];
+
   /** Capacités de l’élément */
   public capacites: Capacite[] = [];
 
@@ -101,10 +98,9 @@ export class ElementJeu extends Intitule {
 
   /** L'objet est dans son état initial tant qu'il n'a pas été manipulé par le joueur. */
   initial = true;
-
   /** L’élément a-t-il déjà été décrit au joueur */
   decrit = false;
-  /** L’ojbet a-t-il déjà été examiné par le joueur. */
-  examine = false;
+  /** L’ojbet a-t-il déjà été vu par le joueur. */
+  vu = false;
 
 }
