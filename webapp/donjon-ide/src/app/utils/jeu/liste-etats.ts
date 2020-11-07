@@ -428,17 +428,26 @@ export class ListeEtats {
       return false;
     }
 
-    // on objet non positionné n’est pas visible
-    if (!objet.position) {
-      return false;
+    // s’il s’agit d’une PORTE, elle est visible
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
+      return true;
+      // s’il ne s’agit PAS d’une porte
+    } else {
+      // on objet non positionné n’est pas visible
+      if (!objet.position) {
+        return false;
+      }
+
+      // si dans un contenant fermé et opaque -> pas visible
+      if (this.estObjetMasqueParUnContenantOpaqueFerme(objet, eju)) {
+        return false;
+      }
+
+      // l’objet est visible
+      return true;
     }
 
-    // si dans un contenant fermé et opaque -> pas visible
-    if (this.estObjetMasqueParUnContenantOpaqueFerme(objet, eju)) {
-      return false;
-    }
 
-    return true;
   }
 
   // l'objet est-il masqué par un contenant opaque et fermé ?
