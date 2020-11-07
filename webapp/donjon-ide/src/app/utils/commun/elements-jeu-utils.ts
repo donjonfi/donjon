@@ -95,8 +95,13 @@ export class ElementsJeuUtils {
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
-      // les autres objets ne sont pas présents
+    } else if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
+      // les portes adjacentes au lieu actuel sont présentes
+      if (this.curLieu.voisins.some(x => x.id === obj.id)) {
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
+      }
     } else {
+      // les autres objets ne sont pas présents
       this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present);
     }
     // si l'objet n'est pas positionné, il n'est pas présent.
@@ -302,10 +307,13 @@ export class ElementsJeuUtils {
    * @param ceci objet ou lieu.
    */
   public verifierContientObjet(ceci: ElementJeu): boolean {
+    console.warn("verifierContientObjet: ceci=", ceci);
     let retVal = false;
     if (ceci) {
       let els: Objet[] = null;
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        console.warn("dddididdidid this.jeu.objet=", this.jeu.objets);
+        
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
       } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
@@ -315,6 +323,8 @@ export class ElementsJeuUtils {
       if (els) {
         retVal = els.length !== 0;
       }
+    } else {
+      console.error("verifierContientObjet ceci est null."); 
     }
     return retVal;
   }
