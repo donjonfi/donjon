@@ -104,6 +104,10 @@ export class Abreviations {
           retVal = "descendre";
           break;
 
+        case 'deb':
+          retVal = "deboguer ";
+          break;
+
         case 'dem':
           retVal = "demander ";
           break;

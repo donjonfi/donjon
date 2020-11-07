@@ -1,12 +1,16 @@
 import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 
+import { ClasseUtils } from '../commun/classe-utils';
+import { ElementJeu } from 'src/app/models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from 'src/app/models/jeu/lieu';
 import { ListeEtats } from './liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
+import { Objet } from 'src/app/models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
 
 export class Commandes {
@@ -92,7 +96,7 @@ export class Commandes {
 
     // TODO: vérifier accès…
     // if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
-    if (voisinPorte && this.jeu.etats.possedeCetEtatElement(voisinPorte, EEtatsBase.OUVERT, this.eju)) {
+    if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.ouvertID)) {
       // La porte est fermée
       // TODO: gérer majuscule
       return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
@@ -135,6 +139,44 @@ export class Commandes {
     } else {
       return "Je n'ai pas encore d’informations à propos de ça.";
     }
+  }
+
+  deboguer(els: ElementsPhrase) {
+    let retVal = "";
+    if (els.sujet.nom == 'ici') {
+      console.warn("#DEB# ici=", this.eju.curLieu);
+    } else if (els.sujet.nom == "états") {
+      console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
+    } else {
+      const cor = this.eju.trouverCorrespondance(els.sujet);
+      if (cor.elements.length !== 0) {
+        if (cor.elements.length === 1) {
+          const el = cor.elements[0];
+          // retrouver les états de l’élément
+          const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(el);
+          let visible: boolean = null;
+          let emplacement: ElementJeu = null;
+          if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
+            let obj = (el as Objet);
+            visible = this.jeu.etats.estVisible(obj, this.eju);
+            emplacement = this.eju.getLieu(this.eju.getLieuObjet(obj));
+          }
+          console.warn("#DEB# trouvé " + els.sujet.nom, "\n >> el=", el, "\n >> etats=", etats, "\n >> visible=", visible, "\n >> position=", emplacement);
+          retVal = "trouvé.";
+        } else {
+          console.warn("#DEB# erreur: plusieurs correspondances pour sujet=", els.sujet);
+          retVal = "pas trouvé > plusieurs correspondances";
+        }
+      } else {
+        console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
+        retVal = "pas trouvé > aucune correspondances";
+      }
+    }
+    if (retVal) {
+      retVal += "{n}";
+    }
+    retVal += "{/(voir console)/}";
+    return retVal;
   }
 
   ouSuisJe() {

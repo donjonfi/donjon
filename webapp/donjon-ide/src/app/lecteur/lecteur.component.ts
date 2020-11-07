@@ -250,6 +250,10 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.aide(els);
           break;
 
+        case "deboguer":
+          retVal = this.com.deboguer(els);
+          break;
+
         case "aller":
         case "entrer": // entrer
         case "sortir":
@@ -507,7 +511,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
               if (candidatCeciCela.epithete) {
                 // if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
-                if (this.jeu.etats.possedeCetEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
+                if (this.jeu.etats.possedeEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
                   retVal = ele;
                 }
               } else {
