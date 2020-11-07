@@ -7,7 +7,7 @@
 -- /////////////////////
 --   LIEU 1 − LE SALON
 -- /////////////////////
-Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.[si la porte secrète est ouverte]{n}Une porte secrète est ouverte au fond du salon.[fin si]".
+Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.[si la porte secrète est ouverte]{n}Une porte secrète est ouverte au nord du salon.[fin si]".
 
 -- ==========
 --   OBJETS
@@ -22,8 +22,10 @@ Il y a une bille dans le salon. "C'est une bille en verre décorée de petits po
 Le bout de papier est un objet caché sur le fauteuil. "Il y a quelque chose d'écrit dessus".
 Son aperçu est "[initialement]Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.[puis]Il y a un bout de papier.[fin choix]".
 -- > COFFRE
-Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier. Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-tapper-} un code)".
+Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-tapper-} un code.)[fin si]".
 Il est invisible, fermé, ouvrable et verrouillé.
+-- > ANNEAU
+L'anneau est un objet dans le coffre. "C'est un anneau doré. Il est probablement magique."
 -- > PORTE
 La porte secrète est une porte au nord du salon.
 Elle est fermée, verrouillée et invisible.
@@ -44,15 +46,19 @@ Le joueur peut lire le bout de papier:
   dire "Il est écrit << ne pas oublier: {+uaenna+} >>".
 -- > POUSSER FAUTEUIL
 Le joueur peut pousser le fauteuil:
-  dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.";
-  changer le coffre n’est plus invisible;
-  changer le fauteuil est déplacé.
+  si le fauteuil n'est pas déplacé:
+    dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.",
+    changer le coffre n’est plus invisible,
+    changer le fauteuil est déplacé;
+  sinon
+    dire "Ce n'est plus nécessaire.".
+
 -- > TAPPER CODE
 tapper ceci est une action qui concerne un intitulé.
 
 refuser tapper ceci:
   si le coffre n’est pas présent, dire "Il n'y a pas de clavier ici.";
-  si le coffre est invisible, dire "Je ne vois pas de clavier.".
+  si le coffre n'est pas visible, dire "Je ne vois pas de clavier.".
   
 exécuter tapper ceci:
   si ceci vaut "anneau":
@@ -65,7 +71,7 @@ exécuter tapper ceci:
 Le joueur peut décrocher le tableau:
   si le tableau se trouve sur le mur:
     dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}",
-    changer le bouton est n’est plus couvert;
+    changer le bouton n’est plus couvert;
   sinon:
     dire "Le taleau n'est pas accroché.".
     
@@ -86,17 +92,18 @@ Le joueur peut pousser le bouton:
   si la porte secrète est fermée:
     dire "{n}Une porte s'ouvre dans le mur nord de la pièce.",
     changer la porte secrète est ouverte,
-    changer la porte secrète n'est plus fermée,
-    changer la porte secrète n'est plus invisible,
-    changer la porte secrète est visible.
+    changer la porte secrète n'est plus invisible.
 
 -- ///////////////////////
 --   LIEU 2 − LE CABINET
 -- ///////////////////////
 
-Le cabinet est un lieu au nord du salon.
+Le cabinet est un lieu au nord du salon. "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées."
 
-La magicienne est une femme dans le cabinet.
+Les toiles d'araignées sont des décors dans le cabinet. "Brrr c'est n'est pas très rassurant.".
+Elles sont décoratives.
+
+La magicienne est une femme dans le cabinet. "Une magicienne vous observe.".
 
 Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
 Sa réaction concernant l'anneau est "<< Mon anneau magique m'a été dérobé. >>".
@@ -104,6 +111,12 @@ Sa réaction concernant la sortie est "<< Grâce à mon anneau, j'aurais pu vous
 
 après donner pièce à la magicienne:
   dire "<< Elle ne semble pas magique malheureusement. >>".
+  
+après donner anneau à la magicienne:
+  dire "<< Mon héro! >> ";
+  dire "{n}{n}La magicienne tend la main et un éclair vous aveugle.";
+  dire "{n}{n}Vous êtes de retour chez vous!";
+  dire "{n}{n}{+Bravo! Vous avez gagné !+}".
 
 -- 3) objets non placés
 La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
@@ -249,15 +262,15 @@ refuser examiner ceci:
   si ceci est une personne, dire "Pas sûr qu'il ait envie de jouer au docteur.".
 
 terminer examiner ceci:
-  si ceci est une porte :
-    dire "[statut ceci]";
   si ceci contient un objet :
     dire "[description ceci] ",
     dire "[contenu ceci]";
   sinon :
     dire "[description ceci][si aucune description pour ceci]
-    Vous ne trouvez rien d’intéressant.[fin si]".
-      
+    Vous ne trouvez rien d’intéressant.[fin si]";
+  si ceci est une porte ou un contenant :
+    dire "{n}[statut ceci]".
+
 -- =========
 --   JETER
 -- =========
