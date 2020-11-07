@@ -1,23 +1,3 @@
-<h3>Règles</h3>
-<p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
-
-<p *ngIf="regles && regles.length == 0">Aucune règle trouvée.</p>
-<ul>
-  <li *ngFor="let regle of regles">
-    <app-apercu-regle [regle]="regle"></app-apercu-regle>
-  </li>
-</ul>
-
-<h3>Actions</h3>
-<p *ngIf="!actions">Veuillez commencer par interpréter le code.</p>
-<p *ngIf="actions && actions.length == 0">Aucune action trouvée.</p>
-<ul>
-  <li *ngFor="let action of actions">
-    <app-apercu-action [action]="action"></app-apercu-action>
-  </li>
-</ul>
-
-
 <h3>Éléments du donjon</h3>
 <p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
 <div *ngIf="monde">
@@ -80,5 +60,25 @@
       </ul>
     </li> -->
   </ul>
-
 </div>
+
+<h3>Règles</h3>
+<p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
+
+<p *ngIf="regles && regles.length == 0">Aucune règle trouvée.</p>
+<ul>
+  <li *ngFor="let regle of regles">
+    <app-apercu-regle [regle]="regle"></app-apercu-regle>
+  </li>
+</ul>
+
+<h3>Actions</h3>
+<p *ngIf="!actions">Veuillez commencer par interpréter le code.</p>
+<p *ngIf="actions && actions.length == 0">Aucune action trouvée.</p>
+<ul>
+  <li *ngFor="let action of actions">
+    <app-apercu-action [action]="action"></app-apercu-action>
+  </li>
+</ul>
+
+
