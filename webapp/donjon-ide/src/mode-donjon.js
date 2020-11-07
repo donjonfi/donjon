@@ -8,7 +8,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|historique|"
-      + "intitulé|description|aperçu|capacité|accord|réaction"
+      + "intitulé|description|aperçu|capacité|accord|réaction|visible"
     );
 
     var builtinFunctions = (
@@ -65,9 +65,11 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "constant.language",
           regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |"
-            + "ouvrable(s)?|ouvert(e)?(s)?|fermé(e)?|verrouillé(e)?(s)?|vide(s)?|plein(e)?(s)?|"
-            + "visible(s)?|invisible(s)?|caché(e)?(s)?|disponible(s)?|possédé(e)?(s)?|"
-            + "décorati(f|ve)(s)?|fixé(e)?(s)?|"
+            // + "vide(s)?|plein(e)?(s)?|"
+             + "((présent|absent|intact|déplacé|modifié|caché|couvert|invisible|accessible|décorati(f|v)|"
+             + "possédé|disponible|occupé|porté|dénombrable|indénombrable|mangeable|buvable|"
+             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|éclairé|obscur|allumé|éteint|"
+             + "marche|arrêt|parlant|opaque|transparent|fixé|transportable)(e)?(s)?)|"          
             + "ceci|cela|ici"
         }, {
           token: "storage.type",
