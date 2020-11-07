@@ -1,9 +1,9 @@
-import { Classe, EClasseRacine } from 'src/app/models/commun/classe';
-
 import { Action } from 'src/app/models/compilateur/action';
 import { Capacite } from 'src/app/models/compilateur/capacite';
+import { ClasseUtils } from '../commun/classe-utils';
 import { Condition } from 'src/app/models/compilateur/condition';
 import { Definition } from 'src/app/models/compilateur/definition';
+import { EClasseRacine } from 'src/app/models/commun/constantes';
 import { ElementGenerique } from 'src/app/models/compilateur/element-generique';
 import { ElementsPhrase } from 'src/app/models/commun/elements-phrase';
 import { Evenement } from 'src/app/models/jouer/evenement';
@@ -113,7 +113,7 @@ export class Analyseur {
                 if (result !== null) {
                   // définir type de l'élément précédent
                   if (result[2] && result[2].trim() !== '') {
-                    dernierElementGenerique.classeIntitule = Classe.getClasseIntitule(result[2]);
+                    dernierElementGenerique.classeIntitule = ClasseUtils.getClasseIntitule(result[2]);
                   }
                   // attributs de l'élément précédent
                   if (result[3] && result[3].trim() !== '') {
@@ -437,7 +437,7 @@ export class Analyseur {
         result[1] ? result[1].toLowerCase() : null,
         result[2],
         result[3],
-        Classe.getClasseIntitule(result[5]),
+        ClasseUtils.getClasseIntitule(result[5]),
         null,
         // TODO: épithète
         new PositionSujetString(result[2], result[8], result[7]),
@@ -484,7 +484,7 @@ export class Analyseur {
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
         intituleClasse = nom;
-        type = Classe.getClasseIntitule(intituleClasse);
+        type = ClasseUtils.getClasseIntitule(intituleClasse);
         attributsString = epithete;
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
@@ -742,7 +742,7 @@ export class Analyseur {
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
       epithete = result[3];
-      intituleClasse = Classe.getClasseIntitule(result[5]);
+      intituleClasse = ClasseUtils.getClasseIntitule(result[5]);
       genre = MotUtils.getGenre(result[1], estFeminin);
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1]);

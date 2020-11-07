@@ -1,5 +1,7 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
+import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 
+import { ClasseUtils } from './classe-utils';
+import { ClassesRacines } from 'src/app/models/commun/classes-racines';
 import { Correspondance } from '../jeu/correspondance';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -210,16 +212,16 @@ export class ElementsJeuUtils {
 
   majPresenceObjet(obj: Objet) {
     // les objets possedes sont présents
-    if (this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.POSSEDE, this)) {
-      this.jeu.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
+    if (this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.POSSEDE, this)) {
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.PRESENT);
       // les objets non possedes peuvent être visibles seulement si positionnés
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
 
-      this.jeu.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.PRESENT);
 
       // // si l'objet est directement dans la salle, il est présent
       // if (obj.position.cibleType === EClasseRacine.lieu) {
-      //   this.etats.ajouterEtatElement(obj, ListeEtats.PRESENT);
+      //   this.etats.ajouterEtatElement(obj, EEtatsBase.PRESENT);
       //   // si l'objet est dans un contenant, vérifier le contenant
       // } else {
       //   const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
@@ -228,12 +230,12 @@ export class ElementsJeuUtils {
       //     obj.visible = false;
       //   } else {
       //     // les objets sur des supports sont visibles
-      //     if (Classe.heriteDe(contenant.classe, EClasseRacine.support)) {
+      //     if (ClasseUtils.heriteDe(contenant.classe, EClasseRacine.support)) {
       //       obj.visible = true;
       //       // les objets dans des contenants sont parfois visibles
-      //     } else if (Classe.heriteDe(contenant.classe, EClasseRacine.contenant)) {
+      //     } else if (ClasseUtils.heriteDe(contenant.classe, EClasseRacine.contenant)) {
       //       // if (ElementsJeuUtils.possedeCetEtatAutoF(contenant, "ouvert", this)) {
-      //       if (this.etats.possedeCetEtatElement(contenant, ListeEtats.OUVERT, this)) {
+      //       if (this.etats.possedeCetEtatElement(contenant, EEtatsBase.OUVERT, this)) {
       //         obj.visible = true;
       //       } else {
       //         obj.visible = false;
@@ -245,11 +247,11 @@ export class ElementsJeuUtils {
       //   }
       // }
     } else {
-      this.jeu.etats.retirerEtatElement(obj, ListeEtats.PRESENT);
+      this.jeu.etats.retirerEtatElement(obj, EEtatsBase.PRESENT);
     }
     // si l'objet n'est pas positionné, il n'est pas présent.
     // } else {
-    // this.etats.retirerEtatElement(obj, ListeEtats.PRESENT);
+    // this.etats.retirerEtatElement(obj, EEtatsBase.PRESENT);
     // }
   }
 
@@ -453,9 +455,9 @@ export class ElementsJeuUtils {
     let retVal = false;
     if (ceci) {
       let els: Objet[] = null;
-      if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
-      } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
       } else {
         console.error("verifierContientObjet: classe racine pas pris en charge:", ceci.classe);

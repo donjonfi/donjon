@@ -1,4 +1,4 @@
-import { EClasseRacine } from '../commun/classe';
+import { EClasseRacine } from '../commun/constantes';
 
 export class PositionObjet {
 

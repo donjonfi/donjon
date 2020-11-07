@@ -1,6 +1,6 @@
-import { Classe, EClasseRacine } from '../../models/commun/classe';
 import { Condition, LienCondition } from '../../models/compilateur/condition';
 
+import { ClasseUtils } from '../commun/classe-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Intitule } from 'src/app/models/jeu/intitule';
@@ -122,7 +122,7 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
-          resultCondition = Classe.heriteDe(el.classe, cond.sujetComplement.nom);
+          resultCondition = ClasseUtils.heriteDe(el.classe, cond.sujetComplement.nom);
           console.log("resultCondition=", resultCondition, "el.classe=", el.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
 

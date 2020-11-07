@@ -1,15 +1,19 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
 import { Attribute } from '@angular/core';
 import { Auditeur } from '../../models/jouer/auditeur';
+import { Classe } from 'src/app/models/commun/classe';
+import { ClasseUtils } from '../commun/classe-utils';
+import { ClassesRacines } from 'src/app/models/commun/classes-racines';
+import { EClasseRacine } from 'src/app/models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { ListeEtats } from '../jeu/liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
 import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
@@ -96,18 +100,15 @@ export class Generateur {
       newObjet.capacites = curEle.capacites;
       newObjet.reactions = curEle.reactions;
 
-      // ajouter les états de l'objet
+      // ajouter les états par défaut de la classe de l’objet:
+      // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+
+      Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
+
+      // ajouter les états de l'objet définis explicitements
       curEle.attributs.forEach(attribut => {
         jeu.etats.ajouterEtatElement(newObjet, attribut);
       });
-
-      // // états par défaut
-      // if (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(newObjet, "invisible")) {
-      //   ElementsJeuUtils.ajouterEtat(newObjet, "visible");
-      //   newObjet.visible = true;
-      // } else {
-      //   newObjet.visible = false;
-      // }
 
       // Déterminer le SINGULIER à partir du pluriel.
       if (curEle.nombre === Nombre.p) {
@@ -154,7 +155,7 @@ export class Generateur {
 
       // POSITION de l’élément
       // -- PORTE
-      if (Classe.heriteDe(newObjet.classe, EClasseRacine.porte)) {
+      if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.porte)) {
         Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
       } else {
         // -- AUTRE TYPE D'OBJET
@@ -307,6 +308,22 @@ export class Generateur {
     });
 
     return trouve;
+  }
+
+  /**
+   * Atribuer les états par défaut de l’objet sur base de la classe spécifiée.
+   * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
+   */
+  static attribuerEtatsParDefaut(classe: Classe, obj: Objet, etats: ListeEtats) {
+    // commencer par la classe parent (s’il y en a)
+    if (classe.parent) {
+      Generateur.attribuerEtatsParDefaut(classe.parent, obj, etats);
+      // attribuer les états par défaut de la classe
+    } else {
+      classe.etats.forEach(nomEtat => {
+        etats.ajouterEtatElement(obj, nomEtat);
+      });
+    }
   }
 
   /**

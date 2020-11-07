@@ -1,7 +1,8 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
 import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
+import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
+import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
@@ -65,7 +66,7 @@ export class Instructions {
         contenu = contenu.replace(/\[description ici\]/g, descIci);
       }
       if (contenu.includes("[description ceci]")) {
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           const descCeci = this.calculerDescription((ceci as Objet).description, ++(ceci as Objet).nbAffichageDescription, (ceci as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[description ceci\]/g, descCeci);
         } else {
@@ -73,7 +74,7 @@ export class Instructions {
         }
       }
       if (contenu.includes("[description cela]")) {
-        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, (cela as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[description cela\]/g, descCela);
         } else {
@@ -85,7 +86,7 @@ export class Instructions {
     // Aperçu (d’un objet)
     if (contenu.includes("[aperçu")) {
       if (contenu.includes("[aperçu ceci]")) {
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           const apercuCeci = this.calculerDescription((ceci as Objet).apercu, ++(ceci as Objet).nbAffichageApercu, (ceci as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[aperçu ceci\]/g, apercuCeci);
         } else {
@@ -93,7 +94,7 @@ export class Instructions {
         }
       }
       if (contenu.includes("[aperçu cela]")) {
-        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const apercuCela = this.calculerDescription((cela as Objet).apercu, ++(cela as Objet).nbAffichageApercu, (cela as Objet).initial, ceci, cela);
           contenu = contenu.replace(/\[aperçu cela\]/g, apercuCela);
         } else {
@@ -111,7 +112,7 @@ export class Instructions {
         contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
       }
       if (contenu.includes("[contenu ceci]")) {
-        if (ceci && Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
           const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
           contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
@@ -120,7 +121,7 @@ export class Instructions {
         }
       }
       if (contenu.includes("[contenu cela]")) {
-        if (cela && Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
           const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
@@ -133,7 +134,7 @@ export class Instructions {
     // statut (porte, contenant)
     if (contenu.includes("[statut")) {
       if (contenu.includes("[statut ceci]")) {
-        if (ceci && Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           const statutCeci = this.afficherStatut(ceci as Objet);
           contenu = contenu.replace(/\[statut ceci\]/g, statutCeci);
         } else {
@@ -141,7 +142,7 @@ export class Instructions {
         }
       }
       if (contenu.includes("[statut cela]")) {
-        if (cela && Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const statutCela = this.afficherStatut(cela as Objet);
           contenu = contenu.replace(/\[statut cela\]/g, statutCela);
         } else {
@@ -186,7 +187,7 @@ export class Instructions {
         contenu = contenu.replace(/\[accord ici\]/g, accordIci);
       }
       if (contenu.includes("[accord ceci]")) {
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           const accordCeci = ((ceci as Objet).genre === Genre.f ? "e" : "") + ((ceci as Objet).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[accord ceci\]/g, accordCeci);
         } else {
@@ -194,7 +195,7 @@ export class Instructions {
         }
       }
       if (contenu.includes("[accord cela]")) {
-        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const accordCela = ((cela as Objet).genre === Genre.f ? "e" : "") + ((cela as Objet).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[accord cela\]/g, accordCela);
         } else {
@@ -434,7 +435,7 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
           resultat.succes = sousResultat.succes;
         } else {
@@ -444,7 +445,7 @@ export class Instructions {
         break;
 
       case 'effacer':
-        if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           sousResultat = this.executerEffacer(ceci as Objet);
           resultat.succes = sousResultat.succes;
         } else {
@@ -514,23 +515,23 @@ export class Instructions {
     let objets: Objet[] = null;
     if (ceci) {
       // objet
-      if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         // retrouver les objets {contenus dans/posés sur} cet objet
         objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id
           // && ElementsJeuUtils.possedeCetEtat(x, "visible"));
           && this.jeu.etats.estVisible(x, this.eju));
         // si on ne doit pas lister les objets cachés, les enlever
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.CACHE, this.eju));
+          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.CACHE, this.eju));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
-      } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         // retrouver les objets présents dans le lieu
         objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
           && this.jeu.etats.estVisible(x, this.eju));
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.CACHE, this.eju));
+          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.CACHE, this.eju));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
       } else {
@@ -562,14 +563,14 @@ export class Instructions {
           resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj);
 
           // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
-          if (Classe.heriteDe(obj.classe, EClasseRacine.support)) {
+          if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
 
           }
 
         });
 
         // AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS
-        let supportsSansApercu = objets.filter(x => Classe.heriteDe(x.classe, EClasseRacine.support));
+        let supportsSansApercu = objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
           const sousRes = this.executerListerContenu(support, false);
@@ -598,14 +599,14 @@ export class Instructions {
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
 
       // - objets avec aperçu (ne pas lister les objets décoratifs):
-      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju));
+      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju));
       // let objetsAvecApercu = objets.filter(x => x.apercu !== null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
       const nbObjetsAvecApercus = objetsAvecApercu.length;
 
       objetsAvecApercu.forEach(obj => {
         resultat.sortie += "{n}" + this.calculerDescription(obj.apercu, obj.nbAffichageApercu, obj.initial, null, null);
         // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
-        if (Classe.heriteDe(obj.classe, EClasseRacine.support)) {
+        if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
           // ne pas afficher objets cachés du support, on ne l’examine pas directement
           const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj) + " il y a "), "", false);
           resultat.sortie += sousRes.sortie;
@@ -613,8 +614,8 @@ export class Instructions {
       });
 
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
-      // let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && Classe.heriteDe(x.classe, EClasseRacine.support));
-      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju) && Classe.heriteDe(x.classe, EClasseRacine.support));
+      // let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
+      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
 
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
@@ -626,7 +627,7 @@ export class Instructions {
 
       // - objets sans apercu (ne pas lister les éléments décoratifs)
       // let objetsSansApercu = objets.filter(x => x.apercu === null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
-      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeCetEtatElement(x, ListeEtats.DECORATIF, this.eju));
+      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju));
 
       const nbObjetsSansApercus = objetsSansApercu.length;
       if (nbObjetsSansApercus > 0) {
@@ -645,7 +646,7 @@ export class Instructions {
         });
 
         // C.2 AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS
-        let supportsSansApercu = objetsSansApercu.filter(x => Classe.heriteDe(x.classe, EClasseRacine.support));
+        let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
           const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support)), false);
@@ -668,9 +669,9 @@ export class Instructions {
   public obtenirContenu(ceci: ElementJeu): Objet[] {
     let els: Objet[] = null;
     if (ceci) {
-      if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
-      } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
       } else {
         console.error("obtenirContenu: classe racine pas pris en charge:", ceci.classe);
@@ -719,7 +720,7 @@ export class Instructions {
 
     switch (complement.nom) {
       case 'cela':
-        if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           destination = cela as Objet;
         } else {
           console.error("Déplacer vers cela: cela n'est pas un objet.");
@@ -763,7 +764,7 @@ export class Instructions {
     // TODO: vérifications
     objet.position = new PositionObjet(
       PrepositionSpatiale[preposition],
-      Classe.heriteDe(destination.classe, EClasseRacine.lieu) ? EClasseRacine.lieu : EClasseRacine.objet,
+      ClasseUtils.heriteDe(destination.classe, EClasseRacine.lieu) ? EClasseRacine.lieu : EClasseRacine.objet,
       destination.id
     );
 
@@ -777,25 +778,25 @@ export class Instructions {
       // si la destination est un lieu
       if (objet.position.cibleType === EClasseRacine.lieu) {
         // l'objet n'est pas possédé
-        this.jeu.etats.retirerEtatElement(objet, ListeEtats.POSSEDE);
+        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.POSSEDE);
         // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
-          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.PRESENT);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.PRESENT);
           // si c'est un autre lieu, il n'est pas présent.
         } else {
-          this.jeu.etats.retirerEtatElement(objet, ListeEtats.PRESENT);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.PRESENT);
         }
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent et possédé
         if (destination.id === this.jeu.joueur.id) {
-          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.PRESENT);
-          this.jeu.etats.ajouterEtatElement(objet, ListeEtats.POSSEDE);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.PRESENT);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.POSSEDE);
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé
           // TODO: un objet dans un contenant possédé est-il possédé ?
-          this.jeu.etats.retirerEtatElement(objet, ListeEtats.POSSEDE);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.POSSEDE);
           this.eju.majPresenceObjet(objet);
         }
       }
@@ -808,14 +809,14 @@ export class Instructions {
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
       // objet
-      if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         const indexObjet = this.jeu.objets.indexOf((ceci as Objet));
         if (indexObjet !== -1) {
           this.jeu.objets.splice(indexObjet, 1);
           resultat.succes = true;
         }
         // lieu
-      } else if (Classe.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         const indexLieu = this.jeu.objets.indexOf((ceci as Objet));
         if (indexLieu !== -1) {
           this.jeu.lieux.splice(indexLieu, 1);
@@ -848,7 +849,7 @@ export class Instructions {
         //   break;
 
         case 'ceci':
-          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
             resultat = this.executerElementJeu(ceci as Objet, instruction);
           } else {
             console.error("executer changer ceci: ceci n'est pas un objet.");
@@ -856,7 +857,7 @@ export class Instructions {
           break;
 
         case 'cela':
-          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
             resultat = this.executerElementJeu(cela as Objet, instruction);
           } else {
             console.error("executer changer cela: cela n'est pas un objet.");
@@ -903,14 +904,14 @@ export class Instructions {
     if (instruction.complement1) {
       switch (instruction.complement1.toLocaleLowerCase()) {
         case 'réaction de ceci':
-          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
             resultat = this.suiteExecuterReaction(ceci as Objet, null);
           } else {
             console.error("Exécuter réaction de ceci: ceci n'est pas un objet");
           }
           break;
         case 'réaction de cela':
-          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
             resultat = this.suiteExecuterReaction(cela as Objet, null);
           } else {
             console.error("Exécuter réaction de cela: cela n'est pas un objet");
@@ -918,7 +919,7 @@ export class Instructions {
           break;
         case 'réaction de ceci concernant cela':
         case 'réaction de ceci à cela':
-          if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
             resultat = this.suiteExecuterReaction(ceci as Objet, cela);
           } else {
             console.error("Exécuter réaction de ceci à cela: ceci n'est pas un objet");
@@ -926,7 +927,7 @@ export class Instructions {
           break;
         case 'réaction de cela concernant ceci':
         case 'réaction de cela à ceci':
-          if (Classe.heriteDe(cela.classe, EClasseRacine.objet)) {
+          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
             resultat = this.suiteExecuterReaction(cela as Objet, ceci);
           } else {
             console.error("Exécuter réaction de cela à ceci: cela n'est pas un objet");
@@ -955,8 +956,8 @@ export class Instructions {
     if (!personne) {
       console.error("suiteExecuterReaction: la personne est null");
     }
-    if (!Classe.heriteDe(personne.classe, EClasseRacine.personne)) {
-      if (!Classe.heriteDe(personne.classe, EClasseRacine.objet)) {
+    if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.personne)) {
+      if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.objet)) {
         console.error("suiteExecuterReaction: la personne qui doit réagir n’est ni une personne, ni un objet:", personne);
       } else {
         console.warn("suiteExecuterReaction: la personne qui doit réagir n’est pas une personne:", personne);
@@ -1028,13 +1029,13 @@ export class Instructions {
         } else if (instruction.complement1) {
           let els: Objet[] = null;
           if (instruction.complement1.endsWith('contenu de ceci')) {
-            if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+            if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
               els = this.obtenirContenu(ceci as Objet);
             } else {
               console.error("Joueur possède contenu de ceci: ceci n'est as un objet.");
             }
           } else if (instruction.complement1.endsWith('contenu de cela')) {
-            if (Classe.heriteDe(ceci.classe, EClasseRacine.objet)) {
+            if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
               els = this.obtenirContenu(cela as Objet);
             } else {
               console.error("Joueur possède contenu de cela: cela n'est as un objet.");
@@ -1160,11 +1161,11 @@ export class Instructions {
 
   afficherStatut(obj: Objet) {
     let retVal: string;
-    if (Classe.heriteDe(obj.classe, EClasseRacine.contenant) || Classe.heriteDe(obj.classe, EClasseRacine.porte)) {
+    if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
 
-      const ouvrable = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.OUVRABLE, this.eju);
-      const ouvert = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.OUVERT, this.eju);
-      const verrou = this.jeu.etats.possedeCetEtatElement(obj, ListeEtats.VERROUILLE, this.eju);
+      const ouvrable = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.OUVRABLE, this.eju);
+      const ouvert = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.OUVERT, this.eju);
+      const verrou = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.VERROUILLE, this.eju);
 
       if (obj.genre == Genre.f) {
         if (ouvert) {

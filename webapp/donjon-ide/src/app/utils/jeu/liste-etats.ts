@@ -1,5 +1,6 @@
-import { Classe, ClassesRacines, EClasseRacine } from 'src/app/models/commun/classe';
+import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 
+import { ClasseUtils } from '../commun/classe-utils';
 import { ElementJeu } from 'src/app/models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from 'src/app/models/commun/etat';
@@ -11,38 +12,6 @@ import { Objet } from 'src/app/models/jeu/objet';
 
 export class ListeEtats {
 
-  static readonly PRESENT = "présent";
-  static readonly ABSENT = "absent";
-  static readonly DECORATIF = "décoratif";
-  static readonly CACHE = "caché";
-  static readonly COUVERT = "couvert";
-  static readonly INVISIBLE = "invisible";
-  static readonly ACCESSIBLE = "accessible";
-  static readonly INACCESSIBLE = "inaccessible";
-  static readonly POSSEDE = "possédé";
-  static readonly DISPONIBLE = "disponible";
-  static readonly OCCUPE = "occupé";
-  static readonly PORTE = "porté";
-  static readonly DENOMBRABLE = "dénombrable";
-  static readonly INDENOMBRABLE = "indénombrable";
-  static readonly MANGEABLE = "mangeable";
-  static readonly BUVABLE = "buvable";
-  static readonly OUVRABLE = "ouvrable";
-  static readonly OUVERT = "ouvert";
-  static readonly FERME = "fermé";
-  static readonly VERROUILLABLE = "verrouillable";
-  static readonly VERROUILLE = "verrouillé";
-  static readonly DEVERROUILLE = "déverrouillé";
-  // static readonly LUMINEUX = "lumineux";
-  static readonly CLAIR = "clair";
-  // static readonly SOMBRE = "sombre";
-  static readonly OBSCUR = "obscur";
-  static readonly ALLUME = "allumé";
-  static readonly ETEINT = "éteint";
-  static readonly MARCHE = "marche";
-  static readonly ARRET = "arrêt";
-  static readonly OPAQUE = "opaque";
-  static readonly TRANSPARENT = "transparent";
 
   private ID_PRESENT = -1;
   private ID_CACHE = -1;
@@ -53,6 +22,9 @@ export class ListeEtats {
   private ID_FERME = -1;
   private ID_OPAQUE = -1;
   private ID_TRANSPARENT = -1;
+  private ID_TRANSPORTABLE = -1;
+  private ID_FIXE = -1;
+  private ID_DECORATIF = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -63,31 +35,35 @@ export class ListeEtats {
   }
 
   creerEtatsInitiaux() {
-    this.ID_PRESENT = this.creerBasculeEtats(ListeEtats.PRESENT, ListeEtats.ABSENT)[0].id;
-    this.creerEtat(ListeEtats.DECORATIF).id;
-    this.ID_CACHE = this.creerEtat(ListeEtats.CACHE).id;
-    this.ID_COUVERT = this.creerEtat(ListeEtats.COUVERT).id;
-    this.ID_INVISIBLE = this.creerEtat(ListeEtats.INVISIBLE).id;
-    this.creerBasculeEtats(ListeEtats.ACCESSIBLE, ListeEtats.INACCESSIBLE);
+    this.ID_PRESENT = this.creerBasculeEtats(EEtatsBase.PRESENT, EEtatsBase.ABSENT)[0].id;
+    this.ID_DECORATIF = this.creerEtat(EEtatsBase.DECORATIF).id;
+    this.ID_CACHE = this.creerEtat(EEtatsBase.CACHE).id;
+    this.ID_COUVERT = this.creerEtat(EEtatsBase.COUVERT).id;
+    this.ID_INVISIBLE = this.creerEtat(EEtatsBase.INVISIBLE).id;
+    this.creerBasculeEtats(EEtatsBase.ACCESSIBLE, EEtatsBase.INACCESSIBLE);
     // TODO: est-ce qu'on garde ça groupé ?
-    this.ID_POSSEDE = this.creerGroupeEtats([ListeEtats.POSSEDE, ListeEtats.DISPONIBLE, ListeEtats.OCCUPE])[0].id;
-    this.creerEtat(ListeEtats.PORTE);
-    this.creerBasculeEtats(ListeEtats.DENOMBRABLE, ListeEtats.INDENOMBRABLE);
-    this.creerEtat(ListeEtats.MANGEABLE);
-    this.creerEtat(ListeEtats.BUVABLE);
-    this.creerEtat(ListeEtats.OUVRABLE);
-    const ouvFer = this.creerBasculeEtats(ListeEtats.OUVERT, ListeEtats.FERME);
+    this.ID_POSSEDE = this.creerGroupeEtats([EEtatsBase.POSSEDE, EEtatsBase.DISPONIBLE, EEtatsBase.OCCUPE])[0].id;
+    this.creerEtat(EEtatsBase.PORTE);
+    this.creerBasculeEtats(EEtatsBase.DENOMBRABLE, EEtatsBase.INDENOMBRABLE);
+    this.creerEtat(EEtatsBase.MANGEABLE);
+    this.creerEtat(EEtatsBase.BUVABLE);
+    this.creerEtat(EEtatsBase.OUVRABLE);
+    const ouvFer = this.creerBasculeEtats(EEtatsBase.OUVERT, EEtatsBase.FERME);
     this.ID_OUVERT = ouvFer[0].id;
     this.ID_FERME = ouvFer[1].id;
-    this.creerEtat(ListeEtats.VERROUILLABLE);
-    this.creerBasculeEtats(ListeEtats.VERROUILLE, ListeEtats.DEVERROUILLE);
-    // this.creerGroupeEtats([ListeEtats.LUMINEUX,ListeEtats.CLAIR, ListeEtats.SOMBRE, ListeEtats.OBSCUR]);
-    this.creerBasculeEtats(ListeEtats.CLAIR, ListeEtats.OBSCUR);
-    this.creerBasculeEtats(ListeEtats.ALLUME, ListeEtats.ETEINT);
-    this.creerBasculeEtats(ListeEtats.MARCHE, ListeEtats.ARRET);
-    const transOpaq = this.creerBasculeEtats(ListeEtats.TRANSPARENT, ListeEtats.OPAQUE);
-    this.ID_TRANSPARENT = transOpaq[0].id;
-    this.ID_OPAQUE = transOpaq[1].id;
+    this.creerEtat(EEtatsBase.VERROUILLABLE);
+    this.creerBasculeEtats(EEtatsBase.VERROUILLE, EEtatsBase.DEVERROUILLE);
+    // this.creerGroupeEtats([EEtatsBase.LUMINEUX,EEtatsBase.CLAIR, EEtatsBase.SOMBRE, EEtatsBase.OBSCUR]);
+    this.creerBasculeEtats(EEtatsBase.ECLAIRE, EEtatsBase.OBSCUR);
+    this.creerBasculeEtats(EEtatsBase.ALLUME, EEtatsBase.ETEINT);
+    this.creerBasculeEtats(EEtatsBase.MARCHE, EEtatsBase.ARRET);
+    this.creerBasculeEtats(EEtatsBase.PARLANT, EEtatsBase.MUET);
+    const transFixe = this.creerBasculeEtats(EEtatsBase.TRANSPORTABLE, EEtatsBase.FIXE);
+    this.ID_TRANSPORTABLE = transFixe[0].id;
+    this.ID_FIXE = transFixe[1].id;
+    const opaTran = this.creerBasculeEtats(EEtatsBase.OPAQUE, EEtatsBase.TRANSPARENT);
+    this.ID_OPAQUE = opaTran[0].id;
+    this.ID_TRANSPARENT = opaTran[1].id;
 
   }
 
@@ -333,7 +309,7 @@ export class ListeEtats {
       // récupérer le contenant
       const parent = eju.getObjet(objet.position.cibleId);
       // si l'objet est dans un contenant fermé et opaque
-      if (Classe.heriteDe(parent.classe, EClasseRacine.contenant)) {
+      if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
         if (objet.etats.includes(this.ID_FERME) && objet.etats.includes(this.ID_OPAQUE)) {
           return true;
         }

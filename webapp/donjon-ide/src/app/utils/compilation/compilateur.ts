@@ -1,8 +1,10 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../../models/commun/classe';
-
 import { Action } from '../../models/compilateur/action';
 import { Analyseur } from './analyseur';
+import { Classe } from '../../models/commun/classe';
+import { ClasseUtils } from '../commun/classe-utils';
+import { ClassesRacines } from 'src/app/models/commun/classes-racines';
 import { Definition } from '../../models/compilateur/definition';
+import { EClasseRacine } from 'src/app/models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
@@ -53,10 +55,10 @@ export class Compilateur {
     elementsGeneriques.forEach(el => {
       el.classe = Compilateur.trouverClasse(monde.classes, el.classeIntitule);
       // objets
-      if (Classe.heriteDe(el.classe, EClasseRacine.objet)) {
+      if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
         monde.objets.push(el);
         // lieux
-      } else if (Classe.heriteDe(el.classe, EClasseRacine.lieu)) {
+      } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
         monde.lieux.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe);

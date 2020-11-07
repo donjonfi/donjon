@@ -1,5 +1,4 @@
-import { Classe, ClassesRacines, EClasseRacine } from '../commun/classe';
-
+import { ClassesRacines } from '../commun/classes-racines';
 import { ElementJeu } from './element-jeu';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Voisin } from './voisin';
@@ -11,7 +10,7 @@ export class Lieu extends ElementJeu {
     nom: string,
     intitule: GroupeNominal = null,
     public titre: string,
-    classe: Classe = ClassesRacines.Lieu,
+    classe = ClassesRacines.Lieu,
   ) {
     super(id, nom, intitule, classe);
   }

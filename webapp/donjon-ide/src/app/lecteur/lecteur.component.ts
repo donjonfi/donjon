@@ -1,12 +1,13 @@
 import { Action, ActionCeciCela } from '../models/compilateur/action';
-import { Classe, EClasseRacine } from '../models/commun/classe';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
+import { ClasseUtils } from '../utils/commun/classe-utils';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
 import { Correspondance } from '../utils/jeu/correspondance';
 import { Declencheur } from '../utils/jeu/declencheur';
+import { EClasseRacine } from '../models/commun/constantes';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -495,12 +496,12 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // il s’agit d’un type
     } else if (candidatCeciCela.determinant.match(/^(un|une|des)( )?$/)) {
-      if (Classe.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
+      if (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
         retVal = ceciCela.intitule;
       } else {
         // TODO: vérifier s’il s’agit du type
         ceciCela.elements.forEach(ele => {
-          if (Classe.heriteDe(ele.classe, Classe.getClasseIntitule(candidatCeciCela.nom))) {
+          if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getClasseIntitule(candidatCeciCela.nom))) {
             if (retVal === null) {
               // s'il doit s'agir d'un objet visible, vérifier
               // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.

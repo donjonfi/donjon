@@ -1,5 +1,5 @@
-import { Classe, ClassesRacines } from '../commun/classe';
-
+import { Classe } from '../commun/classe';
+import { ClassesRacines } from '../commun/classes-racines';
 import { ElementGenerique } from './element-generique';
 
 export class Monde {

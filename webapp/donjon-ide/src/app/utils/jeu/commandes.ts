@@ -1,4 +1,5 @@
-import { EClasseRacine } from '../../models/commun/classe';
+import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
+
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
@@ -91,7 +92,7 @@ export class Commandes {
 
     // TODO: vérifier accès…
     // if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
-    if (voisinPorte && this.jeu.etats.possedeCetEtatElement(voisinPorte, ListeEtats.OUVERT, this.eju)) {
+    if (voisinPorte && this.jeu.etats.possedeCetEtatElement(voisinPorte, EEtatsBase.OUVERT, this.eju)) {
       // La porte est fermée
       // TODO: gérer majuscule
       return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
