@@ -21,98 +21,15 @@ export class ConditionsUtils {
   /** Utilitaires - Éléments du jeu */
   private eju: ElementsJeuUtils;
 
-  conditionsRemplies(conditions: Condition[], ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
-    if (conditions.length === 0) {
-      console.warn("conditions-utils > conditionsRemplies: aucune condition à vérier.", conditions);
-      return true;
-    } else if (conditions.length === 1) {
-      const curCond = conditions[0];
-      const resultConditionA = this.conditionRemplie(curCond, ceci, cela);
-      let resultConditionB: boolean = null;
-      let resultConditionC: boolean = null;
-      let resultFinal = resultConditionA;
-      // une 2e condition est liée
-      if (curCond.lien) {
-        switch (curCond.lien.typeLien) {
-          // ET
-          case LienCondition.et:
-            // si c’est un ET et que la première condition est vraie, tester la 2e
-            if (resultFinal === true) {
-              resultFinal = this.conditionRemplie(curCond.lien, ceci, cela);
-              // si les 2 premières conditions sont vraies, tester la 3e
-              if (curCond.lien.lien && resultFinal === true) {
-                resultFinal = this.conditionRemplie(curCond.lien.lien, ceci, cela);
-              }
-            }
-            break;
-          // OU
-          case LienCondition.ou:
-            // si c’est un OU et que la premièr condition est fausse, tester la 2e
-            if (resultConditionA !== true) {
-              resultFinal = this.conditionRemplie(curCond.lien, ceci, cela);
-              // si les 2 premières conditions sont fausses, tester la 3e
-              if (curCond.lien.lien && resultFinal !== true) {
-                resultFinal = this.conditionRemplie(curCond.lien.lien, ceci, cela);
-              }
-            }
-            break;
-          // SOIT
-          case LienCondition.soit:
-            // si c’est un SOIT, tester la 2e
-            resultConditionB = this.conditionRemplie(curCond.lien, ceci, cela);
-            // si on a déjà 2 valeurs vérifiées, on est sûr que c’est faux.
-            if (resultConditionA === true && resultConditionB === true) {
-              resultFinal = false;
-            } else {
-              // si 1 des 2 est vérifiée, on a un résultat final (tomporaire) vrai
-              resultFinal = resultConditionA || resultConditionB;
-              // tester la 3e condition
-              if (curCond.lien.lien) {
-                // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-                resultConditionC = this.conditionRemplie(curCond.lien.lien, ceci, cela);
-                resultFinal = resultFinal !== resultConditionC;
-              }
-            }
-            break;
-
-          default:
-            break;
-        }
-      }
-      return resultFinal;
-    } else {
-      console.error("conditions-utils > conditionsRemplies: ne gère pas encore plusieurs conditions.", conditions);
-      return false;
-    }
-  }
-
-  conditionRemplie(condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
-    let resultCondition = false;
-    if (condition.verbe === 'est') {
-      if (condition.sujet.nom === 'ceci') {
-        resultCondition = this.verifierConditionElementJeuEst(condition, (ceci as ElementJeu));
-      } else if (condition.sujet.nom === 'cela') {
-        resultCondition = this.verifierConditionElementJeuEst(condition, (cela as ElementJeu));
-      } else {
-        console.error("conditionRemplie: sujet pas supporté:", condition.sujet);
-      }
-      console.warn("conditionRemplie >>>> resultat:", resultCondition);
-      return resultCondition;
-    } else {
-      console.error("conditionRemplie: verbe pas supporté:", condition.verbe);
-      return false;
-    }
-  }
-
-  private verifierConditionElementJeuEst(cond: Condition, el: ElementJeu) {
-    let resultCondition = null;
+  /** 
+   * Vérifier une condition de type "est", c'est à dire vérifer l'état ou la classe.
+   * /!\ La négation n'est pas appliquée ici, il faut le faire ensuite.
+   */
+  private verifierConditionElementJeuEst(cond: Condition, sujet: ElementJeu) {
+    let resultCondition: boolean = null;
     if (!cond.sujetComplement || !cond.sujetComplement.determinant) {
-
       // vérifier la liste des états
-      if (resultCondition === null) {
-        resultCondition = this.jeu.etats.possedeEtatElement(el, cond.complement, this.eju);
-      }
-
+      resultCondition = this.jeu.etats.possedeEtatElement(sujet, cond.complement, this.eju);
     } else {
       switch (cond.sujetComplement.determinant) {
         case "un ":
@@ -122,8 +39,8 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
-          resultCondition = ClasseUtils.heriteDe(el.classe, cond.sujetComplement.nom);
-          console.log("resultCondition=", resultCondition, "el.classe=", el.classe, "sujetComp.nom=", cond.sujetComplement.nom);
+          resultCondition = ClasseUtils.heriteDe(sujet.classe, cond.sujetComplement.nom);
+          console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
 
         case "la ":
@@ -131,7 +48,7 @@ export class ConditionsUtils {
         case "l’":
         case "l'":
         case "les ":
-          resultCondition = (el.intitule.nom === cond.sujetComplement.nom);
+          resultCondition = (sujet.intitule.nom === cond.sujetComplement.nom);
           break;
 
         default:
@@ -141,16 +58,76 @@ export class ConditionsUtils {
       }
     }
 
-    // négation de la condition ?
-    if (resultCondition !== null && cond.negation) {
-      resultCondition = !resultCondition;
-    }
-
     return resultCondition;
 
   }
 
-  siEstVrai(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+  /**
+   * Vérifier la condition ainsi que les liens.
+   */
+  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+
+    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela);
+    let resultConditionB: boolean = null;
+    let resultConditionC: boolean = null;
+    let resultFinal = resultConditionA;
+    // une 2e condition est liée
+    if (condition.lien) {
+      switch (condition.lien.typeLien) {
+        // ET
+        case LienCondition.et:
+          // si c’est un ET et que la première condition est vraie, tester la 2e
+          if (resultFinal === true) {
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+            // si les 2 premières conditions sont vraies, tester la 3e
+            if (condition.lien.lien && resultFinal === true) {
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+            }
+          }
+          break;
+        // OU
+        case LienCondition.ou:
+          // si c’est un OU et que la premièr condition est fausse, tester la 2e
+          if (resultConditionA !== true) {
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+            // si les 2 premières conditions sont fausses, tester la 3e
+            if (condition.lien.lien && resultFinal !== true) {
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+            }
+          }
+          break;
+        // SOIT
+        case LienCondition.soit:
+          // si c’est un SOIT, tester la 2e
+          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+          // si on a déjà 2 valeurs vérifiées, on est sûr que c’est faux.
+          if (resultConditionA === true && resultConditionB === true) {
+            resultFinal = false;
+          } else {
+            // si 1 des 2 est vérifiée, on a un résultat final (tomporaire) vrai
+            resultFinal = resultConditionA || resultConditionB;
+            // tester la 3e condition
+            if (condition.lien.lien) {
+              // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
+              resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+              resultFinal = resultFinal !== resultConditionC;
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+    return resultFinal;
+
+  }
+
+  /**
+   * Tester si la condition est vraie.
+   * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
+   */
+  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -202,15 +179,14 @@ export class ConditionsUtils {
           switch (condition.verbe) {
             // ÉTAT
             case 'est':
-              // faire le test
-              if (sujet) {
-                // autres états
-                retVal = this.jeu.etats.possedeEtatElement(sujet as ElementJeu, condition.complement, this.eju);
-              }
+              // est une [classe] | est [état]
+              // remarque: négation appliquée plus loin.
+              retVal = this.verifierConditionElementJeuEst(condition, (sujet as ElementJeu));
               break;
 
             // CONTENU
             case 'contient':
+              // remarque: négation appliquée plus loin.
               if (condition.complement === 'un objet') {
                 retVal = this.eju.verifierContientObjet(sujet as ElementJeu);
               } else {
@@ -222,6 +198,7 @@ export class ConditionsUtils {
             // PAS DE (aucun)
             case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
             case 'aucun': // forme "aucun xxxx pour yyyy"
+              // remarque: négation appliquée plus loin.
               if (condition.complement === 'description') {
                 retVal = (!(sujet as ElementJeu).description);
               } else if (condition.complement === 'aperçu') {
@@ -239,8 +216,8 @@ export class ConditionsUtils {
             // LOCALISATION
             case 'se trouve':
             case 'se trouvent':
-
               // retrouver la destination
+              // remarque: négation appliquée plus loin.
               let destination: ElementJeu = null;
               if (condition.sujetComplement.nom == "ici") {
                 destination = this.eju.curLieu;
@@ -277,6 +254,7 @@ export class ConditionsUtils {
 
             case 'réagit':
             case 'réagissent':
+              // remarque: négation appliquée plus loin.
               if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
                 retVal = true;
               }
@@ -284,6 +262,7 @@ export class ConditionsUtils {
 
             case 'vaut':
               // TODO: gérer plus de situations (en test)
+              // remarque: négation appliquée plus loin.
               console.warn("vaut condi=", condition, "ceci=", ceci, "cela=", cela);
 
               if (('"' + sujet.nom + '"') === condition.complement) {

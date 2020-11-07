@@ -13,7 +13,6 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from 'src/app/models/jeu/lieu';
-import { ListeEtats } from './liste-etats';
 import { Localisation } from 'src/app/models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -118,7 +117,7 @@ export class Instructions {
       if (contenu.includes("[contenu ceci]")) {
         if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
-          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
+          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", "{n}C'est vide.", true);
           contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
@@ -127,7 +126,7 @@ export class Instructions {
       if (contenu.includes("[contenu cela]")) {
         if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
-          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", "{n}Vous ne voyez pas d'objet.", true);
+          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", "{n}C'est vide.", true);
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
@@ -305,15 +304,15 @@ export class Instructions {
       // SI
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
-      statut.siVrai = this.cond.siEstVrai(conditionLC, null, ceci, cela);
+      statut.siVrai = this.cond.siEstVraiSansLien(conditionLC, null, ceci, cela);
       retVal = statut.siVrai;
       // SUITES
-    } else if (statut.conditionDebutee != ConditionDebutee.aucune) {
+    } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
       retVal = false;
       switch (conditionLC) {
         // OU
         case 'ou':
-          if (statut.conditionDebutee == ConditionDebutee.hasard) {
+          if (statut.conditionDebutee === ConditionDebutee.hasard) {
             retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
           } else {
             console.warn("[ou] sans 'au hasard'.");
@@ -337,7 +336,7 @@ export class Instructions {
           break;
         // SINON
         case 'sinon':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
+          if (statut.conditionDebutee === ConditionDebutee.si) {
             retVal = !statut.siVrai;
           } else {
             console.warn("[sinon] sans 'si'.");
@@ -346,7 +345,7 @@ export class Instructions {
           break;
         // FIN CHOIX
         case 'fin choix':
-          if (statut.conditionDebutee == ConditionDebutee.boucle || statut.conditionDebutee == ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee == ConditionDebutee.initialement) {
+          if (statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
             retVal = true;
           } else {
             console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
@@ -354,7 +353,7 @@ export class Instructions {
           break;
         // FIN SI
         case 'fin si':
-          if (statut.conditionDebutee == ConditionDebutee.si) {
+          if (statut.conditionDebutee === ConditionDebutee.si) {
             retVal = true;
           } else {
             console.warn("[fin si] sans 'si'.");
@@ -362,12 +361,12 @@ export class Instructions {
           break;
 
         default:
-          console.warn("estConditionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
+          console.warn("estConditionDescriptionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
           break;
       }
     }
 
-    console.log("estConditionRemplie", condition, statut, retVal);
+    console.log("estConditionDescriptionRemplie", condition, statut, retVal);
     return retVal;
   }
 
@@ -385,16 +384,13 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
-
-      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela);
+      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
-
       }
       if (estVrai) {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
       } else {
-
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
       }
       // instruction simple
@@ -528,7 +524,7 @@ export class Instructions {
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
-        console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
+        // console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
       } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         // retrouver les objets présents dans le lieu
@@ -537,7 +533,7 @@ export class Instructions {
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
-        console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
+        // console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
       } else {
         console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
       }
@@ -759,6 +755,9 @@ export class Instructions {
     return resultat;
   }
 
+  /**
+   * Déplacer un élément du jeu.
+   */
   private exectuterDeplacerObjetVersDestination(objet: Objet, preposition: string, destination: ElementJeu): Resultat {
     let resultat = new Resultat(false, '', 1);
 
@@ -812,6 +811,9 @@ export class Instructions {
     return resultat;
   }
 
+  /**
+   * Effacer un élément du jeu.
+   */
   private executerEffacer(ceci: ElementJeu = null): Resultat {
     let resultat = new Resultat(false, '', 1);
     if (ceci) {
@@ -904,6 +906,12 @@ export class Instructions {
     return resultat;
   }
 
+  /**
+   * Exécuter une instruction de type "réaction".
+   * @param instruction 
+   * @param ceci 
+   * @param cela 
+   */
   private executerReaction(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     let resultat = new Resultat(false, '', 1);
@@ -952,7 +960,7 @@ export class Instructions {
   }
 
   /**
-   * 
+   * Exécuter la réaction d'une personne à un sujet (ou non).
    */
   private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule) {
 
@@ -1063,45 +1071,6 @@ export class Instructions {
     return resultat;
   }
 
-  // positionnerJoueur(position: string): Resultat {
-
-  //   let resultat = new Resultat(true, '', 1);
-
-  //   position = position.trim().replace(/^au |dans (le |la |l'|l’)|à l’intérieur (du|de l’|de l'|de la |des )|sur (le |la |l’|l'|les)/i, '');
-  //   // chercher le lieu
-  //   let lieuxTrouves = this.jeu.lieux.filter(x => StringUtils.normaliserMot(x.nom).startsWith(position));
-  //   // si on n’a pas trouvé
-  //   if (lieuxTrouves.length == 0) {
-  //     console.error("positionnerJoueur : pas pu trouver le lieu correspondant à la position", position);
-  //     resultat.succes = false;
-  //     // si on a trouvé un lieu
-  //   } else if (lieuxTrouves.length === 1) {
-  //     this.jeu.position = lieuxTrouves[0].id;
-  //     // si on a trouvé plusieurs lieux différents
-  //   } else if (lieuxTrouves.length > 1) {
-  //     // TODO: ajouter des mots en plus
-  //     console.error("positionnerJoueur : plusieurs lieux trouvés pour la position", position);
-  //     resultat.succes = false;
-  //   }
-
-  //   return resultat;
-  // }
-
-  // private executerInventaire(instruction: ElementsPhrase): Resultat {
-  //   let resultat = new Resultat(false, '', 1);
-
-  //   switch (instruction.verbe.toLowerCase()) {
-  //     case 'contient':
-  //       resultat = this.ajouterInventaire(instruction.sujetComplement);
-  //       break;
-
-  //     default:
-  //       console.error("executerInventaire : pas compris verbe", instruction.verbe, instruction);
-  //       break;
-  //   }
-  //   return resultat;
-  // }
-
   private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
 
     let resultat = new Resultat(true, '', 1);
@@ -1110,7 +1079,6 @@ export class Instructions {
       case 'est':
       case 'sont':
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
-
         // n'est pas => retirer un état
         if (nEstPas) {
           console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
@@ -1167,7 +1135,7 @@ export class Instructions {
   // }
 
   afficherStatut(obj: Objet) {
-    let retVal: string;
+    let retVal = "";
     if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
 
       const ouvrable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvrableID);
@@ -1212,16 +1180,16 @@ export class Instructions {
     // - portes
     let portesVoisines = lieu.voisins.filter(x => x.type === EClasseRacine.porte);
 
-    // retirer de la liste les voisins séparrés par une porte invisible
+    // retirer de la liste les voisins séparé par une non visible
     if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
       portesVoisines.forEach(voisinPorte => {
         // retrouver la porte
         const porte = this.eju.getObjet(voisinPorte.id);
         // si la porte est invisible
         if (porte && !this.jeu.etats.estVisible(porte, this.eju)) {
-          // retirer de la liste le voisin lié
-          const voisinIndex = portesVoisines.findIndex(x => x.localisation === voisinPorte.localisation);
-          lieuxVoisins.splice(voisinIndex, 1);
+          // retirer de la liste le lieu voisin lié
+          const voisinLieuIndex = lieuxVoisins.findIndex(x => x.localisation === voisinPorte.localisation);
+          lieuxVoisins.splice(voisinLieuIndex, 1);
         }
       });
     }

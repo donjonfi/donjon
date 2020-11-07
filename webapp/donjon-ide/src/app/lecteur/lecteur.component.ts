@@ -338,11 +338,16 @@ export class LecteurComponent implements OnInit, OnChanges {
                 console.log("vérifications en cours pour la commande…");
                 // parcourir les vérifications
                 actionCeciCela.action.verifications.forEach(verif => {
-                  if (!refus && this.cond.conditionsRemplies(verif.conditions, actionCeciCela.ceci, actionCeciCela.cela)) {
-                    console.warn("> commande vérifie cela:", verif);
-                    let resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
-                    retVal = resultatRefuser.sortie;
-                    refus = true;
+                  if (verif.conditions.length == 1) {
+                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela)) {
+                      console.warn("> commande vérifie cela:", verif);
+                      let resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
+                      retVal = resultatRefuser.sortie;
+                      refus = true;
+                    }
+                  } else {
+                    console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
+
                   }
                 });
               }

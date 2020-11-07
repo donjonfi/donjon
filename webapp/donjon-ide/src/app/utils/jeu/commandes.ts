@@ -95,11 +95,10 @@ export class Commandes {
 
 
     // TODO: vérifier accès…
-    // if (voisinPorte && !ElementsJeuUtils.possedeCetEtatAutoF(voisinPorte, 'ouvert')) {
-    if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.ouvertID)) {
+    if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.fermeID)) {
       // La porte est fermée
       // TODO: gérer majuscule
-      return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre == Genre.f ? "e" : "") + ".");
+      return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre === Genre.f ? "e" : "") + ".");
     } else {
       if (voisinPorte) {
         console.log("porte ouverte :)");
