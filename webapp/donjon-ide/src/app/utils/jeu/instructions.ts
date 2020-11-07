@@ -67,7 +67,8 @@ export class Instructions {
       }
       if (contenu.includes("[description ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const descCeci = this.calculerDescription((ceci as Objet).description, ++(ceci as Objet).nbAffichageDescription, (ceci as Objet).initial, ceci, cela);
+          const objCeci = ceci as Objet;
+          const descCeci = this.calculerDescription(objCeci.description, ++objCeci.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[description ceci\]/g, descCeci);
         } else {
           console.error("interpreterContenuDire: Description de ceci: ceci n'est pas un objet");
@@ -75,7 +76,8 @@ export class Instructions {
       }
       if (contenu.includes("[description cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, (cela as Objet).initial, ceci, cela);
+          const objCela = cela as Objet;
+          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[description cela\]/g, descCela);
         } else {
           console.error("interpreterContenuDire: Description de cela: cela n'est pas un objet");
@@ -87,7 +89,8 @@ export class Instructions {
     if (contenu.includes("[aperçu")) {
       if (contenu.includes("[aperçu ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const apercuCeci = this.calculerDescription((ceci as Objet).apercu, ++(ceci as Objet).nbAffichageApercu, (ceci as Objet).initial, ceci, cela);
+          const objCeci = ceci as Objet;
+          const apercuCeci = this.calculerDescription(objCeci.apercu, ++objCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[aperçu ceci\]/g, apercuCeci);
         } else {
           console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un objet");
@@ -95,7 +98,8 @@ export class Instructions {
       }
       if (contenu.includes("[aperçu cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const apercuCela = this.calculerDescription((cela as Objet).apercu, ++(cela as Objet).nbAffichageApercu, (cela as Objet).initial, ceci, cela);
+          const objCela = cela as Objet;
+          const apercuCela = this.calculerDescription((cela as Objet).apercu, ++(cela as Objet).nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[aperçu cela\]/g, apercuCela);
         } else {
           console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un objet");
@@ -233,11 +237,11 @@ export class Instructions {
   /**
    * Calculer une description en tenant compte des balises conditionnelles et des états actuels.
    */
-  calculerDescription(description: string, nbAffichage: number, initial: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+  calculerDescription(description: string, nbAffichage: number, intact: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     let retVal = "";
     if (description) {
       const morceaux = description.split(/\[|\]/);
-      let statut = new StatutCondition(nbAffichage, initial, morceaux, 0);
+      let statut = new StatutCondition(nbAffichage, intact, morceaux, 0);
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
       let afficherMorceauSuivant = true;
@@ -246,7 +250,7 @@ export class Instructions {
         statut.curMorceauIndex = index;
         const curMorceau = morceaux[index];
         if (suivantEstCondition) {
-          afficherMorceauSuivant = this.estConditionRemplie(curMorceau, statut, ceci, cela);
+          afficherMorceauSuivant = this.estConditionDescriptionRemplie(curMorceau, statut, ceci, cela);
           suivantEstCondition = false;
         } else {
           if (afficherMorceauSuivant) {
@@ -265,7 +269,7 @@ export class Instructions {
   }
 
   /** Vérifier si une condition [] est remplie. */
-  private estConditionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
+  private estConditionDescriptionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): boolean {
 
     let retVal = false;
     let conditionLC = condition.toLowerCase();
@@ -522,7 +526,7 @@ export class Instructions {
           && this.jeu.etats.estVisible(x, this.eju));
         // si on ne doit pas lister les objets cachés, les enlever
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.CACHE, this.eju));
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
@@ -531,7 +535,7 @@ export class Instructions {
         objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
           && this.jeu.etats.estVisible(x, this.eju));
         if (!inclureObjetsCachesDeCeci) {
-          objets = objets.filter(x => !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.CACHE, this.eju));
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
         console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
       } else {
@@ -599,12 +603,11 @@ export class Instructions {
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
 
       // - objets avec aperçu (ne pas lister les objets décoratifs):
-      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju));
-      // let objetsAvecApercu = objets.filter(x => x.apercu !== null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
+      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
       const nbObjetsAvecApercus = objetsAvecApercu.length;
 
       objetsAvecApercu.forEach(obj => {
-        resultat.sortie += "{n}" + this.calculerDescription(obj.apercu, obj.nbAffichageApercu, obj.initial, null, null);
+        resultat.sortie += "{n}" + this.calculerDescription(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), null, null);
         // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
         if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
           // ne pas afficher objets cachés du support, on ne l’examine pas directement
@@ -614,8 +617,7 @@ export class Instructions {
       });
 
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
-      // let supportsDecoratifs = objets.filter(x => ElementsJeuUtils.possedeCetEtat(x, "décoratif") && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
-      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
+      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
 
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
@@ -626,8 +628,7 @@ export class Instructions {
       // C.1 AFFICHER ÉLÉMENTS SANS APERÇU
 
       // - objets sans apercu (ne pas lister les éléments décoratifs)
-      // let objetsSansApercu = objets.filter(x => x.apercu === null && !ElementsJeuUtils.possedeCetEtat(x, "décoratif"));
-      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeCetEtatElement(x, EEtatsBase.DECORATIF, this.eju));
+      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
 
       const nbObjetsSansApercus = objetsSansApercu.length;
       if (nbObjetsSansApercus > 0) {
@@ -770,37 +771,43 @@ export class Instructions {
 
     // si l'objet à déplacer est le joueur, modifier la visibilité des objets
     if (objet.id === this.jeu.joueur.id) {
-      // la visibilité des objets a changé
+      // la présence des objets a changé
       this.eju.majPresenceDesObjets();
 
       // si l'objet à déplacer n'est pas le joueur
     } else {
       // si la destination est un lieu
       if (objet.position.cibleType === EClasseRacine.lieu) {
-        // l'objet n'est pas possédé
-        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.POSSEDE);
+        // l'objet n'est plus possédé
+        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede);
         // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.PRESENT);
-          // si c'est un autre lieu, il n'est pas présent.
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present);
+          // si c'est un autre lieu, l’objet n'est plus présent.
         } else {
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.PRESENT);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.present);
         }
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent et possédé
         if (destination.id === this.jeu.joueur.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.PRESENT);
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.POSSEDE);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.possede);
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé
           // TODO: un objet dans un contenant possédé est-il possédé ?
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.POSSEDE);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede);
           this.eju.majPresenceObjet(objet);
         }
       }
     }
+
+    // l’objet a été déplacé
+    this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.deplace);
+    // la destination a été modifiée
+    this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie);
+
     resultat.succes = true;
     return resultat;
   }
@@ -1163,9 +1170,9 @@ export class Instructions {
     let retVal: string;
     if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
 
-      const ouvrable = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.OUVRABLE, this.eju);
-      const ouvert = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.OUVERT, this.eju);
-      const verrou = this.jeu.etats.possedeCetEtatElement(obj, EEtatsBase.VERROUILLE, this.eju);
+      const ouvrable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvrableID);
+      const ouvert = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID);
+      const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
 
       if (obj.genre == Genre.f) {
         if (ouvert) {

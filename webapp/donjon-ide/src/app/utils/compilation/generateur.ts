@@ -1,3 +1,4 @@
+import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
@@ -6,7 +7,6 @@ import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from 'src/app/models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from 'src/app/models/commun/classes-racines';
-import { EClasseRacine } from 'src/app/models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Genre } from '../../models/commun/genre.enum';
@@ -40,13 +40,20 @@ export class Generateur {
 
     // PLACER LE JOUEUR
     // ****************
-    jeu.joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClassesRacines.Vivant, 1, Genre.m);
-
+    let joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClassesRacines.Vivant, 1, Genre.m);
+    jeu.joueur = joueur;
+    joueur.intituleS = joueur.intitule;
+    joueur.description = "(C’est vous)";
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.invisible);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
+    // ajouter le joueur aux objets du jeu
+    jeu.objets.push(joueur);
+    // regarder si on a positionné le joueur
     if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
       const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
       const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement, true);
       if (lieuID !== -1) {
-        jeu.joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
+        joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
       }
     }
 
@@ -102,13 +109,16 @@ export class Generateur {
 
       // ajouter les états par défaut de la classe de l’objet:
       // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
-
+      // console.warn("BEGIN attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
       Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
+      // console.warn("END attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
 
       // ajouter les états de l'objet définis explicitements
-      curEle.attributs.forEach(attribut => {
-        jeu.etats.ajouterEtatElement(newObjet, attribut);
-      });
+      if (curEle.attributs) {
+        curEle.attributs.forEach(attribut => {
+          jeu.etats.ajouterEtatElement(newObjet, attribut);
+        });
+      }
 
       // Déterminer le SINGULIER à partir du pluriel.
       if (curEle.nombre === Nombre.p) {
@@ -317,13 +327,14 @@ export class Generateur {
   static attribuerEtatsParDefaut(classe: Classe, obj: Objet, etats: ListeEtats) {
     // commencer par la classe parent (s’il y en a)
     if (classe.parent) {
+      // console.log(">>>>> on regarde le parent=", classe.parent);
       Generateur.attribuerEtatsParDefaut(classe.parent, obj, etats);
       // attribuer les états par défaut de la classe
-    } else {
-      classe.etats.forEach(nomEtat => {
-        etats.ajouterEtatElement(obj, nomEtat);
-      });
     }
+    // console.log(">>>>>> on regarde dedans");
+    classe.etats.forEach(nomEtat => {
+      etats.ajouterEtatElement(obj, nomEtat);
+    });
   }
 
   /**

@@ -52,7 +52,7 @@ export class PhraseUtils {
    * - inventaire
    * - aide
    */
-  static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)$/i;
+  static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide|deboguer)$/i;
 
   // ^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)?
 
@@ -147,27 +147,27 @@ export class PhraseUtils {
     let resCondSimple: RegExpExecArray = null;
     let resConditionAucunPour: RegExpExecArray = null;
 
-    console.log("condition:", condition);
+    // console.log("condition:", condition);
 
 
     // A. tester la formulation  [ni ni | soit soit]
     resCondNiSoit = PhraseUtils.xConditionNiSoit.exec(condition);
     resCond = resCondNiSoit;
 
-    console.log(">> resCondNiSoit:", resCondNiSoit);
+    // console.log(">> resCondNiSoit:", resCondNiSoit);
 
 
     if (!resCondNiSoit) {
       resCondEtOu = PhraseUtils.xConditionOuEt.exec(condition);
       resCond = resCondEtOu;
     }
-    console.log(">> resCondEtOu:", resCondEtOu);
+    // console.log(">> resCondEtOu:", resCondEtOu);
 
     if (!resCondNiSoit && !resCondEtOu) {
       // B. tester la formulation [mais pas | mais bien | et | ou]
       resCondMaisPasEtOu = PhraseUtils.xConditionMaisPasEtOu.exec(condition);
 
-      console.log(">> resCondMaisPasEtOu:", resCondMaisPasEtOu);
+      // console.log(">> resCondMaisPasEtOu:", resCondMaisPasEtOu);
 
 
       resCond = resCondMaisPasEtOu;

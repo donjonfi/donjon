@@ -12,19 +12,24 @@ import { Objet } from 'src/app/models/jeu/objet';
 
 export class ListeEtats {
 
-
-  private ID_PRESENT = -1;
-  private ID_CACHE = -1;
-  private ID_COUVERT = -1;
-  private ID_INVISIBLE = -1;
-  private ID_POSSEDE = -1;
-  private ID_OUVERT = -1;
-  private ID_FERME = -1;
-  private ID_OPAQUE = -1;
-  private ID_TRANSPARENT = -1;
-  private ID_TRANSPORTABLE = -1;
-  private ID_FIXE = -1;
-  private ID_DECORATIF = -1;
+  public presentID = -1;
+  public intactID = -1;
+  public deplaceID = -1;
+  public modifieID = -1;
+  public cacheID = -1;
+  public couvertID = -1;
+  public invisibleID = -1;
+  public possedeID = -1;
+  public ouvertID = -1;
+  public ouvrableID = -1;
+  public fermeID = -1;
+  public verrouilleID = -1;
+  public verrouillableID = -1;
+  public opaqueID = -1;
+  public transparentID = -1;
+  public transportableID = -1;
+  public fixeID = -1;
+  public decoratifID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -35,35 +40,60 @@ export class ListeEtats {
   }
 
   creerEtatsInitiaux() {
-    this.ID_PRESENT = this.creerBasculeEtats(EEtatsBase.PRESENT, EEtatsBase.ABSENT)[0].id;
-    this.ID_DECORATIF = this.creerEtat(EEtatsBase.DECORATIF).id;
-    this.ID_CACHE = this.creerEtat(EEtatsBase.CACHE).id;
-    this.ID_COUVERT = this.creerEtat(EEtatsBase.COUVERT).id;
-    this.ID_INVISIBLE = this.creerEtat(EEtatsBase.INVISIBLE).id;
-    this.creerBasculeEtats(EEtatsBase.ACCESSIBLE, EEtatsBase.INACCESSIBLE);
+    // présent et absent
+    const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
+    this.presentID = presAbs[0].id;
+    // intact, déplacé et modifié
+    this.intactID = this.creerEtat(EEtatsBase.intact).id;
+    this.deplaceID = this.creerEtat(EEtatsBase.deplace).id;
+    this.modifieID = this.creerEtat(EEtatsBase.modifie).id;
+    this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.deplace);
+    this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.modifie);
+    // décoratif
+    this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
+    // caché, couvert, invisible
+    this.cacheID = this.creerEtat(EEtatsBase.cache).id;
+    this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
+    this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
+    // accessible, inaccessible
+    this.creerBasculeEtats(EEtatsBase.accessible, EEtatsBase.inaccessible);
+    // possédé, disponible et occupé
     // TODO: est-ce qu'on garde ça groupé ?
-    this.ID_POSSEDE = this.creerGroupeEtats([EEtatsBase.POSSEDE, EEtatsBase.DISPONIBLE, EEtatsBase.OCCUPE])[0].id;
-    this.creerEtat(EEtatsBase.PORTE);
-    this.creerBasculeEtats(EEtatsBase.DENOMBRABLE, EEtatsBase.INDENOMBRABLE);
-    this.creerEtat(EEtatsBase.MANGEABLE);
-    this.creerEtat(EEtatsBase.BUVABLE);
-    this.creerEtat(EEtatsBase.OUVRABLE);
-    const ouvFer = this.creerBasculeEtats(EEtatsBase.OUVERT, EEtatsBase.FERME);
-    this.ID_OUVERT = ouvFer[0].id;
-    this.ID_FERME = ouvFer[1].id;
-    this.creerEtat(EEtatsBase.VERROUILLABLE);
-    this.creerBasculeEtats(EEtatsBase.VERROUILLE, EEtatsBase.DEVERROUILLE);
-    // this.creerGroupeEtats([EEtatsBase.LUMINEUX,EEtatsBase.CLAIR, EEtatsBase.SOMBRE, EEtatsBase.OBSCUR]);
-    this.creerBasculeEtats(EEtatsBase.ECLAIRE, EEtatsBase.OBSCUR);
-    this.creerBasculeEtats(EEtatsBase.ALLUME, EEtatsBase.ETEINT);
-    this.creerBasculeEtats(EEtatsBase.MARCHE, EEtatsBase.ARRET);
-    this.creerBasculeEtats(EEtatsBase.PARLANT, EEtatsBase.MUET);
-    const transFixe = this.creerBasculeEtats(EEtatsBase.TRANSPORTABLE, EEtatsBase.FIXE);
-    this.ID_TRANSPORTABLE = transFixe[0].id;
-    this.ID_FIXE = transFixe[1].id;
-    const opaTran = this.creerBasculeEtats(EEtatsBase.OPAQUE, EEtatsBase.TRANSPARENT);
-    this.ID_OPAQUE = opaTran[0].id;
-    this.ID_TRANSPARENT = opaTran[1].id;
+    const possDispOcc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe]);
+    this.possedeID = possDispOcc[0].id;
+    // porté
+    this.creerEtat(EEtatsBase.porte);
+    this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
+    // dénombrable et indénombrable
+    this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
+    // mangeable et buvable
+    this.creerEtat(EEtatsBase.mangeable);
+    this.creerEtat(EEtatsBase.buvable);
+    // ouvrable, ouvert, fermé
+    this.ouvrableID = this.creerEtat(EEtatsBase.ouvrable).id;
+    const ouvFer = this.creerBasculeEtats(EEtatsBase.ouvert, EEtatsBase.ferme);
+    this.ouvertID = ouvFer[0].id;
+    this.fermeID = ouvFer[1].id;
+    // verrouillable, verrouillé, déverrouillé
+    this.verrouillableID = this.creerEtat(EEtatsBase.verrouillable).id;
+    const verrDeve = this.creerBasculeEtats(EEtatsBase.verrouille, EEtatsBase.deverrouille);
+    this.verrouilleID = verrDeve[0].id;
+    // transportable et fixe
+    const transFixe = this.creerBasculeEtats(EEtatsBase.transportable, EEtatsBase.fixe);
+    this.transportableID = transFixe[0].id;
+    this.fixeID = transFixe[1].id;
+    // opaque et transparent
+    const opaTran = this.creerBasculeEtats(EEtatsBase.opaque, EEtatsBase.transparent);
+    this.opaqueID = opaTran[0].id;
+    this.transparentID = opaTran[1].id;
+    // éclairé et obscur
+    this.creerBasculeEtats(EEtatsBase.eclaire, EEtatsBase.obscur);
+    // allumé et éteint
+    this.creerBasculeEtats(EEtatsBase.allume, EEtatsBase.eteint);
+    // marche et arrêt
+    this.creerBasculeEtats(EEtatsBase.marche, EEtatsBase.arret);
+    // parlant et muet
+    this.creerBasculeEtats(EEtatsBase.parlant, EEtatsBase.muet);
 
   }
 
@@ -77,7 +107,7 @@ export class ListeEtats {
     const trouve = false;
     let retVal: Etat = null;
     // comparer sur le nom tronqué en espérant le trouver rapidement
-    const nomTronque = nomEtat.replace(/^(.+?)(ble)?(e)?(s)?$/, "$1$2");
+    const nomTronque = nomEtat.replace(/^(.+?)(ble|que)?(e)?(s)?$/, "$1$2");
     this.etats.forEach(etat => {
       if (!trouve && etat.nomTronque === nomTronque) {
         retVal = etat;
@@ -96,6 +126,8 @@ export class ListeEtats {
     return retVal;
   }
 
+
+
   /** Créer un goupe d'états. */
   creerGroupeEtats(nomEtats: string[], genre: Genre = Genre.m, nombre: Nombre = Nombre.s) {
     const groupe = this.nextGroupe++;
@@ -108,6 +140,7 @@ export class ListeEtats {
 
   /** Créer une nouvele bascule d'états */
   creerBasculeEtats(nomEtatA, nomEtatB, genre: Genre = Genre.m, nombre: Nombre = Nombre.s) {
+    // const groupe = this.nextGroupe++;
     const etatA = this.suiteCreerEtat(nomEtatA, genre, nombre, null, (this.nextEtat + 1));
     const etatB = this.suiteCreerEtat(nomEtatB, genre, nombre, null, (this.nextEtat - 1));
     return [etatA, etatB];
@@ -118,13 +151,74 @@ export class ListeEtats {
     return this.suiteCreerEtat(nomEtat, genre, nombre, null, null);
   }
 
+  /**
+   * spécifier que étatA implique étatB
+   */
+  ajouterImplication(nomEtatA: string, nomEtatB: string) {
+    let etatA = this.trouverEtat(nomEtatA);
+    let etatB = this.trouverEtat(nomEtatB);
+    if (etatA && etatB) {
+      // ajouter etatB aux implications de etatA
+      if (!etatA.implications) {
+        etatA.implications = [etatB.id];
+      } else if (!etatA.implications.includes(etatB.id)) {
+        etatA.implications.push(etatB.id);
+      }
+      // ajouter également toutes les implications de etatB à celles de etatA
+      if (etatB.implications) {
+        etatB.implications.forEach(implication => {
+          if (!etatA.implications.includes(implication)) {
+            etatA.implications.push(implication);
+          }
+        });
+      }
+      // modifier tous les éléments qui impliquent etatA: ils doivent impliquer les implications de étatA
+      this.etats.forEach(autreEtat => {
+        // si implique etatA
+        if (autreEtat.implications && autreEtat.implications.includes(etatA.id)) {
+          // ajouter les implication de etatA
+          etatA.implications.forEach(implication => {
+            if (!autreEtat.implications.includes(implication)) {
+              autreEtat.implications.push(implication);
+            }
+          });
+        }
+      });
+
+    } else {
+      console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
+    }
+  }
+
+  ajouterContradiction(nomEtatA: string, nomEtatB: string) {
+    let etatA = this.trouverEtat(nomEtatA);
+    let etatB = this.trouverEtat(nomEtatB);
+    if (etatA && etatB) {
+      // ajouter la contradiction à l’état A
+      if (!etatA.contradictions) {
+        etatA.contradictions = [etatB.id];
+      } else if (!etatA.contradictions.includes(etatB.id)) {
+        etatA.contradictions.push(etatB.id);
+      }
+      // ajouter la contradiction à l’état B
+      if (!etatB.contradictions) {
+        etatB.contradictions = [etatA.id];
+      } else if (!etatB.contradictions.includes(etatA.id)) {
+        etatB.contradictions.push(etatA.id);
+      }
+    } else {
+      console.error("ajouterContradiction >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
+    }
+  }
+
   /** Créer le nouvel état (avec arguments privés) */
   private suiteCreerEtat(nomEtat: string, genre: Genre = Genre.m, nombre: Nombre = Nombre.s, groupe: number = null, bascule: number = null): Etat {
     let newEtat = new Etat();
     newEtat.id = this.nextEtat++;
     newEtat.groupe = groupe;
-    newEtat.groupe = bascule;
-    newEtat.nomTronque = nomEtat.replace(/^(.+?)(ble)?(e)?(s)?$/, "$1$2");
+    newEtat.bascule = bascule;
+    newEtat.nomTronque = nomEtat.replace(/^(.+?)(ble|que)?(e)?(s)?$/, "$1$2");
+    newEtat.nom = nomEtat;
     // féminin
     if (genre === Genre.f) {
       // f - pluriel
@@ -151,6 +245,7 @@ export class ListeEtats {
         newEtat.nomFP = MotUtils.getPluriel(newEtat.nomFS);
       }
     }
+    this.etats.push(newEtat);
     return newEtat;
   }
 
@@ -161,7 +256,7 @@ export class ListeEtats {
     let etat = this.trouverEtat(nomEtat);
     // si l'état n'a pas été trouvé, l'ajouter à la liste
     if (!etat) {
-      this.creerEtat(nomEtat, genre, nombre);
+      etat = this.creerEtat(nomEtat, genre, nombre);
     }
     return etat;
   }
@@ -169,33 +264,53 @@ export class ListeEtats {
 
   /** Ajouter un état à l'élément. */
   ajouterEtatElement(element: ElementJeu, nomEtat: string) {
+    // console.log(">>>> +etat=", nomEtat, "ele=", element);
+
     let etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
     // s'il s'agit d'un état faisant partie d'un groupe
     if (etat.groupe !== null) {
+      // retirer tous les états existants pour ce groupe
       const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etat.groupe).map(x => x.id);
-      // retirer tous les étas existants pour ce groupe
       element.etats = element.etats.filter(x => !idsEtatsDuGroupe.includes(x));
-      // ajouter l'état
+      // ajouter le nouvel état
       element.etats.push(etat.id);
-      // sinon, simplement ajouter l'état s'il n'y est pas encore
+      // sinon, ajouter l'état s'il n'y est pas encore
     } else {
       if (!element.etats.includes(etat.id)) {
         element.etats.push(etat.id);
+        // s’il s’agit d’une bascule, enlever l’autre état
+        if (etat.bascule) {
+          // ne garder que les autres états
+          element.etats = element.etats.filter(x => x !== etat.bascule);
+        }
       }
+    }
+
+    // si le nouvel état a des contradictions
+    if (etat.contradictions) {
+      // retirer les contradictions
+      element.etats = element.etats.filter(x => !etat.contradictions.includes(x));
     }
   }
 
   /** Retirer un état à un élément */
   retirerEtatElement(element: ElementJeu, nomEtat: string) {
+    // console.log(">>>> -etat=", nomEtat, "ele=", element);
+
     let etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
       // ne garder que les autres états
       element.etats = element.etats.filter(x => x !== etat.id);
       // s'il s'agit d'une bascule, il faut activer l'autre état
-      // (on part du postula que l'autre état n'est pas actif puisqu'il s'agit d'une bascule...)
-      if (etat.bascule) {
-        element.etats.push(etat.bascule);
+      // (mais vérifier que la bascule n’est pas déjà sur l’autre état avant…)
+      if (etat.bascule && !element.etats.includes(etat.bascule)) {
+        const etatBascule = this.obtenirEtat(etat.bascule);
+        element.etats.push(etatBascule.id);
+        // si l’état bascule a des contradictions, les retirer
+        if (etatBascule.contradictions) {
+          element.etats = element.etats.filter(x => !etatBascule.contradictions.includes(x));
+        }
       }
     } else {
       console.warn("retirerEtatElement >>> état pas trouvé:", nomEtat);
@@ -207,7 +322,22 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeCetEtatElement(element: ElementJeu, nomEtat: string, eju: ElementsJeuUtils) {
+  possedeEtatIdElement(element: ElementJeu, etatID: number) {
+    let retVal = false;
+    if (element) {
+      retVal = element.etats.includes(etatID);
+    } else {
+      console.warn("possedeEtatIdElement >> element null.");
+    }
+    return retVal;
+  }
+
+  /**
+   * Est-ce que l'élément possède l'état ?
+   * @param element 
+   * @param nomEtat 
+   */
+  possedeEtatElement(element: ElementJeu, nomEtat: string, eju: ElementsJeuUtils) {
     let retVal = false;
     if (element) {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
@@ -263,7 +393,7 @@ export class ListeEtats {
   possedentTousCetEtatElements(elements: ElementJeu[], nomEtat: string) {
     let retVal = false;
     if (elements?.length) {
-      let etat = this.trouverOuCreerEtat(nomEtat, Genre.m, Nombre.s);
+      let etat = this.trouverEtat(nomEtat);
       if (etat) {
         retVal = true;
         elements.forEach(element => {
@@ -286,21 +416,29 @@ export class ListeEtats {
    */
   estVisible(objet: Objet, eju: ElementsJeuUtils) {
     // si pas dans la pièce -> pas visible
-    if (objet.etats.includes(this.ID_PRESENT)) {
+    if (!objet.etats.includes(this.presentID)) {
       return false;
     }
     // si invisible => pas visible
-    if (objet.etats.includes(this.ID_INVISIBLE)) {
+    if (objet.etats.includes(this.invisibleID)) {
       return false;
     }
     // si couvert -> pas visible
-    if (objet.etats.includes(this.ID_COUVERT)) {
+    if (objet.etats.includes(this.couvertID)) {
       return false;
     }
+
+    // on objet non positionné n’est pas visible
+    if (!objet.position) {
+      return false;
+    }
+
     // si dans un contenant fermé et opaque -> pas visible
     if (this.estObjetMasqueParUnContenantOpaqueFerme(objet, eju)) {
       return false;
     }
+
+    return true;
   }
 
   // l'objet est-il masqué par un contenant opaque et fermé ?
@@ -308,17 +446,72 @@ export class ListeEtats {
     if (objet.position.cibleType === EClasseRacine.objet) {
       // récupérer le contenant
       const parent = eju.getObjet(objet.position.cibleId);
-      // si l'objet est dans un contenant fermé et opaque
-      if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
-        if (objet.etats.includes(this.ID_FERME) && objet.etats.includes(this.ID_OPAQUE)) {
-          return true;
+      if (parent) {
+        // si l'objet est dans un contenant fermé et opaque
+        if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
+          if (objet.etats.includes(this.fermeID) && objet.etats.includes(this.opaqueID)) {
+            return true;
+          }
         }
+        // vérifier également le parent éventuel de l'objet
+        return this.estObjetMasqueParUnContenantOpaqueFerme(parent, eju);
+      } else {
+        console.error("estObjetMasqueParUnContenantOpaqueFerme > Pas trouvé le parent \n > obj=", objet, "\n > position=", objet.position);
+        return false;
       }
-      // vérifier également le parent éventuel de l'objet
-      return this.estObjetMasqueParUnContenantOpaqueFerme(parent, eju);
     } else {
       return false;
     }
+  }
+
+  obtenirListeDesEtats() {
+    return this.etats;
+  }
+
+  obtenirEtat(id: number) {
+    return this.etats.find(x => x.id === id);
+  }
+
+  /** Obtenir les états liés à un élément du jeu. */
+  obtenirEtatsElementJeu(el: ElementJeu) {
+    let elEtats: Etat[] = [];
+    el.etats.forEach(etatID => {
+      let curEtat = this.obtenirEtat(etatID);
+      if (curEtat) {
+        elEtats.push(curEtat);
+      } else {
+        console.error("obtenirLesEtats > etat pas trouvé:\n >> id=", etatID, "\n >> el=", el, "\n >> etats=", this.etats);
+      }
+    });
+    return elEtats;
+  }
+
+  obtenirIntitulesEtatsElementJeu(el: ElementJeu) {
+    const elEtats = this.obtenirEtatsElementJeu(el);
+    const feminin = el.genre === Genre.f;
+    const pluriel = el.nombre === Nombre.p;
+    const totalEtats = elEtats.length;
+    let nbEtats = 0;
+    let retVal = totalEtats === 0 ? "(aucun)" : "";
+    elEtats.forEach(element => {
+      let curNom: string;
+      nbEtats++;
+      if (feminin) {
+        if (pluriel) {
+          curNom = element.nomFP ?? element.nom;
+        } else {
+          curNom = element.nomFS ?? element.nom;
+        }
+      } else {
+        if (pluriel) {
+          curNom = element.nomMP ?? element.nom;
+        } else {
+          curNom = element.nomMS ?? element.nom;
+        }
+      }
+      retVal += curNom + (nbEtats === totalEtats ? "." : (nbEtats === (totalEtats - 1) ? " et " : ", "));
+    });
+    return retVal;
   }
 
 }

@@ -84,7 +84,7 @@ export class ElementJeu extends Intitule {
    * - …
    */
   // public etats: string[] = [];
-  public etats: number[];
+  public etats: number[] = [];
 
   /** Capacités de l’élément */
   public capacites: Capacite[] = [];
@@ -97,10 +97,10 @@ export class ElementJeu extends Intitule {
   nbAffichageApercu = 0;
 
   /** L'objet est dans son état initial tant qu'il n'a pas été manipulé par le joueur. */
-  initial = true;
+  // initial = true;
   /** L’élément a-t-il déjà été décrit au joueur */
-  decrit = false;
+  // decrit = false;
   /** L’ojbet a-t-il déjà été vu par le joueur. */
-  vu = false;
+  // vu = false;
 
 }

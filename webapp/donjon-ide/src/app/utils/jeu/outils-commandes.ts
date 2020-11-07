@@ -108,9 +108,9 @@ export class OutilsCommandes {
     } else if (porte.classe !== ClassesRacines.Porte) {
       console.error("afficherStatutPorte >> l’élément de jeu n’est pas de type Porte");
     } else {
-      let ouvrable = this.jeu.etats.possedeCetEtatElement(porte, EEtatsBase.OUVRABLE, this.eju);
-      let ouvert = this.jeu.etats.possedeCetEtatElement(porte, EEtatsBase.OUVERT, this.eju);
-      let verrou = this.jeu.etats.possedeCetEtatElement(porte, EEtatsBase.VERROUILLE, this.eju);
+      const ouvrable = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvrableID);
+      const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
+      const verrou = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.verrouilleID);;
 
       if (porte.genre == Genre.f) {
         if (ouvert) {

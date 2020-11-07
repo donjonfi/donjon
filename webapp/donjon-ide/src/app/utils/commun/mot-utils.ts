@@ -54,9 +54,12 @@ export class MotUtils {
         // x => se
       } else if (nomM.endsWith('x')) {
         feminin = nomM.slice(0, nomM.length - 1) + 'se';
-        // el => elle
+        // el => + le (elle)
       } else if (nomM.endsWith('el')) {
         feminin = nomM + 'le';
+        // et => + te (ette)
+      } else if (nomM.endsWith('et')) {
+        feminin = nomM + 'te';
         // eau => elle
       } else if (nomM.endsWith('eau')) {
         feminin = nomM.slice(0, nomM.length - 2) + 'lle';

@@ -110,7 +110,7 @@ export class ConditionsUtils {
 
       // vérifier la liste des états
       if (resultCondition === null) {
-        resultCondition = this.jeu.etats.possedeCetEtatElement(el, cond.complement, this.eju);
+        resultCondition = this.jeu.etats.possedeEtatElement(el, cond.complement, this.eju);
       }
 
     } else {
@@ -205,7 +205,7 @@ export class ConditionsUtils {
               // faire le test
               if (sujet) {
                 // autres états
-                retVal = this.jeu.etats.possedeCetEtatElement(sujet as ElementJeu, condition.complement, this.eju);
+                retVal = this.jeu.etats.possedeEtatElement(sujet as ElementJeu, condition.complement, this.eju);
               }
               break;
 
