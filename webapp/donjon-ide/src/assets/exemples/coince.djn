@@ -15,7 +15,7 @@ Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière
 -- > FAUTEUIL
 Le fauteuil est un support dans le salon.
 Sa description est "C’est un vieux fauteuil en cuir brun bien patiné.".
-Son aperçu est "Il y a un fauteuil de style anglais[initialement] au centre de la pièce[fin choix].".
+Son aperçu est "Il y a un fauteuil de style anglais[initialement] au centre de la pièce[puis] que vous avez déplacé[fin choix].".
 -- > BILLE
 Il y a une bille dans le salon. "C'est une bille en verre décorée de petits pois bleus.".
 -- > PAPIER
@@ -33,7 +33,7 @@ Le mur est un support décoratif dans le salon. "Les murs de la pièce sont pein
 Il y a un tableau sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
 Son aperçu est "Il y a un tableau [si le tableau se trouve sur le mur]accroché à l’un des murs.[sinon]par terre.[fin si]".
 -- > BOUTON
-Le bouton est un objet fixé sur le mur. Il est invisible. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
+Le bouton est un objet fixé sur le mur. Il est couvert. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
 
 -- ===========
 --   ACTIONS
@@ -44,13 +44,14 @@ Le joueur peut lire le bout de papier:
   dire "Il est écrit << ne pas oublier: {+uaenna+} >>".
 -- > POUSSER FAUTEUIL
 Le joueur peut pousser le fauteuil:
-  dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulée sous le fauteuil.";
-  changer le coffre est visible.
+  dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.";
+  changer le coffre n’est plus invisible;
+  changer le fauteuil est déplacé.
 -- > TAPPER CODE
 tapper ceci est une action qui concerne un intitulé.
 
 refuser tapper ceci:
-  si le coffre ne se trouve pas ici, dire "Il n'y a pas de clavier ici.";
+  si le coffre n’est pas présent, dire "Il n'y a pas de clavier ici.";
   si le coffre est invisible, dire "Je ne vois pas de clavier.".
   
 exécuter tapper ceci:
@@ -64,7 +65,7 @@ exécuter tapper ceci:
 Le joueur peut décrocher le tableau:
   si le tableau se trouve sur le mur:
     dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}",
-    changer le bouton est visible;
+    changer le bouton est n’est plus couvert;
   sinon:
     dire "Le taleau n'est pas accroché.".
     
@@ -76,7 +77,7 @@ Le joueur peut décrocher le tableau:
 avant prendre le tableau:
   si le tableau se trouve sur le mur:
     dire "Vous décrochez le tableau et vous découvrez un bouton rond.{n}",
-    changer le bouton est visible,
+    changer le bouton n’est plus couvert,
     changer le tableau se trouve dans le salon,
     stopper l’action.
 
