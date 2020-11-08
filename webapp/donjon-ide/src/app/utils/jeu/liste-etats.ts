@@ -30,6 +30,9 @@ export class ListeEtats {
   public transportableID = -1;
   public fixeID = -1;
   public decoratifID = -1;
+  public clairID = -1;
+  public eclaireID = -1;
+  public obscurID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -40,59 +43,62 @@ export class ListeEtats {
   }
 
   creerEtatsInitiaux() {
-    // présent et absent
+    // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // intact, déplacé et modifié
+    // intact, déplacé et modifié (objet, lieu)
     this.intactID = this.creerEtat(EEtatsBase.intact).id;
     this.deplaceID = this.creerEtat(EEtatsBase.deplace).id;
     this.modifieID = this.creerEtat(EEtatsBase.modifie).id;
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.deplace);
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.modifie);
-    // décoratif
+    // décoratif (objet)
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
-    // caché, couvert, invisible
+    // caché, couvert, invisible (objet)
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
-    // accessible, inaccessible
+    // accessible, inaccessible (objet)
     this.creerBasculeEtats(EEtatsBase.accessible, EEtatsBase.inaccessible);
-    // possédé, disponible et occupé
+    // possédé, disponible et occupé (objet)
     // TODO: est-ce qu'on garde ça groupé ?
     const possDispOcc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe]);
     this.possedeID = possDispOcc[0].id;
-    // porté
+    // porté (objet)
     this.creerEtat(EEtatsBase.porte);
     this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
-    // dénombrable et indénombrable
+    // dénombrable et indénombrable (objet)
     this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
-    // mangeable et buvable
+    // mangeable et buvable (objet)
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);
-    // ouvrable, ouvert, fermé
+    // ouvrable, ouvert, fermé (porte, contenant)
     this.ouvrableID = this.creerEtat(EEtatsBase.ouvrable).id;
     const ouvFer = this.creerBasculeEtats(EEtatsBase.ouvert, EEtatsBase.ferme);
     this.ouvertID = ouvFer[0].id;
     this.fermeID = ouvFer[1].id;
-    // verrouillable, verrouillé, déverrouillé
+    // verrouillable, verrouillé, déverrouillé (porte, contenant)
     this.verrouillableID = this.creerEtat(EEtatsBase.verrouillable).id;
     const verrDeve = this.creerBasculeEtats(EEtatsBase.verrouille, EEtatsBase.deverrouille);
     this.verrouilleID = verrDeve[0].id;
-    // transportable et fixe
+    // transportable et fixe (objet)
     const transFixe = this.creerBasculeEtats(EEtatsBase.transportable, EEtatsBase.fixe);
     this.transportableID = transFixe[0].id;
     this.fixeID = transFixe[1].id;
-    // opaque et transparent
+    // opaque et transparent (contenant, objet)
     const opaTran = this.creerBasculeEtats(EEtatsBase.opaque, EEtatsBase.transparent);
     this.opaqueID = opaTran[0].id;
     this.transparentID = opaTran[1].id;
-    // éclairé et obscur
-    this.creerBasculeEtats(EEtatsBase.eclaire, EEtatsBase.obscur);
-    // allumé et éteint
+    // clair, obscur et éclairé (lieu)
+    const claiObsc = this.creerBasculeEtats(EEtatsBase.clair, EEtatsBase.obscur);
+    this.clairID = claiObsc[0].id;
+    this.obscurID = claiObsc[1].id;
+    this.eclaireID = this.creerEtat(EEtatsBase.eclaire).id;
+    // allumé et éteint (lampe/bougie)
     this.creerBasculeEtats(EEtatsBase.allume, EEtatsBase.eteint);
-    // marche et arrêt
-    this.creerBasculeEtats(EEtatsBase.marche, EEtatsBase.arret);
-    // parlant et muet
+    // actionné et arrêté (appareil/machine)
+    this.creerBasculeEtats(EEtatsBase.actionne, EEtatsBase.arrete);
+    // parlant et muet (personne)
     this.creerBasculeEtats(EEtatsBase.parlant, EEtatsBase.muet);
 
   }
