@@ -1,4 +1,8 @@
-"Coincé".
+Le titre du jeu est "Coincé".
+L’auteur du jeu est "Jonathan Claes".
+La version du jeu est "0.8".
+Le titre de la licence est "Creative Commons Attribution 4.0 International License".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 --               MONDE
@@ -21,8 +25,9 @@ Il y a une bille dans le salon. "C'est une bille en verre décorée de petits po
 -- > PAPIER
 Le bout de papier est un objet caché sur le fauteuil. "Il y a quelque chose d'écrit dessus".
 Son aperçu est "[initialement]Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.[puis]Il y a un bout de papier.[fin choix]".
+Interpréter papier et feuille comme le bout de papier.
 -- > COFFRE
-Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-tapper-} un code.)[fin si]".
+Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.)[fin si]".
 Il est invisible, fermé, ouvrable et verrouillé.
 -- > ANNEAU
 L'anneau est un objet dans le coffre. "C'est un anneau doré. Il est probablement magique."
@@ -34,6 +39,8 @@ Le mur est un support décoratif dans le salon. "Les murs de la pièce sont pein
 -- > TABLEAU
 Il y a un tableau sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
 Son aperçu est "Il y a un tableau [si le tableau se trouve sur le mur]accroché à l’un des murs.[sinon]par terre.[fin si]".
+Interpréter peinture et cadre comme le tableau.
+
 -- > BOUTON
 Le bouton est un objet fixé sur le mur. Il est couvert. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
 
@@ -52,15 +59,17 @@ Le joueur peut pousser le fauteuil:
     changer le fauteuil est déplacé;
   sinon
     dire "Ce n'est plus nécessaire.".
+    
+interpréter appuyer et déplacer comme pousser.
 
--- > TAPPER CODE
-tapper ceci est une action qui concerne un intitulé.
+-- > TAPER CODE
+taper ceci est une action qui concerne un intitulé.
 
-refuser tapper ceci:
+refuser taper ceci:
   si le coffre n’est pas présent, dire "Il n'y a pas de clavier ici.";
   si le coffre n'est pas visible, dire "Je ne vois pas de clavier.".
   
-exécuter tapper ceci:
+exécuter taper ceci:
   si ceci vaut "anneau":
     dire "Le coffre émet un déclic.",
     changer le coffre est déverrouillé;
@@ -106,8 +115,10 @@ Elles sont décoratives.
 La magicienne est une femme dans le cabinet. "Une magicienne vous observe.".
 
 Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
-Sa réaction concernant l'anneau est "<< Mon anneau magique m'a été dérobé. >>".
-Sa réaction concernant la sortie est "<< Grâce à mon anneau, j'aurais pu vous aider >>".
+Sa réaction concernant l'anneau est "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
+Sa réaction concernant la sortie est "<< Grâce à mon anneau, j'aurais nous faire sortir d’ici >>".
+Sa réaction concernant uaenna est "<< Oh ! Vous savez parlez en verlan ! >>".
+Sa réaction concernant un sujet inconnu est "<< L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. >>".
 
 après donner pièce à la magicienne:
   dire "<< Elle ne semble pas magique malheureusement. >>".

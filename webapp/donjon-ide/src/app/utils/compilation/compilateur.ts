@@ -38,6 +38,8 @@ export class Compilateur {
 
     // ajouter le joueur au monde
     elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
 
     // *****************************************
     // CONVERTIR LE CODE SOURCE BRUT EN PHRASES
@@ -49,17 +51,28 @@ export class Compilateur {
     // ********************************
     Analyseur.analyserPhrases(phrases, monde, elementsGeneriques, regles, actions, typesUtilisateur, erreurs, this.verbeux);
 
-    // ********************************
-    // SÉPARER LES OBJETS ET LES LIEUX
-    // ********************************
+    // ********************************************
+    // SÉPARER LES OBJETS, LES LIEUX, LES SPÉCIAUX
+    // ********************************************
     elementsGeneriques.forEach(el => {
       el.classe = Compilateur.trouverClasse(monde.classes, el.classeIntitule);
       // objets
       if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
         monde.objets.push(el);
+        // listes d’objets filtrés
+        if (ClasseUtils.heriteDe(el.classe, EClasseRacine.porte)) {
+          monde.portes.push(el);
+        } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.joueur)) {
+          monde.speciaux.push(el);
+        } else {
+          monde.classiques.push(el);
+        }
         // lieux
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
         monde.lieux.push(el);
+        // spécial
+      } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
+        monde.speciaux.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe);
       }
@@ -92,6 +105,16 @@ export class Compilateur {
         }
       }
     });
+
+    // // ****************************
+    // // FILTRER LES OBJETS SPÉCIAUX
+    // // ****************************
+    // monde.speciaux = monde.objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.special));
+    // monde.classiques = monde.objets.filter(x => !ClasseUtils.heriteDe(x.classe, EClasseRacine.special));
+
+    // **********************************
+    // AFFICHER RÉSULTAT DANS LA CONSOLE
+    // **********************************
 
     //if (Compilateur.verbeux) {
     console.log("==================\n");
@@ -223,7 +246,6 @@ export class Compilateur {
     const recherche = StringUtils.normaliserMot(nom);
 
     // console.log("TROUVER CLASSE: recherche=", recherche, "classes=", classes);
-
 
     let retVal = classes.find(x => x.nom === recherche);
 

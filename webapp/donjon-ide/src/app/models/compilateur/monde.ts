@@ -1,5 +1,7 @@
 import { Classe } from '../commun/classe';
+import { ClasseUtils } from 'src/app/utils/commun/classe-utils';
 import { ClassesRacines } from '../commun/classes-racines';
+import { EClasseRacine } from '../commun/constantes';
 import { ElementGenerique } from './element-generique';
 
 export class Monde {
@@ -8,6 +10,7 @@ export class Monde {
 
     // ajouter les classes de base au monde
     this.classes.push(ClassesRacines.Element);
+    this.classes.push(ClassesRacines.Special);
     this.classes.push(ClassesRacines.Lieu);
     this.classes.push(ClassesRacines.Objet);
     this.classes.push(ClassesRacines.Vivant);
@@ -20,17 +23,15 @@ export class Monde {
   }
 
   titre: string;
-
   classes: Classe[] = [];
-
   lieux: ElementGenerique[] = [];
-  // decors: ElementGenerique[] = [];
-  // contenants: ElementGenerique[] = [];
-  portes: ElementGenerique[] = [];
-  // cles: ElementGenerique[] = [];
-  // animaux: ElementGenerique[] = [];
+  /** tous les objets */
   objets: ElementGenerique[] = [];
-  joueurs: ElementGenerique[] = [];
-  inventaires: ElementGenerique[] = [];
+  /** objets filtrés sur « porte » */
+  portes: ElementGenerique[] = [];
+  /** objets filtrés sur « pas porte et pas spécial » */
+  classiques: ElementGenerique[] = [];
+  /** objets filtrés sur « spécial » (joueur, jeu, licence, …) */
+  speciaux: ElementGenerique[] = [];
 
 }
