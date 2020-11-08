@@ -23,6 +23,8 @@ export class Action {
     public instructionsFinales: Instruction[] = []
   ) { }
 
+  public synonymes: string[] = [];
+
 }
 
 export class ActionCeciCela {

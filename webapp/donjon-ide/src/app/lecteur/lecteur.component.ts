@@ -178,7 +178,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   onKeyDownTab(event) {
     const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-    if (commandeComplete != this.commande) {
+    if (commandeComplete !== this.commande) {
       this.commande = commandeComplete;
       this.focusCommande();
     }
@@ -235,9 +235,10 @@ export class LecteurComponent implements OnInit, OnChanges {
       const celaIntitule = els.sujetComplement1;
       const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
       const celaNom = celaIntitule ? celaIntitule.nom : null;
-      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
       const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule) : null;
       const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule) : null;
+
+      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
 
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
@@ -327,6 +328,16 @@ export class LecteurComponent implements OnInit, OnChanges {
             console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
+            // mettre à jour l'évènement avec les éléments trouvés
+            evenement = new Evenement(
+              actionCeciCela.action.infinitif,
+              (actionCeciCela.ceci ? (actionCeciCela.ceci.intitule.nom + (actionCeciCela.ceci.intitule.epithete ? (" " + actionCeciCela.ceci.intitule.epithete) : "")) : null),
+              (actionCeciCela.ceci ? actionCeciCela.ceci.classe : null),
+              els.preposition,
+              (actionCeciCela.cela ? (actionCeciCela.cela.intitule.nom + (actionCeciCela.cela.intitule.epithete ? (" " + actionCeciCela.cela.intitule.epithete) : "")) : null),
+              (actionCeciCela.cela ? actionCeciCela.cela.classe : null)
+            );
+
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
             const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement));
             retVal = resultatAvant.sortie;
@@ -341,7 +352,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                   if (verif.conditions.length == 1) {
                     if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela)) {
                       console.warn("> commande vérifie cela:", verif);
-                      let resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
+                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
                       retVal = resultatRefuser.sortie;
                       refus = true;
                     }
@@ -397,7 +408,17 @@ export class LecteurComponent implements OnInit, OnChanges {
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
       // vérifier infinitif
-      if (els.infinitif === action.infinitif) {
+      let infinitifOk = (els.infinitif === action.infinitif);
+      // vérifier également les synonymes
+      if (!infinitifOk && action.synonymes) {
+        action.synonymes.forEach(synonyme => {
+          if (!infinitifOk && els.infinitif === synonyme) {
+            infinitifOk = true;
+          }
+        });
+      }
+
+      if (infinitifOk) {
         resultat = -1; // le verbe est connu.
         // vérifier sujet
         if ((els.sujet && action.ceci) || (!els.sujet && !action.ceci)) {

@@ -48,10 +48,11 @@ export class Generateur {
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
-    // regarder si on a positionné le joueur
-    if (monde.joueurs.length > 0 && monde.joueurs[0].positionString) {
-      const ps = PositionObjet.getPrepositionSpatiale(monde.joueurs[0].positionString.position);
-      const lieuID = Generateur.getLieuID(jeu.lieux, monde.joueurs[0].positionString.complement, true);
+    // regarder si on a positionné le joueur dans le monde
+    const joueurDansMonde = monde.speciaux.find(x => x.nom === 'joueur');
+    if (joueurDansMonde && joueurDansMonde.positionString) {
+      const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
+      const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
       if (lieuID !== -1) {
         joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
       }
@@ -106,7 +107,7 @@ export class Generateur {
       // newObjet.etats = curEle.attributs ?? [];
       newObjet.capacites = curEle.capacites;
       newObjet.reactions = curEle.reactions;
-
+      newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
       // ajouter les états par défaut de la classe de l’objet:
       // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
       // console.warn("BEGIN attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);

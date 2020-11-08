@@ -2,6 +2,7 @@ import { Capacite } from './capacite';
 import { Classe } from '../commun/classe';
 import { ElementDonjon } from './element-donjon';
 import { Genre } from '../commun/genre.enum';
+import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
 import { Propriete } from './propriete';
@@ -22,6 +23,7 @@ export class ElementGenerique implements ElementDonjon {
   public epitheteS: string = null;
   public epitheteP: string = null;
 
+  public synonymes: GroupeNominal[] = [];
 
   constructor(
     public determinant: string,
@@ -37,15 +39,15 @@ export class ElementGenerique implements ElementDonjon {
   ) {
 
     // masculin / féminin
-    if (genre == Genre.f) {
+    if (genre === Genre.f) {
       this.nomF = this.nom;
-    } else if (genre == Genre.m) {
+    } else if (genre === Genre.m) {
       this.nomM = this.nom;
     }
     // singulier / pluriel
-    if (nombre == Nombre.p) {
+    if (nombre === Nombre.p) {
       this.nomP = this.nom;
-    } else if (nombre == Nombre.s) {
+    } else if (nombre === Nombre.s) {
       this.nomS = this.nom;
     }
 

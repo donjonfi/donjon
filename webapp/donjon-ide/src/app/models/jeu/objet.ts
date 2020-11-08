@@ -57,6 +57,6 @@ export class Objet extends ElementJeu {
   apercu: string = null;
 
   /** Ils s’agit des autres noms que le joueur peut donner à cet objet. */
-  synonymes: string[] = null;
+  synonymes: GroupeNominal[] = null;
 
 }

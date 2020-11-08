@@ -28,6 +28,11 @@
         <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (' : ' + prop.valeur): '')}}</li>
       </ul>
     </li>
+    <li>Synonymes :<span *ngIf="!el.synonymes || el.synonymes.length == 0"> (aucun)</span>
+      <ul *ngIf="el.synonymes">
+        <li *ngFor="let syn of el.synonymes"><app-apercu-sujet [sujet]="syn" title="''"></app-apercu-sujet></li>
+      </ul>
+    </li>
     <li>Attibuts :<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
       <ul *ngIf="el.attributs">
         <li *ngFor="let at of el.attributs">{{at}}</li>

@@ -65,6 +65,7 @@ export class Analyseur {
 
           let elementGeneriqueTrouve = false;
           let regleTrouvee: Regle = null;
+          let synonymeTrouve = false;
           let actionTrouvee: Action = null;
           let proprieteTrouvee = false;
           let reactionTrouvee = false;
@@ -75,10 +76,17 @@ export class Analyseur {
           regleTrouvee = Analyseur.testerRegle(regles, phrase, erreurs);
 
           // ===============================================
+          // SYNONYMES
+
+          synonymeTrouve = Analyseur.testerSynonyme(actions, elementsGeneriques, phrase, erreurs, verbeux)
+
+          // ===============================================
+
+          // ===============================================
           // ACTIONS
           // ===============================================
 
-          if (!regleTrouvee) {
+          if (!regleTrouvee && !synonymeTrouve) {
             actionTrouvee = Analyseur.testerAction(actions, phrase, erreurs, verbeux);
           }
 
@@ -86,7 +94,7 @@ export class Analyseur {
           // MONDE
           // ===============================================
 
-          if (!regleTrouvee && !actionTrouvee) {
+          if (!regleTrouvee && !synonymeTrouve && !actionTrouvee) {
 
             // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
             elementGeneriqueTrouve = true;
@@ -140,7 +148,7 @@ export class Analyseur {
                       // attributs de l'élément précédent
                       if (result[1] && result[1].trim() !== '') {
                         // découper les attributs
-                        const attributs = Analyseur.separerAttributs(result[1]);
+                        const attributs = Analyseur.separerListeIntitules(result[1]);
                         dernierElementGenerique.attributs = dernierElementGenerique.attributs.concat(attributs);
                       }
                       // genre de l'élément précédent
@@ -150,87 +158,75 @@ export class Analyseur {
                         console.log("=> trouvé xPronomPersonnelAttribut:", dernierElementGenerique);
                       }
                     } else {
+                      // TESTER ATTRIBUT/PROPRIÉTÉ/RÉACTION
+                      // **********************************
                       result = ExprReg.xAttribut.exec(phrase.phrase[0]);
                       if (result) {
+
+                        let elementCible: ElementGenerique = null;
+
                         // cas 1 (son/sa xxx est)
                         if (result[1]) {
-                          // réaction
+                          elementCible = dernierElementGenerique;
+                          // cas 2 (la xxx de yyy est)
+                        } else {
+                          const elementConcerneBrut = result[3];
+                          const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
+                          if (elementConcerneIntitule) {
+                            const elementConcerneNom = elementConcerneIntitule[2];
+                            const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3] : null;
+                            // retrouver l’élément générique concerné
+                            let elementsTrouves = elementsGeneriques.filter(x => x.nom === elementConcerneNom);
+                            if (elementConcerneEpithete) {
+                              elementsTrouves = elementsGeneriques.filter(x => x.epithete === elementConcerneEpithete);
+                            }
+                            if (elementsTrouves.length === 1) {
+                              elementCible = elementsTrouves[0];
+                            } else {
+                              console.warn("xAttribut: Pas trouvé le complément:", elementConcerneBrut);
+                            }
+                          } else {
+                            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
+                          }
+                        }
+
+                        // si on a trouvé l’élément cible, lui attribuer la réaction ou la propriété
+                        if (elementCible) {
+
+                          // RÉACTION
                           if (result[1] === ("réaction")) {
+                            // on a trouvée une réaction et non un élément générique
                             reactionTrouvee = true;
                             elementGeneriqueTrouve = false;
-                            const nomSujet = result[5];
-                            const epitheteSujet = null;
-                            const sujet = nomSujet ? new GroupeNominal("", nomSujet, epitheteSujet) : null;
-                            let instructionsBrutes = result[7];
-                            // si phrase morcelée, rassembler les morceaux (réaction complète)
-                            if (phrase.phrase.length > 1) {
-                              for (let index = 1; index < phrase.phrase.length; index++) {
-                                instructionsBrutes += phrase.phrase[index];
-                              }
+                            // - RETROUVER LA LISTE DES SUJETS
+                            const listeSujets = Analyseur.retrouverSujets(result[5], erreurs, phrase);
+                            // s’il s’agit du sujet par défaut (aucun sujet)
+                            if (listeSujets.length === 0) {
+                              listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
                             }
-                            instructionsBrutes = instructionsBrutes.trim();
-                            derniereReaction = new Reaction(sujet, instructionsBrutes, null);
+                            // - RETROUVER LES INSTRUCTIONS
+                            const instructionsBrutes = Analyseur.retrouverInstructionsBrutes(result[7], erreurs, phrase);
+                            // AJOUTER LA RÉACTION
+                            derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
                             // retrouver l’objet qui réagit et lui ajouter la réaction
-                            dernierElementGenerique.reactions.push(derniereReaction);
+                            elementCible.reactions.push(derniereReaction);
                             if (verbeux) {
-                              console.log("=> trouvé xAttribut réaction (A):", dernierElementGenerique);
+                              console.log("=> trouvé xAttribut réaction:", elementCible);
                             }
-                            // propriété classique
+                            // PROPRIÉTÉ
                           } else {
                             proprieteTrouvee = true;
                             dernierePropriete = new Propriete(result[1], (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
                             // ajouter la propriété au dernier élément
-                            dernierElementGenerique.proprietes.push(dernierePropriete);
+                            elementCible.proprietes.push(dernierePropriete);
                             if (verbeux) {
-                              console.log("=> trouvé xAttribut(A):", dernierElementGenerique);
+                              console.log("=> trouvé xAttribut propriété:", elementCible);
                             }
                           }
-                          // cas 2 (la xxx de yyy est)
-                        } else {
-                          const complement = result[3];
 
-                          if (result[2] === 'réaction') {
-                            reactionTrouvee = true;
-                            elementGeneriqueTrouve = false;
-                            const nomSujet = result[5];
-                            const epitheteSujet = null;
-                            const sujet = nomSujet ? new GroupeNominal("", nomSujet, epitheteSujet) : null;
-                            let instructionsBrutes = result[7];
-                            // si phrase morcelée, rassembler les morceaux (réaction complète)
-                            if (phrase.phrase.length > 1) {
-                              for (let index = 1; index < phrase.phrase.length; index++) {
-                                instructionsBrutes += phrase.phrase[index];
-                              }
-                            }
-                            instructionsBrutes = instructionsBrutes.trim();
-                            derniereReaction = new Reaction(sujet, instructionsBrutes, null);
-                            // retrouver l’objet qui réagit et lui ajouter la réaction
-                            let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
-                            if (foundElementGenerique) {
-                              foundElementGenerique.reactions.push(derniereReaction);
-                              if (verbeux) {
-                                console.log("=> trouvé xAttribut réaction (B):", foundElementGenerique);
-                              }
-                            } else {
-                              console.warn("xAttribut: Pas trouvé le complément:", complement);
-                            }
-                          } else {
-                            proprieteTrouvee = true;
-                            dernierePropriete = new Propriete(result[2], (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
-                            // récupérer l’élément concerné
-                            // TODO: Check que c'est le bon qui est rouvé !!!
-                            let foundElementGenerique = elementsGeneriques.find(x => x.nom == complement);
-                            if (foundElementGenerique) {
-                              foundElementGenerique.proprietes.push(dernierePropriete);
-                              if (verbeux) {
-                                console.log("=> trouvé xAttribut(B):", foundElementGenerique);
-                              }
-                            } else {
-                              console.warn("xAttribut: Pas trouvé le complément:", complement);
-                            }
-                          }
                         }
-
+                        // TESTER CAPACITÉ
+                        // ***************
                       } else {
                         result = ExprReg.xCapacite.exec(phrase.phrase[0]);
 
@@ -242,7 +238,8 @@ export class Analyseur {
                             console.log("=> trouvé pour xCapacite:", dernierElementGenerique);
                           }
                         } else {
-                          // et bien finalement on n’a rien trouvé…
+                          // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
+                          // *****************************************************
                           elementGeneriqueTrouve = false;
                           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
                           if (verbeux) {
@@ -261,7 +258,7 @@ export class Analyseur {
           // ===============================================
           // IMPORT D’UN AUTRE FICHIER DE CODE
           // ===============================================
-          if (!regleTrouvee && !actionTrouvee && !elementGeneriqueTrouve && !reactionTrouvee) {
+          if (!regleTrouvee && !actionTrouvee && !synonymeTrouve && !elementGeneriqueTrouve && !reactionTrouvee) {
 
           } // fin test import
 
@@ -312,6 +309,10 @@ export class Analyseur {
           } else if (actionTrouvee) {
             if (verbeux) {
               console.log("=> trouvé Action:", actionTrouvee);
+            }
+          } else if (synonymeTrouve) {
+            if (verbeux) {
+              console.log("=> trouvé synonyme(s)");
             }
           }
 
@@ -380,6 +381,34 @@ export class Analyseur {
     }
   }
 
+  private static retrouverSujets(sujets: string, erreurs: string[], phrase: Phrase) {
+    const listeSujetsBruts = Analyseur.separerListeIntitules(sujets);
+    let listeSujets: GroupeNominal[] = [];
+    listeSujetsBruts.forEach(sujetBrut => {
+      const resultGn = ExprReg.xGroupeNominal.exec(sujetBrut);
+      if (resultGn) {
+        const sujetNom = resultGn[2];
+        const sujetEpithete = resultGn[3];
+        listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
+      } else {
+        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+      }
+    });
+    return listeSujets;
+  }
+
+  private static retrouverInstructionsBrutes(instructions: string, erreurs: string[], phrase: Phrase) {
+    let instructionsBrutes = instructions;
+    // si phrase morcelée, rassembler les morceaux (réaction complète)
+    if (phrase.phrase.length > 1) {
+      for (let index = 1; index < phrase.phrase.length; index++) {
+        instructionsBrutes += phrase.phrase[index];
+      }
+    }
+    instructionsBrutes = instructionsBrutes.trim();
+    return instructionsBrutes;
+  }
+
   // Élement positionné
   private static testerPosition(elementsGeneriques: ElementGenerique[], phrase: Phrase): ElementGenerique {
 
@@ -405,7 +434,7 @@ export class Analyseur {
     // élément positionné défini (la, le, les)
     let result = ExprReg.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
     if (result !== null) {
-     // console.log("testerPosition", result);
+      // console.log("testerPosition", result);
       genreSingPlur = result[4];
       estFeminin = false;
       autreForme = null;
@@ -517,7 +546,7 @@ export class Analyseur {
 
         genre = MotUtils.getGenre(determinant, estFeminin);
         // retrouver les attributs
-        attributs = Analyseur.separerAttributs(attributsString);
+        attributs = Analyseur.separerListeIntitules(attributsString);
 
         position = new PositionSujetString(result[2], result[10], result[9]);
 
@@ -588,10 +617,98 @@ export class Analyseur {
   }
 
   /**
+   * Rechecher un synonyme d’action ou d’élment du jeu
+   * @param actions actions déjà trouvées.
+   * @param elementsGeneriques  éléments du jeu déjà trouvés.
+   * @param phrase phrase à analyser.
+   * @param erreurs liste des erreurs.
+   * @param verbeux faut-il être verbeux ?
+   */
+  private static testerSynonyme(actions: Action[], elementsGeneriques: ElementGenerique[], phrase: Phrase, erreurs: string[], verbeux: boolean) {
+    let retVal = false;
+    const result = ExprReg.xSynonymes.exec(phrase.phrase[0]);
+    if (result !== null) {
+
+      const synonymesBruts = result[1];
+      const listeSynonymesBruts = Analyseur.separerListeIntitules(synonymesBruts);
+      const originalBrut = result[2];
+
+      // tester si l’original est un VERBE
+      let resultatVerbe = ExprReg.xVerbeInfinitif.exec(originalBrut);
+      // si l’original est un verbe
+      if (resultatVerbe) {
+        // retrouver les action liés à ce verbe
+        let infinitif = resultatVerbe[1];
+        let actionsTrouvees = actions.filter(x => x.infinitif === infinitif);
+        if (actionsTrouvees.length !== 0) {
+          // parcourir les synonymes
+          listeSynonymesBruts.forEach(synonymeBrut => {
+            // s’il s’agit d’un verbe, l’ajouter la liste des synonymes
+            resultatVerbe = ExprReg.xVerbeInfinitif.exec(synonymeBrut);
+            if (resultatVerbe) {
+              let synonyme = resultatVerbe[1];
+              // parcourir les actions trouvées
+              actionsTrouvees.forEach(action => {
+                // ajouter le synonyme à l’action
+                action.synonymes.push(synonyme);
+              });
+              retVal = true;
+            } else {
+              erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
+            }
+          });
+        } else {
+          erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’une action : action originale pas trouvée : " + infinitif);
+        }
+      } else {
+        // tester si l’original est un GROUPE NOMINAL
+        let resultatGn = ExprReg.xGroupeNominal.exec(originalBrut);
+        if (resultatGn) {
+          let determinant = resultatGn[1] ? resultatGn[1] : null;
+          let nom = resultatGn[2];
+          let ephitete = resultatGn[3] ? resultatGn[3] : null;
+          // retrouver l’élément générique correspondant
+          let elementsTrouves = elementsGeneriques.filter(x => x.nom === nom);
+          if (ephitete) {
+            elementsTrouves = elementsTrouves.filter(x => x.epithete === ephitete);
+          }
+          // 1 élément trouvé
+          if (elementsTrouves.length === 1) {
+            let elementTrouve = elementsTrouves[0];
+            listeSynonymesBruts.forEach(synonymeBrut => {
+              // s’il s’agit d’un verbe, l’ajouter la liste des synonymes
+              resultatGn = ExprReg.xGroupeNominal.exec(synonymeBrut);
+              if (resultatGn) {
+                determinant = resultatGn[1] ? resultatGn[1] : null;
+                nom = resultatGn[2];
+                ephitete = resultatGn[3] ? resultatGn[3] : null;
+                const synonyme = new GroupeNominal(determinant, nom, ephitete);
+                // ajouter le synonyme à l’élément
+                elementTrouve.synonymes.push(synonyme);
+              } else {
+                erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
+              }
+            });
+            retVal = true;
+
+            // AUCUN élément trouvé
+          } else if (elementsTrouves.length === 0) {
+            erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
+            // PLUSIEURS éléments trouvés
+          } else {
+            erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
+          }
+        }
+      }
+    }
+    return retVal;
+  }
+
+  /**
    * Rechercher une description d’action
-   * @param actions 
-   * @param phrase 
-   * @param erreurs 
+   * @param actions actions déjà trouvées.
+   * @param phrase phrase à analyser.
+   * @param erreurs liste des erreurs.
    */
   private static testerAction(actions: Action[], phrase: Phrase, erreurs: string[], verbeux: boolean) {
     const result = ExprReg.xAction.exec(phrase.phrase[0]);
@@ -747,7 +864,7 @@ export class Analyseur {
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1]);
       attributsString = result[6];
-      attributs = Analyseur.separerAttributs(attributsString);
+      attributs = Analyseur.separerListeIntitules(attributsString);
       position = null;
 
       Analyseur.addOrUpdDefinition(dictionnaire, nom, nombre, intituleClasse, attributs);
@@ -809,7 +926,7 @@ export class Analyseur {
         attributs = null;
         if (result[6] && result[6].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = Analyseur.separerAttributs(result[6]);
+          attributs = Analyseur.separerListeIntitules(result[6]);
         }
 
         nouvelElementGenerique = new ElementGenerique(
@@ -917,11 +1034,11 @@ export class Analyseur {
     }
   }
 
-  /** Obtenir une liste d'attributs sur base d'une châine d'attributs séparés par des "," et un "et" */
-  private static separerAttributs(attributsString: string): string[] {
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
+  private static separerListeIntitules(attributsString: string): string[] {
     if (attributsString && attributsString.trim() !== '') {
       // découper les attributs qui sont séparés par des ', ' ou ' et '
-      return attributsString.trim().split(/(?:, | et )+/);
+      return attributsString.trim().split(/(?:, | et | ou )+/);
     } else {
       return new Array<string>();
     }
@@ -961,7 +1078,7 @@ export class Analyseur {
         // cas B: INSTRUCTION CONDITIONNELLE
       } else {
 
-        let resultSiCondCons = PhraseUtils.xSeparerSiConditionConsequences.exec(conBruNettoyee);
+        let resultSiCondCons = ExprReg.xSeparerSiConditionConsequences.exec(conBruNettoyee);
 
         // cas B.1 => SI
         if (resultSiCondCons && !sousConsequences) {
@@ -973,7 +1090,7 @@ export class Analyseur {
           // pas de si trouvé
         } else {
           // cas B.2 => SINON
-          let resultSinonCondCons = PhraseUtils.xSeparerSinonConsequences.exec(conBruNettoyee);
+          let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
           if (resultSinonCondCons && !sousConsequences) {
 
             const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs, true);

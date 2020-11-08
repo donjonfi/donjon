@@ -982,12 +982,20 @@ export class Instructions {
     // réaction à un sujet
     if (sujet) {
       console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
-      reaction = (personne as Objet).reactions.find(x => x.sujet && x.sujet.nom === sujet.intitule.nom && x.sujet.epithete == sujet.intitule.epithete);
+      // rechercher s’il y a une des réaction qui comprend ce sujet
+      reaction = (personne as Objet).reactions
+        .find(x => x.sujets && x.sujets.some(y => y.nom === sujet.intitule.nom && y.epithete === sujet.intitule.epithete));
+      // si on n’a pas de résultat, rechercher le sujet « sujet inconnu »:
+      if (!reaction) {
+        reaction = (personne as Objet).reactions
+          .find(x => x.sujets && x.sujets.some(y => y.nom === "sujet" && y.epithete === "inconnu"));
+      }
     }
-    // si pas de réaction à un sujet, prendre réaction par défaut (sujet null)
+    // si pas de réaction à un sujet, prendre réaction par défaut (aucun sujet)
     if (!reaction) {
-      console.log("suiteExecuterReaction: sujet par défaut");
-      reaction = (personne as Objet).reactions.find(x => x.sujet == null);
+      console.log("suiteExecuterReaction: réaction à aucun sujet");
+      reaction = (personne as Objet).reactions
+        .find(x => x.sujets && x.sujets.some(y => y.nom === "aucun" && y.epithete === "sujet"));
     }
     // on a trouvé une réaction
     if (reaction) {

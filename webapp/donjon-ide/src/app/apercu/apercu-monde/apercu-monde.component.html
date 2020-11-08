@@ -20,46 +20,31 @@
   <ul>
     <ng-template ngFor let-el [ngForOf]="monde.portes">
       <li>
-        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
+        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>
 
   <h4>Objets, animaux et humains</h4>
-  <p *ngIf="monde.objets && monde.objets.length == 0">Aucun objet trouvé.</p>
+  <p *ngIf="monde.classiques && monde.classiques.length == 0">Aucun objet trouvé.</p>
   <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.objets">
+    <ng-template ngFor let-el [ngForOf]="monde.classiques">
       <li>
-        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
+        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>
 
   <h4>Éléments spéciaux</h4>
+  <p *ngIf="monde.speciaux && monde.speciaux.length == 0">Aucun élément spécial trouvé.</p>
   <ul>
-    <li>
-      Joueur
-      <p *ngIf="monde.joueurs && monde.joueurs.length == 0">Aucun joueur trouvé.</p>
-      <ul>
-        <ng-template ngFor let-el [ngForOf]="monde.joueurs">
-          <li>
-            <app-apercu-element-generique [el]=el></app-apercu-element-generique>
-          </li>
-        </ng-template>
-      </ul>
-    </li>
-    <!-- <li>
-      Inventaire
-      <p *ngIf="monde.inventaires && monde.inventaires.length == 0">Aucun inventaire trouvé.</p>
-      <ul>
-        <ng-template ngFor let-el [ngForOf]="monde.inventaires">
-          <li>
-            <app-vue-element-generique [el]=el></app-vue-element-generique>
-          </li>
-        </ng-template>
-      </ul>
-    </li> -->
+    <ng-template ngFor let-el [ngForOf]="monde.speciaux">
+      <li>
+        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+      </li>
+    </ng-template>
   </ul>
+
 </div>
 
 <h3>Règles</h3>

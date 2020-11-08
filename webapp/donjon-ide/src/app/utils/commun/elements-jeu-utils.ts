@@ -9,6 +9,7 @@ import { Intitule } from 'src/app/models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Localisation } from '../../models/jeu/localisation';
+import { MotUtils } from './mot-utils';
 import { Nombre } from 'src/app/models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 
@@ -89,7 +90,7 @@ export class ElementsJeuUtils {
   }
 
   majPresenceObjet(obj: Objet) {
-    // les objets possedes sont présents
+    // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
@@ -104,10 +105,6 @@ export class ElementsJeuUtils {
       // les autres objets ne sont pas présents
       this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present);
     }
-    // si l'objet n'est pas positionné, il n'est pas présent.
-    // } else {
-    // this.etats.retirerEtatElement(obj, EEtatsBase.PRESENT);
-    // }
   }
 
   getLieuObjet(obj: Objet): number {
@@ -186,19 +183,18 @@ export class ElementsJeuUtils {
         }
 
         // 3. Chercher parmis les objets
-        cor.objets = this.trouverObjet(sujet);
+        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : Nombre.i;
+        cor.objets = this.trouverObjet(sujet, nombre);
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
           cor.elements = cor.elements.concat(cor.objets);
           cor.nbCor += cor.objets.length;
         }
       }
-
       console.log(" >>>> éléments trouvés:", cor.elements);
-      console.log(" >>>> objets trouvés:", cor.objets);
-      console.log(" >>>> lieux trouvés:", cor.lieux);
-      console.log(" >>>> intitulé:", cor.intitule);
-
+      // console.log(" >>>> objets trouvés:", cor.objets);
+      // console.log(" >>>> lieux trouvés:", cor.lieux);
+      // console.log(" >>>> intitulé:", cor.intitule);
     }
 
     return cor;
@@ -255,34 +251,41 @@ export class ElementsJeuUtils {
 
     let retVal: Objet[] = [];
 
-    switch (nombre) {
-      case Nombre.i:
-        this.jeu.objets.forEach(obj => {
+    this.jeu.objets.forEach(obj => {
+      let dejaAjoute = false;
+      // A. regarder dans l'intitulé
+      switch (nombre) {
+        case Nombre.i:
           if (obj.intitule.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intitule.epithete)) {
             retVal.push(obj);
+            dejaAjoute = true;
           }
-        });
-        break;
-
-      case Nombre.s:
-        this.jeu.objets.forEach(obj => {
+          break;
+        case Nombre.s:
           if (obj.intituleS.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleS.epithete)) {
             retVal.push(obj);
+            dejaAjoute = true;
           }
-        });
-        break;
+          break;
 
-      case Nombre.p:
-        this.jeu.objets.forEach(obj => {
+        case Nombre.p:
           if (obj.intituleP.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleP.epithete)) {
+            retVal.push(obj);
+            dejaAjoute = true;
+          }
+          break;
+      }
+
+      // B. Regarder dans les synonymes (si pas déjà ajouté)
+      if (!dejaAjoute && obj.synonymes) {
+        obj.synonymes.forEach(synonyme => {
+          if (synonyme.nom === sujet.nom && (!sujet.epithete || sujet.epithete === synonyme.epithete)) {
             retVal.push(obj);
           }
         });
-        break;
+      }
 
-      default:
-        break;
-    }
+    });
 
     return retVal;
   }
@@ -301,6 +304,7 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+
   /**
    * Renvoyer true si ceci contient au moins un objet.
    * TODO: tenir compte de la visibilité des objets.
@@ -312,8 +316,6 @@ export class ElementsJeuUtils {
     if (ceci) {
       let els: Objet[] = null;
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-        console.warn("dddididdidid this.jeu.objet=", this.jeu.objets);
-        
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id);
       } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         els = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
@@ -324,173 +326,9 @@ export class ElementsJeuUtils {
         retVal = els.length !== 0;
       }
     } else {
-      console.error("verifierContientObjet ceci est null."); 
+      console.error("verifierContientObjet ceci est null.");
     }
     return retVal;
   }
 
-  // trouverElementJeu(sujet: GroupeNominal, emplacement: EmplacementElement, inclureContenu: boolean, inclurePortes: boolean): ElementJeu | -1 {
-
-  //   let listeEleJeu: ElementJeu[] = new Array<ElementJeu>();
-
-  //   switch (emplacement) {
-
-  //     // chercher dans le lieu actuel
-  //     case EmplacementElement.ici:
-  //       // inventaire de le lieu actuel
-  //       listeEleJeu = listeEleJeu.concat(this.curLieu.inventaire.objets);
-  //       // ajouter les portes adjacentes
-  //       if (inclurePortes) {
-  //         const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseRacine.porte).map(x => x.id);
-  //         portesVisiblesID.forEach(porteID => {
-  //           listeEleJeu.push(this.getPorte(porteID));
-  //         });
-  //       }
-  //       break;
-
-  //     // chercher dans l’inventaire du joueur
-  //     case EmplacementElement.inventaire:
-  //       listeEleJeu = this.jeu.inventaire.objets;
-  //       break;
-
-  //     // chercher dans le lieu actuel et dans l’inventaire du joueur
-  //     case EmplacementElement.iciEtInventaire:
-  //       listeEleJeu = listeEleJeu.concat(this.curLieu.inventaire.objets);
-  //       // ajouter les portes adjacentes
-  //       if (inclurePortes) {
-  //         const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseRacine.porte).map(x => x.id);
-  //         portesVisiblesID.forEach(porteID => {
-  //           listeEleJeu.push(this.getPorte(porteID));
-  //         });
-  //       }
-  //       // ajouter l'inventaire du joueur
-  //       listeEleJeu = listeEleJeu.concat(this.jeu.inventaire.objets);
-  //       break;
-
-  //     // chercher dans l’ensemble des éléments du jeu
-  //     case EmplacementElement.partout:
-  //       // inclure les portes
-  //       if (inclurePortes) {
-  //         listeEleJeu = listeEleJeu.concat(this.jeu.elements);
-  //         // ne pas inclure les portes
-  //       } else {
-  //         listeEleJeu = this.jeu.elements.filter(x => x.type !== ClasseRacine.porte);
-  //       }
-  //       break;
-
-  //     case EmplacementElement.portes:
-  //       listeEleJeu = new Array<ElementJeu>();
-  //       const portesVisiblesID = this.curLieu.voisins.filter(x => x.type === ClasseRacine.porte).map(x => x.id);
-  //       portesVisiblesID.forEach(porteID => {
-  //         listeEleJeu.push(this.getPorte(porteID));
-  //       });
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-
-  //   // ajouter le contenu des supports et des contenants ouverts
-  //   if (inclureContenu && emplacement != EmplacementElement.partout && listeEleJeu.length > 0) {
-  //     let elementsEnPlus: ElementJeu[] = [];
-  //     listeEleJeu.forEach(el => {
-
-  //       if (el.type == ClasseRacine.support) {
-  //         elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
-  //       } else if (el.type == ClasseRacine.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé"))) {
-  //         elementsEnPlus = elementsEnPlus.concat(el.inventaire.objets);
-  //       }
-  //     });
-  //     // si on a trouvé des éléments en plus
-  //     if (elementsEnPlus.length > 0) {
-  //       listeEleJeu = listeEleJeu.concat(elementsEnPlus);
-  //     }
-  //   }
-
-  //   console.log("trouverElementJeu >>> listeEleJeu=", listeEleJeu);
-
-
-  //   let retVal: ElementJeu | -1 = null;
-
-
-  //   // remplacer les caractères doubles et les accents
-  //   let premierMot = StringUtils.normaliserMot(sujet.nom);
-  //   let deuxiemeMot = StringUtils.normaliserMot(sujet.epithete);
-  //   console.log("trouverElementJeu >>> premierMot=", premierMot, "deuxiemeMot=", deuxiemeMot);
-
-  //   // ON CHERCHE DANS L'INTITULÉ SINGULIER (si il y en a un...)
-  //   let eleJeuTrouves = listeEleJeu.filter(x => StringUtils.normaliserMot(x.intituleS).startsWith(premierMot) && x.quantite !== 0);
-  //   // SI RIEN TROUVE, ON CHERCHE DANS L'INTITULÉ PAR DÉFAUT
-  //   if (eleJeuTrouves.length == 0) {
-  //     eleJeuTrouves = listeEleJeu.filter(x => StringUtils.normaliserMot(x.intitule).startsWith(premierMot) && x.quantite !== 0);
-  //   }
-  //   // si on a trouvé un objet
-  //   if (eleJeuTrouves.length == 1) {
-  //     retVal = eleJeuTrouves[0];
-  //     // si on a trouvé plusiers objets différents
-  //   } else if (eleJeuTrouves.length > 1) {
-  //     // TODO: ajouter des mots en plus
-  //     retVal = -1;
-  //   }
-
-  //   if (this.verbeux) {
-  //     console.log("trouverElementJeu >>> mot=", premierMot, "retVal=", retVal);
-  //   }
-  //   return retVal;
-  // }
-
-  // prendreElementJeu(eleJeuID) {
-  //   let retVal: ElementJeu = null;
-  //   let listeObjets: ElementJeu[] = null;
-  //   let indexEleJeu = -1;
-  //   // on recherche en priorité l'objet dans le lieu actuel
-  //   if (this.curLieu) {
-  //     listeObjets = this.curLieu.inventaire.objets;
-  //     indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
-
-  //     // si pas trouvé dans l’inventaire du lieu, regarder dans d’inventaire des contenants de le lieu
-  //     if (indexEleJeu == -1) {
-  //       let supportsEtContenants: ElementJeu[] = [];
-  //       listeObjets.forEach(el => {
-  //         // pas besoin de continuer à chercher si déjà trouvé
-  //         if (indexEleJeu == -1) {
-  //           // si on à affaire à un support ou un contenant, regarder leur inventaire
-  //           if ((el.type == ClasseRacine.support) ||
-  //             (el.type == ClasseRacine.contenant && (!ElementsJeuUtils.possedeUnDeCesEtatsAutoF(el, "fermé", "verrouillé")))) {
-  //             indexEleJeu = el.inventaire.objets.findIndex(x => x.id == eleJeuID);
-  //             // trouvé
-  //             if (indexEleJeu != -1) {
-  //               listeObjets = el.inventaire.objets;
-  //             }
-  //           }
-  //         }
-  //       });
-  //     }
-  //   }
-
-  //   // si pas trouvé, on recherche dans la liste globale
-  //   if (indexEleJeu == -1) {
-  //     listeObjets = this.jeu.elements;
-  //     indexEleJeu = listeObjets.findIndex(x => x.id == eleJeuID);
-  //   }
-
-  //   if (indexEleJeu !== -1) {
-  //     let eleJeu = listeObjets[indexEleJeu];
-  //     // un seul exemplaire : on le retire de l'inventaire et on le retourne.
-  //     if (eleJeu.quantite == 1) {
-  //       retVal = listeObjets.splice(indexEleJeu, 1)[0];
-  //       // plusieurs exemplaires : on le clone
-  //     } else {
-  //       // décrémenter quantité si pas infini
-  //       if (eleJeu.quantite != -1) {
-  //         eleJeu.quantite -= 1;
-  //       }
-  //       // faire une copie
-  //       retVal = ElementsJeuUtils.copierObjet(eleJeu);
-  //     }
-  //   } else {
-  //     console.error("prendreElementJeu >>> élément pas trouvé !");
-  //   }
-  //   return retVal;
-  // }
 }
