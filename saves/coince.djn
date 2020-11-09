@@ -16,10 +16,13 @@ Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière
 -- ==========
 --   OBJETS
 -- ==========
+-- > LUCARNE
+La lucarne est un objet décoratif dans le salon. "Á cette hauteur elle va être difficile à atteindre.". Elle est inaccessible.
 -- > FAUTEUIL
 Le fauteuil est un support dans le salon.
 Sa description est "C’est un vieux fauteuil en cuir brun bien patiné.".
 Son aperçu est "Il y a un fauteuil de style anglais[initialement] au centre de la pièce[puis] que vous avez déplacé[fin choix].".
+Interpréter canapé et divan comme fauteuil.
 -- > BILLE
 Il y a une bille dans le salon. "C'est une bille en verre décorée de petits pois bleus.".
 -- > PAPIER
@@ -27,8 +30,9 @@ Le bout de papier est un objet caché sur le fauteuil. "Il y a quelque chose d'�
 Son aperçu est "[initialement]Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.[puis]Il y a un bout de papier.[fin choix]".
 Interpréter papier et feuille comme le bout de papier.
 -- > COFFRE
-Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmontée d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.)[fin si]".
+Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmonté d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.)[fin si]".
 Il est invisible, fermé, ouvrable et verrouillé.
+Interpréter le clavier comme le coffre.
 -- > ANNEAU
 L'anneau est un objet dans le coffre. "C'est un anneau doré. Il est probablement magique."
 -- > PORTE
@@ -61,6 +65,16 @@ Le joueur peut pousser le fauteuil:
     dire "Ce n'est plus nécessaire.".
     
 interpréter appuyer et déplacer comme pousser.
+
+-- > LANCER BILLE SUR LUCARNE
+Lancer ceci vers cela est une action qui concerne la bille et la lucarne.
+
+Exécuter lancer ceci vers cela:
+  dire "[au hasard]Vous atteignez la lucarne avec la bille, ça fait << poc >> puis la bille retombe.[ou]Raté.[ou]Bien essayé.[fin choix]".
+
+-- > POUSSER FAUTEUIL
+Le joueur peut soulever le fauteuil:
+  dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
 
 -- > TAPER CODE
 taper ceci est une action qui concerne un intitulé.
@@ -127,8 +141,9 @@ après donner anneau à la magicienne:
   dire "<< Mon héro! >> ";
   dire "{n}{n}La magicienne tend la main et un éclair vous aveugle.";
   dire "{n}{n}Vous êtes de retour chez vous!";
-  dire "{n}{n}{+Bravo! Vous avez gagné !+}".
-
+  dire "{n}{n}{+Bravo! Vous avez gagné !+}";
+  terminer le jeu.
+  
 -- 3) objets non placés
 La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
 
@@ -138,8 +153,10 @@ La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
 
 avant commencer le jeu :
   changer le joueur se trouve dans le salon;
-  changer le joueur possède la pièce.
-
+  changer le joueur possède la pièce;
+  changer la porte est ouverte;
+  changer la porte n'est plus invisible;
+  changer le joueur possède l'anneau.
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 --              ACTIONS
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -160,7 +177,8 @@ exécuter ouvrir ceci:
   changer ceci n'est plus fermé.
 
 terminer ouvrir ceci:
-  dire "Ok. C'est ouvert.".
+  dire "C'est ouvert.";
+  si ceci est un contenant, dire "[contenu ceci]".
   
 -- ==========
 --   FERMER
@@ -270,17 +288,24 @@ le joueur peut examiner:
 examiner ceci est une action qui concerne un objet visible.
 
 refuser examiner ceci:
-  si ceci est une personne, dire "Pas sûr qu'il ait envie de jouer au docteur.".
+  si ceci est une personne, dire "Pas sûr qu'[pronom ceci] ait envie de jouer au docteur.".
 
 terminer examiner ceci:
-  si ceci contient un objet :
-    dire "[description ceci] ",
-    dire "[contenu ceci]";
-  sinon :
-    dire "[description ceci][si aucune description pour ceci]
-    Vous ne trouvez rien d’intéressant.[fin si]";
+  dire "[description ceci] ";
   si ceci est une porte ou un contenant :
-    dire "{n}[statut ceci]".
+    dire "{n}[statut ceci]";
+  si ceci est un contenant et ouvert:
+    dire "[contenu ceci]";
+  si ceci est un contenant et fermé et transparent:
+    dire "[contenu ceci]";
+  si ceci est un support:
+    dire "[contenu ceci]";
+  si ceci est inaccesssible:
+    dire "[pronom ceci] est inaccessible"
+  si ceci n'est ni un contenant ni un support:
+    dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]".
+
+interpréter fouiller comme examiner.
 
 -- =========
 --   JETER
@@ -318,6 +343,7 @@ prendre ceci est une action qui concerne un objet visible.
 refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
   si ceci est fixé, dire "C'est fixé.";
+  si ceci est inaccessible, dire "Je ne sais pas y accéder.";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.".
 
