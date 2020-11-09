@@ -464,7 +464,7 @@ export class ListeEtats {
       if (parent) {
         // si l'objet est dans un contenant fermé et opaque
         if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
-          if (objet.etats.includes(this.fermeID) && objet.etats.includes(this.opaqueID)) {
+          if (parent.etats.includes(this.fermeID) && parent.etats.includes(this.opaqueID)) {
             return true;
           }
         }
