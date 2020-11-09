@@ -18,6 +18,9 @@ export class Jeu {
    */
   titre: string;
 
+  /** Le jeu est-il terminé ? */
+  termine = false;
+
   classes: Classe[] = [];
 
   etats: ListeEtats = new ListeEtats();

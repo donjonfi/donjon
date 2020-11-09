@@ -215,6 +215,10 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   doCommande(commande: string): string {
 
+    if (this.jeu.termine) {
+      return "Le jeu est terminé.";
+    }
+
     // GESTION HISTORIQUE
     // ajouter à l’historique (à condition que différent du précédent)
     if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commande)) {

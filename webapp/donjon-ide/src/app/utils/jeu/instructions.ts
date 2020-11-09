@@ -31,7 +31,6 @@ export class Instructions {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
   }
 
-
   private static calculerNbChoix(statut: StatutCondition) {
     let nbChoix = 0;
     let index = statut.curMorceauIndex;
@@ -182,6 +181,25 @@ export class Instructions {
       }
     }
 
+    // pronom
+    if (contenu.includes("[pronom")) {
+      if (contenu.includes("[pronom ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const pronomCeci = ((ceci as Objet).genre === Genre.f ? "elle" : "il") + ((ceci as Objet).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[pronom ceci\]/g, pronomCeci);
+        } else {
+          console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un objet");
+        }
+      }
+      if (contenu.includes("[pronom cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const pronomCela = ((cela as Objet).genre === Genre.f ? "elle" : "il") + ((cela as Objet).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[pronom cela\]/g, pronomCela);
+        } else {
+          console.error("interpreterContenuDire: pronom cela: cela n'est pas un objet");
+        }
+      }
+    }
 
     // accord
     if (contenu.includes("[accord")) {
@@ -451,6 +469,12 @@ export class Instructions {
         } else {
           console.error("Exécuter infinitif: On ne peut pas effacer un intitulé.");
           resultat.succes = false;
+        }
+        break;
+
+      case 'terminer':
+        if (instruction.sujet && instruction.sujet.nom === 'jeu') {
+          this.jeu.termine = true;
         }
         break;
 
