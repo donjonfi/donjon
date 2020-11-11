@@ -10,6 +10,7 @@
 //		.code.donjon .co1 { color: #668899;font-style: normal; }/* bleu */
 //		.code.donjon .co2 { color: #668899;font-style: normal; }/* bleu */
 //		.code.donjon .co3 { color: #668899;font-style: normal;}/* bleu */
+//		.code.donjon .co4 { color: #668899;font-style: normal;}/* bleu */
 //		.code.donjon .coMULTI { color: #ff0000; font-style: italic; }
 //		.code.donjon .es0 { color: #ff0000; font-weight: bold; } 
 //		.code.donjon .kw1 { color: #000000; font-weight: bold; } /* noir */
@@ -30,7 +31,8 @@ $language_data = array (
     'COMMENT_REGEXP' => array(
         1 => '/".+?\[/',
 		2 => '/\].+?"/',
-		3 => '/".+?"/'
+		3 => '/".+?"/',
+		4 => '/\].+?\[/'
         ),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array('@'),
@@ -45,6 +47,7 @@ $language_data = array (
             ),
         3 => array(
             'si', 'sinon', 'remplacer', 'exécuter', 'refuser', 'terminer', 
+			'avant', 'après',
 			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme'

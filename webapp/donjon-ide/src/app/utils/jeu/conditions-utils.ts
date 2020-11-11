@@ -187,7 +187,7 @@ export class ConditionsUtils {
             // CONTENU
             case 'contient':
               // remarque: négation appliquée plus loin.
-              if (condition.complement === 'un objet') {
+              if (condition.sujetComplement && condition.sujetComplement.nom === 'objet' && (condition.sujetComplement.determinant?.trim() === 'un' || condition.sujetComplement.determinant === "d'" || condition.sujetComplement.determinant === 'd’')) {
                 retVal = this.eju.verifierContientObjet(sujet as ElementJeu);
               } else {
                 console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);

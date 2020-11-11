@@ -142,8 +142,10 @@ export class Compilateur {
     // gestion des commentaires de ligne (--)
     // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)
     // à la fin de la ligne pour éviter que l’utilisateur ne soit obligé de terminer ses
-    // commentaires par un «.».
-    const CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
+    // terminer les commentaires par un «.».
+    let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
+    // commenter et terminer par un . les parties, chapitre et scènes
+    CommentairesCorriges = CommentairesCorriges.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
 
     const ChevronsCorriges = CommentairesCorriges
       .replace(/<< /g, "« ")

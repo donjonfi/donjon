@@ -1,11 +1,11 @@
 <tabset #editeurTabs>
-  <tab heading="Code source" id="code_source">
-    <!-- <div class="card mb-2 shadow-sm"> -->
+  <!-- TAB : ROMAN (code source) -->
+  <tab heading="Roman" id="roman">
     <div class="mt-2">
       <!-- <div class="card-body p-2"> -->
       <div class="row">
         <div class="col-md-auto">
-          <h4>Code source</h4>
+          <h4>Roman</h4>
         </div>
         <!-- compiler -->
         <div class="col-auto px-1 px-lg-2">
@@ -26,8 +26,8 @@
               accept=".djn,.txt" style="display: none;" (change)="onOuvrirFichier($event)">
           </label>
         </div>
-         <!-- préférences -->
-         <div class="col-auto px-1 px-lg-2">
+        <!-- préférences -->
+        <div class="col-auto px-1 px-lg-2">
           <button type="button" (click)="afficherPreferences = !afficherPreferences" class="btn btn-secondary"
             title="Afficher les préférences"><i class="fas fa-sliders-h"></i><span
               class="ml-2 d-none d-xl-inline">Préférences</span></button>
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <div *ngIf="afficherPreferences" class="row mb-4">
+      <div *ngIf="afficherPreferences" class="row mb-2">
         <div class="col-auto">
           <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
             <option disabled>*** Thèmes clairs ***</option>
@@ -102,16 +102,42 @@
           </select>
         </div>
       </div>
+      <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
+      <div class="row mb-2">
+        <div class="col-12 col-md-4  pr-md-1 py-1">
+          <select [(ngModel)]="curPartieIndex" (change)="onChangerPartie()" class="form-control" name="choixPartie">
+            <option [ngValue]="null">(toutes les parties</option>
+            <option *ngFor="let intitule of allPartiesIntitule; index as i;" [ngValue]="i">
+              Partie {{(i+1)}} − {{intitule}}
+            </option>
+          </select>
+        </div>
 
-      <!-- CODE SOURCE -->
+        <div *ngIf="false" class="col-6 col-md-4 px-md-1 py-1 ">
+          <select [(ngModel)]="curChapitreIndex" (change)="onChangerNbLignesCode()" class="form-control"
+            name="choixChapitre">
+            <option [ngValue]="null">(tous les chapitres)</option>
+            <option [ngValue]="1">Chapitre 1 − Exemple</option>
+          </select>
+        </div>
+
+        <div *ngIf="false" class="col-6 col-md-4 pl-md-1 py-1">
+          <select [(ngModel)]="curSceneIndex" (change)="onChangerTailleFont()" class="form-control" name="choixScene">
+            <option [ngValue]="null">(toutes les scènes)</option>
+            <option [ngValue]="1">Scène 1 − Exemple</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- CODE SOURCE (ROMAN) -->
       <div class="card mb-2 mt-n1" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-        <ace #codeEditor [config]="config" [(value)]="codeSource" [theme]="theme"></ace>
+        <ace #codeEditor [config]="config" [(value)]="curPartieCodeSource" [theme]="theme"></ace>
       </div>
 
     </div>
-    <!-- </div> -->
-
   </tab>
+
+  <!-- TAB: ANALYSE-->
   <tab heading="Analyse" [disabled]="!compilationTerminee && !compilationEnCours">
     <!-- Compilation -->
     <!-- <div *ngIf="erreurs" class="card mb-2 shadow-sm"> -->
@@ -126,7 +152,8 @@
 
       <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
         <div>
-          <span class="text-warning">Moi je veux bien mais il n’y a aucun code source à analyser. 🙄</span><br>
+          <span class="text-warning">Moi je veux bien mais il n’y a aucun texte à analyser dans votre
+            roman. 🙄</span><br>
           <span class="text-primary">Pssst! Il est possible de charger un exemple pour commencer. 😉</span>
         </div>
       </ng-container>
@@ -145,8 +172,7 @@
       <p class="p-5">
         <button *ngIf="monde" (click)="showTab('jouer')" type="button" class="btn btn-primary">Jouer</button>
         <button *ngIf="monde" (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
-        <button *ngIf="!monde" (click)="showTab('editeur')" type="button" class="btn btn-primary ml-2">Code
-          source</button>
+        <button *ngIf="!monde" (click)="showTab('editeur')" type="button" class="btn btn-primary ml-2">Roman</button>
       </p>
 
       <code class="text-danger">
@@ -157,6 +183,8 @@
     </div>
     <!-- </div> -->
   </tab>
+
+  <!-- TAB: JOUER -->
   <tab heading="Jouer" [disabled]="!compilationTerminee || monde == null">
     <!-- Jeu -->
     <!-- <div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm"> -->
@@ -167,6 +195,8 @@
       <!-- </div> -->
     </div>
   </tab>
+
+  <!-- TAB: APERÇU -->
   <tab heading="Aperçu" [disabled]="!compilationTerminee || monde == null">
     <!-- Aperçu -->
     <!-- <div *ngIf="mode == 'apercu'" class="card mb-4 shadow-sm"> -->

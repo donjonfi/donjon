@@ -18,9 +18,9 @@ export enum EClasseRacine {
 
 export enum EEtatsBase {
   /** présent (↔ absent) */
-  present = 'présent',
+  present = 'présent (calculé)',
   /** absent (↔ présent) */
-  absent = 'absent',
+  absent = 'absent (calculé)',
   /** intact (≠ déplacé) */
   intact = "intact",
   /** déplacé (≠ intact) */
@@ -31,22 +31,24 @@ export enum EEtatsBase {
   cache = 'caché',
   /** ouvert */
   couvert = 'couvert',
+  /** visible (calculé) */
+  visible = 'visible',
   /** invisible */
   invisible = 'invisible',
-  /** accessible (↔ inaccessible) */
+  /** accessible (calculé) */
   accessible = 'accessible',
-  /** inaccessible (↔ accessible) */
+  /** inaccessible */
   inaccessible = 'inaccessible',
   /** décoratif */
   decoratif = 'décoratif',
-  /** possédé */
+  /** possédé (calculé) */
   possede = 'possédé',
-  /** disponible */
+  /** disponible (calculé) */
   disponible = 'disponible',
-  /** occupé */
+  /** occupé (calculé) */
   occupe = 'occupé',
   /** porté (→ possédé) */
-  porte = 'porté',
+  porte = 'porté (calculé)',
   /** dénombrable (↔ indénombrable) */
   denombrable = 'dénombrable',
   /** indénombrable (↔ dénombrable) */

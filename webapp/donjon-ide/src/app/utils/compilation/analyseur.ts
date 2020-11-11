@@ -722,7 +722,7 @@ export class Analyseur {
         action.cibleCeci = new GroupeNominal(result[6], result[7], result[8]);
         // concerne également un 2e élément ?
         if (cela) {
-          if (result[4] === 'deux') {
+          if (result[6] === 'deux') {
             action.cibleCela = new GroupeNominal(result[6], result[7], result[8]);
           } else {
             action.cibleCela = new GroupeNominal(result[9], result[10], result[11]);

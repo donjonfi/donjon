@@ -66,7 +66,14 @@ export class EditeurComponent implements OnInit {
   actions: Action[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
+  curPartieIndex: number = null;
+  precPartieIndex: number = null;
+  curChapitreIndex: number = null;
+  curSceneIndex: number = null;
   codeSource = "";
+  curPartieCodeSource = "";
+  allPartiesIntitule: string[] = [];
+  allPartiesCodeSource: string[] = [];
   nomExemple = "coince";
 
   afficherPreferences = false;
@@ -111,8 +118,30 @@ export class EditeurComponent implements OnInit {
 
     // récupérer le code source de la session
     this.codeSource = sessionStorage.getItem("CodeSource");
-
   }
+
+
+  onChangerPartie() {
+    // rassembler le code source pour ne rien perdre
+    this.rassemblerSource();
+    // changer la partie à afficher
+    if (this.curPartieIndex !== null && (this.curPartieIndex < this.curPartieCodeSource.length)) {
+      this.curPartieCodeSource = this.allPartiesCodeSource[this.curPartieIndex];
+    } else {
+      this.curPartieCodeSource = this.codeSource;
+    }
+    this.precPartieIndex = this.curPartieIndex;
+  }
+
+  rassemblerSource() {
+    // mettre à jour la partie en cours d’édition dans la liste des parties
+    this.allPartiesCodeSource[this.precPartieIndex] = this.curPartieCodeSource;
+    // mettre à jour le code source en rassemblant la liste des parties
+    this.codeSource = this.allPartiesCodeSource.join("");
+
+    // this.sauvegarderSession();
+  }
+
   onChangerTheme() {
     localStorage.setItem('EditeurTheme', this.theme);
   }
@@ -168,6 +197,9 @@ export class EditeurComponent implements OnInit {
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
           this.codeSource = fileReader.result as string;
+          this.decouperEnParties();
+          this.curPartieIndex = 0;
+          this.onChangerPartie();
           console.log(">>> fichier chargé.");
         };
         // lire le fichier
@@ -176,11 +208,49 @@ export class EditeurComponent implements OnInit {
     }
   }
 
+  private decouperEnParties() {
+    // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
+    const decoupageEnParties = this.codeSource.split(/^(?: *)(Partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi);
+    let dernEstPartie = false;
+    let dernPartie: string;
+
+    this.allPartiesCodeSource = [];
+    this.allPartiesIntitule = [];
+
+    // parcourir les parties de code et leur intitulé
+    decoupageEnParties.forEach(element => {
+      if (element) {
+        if (element.startsWith("Partie") || element.startsWith("partie")) {
+          // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
+          if (dernEstPartie) {
+            // ajouter le code source de la partie précédé de l’instruction « partie »
+            this.allPartiesCodeSource.push('Partie "' + dernPartie + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+          }
+          // ajouter le titre de la nouvelle partie
+          dernPartie = element.replace(/(?:^partie( ?))|\"/gi, "");
+          this.allPartiesIntitule.push(dernPartie);
+          dernEstPartie = true;
+        } else {
+          // si pas précédé d’une partie, ajouter un intitulé pour la partie
+          if (!dernEstPartie) {
+            dernPartie = "(sans nom)";
+            this.allPartiesIntitule.push(dernPartie);
+          }
+          // ajouter le code source de la partie précédé de l’instruction « partie »
+          this.allPartiesCodeSource.push('Partie "' + dernPartie + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+          dernEstPartie = false;
+        }
+      }
+    });
+  }
+
   sauvegarderSession() {
+    this.rassemblerSource();
     sessionStorage.setItem('CodeSource', this.codeSource);
   }
 
   onSauvegarderSous() {
+    this.rassemblerSource();
     // Note: Ie and Edge don't support the new File constructor,
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([this.codeSource], "donjon.djn", { type: "text/plain;charset=utf-8" });
@@ -209,10 +279,15 @@ export class EditeurComponent implements OnInit {
   onCompiler() {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
+
     setTimeout(() => {
       this.showTab('compilation');
     }, 100);
+
     this.sauvegarderSession();
+
+    // rassembler les sections
+    this.codeSource = this.allPartiesCodeSource.join();
 
     if (this.codeSource && this.codeSource.trim() != '') {
 

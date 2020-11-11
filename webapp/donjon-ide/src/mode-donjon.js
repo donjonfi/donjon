@@ -9,7 +9,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var variableLanguage = (
       "joueur|inventaire|historique|"
       + "intitulé|description|aperçu|capacité|accord|réaction|"
-      + "visible|contenu"
+      + "contenu"
     );
 
     var builtinFunctions = (
@@ -60,18 +60,21 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           token: "keyword",
           regex: "quand |avant |après |si |sinon|fin si|refuser |exécuter |terminer |interpréter |comme |" +
             "au hasard|en boucle|1ère fois|[1-9][0-9]?e fois|initialement|puis|fin choix|" +
-            "et\\b|ou\\b|ni\\b|soit\\b|mais pas",
+            "et\\b|ou\\b|ni\\b|soit\\b|mais pas|" +
+            "partie|chapitre|scène",
           caseInsensitive: true
         },
         {
           token: "constant.language",
           regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |"
             // + "vide(s)?|plein(e)?(s)?|"
-             + "((présent|absent|intact|déplacé|modifié|caché|couvert|invisible|accessible|décorati(f|v)|"
-             + "possédé|disponible|occupé|porté|dénombrable|indénombrable|mangeable|buvable|"
-             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|"
-             + "marche|arrêt|parlant|opaque|transparent|fixé|transportable)(e)?(s)?)|"          
-            + "ceci|cela|ici"
+            + "((présent|absent|intact|déplacé|modifié|caché|couvert|invisible|décorati(f|v)|"
+            + "dénombrable|indénombrable|mangeable|buvable|"
+            + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|"
+            + "marche|arrêt|parlant|opaque|transparent|fixé|transportable)(e)?(s)?)|"
+            + "ceci|cela|ici|"
+            + "visible(s)?|accessible(s)?|"
+            + "(porté|possédé|disponible|occupé)(e)?(s)?"
         }, {
           token: "storage.type",
           regex: "une (clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +

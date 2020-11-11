@@ -18,8 +18,14 @@ export class ListeEtats {
   public modifieID = -1;
   public cacheID = -1;
   public couvertID = -1;
+  public visibleID = -1;
   public invisibleID = -1;
+  public accessibleID = -1;
+  public inaccessibleID = -1;
   public possedeID = -1;
+  public disponibleID = -1;
+  public occupeID = -1;
+  public porteID = -1;
   public ouvertID = -1;
   public ouvrableID = -1;
   public fermeID = -1;
@@ -57,16 +63,18 @@ export class ListeEtats {
     // caché, couvert, invisible (objet)
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
+    this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
     // accessible, inaccessible (objet)
-    this.creerBasculeEtats(EEtatsBase.accessible, EEtatsBase.inaccessible);
+    this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
+    this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;
     // possédé, disponible et occupé (objet)
-    // TODO: est-ce qu'on garde ça groupé ?
-    const possDispOcc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe]);
-    this.possedeID = possDispOcc[0].id;
+    this.possedeID = this.creerEtat(EEtatsBase.possede, Genre.m, Nombre.s, true ).id;
+    this.disponibleID = this.creerEtat(EEtatsBase.disponible, Genre.m, Nombre.s, true).id;
+    this.occupeID = this.creerEtat(EEtatsBase.occupe, Genre.m, Nombre.s, true).id;
     // porté (objet)
-    this.creerEtat(EEtatsBase.porte);
-    this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
+    this.porteID = this.creerEtat(EEtatsBase.porte, Genre.m, Nombre.s, true).id;
+    // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
     // dénombrable et indénombrable (objet)
     this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
     // mangeable et buvable (objet)
@@ -139,7 +147,7 @@ export class ListeEtats {
     const groupe = this.nextGroupe++;
     let nouveauxEtats: Etat[] = [];
     nomEtats.forEach(nomEtat => {
-      nouveauxEtats.push(this.suiteCreerEtat(nomEtat, genre, nombre, groupe));
+      nouveauxEtats.push(this.suiteCreerEtat(nomEtat, genre, nombre, groupe, null, false));
     });
     return nouveauxEtats;
   }
@@ -147,54 +155,60 @@ export class ListeEtats {
   /** Créer une nouvele bascule d'états */
   creerBasculeEtats(nomEtatA, nomEtatB, genre: Genre = Genre.m, nombre: Nombre = Nombre.s) {
     // const groupe = this.nextGroupe++;
-    const etatA = this.suiteCreerEtat(nomEtatA, genre, nombre, null, (this.nextEtat + 1));
-    const etatB = this.suiteCreerEtat(nomEtatB, genre, nombre, null, (this.nextEtat - 1));
+    const etatA = this.suiteCreerEtat(nomEtatA, genre, nombre, null, (this.nextEtat + 1), false);
+    const etatB = this.suiteCreerEtat(nomEtatB, genre, nombre, null, (this.nextEtat - 1), false);
     return [etatA, etatB];
   }
 
-  /** Créer un nouvel état */
-  creerEtat(nomEtat: string, genre: Genre = Genre.m, nombre: Nombre = Nombre.s): Etat {
-    return this.suiteCreerEtat(nomEtat, genre, nombre, null, null);
-  }
-
   /**
-   * spécifier que étatA implique étatB
+   * Créer un nouvel état.
+   * @argument nomEtat: nom du nouvel état.
+   * @argument genre: genre du nom (pour pouvoir deviner le féminin à partir du masculin).
+   * @argument nombre: nombre du nom (pour pouvoir deviner le pluriel à partir du singulier).
+   * @argument calcule: s’agit-il d’un attribut calculé (et donc pas modifiable directement).
    */
-  ajouterImplication(nomEtatA: string, nomEtatB: string) {
-    let etatA = this.trouverEtat(nomEtatA);
-    let etatB = this.trouverEtat(nomEtatB);
-    if (etatA && etatB) {
-      // ajouter etatB aux implications de etatA
-      if (!etatA.implications) {
-        etatA.implications = [etatB.id];
-      } else if (!etatA.implications.includes(etatB.id)) {
-        etatA.implications.push(etatB.id);
-      }
-      // ajouter également toutes les implications de etatB à celles de etatA
-      if (etatB.implications) {
-        etatB.implications.forEach(implication => {
-          if (!etatA.implications.includes(implication)) {
-            etatA.implications.push(implication);
-          }
-        });
-      }
-      // modifier tous les éléments qui impliquent etatA: ils doivent impliquer les implications de étatA
-      this.etats.forEach(autreEtat => {
-        // si implique etatA
-        if (autreEtat.implications && autreEtat.implications.includes(etatA.id)) {
-          // ajouter les implication de etatA
-          etatA.implications.forEach(implication => {
-            if (!autreEtat.implications.includes(implication)) {
-              autreEtat.implications.push(implication);
-            }
-          });
-        }
-      });
-
-    } else {
-      console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
-    }
+  creerEtat(nomEtat: string, genre: Genre = Genre.m, nombre: Nombre = Nombre.s, calcule: boolean = false): Etat {
+    return this.suiteCreerEtat(nomEtat, genre, nombre, null, null, calcule);
   }
+
+  // /**
+  //  * spécifier que étatA implique étatB
+  //  */
+  // ajouterImplication(nomEtatA: string, nomEtatB: string) {
+  //   let etatA = this.trouverEtat(nomEtatA);
+  //   let etatB = this.trouverEtat(nomEtatB);
+  //   if (etatA && etatB) {
+  //     // ajouter etatB aux implications de etatA
+  //     if (!etatA.implications) {
+  //       etatA.implications = [etatB.id];
+  //     } else if (!etatA.implications.includes(etatB.id)) {
+  //       etatA.implications.push(etatB.id);
+  //     }
+  //     // ajouter également toutes les implications de etatB à celles de etatA
+  //     if (etatB.implications) {
+  //       etatB.implications.forEach(implication => {
+  //         if (!etatA.implications.includes(implication)) {
+  //           etatA.implications.push(implication);
+  //         }
+  //       });
+  //     }
+  //     // modifier tous les éléments qui impliquent etatA: ils doivent impliquer les implications de étatA
+  //     this.etats.forEach(autreEtat => {
+  //       // si implique etatA
+  //       if (autreEtat.implications && autreEtat.implications.includes(etatA.id)) {
+  //         // ajouter les implication de etatA
+  //         etatA.implications.forEach(implication => {
+  //           if (!autreEtat.implications.includes(implication)) {
+  //             autreEtat.implications.push(implication);
+  //           }
+  //         });
+  //       }
+  //     });
+
+  //   } else {
+  //     console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
+  //   }
+  // }
 
   ajouterContradiction(nomEtatA: string, nomEtatB: string) {
     let etatA = this.trouverEtat(nomEtatA);
@@ -218,13 +232,14 @@ export class ListeEtats {
   }
 
   /** Créer le nouvel état (avec arguments privés) */
-  private suiteCreerEtat(nomEtat: string, genre: Genre = Genre.m, nombre: Nombre = Nombre.s, groupe: number = null, bascule: number = null): Etat {
+  private suiteCreerEtat(nomEtat: string, genre: Genre = Genre.m, nombre: Nombre = Nombre.s, groupe: number = null, bascule: number = null, calcule: boolean = false): Etat {
     let newEtat = new Etat();
     newEtat.id = this.nextEtat++;
     newEtat.groupe = groupe;
     newEtat.bascule = bascule;
     newEtat.nomTronque = nomEtat.replace(/^(.+?)(ble|que)?(e)?(s)?$/, "$1$2");
     newEtat.nom = nomEtat;
+    newEtat.calcule = calcule;
     // féminin
     if (genre === Genre.f) {
       // f - pluriel
@@ -257,8 +272,9 @@ export class ListeEtats {
 
   /** Trouver un état sur base de son nom.
    * Si l'état n'a pas été trouvé, en créer un nouveau.
+   * /!\ Les états interdits ne sont pas contrôlés ici : visible, accessible, possédé et porté.
    */
-  trouverOuCreerEtat(nomEtat: string, genre: Genre, nombre: Nombre): Etat {
+  private trouverOuCreerEtat(nomEtat: string, genre: Genre, nombre: Nombre): Etat {
     let etat = this.trouverEtat(nomEtat);
     // si l'état n'a pas été trouvé, l'ajouter à la liste
     if (!etat) {
@@ -267,55 +283,62 @@ export class ListeEtats {
     return etat;
   }
 
-
   /** Ajouter un état à l'élément. */
   ajouterEtatElement(element: ElementJeu, nomEtat: string) {
-    // console.log(">>>> +etat=", nomEtat, "ele=", element);
 
-    let etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
-    // s'il s'agit d'un état faisant partie d'un groupe
-    if (etat.groupe !== null) {
-      // retirer tous les états existants pour ce groupe
-      const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etat.groupe).map(x => x.id);
-      element.etats = element.etats.filter(x => !idsEtatsDuGroupe.includes(x));
-      // ajouter le nouvel état
-      element.etats.push(etat.id);
-      // sinon, ajouter l'état s'il n'y est pas encore
+    const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
+
+    if (etat.calcule) {
+      console.error("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+      // état classique
     } else {
-      if (!element.etats.includes(etat.id)) {
+      // s'il s'agit d'un état faisant partie d'un groupe
+      if (etat.groupe !== null) {
+        // retirer tous les états existants pour ce groupe
+        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etat.groupe).map(x => x.id);
+        element.etats = element.etats.filter(x => !idsEtatsDuGroupe.includes(x));
+        // ajouter le nouvel état
         element.etats.push(etat.id);
-        // s’il s’agit d’une bascule, enlever l’autre état
-        if (etat.bascule) {
-          // ne garder que les autres états
-          element.etats = element.etats.filter(x => x !== etat.bascule);
+        // sinon, ajouter l'état s'il n'y est pas encore
+      } else {
+        if (!element.etats.includes(etat.id)) {
+          element.etats.push(etat.id);
+          // s’il s’agit d’une bascule, enlever l’autre état
+          if (etat.bascule) {
+            // ne garder que les autres états
+            element.etats = element.etats.filter(x => x !== etat.bascule);
+          }
         }
       }
-    }
-
-    // si le nouvel état a des contradictions
-    if (etat.contradictions) {
-      // retirer les contradictions
-      element.etats = element.etats.filter(x => !etat.contradictions.includes(x));
+      // si le nouvel état a des contradictions
+      if (etat.contradictions) {
+        // retirer les contradictions
+        element.etats = element.etats.filter(x => !etat.contradictions.includes(x));
+      }
     }
   }
 
   /** Retirer un état à un élément */
   retirerEtatElement(element: ElementJeu, nomEtat: string) {
-    // console.log(">>>> -etat=", nomEtat, "ele=", element);
-
-    let etat = this.trouverEtat(nomEtat);
+    const etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
-      // ne garder que les autres états
-      element.etats = element.etats.filter(x => x !== etat.id);
-      // s'il s'agit d'une bascule, il faut activer l'autre état
-      // (mais vérifier que la bascule n’est pas déjà sur l’autre état avant…)
-      if (etat.bascule && !element.etats.includes(etat.bascule)) {
-        const etatBascule = this.obtenirEtat(etat.bascule);
-        element.etats.push(etatBascule.id);
-        // si l’état bascule a des contradictions, les retirer
-        if (etatBascule.contradictions) {
-          element.etats = element.etats.filter(x => !etatBascule.contradictions.includes(x));
+      // vérifier s’il s’agit d’un état calculé
+      if (etat.calcule) {
+        console.error("retirerEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+        // état classique
+      } else {
+        // ne garder que les autres états
+        element.etats = element.etats.filter(x => x !== etat.id);
+        // s'il s'agit d'une bascule, il faut activer l'autre état
+        // (mais vérifier que la bascule n’est pas déjà sur l’autre état avant…)
+        if (etat.bascule && !element.etats.includes(etat.bascule)) {
+          const etatBascule = this.obtenirEtat(etat.bascule);
+          element.etats.push(etatBascule.id);
+          // si l’état bascule a des contradictions, les retirer
+          if (etatBascule.contradictions) {
+            element.etats = element.etats.filter(x => !etatBascule.contradictions.includes(x));
+          }
         }
       }
     } else {
@@ -348,6 +371,8 @@ export class ListeEtats {
     if (element) {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
         return this.estVisible((element as Objet), eju);
+      } else if (nomEtat === 'accessible' || nomEtat === 'accessibles') {
+        return this.estAccessible((element as Objet), eju);
       } else {
         let etat = this.trouverEtat(nomEtat);
         if (etat) {
@@ -365,20 +390,20 @@ export class ListeEtats {
   /** Est-ce que l'élément possède ces états (et/ou/soit) */
   possedeCesEtatsElement(element: ElementJeu, nomEtatA: string, nomEtatB: string, lien: LienCondition) {
     let retVal = false;
-    let etatA = this.trouverOuCreerEtat(nomEtatA, element.genre, element.nombre);
-    let etatB = this.trouverOuCreerEtat(nomEtatB, element.genre, element.nombre);
+    const etatA = this.trouverEtat(nomEtatA);
+    const etatB = this.trouverEtat(nomEtatB);
     if (etatA && etatB) {
       switch (lien) {
         case LienCondition.et:
-          retVal = element.etats.includes(etatA.id) && element.etats.includes(etatB.id);
+          retVal = (etatA && element.etats.includes(etatA.id)) && (etatB && element.etats.includes(etatB.id));
           break;
 
         case LienCondition.ou:
-          retVal = element.etats.includes(etatA.id) || element.etats.includes(etatB.id);
+          retVal = (etatA && element.etats.includes(etatA.id)) || (etatB && element.etats.includes(etatB.id));
           break;
 
         case LienCondition.soit:
-          retVal = element.etats.includes(etatA.id) !== element.etats.includes(etatB.id);
+          retVal = (etatA && element.etats.includes(etatA.id)) !== (etatB && element.etats.includes(etatB.id));
           break;
 
         default:
@@ -393,8 +418,8 @@ export class ListeEtats {
 
   /**
    * Est-ce que les éléments possèdent tous l'état renseigné ?
-   * @param elements 
-   * @param nomEtat 
+   * @param elements éléments à tester
+   * @param nomEtat état à vérifier
    */
   possedentTousCetEtatElements(elements: ElementJeu[], nomEtat: string) {
     let retVal = false;
@@ -434,7 +459,7 @@ export class ListeEtats {
       return false;
     }
 
-    // s’il s’agit d’une PORTE, elle est visible
+    // s’il s’agit d’une PORTE, elle est visible (car jamais dans un contentant et présente, visible, non couverte)
     if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
       return true;
       // s’il ne s’agit PAS d’une porte
@@ -445,7 +470,7 @@ export class ListeEtats {
       }
 
       // si dans un contenant fermé et opaque -> pas visible
-      if (this.estObjetMasqueParUnContenantOpaqueFerme(objet, eju)) {
+      if (this.estObjetDansUnContenantFermeEtOpaque(objet, eju, true)) {
         return false;
       }
 
@@ -453,23 +478,72 @@ export class ListeEtats {
       return true;
     }
 
+  }
+
+  /**
+   * Savoir si l'élément est actuellement accessible.
+   * @todo utliser un cache pour ne pas re-calculer quand pas nécessaire.
+   * @todo déclancher re-calcul lorsqu'on change un élément qui influence visible.
+   * @param element 
+   */
+  estAccessible(objet: Objet, eju: ElementsJeuUtils) {
+    // si pas dans la pièce -> pas visible
+    if (!objet.etats.includes(this.presentID)) {
+      return false;
+    }
+    // si invisible => pas accessible
+    if (objet.etats.includes(this.invisibleID)) {
+      return false;
+    }
+    // si couvert -> pas accessible
+    if (objet.etats.includes(this.couvertID)) {
+      return false;
+    }
+
+    // s’il s’agit d’une PORTE, elle est accessible (car jamais dans un contenant et présente, visible, non couverte)
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
+      return true;
+      // s’il ne s’agit PAS d’une porte
+    } else {
+      // on objet non positionné n’est pas accessible
+      if (!objet.position) {
+        return false;
+      }
+
+      // si dans un contenant fermé -> pas accessible
+      if (this.estObjetDansUnContenantFermeEtOpaque(objet, eju, false)) {
+        return false;
+      }
+
+      // l’objet est accessible
+      return true;
+    }
 
   }
 
-  // l'objet est-il masqué par un contenant opaque et fermé ?
-  estObjetMasqueParUnContenantOpaqueFerme(objet: Objet, eju: ElementsJeuUtils) {
+  /**
+   * L’objet est-il dans un contenant fermé et opaque.
+   */
+  estObjetDansUnContenantFermeEtOpaque(objet: Objet, eju: ElementsJeuUtils, testerOpaque: boolean) {
     if (objet.position.cibleType === EClasseRacine.objet) {
       // récupérer le contenant
       const parent = eju.getObjet(objet.position.cibleId);
       if (parent) {
-        // si l'objet est dans un contenant fermé et opaque
+        // si l'objet est dans un contenant
         if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
-          if (parent.etats.includes(this.fermeID) && parent.etats.includes(this.opaqueID)) {
-            return true;
+          // si le contenant est fermé
+          if (parent.etats.includes(this.fermeID)) {
+            // tester également s’il est opaque
+            if (testerOpaque && parent.etats.includes(this.opaqueID)) {
+              return true; // on s’arrête, il y a un contenant opaque et fermé
+              // se contenter de fermé
+            } else {
+              return true; // on s’arrête, il y a un contenant fermé
+            }
           }
         }
         // vérifier également le parent éventuel de l'objet
-        return this.estObjetMasqueParUnContenantOpaqueFerme(parent, eju);
+        return this.estObjetDansUnContenantFermeEtOpaque(parent, eju, testerOpaque);
       } else {
         console.error("estObjetMasqueParUnContenantOpaqueFerme > Pas trouvé le parent \n > obj=", objet, "\n > position=", objet.position);
         return false;
@@ -479,10 +553,12 @@ export class ListeEtats {
     }
   }
 
+  /** Récupérer la liste des états */
   obtenirListeDesEtats() {
     return this.etats;
   }
 
+  /** Récupérer un état particulier */
   obtenirEtat(id: number) {
     return this.etats.find(x => x.id === id);
   }
@@ -501,6 +577,7 @@ export class ListeEtats {
     return elEtats;
   }
 
+  /** Récupérer la liste des intitulés des états de l’élément spécéfié. */
   obtenirIntitulesEtatsElementJeu(el: ElementJeu) {
     const elEtats = this.obtenirEtatsElementJeu(el);
     const feminin = el.genre === Genre.f;
