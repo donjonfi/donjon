@@ -69,36 +69,45 @@ export class Analyseur {
           let actionTrouvee: Action = null;
           let proprieteTrouvee = false;
           let reactionTrouvee = false;
+          let sectionTrouvee = false;
+          let trouveQuelqueChose = false;
+
+          // ===============================================
+          // SECTIONS (parties, chapitres, ...)
+          // ===============================================
+          const section = ExprReg.xSection.exec(phrase.phrase[0]);
+          if (section) {
+            trouveQuelqueChose = true;
+          }
+
           // ===============================================
           // RÈGLES
           // ===============================================
-
-          regleTrouvee = Analyseur.testerRegle(regles, phrase, erreurs);
-
+          if (!trouveQuelqueChose) {
+            regleTrouvee = Analyseur.testerRegle(regles, phrase, erreurs);
+            trouveQuelqueChose = regleTrouvee !== null;
+          }
           // ===============================================
           // SYNONYMES
-
-          synonymeTrouve = Analyseur.testerSynonyme(actions, elementsGeneriques, phrase, erreurs, verbeux)
-
           // ===============================================
-
+          if (!trouveQuelqueChose) {
+            trouveQuelqueChose = synonymeTrouve = Analyseur.testerSynonyme(actions, elementsGeneriques, phrase, erreurs, verbeux)
+          }
           // ===============================================
           // ACTIONS
           // ===============================================
-
-          if (!regleTrouvee && !synonymeTrouve) {
+          if (!trouveQuelqueChose) {
             actionTrouvee = Analyseur.testerAction(actions, phrase, erreurs, verbeux);
+            trouveQuelqueChose = actionTrouvee !== null;
           }
 
           // ===============================================
           // MONDE
           // ===============================================
-
-          if (!regleTrouvee && !synonymeTrouve && !actionTrouvee) {
-
+          if (!trouveQuelqueChose) {
             // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
             elementGeneriqueTrouve = true;
-
+            trouveQuelqueChose = true;
             // 1 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT AVEC POSITION
             let elementConcerne = Analyseur.testerPosition(elementsGeneriques, phrase);
             if (elementConcerne) {
@@ -241,6 +250,7 @@ export class Analyseur {
                           // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
                           // *****************************************************
                           elementGeneriqueTrouve = false;
+                          trouveQuelqueChose = false;
                           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
                           if (verbeux) {
                             console.warn("=> PAS trouvé de signification.");
@@ -258,7 +268,7 @@ export class Analyseur {
           // ===============================================
           // IMPORT D’UN AUTRE FICHIER DE CODE
           // ===============================================
-          if (!regleTrouvee && !actionTrouvee && !synonymeTrouve && !elementGeneriqueTrouve && !reactionTrouvee) {
+          if (!trouveQuelqueChose) {
 
           } // fin test import
 

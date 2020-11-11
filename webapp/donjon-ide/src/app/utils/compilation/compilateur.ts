@@ -145,14 +145,16 @@ export class Compilateur {
     // // terminer les commentaires par un «.».
     // let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
 
-    // commenter et terminer par un . les parties, chapitre et scènes
-    const sectionsCommentees = source.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
+    // (finalement on va interpréter les parties, chapitres, scènes plus tard.)
+    // // commenter et terminer par un . les parties, chapitre et scènes
+    // const sectionsCommentees = source.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
 
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
-    const sansCommentaires = sectionsCommentees.replace(/^((?: *)--(?:.*))$/gm, " ");
+    const sansCommentaires = source.replace(/^((?: *)--(?:.*))$/gm, " ");
 
-    const ChevronsCorriges = sansCommentaires
+    // corriger espaces insécables et chevrons
+    const EspacesInsecablesCorriges = sansCommentaires
       .replace(/<< /g, "« ")
       .replace(/ >>/g, " »")
       .replace(/ \?/g, " ?")
@@ -161,7 +163,7 @@ export class Compilateur {
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
-    const blocTexte = ChevronsCorriges
+    const blocTexte = EspacesInsecablesCorriges
       .replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne)
       .replace(/( +)/g, " ").trim();
 

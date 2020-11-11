@@ -91,7 +91,7 @@ export class ExprReg {
    * - Ex: La réaction du schérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
    */
 
-   static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l'))(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?( .+|)/i;
+  static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l'))(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?( .+|)/i;
 
   // static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l'))(\S+?))) (?:((?:(?:à propos|au sujet) (?:de (?:la |l’|l')|du |des ))|(?:concernant (?:la |le |les |l’|l')))(\S+) )?(est|vaut)(?:(?: )?\:(?: )?)?( .+|)/i;
   // static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l(?:’|'))(\S+) (?:du |de la |de l(?:’|'))(\S+))) (est|vaut)( .+|)/i;
@@ -135,6 +135,12 @@ export class ExprReg {
   static readonly rAvantApresRemplacerSi = /^(avant|après|apres|remplacer|si) (.+?)(?:(?: )?(?:,|:))(.+)/i;
   /** condition -> si(1) {condition}(2), {conséquence}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
+
+  /** Tester s'il s'agit d'une section: partie/chapitre/scène du livre. 
+   * - ex: Partie "Description du donjon".
+   * - ex: Scène "Dans la cuisine".
+   */
+  static readonly xSection = /^(partie|chapitre|scène)( ?)$/i;
 
   /** 
    * Généralement, une commande est composée d’un verbe à l’infinitf
