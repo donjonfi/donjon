@@ -75,6 +75,8 @@ export class EditeurComponent implements OnInit {
   allPartiesIntitule: string[] = [];
   allPartiesCodeSource: string[] = [];
   nomExemple = "coince";
+  partieSourcePasEncoreChargee = true;
+  chargementFichierEnCours = false;
 
   afficherPreferences = false;
 
@@ -122,24 +124,33 @@ export class EditeurComponent implements OnInit {
 
 
   onChangerPartie() {
-    // rassembler le code source pour ne rien perdre
-    this.rassemblerSource();
-    // changer la partie à afficher
-    if (this.curPartieIndex !== null && (this.curPartieIndex < this.curPartieCodeSource.length)) {
-      this.curPartieCodeSource = this.allPartiesCodeSource[this.curPartieIndex];
-    } else {
-      this.curPartieCodeSource = this.codeSource;
+    if (!this.chargementFichierEnCours) {
+      if (!this.partieSourcePasEncoreChargee) {
+        // rassembler le code source pour ne rien perdre
+        this.rassemblerSource();
+      }
+      // changer la partie à afficher
+      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
+        this.curPartieCodeSource = this.allPartiesCodeSource[this.curPartieIndex];
+      } else {
+        this.curPartieCodeSource = this.codeSource;
+      }
+      this.partieSourcePasEncoreChargee = false;
+      this.precPartieIndex = this.curPartieIndex;
     }
-    this.precPartieIndex = this.curPartieIndex;
   }
 
   rassemblerSource() {
-    // mettre à jour la partie en cours d’édition dans la liste des parties
-    this.allPartiesCodeSource[this.precPartieIndex] = this.curPartieCodeSource;
-    // mettre à jour le code source en rassemblant la liste des parties
-    this.codeSource = this.allPartiesCodeSource.join("");
-
-    // this.sauvegarderSession();
+    // si on n'affichait qu'une seule partie
+    if (this.precPartieIndex) {
+      // mettre à jour la partie en cours d’édition dans la liste des parties
+      this.allPartiesCodeSource[this.precPartieIndex] = this.curPartieCodeSource;
+      // mettre à jour le code source en rassemblant la liste des parties
+      this.codeSource = this.allPartiesCodeSource.join("");
+      // si on affichait tout
+    } else {
+      this.codeSource = this.curPartieCodeSource;
+    }
   }
 
   onChangerTheme() {
@@ -185,22 +196,24 @@ export class EditeurComponent implements OnInit {
       // fichier choisi par l’utilisateur
       const file = evenement.target.files[0];
       if (file) {
+        this.chargementFichierEnCours = true;
         this.codeSource = "";
+        this.curPartieCodeSource = "";
         this.monde = null;
         this.erreurs = null;
         this.regles = null;
         this.compilationTerminee = false;
-
         this.fichierCharge = null;
-
         let fileReader = new FileReader();
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
           this.codeSource = fileReader.result as string;
           this.decouperEnParties();
+          this.chargementFichierEnCours = false;
+          console.log(">>> fichier chargé.");
+          this.partieSourcePasEncoreChargee = true;
           this.curPartieIndex = 0;
           this.onChangerPartie();
-          console.log(">>> fichier chargé.");
         };
         // lire le fichier
         fileReader.readAsText(file);
@@ -209,6 +222,12 @@ export class EditeurComponent implements OnInit {
   }
 
   private decouperEnParties() {
+
+    this.curPartieIndex = null;
+    this.curChapitreIndex = null;
+    this.curSceneIndex = null;
+    this.curPartieCodeSource = null;
+
     // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
     const decoupageEnParties = this.codeSource.split(/^(?: *)(Partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi);
     let dernEstPartie = false;
@@ -285,9 +304,6 @@ export class EditeurComponent implements OnInit {
     }, 100);
 
     this.sauvegarderSession();
-
-    // rassembler les sections
-    this.codeSource = this.allPartiesCodeSource.join();
 
     if (this.codeSource && this.codeSource.trim() != '') {
 

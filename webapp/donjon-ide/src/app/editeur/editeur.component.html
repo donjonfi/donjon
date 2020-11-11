@@ -106,7 +106,7 @@
       <div class="row mb-2">
         <div class="col-12 col-md-4  pr-md-1 py-1">
           <select [(ngModel)]="curPartieIndex" (change)="onChangerPartie()" class="form-control" name="choixPartie">
-            <option [ngValue]="null">(toutes les parties</option>
+            <option [ngValue]="null">(toutes les parties)</option>
             <option *ngFor="let intitule of allPartiesIntitule; index as i;" [ngValue]="i">
               Partie {{(i+1)}} − {{intitule}}
             </option>

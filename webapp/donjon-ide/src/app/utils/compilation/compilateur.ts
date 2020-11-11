@@ -139,17 +139,24 @@ export class Compilateur {
    */
   private static convertirCodeSourceEnPhrases(source: string) {
 
-    // gestion des commentaires de ligne (--)
-    // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)
-    // à la fin de la ligne pour éviter que l’utilisateur ne soit obligé de terminer ses
-    // terminer les commentaires par un «.».
-    let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
-    // commenter et terminer par un . les parties, chapitre et scènes
-    CommentairesCorriges = CommentairesCorriges.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
+    // // gestion des commentaires de ligne (--)
+    // // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)
+    // // à la fin de la ligne pour éviter que l’utilisateur ne soit obligé de terminer ses
+    // // terminer les commentaires par un «.».
+    // let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
 
-    const ChevronsCorriges = CommentairesCorriges
+    // commenter et terminer par un . les parties, chapitre et scènes
+    const sectionsCommentees = source.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
+
+    // on retire les commentaire mais pas les lignes car il faut
+    // que les numéros de lignes de changent pas !
+    const sansCommentaires = sectionsCommentees.replace(/^((?: *)--(?:.*))$/gm, " ");
+
+    const ChevronsCorriges = sansCommentaires
       .replace(/<< /g, "« ")
-      .replace(/ >>/g, " »");
+      .replace(/ >>/g, " »")
+      .replace(/ \?/g, " ?")
+      .replace(/ !/g, " !");
 
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
