@@ -69,16 +69,27 @@ export class EditeurComponent implements OnInit {
   curPartieIndex: number = null;
   precPartieIndex: number = null;
   curChapitreIndex: number = null;
+  precChapitreIndex: number = null;
   curSceneIndex: number = null;
   /** Code source complet. */
   codeSource = "";
   /** Section visible du code source. */
   sectionCodeSourceVisible = "";
   partieSourceDejaChargee = false;
+
   /** Liste des intitulés des différentes parties du code source. */
   allPartiesIntitule: string[] = [];
   /** Liste des différentes parties du code source */
   allPartiesCodeSource: string[] = [];
+  /** Liste des intitulés des différents chapitres de la partie. */
+  allChapitresIntitule: string[] = [];
+  /** Liste des différents chapitres de la partie */
+  allChapitresCodeSource: string[] = [];
+  /** Liste des intitulés des différentes scenes du chapitre. */
+  allScenesIntitule: string[] = [];
+  /** Liste des différentes scenes du chapitre */
+  allScenesCodeSource: string[] = [];
+
   chargementFichierEnCours = false;
   /** Fichier d'exemple par défaut. */
   nomExemple = "coince";
@@ -102,8 +113,6 @@ export class EditeurComponent implements OnInit {
     // => this.codeEditorElmRef["directiveRef"] : directiveRef;
     // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
 
-
-
     // RÉCUPÉRER LES PRÉFÉRENCES DE L’UTILISATEUR
     // - nombre de lignes de code visibles
     let retVal = localStorage.getItem('EditeurNbLignesCodes');
@@ -122,13 +131,47 @@ export class EditeurComponent implements OnInit {
       this.theme = retVal;
     }
 
-
     // récupérer le code source de la session
     this.codeSource = sessionStorage.getItem("CodeSource");
   }
 
 
   onChangerPartie() {
+    if (!this.chargementFichierEnCours) {
+      if (this.partieSourceDejaChargee) {
+        // rassembler le code source pour ne rien perdre
+        this.rassemblerSource();
+      }
+      // changer la partie à afficher
+      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
+        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.curPartieIndex];
+        // this.decouperEnSections("chapitre");
+      } else {
+        this.sectionCodeSourceVisible = this.codeSource;
+      }
+      this.partieSourceDejaChargee = true;
+      this.precPartieIndex = this.curPartieIndex;
+    }
+  }
+
+  onChangerChapitre() {
+    if (!this.chargementFichierEnCours) {
+      if (this.partieSourceDejaChargee) {
+        // rassembler le code source pour ne rien perdre
+        this.rassemblerSource();
+      }
+      // changer la partie à afficher
+      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
+        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.curPartieIndex];
+      } else {
+        this.sectionCodeSourceVisible = this.codeSource;
+      }
+      this.partieSourceDejaChargee = true;
+      this.precPartieIndex = this.curPartieIndex;
+    }
+  }
+
+  onChangerScene() {
     if (!this.chargementFichierEnCours) {
       if (this.partieSourceDejaChargee) {
         // rassembler le code source pour ne rien perdre
@@ -215,19 +258,27 @@ export class EditeurComponent implements OnInit {
 
   /** Vider le code source. */
   private viderCodeSource() {
-    this.codeSource = "";
-    this.sectionCodeSourceVisible = "";
-    this.monde = null;
-    this.erreurs = null;
-    this.regles = null;
-    this.compilationTerminee = false;
-    this.fichierCharge = null;
+
+    this.curPartieIndex = null;
+    this.precPartieIndex = null;
+    this.curChapitreIndex = null;
+    this.curSceneIndex = null;
+    this.sectionCodeSourceVisible = null;
+
+    // this.codeSource = "";
+    // this.sectionCodeSourceVisible = "";
+    // this.monde = null;
+    // this.erreurs = null;
+    // this.regles = null;
+    // this.compilationTerminee = false;
+    // this.fichierCharge = null;
   }
 
   /** Initialiser le code source */
   private initCodeSource(codeSource: string) {
     this.codeSource = codeSource;
-    this.decouperEnParties();
+    this.decouperEnSections("partie");
+    // this.decouperEnParties();
     this.chargementFichierEnCours = false;
     this.partieSourceDejaChargee = false;
     this.curPartieIndex = null;
@@ -236,11 +287,12 @@ export class EditeurComponent implements OnInit {
 
   /** Découper le code source en parties */
   private decouperEnParties() {
-    this.curPartieIndex = null;
-    this.precPartieIndex = null;
-    this.curChapitreIndex = null;
-    this.curSceneIndex = null;
-    this.sectionCodeSourceVisible = null;
+    this.viderCodeSource();
+    // this.curPartieIndex = null;
+    // this.precPartieIndex = null;
+    // this.curChapitreIndex = null;
+    // this.curSceneIndex = null;
+    // this.sectionCodeSourceVisible = null;
 
     // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
     const decoupageEnParties = this.codeSource.split(/^(?: *)(Partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi);
@@ -275,6 +327,94 @@ export class EditeurComponent implements OnInit {
         }
       }
     });
+  }
+
+  /** Découper le code source en chapitres */
+  private decouperEnSections(typeSection: 'partie' | 'chapitre' | 'scène') {
+    this.viderCodeSource();
+
+    // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
+
+    let regexpSplitSections: RegExp = null;
+    let regexpMatchSections: RegExp = null;
+    let regexpReplaceSections: RegExp = null;
+
+    switch (typeSection) {
+      case 'partie':
+        regexpSplitSections = /^(?: *)(Chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
+        regexpMatchSections = /^( *)partie( .+)/i;
+        regexpReplaceSections = /(?:^partie( ?))|\"/gi;
+        break;
+
+      case 'chapitre':
+        regexpSplitSections = /^(?: *)(chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
+        regexpMatchSections = /^( *)chapitre( .+)/i;
+        regexpReplaceSections = /(?:^chapitre( ?))|\"/gi;
+        break;
+
+      case 'scène':
+        regexpSplitSections = /^(?: *)(chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
+        regexpMatchSections = /^( *)chapitre( .+)/i;
+        regexpReplaceSections = /(?:^chapitre( ?))|\"/gi;
+        break;
+
+      default:
+        break;
+    }
+
+    const decoupageEnSections = this.codeSource.split(regexpSplitSections);
+    let dernEstSection = false;
+    let dernSection: string;
+
+    let allSectionsCodeSource: string[] = [];
+    let allSectionsIntitule: string[] = [];
+
+    // parcourir les parties de code et leur intitulé
+    decoupageEnSections.forEach(element => {
+      if (element) {
+        if (element.match(regexpMatchSections)) {
+          // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
+          if (dernEstSection) {
+            // ajouter le code source de la partie précédé de l’instruction « partie »
+            allSectionsCodeSource.push('Partie "' + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+          }
+          // ajouter le titre de la nouvelle partie
+          dernSection = element.replace(regexpReplaceSections, "");
+          allSectionsIntitule.push(dernSection);
+          dernEstSection = true;
+        } else {
+          // si pas précédé d’une partie, ajouter un intitulé pour la partie
+          if (!dernEstSection) {
+            dernSection = "(sans nom)";
+            allSectionsIntitule.push(dernSection);
+          }
+          // ajouter le code source de la partie précédé de l’instruction « partie »
+          allSectionsCodeSource.push('Partie "' + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+          dernEstSection = false;
+        }
+      }
+    });
+
+    switch (typeSection) {
+      case 'partie':
+        this.allPartiesCodeSource = allSectionsCodeSource;
+        this.allPartiesIntitule = allSectionsIntitule;
+        break;
+
+      case 'chapitre':
+        this.allChapitresCodeSource = allSectionsCodeSource;
+        this.allChapitresIntitule = allSectionsIntitule;
+        break;
+
+      case 'scène':
+        this.allScenesCodeSource = allSectionsCodeSource;
+        this.allScenesIntitule = allSectionsIntitule;
+        break;
+
+      default:
+        break;
+    }
+
   }
 
   sauvegarderSession() {

@@ -113,18 +113,22 @@
           </select>
         </div>
 
-        <div *ngIf="false" class="col-6 col-md-4 px-md-1 py-1 ">
-          <select [(ngModel)]="curChapitreIndex" (change)="onChangerNbLignesCode()" class="form-control"
+        <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
+          <select [(ngModel)]="curChapitreIndex" (change)="onChangerChapitre()" class="form-control"
             name="choixChapitre">
             <option [ngValue]="null">(tous les chapitres)</option>
-            <option [ngValue]="1">Chapitre 1 − Exemple</option>
+            <option *ngFor="let intitule of allChapitresIntitule; index as i;" [ngValue]="i">
+              Chapitre {{(i+1)}} − {{intitule}}
+            </option>
           </select>
         </div>
 
-        <div *ngIf="false" class="col-6 col-md-4 pl-md-1 py-1">
-          <select [(ngModel)]="curSceneIndex" (change)="onChangerTailleFont()" class="form-control" name="choixScene">
+        <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
+          <select [(ngModel)]="curSceneIndex" (change)="onChangerScene()" class="form-control" name="choixScene">
             <option [ngValue]="null">(toutes les scènes)</option>
-            <option [ngValue]="1">Scène 1 − Exemple</option>
+            <option *ngFor="let intitule of allScenesIntitule; index as i;" [ngValue]="i">
+              Scènes {{(i+1)}} − {{intitule}}
+            </option>
           </select>
         </div>
       </div>
