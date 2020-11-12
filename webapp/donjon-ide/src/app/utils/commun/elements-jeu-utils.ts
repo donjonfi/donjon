@@ -92,18 +92,18 @@ export class ElementsJeuUtils {
   majPresenceObjet(obj: Objet) {
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
-      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
-      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
     } else if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
       // les portes adjacentes au lieu actuel sont présentes
       if (this.curLieu.voisins.some(x => x.id === obj.id)) {
-        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present);
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
       }
     } else {
       // les autres objets ne sont pas présents
-      this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present);
+      this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, true);
     }
   }
 

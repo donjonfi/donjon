@@ -186,39 +186,26 @@ export class EditeurComponent implements OnInit {
   onChargerExemple() {
     const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
     if (nomFichierExemple) {
+      this.viderCodeSource();
+      this.chargementFichierEnCours = true;
       this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
-        .subscribe(texte => this.codeSource = texte);
-      this.monde = null;
-      this.erreurs = null;
-      this.regles = null;
-      this.compilationTerminee = false;
+        .subscribe(texte => {
+          this.initCodeSource(texte);
+        });
     }
   }
 
   onOuvrirFichier(evenement) {
-
     if (this.fichierCharge) {
       // fichier choisi par l’utilisateur
       const file = evenement.target.files[0];
       if (file) {
+        this.viderCodeSource();
         this.chargementFichierEnCours = true;
-        this.codeSource = "";
-        this.sectionCodeSourceVisible = "";
-        this.monde = null;
-        this.erreurs = null;
-        this.regles = null;
-        this.compilationTerminee = false;
-        this.fichierCharge = null;
         let fileReader = new FileReader();
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
-          this.codeSource = fileReader.result as string;
-          this.decouperEnParties();
-          this.chargementFichierEnCours = false;
-          console.log(">>> fichier chargé.");
-          this.partieSourceDejaChargee = false;
-          this.curPartieIndex = null;
-          this.onChangerPartie();
+          this.initCodeSource(fileReader.result as string);
         };
         // lire le fichier
         fileReader.readAsText(file);
@@ -226,8 +213,29 @@ export class EditeurComponent implements OnInit {
     }
   }
 
-  private decouperEnParties() {
+  /** Vider le code source. */
+  private viderCodeSource() {
+    this.codeSource = "";
+    this.sectionCodeSourceVisible = "";
+    this.monde = null;
+    this.erreurs = null;
+    this.regles = null;
+    this.compilationTerminee = false;
+    this.fichierCharge = null;
+  }
 
+  /** Initialiser le code source */
+  private initCodeSource(codeSource: string) {
+    this.codeSource = codeSource;
+    this.decouperEnParties();
+    this.chargementFichierEnCours = false;
+    this.partieSourceDejaChargee = false;
+    this.curPartieIndex = null;
+    this.onChangerPartie();
+  }
+
+  /** Découper le code source en parties */
+  private decouperEnParties() {
     this.curPartieIndex = null;
     this.precPartieIndex = null;
     this.curChapitreIndex = null;
@@ -245,7 +253,7 @@ export class EditeurComponent implements OnInit {
     // parcourir les parties de code et leur intitulé
     decoupageEnParties.forEach(element => {
       if (element) {
-        if (element.startsWith("Partie") || element.startsWith("partie")) {
+        if (element.match(/^( *)partie( .+)/i)) {
           // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
           if (dernEstPartie) {
             // ajouter le code source de la partie précédé de l’instruction « partie »

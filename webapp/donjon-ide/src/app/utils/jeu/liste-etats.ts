@@ -284,11 +284,11 @@ export class ListeEtats {
   }
 
   /** Ajouter un état à l'élément. */
-  ajouterEtatElement(element: ElementJeu, nomEtat: string) {
+  ajouterEtatElement(element: ElementJeu, nomEtat: string, forcerCalcul: boolean = false) {
 
     const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
 
-    if (etat.calcule) {
+    if (etat.calcule && !forcerCalcul) {
       console.error("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
       // état classique
     } else {
@@ -319,12 +319,12 @@ export class ListeEtats {
   }
 
   /** Retirer un état à un élément */
-  retirerEtatElement(element: ElementJeu, nomEtat: string) {
+  retirerEtatElement(element: ElementJeu, nomEtat: string, forcerCalcul: boolean = false) {
     const etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
       // vérifier s’il s’agit d’un état calculé
-      if (etat.calcule) {
+      if (etat.calcule && !forcerCalcul) {
         console.error("retirerEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
         // état classique
       } else {

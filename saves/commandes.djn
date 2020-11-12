@@ -1,20 +1,14 @@
-@section infos sur le jeu et sa licence.
+Partie "informations".
+-- Titre: "Commandes de bases pour Donjon IDE"
+-- Version: 2020-11-12-0001
+-- Auteur: Jonathan Claes (https://donjon.xax.be)
+-- Licence: Ce fichier est offert sous licence
+--   "Creative Commons Attribution 4.0 International License".
+--   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
 
--- >>############################################################<<
--- >># PARTIE 1 : INFOS SUR LE JEU ET SA LICENCE                #<<
--- >>############################################################<<
-
-Le titre du jeu est "Commandes de base".
-L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "0.8".
-Le titre de la licence est "Creative Commons Attribution 4.0 International License".
-Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
-
-@section ouvrir et fermer.
--- >>############################################################<<
--- >># OUVRIR ET FERMER                                         #<<
--- >>############################################################<<
-
+Partie "commandes".
+CHAPITRE "ouvrir et fermer".
+SCÈNE "ouvrir".
 -- ==========
 --   OUVRIR
 -- ==========
@@ -33,7 +27,8 @@ exécuter ouvrir ceci:
 terminer ouvrir ceci:
   dire "C'est ouvert.";
   si ceci est un contenant, dire "[contenu ceci]".
-  
+
+SCÈNE "fermer".
 -- ==========
 --   FERMER
 -- ==========
@@ -52,10 +47,9 @@ exécuter fermer ceci:
 terminer fermer ceci:
   dire "Ok. C'est fermé.".
 
--- >>############################################################<<
--- >># PARLER ET INTERROGER                                     #<<
--- >>############################################################<<
+CHAPITRE "parler et interroger".
 
+SCÈNE "parler".
 -- ==========
 --   PARLER
 -- ==========
@@ -85,6 +79,7 @@ exécuter parler à ceci de cela:
 terminer parler à ceci de cela:
   si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
 
+SCÈNE "interroger".
 -- ==============
 --   INTERROGER
 -- ==============
@@ -114,10 +109,8 @@ exécuter interroger ceci sur cela:
 terminer interroger ceci sur cela:
   si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
   
--- >>############################################################<<
--- >># REGARDER ET EXAMINER                                     #<<
--- >>############################################################<<
-  
+CHAPITRE "regarder et examiner".
+SCÈNE "regarder".
 -- ============
 --   REGARDER
 -- ============
@@ -136,6 +129,7 @@ regarder ceci est une action qui concerne un objet visible.
 terminer regarder ceci:
    dire "(Pour examiner quelque chose, merci d’utiliser la commande {-examiner-}.)".
 
+SCÈNE "examiner".
 -- ============
 --   EXAMINER
 -- ============
@@ -160,17 +154,15 @@ terminer examiner ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci est inaccesssible:
-    dire "[pronom ceci] est inaccessible"
+  si ceci n'est pas accessible:
+    dire "[pronom ceci] n'est pas accessible."
   si ceci n'est ni un contenant ni un support:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]".
 
 interpréter fouiller comme examiner.
 
--- >>############################################################<<
--- >># PRENDRE, DONNER, JETER ET DÉPOSER                        #<<
--- >>############################################################<<
-
+CHAPITRE "prendre, donner, jeter et déposer".
+SCÈNE "prendre".
 -- ===========
 --   PRENDRE
 -- ===========
@@ -187,7 +179,7 @@ prendre ceci est une action qui concerne un objet visible.
 refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
   si ceci est fixé, dire "C'est fixé.";
-  si ceci est inaccessible, dire "Je ne sais pas y accéder.";
+  si ceci n'est pas accessible, dire "Je ne sais pas y accéder.";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.".
 
@@ -197,10 +189,10 @@ exécuter prendre ceci:
 terminer prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
 
+SCÈNE "donner".
 -- ==========
 --   DONNER
 -- ==========
-
 -- a) donner
 le joueur peut donner:
   dire "Donner quoi ?".
@@ -223,6 +215,7 @@ exécuter donner ceci à cela:
 terminer donner ceci à cela:
   dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
 
+SCÈNE "jeter".
 -- =========
 --   JETER
 -- =========
@@ -243,6 +236,7 @@ exécuter jeter ceci:
 terminer jeter ceci:
   dire "Vous avez jeté [intitulé ceci]".
 
+SCÈNE "mettre".
 -- ===========
 --   METTRE
 -- ===========

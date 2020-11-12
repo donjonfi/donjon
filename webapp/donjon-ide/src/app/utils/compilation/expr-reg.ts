@@ -140,7 +140,7 @@ export class ExprReg {
    * - ex: Partie "Description du donjon".
    * - ex: Scène "Dans la cuisine".
    */
-  static readonly xSection = /^(partie|chapitre|scène)( ?)$/i;
+  static readonly xSection = /^( *)(partie|chapitre|scène)( ?)$/i;
 
   /** 
    * Généralement, une commande est composée d’un verbe à l’infinitf

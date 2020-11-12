@@ -802,34 +802,34 @@ export class Instructions {
       // si la destination est un lieu
       if (objet.position.cibleType === EClasseRacine.lieu) {
         // l'objet n'est plus possédé
-        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede);
+        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
         // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
           // si c'est un autre lieu, l’objet n'est plus présent.
         } else {
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.present);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.present, true);
         }
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent et possédé
         if (destination.id === this.jeu.joueur.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present);
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.possede);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.possede, true);
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé
           // TODO: un objet dans un contenant possédé est-il possédé ?
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
           this.eju.majPresenceObjet(objet);
         }
       }
     }
 
     // l’objet a été déplacé
-    this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.deplace);
+    this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.deplace, true);
     // la destination a été modifiée
-    this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie);
+    this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie, true);
 
     resultat.succes = true;
     return resultat;
