@@ -79,7 +79,7 @@ export class EditeurComponent implements OnInit {
   codeSource = "";
   /** Section visible du code source. */
   sectionCodeSourceVisible = "";
-  delaySectionCodeSourceVisible = null;
+  // delaySectionCodeSourceVisible = null;
   nbToWaitSCSV = 0;
   partieSourceDejaChargee = false;
 
@@ -141,17 +141,17 @@ export class EditeurComponent implements OnInit {
     this.codeSource = sessionStorage.getItem("CodeSource");
   }
 
-  setSectionCodeSourceVisible(newSectionCodeSourceVisible: string) {
-    this.sectionCodeSourceVisible = newSectionCodeSourceVisible;
-    // this.nbToWaitSCSV += 1;
-    // setTimeout(() => {
-    //   this.nbToWaitSCSV -= 1;
-    //   if (this.nbToWaitSCSV < 1) {
-    //     console.warn("toctoc");
-        this.delaySectionCodeSourceVisible = this.sectionCodeSourceVisible;
-      // }
-    // }, 5);
-  }
+  // setSectionCodeSourceVisible(newSectionCodeSourceVisible: string) {
+  // this.sectionCodeSourceVisible = newSectionCodeSourceVisible;
+  // this.nbToWaitSCSV += 1;
+  // setTimeout(() => {
+  //   this.nbToWaitSCSV -= 1;
+  //   if (this.nbToWaitSCSV < 1) {
+  //     console.warn("toctoc");
+  // this.delaySectionCodeSourceVisible = this.sectionCodeSourceVisible;
+  // }
+  // }, 5);
+  // }
 
   onChangerSelPartie(rassemblerAvant = true) {
     // ne rien faire si un chargement de fichier est en cours
@@ -163,12 +163,12 @@ export class EditeurComponent implements OnInit {
       // TOUTES LES PARTIES
       if (this.selPartieIndex === null || this.selPartieIndex >= this.allPartiesCodeSource.length) {
         this.sectionMode = "tout";
-        this.setSectionCodeSourceVisible(this.codeSource);
+        this.sectionCodeSourceVisible = this.codeSource;
         this.actPartieIndex = null;
         // PARTIE SPÉCIFIQUE
       } else {
         this.sectionMode = "partie";
-        this.setSectionCodeSourceVisible(this.allPartiesCodeSource[this.selPartieIndex]);
+        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.selPartieIndex];
         this.actPartieIndex = this.selPartieIndex;
       }
       // màj index actuel
@@ -194,7 +194,7 @@ export class EditeurComponent implements OnInit {
       } else {
         // afficher le chapitre sélectionné
         this.sectionMode = "chapitre";
-        this.setSectionCodeSourceVisible(this.allChapitresCodeSource[this.selChapitreIndex]);
+        this.sectionCodeSourceVisible = this.allChapitresCodeSource[this.selChapitreIndex];
         this.actChapitreIndex = this.selChapitreIndex;
       }
       // découper le chapitre visible actuellement en scènes
@@ -215,7 +215,7 @@ export class EditeurComponent implements OnInit {
       } else {
         // afficher la scène sélectionnée
         this.sectionMode = "scène";
-        this.setSectionCodeSourceVisible(this.allScenesCodeSource[this.selSceneIndex]);
+        this.sectionCodeSourceVisible = this.allScenesCodeSource[this.selSceneIndex];
         this.actSceneIndex = this.selSceneIndex;
       }
     }
@@ -256,7 +256,7 @@ export class EditeurComponent implements OnInit {
     // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
     this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
     const chapitresRassembles = this.allChapitresCodeSource.join("");
-    this.setSectionCodeSourceVisible(chapitresRassembles);
+    this.sectionCodeSourceVisible = chapitresRassembles;
     // s’il y a une partie sélectionnée
     if (this.actPartieIndex !== null) {
       // rassembler les chapitres dans la partie sélectionnée
@@ -274,7 +274,7 @@ export class EditeurComponent implements OnInit {
     // mettre à jour la SCÈNE en cours d’édition dans la liste des scènes
     this.allScenesCodeSource[this.actSceneIndex] = this.sectionCodeSourceVisible;
     const scenesRassemblees = this.allScenesCodeSource.join("");
-    this.setSectionCodeSourceVisible(scenesRassemblees);
+    this.sectionCodeSourceVisible = scenesRassemblees;
     // s’il y a un chapitre sélectionné
     if (this.actChapitreIndex !== null) {
       // rassembler les scènes dans le chapitre sélectionné
@@ -376,7 +376,8 @@ export class EditeurComponent implements OnInit {
   /** Initialiser le code source */
   private initCodeSource(codeSource: string) {
     this.codeSource = codeSource;
-    this.setSectionCodeSourceVisible(codeSource);
+    this.sectionCodeSourceVisible = codeSource;
+    this.sectionMode = "tout";
     this.decouperEnSections(this.codeSource, "partie");
     this.chargementFichierEnCours = false;
     this.onChangerSelPartie();
@@ -443,9 +444,12 @@ export class EditeurComponent implements OnInit {
           if (!dernEstSection) {
             dernSection = "(sans nom)";
             allSectionsIntitule.push(dernSection);
+            // ajouter le code source de la partie PAS précédé de l’instruction « partie »
+            allSectionsCodeSource.push(element);
+          } else {
+            // ajouter le code source de la partie précédé de l’instruction « partie »
+            allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
           }
-          // ajouter le code source de la partie précédé de l’instruction « partie »
-          allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
           dernEstSection = false;
         }
       }

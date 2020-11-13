@@ -127,7 +127,7 @@
           <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
             <option [ngValue]="null">(toutes les scènes)</option>
             <option *ngFor="let intitule of allScenesIntitule; index as i;" [ngValue]="i">
-              Scènes {{(i+1)}} − {{intitule}}
+              Scène {{(i+1)}} − {{intitule}}
             </option>
           </select>
         </div>
@@ -135,7 +135,7 @@
 
       <!-- CODE SOURCE (ROMAN) -->
       <div class="card mb-2 mt-n1" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-        <ace #codeEditor [config]="config" [(value)]="delaySectionCodeSourceVisible" [theme]="theme"></ace>
+        <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"></ace>
       </div>
 
     </div>
