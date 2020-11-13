@@ -229,7 +229,6 @@ export class EditeurComponent implements OnInit {
   onChargerExemple() {
     const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
     if (nomFichierExemple) {
-      this.viderCodeSource();
       this.chargementFichierEnCours = true;
       this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
         .subscribe(texte => {
@@ -243,7 +242,6 @@ export class EditeurComponent implements OnInit {
       // fichier choisi par l’utilisateur
       const file = evenement.target.files[0];
       if (file) {
-        this.viderCodeSource();
         this.chargementFichierEnCours = true;
         let fileReader = new FileReader();
         // quand lu, l’attribuer au code source
@@ -257,15 +255,23 @@ export class EditeurComponent implements OnInit {
   }
 
   /** Vider le code source. */
-  private viderCodeSource() {
+  private viderSectionsCodeSource() {
 
-    this.curPartieIndex = null;
-    this.precPartieIndex = null;
-    this.curChapitreIndex = null;
-    this.curSceneIndex = null;
     this.sectionCodeSourceVisible = null;
 
-    // this.codeSource = "";
+    this.allPartiesIntitule = null;
+    this.allPartiesCodeSource = null;
+    this.curPartieIndex = null;
+    this.precPartieIndex = null;
+
+    this.allChapitresIntitule = null;
+    this.allChapitresCodeSource = null;
+    this.curChapitreIndex = null;
+
+    this.allScenesIntitule = null;
+    this.allScenesCodeSource = null;
+    this.curSceneIndex = null;
+
     // this.sectionCodeSourceVisible = "";
     // this.monde = null;
     // this.erreurs = null;
@@ -278,7 +284,6 @@ export class EditeurComponent implements OnInit {
   private initCodeSource(codeSource: string) {
     this.codeSource = codeSource;
     this.decouperEnSections("partie");
-    // this.decouperEnParties();
     this.chargementFichierEnCours = false;
     this.partieSourceDejaChargee = false;
     this.curPartieIndex = null;
@@ -287,7 +292,7 @@ export class EditeurComponent implements OnInit {
 
   /** Découper le code source en parties */
   private decouperEnParties() {
-    this.viderCodeSource();
+    this.viderSectionsCodeSource();
     // this.curPartieIndex = null;
     // this.precPartieIndex = null;
     // this.curChapitreIndex = null;
@@ -329,9 +334,9 @@ export class EditeurComponent implements OnInit {
     });
   }
 
-  /** Découper le code source en chapitres */
+  /** Découper le code source en sections (parties, chapitres ou scènes) */
   private decouperEnSections(typeSection: 'partie' | 'chapitre' | 'scène') {
-    this.viderCodeSource();
+    this.viderSectionsCodeSource();
 
     // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
 
@@ -341,7 +346,7 @@ export class EditeurComponent implements OnInit {
 
     switch (typeSection) {
       case 'partie':
-        regexpSplitSections = /^(?: *)(Chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
+        regexpSplitSections = /^(?: *)(partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
         regexpMatchSections = /^( *)partie( .+)/i;
         regexpReplaceSections = /(?:^partie( ?))|\"/gi;
         break;
