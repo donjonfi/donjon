@@ -66,15 +66,21 @@ export class EditeurComponent implements OnInit {
   actions: Action[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
-  curPartieIndex: number = null;
-  precPartieIndex: number = null;
-  curChapitreIndex: number = null;
-  precChapitreIndex: number = null;
-  curSceneIndex: number = null;
+
+  selPartieIndex: number = null;
+  actPartieIndex: number = null;
+  selChapitreIndex: number = null;
+  actChapitreIndex: number = null;
+  selSceneIndex: number = null;
+  actSceneIndex: number = null;
+  sectionMode: "tout" | "partie" | "chapitre" | "scène" = null;
+
   /** Code source complet. */
   codeSource = "";
   /** Section visible du code source. */
   sectionCodeSourceVisible = "";
+  delaySectionCodeSourceVisible = null;
+  nbToWaitSCSV = 0;
   partieSourceDejaChargee = false;
 
   /** Liste des intitulés des différentes parties du code source. */
@@ -135,69 +141,156 @@ export class EditeurComponent implements OnInit {
     this.codeSource = sessionStorage.getItem("CodeSource");
   }
 
+  setSectionCodeSourceVisible(newSectionCodeSourceVisible: string) {
+    this.sectionCodeSourceVisible = newSectionCodeSourceVisible;
+    // this.nbToWaitSCSV += 1;
+    // setTimeout(() => {
+    //   this.nbToWaitSCSV -= 1;
+    //   if (this.nbToWaitSCSV < 1) {
+    //     console.warn("toctoc");
+        this.delaySectionCodeSourceVisible = this.sectionCodeSourceVisible;
+      // }
+    // }, 5);
+  }
 
-  onChangerPartie() {
+  onChangerSelPartie(rassemblerAvant = true) {
+    // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
-      if (this.partieSourceDejaChargee) {
-        // rassembler le code source pour ne rien perdre
+      // sauvegarder la section visible actuellement pour ne rien perdre
+      if (rassemblerAvant) {
         this.rassemblerSource();
       }
-      // changer la partie à afficher
-      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
-        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.curPartieIndex];
-        // this.decouperEnSections("chapitre");
+      // TOUTES LES PARTIES
+      if (this.selPartieIndex === null || this.selPartieIndex >= this.allPartiesCodeSource.length) {
+        this.sectionMode = "tout";
+        this.setSectionCodeSourceVisible(this.codeSource);
+        this.actPartieIndex = null;
+        // PARTIE SPÉCIFIQUE
       } else {
-        this.sectionCodeSourceVisible = this.codeSource;
+        this.sectionMode = "partie";
+        this.setSectionCodeSourceVisible(this.allPartiesCodeSource[this.selPartieIndex]);
+        this.actPartieIndex = this.selPartieIndex;
       }
-      this.partieSourceDejaChargee = true;
-      this.precPartieIndex = this.curPartieIndex;
+      // màj index actuel
+      // découper la partie visible actuellement en chapitres
+      this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+      this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
     }
   }
 
-  onChangerChapitre() {
+  onChangerSelChapitre(rassemblerAvant = true) {
+    // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
-      if (this.partieSourceDejaChargee) {
-        // rassembler le code source pour ne rien perdre
+      // sauvegarder la section visible actuellement pour ne rien perdre
+      if (rassemblerAvant) {
         this.rassemblerSource();
       }
-      // changer la partie à afficher
-      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
-        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.curPartieIndex];
+      // si on veut afficher tous les chapitres
+      if (this.selChapitreIndex === null || this.selChapitreIndex >= this.allChapitresCodeSource.length) {
+        // afficher la partie sélectionnée
+        this.actChapitreIndex = null;
+        this.onChangerSelPartie(false);
+        // si on veut afficher un chapitre en particulier
       } else {
-        this.sectionCodeSourceVisible = this.codeSource;
+        // afficher le chapitre sélectionné
+        this.sectionMode = "chapitre";
+        this.setSectionCodeSourceVisible(this.allChapitresCodeSource[this.selChapitreIndex]);
+        this.actChapitreIndex = this.selChapitreIndex;
       }
-      this.partieSourceDejaChargee = true;
-      this.precPartieIndex = this.curPartieIndex;
+      // découper le chapitre visible actuellement en scènes
+      this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
     }
   }
 
-  onChangerScene() {
+  onChangerSelScene() {
+    // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
-      if (this.partieSourceDejaChargee) {
-        // rassembler le code source pour ne rien perdre
-        this.rassemblerSource();
-      }
-      // changer la partie à afficher
-      if (this.curPartieIndex !== null && (this.curPartieIndex < this.allPartiesCodeSource.length)) {
-        this.sectionCodeSourceVisible = this.allPartiesCodeSource[this.curPartieIndex];
+      this.rassemblerSource();
+      // si on veut afficher toutes les scènes
+      if (this.selSceneIndex === null || this.selSceneIndex >= this.allScenesCodeSource.length) {
+        // afficher le chapitre sélectionné
+        this.actSceneIndex = null;
+        this.onChangerSelChapitre(false);
+        // si on veut afficher une scène en particulier
       } else {
-        this.sectionCodeSourceVisible = this.codeSource;
+        // afficher la scène sélectionnée
+        this.sectionMode = "scène";
+        this.setSectionCodeSourceVisible(this.allScenesCodeSource[this.selSceneIndex]);
+        this.actSceneIndex = this.selSceneIndex;
       }
-      this.partieSourceDejaChargee = true;
-      this.precPartieIndex = this.curPartieIndex;
     }
   }
 
+  /** Rassembler le code source pour ne rien perdre */
   rassemblerSource() {
-    // si on n'affichait qu'une seule partie
-    if (this.precPartieIndex !== null) {
-      // mettre à jour la partie en cours d’édition dans la liste des parties
-      this.allPartiesCodeSource[this.precPartieIndex] = this.sectionCodeSourceVisible;
-      // mettre à jour le code source en rassemblant la liste des parties
-      this.codeSource = this.allPartiesCodeSource.join("");
-      // si on affichait tout
-    } else if (this.sectionCodeSourceVisible !== null) {
-      this.codeSource = this.sectionCodeSourceVisible;
+    switch (this.sectionMode) {
+      case "tout":
+        this.codeSource = this.sectionCodeSourceVisible;
+        break;
+
+      case "partie":
+        this.rassemblerLesParties();
+        break;
+
+      case "chapitre":
+        this.rassemblerLesChapitres();
+        break;
+
+      case "scène":
+        this.rassemblerLesScenes();
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  private rassemblerLesParties() {
+    // mettre à jour la PARTIE en cours d’édition dans la liste des parties
+    this.allPartiesCodeSource[this.actPartieIndex] = this.sectionCodeSourceVisible;
+    // joindre les parties dans le code source
+    this.codeSource = this.allPartiesCodeSource.join("");
+  }
+
+  private rassemblerLesChapitres() {
+    // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
+    this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
+    const chapitresRassembles = this.allChapitresCodeSource.join("");
+    this.setSectionCodeSourceVisible(chapitresRassembles);
+    // s’il y a une partie sélectionnée
+    if (this.actPartieIndex !== null) {
+      // rassembler les chapitres dans la partie sélectionnée
+      this.allPartiesCodeSource[this.actPartieIndex] = chapitresRassembles;
+      // rassembler les parties
+      this.rassemblerLesParties();
+      // si aucune sélection parent
+    } else {
+      // ressembler les chapitres dans le code source
+      this.codeSource = chapitresRassembles;
+    }
+  }
+
+  private rassemblerLesScenes() {
+    // mettre à jour la SCÈNE en cours d’édition dans la liste des scènes
+    this.allScenesCodeSource[this.actSceneIndex] = this.sectionCodeSourceVisible;
+    const scenesRassemblees = this.allScenesCodeSource.join("");
+    this.setSectionCodeSourceVisible(scenesRassemblees);
+    // s’il y a un chapitre sélectionné
+    if (this.actChapitreIndex !== null) {
+      // rassembler les scènes dans le chapitre sélectionné
+      this.allChapitresCodeSource[this.actChapitreIndex] = scenesRassemblees;
+      // rassembler les chapitres
+      this.rassemblerLesChapitres();
+      // sinon s’il y a une partie sélectionnée
+    } else if (this.actPartieIndex !== null) {
+      // rassembler les scènes dans la partie sélectionnée
+      this.allPartiesCodeSource[this.actPartieIndex] = scenesRassemblees;
+      // rassembler les parties
+      this.rassemblerLesParties();
+      // si aucune sélection parent
+    } else {
+      // ressembler les scènes dans le code source
+      this.codeSource = scenesRassemblees;
     }
   }
 
@@ -255,119 +348,77 @@ export class EditeurComponent implements OnInit {
   }
 
   /** Vider le code source. */
-  private viderSectionsCodeSource() {
+  private viderSectionsCodeSource(typeSection: 'partie' | 'chapitre' | 'scène') {
 
-    this.sectionCodeSourceVisible = null;
-
-    this.allPartiesIntitule = null;
-    this.allPartiesCodeSource = null;
-    this.curPartieIndex = null;
-    this.precPartieIndex = null;
-
-    this.allChapitresIntitule = null;
-    this.allChapitresCodeSource = null;
-    this.curChapitreIndex = null;
-
+    // vider scènes
     this.allScenesIntitule = null;
     this.allScenesCodeSource = null;
-    this.curSceneIndex = null;
+    this.actSceneIndex = null;
+    this.selSceneIndex = null;
 
-    // this.sectionCodeSourceVisible = "";
-    // this.monde = null;
-    // this.erreurs = null;
-    // this.regles = null;
-    // this.compilationTerminee = false;
-    // this.fichierCharge = null;
+    if (typeSection === "partie" || typeSection === "chapitre") {
+      // vider chapitres
+      this.allChapitresIntitule = null;
+      this.allChapitresCodeSource = null;
+      this.actChapitreIndex = null;
+      this.selChapitreIndex = null;
+
+      if (typeSection === "partie") {
+        // vider parties
+        this.allPartiesIntitule = null;
+        this.allPartiesCodeSource = null;
+        this.actPartieIndex = null;
+        this.selPartieIndex = null;
+      }
+    }
   }
 
   /** Initialiser le code source */
   private initCodeSource(codeSource: string) {
     this.codeSource = codeSource;
-    this.decouperEnSections("partie");
+    this.setSectionCodeSourceVisible(codeSource);
+    this.decouperEnSections(this.codeSource, "partie");
     this.chargementFichierEnCours = false;
-    this.partieSourceDejaChargee = false;
-    this.curPartieIndex = null;
-    this.onChangerPartie();
-  }
-
-  /** Découper le code source en parties */
-  private decouperEnParties() {
-    this.viderSectionsCodeSource();
-    // this.curPartieIndex = null;
-    // this.precPartieIndex = null;
-    // this.curChapitreIndex = null;
-    // this.curSceneIndex = null;
-    // this.sectionCodeSourceVisible = null;
-
-    // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
-    const decoupageEnParties = this.codeSource.split(/^(?: *)(Partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi);
-    let dernEstPartie = false;
-    let dernPartie: string;
-
-    this.allPartiesCodeSource = [];
-    this.allPartiesIntitule = [];
-
-    // parcourir les parties de code et leur intitulé
-    decoupageEnParties.forEach(element => {
-      if (element) {
-        if (element.match(/^( *)partie( .+)/i)) {
-          // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
-          if (dernEstPartie) {
-            // ajouter le code source de la partie précédé de l’instruction « partie »
-            this.allPartiesCodeSource.push('Partie "' + dernPartie + '".' + (element.startsWith('\n') ? "" : "\n") + element);
-          }
-          // ajouter le titre de la nouvelle partie
-          dernPartie = element.replace(/(?:^partie( ?))|\"/gi, "");
-          this.allPartiesIntitule.push(dernPartie);
-          dernEstPartie = true;
-        } else {
-          // si pas précédé d’une partie, ajouter un intitulé pour la partie
-          if (!dernEstPartie) {
-            dernPartie = "(sans nom)";
-            this.allPartiesIntitule.push(dernPartie);
-          }
-          // ajouter le code source de la partie précédé de l’instruction « partie »
-          this.allPartiesCodeSource.push('Partie "' + dernPartie + '".' + (element.startsWith('\n') ? "" : "\n") + element);
-          dernEstPartie = false;
-        }
-      }
-    });
+    this.onChangerSelPartie();
   }
 
   /** Découper le code source en sections (parties, chapitres ou scènes) */
-  private decouperEnSections(typeSection: 'partie' | 'chapitre' | 'scène') {
-    this.viderSectionsCodeSource();
+  private decouperEnSections(codeSource: string, typeSection: 'partie' | 'chapitre' | 'scène') {
+    this.viderSectionsCodeSource(typeSection);
 
-    // découper pour avoir les intitulés des parties de code et leur contenu (1 sur 2)
-
+    // découper pour avoir les intitulés des parties de code et leur contenu en alternance
     let regexpSplitSections: RegExp = null;
     let regexpMatchSections: RegExp = null;
     let regexpReplaceSections: RegExp = null;
+    let prefixe: string = null;
 
     switch (typeSection) {
       case 'partie':
         regexpSplitSections = /^(?: *)(partie(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
         regexpMatchSections = /^( *)partie( .+)/i;
         regexpReplaceSections = /(?:^partie( ?))|\"/gi;
+        prefixe = 'PARTIE "';
         break;
 
       case 'chapitre':
         regexpSplitSections = /^(?: *)(chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
         regexpMatchSections = /^( *)chapitre( .+)/i;
         regexpReplaceSections = /(?:^chapitre( ?))|\"/gi;
+        prefixe = 'CHAPITRE "';
         break;
 
       case 'scène':
-        regexpSplitSections = /^(?: *)(chapitre(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
-        regexpMatchSections = /^( *)chapitre( .+)/i;
-        regexpReplaceSections = /(?:^chapitre( ?))|\"/gi;
+        regexpSplitSections = /^(?: *)(scène(?: +)"(?:.+?)"(?: *))(?:\.?)( *)$/mi;
+        regexpMatchSections = /^( *)scène( .+)/i;
+        regexpReplaceSections = /(?:^scène( ?))|\"/gi;
+        prefixe = 'SCÈNE "';
         break;
 
       default:
         break;
     }
 
-    const decoupageEnSections = this.codeSource.split(regexpSplitSections);
+    const decoupageEnSections = codeSource.split(regexpSplitSections);
     let dernEstSection = false;
     let dernSection: string;
 
@@ -381,7 +432,7 @@ export class EditeurComponent implements OnInit {
           // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
           if (dernEstSection) {
             // ajouter le code source de la partie précédé de l’instruction « partie »
-            allSectionsCodeSource.push('Partie "' + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+            allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
           }
           // ajouter le titre de la nouvelle partie
           dernSection = element.replace(regexpReplaceSections, "");
@@ -394,7 +445,7 @@ export class EditeurComponent implements OnInit {
             allSectionsIntitule.push(dernSection);
           }
           // ajouter le code source de la partie précédé de l’instruction « partie »
-          allSectionsCodeSource.push('Partie "' + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+          allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
           dernEstSection = false;
         }
       }
