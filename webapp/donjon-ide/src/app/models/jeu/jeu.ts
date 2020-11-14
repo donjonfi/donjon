@@ -1,4 +1,5 @@
 import { Action } from '../compilateur/action';
+import { Aide } from '../commun/aide';
 import { Auditeur } from '../jouer/auditeur';
 import { Classe } from '../commun/classe';
 import { ElementsJeuUtils } from 'src/app/utils/commun/elements-jeu-utils';
@@ -62,6 +63,8 @@ export class Jeu {
    * États sauvegardés
    */
   sauvegardes: string[] = [];
+
+  aides: Aide[] = [];
 
   /**
    * Objets du jeu en possession du joueur.

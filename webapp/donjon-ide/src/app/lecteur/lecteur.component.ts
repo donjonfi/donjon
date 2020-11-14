@@ -305,7 +305,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             if (ceciIntitule) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCeci.nbCor === 0) {
-                retVal += "\n(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».)\n";
+                retVal += "\n(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».)";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 // vérifier si les objets de la commande sont visibles
@@ -318,7 +318,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             } else if (celaIntitule) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCela.nbCor === 0) {
-                retVal += "\n(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)\n";
+                retVal += "\n(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
@@ -327,6 +327,14 @@ export class LecteurComponent implements OnInit, OnChanges {
                   }
                 }
               }
+            }
+
+            // regarder si de l’aide existe pour cet infinitif
+            const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
+            if (aide) {
+              retVal += "\nVous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher les informations concernant cette commande.";
+            } else {
+              retVal += "\n(Il n’y a pas de page d’aide concernant cette commande.)";
             }
 
             console.warn("commande: ", els);

@@ -104,31 +104,37 @@
       </div>
       <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
       <div class="row mb-2">
-        <div class="col-12 col-md-4  pr-md-1 py-1">
+        <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
           <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie()" class="form-control" name="choixPartie">
-            <option [ngValue]="null">(toutes les parties)</option>
-            <option *ngFor="let intitule of allPartiesIntitule; index as i;" [ngValue]="i">
-              Partie {{(i+1)}} − {{intitule}}
-            </option>
+            <option [ngValue]="null">(tout le code)</option>
+            <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Partie « {{intitule}} »
+              </option>
+            </ng-container>
           </select>
         </div>
 
         <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
           <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre()" class="form-control"
             name="choixChapitre">
-            <option [ngValue]="null">(tous les chapitres)</option>
-            <option *ngFor="let intitule of allChapitresIntitule; index as i;" [ngValue]="i">
-              Chapitre {{(i+1)}} − {{intitule}}
-            </option>
+            <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le code)')}}</option>
+            <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Chapitre « {{intitule}} »
+              </option>
+            </ng-container>
           </select>
         </div>
 
         <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
           <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
-            <option [ngValue]="null">(toutes les scènes)</option>
-            <option *ngFor="let intitule of allScenesIntitule; index as i;" [ngValue]="i">
-              Scène {{(i+1)}} − {{intitule}}
-            </option>
+            <option [ngValue]="null">{{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}</option>
+            <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Scène « {{intitule}} »
+              </option>
+            </ng-container>
           </select>
         </div>
       </div>

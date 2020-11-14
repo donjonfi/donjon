@@ -1,18 +1,10 @@
-<p class="form-text text-success">
-  Tapez « ? » pour afficher les actions les plus courantes.
-</p>
-
 <!-- resultat -->
-
 <div id="taResultat" #taResultat class="card my-2" [style.height]="'500px'"
   style="width:100%;overflow:auto;background-color:rgb(241, 241, 232); padding:5px;"
   [innerHTML]="sortieJoueur">
 </div>
-<!-- <textarea #taResultat readonly class="form-control mb-2" name="taResultat" id="taResultat"
-  rows="20">{{sortieJoueur}}</textarea> -->
-
 <!-- entrée utilisateur -->
-<div class="input-group mb-3">
+<div class="input-group">
   <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
     (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
     (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
@@ -23,3 +15,4 @@
     <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button" id="btExecuter">↑</button>
   </div>
 </div>
+<small class="mt-n2">Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus courantes.</small>

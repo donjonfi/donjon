@@ -195,7 +195,7 @@ export class PhraseUtils {
     // commande SPÉCIALE (pas un infinitif)
     if (res) {
       // Ce n'est pas un infinitif mais bon...
-      els = new ElementsPhrase(res[1], null, null, null, null);
+      els = new ElementsPhrase(res[1], (res[2] ? new GroupeNominal(null, res[2], null) : null), null, null, null);
       // commande DIALOGUE
     } else {
       // le phrase peut-être tournée de 2 manière différentes, on veut pouvoir
@@ -237,6 +237,12 @@ export class PhraseUtils {
         }
       }
     }
+
+    // afin de ne pas avoir à s’en inquiéter après, on met l’infinitif en minuscules
+    if (els && els.infinitif) {
+      els.infinitif = els.infinitif.toLowerCase();
+    }
+
     return els;
   }
 

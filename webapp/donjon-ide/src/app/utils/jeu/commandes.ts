@@ -7,8 +7,6 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
-import { Lieu } from 'src/app/models/jeu/lieu';
-import { ListeEtats } from './liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from 'src/app/models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
@@ -127,16 +125,24 @@ export class Commandes {
 
   aide(els: ElementsPhrase) {
     if (!els.sujet) {
-      return "Quelques commandes utiles :\n"
+      return "{_Quelques commandes utiles_}\n"
+        + " - {-aide {/parler/}-} : afficher l’aide d’une commande\n"
+        + " - {-aller {/nord/}-} : aller vers le nord\n"
+        + " - {-regarder-} : regarder autours de vous\n"
+        + " - {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations\n"
+        + " - {-prendre {/épée/}-} : prendre un objet\n"
         + " - {-inventaire-} : afficher le contenu de votre inventaire\n"
-        + " - {-aller nord-} : aller vers le nord\n"
-        + " - {-examiner table-} : examiner la table (pour y trouver des objets)\n"
-        + " - {-prendre épée-} : prendre l’épée\n"
-        + " - {-position-} : afficher votre position actuelle\n"
-        + " - {-ouvrir porte avec clé dorée-} : ouvrir la porte à l’aide de la clé dorée\n"
+        + " - {-parler à {/magicienne/}-} : parler à un personnage\n"
+        + " - {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique\n"
+        + " - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée\n"
         + "{+[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]+}";
     } else {
-      return "Je n'ai pas encore d’informations à propos de ça.";
+      const ficheAide = this.jeu.aides.find(x => x.infinitif === els.sujet.nom);
+      if (ficheAide) {
+        return ficheAide.informations;
+      } else {
+        return "Désolé, je n’ai pas de page d’aide concernant la commande « " + els.sujet.nom + " »";
+      }
     }
   }
 
