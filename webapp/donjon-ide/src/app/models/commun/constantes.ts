@@ -17,10 +17,10 @@ export enum EClasseRacine {
 }
 
 export enum EEtatsBase {
-  /** présent (↔ absent) */
-  present = 'présent (calculé)',
-  /** absent (↔ présent) */
-  absent = 'absent (calculé)',
+  /** présent (calculé) (↔ absent) */
+  present = 'présent',
+  /** absent (calculé) (↔ présent) */
+  absent = 'absent',
   /** intact (≠ déplacé) */
   intact = "intact",
   /** déplacé (≠ intact) */

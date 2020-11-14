@@ -185,7 +185,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // màj de la découpe des sections
     this.decouperEnSections(this.codeSource, "partie");
     this.selPartieIndex = null;
-    this.onChangerSelPartie();
+    this.onChangerSelPartie(false);
 
     if (this.codeSource && this.codeSource.trim() != '') {
       // interpréter le code
