@@ -269,4 +269,7 @@ export class ExprReg {
    */
   static readonly xPhraseSimplePronom = /^(son |sa |ses )(\S+) ((?:se \S+)|\S+)( .+|)$/i;
 
+  /** L'aide pour la commande manger(1) est  */
+  static readonly xAide = /^L(?:'|’)aide pour la commande ((?:se |s'|s’)?.+) est(?: *)/i;
+
 }

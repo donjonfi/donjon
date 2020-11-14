@@ -2,13 +2,11 @@ import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
-import { Attribute } from '@angular/core';
 import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from 'src/app/models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from 'src/app/models/commun/classes-racines';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
@@ -37,6 +35,10 @@ export class Generateur {
     // DÉFINIR LES CLASSES
     // *******************
     jeu.classes = monde.classes;
+
+    // COPIER LES FICHES D'AIDE
+    // ************************
+    jeu.aides = monde.aides;
 
     // PLACER LE JOUEUR
     // ****************

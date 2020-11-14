@@ -1,4 +1,5 @@
 import { Action } from 'src/app/models/compilateur/action';
+import { Aide } from 'src/app/models/commun/aide';
 import { Capacite } from 'src/app/models/compilateur/capacite';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Condition } from 'src/app/models/compilateur/condition';
@@ -80,6 +81,25 @@ export class Analyseur {
             trouveQuelqueChose = true;
           }
 
+          // ===============================================
+          // AIDE
+          // ===============================================
+          if (!trouveQuelqueChose) {
+            const aide = ExprReg.xAide.exec(phrase.phrase[0]);
+            if (aide) {
+              trouveQuelqueChose = true;
+              monde.aides.push(
+                new Aide(aide[1],
+                  phrase.phrase[1]
+                    .replace(ExprReg.xCaractereDebutCommentaire, '')
+                    .replace(ExprReg.xCaractereFinCommentaire, '')
+                    .replace(ExprReg.xCaractereRetourLigne, '\n')
+                    .replace(ExprReg.xCaracterePointVirgule, ';')
+                    .replace(ExprReg.xCaractereVirgule, ',')
+                )
+              );
+            }
+          }
           // ===============================================
           // RÈGLES
           // ===============================================
@@ -292,7 +312,7 @@ export class Analyseur {
 
 
                 // si dernier élémént trouvé est une réaction, il s’agit de
-                // la vealeur de cette réaction (dire).
+                // la valeur de cette réaction (dire).
               } else if (reactionTrouvee) {
 
 
@@ -300,7 +320,8 @@ export class Analyseur {
               } else {
                 // ajouter la description en enlevant les caractères spéciaux
                 dernierElementGenerique.description = phrase.phrase[1]
-                  .replace(ExprReg.xCaracteresCommentaire, '')
+                  .replace(ExprReg.xCaractereDebutCommentaire, '')
+                  .replace(ExprReg.xCaractereFinCommentaire, '')
                   .replace(ExprReg.xCaractereRetourLigne, '\n')
                   .replace(ExprReg.xCaracterePointVirgule, ';')
                   .replace(ExprReg.xCaractereVirgule, ',');

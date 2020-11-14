@@ -47,8 +47,8 @@ export enum EEtatsBase {
   disponible = 'disponible',
   /** occupé (calculé) */
   occupe = 'occupé',
-  /** porté (→ possédé) */
-  porte = 'porté (calculé)',
+  /** porté (calculé) (→ possédé) */
+  porte = 'porté',
   /** dénombrable (↔ indénombrable) */
   denombrable = 'dénombrable',
   /** indénombrable (↔ dénombrable) */

@@ -171,7 +171,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  COMPILATION (ANALYSE)
   // =============================================
 
-  /** Compiler (Analyser) le code source (roman) */
+  /** Compiler (Analyser) le code source (scénario) */
   onCompiler() {
     this.compilationEnCours = true;
     this.compilationTerminee = false;

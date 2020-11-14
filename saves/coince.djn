@@ -363,13 +363,19 @@ exécuter prendre ceci:
 terminer prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
 
+L'aide pour la commande prendre est "{*Prendre*}
+  Prendre un objet pour le mettre dans votre inventaire.
+  ex: {-prendre {/l'épée/}-}
+  raccourci: {-p-}".
+
+scène "donner".
 -- ==========
 --   DONNER
 -- ==========
 
 -- a) donner
 le joueur peut donner:
-  dire "Donner quoi ?".
+  dire "Donner quoi ?".
  
 -- b) donner ceci
 -- donner ceci est une action qui concerne un objet visible.
@@ -388,3 +394,9 @@ exécuter donner ceci à cela:
 
 terminer donner ceci à cela:
   dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
+  
+L'aide pour la commande donner est "{*Donner*}
+  Donner un objet à quelqu'un.
+  ex: {-donner {/la pomme/} au {/nain/}-}
+  raccourci: {-d-}".
+

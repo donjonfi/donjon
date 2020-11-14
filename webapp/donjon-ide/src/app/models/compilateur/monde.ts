@@ -1,3 +1,4 @@
+import { Aide } from '../commun/aide';
 import { Classe } from '../commun/classe';
 import { ClasseUtils } from 'src/app/utils/commun/classe-utils';
 import { ClassesRacines } from '../commun/classes-racines';
@@ -33,5 +34,6 @@ export class Monde {
   classiques: ElementGenerique[] = [];
   /** objets filtrés sur « spécial » (joueur, jeu, licence, …) */
   speciaux: ElementGenerique[] = [];
-
+  /** pages d'aide pour les commandes */
+  aides: Aide[] = [];
 }
