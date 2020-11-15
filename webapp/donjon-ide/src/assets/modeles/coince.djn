@@ -52,6 +52,8 @@ Interpréter peinture et cadre comme le tableau.
 -- > BOUTON
 Le bouton est un objet fixé sur le mur. Il est couvert. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
 
+interpréter bouton rouge et bouton rond comme le bouton.
+
 -- ===========
 --   ACTIONS
 -- ===========
@@ -68,7 +70,7 @@ Le joueur peut pousser le fauteuil:
   sinon
     dire "Ce n'est plus nécessaire.".
     
-interpréter appuyer et déplacer comme pousser.
+interpréter déplacer comme pousser.
 
 -- > LANCER BILLE SUR LUCARNE
 Lancer ceci vers cela est une action qui concerne la bille et la lucarne.
@@ -126,6 +128,8 @@ Le joueur peut pousser le bouton:
     dire "{n}Une porte s'ouvre dans le mur nord de la pièce.",
     changer la porte secrète est ouverte,
     changer la porte secrète n'est plus invisible.
+
+interpréter enfoncer et appuyer comme pousser.
 
 CHAPITRE "Le cabinet".
 -- ///////////////////////
