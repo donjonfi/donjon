@@ -168,6 +168,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
         console.log(">>> this.selSceneIndex=", this.selSceneIndex);
         this.onChangerSelScene();
       }
+    } else {
+      this.onChargerFichierCloud(true);
     }
   }
 
@@ -259,16 +261,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  CHARGER SCÉNARIO (code source)
   // =============================================
 
-  onChargerFichierCloud() {
-    const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
+  onChargerFichierCloud(nouveau: boolean = false) {
+    let nomFichierExemple: string;
+    if (nouveau) {
+      nomFichierExemple = "nouveau.djn";
+    } else {
+      nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
+    }
     if (nomFichierExemple) {
       this.viderSectionsCodeSource("partie");
       this.sectionCodeSourceVisible = "";
       this.chargementFichierEnCours = true;
-      this.http.get('assets/exemples/' + nomFichierExemple, { responseType: 'text' })
-        .subscribe(texte => {
-          this.initCodeSource(texte);
-        });
+      this.http.get('assets/modeles/' + nomFichierExemple, { responseType: 'text' })
+        .subscribe(
+          texte => {
+            this.initCodeSource(texte);
+          }, erreur => {
+            console.error("Fichier modèle pas trouvé:", erreur);
+          });
     }
   }
 
