@@ -27,6 +27,13 @@ terminer ouvrir ceci:
   dire "C'est ouvert.";
   si ceci est un contenant, dire "[contenu ceci]".
 
+L'aide pour l'action ouvrir est "{*Ouvrir*}
+  Permet d'ouvrir un objet, une porte, une trappe, ...
+  {+exemples+} :
+  > {-ouvrir {/la porte rouge/}-}
+  > {-ouvrir {/le coffre/}-}
+  {+raccourci+} : {-ou-}".
+
 SCÈNE "fermer".
 -- ==========
 --   FERMER
@@ -45,6 +52,13 @@ exécuter fermer ceci:
 
 terminer fermer ceci:
   dire "Ok. C'est fermé.".
+  
+L'aide pour l'action fermer est "{*Fermer*}
+  Permet de fermer un objet, une porte, une trappe, ...
+  {+exemples+} :
+  > {-fermer {/la grille/}-}
+  > {-fermer {/la boite/}-}
+  {+raccourci+} : {-fe-}".
 
 CHAPITRE "parler et interroger".
 
@@ -77,6 +91,15 @@ exécuter parler à ceci de cela:
   
 terminer parler à ceci de cela:
   si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+  
+L'aide pour l'action parler est "{*Parler*}
+  Permet de parler avec une personne. Il est possible de préciser un sujet spécifique.
+  {+exemples+} :
+  > {-parler à {/la magicienne/}-}
+  > {-parler de {/la carte/} au {/pirate/}-}
+  > {-parler au {/nain jaune/} de {/la mine/}-}
+  > {-parler de {/manger/} à {/l'aubergiste/}-}
+  {+raccourci+} : {-pa-}".
 
 SCÈNE "interroger".
 -- ==============
@@ -108,6 +131,14 @@ exécuter interroger ceci sur cela:
 terminer interroger ceci sur cela:
   si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
   
+L'aide pour l'action interroger est "{*Interroger / Demander*}
+  Permet d'interroger une personne sur un sujet spécifique.
+  {+exemples+} :
+  > {-interroger {/l'aubergiste/} concernant {/le menu/}-}
+  > {-interroger {/le villageois/} à propos de {/la fête/}-}
+  > {-demander {/une épée/} au {/vendeur/}-}
+  {+raccourci+} : {-int-}, {-dem-}".
+  
 CHAPITRE "regarder et examiner".
 SCÈNE "regarder".
 -- ============
@@ -127,6 +158,12 @@ regarder ceci est une action qui concerne un objet visible.
 
 terminer regarder ceci:
    dire "(Pour examiner quelque chose, merci d’utiliser la commande {-examiner-}.)".
+
+L'aide pour l'action regarder est "{*Regarder*}
+  Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
+  {+exemple+} :
+  > {-regarder-}
+  {+raccourci+} : {-re-}".
 
 SCÈNE "examiner".
 -- ============
@@ -160,6 +197,13 @@ terminer examiner ceci:
 
 interpréter fouiller comme examiner.
 
+L'aide pour l'action examiner est "{*Examiner*}
+  Permet d'examiner un élément du jeu pour avoir des détails ou trouver un objet.
+  {+exemples+} :
+  > {-examiner {/l'arbre/}-}
+  > {-examiner {/l'épée/}}
+  {+raccourci+} : {-ex-}".
+
 CHAPITRE "prendre, donner, jeter et déposer".
 SCÈNE "prendre".
 -- ===========
@@ -187,11 +231,13 @@ exécuter prendre ceci:
   
 terminer prendre ceci:
   dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
-  
-L'aide pour la commande prendre est "{*Prendre*}
-  Prendre un objet pour le mettre dans votre inventaire.
-  ex: {-prendre {/l'épée/}-}
-  raccourci: {-p-}".  
+
+L'aide pour l'action prendre est "{*Prendre*}
+  Permet de prendre un objet accessible pour le mettre dans votre inventaire.
+  {+exemples+} :
+  > {-prendre {/l'épée/}-}
+  > {-prendre {/le bouquet de fleurs/}-}
+  {+raccourci+} : {-p-}".
 
 SCÈNE "donner".
 -- ==========
@@ -213,11 +259,13 @@ exécuter donner ceci à cela:
 
 terminer donner ceci à cela:
   dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
-
-L'aide pour la commande donner est "{*Donner*}
-  Donner un objet à quelqu'un.
-  ex: {-donner {/la pomme/} au {/nain/}-}
-  raccourci: {-d-}".
+  
+L'aide pour l'action donner est "{*Donner*}
+  Permet de donner un objet que vous possédez à quelqu'un.
+  {+exemples+} :
+  > {-donner {/la poudre magique/} à {/la magicienne/}-}
+  > {-donner {/la pomme/} au {/nain/}-}
+  {+raccourci+} : {-d-}".
 
 SCÈNE "jeter".
 -- =========
@@ -239,6 +287,12 @@ exécuter jeter ceci:
   
 terminer jeter ceci:
   dire "Vous avez jeté [intitulé ceci]".
+
+L'aide pour l'action jeter est "{*Jeter*}
+  Permet de jeter un objet que vous possédez sur le sol.
+  {+exemple+} :
+  > {-jeter {/la fleur/}-}
+  {+raccourci+} : {-j-}".
 
 SCÈNE "mettre".
 -- ===========
@@ -263,3 +317,11 @@ exécuter mettre ceci dans cela:
 terminer mettre ceci sur cela:
   dire "C’est fait.".
 
+L'aide pour l'action mettre est "{*Mettre / Poser*}
+  Permet de poser un objet sur un support ou de le mettre dans un contenant.
+  {+exemples+} :
+  > {-mettre {/la pomme/} dans {/le panier/}-}
+  > {-poser {/l'épée/} sur {/la table/}-}
+  {+raccourci+} : {-me-}, {-po-}".
+  
+  
