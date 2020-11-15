@@ -83,6 +83,35 @@ export class Compilateur {
       }
     });
 
+    // *************************
+    // SÉPARER LES CONSÉQUENCES
+    // *************************
+    // - DES RÈGLES
+    regles.forEach(regle => {
+      if (regle.consequencesBrutes) {
+        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, false);
+      }
+      if (verbeux) {
+        console.log(">>> regle:", regle);
+      }
+    });
+
+    // - DES RÉACTIONS
+    monde.objets.forEach(objet => {
+      if (objet.reactions && objet.reactions.length > 0) {
+        objet.reactions.forEach(reaction => {
+          // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
+          if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutCommentaire)) {
+            reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
+          }
+          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, false);
+        });
+        if (verbeux) {
+          console.log(">>> objet avec réactions :", objet);
+        }
+      }
+    });
+
     // **********************************
     // AFFICHER RÉSULTAT DANS LA CONSOLE
     // **********************************
@@ -134,34 +163,6 @@ export class Compilateur {
     // ********************************
 
     Analyseur.analyserPhrases(phrases, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
-
-    // *************************
-    // SÉPARER LES CONSÉQUENCES
-    // *************************
-    // - DES RÈGLES
-    regles.forEach(regle => {
-      if (regle.consequencesBrutes) {
-        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, false);
-      }
-      if (verbeux) {
-        console.log(">>> regle:", regle);
-      }
-    });
-    // - DES RÉACTIONS
-    monde.objets.forEach(objet => {
-      if (objet.reactions && objet.reactions.length > 0) {
-        objet.reactions.forEach(reaction => {
-          // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
-          if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutCommentaire)) {
-            reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
-          }
-          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, false);
-        });
-        if (verbeux) {
-          console.log(">>> objet avec réactions :", objet);
-        }
-      }
-    });
 
   }
 
