@@ -63,6 +63,7 @@ export class Jeu {
   /** États sauvegardés */
   sauvegardes: string[] = [];
 
+  /** Fiches d'aides */
   aides: Aide[] = [];
 
 }

@@ -243,7 +243,12 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur. */
   onSauvegarderSous() {
-    this.rassemblerSource();
+
+    // sauver le code dans le cache
+    this.sauvegarderSession();
+
+    // sauver le code dans un fichier de l'utilisateur
+
     // Note: Ie and Edge don't support the new File constructor,
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([this.codeSource], "donjon.djn", { type: "text/plain;charset=utf-8" });

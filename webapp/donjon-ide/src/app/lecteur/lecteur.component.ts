@@ -66,12 +66,12 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);
       // afficher le titre et la version du jeu
-      this.sortieJoueur += ("<h4>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
+      this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
       // afficher la version du jeu
       if (this.jeu.version) {
         this.sortieJoueur += ("<small> " + BalisesHtml.retirerBalisesHtml(this.jeu.version) + "</small>");
       }
-      this.sortieJoueur += "</h4><p>Un jeu de ";
+      this.sortieJoueur += "</h5><p>Un jeu de ";
 
       // afficher l’auteur du jeu
       if (this.jeu.auteur) {

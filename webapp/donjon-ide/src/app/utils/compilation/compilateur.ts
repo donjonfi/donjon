@@ -102,6 +102,7 @@ export class Compilateur {
     resultat.regles = regles;
     resultat.actions = actions;
     resultat.erreurs = erreurs;
+    resultat.aides = aides;
 
     return resultat;
 
