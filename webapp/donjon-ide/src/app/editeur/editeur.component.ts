@@ -101,7 +101,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
   nomExemple = "coince";
   /** Afficher les préférences ou non */
   afficherPreferences = false;
-
+  /** Afficher les sectinos ou non */
+  afficherSections = false;
+  
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   compilationEnCours = false;
   compilationTerminee = false;
@@ -600,13 +602,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   showTab(tab: string) {
     switch (tab) {
-      case 'editeur':
+      case 'scenario':
         this.editeurTabs.tabs[0].active = true;
         break;
       case 'compilation':
         this.editeurTabs.tabs[1].active = true;
         break;
-      case 'jouer':
+      case 'jeu':
         this.editeurTabs.tabs[2].active = true;
         break;
       case 'apercu':

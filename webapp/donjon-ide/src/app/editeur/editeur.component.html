@@ -32,6 +32,13 @@
             title="Afficher les préférences"><i class="fas fa-sliders-h"></i><span
               class="ml-2 d-none d-xl-inline">Préférences</span></button>
         </div>
+        <!-- sections -->
+        <div *ngIf="false && (allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)"
+          class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="afficherSections = !afficherSections" class="btn btn-secondary"
+            title="Afficher les sections (parties, titres et scènes)"><i class="fas fa-thumbtack"></i><span
+              class="ml-2 d-none d-xl-inline">Sections</span></button>
+        </div>
         <!-- exemple -->
         <div class="col-auto px-1 px-lg-2">
           <div class="input-group mb-3">
@@ -103,7 +110,8 @@
         </div>
       </div>
       <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-      <div class="row mb-2">
+      <div class="row mb-2" *ngIf="afficherSections && (allPartiesIntitule?.length || allChapitresIntitule?.length ||
+        allScenesIntitule?.length)">
         <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
           <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie()" class="form-control" name="choixPartie">
             <option [ngValue]="null">(tout le code)</option>
@@ -129,7 +137,9 @@
 
         <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
           <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
-            <option [ngValue]="null">{{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}</option>
+            <option [ngValue]="null">
+              {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
+            </option>
             <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
               <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
                 Scène « {{intitule}} »
@@ -180,9 +190,9 @@
       </ng-container>
 
       <p class="p-5">
-        <button *ngIf="monde" (click)="showTab('jouer')" type="button" class="btn btn-primary">Jouer</button>
+        <button *ngIf="monde" (click)="showTab('jeu')" type="button" class="btn btn-primary">Jeu</button>
         <button *ngIf="monde" (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
-        <button *ngIf="!monde" (click)="showTab('editeur')" type="button" class="btn btn-primary ml-2">Scénario</button>
+        <button *ngIf="!monde" (click)="showTab('scenario')" type="button" class="btn btn-primary ml-2">Scénario</button>
       </p>
 
       <code class="text-danger">
@@ -194,8 +204,8 @@
     <!-- </div> -->
   </tab>
 
-  <!-- TAB: JOUER -->
-  <tab heading="Jouer" [disabled]="!compilationTerminee || monde == null">
+  <!-- TAB: JEU -->
+  <tab heading="Jeu" [disabled]="!compilationTerminee || monde == null">
     <!-- Jeu -->
     <!-- <div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm"> -->
     <div *ngIf="compilationTerminee" class="mt-2">
