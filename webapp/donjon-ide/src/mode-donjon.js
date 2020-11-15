@@ -9,7 +9,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var variableLanguage = (
       "joueur|inventaire|historique|"
       + "intitulé|description|titre|auteur|aperçu|lien|capacité|accord|réaction|version|licence|jeu|"
-      + "contenu"
+      + "aide|commande|contenu"
     );
 
     var builtinFunctions = (
@@ -77,7 +77,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "(porté|possédé|disponible|occupé)(e)?(s)?"
         }, {
           token: "storage.type",
-          regex: "une (clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+          regex: "une (clé|porte|personne|action)|l('|’)action|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
             "des (clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
         }, {
           // token: "support.variable",
