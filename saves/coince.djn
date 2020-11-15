@@ -11,7 +11,7 @@ PARTIE "Description du monde".
 --               MONDE
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-chapitre "Le salon".
+CHAPITRE "Le salon".
 -- /////////////////////
 --   LIEU 1 − LE SALON
 -- /////////////////////
@@ -121,7 +121,7 @@ Le joueur peut pousser le bouton:
     changer la porte secrète est ouverte,
     changer la porte secrète n'est plus invisible.
 
-Chapitre "Le cabinet".
+CHAPITRE "Le cabinet".
 -- ///////////////////////
 --   LIEU 2 − LE CABINET
 -- ///////////////////////

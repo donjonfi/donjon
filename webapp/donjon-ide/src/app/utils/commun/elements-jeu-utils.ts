@@ -191,7 +191,9 @@ export class ElementsJeuUtils {
           cor.nbCor += cor.objets.length;
         }
       }
-      console.log(" >>>> éléments trouvés:", cor.elements);
+      if (this.verbeux) {
+        console.log(" >>>> éléments trouvés:", cor.elements);
+      }
       // console.log(" >>>> objets trouvés:", cor.objets);
       // console.log(" >>>> lieux trouvés:", cor.lieux);
       // console.log(" >>>> intitulé:", cor.intitule);
