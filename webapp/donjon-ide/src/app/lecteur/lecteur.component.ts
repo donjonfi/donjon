@@ -2,6 +2,7 @@ import { Action, ActionCeciCela } from '../models/compilateur/action';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
+import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClasseUtils } from '../utils/commun/classe-utils';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
@@ -50,44 +51,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   constructor() { }
 
-  private static doHtml(texte: string): string {
-    texte = LecteurComponent.retirerBalisesHtml(texte);
-    texte = LecteurComponent.ajouterBalisesHtml(texte);
-    return texte;
-  }
 
-  /**
-   * Retirer les tags html du texte.
-   */
-  private static retirerBalisesHtml(texte: string): string {
-    const retVal = texte.replace(/<[^>]*>/g, '');
-    return retVal;
-  }
-
-  /**
-   * Ajouter des tags HTML
-   */
-  private static ajouterBalisesHtml(texte: string): string {
-    // italique: texte avec une partie en {/italique/} et le reste normal.
-    let retVal = texte.replace(/\{\//g, '<i>');
-    retVal = retVal.replace(/\/\}/g, '</i>');
-    // gras: texte avec une partie en {*gras*} et le reste normal.
-    retVal = retVal.replace(/\{\*/g, '<b>');
-    retVal = retVal.replace(/\*\}/g, '</b>');
-    // souligner. texte avec une partie {_soulignée_} et le reste normal.
-    retVal = retVal.replace(/\{_/g, '<u>');
-    retVal = retVal.replace(/_\}/g, '</u>');
-    // texte DANGER {+texte+}
-    retVal = retVal.replace(/\{\+/g, '<span class="text-danger">');
-    retVal = retVal.replace(/\+\}/g, '</span>');
-    // texte PRIMARY {-texte-}
-    retVal = retVal.replace(/\{-/g, '<span class="text-primary">');
-    retVal = retVal.replace(/-\}/g, '</span>');
-    // nouvelle ligne {n} ou \n
-    retVal = retVal.replace(/\{n\}/g, '<br>');
-    retVal = retVal.replace(/\n/g, '<br>');
-    return retVal;
-  }
 
 
   ngOnInit(): void { }
@@ -101,7 +65,33 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);
-      this.sortieJoueur += (this.jeu.titre ? ("<h3>" + LecteurComponent.retirerBalisesHtml(this.jeu.titre) + "</h3>") : "");
+      // afficher le titre et la version du jeu
+      this.sortieJoueur += ("<h4>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
+      // afficher la version du jeu
+      if (this.jeu.version) {
+        this.sortieJoueur += ("<small> " + BalisesHtml.retirerBalisesHtml(this.jeu.version) + "</small>");
+      }
+      this.sortieJoueur += "</h4><p>Un jeu de ";
+
+      // afficher l’auteur du jeu
+      if (this.jeu.auteur) {
+        this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteur));
+      } else if (this.jeu.auteurs) {
+        this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteurs));
+      } else {
+        this.sortieJoueur += ("(anonyme)");
+      }
+
+      // afficher la licence du jeu
+      if (this.jeu.licenceTitre) {
+        if (this.jeu.licenceLien) {
+          this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a></p>");
+        } else {
+          this.sortieJoueur += ("<br>Licence :" + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</p>");
+        }
+      }
+
+      this.sortieJoueur += "</p>";
 
       // définir visibilité des objets initiale
       this.eju.majPresenceDesObjets();
@@ -114,7 +104,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       // éxécuter les instructions AVANT le jeu commence
       let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
       if (resultatAvant.sortie) {
-        this.sortieJoueur += LecteurComponent.doHtml(resultatAvant.sortie) + "<br>";
+        this.sortieJoueur += BalisesHtml.doHtml(resultatAvant.sortie) + "<br>";
       }
       // continuer l’exécution de l’action si elle n’a pas été arrêtée
       if (resultatAvant.stopper !== true) {
@@ -122,12 +112,12 @@ export class LecteurComponent implements OnInit, OnChanges {
         let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
         if (resultatRemplacer.nombre === 0) {
           // afficher où on est.
-          this.sortieJoueur += LecteurComponent.doHtml(this.com.ouSuisJe());
+          this.sortieJoueur += BalisesHtml.doHtml(this.com.ouSuisJe());
         }
 
         // éxécuter les instructions APRÈS le jeu commence
         const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-        this.sortieJoueur += LecteurComponent.doHtml(resultatApres.sortie);
+        this.sortieJoueur += BalisesHtml.doHtml(resultatApres.sortie);
       }
 
       this.sortieJoueur += "</p>";
@@ -196,10 +186,10 @@ export class LecteurComponent implements OnInit, OnChanges {
       // compléter la commande
       const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
 
-      this.sortieJoueur += '<p><span class="text-primary">' + LecteurComponent.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
+      this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
       const result = this.doCommande(commandeComplete.trim());
       if (result) {
-        this.sortieJoueur += LecteurComponent.doHtml(result);
+        this.sortieJoueur += BalisesHtml.doHtml(result);
       }
       this.sortieJoueur += "</p>";
       this.commande = "";

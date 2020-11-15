@@ -29,7 +29,7 @@ import { Verification } from 'src/app/models/compilateur/verification';
 export class Analyseur {
 
 
-  public static analyserPhrases(phrases: Phrase[], monde: Monde, elementsGeneriques: ElementGenerique[], regles: Regle[], actions: Action[], typesUtilisateur: Map<string, Definition>, erreurs: string[], verbeux: boolean) {
+  public static analyserPhrases(phrases: Phrase[], monde: Monde, elementsGeneriques: ElementGenerique[], regles: Regle[], actions: Action[], aides: Aide[], typesUtilisateur: Map<string, Definition>, erreurs: string[], verbeux: boolean) {
 
     let dernierePropriete: Propriete = null;
     let derniereReaction: Reaction = null;
@@ -40,15 +40,10 @@ export class Analyseur {
 
       // 1) COMMENTAIRE
       if (phrase.commentaire) {
-        // si c'est le premier boc du code, il s'agit du titre
-        if (phrase.ordre === 0) {
-          monde.titre = phrase.phrase[0];
-          // sinon, le commentaire se rapporte au dernier sujet
-        } else {
-          console.error("Commentaire pas attaché :", phrase.phrase[0]);
-        }
+        // le commentaire se rapporte au dernier sujet
+        console.error("Commentaire pas attaché :", phrase.phrase[0]);
+        erreurs.push("Commentaire orphelin:", phrase.phrase[0])
         phrase.traitee = true;
-
         // 2) CODE DESCRIPTIF OU REGLE
       } else {
 
@@ -88,7 +83,7 @@ export class Analyseur {
             const aide = ExprReg.xAide.exec(phrase.phrase[0]);
             if (aide) {
               trouveQuelqueChose = true;
-              monde.aides.push(
+              aides.push(
                 new Aide(aide[1],
                   phrase.phrase[1]
                     .replace(ExprReg.xCaractereDebutCommentaire, '')
@@ -193,12 +188,14 @@ export class Analyseur {
                       if (result) {
 
                         let elementCible: ElementGenerique = null;
-
-                        // cas 1 (son/sa xxx est)
+                        let nomProprieteCible: string = null;
+                        // cas 1 (son/sa xxx[1] est)
                         if (result[1]) {
                           elementCible = dernierElementGenerique;
-                          // cas 2 (la xxx de yyy est)
+                          nomProprieteCible = result[1];
+                          // cas 2 (la xxx[2] de yyy[3] est)
                         } else {
+                          nomProprieteCible = result[2];
                           const elementConcerneBrut = result[3];
                           const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
                           if (elementConcerneIntitule) {
@@ -223,7 +220,7 @@ export class Analyseur {
                         if (elementCible) {
 
                           // RÉACTION
-                          if (result[1] === ("réaction")) {
+                          if (nomProprieteCible === ("réaction")) {
                             // on a trouvée une réaction et non un élément générique
                             reactionTrouvee = true;
                             elementGeneriqueTrouve = false;
@@ -245,7 +242,7 @@ export class Analyseur {
                             // PROPRIÉTÉ
                           } else {
                             proprieteTrouvee = true;
-                            dernierePropriete = new Propriete(result[1], (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
+                            dernierePropriete = new Propriete(nomProprieteCible, (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
                             // ajouter la propriété au dernier élément
                             elementCible.proprietes.push(dernierePropriete);
                             if (verbeux) {

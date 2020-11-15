@@ -23,7 +23,6 @@ export class Monde {
 
   }
 
-  titre: string;
   classes: Classe[] = [];
   lieux: ElementGenerique[] = [];
   /** tous les objets */
@@ -34,6 +33,4 @@ export class Monde {
   classiques: ElementGenerique[] = [];
   /** objets filtrés sur « spécial » (joueur, jeu, licence, …) */
   speciaux: ElementGenerique[] = [];
-  /** pages d'aide pour les commandes */
-  aides: Aide[] = [];
 }

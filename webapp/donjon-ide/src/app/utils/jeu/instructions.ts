@@ -384,7 +384,9 @@ export class Instructions {
       }
     }
 
-    console.log("estConditionDescriptionRemplie", condition, statut, retVal);
+    if (this.verbeux) {
+      console.log("estConditionDescriptionRemplie", condition, statut, retVal);
+    }
     return retVal;
   }
 
@@ -433,8 +435,10 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
-    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
-
+    if (this.verbeux) {
+      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
+    }
+    
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
@@ -704,8 +708,9 @@ export class Instructions {
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: Objet = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
-
+    if (this.verbeux) {
+      console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
+    }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur') {
@@ -1113,11 +1118,15 @@ export class Instructions {
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
         // n'est pas => retirer un état
         if (nEstPas) {
-          console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
+          if (this.verbeux) {
+            console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
+          }
           this.jeu.etats.retirerEtatElement(element, instruction.complement1);
           // est => ajouter un état
         } else {
-          console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+          if (this.verbeux) {
+            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+          }
           this.jeu.etats.ajouterEtatElement(element, instruction.complement1);
         }
 

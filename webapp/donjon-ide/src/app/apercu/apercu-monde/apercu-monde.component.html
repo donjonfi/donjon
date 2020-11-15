@@ -2,9 +2,6 @@
 <p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
 <div *ngIf="monde">
 
-  <h4>Titre</h4>
-  <p>{{monde.titre}}</p>
-
   <h4>Lieux</h4>
   <p *ngIf="monde.lieux && monde.lieux.length == 0">Aucun lieu trouvé.</p>
   <ul>

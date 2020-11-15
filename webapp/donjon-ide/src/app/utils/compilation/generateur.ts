@@ -2,6 +2,7 @@ import { EClasseRacine, EEtatsBase } from 'src/app/models/commun/constantes';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Action } from '../../models/compilateur/action';
+import { Aide } from 'src/app/models/commun/aide';
 import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from 'src/app/models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -23,22 +24,18 @@ import { Voisin } from '../../models/jeu/voisin';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[]): Jeu {
+  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], aides: Aide[]): Jeu {
 
     let indexElementJeu = 0;
     let jeu = new Jeu();
-
-    // DÉFINIR LE TITRE
-    // ****************
-    jeu.titre = monde.titre;
 
     // DÉFINIR LES CLASSES
     // *******************
     jeu.classes = monde.classes;
 
-    // COPIER LES FICHES D'AIDE
-    // ************************
-    jeu.aides = monde.aides;
+    // DÉFINIR LES FICHES D'AIDE
+    // *************************
+    jeu.aides = aides;
 
     // PLACER LE JOUEUR
     // ****************
@@ -58,6 +55,21 @@ export class Generateur {
       if (lieuID !== -1) {
         joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
       }
+    }
+
+    // INFOS SUR LE JEU
+    // ****************
+    const jeuDansMonde = monde.speciaux.find(x => x.nom === 'jeu');
+    if (jeuDansMonde) {
+      jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
+      jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === "auteur")?.valeur;
+      jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === "auteurs")?.valeur;
+      jeu.version = jeuDansMonde.proprietes.find(x => x.nom === "version")?.valeur;
+    }
+    const licenceDansMonde = monde.speciaux.find(x => x.nom === 'licence');
+    if (licenceDansMonde) {
+      jeu.licenceTitre = licenceDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
+      jeu.licenceLien = licenceDansMonde.proprietes.find(x => x.nom === "lien")?.valeur;
     }
 
     // AJOUTER LES LIEUX

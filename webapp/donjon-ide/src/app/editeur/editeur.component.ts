@@ -20,6 +20,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { Action } from '../models/compilateur/action';
+import { Aide } from '../models/commun/aide.js';
 import { Compilateur } from '../utils/compilation/compilateur';
 import { Generateur } from '../utils/compilation/generateur';
 import { HttpClient } from '@angular/common/http';
@@ -64,6 +65,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   monde: Monde = null;
   regles: Regle[] = null;
   actions: Action[] = null;
+  aides: Aide[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
 
@@ -103,7 +105,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   afficherPreferences = false;
   /** Afficher les sectinos ou non */
   afficherSections = false;
-  
+
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   compilationEnCours = false;
   compilationTerminee = false;
@@ -115,6 +117,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
   ) {
 
   }
+
+  // =============================================
+  // INITIALISATION DE L’ÉDITEUR
+  // =============================================
 
   ngOnInit(): void {
     // https://www.npmjs.com/package/ngx-ace-wrapper
@@ -165,6 +171,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }
   }
 
+  // =============================================
+  // DESTRUCTION DE L’ÉDITEUR
+  // =============================================
+
   ngOnDestroy(): void {
     this.sauvegarderSession();
   }
@@ -189,29 +199,37 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.selPartieIndex = null;
     this.onChangerSelPartie(false);
 
-    if (this.codeSource && this.codeSource.trim() != '') {
+    if (this.codeSource && this.codeSource.trim() !== '') {
       // interpréter le code
-      let resultat = Compilateur.parseCode(this.codeSource, false);
-      this.monde = resultat.monde;
-      this.regles = resultat.regles;
-      this.actions = resultat.actions.sort((a, b) => (
-        (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
-      ));
-      this.erreurs = resultat.erreurs;
-      // générer le jeu
-      this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions);
+      Compilateur.analyserScenario(this.codeSource, false, this.http).then(resultat => {
+        this.monde = resultat.monde;
+        this.regles = resultat.regles;
+        this.actions = resultat.actions.sort((a, b) => (
+          (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
+        ));
+        this.aides = resultat.aides;
+        this.erreurs = resultat.erreurs;
+
+        // générer le jeu
+        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.aides);
+
+        this.compilationEnCours = false;
+        this.compilationTerminee = true;
+
+      });
     } else {
       this.monde = null;
       this.regles = null;
       this.actions = null;
+      this.aides = null;
       this.erreurs = [];
+      this.compilationEnCours = false;
+      this.compilationTerminee = true;
     }
-    this.compilationEnCours = false;
-    this.compilationTerminee = true;
   }
 
   // =============================================
-  //  SAUVEGARDE
+  //  SAUVEGARDE SCÉNARIO (code source)
   // =============================================
 
   /** Sauvgarder le code source dans le navigateur de l’utilisateur. */
@@ -233,43 +251,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   // =============================================
-  //  GESTION DES PRÉFÉRENCES
+  //  CHARGER SCÉNARIO (code source)
   // =============================================
 
-  /** Changer le thème de mise en surbrillance du code source. */
-  onChangerTheme() {
-    localStorage.setItem('EditeurTheme', this.theme);
-  }
-
-  /** Changer le nombre de lignes de codes visibles. */
-  onChangerNbLignesCode() {
-    localStorage.setItem('EditeurNbLignesCodes', this.nbLignesCode.toString());
-    this.majTailleAce();
-  }
-
-  /** Changer la taille de la police de caractères. */
-  onChangerTailleFont() {
-    localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
-    this.majTailleAce();
-  }
-
-  /** Changer la taille du composant affichant le code source. */
-  majTailleAce() {
-    setTimeout(() => {
-      this.codeEditorElmRef["directiveRef"].ace().resize();
-      this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
-      this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
-      this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
-      // en fonction du navigateur cette valeur est variable !
-      this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
-    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
-  }
-
-  // =============================================
-  //  CHARGER CODE SOURCE
-  // =============================================
-
-  onChargerExemple() {
+  onChargerFichierCloud() {
     const nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
     if (nomFichierExemple) {
       this.viderSectionsCodeSource("partie");
@@ -282,7 +267,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }
   }
 
-  onOuvrirFichier(evenement) {
+  onChargerFichierLocal(evenement) {
     if (this.fichierCharge) {
       // fichier choisi par l’utilisateur
       const file = evenement.target.files[0];
@@ -310,6 +295,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.chargementFichierEnCours = false;
     this.onChangerSelPartie();
   }
+
+  // =============================================
+  //  GESTION DES SECTIONS
+  // =============================================
 
   /** Vider le code source. */
   private viderSectionsCodeSource(typeSection: 'partie' | 'chapitre' | 'scène') {
@@ -617,6 +606,39 @@ export class EditeurComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  // =============================================
+  //  GESTION DES PRÉFÉRENCES
+  // =============================================
+
+  /** Changer le thème de mise en surbrillance du code source. */
+  onChangerTheme() {
+    localStorage.setItem('EditeurTheme', this.theme);
+  }
+
+  /** Changer le nombre de lignes de codes visibles. */
+  onChangerNbLignesCode() {
+    localStorage.setItem('EditeurNbLignesCodes', this.nbLignesCode.toString());
+    this.majTailleAce();
+  }
+
+  /** Changer la taille de la police de caractères. */
+  onChangerTailleFont() {
+    localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
+    this.majTailleAce();
+  }
+
+  /** Changer la taille du composant affichant le code source. */
+  majTailleAce() {
+    setTimeout(() => {
+      this.codeEditorElmRef["directiveRef"].ace().resize();
+      this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
+      this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
+      this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+      // en fonction du navigateur cette valeur est variable !
+      this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
+    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
   }
 
 }

@@ -1,4 +1,5 @@
 import { Action } from '../../models/compilateur/action';
+import { Aide } from 'src/app/models/commun/aide';
 import { Analyseur } from './analyseur';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -8,48 +9,52 @@ import { EClasseRacine } from 'src/app/models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
+import { HttpClient } from '@angular/common/http';
 import { Monde } from '../../models/compilateur/monde';
 import { Nombre } from '../../models/commun/nombre.enum';
+import { Observable } from 'rxjs';
 import { Phrase } from '../../models/compilateur/phrase';
 import { Regle } from '../../models/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
+import { finalize } from 'rxjs/operators';
 
 export class Compilateur {
 
-  static verbeux = true;
-
   /**
-   * Interpréter le code source fourni et renvoyer le jeu correspondant.
-   * @param source Code à interpréter.
+   * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
+   * @param scenario Scénario du jeu
+   * @param verbeux Est-ce qu’il faut afficher beaucoup de détails dans la console ?
+   * @param http service http pour récupérerles fichiers à inclure.
    */
-  public static parseCode(source: string, verbeux: boolean): ResultatCompilation {
-
+  public static async analyserScenario(scenario: string, verbeux: boolean, http: HttpClient) {
     // le monde qui est décrit
     let monde = new Monde();
     let elementsGeneriques = new Array<ElementGenerique>();
     let regles = new Array<Regle>();
     let actions = new Array<Action>();
+    let aides = new Array<Aide>();
     let typesUtilisateur: Map<string, Definition> = new Map();
     let erreurs = new Array<string>();
 
-    Compilateur.verbeux = verbeux;
-    console.warn("Compilateur.verbeux=", Compilateur.verbeux);
+    console.warn("analyserScenario >> verbeux=", verbeux);
 
     // ajouter le joueur au monde
     elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
 
-    // *****************************************
-    // CONVERTIR LE CODE SOURCE BRUT EN PHRASES
-    // *****************************************
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(source);
+    try {
+      const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
+      Compilateur.analyserCode(sourceCommandes, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
+    } catch (error) {
+      console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+      erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
+    }
 
-    // ********************************
-    // ANALYSER LES PHRASES
-    // ********************************
-    Analyseur.analyserPhrases(phrases, monde, elementsGeneriques, regles, actions, typesUtilisateur, erreurs, this.verbeux);
+    // B. Interpréter le scénario
+    Compilateur.analyserCode(scenario, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
+
 
     // ********************************************
     // SÉPARER LES OBJETS, LES LIEUX, LES SPÉCIAUX
@@ -78,6 +83,57 @@ export class Compilateur {
       }
     });
 
+    // **********************************
+    // AFFICHER RÉSULTAT DANS LA CONSOLE
+    // **********************************
+
+    // if (verbeux) {
+    console.log("==================\n");
+    console.log("monde:", monde);
+    console.log("règles:", regles);
+    console.log("actions:", actions);
+    console.log("aides:", aides);
+    console.log("typesUtilisateur:", typesUtilisateur);
+    console.log("==================\n");
+    // }
+
+    let resultat = new ResultatCompilation();
+    resultat.monde = monde;
+    resultat.regles = regles;
+    resultat.actions = actions;
+    resultat.erreurs = erreurs;
+
+    return resultat;
+
+  }
+
+  /**
+   * Interpréter le code source fourni et renvoyer le jeu correspondant.
+   * @param source Code à interpréter.
+   */
+  private static analyserCode(
+    source: string,
+    monde: Monde,
+    elementsGeneriques: ElementGenerique[],
+    regles: Regle[],
+    actions: Action[],
+    aides: Aide[],
+    typesUtilisateur: Map<string, Definition>,
+    erreurs: string[],
+    verbeux: boolean
+  ) {
+
+    // *****************************************
+    // CONVERTIR LE SCÉNARIO BRUT EN PHRASES
+    // *****************************************
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(source);
+
+    // ********************************
+    // ANALYSER LES PHRASES
+    // ********************************
+
+    Analyseur.analyserPhrases(phrases, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
+
     // *************************
     // SÉPARER LES CONSÉQUENCES
     // *************************
@@ -86,7 +142,7 @@ export class Compilateur {
       if (regle.consequencesBrutes) {
         regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, false);
       }
-      if (Compilateur.verbeux) {
+      if (verbeux) {
         console.log(">>> regle:", regle);
       }
     });
@@ -100,37 +156,12 @@ export class Compilateur {
           }
           reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, false);
         });
-        if (Compilateur.verbeux) {
+        if (verbeux) {
           console.log(">>> objet avec réactions :", objet);
         }
       }
     });
 
-    // // ****************************
-    // // FILTRER LES OBJETS SPÉCIAUX
-    // // ****************************
-    // monde.speciaux = monde.objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.special));
-    // monde.classiques = monde.objets.filter(x => !ClasseUtils.heriteDe(x.classe, EClasseRacine.special));
-
-    // **********************************
-    // AFFICHER RÉSULTAT DANS LA CONSOLE
-    // **********************************
-
-    //if (Compilateur.verbeux) {
-    console.log("==================\n");
-    console.log("monde:", monde);
-    console.log("règles:", regles);
-    console.log("actions:", actions);
-    console.log("typesUtilisateur:", typesUtilisateur);
-    console.log("==================\n");
-    //}
-
-    let resultat = new ResultatCompilation();
-    resultat.monde = monde;
-    resultat.regles = regles;
-    resultat.actions = actions;
-    resultat.erreurs = erreurs;
-    return resultat;
   }
 
   /**

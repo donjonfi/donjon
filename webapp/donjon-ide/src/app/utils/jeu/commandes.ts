@@ -174,7 +174,7 @@ export class Commandes {
         }
       } else {
         console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
-        retVal = "pas trouvé > aucune correspondances";
+        retVal = "pas trouvé > aucune correspondance";
       }
     }
     if (retVal) {

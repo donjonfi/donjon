@@ -12,18 +12,18 @@
           <button type="button" (click)="onCompiler()" class="btn btn-warning" title="Analyser le code source"><i
               class="fas fa-magic"></i><span class="ml-2 d-none d-md-inline">Analyser</span></button>
         </div>
-        <!-- sauvegarder -->
+        <!-- sauvegarder fichier localement -->
         <div class="col-auto px-1 px-lg-2">
           <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger"
             title="Sauvegarder le code source"><i class="fas fa-download"></i><span
               class="ml-2 d-none d-lg-inline">Sauvegarder</span></button>
         </div>
-        <!-- charger fichier -->
+        <!-- charger fichier local -->
         <div class="col-auto px-1 px-lg-2">
           <label class="btn btn-primary btn-file">
             <i class="fas fa-upload"></i><span class="ml-2 d-none d-lg-inline"
               title="Charger un code existant">Charger</span><input type="file" [(ngModel)]="fichierCharge"
-              accept=".djn,.txt" style="display: none;" (change)="onOuvrirFichier($event)">
+              accept=".djn,.txt" style="display: none;" (change)="onChargerFichierLocal($event)">
           </label>
         </div>
         <!-- préférences -->
@@ -39,13 +39,13 @@
             title="Afficher les sections (parties, titres et scènes)"><i class="fas fa-thumbtack"></i><span
               class="ml-2 d-none d-xl-inline">Sections</span></button>
         </div>
-        <!-- exemple -->
+        <!-- charger fichier cloud (exemple) -->
         <div class="col-auto px-1 px-lg-2">
           <div class="input-group mb-3">
             <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
               placeholder="nom d’un exemple">
             <div class="input-group-append">
-              <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerExemple()" type="button"
+              <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerFichierCloud()" type="button"
                 id="btExecuter" title="Charger l’exemple"><i class="fas fa-cloud-upload-alt"></i><span
                   class="ml-2 d-none d-xl-inline">Charger
                   ex.</span></button>
@@ -177,7 +177,7 @@
           <span class="text-primary">Pssst! Il est possible de charger un exemple pour commencer. 😉</span>
         </div>
       </ng-container>
-      <ng-container *ngIf="codeSource && codeSource.trim() != ''">
+      <ng-container *ngIf="codeSource && codeSource.trim() != '' && monde">
         <div class="text-warning" *ngIf="monde.lieux.length == 0">
           🙄 Je n’ai pas trouvé les lieux à visiter !
         </div>
@@ -185,14 +185,15 @@
           😀 Super ! Je pense que j’ai tout compris !
         </div>
         <div class="text-warning" *ngIf="erreurs.length > 0">
-          😣 Aïe ! Je n’ai pas tout compris…
+          😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
         </div>
       </ng-container>
 
-      <p class="p-5">
+      <p *ngIf="!compilationEnCours" class="p-5">
         <button *ngIf="monde" (click)="showTab('jeu')" type="button" class="btn btn-primary">Jeu</button>
         <button *ngIf="monde" (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
-        <button *ngIf="!monde" (click)="showTab('scenario')" type="button" class="btn btn-primary ml-2">Scénario</button>
+        <button *ngIf="!monde" (click)="showTab('scenario')" type="button" class="btn btn-primary ml-2">
+          Scénario</button>
       </p>
 
       <code class="text-danger">
@@ -211,7 +212,7 @@
     <div *ngIf="compilationTerminee" class="mt-2">
       <!-- <div class="card-body p-2"> -->
       <h3>Jeu</h3>
-      <app-lecteur [jeu]="jeu" [verbeux]="true"></app-lecteur>
+      <app-lecteur [jeu]="jeu" [verbeux]="false"></app-lecteur>
       <!-- </div> -->
     </div>
   </tab>

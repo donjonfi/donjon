@@ -14,10 +14,23 @@ export class Jeu {
 
   }
 
-  /**
-   * Titre du jeu.
-   */
+  /** Titre du jeu. */
   titre: string;
+
+  /** Auteur du jeu. */
+  auteur: string;
+
+  /** Auteurs du jeu. */
+  auteurs: string;
+
+  /** Version du jeu. */
+  version: string;
+
+  /** Titre de la licence du jeu. */
+  licenceTitre: string;
+
+  /** Lien de la licence du jeu. */
+  licenceLien: string;
 
   /** Le jeu est-il terminé ? */
   termine = false;
@@ -26,21 +39,13 @@ export class Jeu {
 
   etats: ListeEtats = new ListeEtats();
 
-  /**
-   * Lieux qui constituent le jeu.
-   */
+  /** Lieux qui constituent le jeu. */
   lieux: Lieu[] = [];
 
-  // /**
-  //  * Portes qui séparent les lieux.
-  //  */
-  // portes: Porte[] = [];
-
+  /** Objet qui représente le joueur. */
   joueur: Objet;
 
-  /**
-   * Tous les objets du jeu
-   */
+  /** Tous les objets du jeu */
   objets: Objet[] = [];
 
   /** Un auditeur écoute un évènement en particulier.
@@ -49,31 +54,15 @@ export class Jeu {
    */
   auditeurs: Auditeur[] = [];
 
-  /**
-   * Règles ajoutées au jeu.
-   */
+  /** Règles ajoutées au jeu. */
   regles: Regle[] = [];
 
-  /**
-   * Actions ajoutées au jeu.
-   */
+  /** Actions ajoutées au jeu. */
   actions: Action[] = [];
 
-  /**
-   * États sauvegardés
-   */
+  /** États sauvegardés */
   sauvegardes: string[] = [];
 
   aides: Aide[] = [];
 
-  /**
-   * Objets du jeu en possession du joueur.
-   */
-  // inventaire: Inventaire = new Inventaire();
-
-  /**
-   * Position du joueur.
-   * ID d’un lieu du jeu.
-   */
-  // position: number;
 }

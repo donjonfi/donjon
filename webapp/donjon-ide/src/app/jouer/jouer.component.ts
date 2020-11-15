@@ -45,11 +45,14 @@ export class JouerComponent implements OnInit {
             this.chargement = false;
             this.compilation = true;
             this.codeSource = codeSource;
-            if (this.codeSource.trim() != '') {
-              // interpréter le code
-              const resultat = Compilateur.parseCode(this.codeSource, false);
-              // générer le jeu
-              this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions);
+            if (this.codeSource.trim() !== '') {
+              // Analyser le scénario et générer le jeu
+              Compilateur.analyserScenario(this.codeSource, false, this.http).then(
+                resultat => {
+                  // générer le jeu
+                  this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions, resultat.aides);
+                }
+              );
             } else {
               this.erreurs = ["Pas de code source dans le fichier."];
             }
