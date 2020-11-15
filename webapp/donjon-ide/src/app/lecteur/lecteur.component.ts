@@ -348,19 +348,18 @@ export class LecteurComponent implements OnInit, OnChanges {
               // PHASE REFUSER (vérifier l'action)
               let refus = false;
               if (actionCeciCela.action.verifications) {
-                console.log("vérifications en cours pour la commande…");
+                // console.log("vérifications en cours pour la commande…");
                 // parcourir les vérifications
                 actionCeciCela.action.verifications.forEach(verif => {
                   if (verif.conditions.length == 1) {
                     if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela)) {
-                      console.warn("> commande vérifie cela:", verif);
+                      // console.warn("> commande vérifie cela:", verif);
                       const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
                       retVal = resultatRefuser.sortie;
                       refus = true;
                     }
                   } else {
                     console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
-
                   }
                 });
               }
@@ -432,8 +431,9 @@ export class LecteurComponent implements OnInit, OnChanges {
       }
     });
 
-    console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
-
+    if (this.verbeux) {
+      console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
+    }
     // TODO: prise en charge des sujets génériques (objet, personne, portes, ...)
 
     // infinitif + sujet (+complément), vérifier que celui de la commande correspond
@@ -492,7 +492,6 @@ export class LecteurComponent implements OnInit, OnChanges {
         console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
       }
     }
-    // console.warn("testerCommandePersonnalisee >>> resultat:", resultat);
     return resultat;
   }
 
@@ -512,17 +511,12 @@ export class LecteurComponent implements OnInit, OnChanges {
         if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
           if (retVal === null) {
             retVal = ele;
-            console.log("XXXX > ok on a un truc");
-
           } else {
             // déjà un match, on en a plusieurs.
             retVal = -1;
           }
         }
       });
-
-      console.log("XXXXX > retVal=", retVal);
-
 
       // todo: vérifier début de nom si aucune correspondance exacte
 

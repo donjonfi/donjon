@@ -7,7 +7,7 @@
   <ul>
     <ng-template ngFor let-el [ngForOf]="monde.lieux">
       <li>
-        <app-apercu-element-generique [el]=el></app-apercu-element-generique>
+        <app-apercu-element-generique [el]=el [estLieu]="true"></app-apercu-element-generique>
       </li>
     </ng-template>
   </ul>

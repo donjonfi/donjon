@@ -30,7 +30,9 @@
     </li>
     <li>Synonymes :<span *ngIf="!el.synonymes || el.synonymes.length == 0"> (aucun)</span>
       <ul *ngIf="el.synonymes">
-        <li *ngFor="let syn of el.synonymes"><app-apercu-sujet [sujet]="syn" title="''"></app-apercu-sujet></li>
+        <li *ngFor="let syn of el.synonymes">
+          <app-apercu-sujet [sujet]="syn" title="''"></app-apercu-sujet>
+        </li>
       </ul>
     </li>
     <li>Attibuts :<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
@@ -38,12 +40,12 @@
         <li *ngFor="let at of el.attributs">{{at}}</li>
       </ul>
     </li>
-    <li>Capacitées :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
+    <li *ngIf="!estLieu">Capacitées :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
       <ul *ngIf="el.capacites">
         <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
       </ul>
     </li>
-    <li>Réactions :<span *ngIf="!el.reactions || el.reactions.length == 0"> (aucune)</span>
+    <li *ngIf="!estLieu">Réactions :<span *ngIf="!el.reactions || el.reactions.length == 0"> (aucune)</span>
       <ul *ngIf="el.reactions">
         <li *ngFor="let rea of el.reactions">
           <app-apercu-reaction [reaction]="rea"></app-apercu-reaction>

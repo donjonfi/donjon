@@ -117,6 +117,12 @@ export class Abreviations {
           retVal = "déverrouiller";
           break;
 
+        case 'd':
+        case 'do':
+        case 'don':
+          retVal = "donner ";
+          break;
+
         // ======================
         //           E
         // ======================
@@ -171,11 +177,26 @@ export class Abreviations {
           break;
 
         // ======================
+        //           J
+        // ======================
+
+        case 'j':
+        case 'je':
+        case 'jet':
+          retVal = "jeter ";
+          break;
+
+        // ======================
         //           M
         // ======================
 
         case 'mo':
           retVal = "monter";
+          break;
+
+        case 'me':
+        case 'met':
+          retVal = "mettre ";
           break;
 
         // ======================
@@ -235,7 +256,7 @@ export class Abreviations {
 
         case 'po':
         case 'pos':
-          retVal = "position";
+          retVal = "poser";
           break;
 
         // ======================

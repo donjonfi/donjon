@@ -10,9 +10,11 @@ import { ElementGenerique } from 'src/app/models/compilateur/element-generique';
 export class ApercuElementGeneriqueComponent implements OnInit {
 
   @Input() el: ElementGenerique;
-
-  replie = true;
+  @Input() estLieu = false;
   
+  replie = true;
+
+
   constructor() { }
 
   ngOnInit(): void {

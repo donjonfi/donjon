@@ -40,7 +40,7 @@ export class ConditionsUtils {
         case "de l’":
         case "de l'":
           resultCondition = ClasseUtils.heriteDe(sujet.classe, cond.sujetComplement.nom);
-          console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
+          // console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
 
         case "la ":
@@ -282,8 +282,9 @@ export class ConditionsUtils {
       console.error("siEstVrai: condition pas comprise:", condition);
     }
 
-    console.log("siEstVrai: ", condition, retVal);
-
+    if (this.verbeux) {
+      console.log("siEstVrai: ", condition, retVal);
+    }
     // prise en compte de la négation
     if (condition.negation) {
       retVal = !retVal;
@@ -293,4 +294,3 @@ export class ConditionsUtils {
   }
 
 }
-//
