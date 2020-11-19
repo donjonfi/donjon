@@ -42,7 +42,8 @@ npm install
 
 Tester l'application localement:
 ```shell
-ng serve
+ng serve donjon-creer
+ng serve donjon-jouer
 ```
 Se rendre ensuite sur `http://localhost:4200/`.
 
@@ -50,7 +51,9 @@ Se rendre ensuite sur `http://localhost:4200/`.
 
 Compiler l'application:
 ```shell
-ng build --prod
+ng build donjon
+ng build donjon-creer --prod
+ng build donjon-jouer --prod
 ```
 Publier ensuie le contenu du dossier `dist` à la racine du site web.
 
