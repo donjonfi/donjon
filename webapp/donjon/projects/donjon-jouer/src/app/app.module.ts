@@ -12,7 +12,7 @@ import { NgModule } from '@angular/core';
 @NgModule({
   declarations: [
     AppComponent,
-    JouerComponent
+    JouerComponent,
   ],
   imports: [
     CommonModule,

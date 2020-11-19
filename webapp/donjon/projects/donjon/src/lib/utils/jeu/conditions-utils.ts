@@ -219,7 +219,7 @@ export class ConditionsUtils {
               // retrouver la destination
               // remarque: négation appliquée plus loin.
               let destination: ElementJeu = null;
-              if (condition.sujetComplement.nom == "ici") {
+              if (condition.sujetComplement?.nom === "ici") {
                 destination = this.eju.curLieu;
               } else {
                 const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement);

@@ -34,6 +34,9 @@ export class Jeu {
   /** Le jeu est-il terminé ? */
   termine = false;
 
+  /** Le jeu est-il déjà commencé ? */
+  commence = false;
+
   classes: Classe[] = [];
 
   etats: ListeEtats = new ListeEtats();

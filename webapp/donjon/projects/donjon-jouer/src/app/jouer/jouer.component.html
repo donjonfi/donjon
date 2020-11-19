@@ -1,9 +1,33 @@
+<nav class="navbar navbar-dark bg-success text-light mb-2 p-0">
+  <a class="navbar-brand" routerLink="/">
+    <img src="/assets/tower_30px.png" width="30" height="30" class="d-inline-block align-top" alt="">
+    Donjon
+  </a>
+  <form class="form-inline">
+    <label class="btn btn-danger btn-file mr-2 py-2 my-0 my-lg-2 py-lg-1"
+      title="Charger un nouveau jeu ou une partie sauvegardée">
+      <i class="fas fa-folder-open"></i><span class="ml-2 d-none d-lg-inline">Charger</span><input type="file"
+        [(ngModel)]="fichierCharge" accept=".djn,.sav,.txt" style="display: none;" name="choixFichierNouveau"
+        (change)="onChargerFichierLocal($event)">
+    </label>
+
+    <button class="btn btn-sm btn-warning mr-2" title="Sauvegarder la partie" name="btnSauver"
+      (click)="onSauvegarderJeu()"><i class="fas fa-save fa-fw"></i><span class="ml-2 d-none d-lg-inline">Sauver</span>
+    </button>
+
+  </form>
+</nav>
+
 <p *ngIf="chargement">
   Chargement du jeu…
 </p>
 
 <p *ngIf="compilation">
   Compilation du jeu…
+</p>
+
+<p *ngIf="!chargement && !compilation && !jeu">
+  Veuillez charger un fichier de jeu.
 </p>
 
 <div *ngIf="erreurs">

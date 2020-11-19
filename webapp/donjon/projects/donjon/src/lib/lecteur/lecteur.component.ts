@@ -51,9 +51,6 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   constructor() { }
 
-
-
-
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -90,44 +87,50 @@ export class LecteurComponent implements OnInit, OnChanges {
           this.sortieJoueur += ("<br>Licence :" + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</p>");
         }
       }
-
       this.sortieJoueur += "</p>";
 
-      // définir visibilité des objets initiale
-      this.eju.majPresenceDesObjets();
+      // nouvelle partie
+      if (!this.jeu.commence) {
 
-      this.sortieJoueur += "<p>";
+        // définir visibilité des objets initiale
+        this.eju.majPresenceDesObjets();
 
-      // évènement COMMENCER JEU
-      let evCommencerJeu = new Evenement('commencer', 'jeu');
+        this.sortieJoueur += "<p>";
 
-      // éxécuter les instructions AVANT le jeu commence
-      let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
-      if (resultatAvant.sortie) {
-        this.sortieJoueur += BalisesHtml.doHtml(resultatAvant.sortie) + "<br>";
-      }
-      // continuer l’exécution de l’action si elle n’a pas été arrêtée
-      if (resultatAvant.stopper !== true) {
-        // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-        let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
-        if (resultatRemplacer.nombre === 0) {
-          // afficher où on est.
-          this.sortieJoueur += BalisesHtml.doHtml(this.com.ouSuisJe());
+        // évènement COMMENCER JEU
+        let evCommencerJeu = new Evenement('commencer', 'jeu');
+
+        // éxécuter les instructions AVANT le jeu commence
+        let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
+        if (resultatAvant.sortie) {
+          this.sortieJoueur += BalisesHtml.doHtml(resultatAvant.sortie) + "<br>";
+        }
+        // continuer l’exécution de l’action si elle n’a pas été arrêtée
+        if (resultatAvant.stopper !== true) {
+          // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
+          let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
+          if (resultatRemplacer.nombre === 0) {
+            // afficher où on est.
+            this.sortieJoueur += BalisesHtml.doHtml(this.com.ouSuisJe());
+            this.jeu.commence = true;
+          }
+
+          // éxécuter les instructions APRÈS le jeu commence
+          const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
+          this.sortieJoueur += BalisesHtml.doHtml(resultatApres.sortie);
         }
 
-        // éxécuter les instructions APRÈS le jeu commence
-        const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-        this.sortieJoueur += BalisesHtml.doHtml(resultatApres.sortie);
+        this.sortieJoueur += "</p>";
+        // reprise d'une partie
+      } else {
+        this.sortieJoueur += "<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>";
+        // afficher où on est.
+        this.sortieJoueur += "<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>";
       }
-
-      this.sortieJoueur += "</p>";
-
     } else {
       console.warn("pas de jeu :(");
     }
   }
-
-
 
 
   /**
