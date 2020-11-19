@@ -1,0 +1,230 @@
+<tabset #editeurTabs>
+  <!-- TAB : Scénario (code source) -->
+  <tab heading="Scénario" id="scenario">
+    <div class="mt-2">
+      <!-- <div class="card-body p-2"> -->
+      <div class="row">
+        <div class="col-md-auto">
+          <h4>Scénario</h4>
+        </div>
+        <!-- compiler -->
+        <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="onCompiler()" class="btn btn-warning" title="Analyser le code source"><i
+              class="fas fa-magic"></i><span class="ml-2 d-none d-md-inline">Analyser</span></button>
+        </div>
+        <!-- sauvegarder fichier localement -->
+        <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="onSauvegarderSous()" class="btn btn-danger"
+            title="Sauvegarder le code source"><i class="fas fa-download"></i><span
+              class="ml-2 d-none d-lg-inline">Sauvegarder</span></button>
+        </div>
+        <!-- charger fichier local -->
+        <div class="col-auto px-1 px-lg-2">
+          <label class="btn btn-primary btn-file">
+            <i class="fas fa-upload"></i><span class="ml-2 d-none d-lg-inline"
+              title="Charger un code existant">Charger</span><input type="file" [(ngModel)]="fichierCharge"
+              accept=".djn,.txt" style="display: none;" (change)="onChargerFichierLocal($event)">
+          </label>
+        </div>
+        <!-- préférences -->
+        <div class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="afficherPreferences = !afficherPreferences" class="btn btn-secondary"
+            title="Afficher les préférences"><i class="fas fa-sliders-h"></i><span
+              class="ml-2 d-none d-xl-inline">Préférences</span></button>
+        </div>
+        <!-- sections -->
+        <div *ngIf="false && (allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)"
+          class="col-auto px-1 px-lg-2">
+          <button type="button" (click)="afficherSections = !afficherSections" class="btn btn-secondary"
+            title="Afficher les sections (parties, titres et scènes)"><i class="fas fa-thumbtack"></i><span
+              class="ml-2 d-none d-xl-inline">Sections</span></button>
+        </div>
+        <!-- charger fichier cloud (exemple) -->
+        <div class="col-auto px-1 px-lg-2">
+          <div class="input-group mb-3">
+            <input #txCommande type="text" maxlength="25" [(ngModel)]="nomExemple" class="form-control"
+              placeholder="nom d’un exemple">
+            <div class="input-group-append">
+              <button [disabled]="!nomExemple" class="btn btn-secondary" (click)="onChargerFichierCloud()" type="button"
+                id="btExecuter" title="Charger l’exemple"><i class="fas fa-cloud-upload-alt"></i><span
+                  class="ml-2 d-none d-xl-inline">Charger
+                  ex.</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="afficherPreferences" class="row mb-2">
+        <div class="col-auto">
+          <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
+            <option disabled>*** Thèmes clairs ***</option>
+            <option [ngValue]="'chrome'">chrome</option>
+            <option [ngValue]="'crimson_editor'">crimson_editor</option>
+            <option [ngValue]="'katzenmilch'">katzenmilch</option>
+            <option [ngValue]="'solarized_light'">solarized_light</option>
+            <option [ngValue]="'tomorrow'">tomorrow</option>
+            <option disabled>*** Thèmes foncés ***</option>
+            <option [ngValue]="'ambiance'">ambiance</option>
+            <option [ngValue]="'dracula'">dracula</option>
+            <option [ngValue]="'monokai'">monokai</option>
+            <option [ngValue]="'solarized_dark'">solarized_dark</option>
+            <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+
+          </select>
+        </div>
+        <div class="col-auto">
+          <select [(ngModel)]="nbLignesCode" (change)="onChangerNbLignesCode()" class="form-control"
+            name="choixNbLignesCodes">
+            <option [ngValue]="10">10 lignes visibles</option>
+            <option [ngValue]="15">15 lignes visibles</option>
+            <option [ngValue]="20">20 lignes visibles</option>
+            <option [ngValue]="25">25 lignes visibles</option>
+            <option [ngValue]="30">30 lignes visibles</option>
+            <option [ngValue]="35">35 lignes visibles</option>
+            <option [ngValue]="40">40 lignes visibles</option>
+            <option [ngValue]="45">45 lignes visibles</option>
+            <option [ngValue]="50">50 lignes visibles</option>
+            <option [ngValue]="60">60 lignes visibles</option>
+            <option [ngValue]="70">70 lignes visibles</option>
+            <option [ngValue]="80">80 lignes visibles</option>
+          </select>
+        </div>
+
+        <div class="col-auto">
+          <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
+            name="choixNbLignesCodes">
+            <option [ngValue]="13">police 13</option>
+            <option [ngValue]="14">police 14</option>
+            <option [ngValue]="15">police 15</option>
+            <option [ngValue]="16">police 16</option>
+            <option [ngValue]="17">police 17</option>
+            <option [ngValue]="18">police 18</option>
+            <option [ngValue]="19">police 19</option>
+            <option [ngValue]="20">police 20</option>
+            <option [ngValue]="21">police 21</option>
+            <option [ngValue]="22">police 22</option>
+            <option [ngValue]="23">police 23</option>
+            <option [ngValue]="24">police 24</option>
+            <option [ngValue]="25">police 25</option>
+          </select>
+        </div>
+      </div>
+      <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
+      <div class="row mb-2" *ngIf="afficherSections && (allPartiesIntitule?.length || allChapitresIntitule?.length ||
+        allScenesIntitule?.length)">
+        <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
+          <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie()" class="form-control" name="choixPartie">
+            <option [ngValue]="null">(tout le code)</option>
+            <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Partie « {{intitule}} »
+              </option>
+            </ng-container>
+          </select>
+        </div>
+
+        <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
+          <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre()" class="form-control"
+            name="choixChapitre">
+            <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le code)')}}</option>
+            <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Chapitre « {{intitule}} »
+              </option>
+            </ng-container>
+          </select>
+        </div>
+
+        <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
+          <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
+            <option [ngValue]="null">
+              {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
+            </option>
+            <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
+              <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                Scène « {{intitule}} »
+              </option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+
+      <!-- CODE SOURCE (Scénario) -->
+      <div class="card mb-2 mt-n1" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
+        <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"></ace>
+      </div>
+
+    </div>
+  </tab>
+
+  <!-- TAB: ANALYSE-->
+  <tab heading="Analyse" [disabled]="!compilationTerminee && !compilationEnCours">
+    <!-- Compilation -->
+    <!-- <div *ngIf="erreurs" class="card mb-2 shadow-sm"> -->
+
+    <div *ngIf="compilationEnCours">
+      <p>Analyse en cours …</p>
+    </div>
+
+    <div *ngIf="compilationTerminee" class="mt-2">
+      <!-- <div class="card-body p-2"> -->
+      <h5>Résultat de l’analyse</h5>
+
+      <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
+        <div>
+          <span class="text-warning">Moi je veux bien mais il n’y a aucun texte à analyser dans votre
+            scénario. 🙄</span><br>
+          <span class="text-primary">Pssst! Il est possible de charger un exemple pour commencer. 😉</span>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="codeSource && codeSource.trim() != '' && monde">
+        <div class="text-warning" *ngIf="monde.lieux.length == 0">
+          🙄 Je n’ai pas trouvé les lieux à visiter !
+        </div>
+        <div class="text-success" *ngIf="erreurs.length == 0">
+          😀 Super ! Je pense que j’ai tout compris !
+        </div>
+        <div class="text-warning" *ngIf="erreurs.length > 0">
+          😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
+        </div>
+      </ng-container>
+
+      <p *ngIf="!compilationEnCours" class="p-5">
+        <button *ngIf="monde" (click)="showTab('jeu')" type="button" class="btn btn-primary">Jeu</button>
+        <button *ngIf="monde" (click)="showTab('apercu')" type="button" class="btn btn-primary ml-2">Aperçu</button>
+        <button *ngIf="!monde" (click)="showTab('scenario')" type="button" class="btn btn-primary ml-2">
+          Scénario</button>
+      </p>
+
+      <code class="text-danger">
+      <span *ngFor="let err of erreurs">
+          {{err}}<br>
+      </span>
+    </code>
+    </div>
+    <!-- </div> -->
+  </tab>
+
+  <!-- TAB: JEU -->
+  <tab heading="Jeu" [disabled]="!compilationTerminee || monde == null">
+    <!-- Jeu -->
+    <!-- <div *ngIf="mode == 'jeu'" class="card mb-4 shadow-sm"> -->
+    <div *ngIf="compilationTerminee" class="mt-2">
+      <!-- <div class="card-body p-2"> -->
+      <h3>Jeu</h3>
+      <djn-lecteur [jeu]="jeu" [verbeux]="false"></djn-lecteur>
+      <!-- </div> -->
+    </div>
+  </tab>
+
+  <!-- TAB: APERÇU -->
+  <tab heading="Aperçu" [disabled]="!compilationTerminee || monde == null">
+    <!-- Aperçu -->
+    <!-- <div *ngIf="mode == 'apercu'" class="card mb-4 shadow-sm"> -->
+    <div *ngIf="compilationTerminee" class="mt-4">
+      <!-- <div class="card-body p-2"> -->
+      <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions"></app-apercu-monde>
+      <!-- </div> -->
+    </div>
+  </tab>
+</tabset>

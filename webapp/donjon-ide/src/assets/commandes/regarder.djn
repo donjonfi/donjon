@@ -1,9 +1,0 @@
--- REGARDER
-
-le joueur peut regarder:
-  dire "[description ici]".
-  
-regarder ceci est une action qui concerne un objet visible.
-
-exécuter regarder ceci:
-  dire "[description ceci][si aucune description pour ceci]Je ne vois rien de particulier.[fin si]".
