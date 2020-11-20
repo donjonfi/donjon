@@ -32,6 +32,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
 
+  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario';
+
   nbLignesCode = 20;
   tailleTexte = 18;
   hauteurLigneCode = 18;
@@ -183,9 +185,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
 
-    setTimeout(() => {
-      this.showTab('compilation');
-    }, 100);
+    // setTimeout(() => {
+      this.showTab('analyse');
+    // }, 0);
 
     // sauver le code
     this.sauvegarderSession();
@@ -595,25 +597,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   }
 
-
-
-  showTab(tab: string) {
-    switch (tab) {
-      case 'scenario':
-        this.editeurTabs.tabs[0].active = true;
-        break;
-      case 'compilation':
-        this.editeurTabs.tabs[1].active = true;
-        break;
-      case 'jeu':
-        this.editeurTabs.tabs[2].active = true;
-        break;
-      case 'apercu':
-        this.editeurTabs.tabs[3].active = true;
-        break;
-      default:
-        break;
-    }
+  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario'): void {
+    this.tab = tab;
+    // switch (tab) {
+    //   case 'scenario':
+    //     // this.editeurTabs.tabs[0].active = true;
+    //     break;
+    //   case 'analyse':
+    //     this.editeurTabs.tabs[1].active = true;
+    //     break;
+    //   case 'jeu':
+    //     this.editeurTabs.tabs[2].active = true;
+    //     break;
+    //   case 'apercu':
+    //     this.editeurTabs.tabs[3].active = true;
+    //     break;
+    //   default:
+    //     break;
+    // }
   }
 
   // =============================================
@@ -621,24 +622,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Changer le thème de mise en surbrillance du code source. */
-  onChangerTheme() {
+  onChangerTheme(): void {
     localStorage.setItem('EditeurTheme', this.theme);
   }
 
   /** Changer le nombre de lignes de codes visibles. */
-  onChangerNbLignesCode() {
+  onChangerNbLignesCode(): void {
     localStorage.setItem('EditeurNbLignesCodes', this.nbLignesCode.toString());
     this.majTailleAce();
   }
 
   /** Changer la taille de la police de caractères. */
-  onChangerTailleFont() {
+  onChangerTailleFont(): void {
     localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
     this.majTailleAce();
   }
 
   /** Changer la taille du composant affichant le code source. */
-  majTailleAce() {
+  majTailleAce(): void {
     setTimeout(() => {
       this.codeEditorElmRef["directiveRef"].ace().resize();
       this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);

@@ -18,7 +18,7 @@ import { EditeurComponent } from './editeur/editeur.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { TabsModule } from 'ngx-bootstrap/tabs';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -44,7 +44,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     HttpClientModule,
     AppRoutingModule,
     CollapseModule.forRoot(),
-    TabsModule.forRoot(),
+    TooltipModule.forRoot(),
     AceModule,
     DonjonModule
   ],
