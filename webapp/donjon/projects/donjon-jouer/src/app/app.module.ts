@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { JouerComponent } from './jouer/jouer.component';
 import { NgModule } from '@angular/core';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { NgModule } from '@angular/core';
     FormsModule,
     HttpClientModule,
     AppRoutingModule,
+    TooltipModule.forRoot(),
     DonjonModule,
   ],
   providers: [],
