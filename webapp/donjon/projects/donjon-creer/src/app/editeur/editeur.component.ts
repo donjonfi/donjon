@@ -22,7 +22,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
 
 @Component({
@@ -201,7 +201,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Compiler (Analyser) le code source (scénario) */
-  onCompiler() {
+  onCompiler(): void {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
 
@@ -250,7 +250,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Sauvgarder le code source dans le navigateur de l’utilisateur. */
-  sauvegarderSession() {
+  sauvegarderSession(): void {
     this.rassemblerSource();
     sessionStorage.setItem('CodeSource', this.codeSource);
     sessionStorage.setItem('SelPartieIndex', this.selPartieIndex?.toString() ?? "");
@@ -259,7 +259,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur. */
-  onSauvegarderSous() {
+  onSauvegarderSous(): void {
 
     // sauver le code dans le cache
     this.sauvegarderSession();
@@ -276,7 +276,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  CHARGER SCÉNARIO (code source)
   // =============================================
 
-  onChargerFichierCloud(nouveau: boolean = false) {
+  onChargerFichierCloud(nouveau: boolean = false): void {
     let nomFichierExemple: string;
     if (nouveau) {
       nomFichierExemple = "nouveau.djn";
@@ -300,7 +300,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }
   }
 
-  onChargerFichierLocal(evenement) {
+  onChargerFichierLocal(evenement): void {
     if (this.fichierCharge) {
       // fichier choisi par l’utilisateur
       const file = evenement.target.files[0];
@@ -308,7 +308,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.viderSectionsCodeSource("partie");
         this.sectionCodeSourceVisible = "";
         this.chargementFichierEnCours = true;
-        let fileReader = new FileReader();
+        const fileReader = new FileReader();
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
           this.initCodeSource(fileReader.result as string);
@@ -320,7 +320,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Initialiser le code source */
-  private initCodeSource(codeSource: string) {
+  private initCodeSource(codeSource: string): void {
     this.codeSource = codeSource;
     this.sectionCodeSourceVisible = codeSource;
     this.sectionMode = "tout";
@@ -334,7 +334,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Vider le code source. */
-  private viderSectionsCodeSource(typeSection: 'partie' | 'chapitre' | 'scène') {
+  private viderSectionsCodeSource(typeSection: 'partie' | 'chapitre' | 'scène'): void {
 
     // vider scènes
     this.allScenesIntitule = null;
@@ -360,7 +360,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Sélection de la partie à afficher à changée */
-  onChangerSelPartie(rassemblerAvant = true) {
+  onChangerSelPartie(rassemblerAvant = true): void {
     // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
       // sauvegarder la section visible actuellement pour ne rien perdre
@@ -399,7 +399,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Sélection du chapitre à afficher a changée */
-  onChangerSelChapitre(rassemblerAvant = true) {
+  onChangerSelChapitre(rassemblerAvant = true): void {
     // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
       // sauvegarder la section visible actuellement pour ne rien perdre
@@ -427,7 +427,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Sélection de la scène à afficher a changée. */
-  onChangerSelScene() {
+  onChangerSelScene(): void {
     // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
       this.rassemblerSource();
@@ -447,7 +447,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Rassembler le code source pour ne rien perdre */
-  rassemblerSource() {
+  rassemblerSource(): void {
     switch (this.sectionMode) {
       case "tout":
         this.codeSource = this.sectionCodeSourceVisible;
@@ -471,7 +471,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Rassembler les parties ensemble */
-  private rassemblerLesParties() {
+  private rassemblerLesParties(): void {
     // mettre à jour la PARTIE en cours d’édition dans la liste des parties
     this.allPartiesCodeSource[this.actPartieIndex] = this.sectionCodeSourceVisible;
     // joindre les parties dans le code source
@@ -479,7 +479,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Rassembler les chapitres ensemble */
-  private rassemblerLesChapitres() {
+  private rassemblerLesChapitres(): void {
     // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
     this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
     const chapitresRassembles = this.allChapitresCodeSource.join("");
@@ -498,7 +498,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Rassembler les scènes ensemble */
-  private rassemblerLesScenes() {
+  private rassemblerLesScenes(): void {
     // mettre à jour la SCÈNE en cours d’édition dans la liste des scènes
     this.allScenesCodeSource[this.actSceneIndex] = this.sectionCodeSourceVisible;
     const scenesRassemblees = this.allScenesCodeSource.join("");
@@ -523,7 +523,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Découper le code source en sections (parties, chapitres ou scènes) */
-  private decouperEnSections(codeSource: string, typeSection: 'partie' | 'chapitre' | 'scène') {
+  private decouperEnSections(codeSource: string, typeSection: 'partie' | 'chapitre' | 'scène'): void {
     this.viderSectionsCodeSource(typeSection);
 
     // découper pour avoir les intitulés des parties de code et leur contenu en alternance
