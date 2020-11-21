@@ -20,7 +20,9 @@ import { Action, Aide, Compilateur, Generateur, Jeu, Monde, Regle, StringUtils }
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
+import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import {Location} from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
 
 @Component({
@@ -109,6 +111,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
+    private location: Location,
   ) {
 
   }
@@ -140,32 +144,48 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.theme = retVal;
     }
 
-    // récupérer le code source de la session
-    const codeSource = sessionStorage.getItem("CodeSource");
-    if (codeSource) {
-      this.initCodeSource(codeSource);
-      // récupérer la sélection partie/chapitre/scène
-      const selPartieIndexStr = sessionStorage.getItem("SelPartieIndex");
-      this.selPartieIndex = selPartieIndexStr ? +selPartieIndexStr : null;
-      if (this.selPartieIndex !== null) {
-        console.log(">>> selPartieIndex=", this.selPartieIndex);
-        this.onChangerSelPartie();
+    // =========================================
+    // vérifier si un fichier est renseigné
+    // =========================================
+    const sub = this.route.params.subscribe(params => {
+      const fichier = params['fichier'];
+      // si on a renseigné un fichier
+      if (fichier) {
+        this.nomExemple = fichier;
+        this.onChargerFichierCloud();
+        // =====================================
+        // si on n'a pas renseigné de fichier
+        // =====================================
+      } else {
+        // récupérer le code source de la session
+        const codeSource = sessionStorage.getItem("CodeSource");
+        if (codeSource) {
+          this.initCodeSource(codeSource);
+          // récupérer la sélection partie/chapitre/scène
+          const selPartieIndexStr = sessionStorage.getItem("SelPartieIndex");
+          this.selPartieIndex = selPartieIndexStr ? +selPartieIndexStr : null;
+          if (this.selPartieIndex !== null) {
+            console.log(">>> selPartieIndex=", this.selPartieIndex);
+            this.onChangerSelPartie();
+          }
+          const selChapitreIndexStr = sessionStorage.getItem("SelChapitreIndex");
+          this.selChapitreIndex = selChapitreIndexStr ? +selChapitreIndexStr : null;
+          if (this.selChapitreIndex !== null) {
+            console.log(">>> selChapitreIndex=", this.selChapitreIndex);
+            this.onChangerSelChapitre();
+          }
+          const selSceneIndexStr = sessionStorage.getItem("SelSceneIndex");
+          this.selSceneIndex = selSceneIndexStr ? +selSceneIndexStr : null;
+          if (this.selSceneIndex !== null) {
+            console.log(">>> this.selSceneIndex=", this.selSceneIndex);
+            this.onChangerSelScene();
+          }
+
+        } else {
+          this.onChargerFichierCloud(true);
+        }
       }
-      const selChapitreIndexStr = sessionStorage.getItem("SelChapitreIndex");
-      this.selChapitreIndex = selChapitreIndexStr ? +selChapitreIndexStr : null;
-      if (this.selChapitreIndex !== null) {
-        console.log(">>> selChapitreIndex=", this.selChapitreIndex);
-        this.onChangerSelChapitre();
-      }
-      const selSceneIndexStr = sessionStorage.getItem("SelSceneIndex");
-      this.selSceneIndex = selSceneIndexStr ? +selSceneIndexStr : null;
-      if (this.selSceneIndex !== null) {
-        console.log(">>> this.selSceneIndex=", this.selSceneIndex);
-        this.onChangerSelScene();
-      }
-    } else {
-      this.onChargerFichierCloud(true);
-    }
+    });
   }
 
   // =============================================
@@ -186,7 +206,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationTerminee = false;
 
     // setTimeout(() => {
-      this.showTab('analyse');
+    this.showTab('analyse');
     // }, 0);
 
     // sauver le code
@@ -270,6 +290,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.http.get('assets/modeles/' + nomFichierExemple, { responseType: 'text' })
         .subscribe(
           texte => {
+            // changer l’url pour ne plus inclure le nom du fichier
+            this.location.replaceState("/");
+            // charger le code source
             this.initCodeSource(texte);
           }, erreur => {
             console.error("Fichier modèle pas trouvé:", erreur);

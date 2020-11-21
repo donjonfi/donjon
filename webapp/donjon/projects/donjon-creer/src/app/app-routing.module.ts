@@ -8,6 +8,12 @@ const routes: Routes = [
     path: '',
     component: EditeurComponent
   },
+  {
+    path: ':fichier',
+    component: EditeurComponent
+  },
+  /** page introuvable */
+  { path: '**', component: EditeurComponent }
 ];
 
 @NgModule({
