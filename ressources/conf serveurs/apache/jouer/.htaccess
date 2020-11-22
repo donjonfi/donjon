@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# S'il s'agit d'un fichier ou d'un dossier existant
+# ou de l'url qui commence par assets : continuer sans rediriger.
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d [OR]
+RewriteCond %{REQUEST_URI} ^/jouer/assets/
+RewriteRule ^ - [L]
+
+# Si la ressource n'existe pas, rediriger vers index.html
+RewriteRule ^ /jouer/index.html
