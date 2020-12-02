@@ -134,7 +134,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
 
   /**
-   * Historique: aller en arrière.
+   * Historique: aller en arrière (flèche haut)
    * @param event
    */
   onKeyDownArrowUp(event) {
@@ -147,7 +147,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Historique: revenir en avant
+   * Historique: revenir en avant (Flèche bas)
    */
   onKeyDownArrowDown(event) {
     if (this.curseurHistorique > 0) {
@@ -168,7 +168,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
 
-
+  /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
     const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
     if (commandeComplete !== this.commande) {
@@ -178,7 +178,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Valider une commande.
+   * Enter: Valider une commande.
    * @param event 
    */
   onKeyDownEnter(event) {
