@@ -1,19 +1,19 @@
-# Donjon IDE
+# Donjon FI
 
 *Le jeu à énigmes en mode texte*
 
-Donjon IDE vous permet d’écrire des *fictions interactives* et d’y jouer.\
+Donjon FI vous permet d’écrire des *fictions interactives* et d’y jouer.\
 Tout est en français.
 
-Vous pouvez utiliser Donjon IDE directement sur le site [donjon.xax.be](https://donjon.xax.be) . Il y a également des exemples de jeux.
+Vous pouvez utiliser Donjon FI directement sur le site [donjon.xax.be](https://donjon.xax.be) . Il y a également des exemples de jeux.
 
 ## Publier votre jeu
 
 Actuellement il vous faut soit compiler Donjon IDE et le publier sur votre site web soit proposer votre jeu sur [donjon.xax.be](https://donjon.xax.be) .
 
-Une version pré-compilée de Donjon IDE sera proposée prochainement.
+Une version pré-compilée de Donjon FI sera proposée prochainement.
 
-## Compilation de Donjon IDE
+## Compilation de Donjon FI
 
 Donjon IDE est développé avec *Angular*.\
 Les langages utilisés sont le *TypeScript*, *HTML* et *SCSS*.
