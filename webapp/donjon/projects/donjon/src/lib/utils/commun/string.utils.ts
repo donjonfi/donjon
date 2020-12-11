@@ -7,7 +7,7 @@ export class StringUtils {
    * @param ext PAS sécurisé !
    */
   static nameToSafeFileName(name: string, ext: string): string {
-    var NonAphaNumTiret = /[^a-z0-9\-]/gi;
+    var NonAphaNumTiret = /[^a-z0-9\-\_]/gi;
     let fileName: string = null;
     if (name) {
       const nomNettoye = name.replace(NonAphaNumTiret, "");
