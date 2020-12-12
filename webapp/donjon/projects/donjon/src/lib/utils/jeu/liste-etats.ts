@@ -77,9 +77,10 @@ export class ListeEtats {
     // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
     // dénombrable et indénombrable (objet)
     this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
-    // mangeable et buvable (objet)
+    // mangeable, buvable, portable (objet)
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);
+    this.creerEtat(EEtatsBase.portable);
     // ouvrable, ouvert, fermé (porte, contenant)
     this.ouvrableID = this.creerEtat(EEtatsBase.ouvrable).id;
     const ouvFer = this.creerBasculeEtats(EEtatsBase.ouvert, EEtatsBase.ferme);
@@ -577,6 +578,31 @@ export class ListeEtats {
     return elEtats;
   }
 
+  obtenirIntituleEtatPourElementJeu(el: ElementJeu, etatID: number) {
+
+    const feminin = el.genre === Genre.f;
+    const pluriel = el.nombre === Nombre.p;
+    let retVal: string;
+    
+    let etat = this.obtenirEtat(etatID);
+
+    if (feminin) {
+      if (pluriel) {
+        retVal = etat.nomFP ?? etat.nom;
+      } else {
+        retVal = etat.nomFS ?? etat.nom;
+      }
+    } else {
+      if (pluriel) {
+        retVal = etat.nomMP ?? etat.nom;
+      } else {
+        retVal = etat.nomMS ?? etat.nom;
+      }
+    }
+
+    return retVal;
+  }
+
   /** Récupérer la liste des intitulés des états de l’élément spécéfié. */
   obtenirIntitulesEtatsElementJeu(el: ElementJeu) {
     const elEtats = this.obtenirEtatsElementJeu(el);
@@ -585,20 +611,20 @@ export class ListeEtats {
     const totalEtats = elEtats.length;
     let nbEtats = 0;
     let retVal = totalEtats === 0 ? "(aucun)" : "";
-    elEtats.forEach(element => {
+    elEtats.forEach(etat => {
       let curNom: string;
       nbEtats++;
       if (feminin) {
         if (pluriel) {
-          curNom = element.nomFP ?? element.nom;
+          curNom = etat.nomFP ?? etat.nom;
         } else {
-          curNom = element.nomFS ?? element.nom;
+          curNom = etat.nomFS ?? etat.nom;
         }
       } else {
         if (pluriel) {
-          curNom = element.nomMP ?? element.nom;
+          curNom = etat.nomMP ?? etat.nom;
         } else {
-          curNom = element.nomMS ?? element.nom;
+          curNom = etat.nomMS ?? etat.nom;
         }
       }
       retVal += curNom + (nbEtats === totalEtats ? "." : (nbEtats === (totalEtats - 1) ? " et " : ", "));
