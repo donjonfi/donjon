@@ -57,6 +57,8 @@ export enum EEtatsBase {
   mangeable = 'mangeable',
   /** buvable */
   buvable = 'buvable',
+  /** portable (le joueur peut le mettre sur lui, s'habiller avec) */
+  portable = 'portable',
   /** ouvrable */
   ouvrable = 'ouvrable',
   /** ouvert (↔ fermé) : porte, contenant, … */
