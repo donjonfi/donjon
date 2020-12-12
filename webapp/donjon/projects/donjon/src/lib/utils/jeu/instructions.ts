@@ -589,6 +589,9 @@ export class Instructions {
         objets.forEach(obj => {
           ++curObjIndex;
           resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj);
+          if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
+            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) +")";
+          }
 
           // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
           if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
@@ -799,6 +802,9 @@ export class Instructions {
 
     // si l'objet à déplacer est le joueur, modifier la visibilité des objets
     if (objet.id === this.jeu.joueur.id) {
+      // l'objet n'est forcément plus caché
+      this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
+
       // la présence des objets a changé
       this.eju.majPresenceDesObjets();
 
@@ -1071,36 +1077,77 @@ export class Instructions {
     let resultat = new Resultat(false, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
+      // DÉPLACER LE JOUEUR
       case 'se trouve':
         resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1);
         break;
+
+      // AJOUTER UN OBJET A L'INVENTAIRE
       case 'possède':
-        // console.error("POSSÈDE : ", instruction);
+        // Objet classique
         if (instruction.sujetComplement1) {
           resultat = this.executerDeplacer(instruction.sujetComplement1, "vers", instruction.sujet);
+          // Instruction spécifique
         } else if (instruction.complement1) {
-          let els: Objet[] = null;
+          let objets: Objet[] = null;
+          // - Contenu de ceci
           if (instruction.complement1.endsWith('contenu de ceci')) {
             if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-              els = this.obtenirContenu(ceci as Objet);
+              objets = this.obtenirContenu(ceci as Objet);
             } else {
               console.error("Joueur possède contenu de ceci: ceci n'est as un objet.");
             }
+            // - Contenu de cela
           } else if (instruction.complement1.endsWith('contenu de cela')) {
             if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-              els = this.obtenirContenu(cela as Objet);
+              objets = this.obtenirContenu(cela as Objet);
             } else {
               console.error("Joueur possède contenu de cela: cela n'est as un objet.");
             }
           }
-          if (els) {
-            els.forEach(el => {
+          // objets contenus trouvés
+          if (objets) {
+            objets.forEach(el => {
               resultat = this.exectuterDeplacerObjetVersDestination(el, 'vers', this.jeu.joueur);
             });
           }
         }
         break;
 
+      // PORTER UN OBJET (s'habiller avec)
+      case 'porte':
+        let objet: Objet = null;
+        // Objet classique
+        if (instruction.sujetComplement1) {
+          // trouver l'objet
+          let correspondanceSujet = this.eju.trouverCorrespondance(instruction.sujetComplement1);
+
+          // un élément trouvé
+          if (correspondanceSujet.elements.length === 1) {
+            objet = correspondanceSujet.objets[0];
+            // aucun élément trouvé
+          } else if (correspondanceSujet.elements.length === 0) {
+            console.error("executerJoueur >>> porter >>> je n’ai pas trouvé l’objet:", instruction.sujetComplement1);
+            // plusieurs éléments trouvés
+          } else {
+            console.error("executerJoueur >>> porter >>> j’ai trouvé plusieurs correspondances pour l’objet:", instruction.sujetComplement1);
+          }
+          // ceci
+        } else if (instruction.complement1 == 'ceci') {
+          objet = ceci as Objet;
+          // cela
+        } else if (instruction.complement1 == 'cela') {
+          objet = cela as Objet;
+        } else {
+          console.error("executerJoueur: le joueur porte : complément pas géré:", instruction.complement1);
+        }
+        if (objet) {
+          // déplacer l'objet vers l'inventaire
+          resultat = this.exectuterDeplacerObjetVersDestination(objet, "vers", this.jeu.joueur);
+          // l'objet est porté
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
+        }
+        break;
       default:
         console.error("executerJoueur : pas compris verbe", instruction.verbe, instruction);
         break;
