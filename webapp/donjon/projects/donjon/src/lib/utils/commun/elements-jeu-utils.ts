@@ -23,7 +23,7 @@ export class ElementsJeuUtils {
   static calculerIntitule(ceci: Intitule) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
-      retVal = ceci.intitule.determinant + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+      retVal = (ceci.intitule.determinant ? ceci.intitule.determinant : "") + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
     }
     return retVal;
   }
