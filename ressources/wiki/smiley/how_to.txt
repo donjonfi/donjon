@@ -1,0 +1,3 @@
+wiki/lib/images/smileys
+=> créer dossier « local ».
+=> ajouter au dossier « donjonfi.png ».
