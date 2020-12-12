@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2020-11-12-0001
+-- Version: 2020-12-12-0002
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -299,9 +299,20 @@ SCÈNE "mettre".
 --   METTRE
 -- ===========
 
--- a) mettre
-le joueur peut mettre:
-  dire "Je sais poser un objet sur un support ou le mettre dans un contenant.".
+-- b) metre ceci (sur moi)
+mettre ceci est une action qui concerne un objet visible.
+
+refuser mettre ceci:
+  si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.".
+
+exécuter mettre ceci:
+  changer le joueur porte ceci.
+  
+terminer mettre ceci:
+  dire "Vous portez [intitulé ceci].".
+
+interpréter porter comme mettre.
   
 -- c) metre ceci dans cela
 mettre ceci dans cela est une action qui concerne un objet visible et un objet visible.
@@ -317,11 +328,13 @@ exécuter mettre ceci dans cela:
 terminer mettre ceci sur cela:
   dire "C’est fait.".
 
-L'aide pour l'action mettre est "{*Mettre / Poser*}
+interpréter poser comme mettre.
+
+L'aide pour l'action mettre est "{*Mettre / Poser / Porter*}
   Permet de poser un objet sur un support ou de le mettre dans un contenant.
   {+exemples+} :
   > {-mettre {/la pomme/} dans {/le panier/}-}
   > {-poser {/l'épée/} sur {/la table/}-}
+  > {-porter {/le chapeau/}-}
   {+raccourci+} : {-me-}, {-po-}".
-  
   
