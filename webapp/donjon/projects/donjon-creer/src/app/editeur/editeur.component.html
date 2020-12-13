@@ -28,13 +28,26 @@
         </button>
         <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
           (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
-          <i class="fas fa-fw fa-terminal fa-xl"></i>
+          <i class="fas fa-fw fa-terminal fa-lg"></i>
         </button>
         <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
           (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
           <i class="fas fa-fw fa-sitemap fa-lg"></i>
         </button>
       </div>
+
+      <ng-container *ngIf="tab == 'analyse' && jeu">
+        <br>
+        <button class="btn btn-warning mt-4" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
+          placement="right">
+          <i class="fas fa-fw fa-terminal fa-lg"></i>
+        </button>
+        <br>
+        <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu"
+          placement="right">
+          <i class="fas fa-fw fa-sitemap fa-lg"></i>
+        </button>
+      </ng-container>
 
       <ng-container *ngIf="tab == 'scenario'">
         <br>
@@ -53,7 +66,8 @@
 
         <!-- wiki -->
         <br>
-        <a class="btn btn-primary mt-4" href="https://wiki.donjon.xax.be/creer/" target="_blank" tooltip="Wiki" placement="right">
+        <a class="btn btn-primary mt-4" href="https://wiki.donjon.xax.be/creer/" target="_blank" tooltip="Wiki"
+          placement="right">
           <i class="fas fa-fw fa-question fa-lg"></i>
         </a>
 
@@ -174,7 +188,8 @@
             <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
               <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
                 <option [ngValue]="null">
-                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
+                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
+                  partie)':'(tout le code)'))}}
                 </option>
                 <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                   <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
@@ -246,6 +261,7 @@
       <!-- TAB: JEU -->
       <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="mt-n2">
         <djn-lecteur [jeu]="jeu" [verbeux]="false"></djn-lecteur>
+        <br><small>Tapez : « <span class="text-primary">deb épée</span> » pour déboguer l’épée dans la console.</small>
       </div>
 
       <!-- TAB: APERÇU -->
