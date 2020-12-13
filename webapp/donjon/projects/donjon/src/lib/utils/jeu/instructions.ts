@@ -590,7 +590,7 @@ export class Instructions {
           ++curObjIndex;
           resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj);
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
-            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) +")";
+            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
           }
 
           // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
@@ -802,8 +802,6 @@ export class Instructions {
 
     // si l'objet à déplacer est le joueur, modifier la visibilité des objets
     if (objet.id === this.jeu.joueur.id) {
-      // l'objet n'est forcément plus caché
-      this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
 
       // la présence des objets a changé
       this.eju.majPresenceDesObjets();
@@ -812,8 +810,9 @@ export class Instructions {
     } else {
       // si la destination est un lieu
       if (objet.position.cibleType === EClasseRacine.lieu) {
-        // l'objet n'est plus possédé
+        // l'objet n'est plus possédé ni porté
         this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
+        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
         // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
           this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
@@ -823,15 +822,19 @@ export class Instructions {
         }
         // si la destination est un objet
       } else {
-        // si la destination est le joueur, l'objet est présent et possédé
+        // si la destination est le joueur, l'objet est présent, possédé et n’est plus caché.
         if (destination.id === this.jeu.joueur.id) {
           this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
           this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.possede, true);
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
+
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
-          // forcément l'objet n'est pas possédé
+          // forcément l'objet n'est pas possédé ni porté
           // TODO: un objet dans un contenant possédé est-il possédé ?
           this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
+          // TODO: un objet dans un contenant porté est-il porté ?
+          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
           this.eju.majPresenceObjet(objet);
         }
       }
@@ -1116,36 +1119,20 @@ export class Instructions {
 
       // PORTER UN OBJET (s'habiller avec)
       case 'porte':
-        let objet: Objet = null;
-        // Objet classique
-        if (instruction.sujetComplement1) {
-          // trouver l'objet
-          let correspondanceSujet = this.eju.trouverCorrespondance(instruction.sujetComplement1);
-
-          // un élément trouvé
-          if (correspondanceSujet.elements.length === 1) {
-            objet = correspondanceSujet.objets[0];
-            // aucun élément trouvé
-          } else if (correspondanceSujet.elements.length === 0) {
-            console.error("executerJoueur >>> porter >>> je n’ai pas trouvé l’objet:", instruction.sujetComplement1);
-            // plusieurs éléments trouvés
-          } else {
-            console.error("executerJoueur >>> porter >>> j’ai trouvé plusieurs correspondances pour l’objet:", instruction.sujetComplement1);
-          }
-          // ceci
-        } else if (instruction.complement1 == 'ceci') {
-          objet = ceci as Objet;
-          // cela
-        } else if (instruction.complement1 == 'cela') {
-          objet = cela as Objet;
-        } else {
-          console.error("executerJoueur: le joueur porte : complément pas géré:", instruction.complement1);
-        }
+        let objet: Objet = this.trouverObjetCible(instruction.complement1, instruction.sujetComplement1, ceci, cela);
         if (objet) {
-          // déplacer l'objet vers l'inventaire
-          resultat = this.exectuterDeplacerObjetVersDestination(objet, "vers", this.jeu.joueur);
-          // l'objet est porté
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
+          // NE porte PAS
+          if (instruction.negation) {
+            // l'objet n’est plus porté
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+            // PORTE
+          } else {
+            // déplacer l'objet vers l'inventaire
+            resultat = this.exectuterDeplacerObjetVersDestination(objet, "vers", this.jeu.joueur);
+            // l'objet est porté
+            this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
+          }
+
         }
         break;
       default:
@@ -1192,35 +1179,6 @@ export class Instructions {
     }
     return resultat;
   }
-
-  // ajouterInventaire(intitule: GroupeNominal): Resultat {
-
-  //   let resultat = new Resultat(false, '', 1);
-
-  //   if (intitule) {
-  //     let objetTrouve = this.eju.trouverElementJeu(intitule, EmplacementElement.partout, true, false);
-  //     if (objetTrouve === -1) {
-  //       console.warn("ajouterInventaire > plusieurs objets trouvés:", intitule);
-  //     } else if (objetTrouve) {
-  //       const nouvelObjet = this.eju.prendreElementJeu(objetTrouve.id);
-  //       let cible = nouvelObjet;
-  //       // si l'inventaire contient déjà le même objet, augmenter la quantité
-  //       let objInv = this.jeu.inventaire.objets.find(x => x.id == nouvelObjet.id);
-  //       if (objInv) {
-  //         objInv.quantite += 1;
-  //         cible = objInv;
-  //       } else {
-  //         this.jeu.inventaire.objets.push(nouvelObjet);
-  //       }
-  //       resultat.succes = true;
-  //     } else {
-  //       console.warn("ajouterInventaire > objet pas trouvé:", intitule);
-  //     }
-  //   } else {
-  //     console.error("ajouterInventaire >>> intitulé est null.");
-  //   }
-  //   return resultat;
-  // }
 
   afficherStatut(obj: Objet) {
     let retVal = "";
@@ -1329,6 +1287,45 @@ export class Instructions {
         retVal = localisation.toString();
     }
     return retVal;
+  }
+
+  /**
+   * Retrouver l’objet cible de la condition.
+   * @param brute « ceci » et « cela » sont gérés.
+   * @param intitule un objet à retrouver
+   * @param ceci pour le cas où brute vaut « ceci ».
+   * @param cela pour le cas où brute vaut « cela ».
+   */
+  private trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): Objet {
+    let objetCible: Objet = null;
+    // retrouver OBJET CLASSIQUE
+    if (intitule) {
+      const objetsTrouves = this.eju.trouverObjet(intitule);
+      if (objetsTrouves.length == 1) {
+        objetCible = objetsTrouves[0];
+      } else {
+        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
+      }
+      // retrouver OBJET SPÉCIAL
+    } else if (brute = 'ceci') {
+      if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
+        objetCible = ceci as Objet;
+      } else {
+        console.error("Instructions > trouverObjetCible > ceci n’est pas un objet.");
+      }
+    } else if (brute = 'cela') {
+      if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
+        objetCible = cela as Objet;
+      } else {
+        console.error("Instructions > trouverObjetCible > cela n’est pas un objet.");
+      }
+    } else {
+      console.error("Instructions > trouverObjetCible > objet spécial pas pris en change :", brute);
+    }
+    if (!objetCible) {
+      console.warn("Instructions > trouverObjetCible > pas pu trouver :", brute);
+    }
+    return objetCible;
   }
 
 

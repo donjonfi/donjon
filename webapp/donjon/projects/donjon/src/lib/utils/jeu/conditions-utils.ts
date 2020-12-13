@@ -1,8 +1,10 @@
 import { Condition, LienCondition } from '../../models/compilateur/condition';
 
 import { ClasseUtils } from '../commun/classe-utils';
+import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Nombre } from '../../models/commun/nombre.enum';
@@ -219,9 +221,35 @@ export class ConditionsUtils {
               }
               break;
 
-            // POSSESSION
+            // ÉLÉMENT POSSÉDÉ (PAR LE JOUEUR)
             case 'possède':
-              console.error("siEstVrai > condition « possède » pas encore gérée.");
+              if (sujet.nom === "joueur") {
+                // vérifier si l’objet cible est possédé par le joueur
+                // > remarque: négation appliquée plus loin.
+                const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, ceci, cela);
+                if (objetCible) {
+                  retVal = this.jeu.etats.possedeEtatIdElement(objetCible, this.jeu.etats.possedeID);
+                }
+                break;
+              } else {
+                console.error("siEstVrai > condition « possède » prise en charge uniquement pour le joueur.");
+              }
+              break;
+
+
+            // ÉLÉMENT PORTÉ (PAR LE JOUEUR)
+            case 'porte':
+              if (sujet.nom === "joueur") {
+                // vérifier si l’objet cible est porté par le joueur
+                // > remarque: négation appliquée plus loin.
+                const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, ceci, cela);
+                if (objetCible) {
+                  retVal = this.jeu.etats.possedeEtatIdElement(objetCible, this.jeu.etats.porteID);
+                }
+                break;
+              } else {
+                console.error("siEstVrai > condition « porte » prise en charge uniquement pour le joueur.");
+              }
               break;
 
             // LOCALISATION
@@ -302,6 +330,45 @@ export class ConditionsUtils {
     }
 
     return retVal;
+  }
+
+  /**
+   * Retrouver l’objet cible de la condition.
+   * @param brute « ceci » et « cela » sont gérés.
+   * @param intitule un objet à retrouver
+   * @param ceci pour le cas où brute vaut « ceci ».
+   * @param cela pour le cas où brute vaut « cela ».
+   */
+  private trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): Objet {
+    let objetCible: Objet = null;
+    // retrouver OBJET CLASSIQUE
+    if (intitule) {
+      const objetsTrouves = this.eju.trouverObjet(intitule);
+      if (objetsTrouves.length == 1) {
+        objetCible = objetsTrouves[0];
+      } else {
+        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
+      }
+      // retrouver OBJET SPÉCIAL
+    } else if (brute = 'ceci') {
+      if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
+        objetCible = ceci as Objet;
+      } else {
+        console.error("ConditionsUtils > trouverObjetCible > ceci n’est pas un objet.");
+      }
+    } else if (brute = 'cela') {
+      if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
+        objetCible = cela as Objet;
+      } else {
+        console.error("ConditionsUtils > trouverObjetCible > cela n’est pas un objet.");
+      }
+    } else {
+      console.error("ConditionsUtils > trouverObjetCible > objet spécial pas pris en change :", brute);
+    }
+    if (!objetCible) {
+      console.warn("ConditionsUtils > trouverObjetCible > pas pu trouver :", brute);
+    }
+    return objetCible;
   }
 
 }
