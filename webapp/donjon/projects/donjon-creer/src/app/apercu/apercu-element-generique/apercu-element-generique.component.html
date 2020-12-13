@@ -40,7 +40,7 @@
         <li *ngFor="let at of el.attributs">{{at}}</li>
       </ul>
     </li>
-    <li *ngIf="!estLieu">Capacitées :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
+    <li *ngIf="!estLieu">Capacités :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
       <ul *ngIf="el.capacites">
         <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
       </ul>
@@ -60,5 +60,4 @@
       </ul>
     </li>
   </ul>
-
 </div>

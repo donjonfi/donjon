@@ -70,6 +70,7 @@ export class ConditionsUtils {
     const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela);
     let resultConditionB: boolean = null;
     let resultConditionC: boolean = null;
+    let resultConditionD: boolean = null;
     let resultFinal = resultConditionA;
     // une 2e condition est liée
     if (condition.lien) {
@@ -82,6 +83,10 @@ export class ConditionsUtils {
             // si les 2 premières conditions sont vraies, tester la 3e
             if (condition.lien.lien && resultFinal === true) {
               resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+              // si les 3 premières conditions sont vraies, tester la 4e
+              if (condition.lien.lien.lien && resultFinal === true) {
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+              }
             }
           }
           break;
@@ -93,26 +98,32 @@ export class ConditionsUtils {
             // si les 2 premières conditions sont fausses, tester la 3e
             if (condition.lien.lien && resultFinal !== true) {
               resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+              // si les 3 premières conditions sont fausses, tester la 4e
+              if (condition.lien.lien.lien && resultFinal !== true) {
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+              }
             }
           }
           break;
         // SOIT
         case LienCondition.soit:
+          let nbVraiSoit = resultConditionA ? 1 : 0;
           // si c’est un SOIT, tester la 2e
           resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
-          // si on a déjà 2 valeurs vérifiées, on est sûr que c’est faux.
-          if (resultConditionA === true && resultConditionB === true) {
-            resultFinal = false;
-          } else {
-            // si 1 des 2 est vérifiée, on a un résultat final (tomporaire) vrai
-            resultFinal = resultConditionA || resultConditionB;
-            // tester la 3e condition
-            if (condition.lien.lien) {
+          nbVraiSoit += resultConditionB ? 1 : 0;
+          // tester la 3e condition (si pas encore sûr que c’est faux)
+          if (nbVraiSoit < 2 && condition.lien.lien) {
+            // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
+            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+            nbVraiSoit += resultConditionC ? 1 : 0;
+            // tester la 4e condition (si pas encore sûr que c’est faux)
+            if (nbVraiSoit < 2 && condition.lien.lien.lien) {
               // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-              resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
-              resultFinal = resultFinal !== resultConditionC;
+              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+              nbVraiSoit += resultConditionD ? 1 : 0;
             }
           }
+          resultFinal = nbVraiSoit === 1;
           break;
 
         default:

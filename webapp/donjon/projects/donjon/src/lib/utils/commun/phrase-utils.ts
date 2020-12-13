@@ -65,10 +65,13 @@ export class PhraseUtils {
       const compl2 = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[9] : null;
       // éventuellement un 3e complément
       const compl3 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
+      // éventuellement un 4e complément
+      const compl4 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
 
       els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
       els.complement2 = compl2;
       els.complement3 = compl3;
+      els.complement4 = compl4;
       els.conjonction = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[8] : null;
 
       // décomposer les compléments si possible
@@ -90,6 +93,13 @@ export class PhraseUtils {
             const resCompl3 = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement3);
             if (resCompl3) {
               els.sujetComplement3 = new GroupeNominal(resCompl3[2], resCompl3[3], (resCompl3[4] ? resCompl3[4] : null));
+            }
+            // complément4
+            if (els.complement4) {
+              const resCompl4 = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement4);
+              if (resCompl4) {
+                els.sujetComplement4 = new GroupeNominal(resCompl4[2], resCompl4[3], (resCompl4[4] ? resCompl4[4] : null));
+              }
             }
           }
         }
@@ -127,6 +137,10 @@ export class PhraseUtils {
             // 3e élément éventuel
             if (els.complement3) {
               retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              // 4e élément éventuel
+              if (els.complement4) {
+                retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+              }
             }
             break;
           case 'ou':
@@ -134,6 +148,10 @@ export class PhraseUtils {
             // 3e élément éventuel
             if (els.complement3) {
               retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              // 4e élément éventuel
+              if (els.complement4) {
+                retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+              }
             }
             break;
           case 'soit':
@@ -142,6 +160,10 @@ export class PhraseUtils {
             // 3e élément éventuel
             if (els.complement3) {
               retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              // 4e élément éventuel
+              if (els.complement4) {
+                retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+              }
             }
             break;
           case 'mais pas':

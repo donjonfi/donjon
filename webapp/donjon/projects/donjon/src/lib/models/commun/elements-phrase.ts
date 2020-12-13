@@ -11,11 +11,13 @@ export class ElementsPhrase {
   public sujetComplement1: GroupeNominal;
   public sujetComplement2: GroupeNominal;
   public sujetComplement3: GroupeNominal;
+  public sujetComplement4: GroupeNominal;
 
   public preposition: string;
   public conjonction: string;
   public complement2: string;
   public complement3: string;
+  public complement4: string;
 
   constructor(
     public infinitif: string,
