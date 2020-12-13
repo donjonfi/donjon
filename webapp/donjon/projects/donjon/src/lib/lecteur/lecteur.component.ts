@@ -103,7 +103,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         // éxécuter les instructions AVANT le jeu commence
         let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
         if (resultatAvant.sortie) {
-          this.sortieJoueur += BalisesHtml.doHtml(resultatAvant.sortie) + "<br>";
+          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
         }
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
         if (resultatAvant.stopper !== true) {
@@ -111,27 +111,50 @@ export class LecteurComponent implements OnInit, OnChanges {
           let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
           if (resultatRemplacer.nombre === 0) {
             // afficher où on est.
-            this.sortieJoueur += BalisesHtml.doHtml(this.com.ouSuisJe());
+            this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
             this.jeu.commence = true;
           }
 
           // éxécuter les instructions APRÈS le jeu commence
           const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-          this.sortieJoueur += BalisesHtml.doHtml(resultatApres.sortie);
+          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
         }
 
         this.sortieJoueur += "</p>";
-        // reprise d'une partie
+        // REPRISE D’UNE PARTIE
       } else {
-        this.sortieJoueur += "<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>";
+        this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
         // afficher où on est.
-        this.sortieJoueur += "<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>";
+        this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
       }
     } else {
       console.warn("pas de jeu :(");
     }
   }
 
+  /**
+   * Ajouter du contenu à la sortie pour le joueur.
+   * Cette méthode tient compte des pauses.
+   */
+  private ajouterSortieJoueur(contenu: string) {
+    // découper en fonction des pauses
+    const sectionsContenu = contenu.split("@@@attendre touche@@@");
+    if (sectionsContenu.length == 1) {
+      this.sortieJoueur += sectionsContenu[0];
+    } else {
+      let premiereSection = true;
+      sectionsContenu.forEach(sectionContenu => {
+        if (premiereSection) {
+          premiereSection = false;
+        } else {
+          this.sortieJoueur += "</p><p>  ++++ PAUSE ++++</p><p>";
+        }
+        this.sortieJoueur += sectionContenu;
+
+      });
+    }
+
+  }
 
   /**
    * Historique: aller en arrière (flèche haut)
@@ -192,7 +215,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
       const result = this.doCommande(commandeComplete.trim());
       if (result) {
-        this.sortieJoueur += BalisesHtml.doHtml(result);
+        this.ajouterSortieJoueur(BalisesHtml.doHtml(result));
       }
       this.sortieJoueur += "</p>";
       this.commande = "";

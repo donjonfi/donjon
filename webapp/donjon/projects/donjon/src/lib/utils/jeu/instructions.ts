@@ -518,11 +518,22 @@ export class Instructions {
 
       case 'continuer':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
-        if (instruction?.sujetComplement1.nom?.toLocaleLowerCase() === 'action') {
+        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
           resultat.continuer = true;
           resultat.succes = true;
         } else {
-          console.error("executerInfinitif >> continuer >> complément autre que  « action » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> continuer >> sujet autre que  « action » pas pris en charge. sujet=", instruction.sujet);
+          resultat.succes = false;
+        }
+        break;
+
+      case 'attendre':
+        // Il faut continuer l’action en cours (évènement APRÈS spécial)
+        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'touche') {
+          resultat.sortie = "@@@attendre touche@@@";
+          resultat.succes = true;
+        } else {
+          console.error("executerInfinitif >> attenre >> sujet autre que  « touche » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;
