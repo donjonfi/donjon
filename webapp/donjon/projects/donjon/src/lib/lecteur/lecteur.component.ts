@@ -321,25 +321,25 @@ export class LecteurComponent implements OnInit, OnChanges {
             if (ceciIntitule) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCeci.nbCor === 0) {
-                retVal += "\n(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».)";
+                retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».)+}";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 // vérifier si les objets de la commande sont visibles
                 if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
                   if (!this.jeu.etats.estVisible(resultatCeci.objets[0], this.eju)) {
-                    retVal += "\n(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)";
+                    retVal += "\n{+(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)+}";
                   }
                 }
               }
             } else if (celaIntitule) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCela.nbCor === 0) {
-                retVal += "\n(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)";
+                retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)+}";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
                   if (!this.jeu.etats.estVisible(resultatCela.objets[0], this.eju)) {
-                    retVal += "\n(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)";
+                    retVal += "\n{+(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)+}";
                   }
                 }
               }
@@ -348,9 +348,9 @@ export class LecteurComponent implements OnInit, OnChanges {
             // regarder si de l’aide existe pour cet infinitif
             const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
             if (aide) {
-              retVal += "\nVous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher les informations concernant cette commande.";
+              retVal += "\n{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher les informations concernant cette commande./}";
             } else {
-              retVal += "\n(Il n’y a pas de page d’aide concernant cette commande.)";
+              retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
             }
 
             console.warn("commande: ", els);
