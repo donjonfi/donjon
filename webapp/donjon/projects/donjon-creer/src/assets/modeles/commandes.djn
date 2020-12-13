@@ -223,8 +223,8 @@ refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci n'est pas accessible, dire "Je ne sais pas y accéder.";
-  si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.".
-  si ceci est fixé, dire "C'est fixé.";
+  si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
+  si ceci est fixé, dire "C'est fixé.".
 
 exécuter prendre ceci:
   déplacer ceci vers joueur.
