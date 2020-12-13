@@ -116,7 +116,7 @@ export class Instructions {
       if (contenu.includes("[contenu ceci]")) {
         if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
-          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", "{n}C'est vide.", true);
+          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
           contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
@@ -125,7 +125,7 @@ export class Instructions {
       if (contenu.includes("[contenu cela]")) {
         if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           // (afficher les objets cachés de cela)
-          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", "{n}C'est vide.", true);
+          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(cela.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
           contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
         } else {
           console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
