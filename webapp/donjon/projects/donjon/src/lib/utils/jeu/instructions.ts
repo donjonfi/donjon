@@ -530,7 +530,7 @@ export class Instructions {
       case 'attendre':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
         if (instruction?.sujet.nom?.toLocaleLowerCase() === 'touche') {
-          resultat.sortie = "@@@attendre touche@@@";
+          resultat.sortie = "@@attendre touche@@";
           resultat.succes = true;
         } else {
           console.error("executerInfinitif >> attenre >> sujet autre que  « touche » pas pris en charge. sujet=", instruction.sujet);

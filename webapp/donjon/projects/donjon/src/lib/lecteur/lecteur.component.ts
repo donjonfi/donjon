@@ -49,6 +49,8 @@ export class LecteurComponent implements OnInit, OnChanges {
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
+  private resteDeLaSortie: string[] = [];
+
   constructor() { }
 
   ngOnInit(): void { }
@@ -134,26 +136,24 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   /**
    * Ajouter du contenu à la sortie pour le joueur.
-   * Cette méthode tient compte des pauses.
+   * Cette méthode tient compte des pauses (attendre touche).
    */
   private ajouterSortieJoueur(contenu: string) {
-    // découper en fonction des pauses
-    const sectionsContenu = contenu.split("@@@attendre touche@@@");
-    if (sectionsContenu.length == 1) {
+    if (contenu) {
+      // découper en fonction des pauses
+      const sectionsContenu = contenu.split("@@attendre touche@@");
       this.sortieJoueur += sectionsContenu[0];
-    } else {
-      let premiereSection = true;
-      sectionsContenu.forEach(sectionContenu => {
-        if (premiereSection) {
-          premiereSection = false;
-        } else {
-          this.sortieJoueur += "</p><p>  ++++ PAUSE ++++</p><p>";
-        }
-        this.sortieJoueur += sectionContenu;
+      if (sectionsContenu.length > 1) {
+        this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
 
-      });
+        // TODO: gérer ça vraiment avec appuis sur touches par l'utilisateur.
+        this.resteDeLaSortie.forEach(section => {
+          this.sortieJoueur += section;
+        });
+		this.resteDeLaSortie = [];
+
+      }
     }
-
   }
 
   /**
