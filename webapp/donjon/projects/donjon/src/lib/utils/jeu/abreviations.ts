@@ -97,6 +97,15 @@ export class Abreviations {
           break;
 
         // ======================
+        //           A
+        // ======================
+
+        case 'ch':
+        case 'cha':
+          retVal = "chausser ";
+          break;
+
+        // ======================
         //           D
         // ======================
 
@@ -139,6 +148,10 @@ export class Abreviations {
 
         case 'en':
           retVal = 'entrer';
+          break;
+
+        case 'enf':
+          retVal = 'enfiler ';
           break;
 
         case 'ex':
@@ -301,6 +314,15 @@ export class Abreviations {
 
         case 'sor':
           retVal = "sorties";
+          break;
+
+        // ======================
+        //           T
+        // ======================
+
+        case 'te':
+        case 'ten':
+          retVal = "tenir ";
           break;
 
         // ======================

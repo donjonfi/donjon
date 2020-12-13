@@ -331,7 +331,7 @@ terminer mettre ceci sur cela:
 
 interpréter poser comme mettre.
 
-L'aide pour l'action mettre est "{*Mettre / Poser / Tenir*}
+L'aide pour l'action mettre est "{*Mettre / Poser / Tenir / Enfiler / Chausser*}
   Permet de poser un objet sur un support ou de le mettre dans un contenant.
   {+exemples+} :
   > {-mettre {/la pomme/} dans {/le panier/}-}
@@ -339,7 +339,7 @@ L'aide pour l'action mettre est "{*Mettre / Poser / Tenir*}
   > {-tenir {/le bouclier/}-}
   > {-enfiler {/la tunique/}-}
   > {-chausser {/les bottes/}-}
-  {+raccourci+} : {-me-}, {-po-}, {-te-}, {-en-}".
+  {+raccourci+} : {-me-}, {-po-}, {-te-}, {-enf-}, {-ch-}".
 
 SCÈNE "enlever".
 -- ===========
