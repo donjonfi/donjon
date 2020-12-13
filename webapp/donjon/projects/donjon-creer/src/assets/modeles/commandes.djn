@@ -320,8 +320,8 @@ mettre ceci dans cela est une action qui concerne un objet visible et un objet v
 refuser mettre ceci dans cela:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
   si cela n'est pas accessible, dire "[intitulé cela] n’est pas accessible.";
-  si cela n'est ni un support ni un contenant, dire "[intitulé ceci] n’est ni un contenant ni un support".
-  si cela est fermé, dire "[intitulé cela] est fermé[accord cela]";
+  si cela n'est ni un support ni un contenant, dire "[intitulé ceci] n’est ni un contenant ni un support";
+  si cela est fermé, dire "[intitulé cela] est fermé[accord cela].".
 
 exécuter mettre ceci dans cela:
   déplacer ceci sur cela.
@@ -352,7 +352,7 @@ refuser enlever ceci:
   si ceci n'est pas porté, dire "vous ne portez pas [intitulé ceci].".
 
 exécuter enlever ceci:
-  changer ceci n'est plus porté.
+  changer le joueur ne porte plus ceci.
 
 terminer enlever ceci:
   dire "Vous ne portez plus [intitulé ceci].".
