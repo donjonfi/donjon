@@ -59,7 +59,7 @@ export class PhraseUtils {
     if (resCond) {
       const sujet = resCond[3] ? (new GroupeNominal(resCond[2], resCond[3], resCond[4] ? resCond[4] : null)) : (resCond[1] ? new GroupeNominal(null, resCond[1], null) : null);
       const verbe = resCond[5];
-      const negation = resCond[6]?.trim() ? resCond[6] : null;
+      const negation = (resCond[6]?.trim() && resCond[6] !== 'soit') ? resCond[6] : null;
       const compl1 = resCond[7];
       // éventuellement un 2e complément
       const compl2 = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[9] : null;

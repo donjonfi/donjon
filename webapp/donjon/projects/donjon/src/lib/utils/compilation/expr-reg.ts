@@ -194,7 +194,7 @@ export class ExprReg {
   /**
    * [si|avant|après] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si |avant |après |apres )?((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |aux |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|possède|porte|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si |avant |après |apres )?((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |aux |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|possède|porte|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]
