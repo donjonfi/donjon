@@ -39,7 +39,7 @@ export class Generateur {
 
     // PLACER LE JOUEUR
     // ****************
-    let joueur = new Objet(++indexElementJeu, "Joueur", new GroupeNominal("Le", "Joueur"), ClassesRacines.Vivant, 1, Genre.m);
+    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("Le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
@@ -113,96 +113,99 @@ export class Generateur {
     let premierIndexObjet = (indexElementJeu + 1);
 
     monde.objets.forEach(curEle => {
-      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-      let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre);
+      // ignorer le joueur (on l'a déjà ajouté)
+      if (curEle.nom.toLowerCase() != 'joueur') {
+        let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+        let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
-      newObjet.description = curEle.description;
-      newObjet.apercu = curEle.apercu;
-      // newObjet.etats = curEle.attributs ?? [];
-      newObjet.capacites = curEle.capacites;
-      newObjet.reactions = curEle.reactions;
-      newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
-      // ajouter les états par défaut de la classe de l’objet:
-      // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
-      // console.warn("BEGIN attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
-      Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
-      // console.warn("END attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
+        newObjet.description = curEle.description;
+        newObjet.apercu = curEle.apercu;
+        // newObjet.etats = curEle.attributs ?? [];
+        newObjet.capacites = curEle.capacites;
+        newObjet.reactions = curEle.reactions;
+        newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
+        // ajouter les états par défaut de la classe de l’objet:
+        // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+        // console.warn("BEGIN attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
+        Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
+        // console.warn("END attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
 
-      // ajouter les états de l'objet définis explicitements
-      if (curEle.attributs) {
-        curEle.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(newObjet, attribut);
-        });
-      }
-
-      // Déterminer le SINGULIER à partir du pluriel.
-      if (curEle.nombre === Nombre.p) {
-        // on a déjà le pluriel
-        newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        // le singulier est fourni
-        if (curEle.nomS) {
-          newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
-          // le singulier est calculé
-        } else {
-          newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulier(curEle.nom), MotUtils.getSingulier(curEle.epithete));
+        // ajouter les états de l'objet définis explicitements
+        if (curEle.attributs) {
+          curEle.attributs.forEach(attribut => {
+            jeu.etats.ajouterEtatElement(newObjet, attribut);
+          });
         }
-        // Déterminer PLURIEL à partir du singulier.
-      } else if (curEle.nombre == Nombre.s) {
-        // on a déjà le singulier
-        newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        // le pluriel est fourni
-        if (curEle.nomP) {
-          newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
-          // le pluriel est calculé
-        } else {
-          newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
-        }
-      }
 
-      // parcourir les propriétés de l’élément
-      curEle.proprietes.forEach(pro => {
-        switch (pro.nom) {
-          case 'description':
-            newObjet.description = pro.valeur;
-            break;
-          case 'aperçu':
-            newObjet.apercu = pro.valeur;
-            break;
-          case 'intitulé':
-            // TODO: gérer groupe nominal ?
-            newObjet.intitule = new GroupeNominal(null, pro.valeur);
-            break;
-
-          default:
-            break;
-        }
-      });
-
-      // POSITION de l’élément
-      // -- PORTE
-      if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.porte)) {
-        Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
-      } else {
-        // -- AUTRE TYPE D'OBJET
-        if (curEle.positionString) {
-          // const localisation = Generateur.getLocalisation(curEle.positionString.position);
-          const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
-          // lieu trouvé
-          if (lieuID !== -1) {
-            newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
-            // pas de lieu trouvé
+        // Déterminer le SINGULIER à partir du pluriel.
+        if (curEle.nombre === Nombre.p) {
+          // on a déjà le pluriel
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          // le singulier est fourni
+          if (curEle.nomS) {
+            newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
+            // le singulier est calculé
           } else {
-            // chercher un contenant ou un support
-            const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
-            if (contenantSupport) {
-              newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulier(curEle.nom), MotUtils.getSingulier(curEle.epithete));
+          }
+          // Déterminer PLURIEL à partir du singulier.
+        } else if (curEle.nombre == Nombre.s) {
+          // on a déjà le singulier
+          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          // le pluriel est fourni
+          if (curEle.nomP) {
+            newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
+            // le pluriel est calculé
+          } else {
+            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
+          }
+        }
+
+        // parcourir les propriétés de l’élément
+        curEle.proprietes.forEach(pro => {
+          switch (pro.nom) {
+            case 'description':
+              newObjet.description = pro.valeur;
+              break;
+            case 'aperçu':
+              newObjet.apercu = pro.valeur;
+              break;
+            case 'intitulé':
+              // TODO: gérer groupe nominal ?
+              newObjet.intitule = new GroupeNominal(null, pro.valeur);
+              break;
+
+            default:
+              break;
+          }
+        });
+
+        // POSITION de l’élément
+        // -- PORTE
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.porte)) {
+          Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
+        } else {
+          // -- AUTRE TYPE D'OBJET
+          if (curEle.positionString) {
+            // const localisation = Generateur.getLocalisation(curEle.positionString.position);
+            const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
+            // lieu trouvé
+            if (lieuID !== -1) {
+              newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
+              // pas de lieu trouvé
             } else {
-              console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+              // chercher un contenant ou un support
+              const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
+              if (contenantSupport) {
+                newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+              } else {
+                console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+              }
             }
           }
         }
+        jeu.objets.push(newObjet);
       }
-      jeu.objets.push(newObjet);
     });
 
     // PLACEMENT DU JOUEUR

@@ -51,7 +51,7 @@ export class ElementsJeuUtils {
     // Rem: La quantité est toujours à 1, et le nombre est donc toujours singulier.
     // Rem: L’id reste le même que celui de l’original.
     // TODO: attribuer un nouvel id aux clones ?
-    let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre);
+    let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
     retVal.description = original.description;
     retVal.apercu = original.apercu;
     // retVal.intituleF = original.intituleF;
@@ -253,25 +253,29 @@ export class ElementsJeuUtils {
 
     let retVal: Objet[] = [];
 
+    const sujNom = sujet.nom.toLowerCase();
+    const sujEpi = sujet.epithete?.toLowerCase();
+
+
     this.jeu.objets.forEach(obj => {
       let dejaAjoute = false;
       // A. regarder dans l'intitulé
       switch (nombre) {
         case Nombre.i:
-          if (obj.intitule.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intitule.epithete)) {
+          if (obj.intitule.nom.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intitule.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
         case Nombre.s:
-          if (obj.intituleS.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleS.epithete)) {
+          if (obj.intituleS?.nom?.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intituleS?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
 
         case Nombre.p:
-          if (obj.intituleP.nom === sujet.nom && (!sujet.epithete || sujet.epithete === obj.intituleP.epithete)) {
+          if (obj.intituleP?.nom?.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intituleP?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
@@ -281,7 +285,7 @@ export class ElementsJeuUtils {
       // B. Regarder dans les synonymes (si pas déjà ajouté)
       if (!dejaAjoute && obj.synonymes) {
         obj.synonymes.forEach(synonyme => {
-          if (synonyme.nom === sujet.nom && (!sujet.epithete || sujet.epithete === synonyme.epithete)) {
+          if (synonyme.nom.toLowerCase() === sujNom && (!sujEpi || sujEpi === synonyme.epithete?.toLowerCase())) {
             retVal.push(obj);
           }
         });
@@ -297,8 +301,11 @@ export class ElementsJeuUtils {
 
     let retVal: Lieu[] = [];
 
+    const sujNom = sujet.nom.toLowerCase();
+    const sujEpi = sujet.epithete?.toLowerCase();
+
     this.jeu.lieux.forEach(li => {
-      if (li.intitule.nom === sujet.nom && (!sujet.epithete || li.intitule.epithete === sujet.epithete)) {
+      if (li.intitule.nom.toLowerCase() === sujNom && (!sujEpi || li.intitule.epithete?.toLowerCase() === sujEpi)) {
         retVal.push(li);
       }
     });

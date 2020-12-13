@@ -172,14 +172,16 @@ export class ConditionsUtils {
             if (!cela) {
               console.warn("siEstVrai: le « cela » de la condition est null.");
             }
+          // } else if (condition.sujet.nom === 'joueur') {
+          //   sujet = this.jeu.joueur;
           } else {
             const correspondances = this.eju.trouverCorrespondance(condition.sujet);
             if (correspondances.elements.length == 1) {
               sujet = correspondances.elements[0];
             } else if (correspondances.elements.length > 1) {
-              console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition);
+              console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
             } else {
-              console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition);
+              console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
             }
           }
         }
@@ -239,7 +241,7 @@ export class ConditionsUtils {
 
             // ÉLÉMENT PORTÉ (PAR LE JOUEUR)
             case 'porte':
-              if (sujet.nom === "joueur") {
+              if (sujet.nom.toLowerCase() === "joueur") {
                 // vérifier si l’objet cible est porté par le joueur
                 // > remarque: négation appliquée plus loin.
                 const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, ceci, cela);
@@ -248,7 +250,7 @@ export class ConditionsUtils {
                 }
                 break;
               } else {
-                console.error("siEstVrai > condition « porte » prise en charge uniquement pour le joueur.");
+                console.error("siEstVrai > condition « porte » prise en charge uniquement pour le joueur.", sujet.nom);
               }
               break;
 

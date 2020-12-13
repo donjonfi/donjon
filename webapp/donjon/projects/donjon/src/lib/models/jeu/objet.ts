@@ -2,6 +2,7 @@ import { Classe } from '../commun/classe';
 import { ElementJeu } from "./element-jeu";
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
+import { Nombre } from '../commun/nombre.enum';
 import { PositionObjet } from './position-objet';
 import { Reaction } from '../compilateur/reaction';
 
@@ -14,6 +15,7 @@ export class Objet extends ElementJeu {
     classe: Classe,
     public quantite: number,
     public genre: Genre,
+    public nombre: Nombre,
   ) {
     super(id, nom, intitule, classe);
   }
