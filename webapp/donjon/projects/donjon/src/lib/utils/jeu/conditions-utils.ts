@@ -352,13 +352,13 @@ export class ConditionsUtils {
         console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
       }
       // retrouver OBJET SPÉCIAL
-    } else if (brute = 'ceci') {
+    } else if (brute === 'ceci') {
       if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
         objetCible = ceci as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > ceci n’est pas un objet.");
       }
-    } else if (brute = 'cela') {
+    } else if (brute === 'cela') {
       if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
         objetCible = cela as Objet;
       } else {

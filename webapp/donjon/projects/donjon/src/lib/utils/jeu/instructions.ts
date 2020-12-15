@@ -688,10 +688,41 @@ export class Instructions {
         let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support)), false);
+          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support) + "."), false);
           resultat.sortie += sousRes.sortie;
         });
 
+      }
+
+      // D. AFFICHER LES PORTES SI C'EST UN LIEU
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+        console.warn("Check portes !");
+
+        const curLieu: Lieu = ceci as Lieu;
+        curLieu.voisins.forEach(voisin => {
+          if (voisin.type == EClasseRacine.porte) {
+            // vérifier si la porte est visible
+            const curPorte = this.eju.getObjet(voisin.id);
+            if (this.jeu.etats.estVisible(curPorte, this.eju)) {
+              // if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.visibleID)) {
+              // décrire la porte
+              if (curPorte.apercu) {
+                // si aperçu, afficher l'aperçu.
+                resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
+              } else {
+                // par défaut, afficher le nom de la porte et ouvert/fermé.
+                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntitule(curPorte) + " est ";
+                if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID)) {
+                  resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.ouvertID)
+                } else {
+                  resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.fermeID)
+                }
+                resultat.sortie += ".";
+              }
+              //resultat.sortie += this.afficherStatut(curPorte);
+            }
+          }
+        });
       }
 
       // si on n’a encore rien affiché, afficher le texte spécifique
@@ -1191,6 +1222,7 @@ export class Instructions {
     return resultat;
   }
 
+  /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
   afficherStatut(obj: Objet) {
     let retVal = "";
     if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
@@ -1270,16 +1302,16 @@ export class Instructions {
     let titreLieu = lieu.titre;
     switch (localisation) {
       case Localisation.nord:
-        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : '');
+        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case Localisation.sud:
-        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : '');
+        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case Localisation.est:
-        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : '');
+        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case Localisation.ouest:
-        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : '');
+        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case Localisation.bas:
         retVal = "descendre (de) − " + titreLieu;
@@ -1288,7 +1320,7 @@ export class Instructions {
         retVal = "monter (mo) − " + titreLieu;
         break;
       case Localisation.exterieur:
-        retVal = "sortir (so) − " + titreLieu;
+        retVal = "sortir (so)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case Localisation.interieur:
         retVal = "entrer (en) − " + titreLieu;
@@ -1318,13 +1350,13 @@ export class Instructions {
         console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
       }
       // retrouver OBJET SPÉCIAL
-    } else if (brute = 'ceci') {
+    } else if (brute === 'ceci') {
       if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
         objetCible = ceci as Objet;
       } else {
         console.error("Instructions > trouverObjetCible > ceci n’est pas un objet.");
       }
-    } else if (brute = 'cela') {
+    } else if (brute === 'cela') {
       if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
         objetCible = cela as Objet;
       } else {
