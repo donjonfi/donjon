@@ -150,7 +150,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.resteDeLaSortie.forEach(section => {
           this.sortieJoueur += section;
         });
-		this.resteDeLaSortie = [];
+        this.resteDeLaSortie = [];
 
       }
     }
@@ -359,10 +359,12 @@ export class LecteurComponent implements OnInit, OnChanges {
             // mettre à jour l'évènement avec les éléments trouvés
             evenement = new Evenement(
               actionCeciCela.action.infinitif,
-              (actionCeciCela.ceci ? (actionCeciCela.ceci.intitule.nom + (actionCeciCela.ceci.intitule.epithete ? (" " + actionCeciCela.ceci.intitule.epithete) : "")) : null),
+              // (actionCeciCela.ceci ? (actionCeciCela.ceci.intitule.nom + (actionCeciCela.ceci.intitule.epithete ? (" " + actionCeciCela.ceci.intitule.epithete) : "")) : null),
+              (actionCeciCela.ceci ? actionCeciCela.ceci.nom : null),
               (actionCeciCela.ceci ? actionCeciCela.ceci.classe : null),
               els.preposition,
-              (actionCeciCela.cela ? (actionCeciCela.cela.intitule.nom + (actionCeciCela.cela.intitule.epithete ? (" " + actionCeciCela.cela.intitule.epithete) : "")) : null),
+              // (actionCeciCela.cela ? (actionCeciCela.cela.intitule.nom + (actionCeciCela.cela.intitule.epithete ? (" " + actionCeciCela.cela.intitule.epithete) : "")) : null),
+              (actionCeciCela.cela ? actionCeciCela.cela.nom : null),
               (actionCeciCela.cela ? actionCeciCela.cela.classe : null)
             );
 
