@@ -312,7 +312,7 @@ exécuter mettre ceci:
 terminer mettre ceci:
   dire "Vous portez [intitulé ceci].".
 
-interpréter chausser, enfiler et tenir comme mettre.
+interpréter chausser, enfiler, porter et tenir comme mettre.
   
 -- c) metre ceci dans cela
 mettre ceci dans cela est une action qui concerne un objet visible et un objet visible.
