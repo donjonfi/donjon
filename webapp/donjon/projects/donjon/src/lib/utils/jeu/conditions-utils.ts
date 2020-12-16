@@ -175,7 +175,7 @@ export class ConditionsUtils {
           // } else if (condition.sujet.nom === 'joueur') {
           //   sujet = this.jeu.joueur;
           } else {
-            const correspondances = this.eju.trouverCorrespondance(condition.sujet);
+            const correspondances = this.eju.trouverCorrespondance(condition.sujet, false);
             if (correspondances.elements.length == 1) {
               sujet = correspondances.elements[0];
             } else if (correspondances.elements.length > 1) {
@@ -263,7 +263,7 @@ export class ConditionsUtils {
               if (condition.sujetComplement?.nom === "ici") {
                 destination = this.eju.curLieu;
               } else {
-                const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement);
+                const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false);
                 if (correspondances.nbCor === 1) {
                   destination = correspondances.elements[0];
                 } else if (correspondances.nbCor === 0) {
@@ -274,7 +274,7 @@ export class ConditionsUtils {
               }
 
               // retrouver l’objet concerné
-              const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
+              const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, false, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
               let cible: Objet = null;
               if (ciblesTrouvees.length === 1) {
                 cible = ciblesTrouvees[0];
@@ -345,7 +345,7 @@ export class ConditionsUtils {
     let objetCible: Objet = null;
     // retrouver OBJET CLASSIQUE
     if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule);
+      const objetsTrouves = this.eju.trouverObjet(intitule, false);
       if (objetsTrouves.length == 1) {
         objetCible = objetsTrouves[0];
       } else {

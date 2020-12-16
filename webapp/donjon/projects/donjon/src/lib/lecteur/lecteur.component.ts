@@ -255,8 +255,8 @@ export class LecteurComponent implements OnInit, OnChanges {
       const celaIntitule = els.sujetComplement1;
       const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
       const celaNom = celaIntitule ? celaIntitule.nom : null;
-      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule) : null;
-      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule) : null;
+      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true) : null;
+      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true) : null;
 
       let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
 
@@ -383,7 +383,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                     if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela)) {
                       // console.warn("> commande vérifie cela:", verif);
                       const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
-                      retVal = resultatRefuser.sortie;
+                      retVal += resultatRefuser.sortie;
                       refus = true;
                     }
                   } else {

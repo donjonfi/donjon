@@ -84,12 +84,15 @@ export class ElementsJeuUtils {
   }
 
   majPresenceDesObjets() {
+    // console.warn("majPresenceDesObjets");
     this.jeu.objets.forEach(obj => {
       this.majPresenceObjet(obj);
     });
   }
 
   majPresenceObjet(obj: Objet) {
+    // console.log("majPresenceObjet: ", obj.nom);
+
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
@@ -100,6 +103,8 @@ export class ElementsJeuUtils {
       // les portes adjacentes au lieu actuel sont présentes
       if (this.curLieu.voisins.some(x => x.id === obj.id)) {
         this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
+      } else {
+        this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, true);
       }
     } else {
       // les autres objets ne sont pas présents
@@ -163,7 +168,7 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  trouverCorrespondance(sujet: GroupeNominal): Correspondance {
+  trouverCorrespondance(sujet: GroupeNominal, prioriteObjetsPresents: boolean): Correspondance {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
@@ -184,7 +189,7 @@ export class ElementsJeuUtils {
 
         // 3. Chercher parmis les objets
         const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : Nombre.i;
-        cor.objets = this.trouverObjet(sujet, nombre);
+        cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
           cor.elements = cor.elements.concat(cor.objets);
@@ -249,33 +254,55 @@ export class ElementsJeuUtils {
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
-  trouverObjet(sujet: GroupeNominal, nombre: Nombre = Nombre.i): Objet[] {
+  trouverObjet(sujet: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i): Objet[] {
+
+    let objetsTrouves: Objet[] = null;
+    const sujetNom = sujet.nom.toLowerCase();
+    const sujetEpithete = sujet.epithete?.toLowerCase();
+
+    // chercher parmis les objets présents
+    const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
+    // console.warn("objetsPresents=", objetsPresents);
+    objetsTrouves = this.suiteTrouverObjet(objetsPresents, sujetNom, sujetEpithete, nombre);
+    // console.warn("objetsTrouves=", objetsTrouves);
+
+    // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
+    if (objetsTrouves.length === 0 || !prioriteObjetsPresents) {
+      const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
+      // console.warn("objetsNonPresents=", objetsNonPresents);
+      objetsTrouves = objetsTrouves.concat(this.suiteTrouverObjet(objetsNonPresents, sujetNom, sujetEpithete, nombre));
+      // console.warn("objetsTrouves=", objetsTrouves);
+
+    }
+
+    return objetsTrouves;
+  }
+
+  private suiteTrouverObjet(objets: Objet[], sujetNom: string, sujetEpithete: string, nombre: Nombre) {
 
     let retVal: Objet[] = [];
 
-    const sujNom = sujet.nom.toLowerCase();
-    const sujEpi = sujet.epithete?.toLowerCase();
-
-
-    this.jeu.objets.forEach(obj => {
+    objets.forEach(obj => {
       let dejaAjoute = false;
       // A. regarder dans l'intitulé
       switch (nombre) {
+
         case Nombre.i:
-          if (obj.intitule.nom.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intitule.epithete?.toLowerCase())) {
+          if (obj.intitule.nom.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intitule.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
+
         case Nombre.s:
-          if (obj.intituleS?.nom?.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intituleS?.epithete?.toLowerCase())) {
+          if (obj.intituleS?.nom?.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intituleS?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
 
         case Nombre.p:
-          if (obj.intituleP?.nom?.toLowerCase() === sujNom && (!sujEpi || sujEpi === obj.intituleP?.epithete?.toLowerCase())) {
+          if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intituleP?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
@@ -285,7 +312,7 @@ export class ElementsJeuUtils {
       // B. Regarder dans les synonymes (si pas déjà ajouté)
       if (!dejaAjoute && obj.synonymes) {
         obj.synonymes.forEach(synonyme => {
-          if (synonyme.nom.toLowerCase() === sujNom && (!sujEpi || sujEpi === synonyme.epithete?.toLowerCase())) {
+          if (synonyme.nom.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === synonyme.epithete?.toLowerCase())) {
             retVal.push(obj);
           }
         });

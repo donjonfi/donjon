@@ -696,7 +696,6 @@ export class Instructions {
 
       // D. AFFICHER LES PORTES SI C'EST UN LIEU
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-        console.warn("Check portes !");
 
         const curLieu: Lieu = ceci as Lieu;
         curLieu.voisins.forEach(voisin => {
@@ -775,7 +774,7 @@ export class Instructions {
         objet = this.jeu.joueur;
         break;
       default:
-        let correspondanceSujet = this.eju.trouverCorrespondance(sujet);
+        let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false);
         // un élément trouvé
         if (correspondanceSujet.elements.length === 1) {
           objet = correspondanceSujet.objets[0];
@@ -807,7 +806,7 @@ export class Instructions {
         break;
 
       default:
-        let correspondanceCompl = this.eju.trouverCorrespondance(complement);
+        let correspondanceCompl = this.eju.trouverCorrespondance(complement, false);
         // un élément trouvé
         if (correspondanceCompl.elements.length === 1) {
           destination = correspondanceCompl.elements[0];
@@ -954,7 +953,7 @@ export class Instructions {
           break;
 
         default:
-          let correspondance = this.eju.trouverCorrespondance(instruction.sujet);
+          let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false);
 
           // PAS OBJET ET PAS LIEU
           if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {
@@ -1343,7 +1342,7 @@ export class Instructions {
     let objetCible: Objet = null;
     // retrouver OBJET CLASSIQUE
     if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule);
+      const objetsTrouves = this.eju.trouverObjet(intitule, false);
       if (objetsTrouves.length == 1) {
         objetCible = objetsTrouves[0];
       } else {
