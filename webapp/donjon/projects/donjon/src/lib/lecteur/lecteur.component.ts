@@ -49,7 +49,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
-  private resteDeLaSortie: string[] = [];
+  resteDeLaSortie: string[] = [];
 
   constructor() { }
 
@@ -59,6 +59,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.sortieJoueur = "";
+      this.resteDeLaSortie = [];
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
@@ -121,14 +122,19 @@ export class LecteurComponent implements OnInit, OnChanges {
           const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
           this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
         }
-
-        this.sortieJoueur += "</p>";
+        //terminer le paragraphe sauf si on attends une touche pour continuer
+        if (!this.resteDeLaSortie?.length) {
+          this.sortieJoueur += "</p>";
+        }
         // REPRISE D’UNE PARTIE
       } else {
         this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
         // afficher où on est.
         this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
       }
+
+      this.focusCommande();
+
     } else {
       console.warn("pas de jeu :(");
     }
@@ -142,17 +148,35 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (contenu) {
       // découper en fonction des pauses
       const sectionsContenu = contenu.split("@@attendre touche@@");
-      this.sortieJoueur += sectionsContenu[0];
-      if (sectionsContenu.length > 1) {
-        this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
-
-        // TODO: gérer ça vraiment avec appuis sur touches par l'utilisateur.
-        this.resteDeLaSortie.forEach(section => {
-          this.sortieJoueur += section;
-        });
-        this.resteDeLaSortie = [];
-
+      // s'il y a du texte en attente, ajouter au texte en attente
+      if (this.resteDeLaSortie?.length) {
+        this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu);
+        // s'il n'y a pas de texte en attente, afficher la première partie
+      } else {
+        this.sortieJoueur += sectionsContenu[0];
+        if (sectionsContenu.length > 1) {
+          this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
+          this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
+        }
       }
+    }
+  }
+
+  /**
+   * Appuis sur une touche par le joueur.
+   */
+  onKeyDown(event: Event) {
+    if (this.resteDeLaSortie?.length) {
+      this.afficherSuiteSortie();
+      this.commande = "";
+      event.preventDefault();
+    }
+  }
+
+  private afficherSuiteSortie() {
+    this.sortieJoueur += ("<p>" + this.resteDeLaSortie.shift() + "</p>");
+    if (this.resteDeLaSortie.length) {
+      this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
     }
   }
 
@@ -161,11 +185,13 @@ export class LecteurComponent implements OnInit, OnChanges {
    * @param event
    */
   onKeyDownArrowUp(event) {
-    if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
-      this.curseurHistorique += 1;
-      const index = this.historiqueCommandes.length - this.curseurHistorique - 1;
-      this.commande = this.historiqueCommandes[index];
-      this.focusCommande();
+    if (!this.resteDeLaSortie?.length) {
+      if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
+        this.curseurHistorique += 1;
+        const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
+        this.commande = this.historiqueCommandes[index];
+        this.focusCommande();
+      }
     }
   }
 
@@ -173,30 +199,43 @@ export class LecteurComponent implements OnInit, OnChanges {
    * Historique: revenir en avant (Flèche bas)
    */
   onKeyDownArrowDown(event) {
-    if (this.curseurHistorique > 0) {
-      this.curseurHistorique -= 1;
-      const index = this.historiqueCommandes.length - this.curseurHistorique - 1;
-      this.commande = this.historiqueCommandes[index];
-      this.focusCommande();
-    } else {
-      this.commande = "";
+    if (!this.resteDeLaSortie?.length) {
+      if (this.curseurHistorique >= 0) {
+        this.curseurHistorique -= 1;
+        const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
+        this.commande = this.historiqueCommandes[index];
+        this.focusCommande();
+      } else {
+        this.commande = "";
+      }
     }
   }
 
   private focusCommande() {
     setTimeout(() => {
       this.commandeInputRef.nativeElement.focus();
-      this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande.length;
+      this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande?.length ?? 0;
     }, 100);
   }
 
 
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
-    const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-    if (commandeComplete !== this.commande) {
-      this.commande = commandeComplete;
-      this.focusCommande();
+    if (!this.resteDeLaSortie?.length) {
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
+      if (commandeComplete !== this.commande) {
+        this.commande = commandeComplete;
+        this.focusCommande();
+      }
+    }
+  }
+
+  onClickValidate(event: Event) {
+    if (this.resteDeLaSortie?.length) {
+      this.afficherSuiteSortie();
+      event.preventDefault();
+    } else {
+      this.onKeyDownEnter(event);
     }
   }
 
@@ -204,30 +243,26 @@ export class LecteurComponent implements OnInit, OnChanges {
    * Enter: Valider une commande.
    * @param event 
    */
-  onKeyDownEnter(event) {
-    this.curseurHistorique = -1;
-
-    if (this.commande && this.commande.trim() !== "") {
-
-      // compléter la commande
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-
-      this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
-      const result = this.doCommande(commandeComplete.trim());
-      if (result) {
-        this.ajouterSortieJoueur(BalisesHtml.doHtml(result));
+  onKeyDownEnter(event: Event) {
+    if (!this.resteDeLaSortie?.length) {
+      this.curseurHistorique = -1;
+      if (this.commande && this.commande.trim() !== "") {
+        // compléter la commande
+        const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
+        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
+        const result = this.doCommande(commandeComplete.trim());
+        if (result) {
+          this.ajouterSortieJoueur(BalisesHtml.doHtml(result));
+        }
+        this.sortieJoueur += "</p>";
+        this.commande = "";
+        setTimeout(() => {
+          this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
+          this.commandeInputRef.nativeElement.focus();
+        }, 100);
       }
-      this.sortieJoueur += "</p>";
-      this.commande = "";
-      setTimeout(() => {
-        this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-        this.commandeInputRef.nativeElement.focus();
-      }, 100);
-
     }
   }
-
-
 
   doCommande(commande: string): string {
 

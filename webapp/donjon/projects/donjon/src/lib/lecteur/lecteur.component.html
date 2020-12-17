@@ -6,9 +6,9 @@
 <!-- entrée utilisateur -->
 <div class="input-group">
   <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
-    (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
-    (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
-    placeholder="Entrez une commande (verbe + complément)">
+    (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);" (keydown)="onKeyDown($event)"
+    (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control" id="txtCommande"
+    [placeholder]="resteDeLaSortie?.length ? 'Appuyez sur une touche…' : 'Entrez une commande (verbe + complément)'">
   <div class="input-group-append">
     <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
       id="btExecuter">Valider</button>
