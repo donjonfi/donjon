@@ -150,7 +150,8 @@ export class LecteurComponent implements OnInit, OnChanges {
       const sectionsContenu = contenu.split("@@attendre touche@@");
       // s'il y a du texte en attente, ajouter au texte en attente
       if (this.resteDeLaSortie?.length) {
-        this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu);
+        this.resteDeLaSortie[this.resteDeLaSortie.length - 1] += ("</p><p>" + sectionsContenu[0]);
+        this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
         // s'il n'y a pas de texte en attente, afficher la première partie
       } else {
         this.sortieJoueur += sectionsContenu[0];
@@ -178,6 +179,11 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (this.resteDeLaSortie.length) {
       this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
     }
+    // scroll
+    setTimeout(() => {
+      this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
+      this.commandeInputRef.nativeElement.focus();
+    }, 100);
   }
 
   /**
