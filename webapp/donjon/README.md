@@ -17,8 +17,8 @@ Les 2 applications sont alors disponibles sur les adresses suivantes: `http://
 
 ```
 ng build donjon
-ng build donjon-jouer --prod
-ng build donjon-creer --prod
+ng build donjon-jouer --base-href /jouer/ --prod
+ng build donjon-creer --base-href /creer/ --prod
 ```
 
 ## Wiki et site officiel Donjon FI

@@ -36,7 +36,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario';
 
-  nbLignesCode = 25;
+  nbLignesCode = 30;
   tailleTexte = 18;
   hauteurLigneCode = 18;
 
