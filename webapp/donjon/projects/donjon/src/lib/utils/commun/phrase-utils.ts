@@ -66,7 +66,7 @@ export class PhraseUtils {
       // éventuellement un 3e complément
       const compl3 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
       // éventuellement un 4e complément
-      const compl4 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
+      const compl4 = (resCondNiSoit || resCondEtOu) ? resCond[11] : null;
 
       els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
       els.complement2 = compl2;
@@ -139,7 +139,7 @@ export class PhraseUtils {
               retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;
@@ -150,7 +150,7 @@ export class PhraseUtils {
               retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;
@@ -162,7 +162,7 @@ export class PhraseUtils {
               retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;

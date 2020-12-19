@@ -85,9 +85,9 @@ export class LecteurComponent implements OnInit, OnChanges {
       // afficher la licence du jeu
       if (this.jeu.licenceTitre) {
         if (this.jeu.licenceLien) {
-          this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a></p>");
+          this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
         } else {
-          this.sortieJoueur += ("<br>Licence :" + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</p>");
+          this.sortieJoueur += ("<br>Licence :" + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
         }
       }
       this.sortieJoueur += "</p>";
@@ -217,13 +217,12 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  private focusCommande() {
+  public focusCommande() {
     setTimeout(() => {
       this.commandeInputRef.nativeElement.focus();
       this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande?.length ?? 0;
     }, 100);
   }
-
 
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
@@ -273,7 +272,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   doCommande(commande: string): string {
 
     if (this.jeu.termine) {
-      return "Le jeu est terminé.";
+      return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
     }
 
     // GESTION HISTORIQUE

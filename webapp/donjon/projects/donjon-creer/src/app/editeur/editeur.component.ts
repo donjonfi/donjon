@@ -16,7 +16,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, Compilateur, Generateur, Jeu, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, Compilateur, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -33,6 +33,8 @@ import { TabsetComponent } from 'ngx-bootstrap/tabs';
 export class EditeurComponent implements OnInit, OnDestroy {
 
   @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
+
 
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario';
 
@@ -622,6 +624,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario'): void {
     this.tab = tab;
+
+    if(this.tab == 'jeu'){
+      (this.lecteurRef as LecteurComponent).focusCommande();
+    }
+
     // switch (tab) {
     //   case 'scenario':
     //     // this.editeurTabs.tabs[0].active = true;

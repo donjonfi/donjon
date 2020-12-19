@@ -260,7 +260,7 @@
 
       <!-- TAB: JEU -->
       <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="mt-n2">
-        <djn-lecteur [jeu]="jeu" [verbeux]="false"></djn-lecteur>
+        <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false"></djn-lecteur>
         <br><small>Tapez : « <span class="text-primary">deb épée</span> » pour déboguer l’épée dans la console.</small>
       </div>
 
