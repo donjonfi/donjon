@@ -626,7 +626,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.tab = tab;
 
     if(this.tab == 'jeu'){
-      (this.lecteurRef as LecteurComponent).focusCommande();
+      ((this.lecteurRef as any) as LecteurComponent).focusCommande();
     }
 
     // switch (tab) {

@@ -95,9 +95,6 @@ export class LecteurComponent implements OnInit, OnChanges {
       // nouvelle partie
       if (!this.jeu.commence) {
 
-        // définir visibilité des objets initiale
-        this.eju.majPresenceDesObjets();
-
         this.sortieJoueur += "<p>";
 
         // évènement COMMENCER JEU
@@ -110,6 +107,11 @@ export class LecteurComponent implements OnInit, OnChanges {
         }
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
         if (resultatAvant.stopper !== true) {
+
+          // définir visibilité des objets initiale
+          this.eju.majPresenceDesObjets();
+
+
           // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
           let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
           if (resultatRemplacer.nombre === 0) {
