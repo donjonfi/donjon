@@ -32,7 +32,23 @@ L'aide pour l'action ouvrir est "{*Ouvrir*}
   {+exemples+} :
   > {-ouvrir {/la porte rouge/}-}
   > {-ouvrir {/le coffre/}-}
+  > {-ouvrir {/le coffre/} avec {/la clé rouge/}-}
   {+raccourci+} : {-ou-}".
+
+ouvrir ceci avec cela est une action qui concerne un objet visible et un objet visible.
+
+terminer ouvrir ceci avec cela:
+  dire "Ça n'a pas fonctionné.".
+
+SCÈNE "déverrouiller".
+-- =================
+--   DÉVERROUILLER
+-- =================
+
+déverrouiller ceci avec cela est une action qui concerne un objet visible et un objet visible.
+
+terminer déverrouiller ceci avec cela:
+  dire "Ça n'a pas fonctionné.".
 
 SCÈNE "fermer".
 -- ==========
@@ -485,7 +501,8 @@ SCÈNE "secouer".
 secouer ceci est une action qui concerne un objet visible.
 
 refuser secouer ceci:
-  si ceci est inaccessible, dire "Je n’y ai pas accès.".
+  si ceci est inaccessible, dire "Je n’y ai pas accès.",
+  si ceci est un vivant, dire "Je suis contre la violence.".
 
 exécuter secouer ceci:
   changer ceci n’est plus intact.
