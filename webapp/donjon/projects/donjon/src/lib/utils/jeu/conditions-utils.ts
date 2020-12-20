@@ -218,6 +218,8 @@ export class ConditionsUtils {
                 retVal = (!(sujet as ElementJeu).description);
               } else if (condition.complement === 'aperçu') {
                 retVal = (!(sujet as ElementJeu).apercu);
+              } else if (condition.complement === 'texte') {
+                retVal = (!(sujet as ElementJeu).texte);
               } else {
                 console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
               }
@@ -295,8 +297,10 @@ export class ConditionsUtils {
 
             case 'réagit':
             case 'réagissent':
+              console.warn("réagit: sujet=", sujet);
+              
               // remarque: négation appliquée plus loin.
-              if ((ceci as Objet).reactions && (ceci as Objet).reactions.length > 0) {
+              if ((sujet as Objet).reactions && (sujet as Objet).reactions.length > 0) {
                 retVal = true;
               }
               break;

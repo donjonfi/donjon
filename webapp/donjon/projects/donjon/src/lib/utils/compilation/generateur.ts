@@ -119,7 +119,8 @@ export class Generateur {
         let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         newObjet.description = curEle.description;
-        newObjet.apercu = curEle.apercu;
+        // newObjet.apercu = curEle.apercu;
+        // newObjet.texte = curEle.texte;
         // newObjet.etats = curEle.attributs ?? [];
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
@@ -169,6 +170,9 @@ export class Generateur {
               break;
             case 'aperçu':
               newObjet.apercu = pro.valeur;
+              break;
+            case 'texte':
+              newObjet.texte = pro.valeur;
               break;
             case 'intitulé':
               // TODO: gérer groupe nominal ?

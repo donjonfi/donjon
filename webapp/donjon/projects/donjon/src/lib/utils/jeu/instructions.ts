@@ -97,10 +97,32 @@ export class Instructions {
       if (contenu.includes("[aperçu cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const objCela = cela as Objet;
-          const apercuCela = this.calculerDescription((cela as Objet).apercu, ++(cela as Objet).nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
+          const apercuCela = this.calculerDescription(objCela.apercu, ++objCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[aperçu cela\]/g, apercuCela);
         } else {
           console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un objet");
+        }
+      }
+    }
+
+    // Texte (d’un objet)
+    if (contenu.includes("[texte")) {
+      if (contenu.includes("[texte ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          const objCeci = ceci as Objet;
+          const texteCeci = this.calculerDescription(objCeci.texte, ++objCeci.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
+          contenu = contenu.replace(/\[texte ceci\]/g, texteCeci);
+        } else {
+          console.error("interpreterContenuDire: texte de ceci: ceci n'est pas un objet");
+        }
+      }
+      if (contenu.includes("[texte cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
+          const objCela = cela as Objet;
+          const texteCela = this.calculerDescription(objCela.texte, ++objCela.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
+          contenu = contenu.replace(/\[texte cela\]/g, texteCela);
+        } else {
+          console.error("interpreterContenuDire: texte de cela: cela n'est pas un objet");
         }
       }
     }
@@ -184,16 +206,16 @@ export class Instructions {
     // pronom
     if (contenu.includes("[pronom")) {
       if (contenu.includes("[pronom ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const pronomCeci = ((ceci as Objet).genre === Genre.f ? "elle" : "il") + ((ceci as Objet).nombre === Nombre.p ? "s" : "");
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const pronomCeci = ((ceci as ElementJeu).genre === Genre.f ? "elle" : "il") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[pronom ceci\]/g, pronomCeci);
         } else {
           console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un objet");
         }
       }
       if (contenu.includes("[pronom cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const pronomCela = ((cela as Objet).genre === Genre.f ? "elle" : "il") + ((cela as Objet).nombre === Nombre.p ? "s" : "");
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const pronomCela = ((cela as ElementJeu).genre === Genre.f ? "elle" : "il") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[pronom cela\]/g, pronomCela);
         } else {
           console.error("interpreterContenuDire: pronom cela: cela n'est pas un objet");
@@ -208,19 +230,38 @@ export class Instructions {
         contenu = contenu.replace(/\[accord ici\]/g, accordIci);
       }
       if (contenu.includes("[accord ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const accordCeci = ((ceci as Objet).genre === Genre.f ? "e" : "") + ((ceci as Objet).nombre === Nombre.p ? "s" : "");
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const accordCeci = ((ceci as ElementJeu).genre === Genre.f ? "e" : "") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[accord ceci\]/g, accordCeci);
         } else {
           console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
         }
       }
       if (contenu.includes("[accord cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const accordCela = ((cela as Objet).genre === Genre.f ? "e" : "") + ((cela as Objet).nombre === Nombre.p ? "s" : "");
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const accordCela = ((cela as ElementJeu).genre === Genre.f ? "e" : "") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
           contenu = contenu.replace(/\[accord cela\]/g, accordCela);
         } else {
-          console.error("interpreterContenuDire: accord cela: cela n'est pas un objet");
+          console.error("interpreterContenuDire: accord cela: cela n'est pas un élément du jeu");
+        }
+      }
+    }
+
+    if (contenu.includes("[l’ ") || contenu.includes("[l' ")) {
+      if (contenu.includes("[l’ ceci]") || contenu.includes("[l' ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const leCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "les" : "l’");
+          contenu = contenu.replace(/\[l’ ceci\]|\[l' ceci\]/g, leCeci);
+        } else {
+          console.error("interpreterContenuDire: l’ ceci: ceci n'est pas un élément du jeu");
+        }
+      }
+      if (contenu.includes("[l’ cela]") || contenu.includes("[l' cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const leCela = ((cela as ElementJeu).nombre === Nombre.p ? "les" : "l’");
+          contenu = contenu.replace(/\[l’ cela\]|\[l' cela\]/g, leCela);
+        } else {
+          console.error("interpreterContenuDire: l’ cela: cela n'est pas un élément du jeu");
         }
       }
     }

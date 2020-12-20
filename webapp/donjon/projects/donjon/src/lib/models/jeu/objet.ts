@@ -25,9 +25,6 @@ export class Objet extends ElementJeu {
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
   position: PositionObjet = null;
 
-  /** Texte s’affichant lorsqu’on voit l’ojet lors de la description de la salle qui contient l’objet. */
-  apercu: string = null;
-
   /** Ils s’agit des autres noms que le joueur peut donner à cet objet. */
   synonymes: GroupeNominal[] = null;
 

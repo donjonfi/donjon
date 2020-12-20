@@ -8,7 +8,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|historique|"
-      + "intitulé|description|titre|auteur|aperçu|lien|capacité|accord|réaction|version|licence|jeu|"
+      + "intitulé|description|titre|auteur|aperçu|texte|lien|capacité|accord|réaction|version|licence|jeu|"
       + "aide|commande|contenu"
     );
 
@@ -68,12 +68,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           token: "constant.language",
           regex: "(au (sud|nord))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |"
             // + "vide(s)?|plein(e)?(s)?|"
-            + "((présent|absent|intact|déplacé|modifié|caché|couvert|invisible|décorati(f|v)|"
+            + "((présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|transportable)(e)?(s)?)|"
             + "ceci|cela|ici|"
-            + "visible(s)?|accessible(s)?|"
+            + "(in)?visible(s)?|(in)accessible(s)?|"
             + "(porté|possédé|disponible|occupé)(e)?(s)?"
         }, {
           token: "storage.type",
@@ -82,7 +82,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "se (trouve)|n(’|')est pas|n(’|')est plus|est|sont|vaut|contient|possède|porte|réagit|réagissent|peut"
+          regex: "se (trouve) |n(’|')est pas |n(’|')est plus |est |sont |vaut |contient |possède |porte |réagit|réagissent|peut "
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

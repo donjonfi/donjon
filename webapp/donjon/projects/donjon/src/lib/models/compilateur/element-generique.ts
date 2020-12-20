@@ -11,8 +11,8 @@ import { Reaction } from './reaction';
 export class ElementGenerique implements ElementDonjon {
 
   public description: string = null;
-  public apercu: string = null;
-  // public examen: string;
+  // public apercu: string = null;
+  // public texte: string = null;
   public proprietes = new Array<Propriete>();
   public capacites = new Array<Capacite>();
   public reactions = new Array<Reaction>();

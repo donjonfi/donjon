@@ -54,6 +54,7 @@ export class ElementsJeuUtils {
     let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
     retVal.description = original.description;
     retVal.apercu = original.apercu;
+    retVal.texte = original.texte;
     // retVal.intituleF = original.intituleF;
     // retVal.intituleM = original.intituleM;
     retVal.intituleS = original.intituleS;
@@ -62,6 +63,7 @@ export class ElementsJeuUtils {
     // TODO: faut-il copier le nombre d’affichage de la description ?
     retVal.nbAffichageDescription = original.nbAffichageDescription;
     retVal.nbAffichageApercu = original.nbAffichageApercu;
+    retVal.nbAffichageTexte = original.nbAffichageTexte;
 
     // TODO: copier les états
     // TODO: copier les capacités
