@@ -591,7 +591,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       // todo: vérifier début de nom si aucune correspondance exacte
 
       // il s’agit d’un type
-    } else if (candidatCeciCela.determinant.match(/^(un|une|des)( )?$/)) {
+    } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
       if (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
         retVal = ceciCela.intitule;
       } else {
