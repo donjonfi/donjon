@@ -121,6 +121,11 @@ export class Abreviations {
           retVal = "demander ";
           break;
 
+        case 'dep':
+        case 'dép':
+          retVal = "déplacer ";
+          break;
+
         case 'dev':
         case 'dév':
           retVal = "déverrouiller";
@@ -207,7 +212,12 @@ export class Abreviations {
           retVal = "monter";
           break;
 
-        case 'me':
+        case 'mon':
+          retVal = "montrer ";
+          break;
+
+        // 'me' est utilisé pour 'moi' avec certains verbes !
+
         case 'met':
           retVal = "mettre ";
           break;
@@ -239,11 +249,6 @@ export class Abreviations {
           retVal = "aller à l’ouest";
           break;
 
-        case 'ob':
-        case 'obs':
-          retVal = "observer ";
-          break;
-
         case 'ou':
         case 'ouv':
           retVal = "ouvrir ";
@@ -262,14 +267,17 @@ export class Abreviations {
           retVal = "prendre ";
           break;
 
-        case 'pa':
+        // case 'pa':
         case 'par':
           retVal = "parler ";
           break;
 
-        case 'po':
         case 'pos':
-          retVal = "poser";
+          retVal = "poser ";
+          break;
+
+        case 'pou':
+          retVal = "pousser ";
           break;
 
         // ======================
