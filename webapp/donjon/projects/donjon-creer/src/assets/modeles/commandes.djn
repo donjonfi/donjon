@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2020-12-20-0005
+-- Version: 2020-12-20-0006
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -16,6 +16,7 @@ SCÈNE "ouvrir".
 ouvrir ceci est une action qui concerne un objet visible.
 
 refuser ouvrir ceci:
+  si ceci est le joueur, dire "Pardon ?";
   si ceci n'est pas ouvrable, dire "Ça ne s'ouvre pas.";
   si ceci est verrouillé, dire "C'est verrouillé.".
   
@@ -59,6 +60,7 @@ SCÈNE "fermer".
 fermer ceci est une action qui concerne un objet visible.
 
 refuser fermer ceci:
+  si ceci est le joueur, dire "Pardon ?";
   si ceci n'est pas ouvrable, dire "Ça ne se ferme pas.";
   si ceci est verrouillé, dire "C'est verrouillé.".
   
@@ -76,7 +78,7 @@ L'aide pour l'action fermer est "{*Fermer*}
   > {-fermer {/la boite/}-}
   {+raccourci+} : {-fe-}".
 
-CHAPITRE "parler, interroger et montrer".
+CHAPITRE "parler, interroger, montrer".
 
 SCÈNE "parler".
 -- ==========
@@ -90,7 +92,8 @@ le joueur peut parler:
 parler à ceci est une action qui concerne un objet visible.
 
 refuser parler à ceci:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+  si ceci est le joueur, dire "Vous entamez un monologue.".
 
 terminer parler à ceci:
   si ceci réagit, exécuter réaction de ceci;
@@ -100,7 +103,8 @@ terminer parler à ceci:
 parler à ceci de cela est une action qui concerne un objet visible et un intitulé.
 
 refuser parler à ceci de cela:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+  si ceci est le joueur, dire "Je connais déjà la réponse.".
 
 exécuter parler à ceci de cela:
   si ceci réagit, exécuter réaction de ceci concernant cela.
@@ -130,7 +134,8 @@ le joueur peut interroger:
 interroger ceci est une action qui concerne un objet visible.
 
 refuser interroger à ceci:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+  si ceci est le joueur, dire "Je connais déjà la réponse.".
   
 exécuter interroger à ceci:
   dire "Je veux bien l’interroger mais à quel sujet ?".
@@ -165,6 +170,9 @@ SCÈNE "montrer".
 -- c) montrer ceci à cela
 montrer ceci à cela est une action qui concerne un objet visible et un vivant.
 
+refuser montrer ceci à cela:
+  si cela est le joueur, dire "Je pense qu'[pronom cela] me voit déjà comme ça.".
+
 exécuter montrer ceci à cela:
   si cela réagit, exécuter réaction de cela concernant ceci.
   
@@ -177,6 +185,60 @@ L'aide pour l'action montrer est "{*Montrer*}
   > {-montrer {/la carte/} au {/pirate/}-}
   {+raccourci+} : {-mon-}".
   
+  
+CHAPITRE "insulter, énerver, crier".
+
+SCÈNE "insulter".
+-- ============
+--   INSULTER
+-- ============
+  
+-- insulter ceci
+insulter ceci est une action qui concerne un objet visible.
+
+refuser insulter ceci:
+  si ceci est le joueur, dire "Vous vous insultez copieusement. (Ça va passer…)".
+  
+terminer insulter ceci:
+  dire "Vous insultez copieusement [intitulé ceci].".
+
+
+SCÈNE "énerver".
+-- ============
+--   ÉNERVER
+-- ============
+  
+-- énerver ceci 
+énerver ceci est une action qui concerne un objet visible.
+
+refuser énerver ceci:
+  si ceci est le joueur, dire "Vous vous énervez un bon coup.";
+  si ceci n’est pas un vivant, dire "Rien à faire, [pronom ceci] reste impassible.".
+  
+terminer énerver ceci:
+  dire "Vous essayez d’énerver [intitulé ceci] sans succès.".
+
+
+SCÈNE "crier".
+-- ============
+--   CRIER
+-- ============
+  
+-- crier 
+crier est une action.
+
+terminer énerver ceci:
+  dire "Vous criez un bon coup.".
+
+-- crier sur ceci
+crier sur ceci est une action qui concerne un objet visible.
+
+refuser crier sur ceci:
+  si ceci est le joueur, dire "Vous vous criez dessus. (Ça va passer…)".
+  
+terminer crier sur ceci:
+  dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
+
 CHAPITRE "regarder et examiner".
 SCÈNE "regarder".
 -- ============
@@ -192,11 +254,28 @@ terminer regarder:
   dire "{n}{n}[sorties ici]".
   
 -- b) regarder ceci
-regarder ceci est une action qui concerne un objet visible.
+regarder ceci est une action qui concerne un élément visible.
 
 terminer regarder ceci:
-   dire "(Pour examiner quelque chose, merci d’utiliser la commande {-examiner-}.)".
-
+  si ceci est un objet:
+    dire "[description ceci] ";
+  si ceci est une porte ou un contenant :
+    dire "{n}[statut ceci]";
+  si ceci est un contenant et ouvert:
+    dire "[contenu ceci]";
+  si ceci est un contenant et fermé et transparent:
+    dire "[contenu ceci]";
+  si ceci est un support:
+    dire "[contenu ceci]";
+  si ceci n'est ni accessible ni un lieu:
+    dire " [Pronom ceci] n'est pas accessible.";
+  si ceci n'est ni un contenant ni un support:
+    dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
+  si ceci est un lieu:
+    dire "{_{*[titre ici]*}_}",
+    dire "{n}[description ici][contenu ici]",
+    dire "{n}{n}[sorties ici]".
+  
 L'aide pour l'action regarder est "{*Regarder*}
   Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
   {+exemple+} :
@@ -213,13 +292,16 @@ le joueur peut examiner:
   dire "(Si vous souhaitez examiner quelque chose, il faut préciser quoi.)".
 
 -- b) examiner ceci
-examiner ceci est une action qui concerne un objet visible.
+examiner ceci est une action qui concerne un élément visible.
 
 refuser examiner ceci:
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] ait envie de jouer au docteur.".
 
 terminer examiner ceci:
-  dire "[description ceci] ";
+  si ceci est le joueur:
+    dire "Étrange...{n}";
+  si ceci est un objet:
+    dire "[description ceci] ";
   si ceci est une porte ou un contenant :
     dire "{n}[statut ceci]";
   si ceci est un contenant et ouvert:
@@ -228,11 +310,13 @@ terminer examiner ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci n'est pas accessible:
-    dire "[pronom ceci] n'est pas accessible."
+  si ceci n'est ni accessible ni un lieu:
+    dire " [Pronom ceci] n'est pas accessible.";
   si ceci n'est ni un contenant ni un support:
-    dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]".
-
+    dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
+  si ceci est un lieu:
+    dire "Veuillez préciser quel élément vous souhaitez examiner.".
+    
 interpréter fouiller comme examiner.
 
 L'aide pour l'action examiner est "{*Examiner*}
@@ -259,6 +343,7 @@ prendre ceci est une action qui concerne un objet visible.
 
 refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
+  si ceci est le joueur, dire "Pardon ?";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci n'est pas accessible, dire "Je ne sais pas y accéder.";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
@@ -290,6 +375,7 @@ donner ceci à cela est une action qui concerne un objet visible et un vivant vi
 
 refuser donner ceci à cela:
   si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
+  si ceci est le joueur, dire "Ça ne va pas ?";
   si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.".
 
 exécuter donner ceci à cela:
@@ -319,6 +405,7 @@ jeter ceci est une action qui concerne un objet visible.
 
 refuser jeter ceci:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
   si ceci est un vivant, dire "Je suis contre la violence.".
   
 exécuter jeter ceci:
@@ -338,7 +425,7 @@ jeter ceci vers cela est une action qui concerne deux objets visibles.
 
 refuser jeter ceci vers cela:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
-  si ceci est un vivant, dire "Je suis contre la violence.";
+  si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
   si cela est un vivant, dire "Je suis contre la violence.".
   
 exécuter jeter ceci vers cela:
@@ -368,6 +455,7 @@ mettre ceci est une action qui concerne un objet visible.
 
 refuser mettre ceci:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci est le joueur, dire "Vous avez de drôles d'idées.";
   si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.".
 
 exécuter mettre ceci:
@@ -384,7 +472,7 @@ mettre ceci dans cela est une action qui concerne un objet visible et un objet v
 refuser mettre ceci dans cela:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
   si cela n'est pas accessible, dire "[intitulé cela] n’est pas accessible.";
-  si cela n'est ni un support ni un contenant, dire "[intitulé ceci] n’est ni un contenant ni un support";
+  si cela n'est ni un support ni un contenant, dire "[intitulé cela] n’est ni un contenant ni un support.";
   si cela est fermé, dire "[intitulé cela] est fermé[accord cela].".
 
 exécuter mettre ceci dans cela:
@@ -413,7 +501,9 @@ SCÈNE "enlever".
 enlever ceci est une action qui concerne un objet visible.
 
 refuser enlever ceci:
-  si ceci est portable mais pas porté, dire "vous ne portez pas [intitulé ceci].".
+  si ceci est portable mais pas porté, dire "Vous ne portez pas [intitulé ceci].";
+  si ceci est le joueur, dire "Vous organisez votre enlèvement... et votre sauvetage.";
+  si ceci est fixé, dire "C’est fixé.".
 
 exécuter enlever ceci:
   changer le joueur ne porte plus ceci.
@@ -433,7 +523,8 @@ SCÈNE "déplacer".
 déplacer ceci est une action qui concerne un objet visible.
 
 refuser déplacer ceci:
-  si ceci est inaccessible, dire "Je n’y ai pas accès.".
+  si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "La commande {-aller-} devrait vous convenir.";
   si ceci est fixé, dire "C’est fixé.".
   
 exécuter déplacer ceci:
@@ -451,7 +542,8 @@ SCÈNE "pousser".
 pousser ceci est une action qui concerne un objet visible.
 
 refuser pousser ceci:
-  si ceci est inaccessible, dire "Je n’y ai pas accès.".
+  si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Je suis dans le chemin ?".
 
 exécuter pousser ceci:
   changer ceci est déplacé.
@@ -468,7 +560,8 @@ SCÈNE "tirer".
 tirer ceci est une action qui concerne un objet visible.
 
 refuser tirer ceci:
-  si ceci est inaccessible, dire "Je n’y ai pas accès.".
+  si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Pardon ?".
 
 exécuter tirer ceci:
   changer ceci est déplacé.
@@ -486,6 +579,7 @@ toucher ceci est une action qui concerne un objet visible.
 
 refuser toucher ceci:
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Non vous ne revez pas.";
   si ceci est un vivant, dire "Vous lui avez demandé son avis ?".
 
 exécuter toucher ceci:
@@ -494,6 +588,8 @@ exécuter toucher ceci:
 terminer toucher ceci:
   dire "Je [l’ ceci]ai touché[accord ceci].".
 
+interpréter pincer comme toucher.
+
 SCÈNE "secouer".
 -- ===========
 --   SECOUER
@@ -501,7 +597,8 @@ SCÈNE "secouer".
 secouer ceci est une action qui concerne un objet visible.
 
 refuser secouer ceci:
-  si ceci est inaccessible, dire "Je n’y ai pas accès.",
+  si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Rien de tel pour se réveiller.";
   si ceci est un vivant, dire "Je suis contre la violence.".
 
 exécuter secouer ceci:
@@ -518,6 +615,7 @@ casser ceci est une action qui concerne un objet visible.
 
 refuser casser ceci:
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Ça ne va pas ?";
   si ceci est un vivant, dire "Vous avez de drôles d’idées.".
 
 terminer casser ceci:
@@ -533,6 +631,7 @@ brûler ceci est une action qui concerne un objet visible.
 
 refuser brûler ceci:
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
+  si ceci est le joueur, dire "Ça ne va pas ?";
   si ceci est un vivant, dire "Vous avez de drôles d’idées.".
 
 terminer brûler ceci:
@@ -587,6 +686,9 @@ SCÈNE "frapper".
 -- ===========
 frapper ceci est une action qui concerne un objet visible.
   
+refuser frapper ceci:
+  si ceci est le joueur, dire "Ça ne va pas ?".
+
 terminer frapper ceci:
   dire "Je suis contre la violence.".
   
@@ -597,7 +699,8 @@ SCÈNE "tuer".
 tuer ceci est une action qui concerne un objet visible.
 
 refuser tuer ceci:
-  si ceci n’est pas un vivant, dire "Ça ne vit pas.".
+  si ceci n’est pas un vivant, dire "Ça ne vit pas.";
+  si ceci est le joueur, dire "Ça ne va pas ?".
   
 terminer tuer ceci:
   dire "Je suis contre la violence.".
@@ -609,6 +712,7 @@ SCÈNE "embrasser".
 embrasser ceci est une action qui concerne un objet visible.
 
 refuser embrasser ceci:
+  si ceci est le joueur, dire "Pardon ?";
   si ceci n’est pas un vivant, dire "Vous avez de drôles d’idées.".
   
 terminer embrasser ceci:
@@ -621,6 +725,7 @@ SCÈNE "enlacer".
 enlacer ceci est une action qui concerne un objet visible.
 
 refuser enlacer ceci:
+  si ceci est le joueur, dire "Vous vous faites un gros câlin.";
   si ceci n’est pas un vivant, dire "Vous avez de drôles d’idées.".
   
 terminer enlacer ceci:
@@ -633,6 +738,7 @@ SCÈNE "assommer".
 assommer ceci est une action qui concerne un objet visible.
 
 refuser assommer ceci:
+  si ceci est le joueur, dire "Il doit y a voir un autre moyen de résoudre votre problème.";
   si ceci n’est pas un vivant, dire "Ça ne vit pas.".
 
 terminer assommer ceci:
@@ -651,6 +757,9 @@ terminer écouter:
 
 écouter ceci est une action qui concerne un objet visible.
 
+refuser écouter ceci:
+  si ceci est le joueur, dire "Vous prenez le temps de vous écouter. Hein ?".
+
 terminer écouter ceci:
   dire "Vous prenez le temps d’écouter [intitulé ceci].".
 
@@ -667,6 +776,7 @@ terminer dormir:
 dormir sur ceci est une action qui concerne un objet visible.
 
 refuser dormir sur ceci:
+  si ceci est le joueur, dire "Pardon ?";
   si ceci n’est pas un support, dire "Je ne sais pas me coucher dessus.".
 
 terminer dormir sur ceci:
@@ -683,6 +793,9 @@ terminer prier:
   dire "Vous priez.".
   
 prier ceci est une action qui concerne un intitulé.
+
+refuser prier ceci:
+  si ceci est le joueur, dire "Vous vous appréciez beaucoup. C'est bien.".
 
 terminer prier ceci:
   dire "Vous priez [intitulé ceci].".
@@ -734,8 +847,22 @@ SCÈNE "lire".
 lire ceci est une action qui concerne un objet visible.
 
 refuser lire ceci:
+  si ceci est le joueur, dire "Vous lisez en vous. Hein ?";
   si aucun texte pour ceci, dire "Je ne vois rien à lire.".
 
 terminer lire ceci:
   dire "[texte ceci]".
+
+CHAPITRE "péter".
+
+SCÈNE "péter".
+-- ===========
+--    PÉTER
+-- ===========
+péter est une action.
+
+terminer péter:
+  dire "Vous faites un bruit malpoli.".
+
+interpréter roter comme péter.
 
