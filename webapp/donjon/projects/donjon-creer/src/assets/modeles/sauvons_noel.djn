@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.1".
+La version du jeu est "1.2".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -21,6 +21,12 @@ avant commencer le jeu:
   attendre touche.
 
 PARTIE "Description du monde".
+
+-- Le joueur
+Le description du joueur est "Bon clairement vous avez quelques kilos à perdre mais au d’un autre coté ces rondeurs et votre barbe blanche vous donnent un air sympathique.
+  [si le joueur porte le bonnet]Vous portez un bonnet rouge[sinon]Vous ne portez rien[fin si] sur votre tête.
+  [si le joueur porte la veste et le pantalon]Vous avez enfilé votre veste et votre pantalon.[fin si][si le joueur porte le pantalon mais pas la veste]Vous avez enfilé votre pantalon de velour mais vous êtes toujours torse-nu[fin si][si le joueur porte la veste mais pas le pantalon]Vous êtes en slip en dessous de votre veste, ce qui fait beaucoup rire vos lutins.[fin si][si le joueur ne porte ni la veste ni le pantalon]Vous êtes en slip, ce qui fait beaucoup rire vos lutins.[fin si]
+  [si le joueur porte les bottes]Vous êtes chaussés.[sinon]Vous êtes pieds nus. C’est un peu désagréable.[fin si]".
 
 -- Le hall
 Le hall est un lieu. "Vous êtes dans le hall.".
@@ -41,7 +47,7 @@ La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
 Son titre est "La chambre du Père Noël".
 -- >> Grattepot
 Grattepot est une personne dans la chambre.
-
+interpréter G comme Grattepot.
 Sa réaction est :
   si l'historique ne contient pas "clé trouvée":
     dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>[si le joueur ne porte pas le pantalon] {n}<< Ha ha ! Vous ne portez pas de pantalon ! >>[fin si]";
@@ -57,24 +63,30 @@ Sa réaction concernant la clé est :
     dire "<< Vous savez-bien, c'est la clé en forme de Bretzel. >>".
   
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
+Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "C’est important de bien vous couvrir pour sortir dehors.".
 
 -- >> Volebougie
 Volebougie est une personne dans la chambre.
+interpréter V comme Volebougie.
+
 Sa réaction est :
   si le joueur ne porte ni la veste ni le pantalon, dire "<< Ha ha ha ! Vous êtes tout nu ! >>";
   si le joueur porte soit la veste soit le pantalon, dire "<< Ha ha ha ! Il vous manque encore quelque chose ! >>";
   si le joueur porte la veste et le pantalon, dire "<< Vous avez bien fait de vous habiller ! [si le joueur porte le bonnet]Vous allez pouvoir sortir à présent.[sinon]D'ailleurs vous devriez couvrir votre tête : il fait vraiment froid.[fin si] >>".
     
 Sa réaction concernant la clé est "<< C'est Grattepot qui l'a perdu ![si l'historique contient "clé trouvée"] Heureusement que vous l'avez retrouvée.[fin si] >>".
-
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
+Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Bien rangé, vite retrouvé !".
 
 -- >> Chipesaucisse
 Chipesaucisse est une personne dans la chambre.
+interpréter C comme Chipesaucisse.
+
 Sa réaction est "<< Il nous reste très peu de temps pour charger le traîneau.[si l'historique ne contient pas "clé trouvée"] Il faut nous aider à retrouver la clé de la boite aux lettres.[fin si] >>[si le joueur ne porte pas le pantalon]{n}<< Ha ha ! Vous ne portez pas de pantalon ![fin si] >>".
 Sa réaction concernant la clé est "<< J'ai toujours eu envie de croquer dedans ! >>".
 
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
+Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Il faut que vous arrêtiez de jeter vos affaires n’importe où.".
 
 -- > Le lit
 Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
@@ -109,7 +121,7 @@ après ouvrir la porte de la chambre :
   continuer action.
 
 -- > Le bout de bois
-Il y a un bout de bois dans la chambre. "C'est un morceau de votre porte.".
+Le bout de bois est dans la chambre. "C'est un morceau de votre porte.".
 C'est un objet décoratif.
 Son aperçu est "Il y a un bout de bois[initialement] au pied de votre porte.[fin choix]".
 interpréter bois comme bout de bois.
@@ -123,16 +135,27 @@ après donner bout de bois à Chipesaucisse:
 après donner bout de bois à Volebougie:
   dire "Volebougie s'encourt avec le bout de bois [si le Volebougie se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec une mini tortue en bois trop mimi !{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
   
+
+avant jeter bout de bois dans le feu:
+  dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
+  effacer bout de bois;
+  stopper l'action.
+  
 avant mettre bout de bois dans le feu:
   dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
+  effacer bout de bois;
   stopper l'action.
   
-après jeter bout de bois dans le feu:
-  dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
+avant jeter joueur sur le lit:
+  dire "C’est tentant mais on n’a pas le temps pour ça !";
+  stopper l’action.
+  
+avant jeter joueur dans le feu:
+  dire "Ça va pas ?";
   stopper l'action.
   
-après mettre bout de bois dans le feu:
-  dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
+avant mettre joueur dans le feu:
+  dire "Ça va pas ?";
   stopper l'action.
   
 avant jeter bonnet dans le feu:
