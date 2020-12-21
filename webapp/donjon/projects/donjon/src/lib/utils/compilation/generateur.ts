@@ -43,17 +43,36 @@ export class Generateur {
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.invisible);
+    joueur.synonymes = [new GroupeNominal("", "moi", null)];
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
     // regarder si on a positionné le joueur dans le monde
     const joueurDansMonde = monde.speciaux.find(x => x.nom === 'joueur');
-    if (joueurDansMonde && joueurDansMonde.positionString) {
-      const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
-      const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
-      if (lieuID !== -1) {
-        joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
+    if (joueurDansMonde) {
+
+      if (joueurDansMonde.positionString) {
+        const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
+        const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
+        if (lieuID !== -1) {
+          joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
+        }
+
+      }
+      // parcourir les propriétés du lieu
+      joueurDansMonde.proprietes.forEach(pro => {
+        switch (pro.nom) {
+          case 'description':
+            joueurDansMonde.description = pro.valeur;
+            break;
+
+          default:
+            break;
+        }
+      });
+      if (joueurDansMonde.description) {
+        joueur.description = joueurDansMonde.description;
       }
     }
 
@@ -82,7 +101,9 @@ export class Generateur {
 
       let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
       nouvLieu.description = curEle.description;
-
+      nouvLieu.genre = curEle.genre;
+      nouvLieu.nombre = curEle.nombre;
+      
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {

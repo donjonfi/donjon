@@ -7,7 +7,6 @@ export class Abreviations {
     if (deuxiemeMot) {
       switch (deuxiemeMot) {
 
-
         case 'e':
           retVal = "à l’est";
           break;
@@ -48,14 +47,31 @@ export class Abreviations {
   }
 
   static obtenirCommandeComplete(commande: string) {
-    let mots = commande.split(' ');
+    // séparer le premier m’ ou s’ de la suite de la commande
+    let commandeModifiee = commande;
+    if (commandeModifiee.startsWith("m’") || commandeModifiee.startsWith("m'")) {
+      commandeModifiee = "m’ " + commandeModifiee.slice(2);
+    } else if (commandeModifiee.startsWith("s’") || commandeModifiee.startsWith("s'")) {
+      commandeModifiee = "m’ " + commandeModifiee.slice(2);
+    }
+
+    let mots = commandeModifiee.split(' ');
     if (mots.length > 0) {
       let premierMotComplet = Abreviations.premierMotCommande(mots[0], true);
       let deuxiemeMotComplet = null;
 
+      // si commande en plusieurs mots
       if (mots.length > 1) {
+        // retrouver la direction abrégée
         if (premierMotComplet.trim() === 'aller') {
           deuxiemeMotComplet = Abreviations.direction(mots[1]);
+        }
+
+        // c’est un « me » par exemple « me regarder » 
+        // => on va le transformer en « regarder le joueur ».
+        if (premierMotComplet === 'moi') {
+          premierMotComplet = mots[1];
+          deuxiemeMotComplet = 'le joueur';
         }
       }
 
@@ -97,7 +113,7 @@ export class Abreviations {
           break;
 
         // ======================
-        //           A
+        //           C
         // ======================
 
         case 'ch':
@@ -216,7 +232,11 @@ export class Abreviations {
           retVal = "montrer ";
           break;
 
-        // 'me' est utilisé pour 'moi' avec certains verbes !
+        case 'm\'':
+        case 'm’':
+        case 'me':
+          retVal = "moi";
+          break;
 
         case 'met':
           retVal = "mettre ";
