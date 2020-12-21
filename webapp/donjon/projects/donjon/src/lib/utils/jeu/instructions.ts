@@ -64,18 +64,18 @@ export class Instructions {
         contenu = contenu.replace(/\[description ici\]/g, descIci);
       }
       if (contenu.includes("[description ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const objCeci = ceci as Objet;
-          const descCeci = this.calculerDescription(objCeci.description, ++objCeci.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const eleCeci = ceci as ElementJeu;
+          const descCeci = this.calculerDescription(eleCeci.description, ++eleCeci.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[description ceci\]/g, descCeci);
         } else {
           console.error("interpreterContenuDire: Description de ceci: ceci n'est pas un objet");
         }
       }
       if (contenu.includes("[description cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const objCela = cela as Objet;
-          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const eleCela = cela as ElementJeu;
+          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[description cela\]/g, descCela);
         } else {
           console.error("interpreterContenuDire: Description de cela: cela n'est pas un objet");
@@ -190,16 +190,32 @@ export class Instructions {
     // intitulé
     if (contenu.includes("[intitulé")) {
       if (contenu.includes("[intitulé ici]")) {
-        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu);
+        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
         contenu = contenu.replace(/\[intitulé ici\]/g, intIci);
       }
       if (contenu.includes("[intitulé ceci]")) {
-        const intCeci = ElementsJeuUtils.calculerIntitule(ceci);
+        const intCeci = ElementsJeuUtils.calculerIntitule(ceci, false);
         contenu = contenu.replace(/\[intitulé ceci\]/g, intCeci);
       }
       if (contenu.includes("[intitulé cela]")) {
-        const intCela = ElementsJeuUtils.calculerIntitule(cela);
+        const intCela = ElementsJeuUtils.calculerIntitule(cela, false);
         contenu = contenu.replace(/\[intitulé cela\]/g, intCela);
+      }
+    }
+
+    // Intitulé (Majuscule)
+    if (contenu.includes("[Intitulé")) {
+      if (contenu.includes("[Intitulé ici]")) {
+        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, true);
+        contenu = contenu.replace(/\[Intitulé ici\]/g, intIci);
+      }
+      if (contenu.includes("[Intitulé ceci]")) {
+        const intCeci = ElementsJeuUtils.calculerIntitule(ceci, true);
+        contenu = contenu.replace(/\[Intitulé ceci\]/g, intCeci);
+      }
+      if (contenu.includes("[Intitulé cela]")) {
+        const intCela = ElementsJeuUtils.calculerIntitule(cela, true);
+        contenu = contenu.replace(/\[Intitulé cela\]/g, intCela);
       }
     }
 
@@ -219,6 +235,26 @@ export class Instructions {
           contenu = contenu.replace(/\[pronom cela\]/g, pronomCela);
         } else {
           console.error("interpreterContenuDire: pronom cela: cela n'est pas un objet");
+        }
+      }
+    }
+
+    // pronom (majuscule)
+    if (contenu.includes("[Pronom")) {
+      if (contenu.includes("[Pronom ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const pronomCeci = ((ceci as ElementJeu).genre === Genre.f ? "Elle" : "Il") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[Pronom ceci\]/g, pronomCeci);
+        } else {
+          console.error("interpreterContenuDire: Pronom ceci: ceci n'est pas un objet");
+        }
+      }
+      if (contenu.includes("[Pronom cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const pronomCela = ((cela as ElementJeu).genre === Genre.f ? "Elle" : "Il") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[Pronom cela\]/g, pronomCela);
+        } else {
+          console.error("interpreterContenuDire: Pronom cela: cela n'est pas un objet");
         }
       }
     }
@@ -476,9 +512,9 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
-    if (this.verbeux) {
-      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
-    }
+    // if (this.verbeux) {
+    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
+    // }
 
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
@@ -508,11 +544,12 @@ export class Instructions {
         break;
 
       case 'effacer':
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          sousResultat = this.executerEffacer(ceci as Objet);
+        const cible = this.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela);
+        if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
+          sousResultat = this.executerEffacer(cible as Objet);
           resultat.succes = sousResultat.succes;
         } else {
-          console.error("Exécuter infinitif: On ne peut pas effacer un intitulé.");
+          console.error("Exécuter infinitif: Seuls les objets peuvent être effacés.");
           resultat.succes = false;
         }
         break;
@@ -640,7 +677,7 @@ export class Instructions {
         let curObjIndex = 0;
         objets.forEach(obj => {
           ++curObjIndex;
-          resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj);
+          resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj, false);
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
             resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
           }
@@ -690,7 +727,7 @@ export class Instructions {
         // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
         if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
           // ne pas afficher objets cachés du support, on ne l’examine pas directement
-          const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj) + " il y a "), "", false);
+          const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false);
           resultat.sortie += sousRes.sortie;
         }
       });
@@ -700,7 +737,7 @@ export class Instructions {
 
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-        const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), "", false);
+        const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), "", false);
         resultat.sortie += sousRes.sortie;
       });
 
@@ -715,7 +752,7 @@ export class Instructions {
         let curObjIndex = 0;
         objetsSansApercu.forEach(obj => {
           ++curObjIndex;
-          resultat.sortie += ElementsJeuUtils.calculerIntitule(obj);
+          resultat.sortie += ElementsJeuUtils.calculerIntitule(obj, false);
           if (curObjIndex < (nbObjetsSansApercus - 1)) {
             resultat.sortie += ", ";
           } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
@@ -729,7 +766,7 @@ export class Instructions {
         let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support) + "."), false);
+          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support, false) + "."), false);
           resultat.sortie += sousRes.sortie;
         });
 
@@ -751,7 +788,7 @@ export class Instructions {
                 resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
               } else {
                 // par défaut, afficher le nom de la porte et ouvert/fermé.
-                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntitule(curPorte) + " est ";
+                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntitule(curPorte, true) + " est ";
                 if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID)) {
                   resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.ouvertID)
                 } else {

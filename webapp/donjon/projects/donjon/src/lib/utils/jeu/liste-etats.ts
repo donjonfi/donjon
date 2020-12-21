@@ -371,7 +371,14 @@ export class ListeEtats {
     let retVal = false;
     if (element) {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
-        return this.estVisible((element as Objet), eju);
+        // lieu
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return element.id == eju.curLieu.id;
+        // objet
+        } else {
+          return this.estVisible((element as Objet), eju);
+        }
+
       } else if (nomEtat === 'accessible' || nomEtat === 'accessibles') {
         return this.estAccessible((element as Objet), eju);
       } else {
@@ -583,7 +590,7 @@ export class ListeEtats {
     const feminin = el.genre === Genre.f;
     const pluriel = el.nombre === Nombre.p;
     let retVal: string;
-    
+
     let etat = this.obtenirEtat(etatID);
 
     if (feminin) {

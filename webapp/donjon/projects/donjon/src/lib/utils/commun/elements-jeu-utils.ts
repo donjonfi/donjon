@@ -20,10 +20,14 @@ export class ElementsJeuUtils {
     private verbeux: boolean,
   ) { }
 
-  static calculerIntitule(ceci: Intitule) {
+  static calculerIntitule(ceci: Intitule, forcerMajuscule: boolean) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
       retVal = (ceci.intitule.determinant ? ceci.intitule.determinant : "") + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+    }
+    // mettre majuscule en début d’intitulé (début de Phrase)
+    if (forcerMajuscule) {
+      retVal = retVal[0].toUpperCase() + retVal.slice(1);
     }
     return retVal;
   }

@@ -245,6 +245,8 @@ export class PhraseUtils {
           sujetDialogue = new GroupeNominal(null, res[3], res[4]);
           preposition = "";
         }
+        // console.warn("personne=", personne, "sujetDialogue=", sujetDialogue);
+
         els = new ElementsPhrase(res[1], personne, null, null, (sujetDialogue ? sujetDialogue.nom : null));
         els.preposition = preposition;
         els.sujetComplement1 = sujetDialogue;

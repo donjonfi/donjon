@@ -189,8 +189,8 @@ export class Compilateur {
       .replace(/<< /g, "« ")
       .replace(/ >>/g, " »")
       .replace(/ \?/g, " ?")
-      .replace(/ !/g, " !");
-
+      .replace(/ !/g, " !")
+      .replace(/\.\.\.(?!:\.)/g, "…");
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
