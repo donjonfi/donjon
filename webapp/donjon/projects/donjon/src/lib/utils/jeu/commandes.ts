@@ -134,7 +134,7 @@ export class Commandes {
         + " - {-parler à {/magicienne/}-} : parler à un personnage\n"
         + " - {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique\n"
         + " - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée\n"
-        + "{+[ Donjon ©2018-2020 Jonathan Claes − see MIT License ]+}";
+        + "{+[ Donjon ©2018-2021 Jonathan Claes − see MIT License ]+}";
     } else {
       const ficheAide = this.jeu.aides.find(x => x.infinitif === els.sujet.nom);
       if (ficheAide) {
