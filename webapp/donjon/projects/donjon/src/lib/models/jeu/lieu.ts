@@ -9,10 +9,11 @@ export class Lieu extends ElementJeu {
     id: number,
     nom: string,
     intitule: GroupeNominal = null,
-    public titre: string,
+    titre: string,
     classe = ClassesRacines.Lieu,
   ) {
     super(id, nom, intitule, classe);
+    this.titre = titre;
   }
 
   voisins: Voisin[] = [];

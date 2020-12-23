@@ -13,11 +13,14 @@ export class Objet extends ElementJeu {
     nom: string,
     intitule: GroupeNominal,
     classe: Classe,
-    public quantite: number,
-    public genre: Genre,
-    public nombre: Nombre,
+    quantite: number,
+    genre: Genre,
+    nombre: Nombre,
   ) {
     super(id, nom, intitule, classe);
+    this.quantite = quantite;
+    this.genre = genre;
+    this.nombre = nombre;
   }
 
   reactions: Reaction[] = null;
