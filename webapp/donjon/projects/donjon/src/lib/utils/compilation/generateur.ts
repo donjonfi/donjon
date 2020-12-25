@@ -96,7 +96,7 @@ export class Generateur {
     let premierIndexLieu = (indexElementJeu + 1);
     monde.lieux.forEach(curEle => {
 
-      let titre = curEle.determinant + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
       let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
