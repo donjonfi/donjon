@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2020-12-20-0006
+-- Version: 2020-12-20-0007
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -353,7 +353,7 @@ exécuter prendre ceci:
   déplacer ceci vers joueur.
   
 terminer prendre ceci:
-  dire "[intitulé ceci] a été ajouté[accord ceci] à votre inventaire.".
+  dire "[Intitulé ceci] [ceci a été] ajouté[accord ceci] à votre inventaire.".
 
 L'aide pour l'action prendre est "{*Prendre*}
   Permet de prendre un objet accessible pour le mettre dans votre inventaire.
