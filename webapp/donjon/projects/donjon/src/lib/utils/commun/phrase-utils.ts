@@ -222,11 +222,16 @@ export class PhraseUtils {
     } else {
       // le phrase peut-être tournée de 2 manière différentes, on veut pouvoir
       // détecter les 2.
-      res = ExprReg.xCommandeParlerPersSujet.exec(commande);
+      // - sens Interlocuteur => Sujet
+      res = ExprReg.xCommandeParlerAvecInterlocuteurConcernantSujet.exec(commande);
+      if (!res) {
+        ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
+      }
       let sensPersSujet = true;
       if (!res) {
+        // - sens Sujet => Interlocuteur
         sensPersSujet = false;
-        res = ExprReg.xCommandeParlerSujetPers.exec(commande);
+        res = ExprReg.xCommandeParlerSujetAvecInterlocuteur.exec(commande);
       }
       // c'est un dialogue (parler, demander, …)
       if (res) {

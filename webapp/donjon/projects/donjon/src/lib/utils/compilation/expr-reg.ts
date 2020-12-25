@@ -200,47 +200,47 @@ export class ExprReg {
 
 
 
-    /**
-     * Interpréter la commande parler/demander (sens: sujet puis personne)
-     * - parler de la fourchette rouge au nain jaune
-     * - discuter de la fourchette avec le nain
-     * - parler de la fourchette aux miracles avec le chien aux miracles -> avec règle les soucis
-     * - discuter de fourchette avec nain
-     * - parler de fourchette à nain
-     * - demander la fourchette au nain
-     * - demander fourchette à boutons au nain
-     * - demander fourchettte au nai
-     * - montrer le pantalon aux nains
-     * - discuter à propos des chiens avec le chat
-     * - demander la fourchette au comte de la ville
-     * - demander la fiole aux miracles aux comte -> comment gérer ça ?
-     * - demander la fiole aux comte aux miracles -> comment gérer ça ?
-     * - => parler(1) de la(2) clé rouge(3) avec le(4) chevalier blanc(5)
-     */
-    // static readonly xCommandeParlerSujetPers = /^(demander|questionner|interroger|parler|discuter)(?: ((?:(?:(?:à propos )?de |concernant )?(?:l'|l’|la |le ))|de |du |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?) (au |à (?:la |l'|l’)?|avec (?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?$/i;
+  /**
+   * Interpréter la commande parler/demander (sens: sujet puis personne)
+   * - parler de la fourchette rouge au nain jaune
+   * - discuter de la fourchette avec le nain
+   * - parler de la fourchette aux miracles avec le chien aux miracles -> avec règle les soucis
+   * - discuter de fourchette avec nain
+   * - parler de fourchette à nain
+   * - demander la fourchette au nain
+   * - demander fourchette à boutons au nain
+   * - demander fourchettte au nai
+   * - montrer le pantalon aux nains
+   * - discuter à propos des chiens avec le chat
+   * - demander la fourchette au comte de la ville
+   * - demander la fiole aux miracles aux comte -> comment gérer ça ?
+   * - demander la fiole aux comte aux miracles -> comment gérer ça ?
+   * - => parler(1) de la(2) clé rouge(3) avec le(4) chevalier blanc(5)
+   */
+  // static readonly xCommandeParlerSujetPers = /^(demander|questionner|interroger|parler|discuter)(?: ((?:(?:(?:à propos )?de |concernant )?(?:l'|l’|la |le ))|de |du |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?) (au |à (?:la |l'|l’)?|avec (?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?$/i;
 
-    /**
-     * Interpréter la commande parler/demander (sens: personne puis sujet)
-     * - => demander(1) au(2) chevalier(3) blanc(4) la(5) clé(6) rouge(7)
-     * - parler au nain jaune
-     * - parler au nain jaune de la fourchette rouge.
-     * - parler au nain jaune de fourchette rouge.
-     * - discuter avec nain jaune de la fourchette rouge.
-     * - demander au nain jaune la fourchette rouge.
-     * - interroger le nain jaune sur la fourchette rouge.
-     * - questionner le nain jaune à propos de la fourchette rouge.
-     */
-    // static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:\S+ (?:à (?!propos)|en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |concernant |de )?(?:l'|l’|la |le ))|à propos (?:de (?:l'|l’|la )|du )|du |de |un |une )?((?!au)\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
+  /**
+   * Interpréter la commande parler/demander (sens: personne puis sujet)
+   * - => demander(1) au(2) chevalier(3) blanc(4) la(5) clé(6) rouge(7)
+   * - parler au nain jaune
+   * - parler au nain jaune de la fourchette rouge.
+   * - parler au nain jaune de fourchette rouge.
+   * - discuter avec nain jaune de la fourchette rouge.
+   * - demander au nain jaune la fourchette rouge.
+   * - interroger le nain jaune sur la fourchette rouge.
+   * - questionner le nain jaune à propos de la fourchette rouge.
+   */
+  // static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:\S+ (?:à (?!propos)|en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |concernant |de )?(?:l'|l’|la |le ))|à propos (?:de (?:l'|l’|la )|du )|du |de |un |une )?((?!au)\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
 
-    /** 
-     * il y a aussi des commandes spéciales:
-     * - position
-     * - sorties
-     * - inventaire
-     * - aide
-     * - aide parler
-     */
-    static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)(?: (\S+))?$/i;
+  /** 
+   * il y a aussi des commandes spéciales:
+   * - position
+   * - sorties
+   * - inventaire
+   * - aide
+   * - aide parler
+   */
+  static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)(?: (\S+))?$/i;
 
   // ================================================================================================
   //  CONDITIONS
