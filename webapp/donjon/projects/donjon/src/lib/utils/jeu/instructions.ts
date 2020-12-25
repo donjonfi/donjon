@@ -16,6 +16,7 @@ import { Lieu } from '../../models/jeu/lieu';
 import { Localisation } from '../../models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { PhraseUtils } from '../commun/phrase-utils';
 import { Reaction } from '../../models/compilateur/reaction';
 import { Resultat } from '../../models/jouer/resultat';
 
@@ -399,7 +400,8 @@ export class Instructions {
       // SI
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
-      statut.siVrai = this.cond.siEstVraiSansLien(conditionLC, null, ceci, cela);
+      const condition = PhraseUtils.getCondition(conditionLC);
+      statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela);
       retVal = statut.siVrai;
       // SUITES
     } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
