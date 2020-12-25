@@ -287,7 +287,7 @@ export class Instructions {
     if (contenu.includes("[l’ ") || contenu.includes("[l' ")) {
       if (contenu.includes("[l’ ceci]") || contenu.includes("[l' ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const leCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "les" : "l’");
+          const leCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "les " : "l’");
           contenu = contenu.replace(/\[l’ ceci\]|\[l' ceci\]/g, leCeci);
         } else {
           console.error("interpreterContenuDire: l’ ceci: ceci n'est pas un élément du jeu");
@@ -295,10 +295,29 @@ export class Instructions {
       }
       if (contenu.includes("[l’ cela]") || contenu.includes("[l' cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const leCela = ((cela as ElementJeu).nombre === Nombre.p ? "les" : "l’");
+          const leCela = ((cela as ElementJeu).nombre === Nombre.p ? "les " : "l’");
           contenu = contenu.replace(/\[l’ cela\]|\[l' cela\]/g, leCela);
         } else {
           console.error("interpreterContenuDire: l’ cela: cela n'est pas un élément du jeu");
+        }
+      }
+    }
+
+    if (contenu.includes(" a été]")) {
+      if (contenu.includes("[ceci a été]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const ceciAEte = ((ceci as ElementJeu).nombre === Nombre.p ? "ont été" : "a été") + ((ceci as ElementJeu).genre === Genre.f ? "e" : "") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[ceci a été\]/g, ceciAEte);
+        } else {
+          console.error("interpreterContenuDire: ceci a été: ceci n'est pas un élément du jeu");
+        }
+      }
+      if (contenu.includes("[cela a été]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const celaAEte = ((cela as ElementJeu).nombre === Nombre.p ? "ont été" : "a été") + ((cela as ElementJeu).genre === Genre.f ? "e" : "") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[cela a été\]/g, celaAEte);
+        } else {
+          console.error("interpreterContenuDire: cela a été: cela n'est pas un élément du jeu");
         }
       }
     }
@@ -718,25 +737,39 @@ export class Instructions {
     if (objets !== null) {
       resultat.succes = true;
 
-      // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
-
       // - objets avec aperçu (ne pas lister les objets décoratifs):
       let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
-      const nbObjetsAvecApercus = objetsAvecApercu.length;
+      // const nbObjetsAvecApercus = objetsAvecApercu.length;
+      // - objets sans apercu (ne pas lister les éléments décoratifs)
+      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
+      let nbObjetsSansApercus = objetsSansApercu.length;
 
+      // - supports décoratifs (eux ne sont pas affichés, mais leur contenu bien !)
+      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
+
+      // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercu.forEach(obj => {
-        resultat.sortie += "{n}" + this.calculerDescription(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), null, null);
-        // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
-        if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
-          // ne pas afficher objets cachés du support, on ne l’examine pas directement
-          const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false);
-          resultat.sortie += sousRes.sortie;
+        const apercuCalcule = this.calculerDescription(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), null, null);
+        // si l'aperçu n'est pas vide, l'ajouter.
+        if (apercuCalcule) {
+          // (ignorer les objets dont l'aperçu vaut "-")
+          if (apercuCalcule !== '-') {
+            resultat.sortie += "{n}" + apercuCalcule;
+            // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
+            if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
+              // ne pas afficher objets cachés du support, on ne l’examine pas directement
+              const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false);
+              resultat.sortie += sousRes.sortie;
+            }
+          }
+          // si l'aperçu est vide, ajouter l'objets à la liste des objets sans aperçu.
+        } else {
+          objetsSansApercu.push(obj);
+          nbObjetsSansApercus += 1;
         }
       });
 
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
-      let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
-
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
         const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), "", false);
@@ -744,11 +777,6 @@ export class Instructions {
       });
 
       // C.1 AFFICHER ÉLÉMENTS SANS APERÇU
-
-      // - objets sans apercu (ne pas lister les éléments décoratifs)
-      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
-
-      const nbObjetsSansApercus = objetsSansApercu.length;
       if (nbObjetsSansApercus > 0) {
         resultat.sortie += texteSiQuelqueChose;
         let curObjIndex = 0;
