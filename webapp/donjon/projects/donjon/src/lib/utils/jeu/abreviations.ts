@@ -48,7 +48,7 @@ export class Abreviations {
 
   static obtenirCommandeComplete(commande: string) {
     // séparer le premier m’ ou s’ de la suite de la commande
-    let commandeModifiee = commande;
+    let commandeModifiee = commande.toLocaleLowerCase("fr");
     if (commandeModifiee.startsWith("m’") || commandeModifiee.startsWith("m'")) {
       commandeModifiee = "m’ " + commandeModifiee.slice(2);
     } else if (commandeModifiee.startsWith("s’") || commandeModifiee.startsWith("s'")) {
