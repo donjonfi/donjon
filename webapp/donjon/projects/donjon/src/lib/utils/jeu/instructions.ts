@@ -1308,13 +1308,14 @@ export class Instructions {
 
       const ouvrable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvrableID);
       const ouvert = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID);
+      const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
       const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
 
       if (obj.genre == Genre.f) {
         if (ouvert) {
           retVal += "Elle est ouverte.";
         } else {
-          retVal += "Elle est fermée " + (verrou ? "et verrouillée." : "mais pas verrouillée.");
+          retVal += "Elle est fermée" + (verrouillable ? (verrou ? " et verrouillée." : " mais pas verrouillée.") : ".");
         }
         if (ouvrable && !verrou) {
           retVal += " Vous pouvez " + (ouvert ? 'la fermer.' : 'l’ouvrir.');
@@ -1323,7 +1324,7 @@ export class Instructions {
         if (ouvert) {
           retVal += "Il est ouvert.";
         } else {
-          retVal += "Il est fermé " + (verrou ? "et verrouillé." : "mais pas verrouillé.");
+          retVal += "Il est fermé" + (verrouillable ? (verrou ? " et verrouillé." : " mais pas verrouillé.") : ".");
         }
         if (ouvrable && !verrou) {
           retVal += " Vous pouvez " + (ouvert ? 'le fermer.' : 'l’ouvrir.');
