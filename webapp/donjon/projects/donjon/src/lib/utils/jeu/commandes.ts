@@ -196,63 +196,6 @@ export class Commandes {
   //     return this.utiliser(els);
   // }
 
-  // ouvrir(els: ElementsPhrase) {
-  //   if (!els.sujet) {
-  //     return "Ouvrir quoi ?";
-  //   } else if (els.infinitif == 'ouvrir' && els.preposition == 'avec') {
-  //     return this.deverrouiller(els);
-  //   } else {
-  //     const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
-  //     // plusiers portes trouvées
-  //     if (porte === -1) {
-  //       return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
-  //       // porte trouvée
-  //     } else if (porte) {
-  //       // porte verrouillée
-  //       if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
-  //         return "C’est verrouillé.";
-  //         // porte pas ouvrable
-  //       } else if (!ElementsJeuUtils.possedeCetEtat(porte, "ouvrable")) {
-  //         return "Je ne sais pas l’ouvrir.";
-  //         // porte pas verrouillée et ouvrable => on l’ouvre
-  //       } else {
-  //         ElementsJeuUtils.ajouterEtat(porte, (porte.genre === Genre.f ? "ouverte" : "ouvert"));
-  //         return "Á présent c'est ouvert.";
-  //       }
-  //       // pas trouvé la porte
-  //     } else {
-  //       return "Je n’ai pas trouvé ça (porte).";
-  //     }
-  //   }
-  // }
-
-  // fermer(els: ElementsPhrase) {
-  //   if (!els.sujet) {
-  //     return "Fermer quoi ?";
-  //   } else {
-  //     const porte = this.eju.trouverElementJeu(els.sujet, EmplacementElement.portes, false, true);
-  //     if (porte === -1) {
-  //       return "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
-  //       // porte trouvée
-  //     } else if (porte) {
-  //       // porte verrouillée
-  //       if (ElementsJeuUtils.possedeCetEtatAutoF(porte, "verrouillé")) {
-  //         return "C’est verrouillé.";
-  //         // porte pas ouvrable
-  //       } else if (!ElementsJeuUtils.possedeCetEtat(porte, "ouvrable")) {
-  //         return "Je ne sais pas la fermer.";
-  //         // porte pas verrouillée et ouvrable => on la ferme
-  //       } else {
-  //         ElementsJeuUtils.retirerEtat(porte, "ouvert", "ouverte");
-  //         return "C’est fermé.";
-  //       }
-  //       // pas trouvé la porte
-  //     } else {
-  //       return "Je n’ai pas trouvé ça.";
-  //     }
-  //   }
-  // }
-
   // utiliser(els: ElementsPhrase) {
   //   if (!els.sujet) {
   //     return "Utiliser quoi ?";

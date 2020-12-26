@@ -22,7 +22,7 @@ refuser ouvrir ceci:
   
 exécuter ouvrir ceci:
   changer ceci est ouvert;
-  changer ceci n'est plus fermé.
+  changer ceci n’est plus intact.
 
 terminer ouvrir ceci:
   dire "C'est ouvert.";
@@ -66,7 +66,7 @@ refuser fermer ceci:
   
 exécuter fermer ceci:
   changer ceci est fermé;
-  changer ceci n'est plus ouvert.
+  changer ceci n’est plus intact.
 
 terminer fermer ceci:
   dire "Ok. C'est fermé.".
