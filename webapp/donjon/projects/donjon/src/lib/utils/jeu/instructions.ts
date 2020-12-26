@@ -303,23 +303,85 @@ export class Instructions {
       }
     }
 
-    if (contenu.includes(" a été]")) {
-      if (contenu.includes("[ceci a été]")) {
+    // ===================================================
+    // CONJUGAISON
+    // ===================================================
+
+    // - ÊTRE
+    if (contenu.includes("[être ")) {
+
+      // étre − présent (simple)
+      if (contenu.includes("[être pr ceci]") || contenu.includes("[être prs ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const ceciAEte = ((ceci as ElementJeu).nombre === Nombre.p ? "ont été" : "a été") + ((ceci as ElementJeu).genre === Genre.f ? "e" : "") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[ceci a été\]/g, ceciAEte);
+          const prsEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "sont" : "est");
+          contenu = contenu.replace(/\[être pr ceci\]|\[être prs ceci\]/g, prsEtreCeci);
         } else {
-          console.error("interpreterContenuDire: ceci a été: ceci n'est pas un élément du jeu");
+          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
         }
       }
-      if (contenu.includes("[cela a été]")) {
+      if (contenu.includes("[être pr cela]") || contenu.includes("[être prs cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const celaAEte = ((cela as ElementJeu).nombre === Nombre.p ? "ont été" : "a été") + ((cela as ElementJeu).genre === Genre.f ? "e" : "") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[cela a été\]/g, celaAEte);
+          const prsEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "sont" : "est");
+          contenu = contenu.replace(/\[être pr cela\]|\[être prs cela\]/g, prsEtreCela);
         } else {
-          console.error("interpreterContenuDire: cela a été: cela n'est pas un élément du jeu");
+          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
         }
       }
+
+      // être − passé composé
+      if (contenu.includes("[être pac ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const pacEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "ont été" : "a été");
+          contenu = contenu.replace(/\[être pac ceci\]/g, pacEtreCeci);
+        } else {
+          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
+        }
+      }
+      if (contenu.includes("[être pac cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const pacEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "ont été" : "a été");
+          contenu = contenu.replace(/\[être pac cela\]/g, pacEtreCela);
+        } else {
+          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
+        }
+      }
+
+      // être − imparfait
+      if (contenu.includes("[être imp ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const impEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "étaient" : "était");
+          contenu = contenu.replace(/\[être pac ceci\]/g, impEtreCeci);
+        } else {
+          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
+        }
+      }
+      if (contenu.includes("[être imp cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const impEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "étaient" : "était");
+          contenu = contenu.replace(/\[être pac cela\]/g, impEtreCela);
+        } else {
+          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
+        }
+      }
+
+      // être − futur (simple)
+      if (contenu.includes("[être fu ceci]") || contenu.includes("[être fus ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const fusEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "seront" : "sera");
+          contenu = contenu.replace(/\[être fu ceci\]|\[être fus ceci\]/g, fusEtreCeci);
+        } else {
+          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
+        }
+      }
+      if (contenu.includes("[être fu cela]") || contenu.includes("[être fus cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const fusEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "seront" : "sera");
+          contenu = contenu.replace(/\[être fu cela\]|\[être fus cela\]/g, fusEtreCela);
+        } else {
+          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
+        }
+      }
+
     }
 
     // interpréter les balises encore présentes
