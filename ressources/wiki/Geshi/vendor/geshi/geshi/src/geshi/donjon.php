@@ -28,11 +28,12 @@
 $language_data = array (
     'LANG_NAME' => 'donjon',
     'COMMENT_SINGLE' => array(1 => "-- ", 2=> "REM"),
+	// 'COMMENT_MULTI' => array('"' => '[', ']' => '[', ']' => '"'),
     'COMMENT_REGEXP' => array(
-        1 => '/".+?\[/',
-		2 => '/\].+?"/',
-		3 => '/".+?"/',
-		4 => '/\].+?\[/'
+		1 => '/(?:"([^\]"]*?)\[)/',
+		2 => '/(?:\]([^\["]*?)")/',
+		3 => '/(?:\]([^"]*?)\[)/',
+		4 => '/(?:"([^\]\["]*?)")/',
         ),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array('@'),
@@ -43,20 +44,24 @@ $language_data = array (
 			'dire', 'déplacer', 'effacer', 'changer', 'sauver'
             ),
         2 => array(
-            'action', 'objet', 'lieu', 'support', 'contenant', 'porte', 'vivant', 'élément', 'décor', 'animal', 'personne'
+            'action', 'objet', 'lieu', 'support', 'contenant', 'porte', 'vivant', 'élément',
+			'décor', 'animal', 'personne'
             ),
         3 => array(
             'si', 'sinon', 'remplacer', 'exécuter', 'refuser', 'terminer', 
 			'avant', 'après',
 			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit',
 			'ni', 'soit', 'ou', 'et', 'mais',
-			'interpréter', 'comme'
+			'interpréter', 'comme',
+			'initialement', 'puis', 'fin', 'choix', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
-            'intitulé', 'accord', 'joueur', 'historique', 'ceci', 'cela', 'ici', 'description', 'nom', 'titre', 'réaction'
+            'joueur', 'historique', 'ceci', 'cela', 'ici',
+			'description','intitulé', 'texte', 'titre', 'réaction',
+			'nom', 'pronom', 'accord', 
             ),
 		5 => array(
-			'au', 'sur', 'dans', 'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
+			'au', 'en', 'sur', 'dans', 'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
 			'possédé', 'visible', 'mangeable', 'buvable', 'porté'
 			)
         ),
