@@ -4,6 +4,7 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
+import { Conjugaison } from './conjugaison';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
@@ -307,82 +308,45 @@ export class Instructions {
     // CONJUGAISON
     // ===================================================
 
-    // - ÊTRE
+    // - être (s’)
     if (contenu.includes("[être ")) {
-
-      // étre − présent (simple)
-      if (contenu.includes("[être pr ceci]") || contenu.includes("[être prs ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const prsEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "sont" : "est");
-          contenu = contenu.replace(/\[être pr ceci\]|\[être prs ceci\]/g, prsEtreCeci);
-        } else {
-          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
-        }
-      }
-      if (contenu.includes("[être pr cela]") || contenu.includes("[être prs cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const prsEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "sont" : "est");
-          contenu = contenu.replace(/\[être pr cela\]|\[être prs cela\]/g, prsEtreCela);
-        } else {
-          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
-        }
-      }
-
-      // être − passé composé
-      if (contenu.includes("[être pac ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const pacEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "ont été" : "a été");
-          contenu = contenu.replace(/\[être pac ceci\]/g, pacEtreCeci);
-        } else {
-          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
-        }
-      }
-      if (contenu.includes("[être pac cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const pacEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "ont été" : "a été");
-          contenu = contenu.replace(/\[être pac cela\]/g, pacEtreCela);
-        } else {
-          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
-        }
-      }
-
-      // être − imparfait
-      if (contenu.includes("[être imp ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const impEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "étaient" : "était");
-          contenu = contenu.replace(/\[être pac ceci\]/g, impEtreCeci);
-        } else {
-          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
-        }
-      }
-      if (contenu.includes("[être imp cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const impEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "étaient" : "était");
-          contenu = contenu.replace(/\[être pac cela\]/g, impEtreCela);
-        } else {
-          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
-        }
-      }
-
-      // être − futur (simple)
-      if (contenu.includes("[être fu ceci]") || contenu.includes("[être fus ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const fusEtreCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "seront" : "sera");
-          contenu = contenu.replace(/\[être fu ceci\]|\[être fus ceci\]/g, fusEtreCeci);
-        } else {
-          console.error("interpreterContenuDire: être: ceci n'est pas un élément du jeu");
-        }
-      }
-      if (contenu.includes("[être fu cela]") || contenu.includes("[être fus cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const fusEtreCela = ((cela as ElementJeu).nombre === Nombre.p ? "seront" : "sera");
-          contenu = contenu.replace(/\[être fu cela\]|\[être fus cela\]/g, fusEtreCela);
-        } else {
-          console.error("interpreterContenuDire: être: cela n'est pas un élément du jeu");
-        }
-      }
-
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "être", ceci, cela);
     }
+    if (contenu.includes("[s’être ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’être", ceci, cela);
+    }
+    if (contenu.includes("[s'être ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'être", ceci, cela);
+    }
+    // - avoir
+    if (contenu.includes("[avoir ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "avoir", ceci, cela);
+    }
+    // - vivre
+    if (contenu.includes("[vivre ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "vivre", ceci, cela);
+    }
+    // - ouvrir (s’)
+    if (contenu.includes("[ouvrir ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "ouvrir", ceci, cela);
+    }
+    if (contenu.includes("[s’ouvrir ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’ouvrir", ceci, cela);
+    }
+    if (contenu.includes("[s'ouvrir ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'ouvrir", ceci, cela);
+    }
+    // - fermer (se)
+    if (contenu.includes("[fermer ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "fermer", ceci, cela);
+    }
+    if (contenu.includes("[se fermer ")) {
+      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "se fermer", ceci, cela);
+    }
+
+    // ===================================================
+    // CONDITIONS
+    // ===================================================
 
     // interpréter les balises encore présentes
     if (contenu.includes("[")) {
@@ -550,6 +514,160 @@ export class Instructions {
     return retVal;
   }
 
+  // ===================================================
+  // CONJUGAISON
+  // ===================================================
+
+  private calculerToutesLesFormesEtSujetsConjugaison(contenu: string, verbe: string, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
+    // liste des sujets
+    const sujets: string[] = [];
+    if (contenu.includes("ceci]")) {
+      sujets.push("ceci");
+    }
+    if (contenu.includes("cela]")) {
+      sujets.push("cela");
+    }
+    if (contenu.includes("ici]")) {
+      sujets.push("ici");
+    }
+    // si au moins un sujet (sinon ça sert à rien de continuer)
+    if (sujets.length != 0) {
+      // sans négation
+      sujets.forEach(sujet => {
+        contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, null, ceci, cela);
+      });
+      // avec négation
+      if (contenu.includes(" pas ")) {
+        sujets.forEach(sujet => {
+          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "pas", ceci, cela);
+        });
+      }
+      if (contenu.includes(" plus ")) {
+        sujets.forEach(sujet => {
+          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "plus", ceci, cela);
+        });
+      }
+      if (contenu.includes(" que ")) {
+        sujets.forEach(sujet => {
+          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "que", ceci, cela);
+        });
+      }
+    }
+    return contenu;
+  }
+
+  private calculerToutesLesFormesConjugaison(contenu: string, verbe: string, sujet: string, negation: string, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
+    contenu = this.calculerConjugaison(contenu, verbe, "ipr", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ipac", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "iimp", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ipqp", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ipas", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ipaa", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ifus", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "ifua", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "cpr", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "cpa", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "spr", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "spa", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "simp", negation, sujet, ceci, cela);
+    contenu = this.calculerConjugaison(contenu, verbe, "spqp", negation, sujet, ceci, cela);
+
+    return contenu;
+  }
+
+  private calculerConjugaison(contenu: string, verbe: string, modeTemps: string, negation: string, sujetStr: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+    // vérifier si cette forme apparaît dans le contenu
+    const expression = `${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujetStr}`;
+    if (contenu.includes("[" + expression + "]")) {
+      // retrouver et contrôler le sujet
+      let sujet: ElementJeu | Intitule = null;
+      switch (sujetStr) {
+        case 'ceci':
+          sujet = ceci;
+          break;
+        case 'cela':
+          sujet = cela;
+          break;
+        case 'ici':
+          sujet = this.eju.curLieu;
+          break;
+        default:
+          break;
+      }
+      if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
+        console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu", contenu);
+      }
+
+      // retrouver le verbe
+      let conjugaison = Conjugaison.getVerbe(verbe);
+      let verbeConjugue: string = null;
+      // verbe trouvé
+      if (conjugaison) {
+        // retrouver la forme demandée
+        const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
+        const cle = modeTemps + " " + personne;
+        // forme trouvée
+        if (conjugaison.has(cle)) {
+          verbeConjugue = conjugaison.get(cle);
+          // forme pas trouvée
+        } else {
+          verbeConjugue = "(forme pas prise en charge : " + verbe + ": " + cle + ")";
+        }
+        // verbe pas trouvé
+      } else {
+        console.error("calculerConjugaison > verbe pas pris en charge:", verbe);
+        verbeConjugue = "(verbe pas pris en charge : " + verbe + ")";
+      }
+
+      let verbeDecoupe = verbeConjugue.split(" ", 2);
+
+      // tenir compte du se/s’
+      if (verbe.match(/(se |s’|s')(.+)/)) {
+        let se: string = null;
+        if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+          se = "s’";
+        } else {
+          se = "se ";
+        }
+        // se avec négation
+        if (negation) {
+          // temps simple
+          if (verbeDecoupe.length == 1) {
+            verbeConjugue = "ne " + se + verbeConjugue + " " + negation;
+            // temps composé
+          } else {
+            verbeConjugue = "ne " + se + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
+          }
+          // se sans négation
+        } else {
+          verbeConjugue = se + verbeConjugue;
+        }
+        // pas de se/s’
+      } else {
+        // ajouter la négation (sans se)
+        if (negation) {
+          let ne: string = null;
+          if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+            ne = "n’";
+          } else {
+            ne = "ne ";
+          }
+          // temps simple
+          if (verbeDecoupe.length == 1) {
+            verbeConjugue = ne + verbeConjugue + " " + negation;
+            // temps composé
+          } else {
+            verbeConjugue = ne + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
+          }
+        }
+      }
+
+      // remplacer dans le contenu par le résultat
+      const regExp = new RegExp("\\[" + expression + "\\]", "g");
+      contenu = contenu.replace(regExp, verbeConjugue);
+    }
+    return contenu;
+  }
 
   /** Exécuter une instruction */
   public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
