@@ -3,8 +3,10 @@ import { ConditionsUtils } from './conditions-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { Instruction } from '../../models/compilateur/instruction';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Nombre } from '../../models/commun/nombre.enum';
@@ -137,10 +139,8 @@ export class OutilsCommandes {
 
   afficherCurLieu() {
     if (this.eju.curLieu) {
-      return "{_{*" + this.eju.curLieu.titre + "*}_}\n"
-        + (this.eju.curLieu.description ? (this.ins.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, null, null)) : "")
-        + this.ins.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false).sortie
-        + "\n\n" + this.ins.afficherSorties(this.eju.curLieu);
+      let instruction = new Instruction(new ElementsPhrase("dire", null, null, null, "\"{_{*[titre ici]*}_}{n}[description ici][contenu ici]{n}{n}[sorties ici]\""));
+      return this.ins.executerInstruction(instruction, null, null).sortie;
     } else {
       console.warn("Pas trouvé de curLieu :(");
       return "Je suis où moi ? :(";
