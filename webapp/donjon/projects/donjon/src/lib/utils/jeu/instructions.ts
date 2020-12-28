@@ -736,7 +736,7 @@ export class Instructions {
 
       case 'déplacer':
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1, ceci as Objet, cela);
+          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
           resultat.succes = sousResultat.succes;
         } else {
           console.error("Exécuter infinitif: On ne peut pas déplacer un intitulé.");
@@ -1411,7 +1411,7 @@ export class Instructions {
     switch (instruction.verbe.toLowerCase()) {
       // DÉPLACER LE JOUEUR
       case 'se trouve':
-        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1);
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1);
         break;
 
       // AJOUTER UN OBJET A L'INVENTAIRE
@@ -1498,7 +1498,7 @@ export class Instructions {
       case 'se trouve':
       case 'se trouvent':
         console.log("executerElementJeu: se trouve:", instruction);
-        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition, instruction.sujetComplement1);
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1);
         break;
 
       default:

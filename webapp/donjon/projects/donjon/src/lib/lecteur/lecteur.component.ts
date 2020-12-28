@@ -300,7 +300,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true) : null;
       const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true) : null;
 
-      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition, celaNom);
+      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition1, celaNom);
 
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
@@ -373,7 +373,8 @@ export class LecteurComponent implements OnInit, OnChanges {
                   }
                 }
               }
-            } else if (celaIntitule) {
+            }
+            if (celaIntitule) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCela.nbCor === 0) {
                 retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)+}";
@@ -404,7 +405,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               // (actionCeciCela.ceci ? (actionCeciCela.ceci.intitule.nom + (actionCeciCela.ceci.intitule.epithete ? (" " + actionCeciCela.ceci.intitule.epithete) : "")) : null),
               (actionCeciCela.ceci ? actionCeciCela.ceci.nom : null),
               (actionCeciCela.ceci ? actionCeciCela.ceci.classe : null),
-              els.preposition,
+              els.preposition1,
               // (actionCeciCela.cela ? (actionCeciCela.cela.intitule.nom + (actionCeciCela.cela.intitule.epithete ? (" " + actionCeciCela.cela.intitule.epithete) : "")) : null),
               (actionCeciCela.cela ? actionCeciCela.cela.nom : null),
               (actionCeciCela.cela ? actionCeciCela.cela.classe : null)

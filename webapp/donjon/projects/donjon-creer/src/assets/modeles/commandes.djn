@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2020-12-26-0007
+-- Version: 2020-12-28-0007
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -81,9 +81,9 @@ L'aide pour l'action fermer est "{*Fermer*}
 CHAPITRE "parler, interroger, montrer".
 
 SCÈNE "parler".
--- ==========
---   PARLER
--- ==========
+-- ====================
+--   PARLER (discuter)
+-- ====================
 
 -- a) parler
 le joueur peut parler:
@@ -91,40 +91,45 @@ le joueur peut parler:
 -- b) parler à ceci
 parler à ceci est une action qui concerne un objet visible.
 
-refuser parler à ceci:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+refuser parler avec ceci:
+  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Vous entamez un monologue.".
 
-terminer parler à ceci:
+exécuter parler avec ceci:
   si ceci réagit, exécuter réaction de ceci;
-  sinon dire "(Et ils eurent une conversation peu intéressante.)".
+
+terminer parler avec ceci:
+  si ceci ne réagit pas dire "(Et ils eurent une conversation peu intéressante.)".
   
 -- c) parler à ceci de cela
-parler à ceci de cela est une action qui concerne un objet visible et un intitulé.
+parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
 
-refuser parler à ceci de cela:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+refuser parler avec ceci concernant cela:
+  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Je connais déjà la réponse.".
 
-exécuter parler à ceci de cela:
+exécuter parler avec ceci concernant cela:
   si ceci réagit, exécuter réaction de ceci concernant cela.
   
-terminer parler à ceci de cela:
+terminer parler avec ceci concernant cela:
   si ceci ne réagit pas, dire "(Aucune réponse satisfaisante.)".
   
 L'aide pour l'action parler est "{*Parler*}
   Permet de parler avec une personne. Il est possible de préciser un sujet spécifique.
   {+exemples+} :
-  > {-parler à {/la magicienne/}-}
-  > {-parler de {/la carte/} au {/pirate/}-}
-  > {-parler au {/nain jaune/} de {/la mine/}-}
-  > {-parler de {/manger/} à {/l'aubergiste/}-}
-  {+raccourci+} : {-pa-}".
+  > {-parler avec {/la magicienne/}-}
+  > {-parler avec {/le pirate/} concernant {/la carte/}-}
+  > {-parler de {/mine/} avec {/nain jaune/} -}
+  > {-parler du {/temps/} avec {/l'aubergiste/}-}
+  Voir également {-demander-}, {-interroger-}, {-montrer-} et {-donner-}.
+  {+raccourci+} : {-par-}".
+
+interpréter discuter comme parler.
 
 SCÈNE "interroger".
--- ==============
---   INTERROGER
--- ==============
+-- ===========================
+--   INTERROGER (questionner)
+-- ===========================
 
 -- a) interroger
 le joueur peut interroger:
@@ -133,35 +138,74 @@ le joueur peut interroger:
 -- b) interroger ceci
 interroger ceci est une action qui concerne un objet visible.
 
-refuser interroger à ceci:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.";
+refuser interroger ceci:
+  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Je connais déjà la réponse.".
   
-exécuter interroger à ceci:
-  dire "Je veux bien l’interroger mais à quel sujet ?".
+exécuter interroger ceci:
+  si ceci réagit, exécuter réaction de ceci;
+
+terminer interroger ceci:
+  si ceci ne réagit pas dire "(Et ils eurent une conversation peu intéressante.)".
   
--- c) interroger ceci sur cela
-interroger ceci sur cela est une action qui concerne un objet visible et un objet.
+-- c) interroger ceci concernant cela
+interroger ceci concernant cela est une action qui concerne un objet visible et un intitulé.
 
-refuser interroger ceci sur cela:
-  si ceci n'est pas une personne, dire "[intitulé ceci] ne parle pas.".
+refuser interroger ceci concernant cela:
+  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.".
 
-exécuter interroger ceci sur cela:
+exécuter interroger ceci concernant cela:
   si ceci réagit, exécuter réaction de ceci concernant cela.
 
-terminer interroger ceci sur cela:
+terminer interroger ceci concernant cela:
   si ceci ne réagit pas, dire "(Aucune réponse satisfaisante.)".
   
-L'aide pour l'action interroger est "{*Interroger / Demander*}
+L'aide pour l'action interroger est "{*Interroger*}
   Permet d'interroger une personne sur un sujet spécifique.
   {+exemples+} :
   > {-interroger {/l'aubergiste/} concernant {/le menu/}-}
   > {-interroger {/le villageois/} à propos de {/la fête/}-}
-  > {-demander {/une épée/} au {/vendeur/}-}
-  {+raccourci+} : {-int-}, {-dem-}".
+  > {-interroger {/roi/} sur {/tournois/}-}
+  {+Voir également+} : {-parler-}, {-demander-}, {-montrer-} et {-donner-}.
+  {+raccourci+} : {-int-}".
   
-interpréter questionner et demander comme interroger.
+interpréter questionner comme interroger.
+
+SCÈNE "demander".
+-- ==============
+--   DEMANDER
+-- ==============
+
+-- a) demander
+le joueur peut demander:
+  dire "Je sais demander mais il faut me dire quoi et à qui.".
+
+-- b) demander ceci
+demander ceci est une action qui concerne un objet visible.
   
+exécuter demander ceci:
+  dire "Je sais demander mais il faut me dire quoi et à qui.".
+  
+-- c) demander ceci à cela
+demander ceci à cela est une action qui concerne un intitulé et un objet visible.
+
+refuser demander ceci à cela:
+  si cela n'est pas une personne, dire "[Intitulé cela] ne parle pas.".
+
+exécuter demander ceci à cela:
+  si cela réagit, exécuter réaction de cela concernant ceci.
+
+terminer demander ceci à cela:
+  si cela ne réagit pas, dire "(Aucune réponse satisfaisante.)".
+  
+L'aide pour l'action demander est "{*Demander*}
+  Permet de demander quelque chose à une personne.
+  {+exemples+} :
+  > {-demander {/une chambre/} à {/l'aubergiste/}-}
+  > {-demander {/à manger/} au {/cuisinier/}-}
+  {+Voir également+} : {-parler-}, {-questionner-}, {-montrer-} et {-donner-}.
+  {+raccourci+} : {-dem-}".
+
 SCÈNE "montrer".
 -- ==========
 --   MONTRER
@@ -171,7 +215,7 @@ SCÈNE "montrer".
 montrer ceci à cela est une action qui concerne un objet visible et un vivant.
 
 refuser montrer ceci à cela:
-  si cela est le joueur, dire "Je pense qu'[pronom cela] me voit déjà comme ça.".
+  si cela est le joueur, dire "Je pense qu'[pronom cela] me voit déjà.".
 
 exécuter montrer ceci à cela:
   si cela réagit, exécuter réaction de cela concernant ceci.
@@ -182,9 +226,10 @@ terminer montrer ceci à cela:
 L'aide pour l'action montrer est "{*Montrer*}
   Permet de montrer un objet à une personne.
   {+exemples+} :
-  > {-montrer {/la carte/} au {/pirate/}-}
+  > {-montrer {/la baguette/} à {/la fée/}-}
+  > {-montrer {/chausette/} au {/lutin/}-}
+  {+Voir également+} : {-parler-}, {-questionner-}, {-demander-} et {-donner-}.
   {+raccourci+} : {-mon-}".
-  
   
 CHAPITRE "insulter, énerver, crier".
 

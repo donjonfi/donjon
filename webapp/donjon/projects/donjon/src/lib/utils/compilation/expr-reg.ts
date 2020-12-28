@@ -166,29 +166,23 @@ export class ExprReg {
    * - => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
   static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (?:avec|sur|au|à|au|vers|dans))? (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’)\S+?))?( (avec|sur|au|à|au|vers|dans) (le |la |les |l'|l’|du |de la|des |un |une )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’)\S+?))?)?)?$/i;
+  
+  // -------------------------------------------
+  //  PARLER, INTERROGER, MONTRER, DEMANDER , …
+  // -------------------------------------------
 
   /**
-   * PARLER DE SUJET AVEC INTERLOCUTEUR (formulation qui évite les ambiguïtés avec les noms composés)
+   * 1) PARLER DE SUJET AVEC INTERLOCUTEUR (formulation qui évite les ambiguïtés avec les noms composés)
    * - => parler(1) de la(2) table à manger(3) abimée(4) avec(5) le(6) comte du bois(7) énervé(8)
    * - parler du baton avec le fermier
    * - parler du poisson rouge avec le pécheur énervé
    * - parler de la couronne magique avec le sorcier enflammé
    * - discuter de la table à manger avec le comte du bois
    */
-  static readonly xCommandeParlerSujetAvecInterlocuteur = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
+  static readonly xCommandeParlerSujetAvecInterlocuteur = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
   /**
-   * INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
-   * - => interroger(1) le(2) comte du bois(3) sauvage(4) sur(5) les(6) elfs aux pouvoirs(7) maléfiques(8)
-   * - interroger le fermier concernant la poule
-   * - questionner le fermier géant à propos de la poule rousse
-   * - questionner le boulanger sur de la farine grise
-   * - questionner le marchand d’armes concernant une épée magique
-   */
-  static readonly xCommandeQuestionnerInterlocuteurConcernantSujet = /(interroger|questionner) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
-
-  /**
-   * PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
+   * 2) PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
    * => discuter(1) avec le(2) capitaine du bateau(3) endormi(4) concernant(5) la(6) cabine de navigation(7) ensanglantée(8)
    * - parler au marchand ambulant concernant l’argent perdu
    * - discuter avec le coq au vin à propos de l’assaisonement
@@ -196,41 +190,59 @@ export class ExprReg {
    * - parler avec le capitaine à propos de carte aux trésors
    * - discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée
    */
-  static readonly xCommandeParlerAvecInterlocuteurConcernantSujet = /^(parler|discuter) (avec (?:la |le |les |l’|l')?|à (?:la |l’|l')?|au(?:x)? )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |aux |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
-
-
+  static readonly xCommandeParlerAvecInterlocuteurConcernantSujet = /^(parler|discuter) (avec (?:la |le |les |l’|l')?|à (?:la |l’|l')?|au(?:x)? )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!d’|d'|et |un |de |des |à |au |aux )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
   /**
-   * Interpréter la commande parler/demander (sens: sujet puis personne)
-   * - parler de la fourchette rouge au nain jaune
-   * - discuter de la fourchette avec le nain
-   * - parler de la fourchette aux miracles avec le chien aux miracles -> avec règle les soucis
-   * - discuter de fourchette avec nain
-   * - parler de fourchette à nain
-   * - demander la fourchette au nain
-   * - demander fourchette à boutons au nain
-   * - demander fourchettte au nai
-   * - montrer le pantalon aux nains
-   * - discuter à propos des chiens avec le chat
-   * - demander la fourchette au comte de la ville
-   * - demander la fiole aux miracles aux comte -> comment gérer ça ?
-   * - demander la fiole aux comte aux miracles -> comment gérer ça ?
-   * - => parler(1) de la(2) clé rouge(3) avec le(4) chevalier blanc(5)
+   * 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
+   * - => interroger(1) le(2) comte du bois(3) sauvage(4) sur(5) les(6) elfs aux pouvoirs(7) maléfiques(8)
+   * - interroger le fermier concernant la poule
+   * - questionner le fermier géant à propos de la poule rousse
+   * - questionner le boulanger sur de la farine grise
+   * - questionner le marchand d’armes concernant une épée magique
+   * - interroger elf sur de l’eau douce
+   * - interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques
+   * - questionner les lutins concernant du bois à brûler
+   * - interroger Dracula à propos d’une fiole
    */
-  // static readonly xCommandeParlerSujetPers = /^(demander|questionner|interroger|parler|discuter)(?: ((?:(?:(?:à propos )?de |concernant )?(?:l'|l’|la |le ))|de |du |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?) (au |à (?:la |l'|l’)?|avec (?:la |le |l'|l’))(\S+|(?:(?!propos)\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?$/i;
+  static readonly xCommandeQuestionnerInterlocuteurConcernantSujet = /^(interroger|questionner) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
   /**
-   * Interpréter la commande parler/demander (sens: personne puis sujet)
-   * - => demander(1) au(2) chevalier(3) blanc(4) la(5) clé(6) rouge(7)
-   * - parler au nain jaune
-   * - parler au nain jaune de la fourchette rouge.
-   * - parler au nain jaune de fourchette rouge.
-   * - discuter avec nain jaune de la fourchette rouge.
-   * - demander au nain jaune la fourchette rouge.
-   * - interroger le nain jaune sur la fourchette rouge.
-   * - questionner le nain jaune à propos de la fourchette rouge.
+   * 4) MONTRER/DEMANDER/DONNER SUJET À INTERLOCUTEUR
+   * - => donner(1) la(2) pièce du trésor(3) maudit(4) (à la(6))(5) princesse aux souhaits(7) énervée(8)
+   * - montrer poisson au chat
+   * - donner la pièce du trésor maudit à la princesse aux souhaits énervée
+   * - donner une pièce à la princesse
+   * - demander de la nourriture à l’aubergiste
+   * - demander poison à vendeur embulant
+   * - parler du somnifère au magicien
+   * - parler d’une fiole de poison au magicien maléfique
+   * - donner saucisse à griller à vendeur
+   * - montrer saucisse à griller à vendeur à viande
+   * - parler de manger à l’aubergiste
+   * - demander à boire à l’aubergiste
    */
-  // static readonly xCommandeParlerPersSujet = /^(demander|questionner|interroger|parler|discuter) (au |à (?:la |l'|l’)?|(?:avec )?(?:la |le |l'|l’))(\S+|(?:\S+ (?:à (?!propos)|en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|du|de|des|au|à|concernant|sur|un|une|la|le|les)\S+))?(?: ((?:(?:sur |concernant |de )?(?:l'|l’|la |le ))|à propos (?:de (?:l'|l’|la )|du )|du |de |un |une )?((?!au)\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?$/i;
+  static readonly xCommandeMontrerSujetAInterlocuteur = /^(montrer|demander|donner|parler) (les |(?:d(?:’|')?(?:un |une ))|du |des |(?:de )?(?:la |le |l’|l')?)?((?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|\S+?|)(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
+
+  /**
+   * 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
+   * - => discuter(1) (avec le)(2) comte(3) Dracula(4) (de la(6))(5) tournure(7) inatendue(8)
+   * - parler à mousse de mat
+   * - parler avec la magicienne étourdie du sort raté
+   * - discuter avec Jean-Paul de Jason
+   * - parler au magicien de la potion de vie
+   * - parler au magicien du bois de la potion magique (=> souci)
+   * - discuter avec le comte Dracula de la tournure inatendue
+   */
+  static readonly xCommandeParlerAvecInterlocuteurDeSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
+
+  /**
+   * 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation à déconseiller, on privilégie infinitif + compl. direct + compl. indirect)
+   * - => donner(1) au(2) marquis(3) énervé(4)( )(5)une(6) potion de relaxation(7) magique(8)
+   * - demander à magicien chemin
+   * - donner au marquis énervé une potion de relaxation magique
+   * - montrer à la tortue le chemin de la victoire
+   */
+  static readonly xCommandeDemanderAInterlocuteurSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
   /** 
    * il y a aussi des commandes spéciales:

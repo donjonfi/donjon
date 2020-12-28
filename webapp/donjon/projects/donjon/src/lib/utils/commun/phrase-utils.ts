@@ -80,7 +80,7 @@ export class PhraseUtils {
         const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
         if (resCompl) {
           els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-          els.preposition = resCompl[1] ? resCompl[1] : null;
+          els.preposition1 = resCompl[1] ? resCompl[1] : null;
         }
         // complément2
         if (els.complement2) {
@@ -204,7 +204,7 @@ export class PhraseUtils {
     // si on a trouvé une formulation correcte
     if (els) {
       return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null,
-        els.preposition, (els.sujetComplement1 ? els.sujetComplement1.nom : null));
+        els.preposition1, (els.sujetComplement1 ? els.sujetComplement1.nom : null));
     } else {
       console.warn("getEvenement >> decomposerCommande: pas pu décomposer:", evenement);
       return null;
@@ -214,54 +214,98 @@ export class PhraseUtils {
   static decomposerCommande(commande: string) {
     let els: ElementsPhrase = null;
     let res = ExprReg.xCommandeSpeciale.exec(commande);
-    // commande SPÉCIALE (pas un infinitif)
+    // COMMANDE SPÉCIALE (pas un infinitif)
     if (res) {
       // Ce n'est pas un infinitif mais bon...
       els = new ElementsPhrase(res[1], (res[2] ? new GroupeNominal(null, res[2], null) : null), null, null, null);
-      // commande DIALOGUE
+      // COMMANDE DIALOGUE (par ordre de préférence)
     } else {
       // le phrase peut-être tournée de 2 manière différentes, on veut pouvoir
       // détecter les 2.
-      // - sens Interlocuteur => Sujet
-      res = ExprReg.xCommandeParlerAvecInterlocuteurConcernantSujet.exec(commande);
+
+      // => 1) PARLER DE SUJET AVEC INTERLOCUTEUR (formulation qui évite les ambiguïtés avec les noms composés)
+      let sensInterlocSujet = false;
+      res = ExprReg.xCommandeParlerSujetAvecInterlocuteur.exec(commande);
+      //  => 2) PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
       if (!res) {
+        sensInterlocSujet = true;
+        res = ExprReg.xCommandeParlerAvecInterlocuteurConcernantSujet.exec(commande);
+      }
+      // => 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
+      if (!res) {
+        sensInterlocSujet = true;
         ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
       }
-      let sensPersSujet = true;
+      // => 4) MONTRER/DEMANDER/DONNER SUJET À INTERLOCUTEUR
       if (!res) {
-        // - sens Sujet => Interlocuteur
-        sensPersSujet = false;
-        res = ExprReg.xCommandeParlerSujetAvecInterlocuteur.exec(commande);
+        sensInterlocSujet = false;
+        ExprReg.xCommandeMontrerSujetAInterlocuteur.exec(commande);
       }
-      // c'est un dialogue (parler, demander, …)
-      if (res) {
-        let personne: GroupeNominal = null;
-        let sujetDialogue: GroupeNominal = null;
-        let preposition: string;
-        if (sensPersSujet) {
-          // déterminant difficile à déterminer donc on met rien
-          personne = new GroupeNominal(null, res[3], res[4]);
-          if (res[6]) {
-            sujetDialogue = new GroupeNominal(null, res[6], res[7]);
-          }
-          preposition = "";
-        } else {
-          personne = new GroupeNominal(null, res[6], res[7]);
-          sujetDialogue = new GroupeNominal(null, res[3], res[4]);
-          preposition = "";
-        }
-        // console.warn("personne=", personne, "sujetDialogue=", sujetDialogue);
+      // => 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
+      if (!res) {
+        sensInterlocSujet = true;
+        ExprReg.xCommandeParlerAvecInterlocuteurDeSujet.exec(commande);
+      }
+      // => 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation à déconseiller, on privilégie infinitif + compl. direct + compl. indirect)
+      if (!res) {
+        sensInterlocSujet = true;
+        ExprReg.xCommandeDemanderAInterlocuteurSujet.exec(commande);
+      }
 
-        els = new ElementsPhrase(res[1], personne, null, null, (sujetDialogue ? sujetDialogue.nom : null));
-        els.preposition = preposition;
-        els.sujetComplement1 = sujetDialogue;
-        // commande NORMALE (infinitif)
+      // DIALOGUE TROUVÉ (parler, demander, montrer, …)
+      if (res) {
+        let interlocuteur: GroupeNominal = null;
+        let sujetDialogue: GroupeNominal = null;
+        const infinitif = res[1];
+        if (sensInterlocSujet) {
+          // déterminant difficile à déterminer donc on met rien
+          interlocuteur = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
+          if (res[7]) {
+            sujetDialogue = new GroupeNominal((res[6] ? res[6] : null), res[7], (res[8] ? res[8] : null));
+          }
+        } else {
+          interlocuteur = new GroupeNominal((res[6] ? res[6] : null), res[7], (res[8] ? res[8] : null));
+          sujetDialogue = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
+        }
+
+        switch (infinitif) {
+          case 'discuter':
+          case 'parler':
+            // parler avec interlocuteur (concernant sujet)
+            els = new ElementsPhrase(infinitif, interlocuteur, null, null, (sujetDialogue?.nom ));
+            els.preposition0 = 'avec';
+            els.sujetComplement1 = sujetDialogue;
+            els.preposition1 = sujetDialogue ? 'concernant' : null;
+            break;
+
+          case 'montrer':
+          case 'donner':
+          case 'demander':
+            // montrer/donner/demander sujet à interlocuteur
+            els = new ElementsPhrase(infinitif, sujetDialogue, null, null, interlocuteur.nom);
+            els.preposition0 = null;
+            els.preposition1 = 'à';
+            break;
+
+          case 'interroger':
+          case 'questionner':
+            // interroger interlocuteur concernant sujet
+            els = new ElementsPhrase(infinitif, interlocuteur, null, null, sujetDialogue.nom);
+            els.preposition0 = null;
+            els.preposition1 = 'concernant';
+            break;
+
+          default:
+            throw new Error("DécomposerCommande > dialogue > infinitif inconnu: " + infinitif);
+        }
+
+        // COMMANDE NORMALE (infinitif)
       } else {
         res = ExprReg.xCommandeInfinitif.exec(commande);
         if (res) {
           const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
           els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
-          els.preposition = res[6] ? res[6] : null;
+          els.preposition1 = res[6] ? res[6] : null;
           els.sujetComplement1 = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
         }
       }
@@ -307,7 +351,7 @@ export class PhraseUtils {
             if (resCompl) {
               els.complement1 = null;
               els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-              els.preposition = resCompl[1] ? resCompl[1] : null;
+              els.preposition1 = resCompl[1] ? resCompl[1] : null;
             }
             // tester si le complément est une instruction à 1 ou 2 compléments
             // ex: déplacer le trésor vers le joueur.
@@ -318,7 +362,7 @@ export class PhraseUtils {
               els.negation = null;
               els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
               els.complement1 = null;
-              els.preposition = res1ou2elements[4];
+              els.preposition1 = res1ou2elements[4];
               els.sujetComplement1 = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
             }
           }

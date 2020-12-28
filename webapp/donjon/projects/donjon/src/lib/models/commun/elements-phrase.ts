@@ -13,7 +13,8 @@ export class ElementsPhrase {
   public sujetComplement3: GroupeNominal;
   public sujetComplement4: GroupeNominal;
 
-  public preposition: string;
+  public preposition0: string;
+  public preposition1: string;
   public conjonction: string;
   public complement2: string;
   public complement3: string;
