@@ -234,22 +234,22 @@ export class PhraseUtils {
       // => 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
       if (!res) {
         sensInterlocSujet = true;
-        ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
+        res = ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
       }
       // => 4) MONTRER/DEMANDER/DONNER SUJET À INTERLOCUTEUR
       if (!res) {
         sensInterlocSujet = false;
-        ExprReg.xCommandeMontrerSujetAInterlocuteur.exec(commande);
+        res = ExprReg.xCommandeMontrerSujetAInterlocuteur.exec(commande);
       }
       // => 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
       if (!res) {
         sensInterlocSujet = true;
-        ExprReg.xCommandeParlerAvecInterlocuteurDeSujet.exec(commande);
+        res = ExprReg.xCommandeParlerAvecInterlocuteurDeSujet.exec(commande);
       }
       // => 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation à déconseiller, on privilégie infinitif + compl. direct + compl. indirect)
       if (!res) {
         sensInterlocSujet = true;
-        ExprReg.xCommandeDemanderAInterlocuteurSujet.exec(commande);
+        res = ExprReg.xCommandeDemanderAInterlocuteurSujet.exec(commande);
       }
 
       // DIALOGUE TROUVÉ (parler, demander, montrer, …)
@@ -268,11 +268,23 @@ export class PhraseUtils {
           sujetDialogue = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
         }
 
+        console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
+        console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
+
+        // corriger déterminants
+        interlocuteur.determinant = PhraseUtils.trouverDeterminant(interlocuteur.determinant);
+        if (sujetDialogue) {
+          sujetDialogue.determinant = PhraseUtils.trouverDeterminant(sujetDialogue.determinant);
+        }
+        
+        console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
+        console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
+
         switch (infinitif) {
           case 'discuter':
           case 'parler':
             // parler avec interlocuteur (concernant sujet)
-            els = new ElementsPhrase(infinitif, interlocuteur, null, null, (sujetDialogue?.nom ));
+            els = new ElementsPhrase(infinitif, interlocuteur, null, null, (sujetDialogue?.nom));
             els.preposition0 = 'avec';
             els.sujetComplement1 = sujetDialogue;
             els.preposition1 = sujetDialogue ? 'concernant' : null;
@@ -317,6 +329,60 @@ export class PhraseUtils {
     }
 
     return els;
+  }
+
+  static trouverDeterminant(determinant: string): string {
+    let retVal = determinant?.trim();
+    if (retVal) {
+      switch (retVal) {
+        case 'la':
+        case 'à la':
+        case 'avec la':
+        case 'sur la':
+        case 'concernant la':
+        case 'de la':
+        case 'd\'une':
+        case 'd\’une':
+          retVal = 'la ';
+          break;
+
+        case 'le':
+        case 'au':
+        case 'avec le':
+        case 'du':
+        case 'd\'un':
+        case 'd’un':
+          retVal = 'le ';
+          break;
+
+        case 'les':
+        case 'aux':
+        case 'avec les':
+        case 'des':
+          retVal = 'les ';
+          break;
+
+        case 'l\'':
+        case 'l’':
+        case 'à l\'':
+        case 'à l’':
+        case 'avec l\'':
+        case 'avec l’':
+        case 'de l\'':
+        case 'de l’':
+          retVal = 'l’';
+          break;
+
+        case 'à':
+        case 'de':
+          retVal = null;
+          break;
+
+        default:
+          break;
+      }
+    }
+    return retVal;
   }
 
   static decomposerInstruction(instruction: string) {

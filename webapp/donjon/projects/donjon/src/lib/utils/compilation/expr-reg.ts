@@ -221,7 +221,7 @@ export class ExprReg {
    * - parler de manger à l’aubergiste
    * - demander à boire à l’aubergiste
    */
-  static readonly xCommandeMontrerSujetAInterlocuteur = /^(montrer|demander|donner|parler) (les |(?:d(?:’|')?(?:un |une ))|du |des |(?:de )?(?:la |le |l’|l')?)?((?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|\S+?|)(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
+  static readonly xCommandeMontrerSujetAInterlocuteur = /^(montrer|demander|donner|parler) (les |(?:d(?:’|'))?(?:un |une )|du |des |(?:de )?(?:la |le |l’|l')?)?((?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|\S+?|)(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
   /**
    * 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
