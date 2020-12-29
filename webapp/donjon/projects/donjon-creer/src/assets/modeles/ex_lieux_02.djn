@@ -1,0 +1,15 @@
+Le titre du jeu est "Ex. << Lieux 02 >>".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+-- Le hall
+Le hall est un lieu.
+Sa description est "Vous êtes dans le hall.".
+ 
+-- La chambre
+La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
+ 
+-- Le séjour
+Le séjour est un lieu au nord du hall. "Vous êtes dans votre séjour.".
+

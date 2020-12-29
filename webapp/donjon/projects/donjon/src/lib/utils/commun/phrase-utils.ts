@@ -273,8 +273,8 @@ export class PhraseUtils {
           sujetDialogue = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
         }
 
-        console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
-        console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
+        // console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
+        // console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
 
         // corriger déterminants
         interlocuteur.determinant = PhraseUtils.trouverDeterminant(interlocuteur.determinant);
@@ -282,8 +282,8 @@ export class PhraseUtils {
           sujetDialogue.determinant = PhraseUtils.trouverDeterminant(sujetDialogue.determinant);
         }
         
-        console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
-        console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
+        // console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
+        // console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
 
         switch (infinitif) {
           case 'discuter':

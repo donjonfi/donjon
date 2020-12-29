@@ -1,0 +1,19 @@
+Le titre du jeu est "Ex. Objets 01".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+-- La chambre
+La chambre est un lieu. "Vous êtes dans votre chambre.".
+Son titre est "La chambre du père Noël".
+-- > Le pantalon
+Le pantalon est un objet dans la chambre. "C'est votre pantalon en velours rouge.".
+-- > La veste
+La veste est un objet portable dans la chambre. "C'est votre veste polaire.".
+Son aperçu est "Une veste traîne.".
+-- > Le lit
+Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
+Son aperçu est "Votre lit trône au centre de la pièce.".
+-- > L'édredon
+L'édredon est un objet décoratif sur le lit. "Ce patchwork est avant tout un souvenir sentimental. C'est votre préféré, malgré son état."
+Interpréter le patchwork, la couverture et la couette comme l'édredon.
