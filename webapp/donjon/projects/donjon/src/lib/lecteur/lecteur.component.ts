@@ -50,6 +50,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
   resteDeLaSortie: string[] = [];
+  commandeEnCours: boolean = false;
 
   constructor() { }
 
@@ -165,17 +166,6 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * Appuis sur une touche par le joueur.
-   */
-  onKeyDown(event: Event) {
-    if (this.resteDeLaSortie?.length) {
-      this.afficherSuiteSortie();
-      this.commande = "";
-      event.preventDefault();
-    }
-  }
-
   private afficherSuiteSortie() {
     this.sortieJoueur += ("<p>" + this.resteDeLaSortie.shift() + "</p>");
     if (this.resteDeLaSortie.length) {
@@ -186,6 +176,21 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
       this.commandeInputRef.nativeElement.focus();
     }, 100);
+  }
+
+  /**
+   * Appuis sur une touche par le joueur.
+   */
+  onKeyDown(event: Event) {
+    // éviter de déclancher appuis touche avant la fin de la commande en cours
+    if (!this.commandeEnCours) {
+      // regarder s’il reste du texte à afficher
+      if (this.resteDeLaSortie?.length) {
+        this.afficherSuiteSortie();
+        this.commande = "";
+        event.preventDefault();
+      }
+    }
   }
 
   /**
@@ -239,8 +244,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   onClickValidate(event: Event) {
     if (this.resteDeLaSortie?.length) {
+      event.preventDefault(); // éviter que l’évènement soit encore émis ailleurs
       this.afficherSuiteSortie();
-      event.preventDefault();
     } else {
       this.onKeyDownEnter(event);
     }
@@ -254,6 +259,8 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (!this.resteDeLaSortie?.length) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
+        event.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
+        this.commandeEnCours = true; // éviter qu’il déclanche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
@@ -266,6 +273,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         setTimeout(() => {
           this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
           this.commandeInputRef.nativeElement.focus();
+          this.commandeEnCours = false;
         }, 100);
       }
     }
@@ -471,6 +479,8 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela | -1 {
+
+    // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
 
     let candidats: Action[] = [];
     let matchCeci: ElementJeu | Intitule | -1 = null;
