@@ -360,7 +360,9 @@ terminer examiner ceci:
   si ceci n'est ni un contenant ni un support:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
-    dire "Veuillez préciser quel élément vous souhaitez examiner.".
+    dire "{_{*[titre ici]*}_}",
+    dire "{n}[description ici][contenu ici]",
+    dire "{n}{n}[sorties ici]".
     
 interpréter fouiller comme examiner.
 
@@ -381,7 +383,7 @@ SCÈNE "prendre".
 prendre est une action.
 
 exécuter prendre:
-  dire "prendre quoi ?".
+  dire "Je sais prendre mais il faut me dire quoi.".
   
 -- b) prendre ceci
 prendre ceci est une action qui concerne un objet visible.
@@ -398,7 +400,7 @@ exécuter prendre ceci:
   déplacer ceci vers joueur.
   
 terminer prendre ceci:
-  dire "[Intitulé ceci] [être pac ceci] ajouté[accord ceci] à votre inventaire.".
+  dire "[Intitulé ceci] [être ipac ceci] ajouté[accord ceci] à votre inventaire.".
 
 L'aide pour l'action prendre est "{*Prendre*}
   Permet de prendre un objet accessible pour le mettre dans votre inventaire.
@@ -413,7 +415,7 @@ SCÈNE "donner".
 -- ==========
 -- a) donner
 le joueur peut donner:
-  dire "Donner quoi ?".
+  dire "Je sais donner mais il faut me dire quoi et à qui.".
   
 -- c) donner ceci à cela
 donner ceci à cela est une action qui concerne un objet visible et un vivant visible.
@@ -436,6 +438,8 @@ L'aide pour l'action donner est "{*Donner*}
   > {-donner {/la pomme/} au {/nain/}-}
   {+raccourci+} : {-d-}".
 
+interpréter ramasser comme prendre.
+
 SCÈNE "jeter".
 -- =========
 --   JETER
@@ -443,7 +447,7 @@ SCÈNE "jeter".
 
 -- a) jeter
 le joueur peut jeter:
-  dire "jeter quoi ?".
+  dire "Je sais jeter mais il faut me dire quoi.".
   
 -- b) jeter ceci
 jeter ceci est une action qui concerne un objet visible.
@@ -508,25 +512,33 @@ exécuter mettre ceci:
   
 terminer mettre ceci:
   dire "Vous portez [intitulé ceci].".
-
-interpréter chausser, enfiler, porter, équiper et tenir comme mettre.
   
 -- c) metre ceci dans cela
-mettre ceci dans cela est une action qui concerne un objet visible et un objet visible.
+mettre ceci dans cela est une action qui concerne deux objets visibles.
 
 refuser mettre ceci dans cela:
   si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
   si cela n'est pas accessible, dire "[intitulé cela] n’est pas accessible.";
-  si cela n'est ni un support ni un contenant, dire "[intitulé cela] n’est ni un contenant ni un support.";
+  si cela n'est ni un support ni un contenant ni vivant, dire "[intitulé cela] n’est ni un contenant ni un support ni le joueur.";
   si cela est fermé, dire "[intitulé cela] est fermé[accord cela].".
 
 exécuter mettre ceci dans cela:
-  déplacer ceci sur cela.
+  si cela est un support ou un contenant:
+    déplacer ceci sur cela;
+  si cela est un vivant mais pas le joueur:
+    déplacer ceci sur cela;
+  si cela est le joueur:
+    changer le joueur porte ceci.
 
-terminer mettre ceci sur cela:
-  dire "C’est fait.".
-
-interpréter poser comme mettre.
+terminer mettre ceci dans cela:
+  si cela est un support ou un contenant:
+    dire "C’est fait.";
+  si cela est un vivant mais pas le joueur:
+    dire "C’est fait.";
+  si cela est le joueur:
+    dire "Vous portez [intitulé ceci].".
+    
+interpréter chausser, enfiler, porter, équiper, poser et tenir comme mettre.
 
 L'aide pour l'action mettre est "{*Mettre / Poser / Tenir / Enfiler / Chausser*}
   Permet de poser un objet sur un support ou de le mettre dans un contenant.
@@ -898,7 +910,7 @@ refuser lire ceci:
 terminer lire ceci:
   dire "[texte ceci]".
 
-CHAPITRE "péter".
+CHAPITRE "péter, raconter".
 
 SCÈNE "péter".
 -- ===========
@@ -910,4 +922,27 @@ terminer péter:
   dire "Vous faites un bruit malpoli.".
 
 interpréter roter comme péter.
+
+
+SCÈNE "raconter".
+-- ===========
+--    RACONTER
+-- ===========
+raconter est une action.
+
+terminer raconter:
+  dire "{/Voici une blague :/}";
+  dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
+  
+raconter ceci est une action qui concerne un intitulé.
+
+terminer raconter ceci:
+  dire "{/Voici une blague :/}";
+  dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
+
+raconter ceci à cela est une action qui concerne un intitulé et un objet.
+
+terminer raconter ceci à cela:
+  dire "{/Voici une blague :/}";
+  dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
 
