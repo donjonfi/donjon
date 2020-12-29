@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.2".
+La version du jeu est "1.3".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -11,11 +11,11 @@ PARTIE "Règles".
 avant commencer le jeu:
   changer le joueur se trouve dans la chambre;
   attendre touche;
-  dire "{/Crack!/}
-  {n}{/Pif ! Paf ! Poum !/}";
+  dire "{/CRAC !/}
+  {n}{/Pif !/}";
   attendre touche;
-  dire "Vous ouvrez les yeux et découvrez Grattepot, Volebougie et Chipesaucisse − 3 de vos lutins − qui sont tombés à travers un trou dans la porte de  votre chambre.
-  {n}<< Père Noël, c'est terrible ! On n'a pas réussi à vous réveiller ! >>";
+  dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.
+  {n}<< Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
   dire "{n}{n}Vous vous levez tant bien que mal.
   {n}Vous avez froid. C'est normal, vous êtes en slip !{n}";
   attendre touche.
@@ -23,7 +23,7 @@ avant commencer le jeu:
 PARTIE "Description du monde".
 
 -- Le joueur
-Le description du joueur est "Bon clairement vous avez quelques kilos à perdre mais au d’un autre coté ces rondeurs et votre barbe blanche vous donnent un air sympathique.
+Le description du joueur est "Bon clairement vous avez quelques kilos à perdre mais d’un autre coté ces rondeurs et votre barbe blanche vous donnent un air sympathique.
   [si le joueur porte le bonnet]Vous portez un bonnet rouge[sinon]Vous ne portez rien[fin si] sur votre tête.
   [si le joueur porte la veste et le pantalon]Vous avez enfilé votre veste et votre pantalon.[fin si][si le joueur porte le pantalon mais pas la veste]Vous avez enfilé votre pantalon de velour mais vous êtes toujours torse-nu[fin si][si le joueur porte la veste mais pas le pantalon]Vous êtes en slip en dessous de votre veste, ce qui fait beaucoup rire vos lutins.[fin si][si le joueur ne porte ni la veste ni le pantalon]Vous êtes en slip, ce qui fait beaucoup rire vos lutins.[fin si]
   [si le joueur porte les bottes]Vous êtes chaussés.[sinon]Vous êtes pieds nus. C’est un peu désagréable.[fin si]".
@@ -45,9 +45,9 @@ avant ouvrir porte d'entrée:
 -- La chambre
 La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
 Son titre est "La chambre du Père Noël".
--- >> Grattepot
-Grattepot est une personne dans la chambre.
-interpréter G comme Grattepot.
+-- >> Grattepot => sur le chemin
+Grattepot est une personne sur le chemin.
+interpréter G et lutin comme Grattepot.
 Sa réaction est :
   si l'historique ne contient pas "clé trouvée":
     dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>[si le joueur ne porte pas le pantalon] {n}<< Ha ha ! Vous ne portez pas de pantalon ! >>[fin si]";
@@ -65,9 +65,9 @@ Sa réaction concernant la clé est :
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
 Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "C’est important de bien vous couvrir pour sortir dehors.".
 
--- >> Volebougie
+-- >> Volebougie => dans la chambre
 Volebougie est une personne dans la chambre.
-interpréter V comme Volebougie.
+interpréter V et lutin comme Volebougie.
 
 Sa réaction est :
   si le joueur ne porte ni la veste ni le pantalon, dire "<< Ha ha ha ! Vous êtes tout nu ! >>";
@@ -78,9 +78,9 @@ Sa réaction concernant la clé est "<< C'est Grattepot qui l'a perdu ![si l'his
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
 Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Bien rangé, vite retrouvé !".
 
--- >> Chipesaucisse
-Chipesaucisse est une personne dans la chambre.
-interpréter C comme Chipesaucisse.
+-- >> Chipesaucisse => dans l’atelier
+Chipesaucisse est une personne dans l’atelier.
+interpréter C et lutin comme Chipesaucisse.
 
 Sa réaction est "<< Il nous reste très peu de temps pour charger le traîneau.[si l'historique ne contient pas "clé trouvée"] Il faut nous aider à retrouver la clé de la boite aux lettres.[fin si] >>[si le joueur ne porte pas le pantalon]{n}<< Ha ha ! Vous ne portez pas de pantalon ![fin si] >>".
 Sa réaction concernant la clé est "<< J'ai toujours eu envie de croquer dedans ! >>".
@@ -111,13 +111,13 @@ interpréter chapeau et couvre-chef comme bonnet.
 -- > Le pantalon
 Le pantalon est un objet portable dans la chambre. "C'est votre pantalon en velours rouge. Il protège votre intimité.".
 -- > La porte de la chambre
-La porte de la chambre est une porte à l'est de la chambre. "Vos lutins on troué votre porte en tentant de vous réveiller. Á présent vous pouvez voir le hall à travers le trou.".
+La porte de la chambre est une porte à l'est de la chambre. "Votre lutin a troué votre porte en tentant de vous réveiller. Á présent vous pouvez voir le hall à travers le trou.".
 Elle est fermée et ouvrable.
 interpréter la porte comme la porte de la chambre.
 
 après ouvrir la porte de la chambre :
-  changer Grattepot se trouve sur le chemin;
-  changer Chipesaucisse se trouve dans l'atelier;
+--  changer Grattepot se trouve sur le chemin;
+--  changer Chipesaucisse se trouve dans l'atelier;
   continuer action.
 
 -- > Le bout de bois
@@ -135,6 +135,9 @@ après donner bout de bois à Chipesaucisse:
 après donner bout de bois à Volebougie:
   dire "Volebougie s'encourt avec le bout de bois [si le Volebougie se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec une mini tortue en bois trop mimi !{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
   
+avant mettre bout de bois dans porte:
+  dire "C’est cassé, autant l’utiliser à autre chose.";
+  stopper l’action.
 
 avant jeter bout de bois dans le feu:
   dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
