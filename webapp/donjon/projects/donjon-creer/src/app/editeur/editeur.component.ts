@@ -235,6 +235,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.compilationEnCours = false;
         this.compilationTerminee = true;
 
+        // si aucune erreur, passer au mode jouer
+        if (this.erreurs.length == 0) {
+          this.showTab('jeu');
+        }
+
       });
     } else {
       this.monde = null;
@@ -625,7 +630,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario'): void {
     this.tab = tab;
 
-    if(this.tab == 'jeu'){
+    if (this.tab == 'jeu') {
       ((this.lecteurRef as any) as LecteurComponent).focusCommande();
     }
 
