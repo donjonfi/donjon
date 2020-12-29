@@ -236,17 +236,22 @@ export class PhraseUtils {
         sensInterlocSujet = true;
         res = ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
       }
-      // => 4) MONTRER/DEMANDER/DONNER SUJET À INTERLOCUTEUR
+      // => 4a) DEMANDER/DONNER/MONTRER SUJET À INTERLOCUTEUR
       if (!res) {
         sensInterlocSujet = false;
-        res = ExprReg.xCommandeMontrerSujetAInterlocuteur.exec(commande);
+        res = ExprReg.xCommandeDemanderSujetAInterlocuteur.exec(commande);
+      }
+      // => 4b) DEMANDER/DONNER À VERBE À INTERLOCUTEUR
+      if (!res) {
+        sensInterlocSujet = false;
+        res = ExprReg.xCommandeDemanderAVerbeAInterlocuteur.exec(commande);
       }
       // => 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
       if (!res) {
         sensInterlocSujet = true;
         res = ExprReg.xCommandeParlerAvecInterlocuteurDeSujet.exec(commande);
       }
-      // => 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation à déconseiller, on privilégie infinitif + compl. direct + compl. indirect)
+      // => 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation qui peut poser des soucis avec les noms composés de plus on privilégie infinitif + compl. direct + compl. indirect)
       if (!res) {
         sensInterlocSujet = true;
         res = ExprReg.xCommandeDemanderAInterlocuteurSujet.exec(commande);
@@ -261,10 +266,10 @@ export class PhraseUtils {
           // déterminant difficile à déterminer donc on met rien
           interlocuteur = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
           if (res[7]) {
-            sujetDialogue = new GroupeNominal((res[6] ? res[6] : null), res[7], (res[8] ? res[8] : null));
+            sujetDialogue = new GroupeNominal((res[6] ? res[6] : (res[5]?.trim() === 'au' ? 'au' : null)), res[7], (res[8] ? res[8] : null));
           }
         } else {
-          interlocuteur = new GroupeNominal((res[6] ? res[6] : null), res[7], (res[8] ? res[8] : null));
+          interlocuteur = new GroupeNominal((res[6] ? res[6] : (res[5]?.trim() === 'au' ? 'au' : null)), res[7], (res[8] ? res[8] : null));
           sujetDialogue = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
         }
 
@@ -297,6 +302,7 @@ export class PhraseUtils {
             els = new ElementsPhrase(infinitif, sujetDialogue, null, null, interlocuteur.nom);
             els.preposition0 = null;
             els.preposition1 = 'à';
+            els.sujetComplement1 = interlocuteur;
             break;
 
           case 'interroger':
@@ -305,6 +311,7 @@ export class PhraseUtils {
             els = new ElementsPhrase(infinitif, interlocuteur, null, null, sujetDialogue.nom);
             els.preposition0 = null;
             els.preposition1 = 'concernant';
+            els.sujetComplement1 = sujetDialogue;
             break;
 
           default:
