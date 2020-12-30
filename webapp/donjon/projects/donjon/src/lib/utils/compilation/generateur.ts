@@ -103,7 +103,7 @@ export class Generateur {
       nouvLieu.description = curEle.description;
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
-      
+
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
@@ -113,6 +113,15 @@ export class Generateur {
 
           case 'titre':
             nouvLieu.titre = pro.valeur;
+            break;
+
+          case 'texte':
+            nouvLieu.texte = pro.valeur;
+            break;
+
+          case 'intitulé':
+            // TODO: gérer groupe nominal ?
+            nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
             break;
 
           default:
