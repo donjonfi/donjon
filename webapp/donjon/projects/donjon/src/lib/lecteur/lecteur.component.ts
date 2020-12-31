@@ -61,6 +61,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       console.warn("jeu: ", this.jeu);
       this.sortieJoueur = "";
       this.resteDeLaSortie = [];
+      this.commandeEnCours = false;
       this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
       this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
@@ -420,7 +421,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             );
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
-            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement));
+            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela);
             retVal = resultatAvant.sortie;
             // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
             if (resultatAvant.stopper !== true) {
@@ -448,7 +449,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                 // PHASE EXÉCUTER l’action
                 retVal += this.executerAction(actionCeciCela);
                 // ÉVÈNEMENT APRÈS la commande
-                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement));
+                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement), actionCeciCela.ceci, actionCeciCela.cela);
                 retVal += resultatApres.sortie;
                 // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
                 if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
