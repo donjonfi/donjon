@@ -37,20 +37,24 @@ export class Declencheur {
   private retrouverInstructions(auditeurs: Auditeur[], evenement: Evenement): Instruction[] {
     let instructions = new Array<Instruction>();
     auditeurs.forEach(aud => {
-      // console.log(">>> check", aud);
-      if (aud.evenement.infinitif === evenement.infinitif) {
-        if (((!aud.evenement.ceci && !evenement.ceci) || (aud.evenement.ceci === evenement.ceci))
-          && ((!aud.evenement.cela && !evenement.cela) || (aud.evenement.cela === evenement.cela))
-        ) {
-          aud.instructions.forEach(ins => {
-            instructions.push(ins);
-          });
-          if (this.verbeux) {
-            console.log(">> déclanchement pour : ", aud.evenement.infinitif, (aud.evenement.ceci ? aud.evenement.ceci : '-'), (aud.evenement.cela ? aud.evenement.cela : '-'));
+      // si un des évènement de l’auditeur est valide, ne pas tester les suivants
+      let dejaTrouve = false;
+      aud.evenements.forEach(curAudEvenement => {
+        // console.log(">>> check", aud);
+        if (curAudEvenement.infinitif === evenement.infinitif) {
+          if (((!curAudEvenement.ceci && !evenement.ceci) || (curAudEvenement.ceci === evenement.ceci))
+            && ((!curAudEvenement.cela && !evenement.cela) || (curAudEvenement.cela === evenement.cela))
+          ) {
+            dejaTrouve = true;
+            aud.instructions.forEach(ins => {
+              instructions.push(ins);
+            });
+            if (this.verbeux) {
+              console.log(">> déclanchement pour : ", curAudEvenement.infinitif, (curAudEvenement.ceci ? curAudEvenement.ceci : '-'), (curAudEvenement.cela ? curAudEvenement.cela : '-'));
+            }
           }
         }
-      }
-
+      });
     });
     return instructions;
   }

@@ -4,6 +4,6 @@ import { TypeRegle } from '../compilateur/type-regle';
 
 export class Auditeur {
   type: TypeRegle;
-  evenement: Evenement;
+  evenements: Evenement[];
   instructions: Instruction[];
 }

@@ -11,7 +11,7 @@ export class Regle {
     constructor(
         public typeRegle: TypeRegle,
         public condition: Condition,
-        public evenement: Evenement,
+        public evenements: Evenement[],
         public commande: ElementsPhrase,
         public consequencesBrutes: string,
     ) { }

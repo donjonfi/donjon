@@ -675,7 +675,7 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
     if (this.verbeux) {
-      console.log(">>> ex instruction:", instruction);
+      console.log(">>> ex instruction:", instruction, "ceci:", ceci, "cela:", cela);
     }
     // incrémenter le nombre de fois que l’instruction a déjà été exécutée
     instruction.nbExecutions += 1;

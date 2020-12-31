@@ -311,7 +311,7 @@ export class Generateur {
   static getAuditeur(regle: Regle) {
     let auditeur = new Auditeur();
     auditeur.type = regle.typeRegle;
-    auditeur.evenement = regle.evenement;
+    auditeur.evenements = regle.evenements;
     auditeur.instructions = regle.instructions;
     return auditeur;
   }

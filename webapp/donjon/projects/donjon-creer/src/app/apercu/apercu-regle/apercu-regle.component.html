@@ -1,25 +1,31 @@
 <div>
   <div class="row">
     <div class="col-auto pr-1">
-      <button class="btn btn-sm my-1 py-0 text-monospace" [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}"
-        (click)="replie = !replie">
+      <button class="btn btn-sm my-1 py-0 text-monospace"
+        [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}" (click)="replie = !replie">
         {{(replie ? 'montrer' : 'masquer' )}}
       </button>
     </div>
 
     <div class="col">
-      <span *ngIf="regle.evenement" class="evenement">
+      <span *ngIf="regle.evenements?.length" class="evenement">
         {{regle.typeRegle}}
-        <span class="infinitif"> {{regle.evenement.infinitif}}</span>
-        <span class="objet"> {{regle.evenement.ceci}}</span>
-        <span class="preposition"> {{regle.evenement.preposition}}</span>
-        <span class="objet"> {{regle.evenement.cela}}</span>
+        <span *ngFor="let curEv of regle.evenements; index as i; first as first; last as last">
+          <!-- <span *ngIf="!first && !last">, </span> -->
+          <b *ngIf="!first"> ou </b>
+          <span class="infinitif"> {{curEv.infinitif}}</span>
+          <span class="objet"> {{curEv.ceci}}</span>
+          <span class="preposition"> {{curEv.preposition}}</span>
+          <span class="objet"> {{curEv.cela}}</span>
+        </span>
       </span>
 
       <span *ngIf="regle.condition" class="condition">
         {{regle.typeRegle}}
         <span class="sujet">
-          {{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ") : ""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete : '')}}</span>
+          {{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ")
+          :""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete :
+          '')}}</span>
         <span class="infinitif"> {{regle.condition.verbe}}</span>
         <span class="complement"> {{regle.condition.complement}}</span>
       </span>
@@ -36,18 +42,25 @@
       <li *ngIf="regle.condition">Condition :
         <ul>
           <li>
-            Sujet :{{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ") : ""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete : '')}}
+            Sujet :{{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ") :
+            ""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete : '')}}
           </li>
           <li>Verbe : {{regle.condition.verbe}}</li>
           <li *ngIf="regle.condition.complement">Complément : {{regle.condition.complement}}</li>
         </ul>
       </li>
 
-      <li *ngIf="regle.evenement">Évènement :
+      <li *ngIf="regle.evenements?.length">Événements :
         <ul>
-          <li>Infinitif : {{regle.evenement.infinitif}}</li>
-          <li *ngIf="regle.evenement.ceci">Ceci : {{regle.evenement.ceci}}</li>
-          <li *ngIf="regle.evenement.cela">Cela : {{regle.evenement.cela}}</li>
+          <li *ngFor="let curEv of regle.evenements; index as i;">
+            Événement {{(i+1)}} :
+            <ul>
+              <li>Infinitif : {{curEv.infinitif}}</li>
+              <li *ngIf="curEv.ceci">Ceci : {{curEv.ceci}}</li>
+              <li *ngIf="curEv.preposition">Preposition : {{curEv.preposition}}</li>
+              <li *ngIf="curEv.cela">Cela : {{curEv.cela}}</li>
+            </ul>
+          </li>
         </ul>
       </li>
 

@@ -197,19 +197,32 @@ export class PhraseUtils {
     }
   }
 
-  public static getEvenement(evenement: string) {
-    // soit c’est une commande
-    let els = PhraseUtils.decomposerCommande(evenement.trim());
-
-    // si on a trouvé une formulation correcte
-    if (els) {
-      return new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null,
-        els.preposition1, (els.sujetComplement1 ? els.sujetComplement1.nom : null));
-    } else {
-      console.warn("getEvenement >> decomposerCommande: pas pu décomposer:", evenement);
-      return null;
-    }
+  public static getEvenements(evenementsBruts: string) {
+    // découper les attributs, les séparateurs possibles sont «, », et « ou ».
+    const evenementsSepares = PhraseUtils.separerListeIntitules(evenementsBruts);
+    let retVal: Evenement[] = [];
+    evenementsSepares.forEach(evenementBrut => {
+      // soit c’est une commande
+      let els = PhraseUtils.decomposerCommande(evenementBrut.trim());
+      // si on a trouvé une formulation correcte
+      if (els) {
+        retVal.push(new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null, els.preposition1, (els.sujetComplement1 ? els.sujetComplement1.nom : null)));
+      } else {
+        console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+      }
+    });
+    return retVal;
   }
+
+    /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
+    public static separerListeIntitules(attributsString: string): string[] {
+      if (attributsString && attributsString.trim() !== '') {
+        // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+        return attributsString.trim().split(/(?:, | et | ou )+/);
+      } else {
+        return new Array<string>();
+      }
+    }  
 
   static decomposerCommande(commande: string) {
     let els: ElementsPhrase = null;
@@ -281,7 +294,7 @@ export class PhraseUtils {
         if (sujetDialogue) {
           sujetDialogue.determinant = PhraseUtils.trouverDeterminant(sujetDialogue.determinant);
         }
-        
+
         // console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
         // console.log("sujetDialogue.determinant=,", sujetDialogue.determinant, "sujetDialogue=", sujetDialogue);
 

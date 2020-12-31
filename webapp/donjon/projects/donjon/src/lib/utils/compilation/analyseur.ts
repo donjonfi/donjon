@@ -172,7 +172,7 @@ export class Analyseur {
                       // attributs de l'élément précédent
                       if (result[1] && result[1].trim() !== '') {
                         // découper les attributs
-                        const attributs = Analyseur.separerListeIntitules(result[1]);
+                        const attributs = PhraseUtils.separerListeIntitules(result[1]);
                         dernierElementGenerique.attributs = dernierElementGenerique.attributs.concat(attributs);
                       }
                       // genre de l'élément précédent
@@ -350,42 +350,42 @@ export class Analyseur {
   }
 
   private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
-    let resultRegle = ExprReg.rAvantApresRemplacerSi.exec(phrase.phrase[0]);
+    let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.phrase[0]);
 
     if (resultRegle !== null) {
 
       let typeRegle: TypeRegle;
       let motCle = StringUtils.normaliserMot(resultRegle[1]);
       let condition: Condition = null;
-      let evenement: Evenement = null;
+      let evenements: Evenement[] = null;
       let commande: ElementsPhrase = null;
 
       switch (motCle) {
-        case 'si':
-          typeRegle = TypeRegle.si;
-          condition = PhraseUtils.getCondition(resultRegle[2]);
-          if (!condition) {
-            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
-          }
-          break;
+        // case 'si':
+        //   typeRegle = TypeRegle.si;
+        //   condition = PhraseUtils.getCondition(resultRegle[2]);
+        //   if (!condition) {
+        //     erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
+        //   }
+        //   break;
 
-        case 'quand':
+        // case 'quand':
         case 'avant':
         case 'apres':
           typeRegle = TypeRegle[motCle];
-          evenement = PhraseUtils.getEvenement(resultRegle[2]);
-          if (!evenement) {
-            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement : " + resultRegle[2]);
+          evenements = PhraseUtils.getEvenements(resultRegle[2]);
+          if (!evenements?.length) {
+            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement(s) : " + resultRegle[2]);
           }
           break;
 
-        case 'remplacer':
-          typeRegle = TypeRegle.remplacer;
-          commande = PhraseUtils.getCommande(resultRegle[2]);
-          if (!commande) {
-            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : commande : " + resultRegle[2]);
-          }
-          break;
+        // case 'remplacer':
+        //   typeRegle = TypeRegle.remplacer;
+        //   commande = PhraseUtils.getCommande(resultRegle[2]);
+        //   if (!commande) {
+        //     erreurs.push(("00000" + phrase.ligne).slice(-5) + " : commande : " + resultRegle[2]);
+        //   }
+        //   break;
 
         default:
           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : type règle : " + resultRegle[2]);
@@ -394,8 +394,11 @@ export class Analyseur {
           break;
       }
 
-      let nouvelleRegle = new Regle(typeRegle, condition, evenement, commande, resultRegle[3]);
-      regles.push(nouvelleRegle);
+      // evenements.forEach(evenement => {
+        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, resultRegle[3]);
+      // });
+
+        regles.push(nouvelleRegle);
 
       // si phrase morcelée, rassembler les morceaux
       if (phrase.phrase.length > 1) {
@@ -410,7 +413,7 @@ export class Analyseur {
   }
 
   private static retrouverSujets(sujets: string, erreurs: string[], phrase: Phrase) {
-    const listeSujetsBruts = Analyseur.separerListeIntitules(sujets);
+    const listeSujetsBruts = PhraseUtils.separerListeIntitules(sujets);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
       const resultGn = ExprReg.xGroupeNominal.exec(sujetBrut);
@@ -574,7 +577,7 @@ export class Analyseur {
 
         genre = MotUtils.getGenre(determinant, estFeminin);
         // retrouver les attributs
-        attributs = Analyseur.separerListeIntitules(attributsString);
+        attributs = PhraseUtils.separerListeIntitules(attributsString);
 
         position = new PositionSujetString(result[2], result[10], result[9]);
 
@@ -658,7 +661,7 @@ export class Analyseur {
     if (result !== null) {
 
       const synonymesBruts = result[1];
-      const listeSynonymesBruts = Analyseur.separerListeIntitules(synonymesBruts);
+      const listeSynonymesBruts = PhraseUtils.separerListeIntitules(synonymesBruts);
       const originalBrut = result[2];
 
       // tester si l’original est un VERBE
@@ -892,7 +895,7 @@ export class Analyseur {
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1]);
       attributsString = result[6];
-      attributs = Analyseur.separerListeIntitules(attributsString);
+      attributs = PhraseUtils.separerListeIntitules(attributsString);
       position = null;
 
       Analyseur.addOrUpdDefinition(dictionnaire, nom, nombre, intituleClasse, attributs);
@@ -954,7 +957,7 @@ export class Analyseur {
         attributs = null;
         if (result[6] && result[6].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = Analyseur.separerListeIntitules(result[6]);
+          attributs = PhraseUtils.separerListeIntitules(result[6]);
         }
 
         nouvelElementGenerique = new ElementGenerique(
@@ -1062,15 +1065,6 @@ export class Analyseur {
     }
   }
 
-  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
-  private static separerListeIntitules(attributsString: string): string[] {
-    if (attributsString && attributsString.trim() !== '') {
-      // découper les attributs qui sont séparés par des ', ' ou ' et '
-      return attributsString.trim().split(/(?:, | et | ou )+/);
-    } else {
-      return new Array<string>();
-    }
-  }
 
   public static separerConsequences(consequencesBrutes: string, erreurs: string[], sousConsequences: boolean) {
 
