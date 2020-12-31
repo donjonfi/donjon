@@ -275,21 +275,21 @@ export class ConditionsUtils {
                 }
               }
 
-              // retrouver l’objet concerné
-              const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, false, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
-              let cible: Objet = null;
-              if (ciblesTrouvees.length === 1) {
-                cible = ciblesTrouvees[0];
-              } else if (ciblesTrouvees.length === 0) {
-                console.error("condition se trouve: pas de correspondance trouvée pour cible=", condition.sujet);
-              } else if (ciblesTrouvees.length > 1) {
-                console.error("condition se trouve: plusieurs correspondances trouvées pour cible=", condition.sujet, "cor=", ciblesTrouvees);
-              }
+              // // retrouver l’objet concerné
+              // const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, false, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
+              // let cible: Objet = null;
+              // if (ciblesTrouvees.length === 1) {
+              //   cible = ciblesTrouvees[0];
+              // } else if (ciblesTrouvees.length === 0) {
+              //   console.error("condition se trouve: pas de correspondance trouvée pour cible=", condition.sujet);
+              // } else if (ciblesTrouvees.length > 1) {
+              //   console.error("condition se trouve: plusieurs correspondances trouvées pour cible=", condition.sujet, "cor=", ciblesTrouvees);
+              // }
 
               // si on a trouvé la cible et la destination
-              if (cible && destination) {
+              if (sujet && destination) {
                 // vérifier que la cible se trouve au bon endroit
-                if (cible.position.cibleId === destination.id) {
+                if ((sujet as Objet).position.cibleId === destination.id) {
                   retVal = true;
                 }
               }
