@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Coincé".
 L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "1.1".
+La version du jeu est "1.2".
 Le titre de la licence est "Creative Commons Attribution 4.0 International License".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -62,16 +62,7 @@ interpréter bouton rouge et bouton rond comme le bouton.
 -- ===========
 
 -- > POUSSER/DÉPLACER FAUTEUIL
-avant pousser le fauteuil:
-  si le fauteuil n'est pas déplacé:
-    dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.",
-    changer le coffre n’est plus invisible,
-    changer le fauteuil est déplacé;
-  sinon
-    dire "Ce n'est plus nécessaire.";
-  stopper l'action.
-    
-avant déplacer le fauteuil:
+avant pousser le fauteuil ou déplacer le fauteuil:
   si le fauteuil n'est pas déplacé:
     dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.",
     changer le coffre n’est plus invisible,
@@ -122,20 +113,13 @@ Le joueur peut décrocher le tableau:
 -- ==========
 
 -- > AVANT − PRENDRE TABLEAU
-avant prendre le tableau:
+avant prendre le tableau ou enlever le tableau:
   si le tableau se trouve sur le mur:
-    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}",
     changer le bouton n’est plus couvert,
     changer le tableau se trouve dans le salon,
-    stopper l’action.
-    
-avant enlever le tableau:
-  si le tableau se trouve sur le mur:
-    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}",
-    changer le bouton n’est plus couvert,
-    changer le tableau se trouve dans le salon;
+    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}";
   sinon:
-    dire "Le taleau n'est pas accroché.";
+    dire "Vous avez déjà enlevé le tableau du mur.";
   stopper l’action.
 
 après pousser le bouton:

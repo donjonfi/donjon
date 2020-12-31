@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.3".
+La version du jeu est "1.4".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -92,11 +92,7 @@ Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Il f
 Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
 Son aperçu est "Votre lit trône au centre de la pièce.".
 
-avant dormir dans le lit :
-  dire "Vous êtes encore fatigué mais vous n'avez vraiment plus le temps de roupiller !";
-  stopper l'action.
-  
-avant dormir :
+avant dormir ou dormir dans le lit :
   dire "Vous êtes encore fatigué mais vous n'avez vraiment plus le temps de roupiller !";
   stopper l'action.
   
@@ -126,25 +122,14 @@ C'est un objet décoratif.
 Son aperçu est "Il y a un bout de bois[initialement] au pied de votre porte.[fin choix]".
 interpréter bois comme bout de bois.
 
-après donner bout de bois à Grattepot:
-  dire "Grattepot s'encourt avec le bout de bois [si le Grattepot se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec un mini sapin en bois surmonté d'une petite étoile qui clignote !{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
-
-après donner bout de bois à Chipesaucisse:
-  dire "Chipesaucisse s'encourt avec le bout de bois [si le Chipesaucisse se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec une mini automobile en bois qui roule vraiment !{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
-
-après donner bout de bois à Volebougie:
-  dire "Volebougie s'encourt avec le bout de bois [si le Volebougie se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec une mini tortue en bois trop mimi !{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
+après donner bout de bois à Grattepot, donner bout de bois à Chipesaucisse ou donner bout de bois à Volebougie:
+  dire "[Intitulé cela] s'encourt avec le bout de bois [si cela se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec [au hasard]un mini sapin en bois surmonté d'une petite étoile qui clignote ![ou]une mini automobile en bois qui roule vraiment ![ou]une mini tortue en bois trop mimi ![fin choix]{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
   
 avant mettre bout de bois dans porte:
   dire "C’est cassé, autant l’utiliser à autre chose.";
   stopper l’action.
 
-avant jeter bout de bois dans le feu:
-  dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
-  effacer bout de bois;
-  stopper l'action.
-  
-avant mettre bout de bois dans le feu:
+avant jeter bout de bois dans le feu ou mettre bout de bois dans le feu:
   dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
   effacer bout de bois;
   stopper l'action.
@@ -153,55 +138,27 @@ avant jeter joueur sur le lit:
   dire "C’est tentant mais on n’a pas le temps pour ça !";
   stopper l’action.
   
-avant jeter joueur dans le feu:
-  dire "Ça va pas ?";
+avant jeter joueur dans le feu ou mettre joueur dans le feu:
+  dire "Ça ne va pas ?";
   stopper l'action.
   
-avant mettre joueur dans le feu:
-  dire "Ça va pas ?";
-  stopper l'action.
-  
-avant jeter bonnet dans le feu:
+avant jeter bonnet dans le feu ou mettre bonnet dans le feu:
   dire "On ne vous reconnaîtrait plus sans lui !";
   stopper l'action.
   
-avant mettre bonnet dans le feu:
-  dire "On ne vous reconnaîtrait plus sans lui !";
-  stopper l'action.
-  
-avant jeter pantalon dans le feu:
+avant jeter pantalon dans le feu ou mettre pantalon dans le feu:
   dire "Et vous comptez sortir comment ensuite ?";
   stopper l'action.
   
-avant mettre pantalon dans le feu:
-  dire "Et vous comptez sortir comment ensuite ?";
-  stopper l'action.
-  
-avant jeter veste dans le feu:
+avant jeter veste dans le feu ou mettre veste dans le feu:
   dire "Vous ne roulez pas sur l'or vous savez ?";
   stopper l'action.
   
-avant mettre veste dans le feu:
-  dire "Vous ne roulez pas sur l'or vous savez ?";
-  stopper l'action.
-  
-avant jeter bottes dans le feu:
-  dire "Elle ont une valeur sentimentale.";
-  stopper l'action.
-  
-avant mettre bottes dans le feu:
+avant jeter bottes dans le feu ou mettre bottes dans le feu:
   dire "Elle ont une valeur sentimentale.";
   stopper l'action.
 
-avant donner clé à Grattepot:
-  dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>";
-  stopper l'action.
-
-avant donner clé à Chipesaucisse:
-  dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>";
-  stopper l'action.
-
-avant donner clé à Volebougie:
+avant donner clé à Grattepot, donner clé à Chipesaucisse ou donner clé à Volebougie:
   dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>";
   stopper l'action.
 
@@ -238,21 +195,7 @@ avant mettre clé dans boîte:
   terminer jeu;
   stopper l'action.
   
-avant ouvrir boîte:
-  si le joueur possède la clé:
-    dire "Vous ouvrez la boîte avec la clé.",
-    changer la boîte est ouverte,
-    changer la boite est déverrouillée,
-    stopper l'action.
-
-avant ouvrir boîte avec clé:
-  si le joueur possède la clé:
-    dire "Vous ouvrez la boîte avec la clé.",
-    changer la boîte est ouverte,
-    changer la boite est déverrouillée,
-    stopper l'action.
-    
-avant déverrouiller boîte avec clé:
+avant ouvrir boîte, ouvrir boîte avec clé ou déverrouiller boîte avec clé:
   si le joueur possède la clé:
     dire "Vous ouvrez la boîte avec la clé.",
     changer la boîte est ouverte,
@@ -266,25 +209,9 @@ Son texte est "[1ère fois]Vous lisez la lettre à l'écriture enfantine: {n}<< 
 après prendre lettre:
   changer l'historique contient "lettre trouvée";
   continuer l'action.
-
-après donner lettre à Grattepot:
-  dire "Grattepot s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.
-  {n}Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
-  {n}Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
-  {n}Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
-  {n}Bravo ! Vous avez sauvé Noël !";
-  terminer le jeu.
   
-après donner lettre à Chipesaucisse:
-  dire "Chipesaucisse se lance dans la préparation de la caserne de pompiers.
-  {n}Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
-  {n}Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
-  {n}Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
-  {n}Bravo ! Vous avez sauvé Noël !";
-  terminer le jeu.
-  
-après donner lettre à Volebougie:
-  dire "Volebougie s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.
+  après donner lettre à Volebougie, donner lettre à Grattepot ou donner lettre à Chipesaucisse:
+  dire "[si cela se trouve dans l’atelier][Intitulé cela] se lance dans la préparation de la caserne de pompiers.[sinon][Intitulé cela] s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.[fin si]
   {n}Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
   {n}Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
   {n}Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
