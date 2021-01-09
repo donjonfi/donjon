@@ -344,10 +344,6 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       switch (els.infinitif) {
 
-        // case "aide":
-        //   retVal = this.com.aide(els);
-        //   break;
-
         case "deboguer":
           retVal = this.com.deboguer(els);
           break;
@@ -360,10 +356,6 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.aller(els);
           break;
 
-        case "inventaire":
-          retVal = this.com.inventaire();
-          break;
-
         case "sorties":
           retVal = this.com.sorties();
           break;
@@ -371,18 +363,6 @@ export class LecteurComponent implements OnInit, OnChanges {
         case "position":
           retVal = this.com.ouSuisJe();
           break;
-
-        // case "déverrouiller":
-        //   retVal = this.com.deverrouiller(els);
-        //   break;
-
-        // case "utiliser":
-        //   retVal = this.com.utiliser(els);
-        //   break;
-
-        // case "fouiller":
-        //   retVal = this.com.fouiller(els);
-        //   break;
 
         default:
           const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);

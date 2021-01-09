@@ -19,6 +19,8 @@ import { StringUtils } from '../commun/string.utils';
 
 export class Compilateur {
 
+  private static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License";
+
   /**
    * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
    * @param scenario Scénario du jeu
@@ -50,7 +52,7 @@ export class Compilateur {
       erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
     }
 
-    const regleInfoDonjon = "\naprès afficher aide: dire \"{n}{n}{+{/Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License/}+}\"; continuer l’action.";
+    const regleInfoDonjon = "\naprès afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; continuer l’action.";
 
     // B. Interpréter le scénario
     Compilateur.analyserCode((scenario + regleInfoDonjon), monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);

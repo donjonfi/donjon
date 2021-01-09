@@ -11,9 +11,9 @@ Partie "commandes".
 CHAPITRE "aide, effacer".
 
 SCÈNE "aide".
--- ================================
---   AFFICHER (AIDE et INVENTAIRE)
--- ================================
+-- =========================================
+--   AFFICHER (AIDE, INVENTAIRE et SORTIES)
+-- =========================================
 
 -- a) afficher ceci
 
@@ -32,10 +32,14 @@ exécuter afficher ceci:
       {n}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
       {n}  - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
   si ceci est l’inventaire:
-    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]";
+  si ceci est les sorties:
+    dire "[sorties]".
     
 terminer afficher ceci:
-  si ceci n’est ni l’aide ni l’inventaire, dire "Je peux afficher l’aide ou votre inventaire.".
+  si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
+  
+
 
 -- a) afficher ceci sur cela
 
@@ -47,6 +51,14 @@ exécuter afficher ceci pour cela:
   
 terminer afficher ceci cela:
   si ceci n’est pas l’aide, dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
+
+L'aide pour l'action afficher est "{*Afficher*}
+  Permet d’afficher certains éléments du jeu.
+  {+exemples+} :
+  > {-afficher {/aide/}-}
+  > {-afficher {/sorties/}-}
+  > {-afficher {/inventaire/}-}
+  {+raccourcis+} : {-aide-}, {-sor-}, {-i-}".
 
 SCÈNE "effacer".
 -- ==========
@@ -77,6 +89,13 @@ terminer effacer ceci:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][contenu ici]";
   dire "{n}{n}[sorties ici]".
+
+L'aide pour l'action effacer est "{*Effacer*}
+  Permet d’effacer l’écran
+  {+exemples+} :
+  > {-effacer-}
+  > {-effacer {/l’écran/}-}
+  {+raccourci+} : {-ef-}".
 
 CHAPITRE "ouvrir et fermer".
 SCÈNE "ouvrir".

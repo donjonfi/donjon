@@ -215,7 +215,8 @@ export class Abreviations {
         case 'i':
         case 'in':
         case 'inv':
-          retVal = "inventaire";
+        case 'inventaire':
+          retVal = "afficher inventaire";
           break;
 
         case 'int':

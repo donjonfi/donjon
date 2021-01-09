@@ -31,8 +31,6 @@ export class Commandes {
 
   aller(els: ElementsPhrase) {
 
-    let destination: string;
-
     let locDest: Localisation = Localisation.inconnu;
 
     switch (els.infinitif) {
@@ -40,25 +38,19 @@ export class Commandes {
       case "aller":
         // vérifier la direction
         switch (els.sujet.nom) {
-          case "n":
           case "nord":
             locDest = Localisation.nord;
             break;
 
-          case "s":
           case "sud":
             locDest = Localisation.sud;
             break;
 
-          case "o":
           case "ouest":
-          case "l'ouest":
             locDest = Localisation.ouest;
             break;
 
-          case "e":
           case "est":
-          case "l'est":
             locDest = Localisation.est;
             break;
 
@@ -84,12 +76,13 @@ export class Commandes {
         break;
     }
 
+    
+
     const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, EClasseRacine.lieu));
     const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, EClasseRacine.porte));
 
-    console.log("voisinLieu", voisinLieu);
-    console.log("voisinPorte", voisinPorte);
-
+    // console.log("voisinLieu", voisinLieu);
+    // console.log("voisinPorte", voisinPorte);
 
     // TODO: vérifier accès…
     if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.fermeID)) {
