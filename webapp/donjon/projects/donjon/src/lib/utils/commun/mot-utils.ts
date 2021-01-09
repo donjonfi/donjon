@@ -89,13 +89,16 @@ export class MotUtils {
         case "il":
         case "ils":
         case "un":
+        case "mon":
+        case "son":
           retVal = Genre.m;
           break;
         case "la":
         case "elle":
         case "elles":
         case "une":
-
+        case "ma":
+        case "sa":
           retVal = Genre.f;
           break;
 

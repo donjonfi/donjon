@@ -214,15 +214,15 @@ export class PhraseUtils {
     return retVal;
   }
 
-    /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
-    public static separerListeIntitules(attributsString: string): string[] {
-      if (attributsString && attributsString.trim() !== '') {
-        // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-        return attributsString.trim().split(/(?:, | et | ou )+/);
-      } else {
-        return new Array<string>();
-      }
-    }  
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
+  public static separerListeIntitules(attributsString: string): string[] {
+    if (attributsString && attributsString.trim() !== '') {
+      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+      return attributsString.trim().split(/(?:, | et | ou )+/);
+    } else {
+      return new Array<string>();
+    }
+  }
 
   static decomposerCommande(commande: string) {
     let els: ElementsPhrase = null;
@@ -363,6 +363,8 @@ export class PhraseUtils {
         case 'de la':
         case 'd\'une':
         case 'd\’une':
+        case 'ma':
+        case 'sa':
           retVal = 'la ';
           break;
 
@@ -372,6 +374,8 @@ export class PhraseUtils {
         case 'du':
         case 'd\'un':
         case 'd’un':
+        case 'mon':
+        case 'son':
           retVal = 'le ';
           break;
 
@@ -379,6 +383,8 @@ export class PhraseUtils {
         case 'aux':
         case 'avec les':
         case 'des':
+        case 'mes':
+        case 'ses':
           retVal = 'les ';
           break;
 
@@ -395,6 +401,7 @@ export class PhraseUtils {
 
         case 'à':
         case 'de':
+        case 'se':
           retVal = null;
           break;
 

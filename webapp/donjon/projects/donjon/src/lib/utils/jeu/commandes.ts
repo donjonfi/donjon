@@ -122,28 +122,28 @@ export class Commandes {
   // COMMANDES QUI NE MODIFIENT PAS LE JEU
   // =========================================
 
-  aide(els: ElementsPhrase) {
-    if (!els.sujet) {
-      return "{_Quelques commandes utiles_}\n"
-        + " - {-aide {/parler/}-} : afficher l’aide d’une commande\n"
-        + " - {-aller {/nord/}-} : aller vers le nord\n"
-        + " - {-regarder-} : regarder autours de vous\n"
-        + " - {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations\n"
-        + " - {-prendre {/épée/}-} : prendre un objet\n"
-        + " - {-inventaire-} : afficher le contenu de votre inventaire\n"
-        + " - {-parler à {/magicienne/}-} : parler à un personnage\n"
-        + " - {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique\n"
-        + " - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée\n"
-        + "{+[ Donjon ©2018-2021 Jonathan Claes − see MIT License ]+}";
-    } else {
-      const ficheAide = this.jeu.aides.find(x => x.infinitif === els.sujet.nom);
-      if (ficheAide) {
-        return ficheAide.informations;
-      } else {
-        return "Désolé, je n’ai pas de page d’aide concernant la commande « " + els.sujet.nom + " »";
-      }
-    }
-  }
+  // aide(els: ElementsPhrase) {
+  //   if (!els.sujet) {
+  //     return "{_Quelques commandes utiles_}\n"
+  //       + " - {-aide {/parler/}-} : afficher l’aide d’une commande\n"
+  //       + " - {-aller {/nord/}-} : aller vers le nord\n"
+  //       + " - {-regarder-} : regarder autours de vous\n"
+  //       + " - {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations\n"
+  //       + " - {-prendre {/épée/}-} : prendre un objet\n"
+  //       + " - {-inventaire-} : afficher le contenu de votre inventaire\n"
+  //       + " - {-parler à {/magicienne/}-} : parler à un personnage\n"
+  //       + " - {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique\n"
+  //       + " - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée\n"
+  //       + "{+[Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License ]+}";
+  //   } else {
+  //     const ficheAide = this.jeu.aides.find(x => x.infinitif === els.sujet.nom);
+  //     if (ficheAide) {
+  //       return ficheAide.informations;
+  //     } else {
+  //       return "Désolé, je n’ai pas de page d’aide concernant la commande « " + els.sujet.nom + " »";
+  //     }
+  //   }
+  // }
 
   deboguer(els: ElementsPhrase) {
     let retVal = "";
@@ -299,92 +299,8 @@ export class Commandes {
   //   }
   // }
 
-  // examiner(els: ElementsPhrase) {
-
-  //   let retVal: string;
-
-  //   // si on ne sait pas ce qu’il faut examiner
-  //   if (!els.sujet) {
-  //     return "Que dois-je examiner ?";
-  //     // examiner un élément en particulier
-  //   } else {
-  //     // regarder dans les éléments de jeu
-  //     const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
-  //     if (trouve === -1) {
-  //       retVal = "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
-  //     } else if (trouve) {
-
-  //       switch (trouve.type) {
-  //         // Contenant
-  //         case ClasseRacine.contenant:
-  //           retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dedans.");
-  //           break;
-  //         // Support
-  //         case ClasseRacine.support:
-  //           retVal = this.outils.afficherContenu(trouve, "Je ne vois rien d’intéressant dessus.");
-  //           break;
-  //         // Porte
-  //         case ClasseRacine.porte:
-  //           retVal += "\n" + this.outils.afficherStatutPorte(trouve);
-
-  //         default:
-  //           retVal = this.outils.afficherContenu(trouve);
-  //           break;
-  //       }
-
-  //       // rien trouvé
-  //     } else {
-  //       retVal = "Je ne vois pas ça.";
-  //     }
-  //   }
-  //   return retVal;
-  // }
-
-  // regarder(els: ElementsPhrase) {
-  //   let retVal: string;
-
-  //   // regarder le lieu actuel
-  //   if (!els.sujet) {
-  //     if (this.eju.curLieu) {
-  //       if (this.eju.curLieu.description) {
-  //         retVal = this.outils.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription)
-  //           + this.outils.afficherObjetsCurLieu();
-  //       } else {
-  //         retVal = "Votre position : " + this.eju.curLieu.intitule + ".\n"
-  //           + this.outils.afficherObjetsCurLieu();
-  //       }
-  //     } else {
-  //       retVal = "Mais où suis-je ?";
-  //     }
-  //     // regarder un élément en particulier
-  //   } else {
-  //     // regarder dans les éléments de jeu
-  //     const trouve = this.eju.trouverElementJeu(els.sujet, EmplacementElement.iciEtInventaire, true, true);
-  //     if (trouve == -1) {
-  //       retVal = "J'ai trouvé plusieurs éléments correspondant à " + els.sujet.nom + ". Pouvez-vous être plus précis ?";
-  //     } else if (trouve) {
-  //       if (trouve.description) {
-  //         retVal = this.outils.calculerDescription(trouve.description, ++trouve.nbAffichageDescription);
-  //       } else {
-  //         retVal = (trouve.quantite == 1 ? "C’est… " : "Ce sont… ") + OutilsCommandes.afficherQuantiteIntitule(trouve, false, null);
-  //       }
-  //       if (trouve.type == ClasseRacine.porte) {
-  //         retVal += "\n" + this.outils.afficherStatutPorte(trouve)
-  //       }
-  //       // rien trouvé
-  //     } else {
-  //       retVal = "Je ne vois pas ça.";
-  //     }
-  //   }
-  //   return retVal;
-  // }
-
   sorties() {
     return this.ins.afficherSorties(this.eju.curLieu);
-  }
-
-  fouiller(els: ElementsPhrase) {
-    return "Je n’ai pas le courage de fouiller ça.";
   }
 
   inventaire() {
@@ -395,13 +311,6 @@ export class Commandes {
       retVal = "Votre inventaire contient:" + retVal;
     }
     return retVal;
-  }
-
-  /**
-   * au préalable, il faut avoir vidé la console !
-   */
-  effacer() {
-    return this.outils.afficherCurLieu();
   }
 
 }

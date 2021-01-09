@@ -8,7 +8,46 @@ Partie "informations".
 
 Partie "commandes".
 
-CHAPITRE "effacer".
+CHAPITRE "aide, effacer".
+
+SCÈNE "aide".
+-- ================================
+--   AFFICHER (AIDE et INVENTAIRE)
+-- ================================
+
+-- a) afficher ceci
+
+afficher ceci est une action qui concerne un intitulé.
+
+exécuter afficher ceci:
+  si ceci est l’aide:
+    dire "{_Quelques commandes utiles_}
+      {n}- {-aide {/parler/}-} : afficher l’aide d’une commande
+      {n}- {-aller {/nord/}-} : aller vers le nord
+      {n}- {-regarder-} : regarder autours de vous
+      {n}- {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations
+      {n}- {-prendre {/épée/}-} : prendre un objet
+      {n}- {-inventaire-} : afficher le contenu de votre inventaire
+      {n}- {-parler à {/magicienne/}-} : parler à un personnage
+      {n}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
+      {n}  - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
+  si ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
+    
+terminer afficher ceci:
+  si ceci n’est ni l’aide ni l’inventaire, dire "Je peux afficher l’aide ou votre inventaire.".
+
+-- a) afficher ceci sur cela
+
+afficher ceci pour cela est une action qui concerne un intitulé et un intitulé.
+
+exécuter afficher ceci pour cela:
+  si ceci est l’aide:
+    dire "[aide cela]".
+  
+terminer afficher ceci cela:
+  si ceci n’est pas l’aide, dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
+
 SCÈNE "effacer".
 -- ==========
 --   EFFACER
@@ -26,7 +65,7 @@ terminer effacer:
   dire "{n}{n}[sorties ici]".
 
 -- b) effacer l’écran
-effacer ceci est une action qui concerne un objet.
+effacer ceci est une action qui concerne un intitulé.
 
 refuser effacer ceci:
   si ceci n’est pas l’écran, dire "Je peux uniquement effacer l’écran.".

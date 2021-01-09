@@ -37,12 +37,12 @@ export class Generateur {
     // *************************
     jeu.aides = aides;
 
-    // ÉCRAN
-    // ****************
-    let ecran = new Objet(++indexElementJeu, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);
-    ecran.intituleS = ecran.intitule;
-    jeu.etats.ajouterEtatElement(ecran, EEtatsBase.invisible);
-    jeu.objets.push(ecran);
+    // // ÉCRAN
+    // // ****************
+    // let ecran = new Objet(++indexElementJeu, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);
+    // ecran.intituleS = ecran.intitule;
+    // jeu.etats.ajouterEtatElement(ecran, EEtatsBase.invisible);
+    // jeu.objets.push(ecran);
 
     // PLACER LE JOUEUR
     // ****************
@@ -50,7 +50,10 @@ export class Generateur {
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
-    joueur.synonymes = [new GroupeNominal("", "moi", null)];
+    joueur.synonymes = [
+      new GroupeNominal("", "moi", null),
+      new GroupeNominal("l’", "inventaire", null)
+    ];
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
     // ajouter le joueur aux objets du jeu

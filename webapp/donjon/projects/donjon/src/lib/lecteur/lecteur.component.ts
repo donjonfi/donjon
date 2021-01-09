@@ -344,9 +344,9 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       switch (els.infinitif) {
 
-        case "aide":
-          retVal = this.com.aide(els);
-          break;
+        // case "aide":
+        //   retVal = this.com.aide(els);
+        //   break;
 
         case "deboguer":
           retVal = this.com.deboguer(els);

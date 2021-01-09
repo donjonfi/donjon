@@ -73,6 +73,14 @@ export class Abreviations {
           premierMotComplet = mots[1];
           deuxiemeMotComplet = 'le joueur';
         }
+
+        // commande aide : ajouter « pour » avant le sujet
+        if (premierMotComplet.trim() === 'afficher aide' && (mots[1])) {
+          premierMotComplet += " pour ";
+        } else if (mots[1] === 'afficher' && mots[2] === 'aide' && mots[3]) {
+          mots[2] += " pour ";
+        }
+
       }
 
       if (premierMotComplet !== mots[0] || (deuxiemeMotComplet && deuxiemeMotComplet !== mots[1])) {
@@ -80,7 +88,7 @@ export class Abreviations {
         if (deuxiemeMotComplet) {
           mots[1] = deuxiemeMotComplet;
         }
-        commande = mots.join(' ').replace(/  /, ' ');
+        commande = mots.join(' ').replace(/  /g, ' ');
       }
     }
 
@@ -100,6 +108,10 @@ export class Abreviations {
         // ======================
         //           A
         // ======================
+
+        case 'aide':
+          retVal = "afficher aide";
+          break;
 
         case 'a':
         case 'al':

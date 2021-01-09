@@ -50,9 +50,10 @@ export class Compilateur {
       erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
     }
 
-    // B. Interpréter le scénario
-    Compilateur.analyserCode(scenario, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
+    const regleInfoDonjon = "\naprès afficher aide: dire \"{n}{n}{+{/Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License/}+}\"; continuer l’action.";
 
+    // B. Interpréter le scénario
+    Compilateur.analyserCode((scenario + regleInfoDonjon), monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
 
     // ********************************************
     // SÉPARER LES OBJETS, LES LIEUX, LES SPÉCIAUX
@@ -190,6 +191,7 @@ export class Compilateur {
       .replace(/ >>/g, " »")
       .replace(/ \?/g, " ?")
       .replace(/ !/g, " !")
+      .replace(/ :/g, " :")
       .replace(/\.\.\.(?!:\.)/g, "…");
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
