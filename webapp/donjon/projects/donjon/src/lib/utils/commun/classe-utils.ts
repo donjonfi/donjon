@@ -25,6 +25,8 @@ export class ClasseUtils {
 
         case "intitulé":
         case "intitule":
+        case "intitulés":
+        case "intitules":
           retVal = EClasseRacine.intitule;
           break;
 
@@ -73,10 +75,12 @@ export class ClasseUtils {
           retVal = EClasseRacine.porte;
           break;
         case "lieu":
+        case "lieux":
           retVal = EClasseRacine.lieu;
           break;
 
         case "joueur":
+        case "joueurs":
           retVal = EClasseRacine.joueur;
           break;
 
