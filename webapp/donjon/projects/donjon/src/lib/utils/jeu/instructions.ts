@@ -131,7 +131,11 @@ export class Instructions {
 
     // contenu
     if (contenu.includes("[contenu")) {
-
+      if (contenu.includes("[contenu inventaire]")) {
+        // (ne pas afficher les objets cachés de ici)
+        const contenuInventaire = this.executerListerContenu(this.jeu.joueur, true);
+        contenu = contenu.replace(/\[contenu inventaire\]/g, contenuInventaire.sortie);
+      }
       if (contenu.includes("[contenu ici]")) {
         // (ne pas afficher les objets cachés de ici)
         const contenuIci = this.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false);
@@ -187,6 +191,18 @@ export class Instructions {
     if (contenu.includes("[titre ici]")) {
       const titreIci = this.eju.curLieu.titre;
       contenu = contenu.replace(/\[titre ici\]/g, titreIci);
+    }
+
+    // aide
+    if (contenu.includes("[aide")) {
+      if (contenu.includes("[aide ceci]")) {
+        const aideCeci = this.ficheAide(ceci);
+        contenu = contenu.replace(/\[aide ceci\]/g, aideCeci);
+      }
+      if (contenu.includes("[aide cela]")) {
+        const aideCela = this.ficheAide(cela);
+        contenu = contenu.replace(/\[aide cela\]/g, aideCela);
+      }
     }
 
     // intitulé
@@ -406,6 +422,15 @@ export class Instructions {
   }
 
   calculerDescriptionContenu(element: ElementJeu, nbAffichage: number) {
+  }
+
+  private ficheAide(intitule: Intitule) {
+    const ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
+    if (ficheAide) {
+      return ficheAide.informations;
+    } else {
+      return "Désolé, je n’ai pas de page d’aide concernant la commande « " + intitule.nom + " »";
+    }
   }
 
   /** Vérifier si une condition [] est remplie. */
