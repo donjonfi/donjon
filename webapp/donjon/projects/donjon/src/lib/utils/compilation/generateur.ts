@@ -37,6 +37,13 @@ export class Generateur {
     // *************************
     jeu.aides = aides;
 
+    // ÉCRAN
+    // ****************
+    let ecran = new Objet(++indexElementJeu, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);
+    ecran.intituleS = ecran.intitule;
+    jeu.etats.ajouterEtatElement(ecran, EEtatsBase.invisible);
+    jeu.objets.push(ecran);
+
     // PLACER LE JOUEUR
     // ****************
     let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("Le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);

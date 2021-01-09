@@ -158,7 +158,19 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
         // s'il n'y a pas de texte en attente, afficher la première partie
       } else {
-        this.sortieJoueur += sectionsContenu[0];
+        // retrouver le dernier effacement d’écran éventuel
+        const texteSection = sectionsContenu[0];
+        const indexDernierEffacement = texteSection.lastIndexOf("@@effacer écran@@");
+        // s’il ne faut pas effacer l’écran
+        if (indexDernierEffacement == -1) {
+          // ajouter à la suite
+          this.sortieJoueur += texteSection;
+          // sinon
+        } else {
+          // remplacer la sortie du joueur
+          this.sortieJoueur = texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
+        }
+        // attendre pour afficher la suite éventuelle
         if (sectionsContenu.length > 1) {
           this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
           this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
@@ -168,7 +180,21 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private afficherSuiteSortie() {
-    this.sortieJoueur += ("<p>" + this.resteDeLaSortie.shift() + "</p>");
+    // prochaine section à afficher
+    const texteSection = this.resteDeLaSortie.shift();
+    // retrouver le dernier effacement d’écran éventuel
+    const indexDernierEffacement = texteSection.lastIndexOf("@@effacer écran@@");
+    // s’il ne faut pas effacer l’écran
+    if (indexDernierEffacement == -1) {
+      // ajouter à la suite
+      this.sortieJoueur += ("<p>" + texteSection + "</p>");
+      // sinon
+    } else {
+      // remplacer la sortie du joueur
+      this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length) + "</p>";
+    }
+
+    // s’il reste d’autres sections, attendre
     if (this.resteDeLaSortie.length) {
       this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
     }
@@ -346,11 +372,6 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.ouSuisJe();
           break;
 
-        case "effacer":
-          this.sortieJoueur = "";
-          retVal = this.com.effacer();
-          break;
-
         // case "déverrouiller":
         //   retVal = this.com.deverrouiller(els);
         //   break;
@@ -447,14 +468,16 @@ export class LecteurComponent implements OnInit, OnChanges {
               // exécuter l’action si pas refusée
               if (!refus) {
                 // PHASE EXÉCUTER l’action
-                retVal += this.executerAction(actionCeciCela);
+                const resultatExecuter = this.executerAction(actionCeciCela);
+                retVal += resultatExecuter.sortie;
                 // ÉVÈNEMENT APRÈS la commande
                 const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement), actionCeciCela.ceci, actionCeciCela.cela);
                 retVal += resultatApres.sortie;
                 // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
                 if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
                   // terminer l’action
-                  retVal += this.finaliserAction(actionCeciCela);
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela);
+                  retVal += resultatFinaliser.sortie;
                 }
               }
             }
@@ -471,12 +494,12 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   private executerAction(action: ActionCeciCela) {
     const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela);
-    return resultat.sortie;
+    return resultat;
   }
 
   private finaliserAction(action: ActionCeciCela) {
     const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela);
-    return resultat.sortie;
+    return resultat;
   }
 
   private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela | -1 {

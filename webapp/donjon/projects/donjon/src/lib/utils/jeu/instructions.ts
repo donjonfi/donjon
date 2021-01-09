@@ -745,13 +745,17 @@ export class Instructions {
         break;
 
       case 'effacer':
-        const cible = this.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela);
-        if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
-          sousResultat = this.executerEffacer(cible as Objet);
-          resultat.succes = sousResultat.succes;
+        if (instruction.sujet.nom == 'écran') {
+          resultat.sortie = "@@effacer écran@@";
         } else {
-          console.error("Exécuter infinitif: Seuls les objets peuvent être effacés.");
-          resultat.succes = false;
+          const cible = this.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela);
+          if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
+            sousResultat = this.executerEffacer(cible as Objet);
+            resultat.succes = sousResultat.succes;
+          } else {
+            console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
+            resultat.succes = false;
+          }
         }
         break;
 

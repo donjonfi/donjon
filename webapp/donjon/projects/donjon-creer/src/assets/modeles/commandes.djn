@@ -1,12 +1,44 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2020-12-29-0007
+-- Version: 2021-01-09-0008
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
 --   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
 
 Partie "commandes".
+
+CHAPITRE "effacer".
+SCÈNE "effacer".
+-- ==========
+--   EFFACER
+-- ==========
+
+-- a) effacer
+effacer est une action.
+
+exécuter effacer:
+  effacer l’écran.
+
+terminer effacer:
+  dire "{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  dire "{n}{n}[sorties ici]".
+
+-- b) effacer l’écran
+effacer ceci est une action qui concerne un objet.
+
+refuser effacer ceci:
+  si ceci n’est pas l’écran, dire "Je peux uniquement effacer l’écran.".
+
+exécuter effacer ceci:
+  effacer l’écran.
+  
+terminer effacer ceci:
+  dire "{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  dire "{n}{n}[sorties ici]".
+
 CHAPITRE "ouvrir et fermer".
 SCÈNE "ouvrir".
 -- ==========

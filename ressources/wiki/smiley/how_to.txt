@@ -1,3 +1,7 @@
 wiki/lib/images/smileys
 => créer dossier « local ».
 => ajouter au dossier « donjonfi.png ».
+
+/wiki/conf
+=> créer fichier « smileys.local.conf ».
+=> ajouter le contenu suivant:
