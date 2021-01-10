@@ -138,7 +138,8 @@ export class Abreviations {
         // ======================
 
         case 'de':
-          retVal = "descendre";
+        case 'descendre':
+          retVal = "aller en bas";
           break;
 
         case 'deb':
@@ -180,7 +181,8 @@ export class Abreviations {
           break;
 
         case 'en':
-          retVal = 'entrer';
+        case 'entrer':
+          retVal = 'aller dedans';
           break;
 
         case 'enf':
@@ -238,7 +240,8 @@ export class Abreviations {
         // ======================
 
         case 'mo':
-          retVal = "monter";
+        case 'monter':
+          retVal = "aller en haut";
           break;
 
         case 'mon':
@@ -350,11 +353,14 @@ export class Abreviations {
           break;
 
         case 'so':
-          retVal = 'sortir';
+        case 'sortir':
+          retVal = 'aller dehors';
           break;
 
         case 'sor':
-          retVal = "sorties";
+        case 'sortie':
+        case 'sorties':
+          retVal = "afficher sorties";
           break;
 
         // ======================
