@@ -97,6 +97,43 @@ L'aide pour l'action effacer est "{*Effacer*}
   > {-effacer {/l’écran/}-}
   {+raccourci+} : {-ef-}".
 
+
+CHAPITRE "aller".
+SCÈNE "aller".
+-- =========
+--   ALLER
+-- =========
+-- a) aller vers
+aller vers ceci est une action qui concerne un intitulé.
+
+refuser aller vers ceci:
+  si ceci est un lieu, dire "Je peux aller version une direction. Ex: « nord » pour aller vers le nord";
+  si ceci n’est pas une direction, dire "Je peux aller vers une direction. Ex: « nord » pour aler vers le nord.";
+  si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
+  si la sortie vers ceci est obstruée, dire "[statut sortie vers ceci]".
+
+exécuter aller vers ceci:
+  déplacer le joueur vers ceci.
+
+terminer aller vers ceci:
+  dire "{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  dire "{n}{n}[sorties ici]".
+
+L'aide pour l'action aller est "{*Aller*}
+  Permet de d’aller vers la direction indiquée.
+  {+exemples+} :
+  > {-aller vers {/le nord/}-}
+  > {-sud-}
+  > {-monter-}
+  > {-entrer-}
+  {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
+
+ouvrir ceci avec cela est une action qui concerne un objet visible et un objet visible.
+
+terminer ouvrir ceci avec cela:
+  dire "Ça n'a pas fonctionné.".
+
 CHAPITRE "ouvrir et fermer".
 SCÈNE "ouvrir".
 -- ==========

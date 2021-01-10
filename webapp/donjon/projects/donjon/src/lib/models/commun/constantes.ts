@@ -4,6 +4,7 @@ export const versionNum = 99;
 
 export enum EClasseRacine {
   intitule = 'intitule',
+  direction = 'direction',
   element = 'element',
   special = 'special',
   lieu = 'lieu',

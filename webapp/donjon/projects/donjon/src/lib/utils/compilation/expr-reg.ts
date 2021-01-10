@@ -279,6 +279,16 @@ export class ExprReg {
   static readonly xCondition = /^(?:si )?((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|possède|porte|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
+   * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)
+   * - si la sortie vers le nord est obstruée
+   * - si la sortie vers l’ouest est innaccessible
+   * - si la porte vers l’ouest est verrouillée
+   * - si la porte vers ceci n’est pas ouverte
+   */
+  static readonly xConditionLaSortieVers = /^(?:si )?(la )(sortie|porte) (vers) (ceci|cela|(?:(?:le |l’|l')?(ouest|est|nord|sud|haut|bas|dedans|dehors|intérieur|extérieur))) (?:n’|n')?(est) (?:(pas|plus) )?(\S+)$/i;
+
+
+  /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
@@ -306,9 +316,9 @@ export class ExprReg {
   // static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
 
   /** 
-   * si aucun(1) complément(2) pour (le|la|les|...(4) xxx(5) yyy(6))|(ceci|cela)(3)
+   * si aucun(1) complément(2) (pour|vers)(3) (le|la|les|...(5) xxx(6) yyy(7))|(ceci|cela)(4)
    */
-  static readonly xConditionAucunPour = /^(?:si )?(aucun(?:e)?) (\S+) pour ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela)$/i;
+  static readonly xConditionAucunPourVers = /^(?:si )?(aucun(?:e)?) (\S+) (pour|vers) ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela)$/i;
 
 
   /**

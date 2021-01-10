@@ -1,3 +1,5 @@
+import { ELocalisation, Localisation } from '../../models/jeu/localisation';
+
 import { ClasseUtils } from '../commun/classe-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -6,7 +8,6 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Genre } from '../../models/commun/genre.enum';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
-import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
 
@@ -31,7 +32,7 @@ export class Commandes {
 
   aller(els: ElementsPhrase) {
 
-    let locDest: Localisation = Localisation.inconnu;
+    let locDest: Localisation = null;
 
     switch (els.infinitif) {
 
@@ -39,19 +40,19 @@ export class Commandes {
         // vérifier la direction
         switch (els.sujet.nom) {
           case "nord":
-            locDest = Localisation.nord;
+            locDest = Localisation.Nord;
             break;
 
           case "sud":
-            locDest = Localisation.sud;
+            locDest = Localisation.Sud;
             break;
 
           case "ouest":
-            locDest = Localisation.ouest;
+            locDest = Localisation.Ouest;
             break;
 
           case "est":
-            locDest = Localisation.est;
+            locDest = Localisation.Est;
             break;
 
           default:
@@ -60,26 +61,24 @@ export class Commandes {
         break;
 
       case "sortir":
-        locDest = Localisation.exterieur;
+        locDest = Localisation.Exterieur;
         break;
       case "entrer":
-        locDest = Localisation.interieur;
+        locDest = Localisation.Interieur;
         break;
       case "monter":
-        locDest = Localisation.haut;
+        locDest = Localisation.Haut;
         break;
       case "descendre":
-        locDest = Localisation.bas;
+        locDest = Localisation.Bas;
         break;
 
       default:
         break;
     }
 
-    
-
-    const voisinLieu = this.eju.getLieu(this.eju.getVoisins(locDest, EClasseRacine.lieu));
-    const voisinPorte = this.eju.getObjet(this.eju.getVoisins(locDest, EClasseRacine.porte));
+    const voisinLieu = this.eju.getLieu(this.eju.getVoisin(locDest, EClasseRacine.lieu));
+    const voisinPorte = this.eju.getObjet(this.eju.getVoisin(locDest, EClasseRacine.porte));
 
     // console.log("voisinLieu", voisinLieu);
     // console.log("voisinPorte", voisinPorte);

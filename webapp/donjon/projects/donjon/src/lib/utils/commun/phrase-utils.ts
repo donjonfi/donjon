@@ -18,7 +18,8 @@ export class PhraseUtils {
     let resCondEtOu: RegExpExecArray = null;
     let resCondMaisPasEtOu: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
-    let resConditionAucunPour: RegExpExecArray = null;
+    let resConditionAucunPourVers: RegExpExecArray = null;
+    let resConditionLaSortieVers: RegExpExecArray = null;
 
     // console.log("condition:", condition);
 
@@ -39,18 +40,19 @@ export class PhraseUtils {
     if (!resCondNiSoit && !resCondEtOu) {
       // B. tester la formulation [mais pas | mais bien | et | ou]
       resCondMaisPasEtOu = ExprReg.xConditionMaisPasEtOu.exec(condition);
-
-      // console.log(">> resCondMaisPasEtOu:", resCondMaisPasEtOu);
-
-
       resCond = resCondMaisPasEtOu;
       if (!resCondMaisPasEtOu) {
-        // C. tester la formulation simple
-        resCondSimple = ExprReg.xCondition.exec(condition);
-        resCond = resCondSimple;
-        if (!resCondSimple) {
+        // C. tester la formulation [la porte|sortie vers xxx est]
+        // TODO: gérer les conjonctions (mais pas, ou, et, …)
+        resConditionLaSortieVers = ExprReg.xConditionLaSortieVers.exec(condition);
+        if (!resConditionLaSortieVers) {
           // D. tester la formulation [aucun pour]
-          resConditionAucunPour = ExprReg.xConditionAucunPour.exec(condition);
+          resConditionAucunPourVers = ExprReg.xConditionAucunPourVers.exec(condition);
+          if (!resConditionAucunPourVers) {
+            // E. tester la formulation simple
+            resCondSimple = ExprReg.xCondition.exec(condition);
+            resCond = resCondSimple;
+          }
         }
       }
     }
@@ -104,11 +106,27 @@ export class PhraseUtils {
           }
         }
       }
-    } else if (resConditionAucunPour) {
-      const sujet = resConditionAucunPour[5] ? (new GroupeNominal(resConditionAucunPour[4], resConditionAucunPour[5], resConditionAucunPour[6] ? resConditionAucunPour[6] : null)) : (resConditionAucunPour[3] ? new GroupeNominal(null, resConditionAucunPour[3], null) : null);
-      const verbe = "aucun"; // "aucun"
-      const compl = resConditionAucunPour[2]; // description, aperçu, ...
+    } else if (resConditionAucunPourVers) {
+      // ex: si aucun(1) complément(2) (pour|vers)(3) (le|la|les|...(5) xxx(6) yyy(7))|(ceci|cela)(4)
+      // ex sujet: ceci, cela, la/pomme/enchantée
+      const sujet = resConditionAucunPourVers[6] ? (new GroupeNominal(resConditionAucunPourVers[5], resConditionAucunPourVers[6], resConditionAucunPourVers[7] ? resConditionAucunPourVers[7] : null)) : (resConditionAucunPourVers[4] ? new GroupeNominal(null, resConditionAucunPourVers[4], null) : null);
+      const verbe = "aucun"; // aucun, aucune (c’est pas un verbe mais bon…)
+      // ex compl: description, aperçu, sortie, porte, ...
+      const compl = resConditionAucunPourVers[2];
       els = new ElementsPhrase(null, sujet, verbe, null, compl);
+      // prép: pour, vers
+      els.preposition1 = resConditionAucunPourVers[3];
+    } else if (resConditionLaSortieVers) {
+      // ex: [si] la(1) porte(2) vers(3) (ceci|cela|[le] nord(5))(4) [n’]est(6) pas(7) ouverte(8)
+      // ex sujets: la/porte vers/ceci, la/sortie vers/nord
+      const sujet = (new GroupeNominal(resConditionLaSortieVers[1], resConditionLaSortieVers[2] + " vers", (resConditionLaSortieVers[5] ? resConditionLaSortieVers[5] : resConditionLaSortieVers[4])));
+      // ex verbe: est
+      const verbe = resConditionLaSortieVers[6]
+      // ex compl: ouverte, innaccessible, verrouillée, …
+      const compl = resConditionLaSortieVers[8];
+      // ex pas, plus
+      const negation = (resConditionLaSortieVers[7] ? resConditionLaSortieVers[7] : null);
+      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
     }
 
     return els;

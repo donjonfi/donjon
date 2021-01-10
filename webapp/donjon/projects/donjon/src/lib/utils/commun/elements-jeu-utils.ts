@@ -1,4 +1,5 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from './classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -8,7 +9,6 @@ import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
-import { Localisation } from '../../models/jeu/localisation';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -146,8 +146,8 @@ export class ElementsJeuUtils {
     return this.jeu.lieux.find(x => x.id === id);
   }
 
-  getVoisins(loc: Localisation, type: EClasseRacine) {
-    let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc);
+  getVoisin(loc: Localisation, type: EClasseRacine) {
+    let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);
     return found ? found.id : -1;
   }
 
@@ -174,15 +174,18 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+  /**
+   * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
+   */
   trouverCorrespondance(sujet: GroupeNominal, prioriteObjetsPresents: boolean): Correspondance {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
       cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Intitule);
       // 1. Chercher dans les directions.
-      cor.localisation = this.trouverLocalisation(sujet);
+      cor.localisation = ElementsJeuUtils.trouverLocalisation(sujet);
 
-      if (cor.localisation !== Localisation.inconnu) {
+      if (cor.localisation !== null) {
         cor.nbCor = 1;
       } else {
         // 2. Chercher dans la liste des lieux.
@@ -213,41 +216,41 @@ export class ElementsJeuUtils {
     return cor;
   }
 
-  trouverLocalisation(sujet: GroupeNominal) {
+  static trouverLocalisation(sujet: GroupeNominal) {
 
     switch (sujet.nom) {
       case 'sud':
-        return Localisation.sud;
+        return Localisation.Sud;
 
       case 'nord':
-        return Localisation.nord;
+        return Localisation.Nord;
 
       case 'est':
-        return Localisation.est;
+        return Localisation.Est;
 
       case 'ouest':
-        return Localisation.ouest;
+        return Localisation.Ouest;
 
       case 'bas':
-        return Localisation.bas;
+        return Localisation.Bas;
 
       case 'haut':
-        return Localisation.haut;
+        return Localisation.Haut;
 
       case 'dessus':
-        return Localisation.dessus;
+        return Localisation.Haut;
 
       case 'dessous':
-        return Localisation.dessous;
+        return Localisation.Bas;
 
       case 'exterieur':
-        return Localisation.exterieur;
+        return Localisation.Exterieur;
 
       case 'interieur':
-        return Localisation.interieur;
+        return Localisation.Interieur;
 
       default:
-        return Localisation.inconnu;
+        return null;
         break;
     }
 

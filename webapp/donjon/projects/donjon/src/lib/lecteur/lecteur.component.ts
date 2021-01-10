@@ -348,17 +348,17 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.deboguer(els);
           break;
 
-        case "aller":
-        case "entrer": // entrer
-        case "sortir":
-        case "monter":
-        case "descendre":
-          retVal = this.com.aller(els);
-          break;
+        // case "aller":
+        // case "entrer": // entrer
+        // case "sortir":
+        // case "monter":
+        // case "descendre":
+        //   retVal = this.com.aller(els);
+        //   break;
 
-        case "sorties":
-          retVal = this.com.sorties();
-          break;
+        // case "sorties":
+        //   retVal = this.com.sorties();
+        //   break;
 
         case "position":
           retVal = this.com.ouSuisJe();
@@ -607,10 +607,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // il s’agit d’un type
     } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
-      if (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
-        retVal = ceciCela.intitule;
-      } else {
-        // TODO: vérifier s’il s’agit du type
+        // TODO: vérifier s’il s’agit du type (descendants de élémentsJeux)
         ceciCela.elements.forEach(ele => {
           if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getClasseIntitule(candidatCeciCela.nom))) {
             if (retVal === null) {
@@ -630,8 +627,16 @@ export class LecteurComponent implements OnInit, OnChanges {
             }
           }
         });
-      }
-
+      
+        // si ce n'est pas un élément du jeu,
+        //  - vérifier direction
+        if (retVal == null && ceciCela.localisation && (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule)) {
+          retVal = ceciCela.localisation;
+        }
+        //  - vérifier intitué
+        if (retVal == null && ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
+          retVal = ceciCela.intitule;
+        }
 
     }
     return retVal;

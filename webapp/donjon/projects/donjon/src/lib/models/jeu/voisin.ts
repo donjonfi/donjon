@@ -1,5 +1,4 @@
-import { EClasseRacine } from '../commun/constantes';
-import { Localisation } from './localisation';
+import { ELocalisation } from './localisation';
 
 export class Voisin {
 
@@ -7,7 +6,7 @@ export class Voisin {
     public id: number,
     /** EClasseRacine.lieu | EClasseRacine.porte */
     public type: string,
-    public localisation: Localisation
+    public localisation: ELocalisation
   ) { }
 
 }

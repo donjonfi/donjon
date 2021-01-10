@@ -5,6 +5,7 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { Conjugaison } from './conjugaison';
+import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
@@ -14,7 +15,6 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
-import { Localisation } from '../../models/jeu/localisation';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
@@ -1586,7 +1586,7 @@ export class Instructions {
     // - portes
     let portesVoisines = lieu.voisins.filter(x => x.type === EClasseRacine.porte);
 
-    // retirer de la liste les voisins séparé par une non visible
+    // retirer de la liste les voisins séparé par une porte non visible
     if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
       portesVoisines.forEach(voisinPorte => {
         // retrouver la porte
@@ -1613,33 +1613,33 @@ export class Instructions {
     return retVal;
   }
 
-  afficherLocalisation(localisation: Localisation, curLieuIndex: number, voisinIndex: number) {
+  afficherLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;
     switch (localisation) {
-      case Localisation.nord:
+      case ELocalisation.nord:
         retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
-      case Localisation.sud:
+      case ELocalisation.sud:
         retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
-      case Localisation.est:
+      case ELocalisation.est:
         retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
-      case Localisation.ouest:
+      case ELocalisation.ouest:
         retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
-      case Localisation.bas:
+      case ELocalisation.bas:
         retVal = "descendre (de) − " + titreLieu;
         break;
-      case Localisation.haut:
+      case ELocalisation.haut:
         retVal = "monter (mo) − " + titreLieu;
         break;
-      case Localisation.exterieur:
+      case ELocalisation.exterieur:
         retVal = "sortir (so)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
-      case Localisation.interieur:
+      case ELocalisation.interieur:
         retVal = "entrer (en) − " + titreLieu;
         break;
 

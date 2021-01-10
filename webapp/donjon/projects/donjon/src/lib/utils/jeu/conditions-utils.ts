@@ -1,7 +1,8 @@
 import { Condition, LienCondition } from '../../models/compilateur/condition';
+import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 
 import { ClasseUtils } from '../commun/classe-utils';
-import { EClasseRacine } from '../../models/commun/constantes';
+import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -29,6 +30,10 @@ export class ConditionsUtils {
    */
   private verifierConditionElementJeuEst(cond: Condition, sujet: ElementJeu) {
     let resultCondition: boolean = null;
+
+    console.warn("@@@   cond:", cond);
+
+
     if (!cond.sujetComplement || !cond.sujetComplement.determinant) {
       // vérifier la liste des états
       resultCondition = this.jeu.etats.possedeEtatElement(sujet, cond.complement, this.eju);
@@ -41,6 +46,7 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
+          console.log("@@@@", sujet.classe, cond.sujetComplement.nom);
           resultCondition = ClasseUtils.heriteDe(sujet.classe, cond.sujetComplement.nom);
           // console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
@@ -172,8 +178,35 @@ export class ConditionsUtils {
             if (!cela) {
               console.warn("siEstVrai: le « cela » de la condition est null.");
             }
-          // } else if (condition.sujet.nom === 'joueur') {
-          //   sujet = this.jeu.joueur;
+            // } else if (condition.sujet.nom === 'joueur') {
+            //   sujet = this.jeu.joueur;
+          } else if (condition.sujet.nom == "sortie vers" || condition.sujet.nom == "porte vers") {
+            let locString: string = condition.sujet.epithete;
+            if (condition.sujet.epithete == 'ceci') {
+              locString = ceci.intitule.nom;
+            } else if (condition.sujet.epithete == 'cela') {
+              locString = cela.intitule.nom;
+            }
+            const loc = ElementsJeuUtils.trouverLocalisation(new GroupeNominal(null, locString));
+
+            if (loc == null) {
+              console.error("siEstVrai: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
+              // regarder s'il y a une sortie dans la direction indiquée
+            } else {
+              if (condition.sujet.nom == "sortie vers") {
+                const voisinID = this.eju.getVoisin(loc, EClasseRacine.lieu);
+                if (voisinID !== -1) {
+                  sujet = this.eju.getLieu(voisinID);
+                }
+              } else {
+                const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                if (porteID !== -1) {
+                  sujet = this.eju.getObjet(porteID);
+                }
+              }
+            }
+          } else if (condition.sujet.nom == "porte vers") {
+            retVal = false;
           } else {
             const correspondances = this.eju.trouverCorrespondance(condition.sujet, false);
             if (correspondances.elements.length == 1) {
@@ -211,10 +244,55 @@ export class ConditionsUtils {
 
 
             // PAS DE (aucun)
-            case 'aucune': // forme "aucun xxxx pour yyyy". Ex: aucune description pour ceci.
-            case 'aucun': // forme "aucun xxxx pour yyyy"
+            // forme "aucun·e xxxx pour yyyy" ou "aucun·e xxx vers yyyy"
+            // Ex: aucune description pour ceci. 
+            // Ex: aucune sortie vers le nord.
+            case 'aucun':
+            case 'aucune':
               // remarque: négation appliquée plus loin.
-              if (condition.complement === 'description') {
+              // A) SORTIE, PORTE
+              if (condition.complement === 'sortie') {
+                console.warn("Test des sorties", condition, sujet);
+                // trouver direction
+                const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
+                if (loc == null) {
+                  console.error("siEstVrai: sorties vers '", sujet.intitule.nom, "': direction inconnue.");
+                  // regarder s'il y a une sortie dans la direction indiquée
+                } else {
+                  const voisinID = this.eju.getVoisin(loc, EClasseRacine.lieu);
+                  // aucune sortie dans cette direction si pas de voisin
+                  if (voisinID == -1) {
+                    retVal = true;
+                    // aucune sortie si voisin derrière une porte fermée et invisible
+                  } else {
+                    const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                    if (porteID != -1) {
+                      const porte = this.eju.getObjet(porteID);
+                      retVal = this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et);
+                    }
+                  }
+                }
+              } else if (condition.complement === 'porte') {
+                console.warn("Test des portes", condition, sujet);
+                // trouver direction
+                const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
+                if (loc != null) {
+                  console.error("siEstVrai: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
+                  // regarder s'il y a une porte dans la direction indiquée
+                } else {
+                  const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                  // aucune porte
+                  if (porteID == -1) {
+                    retVal = true;
+                    // la porte est invisible => aucune porte
+                  } else {
+                    const porte = this.eju.getObjet(porteID);
+                    retVal = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+                  }
+                }
+              }
+              // B) PROPRIÉTÉ
+              else if (condition.complement === 'description') {
                 retVal = (!(sujet as ElementJeu).description);
               } else if (condition.complement === 'aperçu') {
                 retVal = (!(sujet as ElementJeu).apercu);
@@ -298,7 +376,7 @@ export class ConditionsUtils {
             case 'réagit':
             case 'réagissent':
               console.warn("réagit: sujet=", sujet);
-              
+
               // remarque: négation appliquée plus loin.
               if ((sujet as Objet).reactions && (sujet as Objet).reactions.length > 0) {
                 retVal = true;
@@ -316,7 +394,7 @@ export class ConditionsUtils {
               break;
 
             default:
-              console.error("siEstVrai: verbe pas connu::", condition.verbe);
+              console.error("siEstVrai: verbe pas connu::", condition);
               break;
           }
         } else {

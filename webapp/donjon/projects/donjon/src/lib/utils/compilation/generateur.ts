@@ -7,13 +7,13 @@ import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
+import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { ListeEtats } from '../jeu/liste-etats';
-import { Localisation } from '../../models/jeu/localisation';
 import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
@@ -297,7 +297,7 @@ export class Generateur {
       const localisation = Generateur.getLocalisation(elVoisin.positionString.position);
       const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement, true);
 
-      if (localisation === Localisation.inconnu || lieuTrouveID === -1) {
+      if (localisation === ELocalisation.inconnu || lieuTrouveID === -1) {
         console.log("positionString pas trouvé:", elVoisin.positionString);
       } else {
         // ajouter au lieu trouvé, le voisin elVoisin
@@ -406,31 +406,31 @@ export class Generateur {
 
     strPosition = strPosition.replace(/(du|de la|de l'|des)/g, "").trim();
 
-    let retVal = Localisation.inconnu;
+    let retVal = ELocalisation.inconnu;
     switch (strPosition) {
       case "en bas":
-        retVal = Localisation.bas;
+        retVal = ELocalisation.bas;
         break;
       case "en haut":
-        retVal = Localisation.haut;
+        retVal = ELocalisation.haut;
         break;
       case "à l'extérieur":
-        retVal = Localisation.exterieur;
+        retVal = ELocalisation.exterieur;
         break;
       case "à l'intérieur":
-        retVal = Localisation.interieur;
+        retVal = ELocalisation.interieur;
         break;
       case "à l'est":
-        retVal = Localisation.est;
+        retVal = ELocalisation.est;
         break;
       case "à l'ouest":
-        retVal = Localisation.ouest;
+        retVal = ELocalisation.ouest;
         break;
       case "au nord":
-        retVal = Localisation.nord;
+        retVal = ELocalisation.nord;
         break;
       case "au sud":
-        retVal = Localisation.sud;
+        retVal = ELocalisation.sud;
         break;
 
       default:
@@ -441,34 +441,34 @@ export class Generateur {
     return retVal;
   }
 
-  static getOpposePosition(localisation: Localisation) {
+  static getOpposePosition(localisation: ELocalisation) {
     switch (localisation) {
-      case Localisation.bas:
-        return Localisation.haut;
+      case ELocalisation.bas:
+        return ELocalisation.haut;
         break;
-      case Localisation.haut:
-        return Localisation.bas;
+      case ELocalisation.haut:
+        return ELocalisation.bas;
         break;
-      case Localisation.est:
-        return Localisation.ouest;
+      case ELocalisation.est:
+        return ELocalisation.ouest;
         break;
-      case Localisation.ouest:
-        return Localisation.est;
+      case ELocalisation.ouest:
+        return ELocalisation.est;
         break;
-      case Localisation.nord:
-        return Localisation.sud;
+      case ELocalisation.nord:
+        return ELocalisation.sud;
         break;
-      case Localisation.sud:
-        return Localisation.nord;
+      case ELocalisation.sud:
+        return ELocalisation.nord;
         break;
-      case Localisation.interieur:
-        return Localisation.exterieur;
+      case ELocalisation.interieur:
+        return ELocalisation.exterieur;
         break;
-      case Localisation.exterieur:
-        return Localisation.interieur;
+      case ELocalisation.exterieur:
+        return ELocalisation.interieur;
         break;
       default:
-        return Localisation.inconnu;
+        return ELocalisation.inconnu;
         break;
     }
   }

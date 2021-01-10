@@ -7,6 +7,9 @@ export class ClassesRacines {
   /** Il s’agit d’un mot ou d’un groupe nominal. */
   public static Intitule = new Classe(EClasseRacine.intitule, "Intitulé", null, 0, []);
 
+  /** Il s’agit d’une direction (nord, sud, est, ouest, haut, bas, intérieur, extérieur) */
+  public static Direction = new Classe(EClasseRacine.direction, "Direction", ClassesRacines.Intitule, 1, []);
+
   /** Il s’agit d’un élément du jeu */
   public static Element = new Classe(EClasseRacine.element, "Élément", ClassesRacines.Intitule, 1,
     [EEtatsBase.intact]);
