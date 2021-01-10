@@ -187,18 +187,10 @@ export class Compilateur {
     // que les numéros de lignes de changent pas !
     const sansCommentaires = source.replace(/^((?: *)--(?:.*))$/gm, " ");
 
-    // corriger espaces insécables et chevrons
-    const EspacesInsecablesCorriges = sansCommentaires
-      .replace(/<< /g, "« ")
-      .replace(/ >>/g, " »")
-      .replace(/ \?/g, " ?")
-      .replace(/ !/g, " !")
-      .replace(/ :/g, " :")
-      .replace(/\.\.\.(?!:\.)/g, "…");
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
-    const blocTexte = EspacesInsecablesCorriges
+    const blocTexte = sansCommentaires
       .replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne)
       .replace(/( +)/g, " ").trim();
 
@@ -266,12 +258,25 @@ export class Compilateur {
           let commentaireNettoye = bloc.replace(/\,/g, ExprReg.caractereVirgule).trim();
           commentaireNettoye = commentaireNettoye.replace(/\;/g, ExprReg.caracterePointVirgule).trim();
 
+          // corriger espaces insécables et chevrons
+          commentaireNettoye = commentaireNettoye
+            .replace(/<< /g, "« ")
+            .replace(/ >>/g, " »")
+            .replace(/ \?/g, " ?")
+            .replace(/ !/g, " !")
+            // .replace(/ :/g, " :") // pause en souci avec les si/sinon
+            .replace(/\.\.\.(?!:\.)/g, "…");
+
+
           // le commentaire concerne toujours la phrase précédente (s'il y en a une)
           if (phrasePrecedente) {
             phrasePrecedente.phrase.push(ExprReg.caractereDebutCommentaire + commentaireNettoye + ExprReg.caractereFinCommentaire);
-            // sinon, le commentaire est seul (c'est le titre)
+            //   // sinon, le commentaire est seul (c'est le titre)
+            // } else {
+            //   phrases.push(new Phrase([bloc], true, false, null, indexPhrase++, numeroLigne, true));
+            // }
           } else {
-            phrases.push(new Phrase([bloc], true, false, null, indexPhrase++, numeroLigne, true));
+            console.error("Le scénario ne peut pas commencer par un commentaire.");
           }
           numeroLigne += nbLignes; // Math.max(1, nbLignes);
         }
