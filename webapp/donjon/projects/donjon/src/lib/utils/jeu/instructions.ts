@@ -365,6 +365,69 @@ export class Instructions {
     }
 
     // ===================================================
+    // PROPRIÉTÉS [p nomPropriété ici|ceci|cela]
+    // ===================================================
+    if (contenu.includes("[p ")) {
+      // retrouver toutes les balises de propriété [p xxx ceci]
+      const xBaliseGenerique = /\[p (\S+) (ici|ceci|cela)\]/gi;
+      const allBalises = contenu.match(xBaliseGenerique);
+      // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver la proppriété et la cible
+        const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
+        const proprieteString = decoupe[1];
+        const cibleString = decoupe[2];
+        let cible: ElementJeu;
+        switch (cibleString) {
+          case 'ici':
+            cible = this.eju.curLieu;
+            break;
+          case 'ceci':
+            cible = ceci as ElementJeu;
+            break;
+          case 'cela':
+            cible = cela as ElementJeu;
+        }
+        let resultatCurBalise: string = null;
+        if (cible) {
+          switch (proprieteString) {
+            case 'nom':
+              resultatCurBalise = cible.nom;
+              break;
+            case 'titre':
+              resultatCurBalise = cible.titre;
+              break;
+            case 'intitulé':
+              resultatCurBalise = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
+              break;
+            case 'Intitulé':
+              resultatCurBalise = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
+              break;
+            case 'texte':
+              resultatCurBalise = cible.texte;
+              break;
+            default:
+              const propriete = cible.proprietes.find(x => x.nom == proprieteString);
+              if (propriete) {
+                resultatCurBalise = propriete.valeur;
+              } else {
+                resultatCurBalise = "(propriété « " + proprieteString + " » pas trouvée)";
+              }
+              break;
+          }
+
+        } else {
+          resultatCurBalise = "(" + cibleString + " est null)";
+        }
+        // remplacer la balise par le résultat
+        const xCurBalise = new RegExp("\\[p " + proprieteString + " " + cibleString + "\\]", "g");
+        contenu = contenu.replace(xCurBalise, resultatCurBalise);
+      });
+    }
+
+    // ===================================================
     // CONJUGAISON
     // ===================================================
 
