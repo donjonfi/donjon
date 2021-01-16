@@ -296,30 +296,55 @@ export class Instructions {
       }
     }
 
-    // accord
-    if (contenu.includes("[accord")) {
-      if (contenu.includes("[accord ici]")) {
+    // es ceci | accord ceci (féminin et pluriel)
+    if (contenu.includes("[accord ") || contenu.includes("[es ")) {
+      if (contenu.includes("[accord ici]") || contenu.includes("[es ici]")) {
         const accordIci = (this.eju.curLieu.genre === Genre.f ? "e" : "") + (this.eju.curLieu.nombre === Nombre.p ? "s" : "");
-        contenu = contenu.replace(/\[accord ici\]/g, accordIci);
+        contenu = contenu.replace(/\[(accord|es) ici\]/g, accordIci);
       }
-      if (contenu.includes("[accord ceci]")) {
+      if (contenu.includes("[accord ceci]") || contenu.includes("[es ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
           const accordCeci = ((ceci as ElementJeu).genre === Genre.f ? "e" : "") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[accord ceci\]/g, accordCeci);
+          contenu = contenu.replace(/\[(accord|es) ceci\]/g, accordCeci);
         } else {
           console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
         }
       }
-      if (contenu.includes("[accord cela]")) {
+      if (contenu.includes("[accord cela]") || contenu.includes("[es cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
           const accordCela = ((cela as ElementJeu).genre === Genre.f ? "e" : "") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[accord cela\]/g, accordCela);
+          contenu = contenu.replace(/\[(accord|es) cela\]/g, accordCela);
         } else {
           console.error("interpreterContenuDire: accord cela: cela n'est pas un élément du jeu");
         }
       }
     }
 
+    // s ceci (pluriel)
+    if (contenu.includes("[s ")) {
+      if (contenu.includes("[s ici]")) {
+        const accordIci = (this.eju.curLieu.nombre === Nombre.p ? "s" : "");
+        contenu = contenu.replace(/\[s ici\]/g, accordIci);
+      }
+      if (contenu.includes("[s ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const accordCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[s ceci\]/g, accordCeci);
+        } else {
+          console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
+        }
+      }
+      if (contenu.includes("[s cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const accordCela = ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
+          contenu = contenu.replace(/\[s cela\]/g, accordCela);
+        } else {
+          console.error("interpreterContenuDire: accord cela: cela n'est pas un élément du jeu");
+        }
+      }
+    }
+
+    // l’ ou les
     if (contenu.includes("[l’ ") || contenu.includes("[l' ")) {
       if (contenu.includes("[l’ ceci]") || contenu.includes("[l' ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
@@ -343,42 +368,43 @@ export class Instructions {
     // CONJUGAISON
     // ===================================================
 
-    // - être (s’)
-    if (contenu.includes("[être ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "être", ceci, cela);
+    if (contenu.includes("[v ")) {
+      // - être (s’)
+      if (contenu.includes("[v être ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "être", ceci, cela);
+      }
+      if (contenu.includes("[v s’être ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’être", ceci, cela);
+      }
+      if (contenu.includes("[v s'être ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'être", ceci, cela);
+      }
+      // - avoir
+      if (contenu.includes("[v avoir ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "avoir", ceci, cela);
+      }
+      // - vivre
+      if (contenu.includes("[v vivre ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "vivre", ceci, cela);
+      }
+      // - ouvrir (s’)
+      if (contenu.includes("[v ouvrir ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "ouvrir", ceci, cela);
+      }
+      if (contenu.includes("[v s’ouvrir ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’ouvrir", ceci, cela);
+      }
+      if (contenu.includes("[v s'ouvrir ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'ouvrir", ceci, cela);
+      }
+      // - fermer (se)
+      if (contenu.includes("[v fermer ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "fermer", ceci, cela);
+      }
+      if (contenu.includes("[v se fermer ")) {
+        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "se fermer", ceci, cela);
+      }
     }
-    if (contenu.includes("[s’être ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’être", ceci, cela);
-    }
-    if (contenu.includes("[s'être ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'être", ceci, cela);
-    }
-    // - avoir
-    if (contenu.includes("[avoir ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "avoir", ceci, cela);
-    }
-    // - vivre
-    if (contenu.includes("[vivre ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "vivre", ceci, cela);
-    }
-    // - ouvrir (s’)
-    if (contenu.includes("[ouvrir ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "ouvrir", ceci, cela);
-    }
-    if (contenu.includes("[s’ouvrir ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’ouvrir", ceci, cela);
-    }
-    if (contenu.includes("[s'ouvrir ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'ouvrir", ceci, cela);
-    }
-    // - fermer (se)
-    if (contenu.includes("[fermer ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "fermer", ceci, cela);
-    }
-    if (contenu.includes("[se fermer ")) {
-      contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "se fermer", ceci, cela);
-    }
-
     // ===================================================
     // CONDITIONS
     // ===================================================
@@ -596,6 +622,11 @@ export class Instructions {
           contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "que", ceci, cela);
         });
       }
+      if (contenu.includes(" ni ")) {
+        sujets.forEach(sujet => {
+          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "ni", ceci, cela);
+        });
+      }
     }
     return contenu;
   }
@@ -621,7 +652,7 @@ export class Instructions {
 
   private calculerConjugaison(contenu: string, verbe: string, modeTemps: string, negation: string, sujetStr: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
     // vérifier si cette forme apparaît dans le contenu
-    const expression = `${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujetStr}`;
+    const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujetStr}`;
     if (contenu.includes("[" + expression + "]")) {
       // retrouver et contrôler le sujet
       let sujet: ElementJeu | Intitule = null;
@@ -1548,8 +1579,8 @@ export class Instructions {
           // est => ajouter un état
         } else {
           if (this.verbeux) {
-          console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
-           }
+            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+          }
           this.jeu.etats.ajouterEtatElement(element, instruction.complement1);
         }
 
