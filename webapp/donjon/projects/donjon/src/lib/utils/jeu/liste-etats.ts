@@ -507,6 +507,10 @@ export class ListeEtats {
     if (objet.etats.includes(this.couvertID)) {
       return false;
     }
+     // si inaccessible -> pas accessible
+     if (objet.etats.includes(this.inaccessibleID)) {
+      return false;
+    }
 
     // s’il s’agit d’une PORTE, elle est accessible (car jamais dans un contenant et présente, visible, non couverte)
     if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
