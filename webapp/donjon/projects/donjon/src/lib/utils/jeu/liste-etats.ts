@@ -396,22 +396,22 @@ export class ListeEtats {
   }
 
   /** Est-ce que l'élément possède ces états (et/ou/soit) */
-  possedeCesEtatsElement(element: ElementJeu, nomEtatA: string, nomEtatB: string, lien: LienCondition) {
+  possedeCesEtatsElement(element: ElementJeu, nomEtatA: string, nomEtatB: string, lien: LienCondition, eju: ElementsJeuUtils) {
     let retVal = false;
     const etatA = this.trouverEtat(nomEtatA);
     const etatB = this.trouverEtat(nomEtatB);
     if (etatA && etatB) {
       switch (lien) {
         case LienCondition.et:
-          retVal = (etatA && element.etats.includes(etatA.id)) && (etatB && element.etats.includes(etatB.id));
+          retVal = (this.possedeEtatElement(element, nomEtatA, eju)) && (this.possedeEtatElement(element, nomEtatB, eju));
           break;
 
         case LienCondition.ou:
-          retVal = (etatA && element.etats.includes(etatA.id)) || (etatB && element.etats.includes(etatB.id));
+          retVal = (this.possedeEtatElement(element, nomEtatA, eju)) || (this.possedeEtatElement(element, nomEtatB, eju));
           break;
 
         case LienCondition.soit:
-          retVal = (etatA && element.etats.includes(etatA.id)) !== (etatB && element.etats.includes(etatB.id));
+          retVal = (this.possedeEtatElement(element, nomEtatA, eju)) !== (this.possedeEtatElement(element, nomEtatB, eju));
           break;
 
         default:
