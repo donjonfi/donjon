@@ -258,10 +258,13 @@ export class ConditionsUtils {
             // Ex: aucune sortie vers le nord.
             case 'aucun':
             case 'aucune':
+
+              // console.warn("$$$ condition=", condition);
+
               // remarque: négation appliquée plus loin.
               // A) SORTIE, PORTE
-              if (condition.complement === 'sortie') {
-                console.warn("Test des sorties", condition, sujet);
+              if (condition.sujetComplement.nom === 'sortie') {
+                // console.warn("Test des sorties", condition, sujet);
                 // trouver direction
                 const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
                 if (loc == null) {
@@ -277,11 +280,22 @@ export class ConditionsUtils {
                     const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
                     if (porteID != -1) {
                       const porte = this.eju.getObjet(porteID);
-                      retVal = this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et);
+                      // si on teste « aucune sortie » tout court, il faut que la porte ne soit invisible et fermée pour remplir la condition.
+                      if (!condition.sujetComplement.epithete) {
+                        retVal = this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
+                        // si on test « aucune sortie accessible », il faut que la porte soit fermée pour remplir la condition.
+                      } else if (condition.sujetComplement.epithete == 'accessible') {
+                        retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ferme, this.eju);
+                        // attribut pas pris en charge
+                      } else {
+                        console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
+                        retVal = true; // ???
+                      }
+
                     }
                   }
                 }
-              } else if (condition.complement === 'porte') {
+              } else if (condition.sujetComplement.nom === 'porte') {
                 console.warn("Test des portes", condition, sujet);
                 // trouver direction
                 const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
