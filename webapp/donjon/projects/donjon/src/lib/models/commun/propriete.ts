@@ -1,4 +1,4 @@
-import { TypeValeur } from './type-valeur';
+import { TypeValeur } from '../compilateur/type-valeur';
 
 export class Propriete {
 
