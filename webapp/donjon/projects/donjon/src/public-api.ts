@@ -18,7 +18,7 @@ export * from './lib/models/commun/groupe-nominal';
 export * from './lib/models/commun/nombre.enum';
 
 export * from './lib/models/compilateur/action';
-export * from './lib/models/compilateur/capacite';
+export * from './lib/models/commun/capacite';
 export * from './lib/models/compilateur/condition';
 export * from './lib/models/compilateur/consequence';
 export * from './lib/models/compilateur/definition';
@@ -28,7 +28,7 @@ export * from './lib/models/compilateur/instruction';
 export * from './lib/models/compilateur/monde';
 export * from './lib/models/compilateur/phrase';
 export * from './lib/models/compilateur/position-sujet';
-export * from './lib/models/compilateur/propriete';
+export * from './lib/models/commun/propriete';
 export * from './lib/models/compilateur/reaction';
 export * from './lib/models/compilateur/regle';
 export * from './lib/models/compilateur/resultat-compilation';

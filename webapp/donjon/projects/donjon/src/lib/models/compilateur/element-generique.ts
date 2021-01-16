@@ -1,11 +1,11 @@
-import { Capacite } from './capacite';
+import { Capacite } from '../commun/capacite';
 import { Classe } from '../commun/classe';
 import { ElementDonjon } from './element-donjon';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
-import { Propriete } from './propriete';
+import { Propriete } from '../commun/propriete';
 import { Reaction } from './reaction';
 
 export class ElementGenerique implements ElementDonjon {

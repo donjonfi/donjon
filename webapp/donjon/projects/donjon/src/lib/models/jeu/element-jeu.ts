@@ -1,9 +1,10 @@
-import { Capacite } from '../compilateur/capacite';
+import { Capacite } from '../commun/capacite';
 import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Intitule } from './intitule';
 import { Nombre } from '../commun/nombre.enum';
+import { Propriete } from '../commun/propriete';
 
 export class ElementJeu extends Intitule {
 
@@ -43,7 +44,6 @@ export class ElementJeu extends Intitule {
     super(nom, intitule, classe);
   }
 
-
   public genre: Genre = null;
   /**
    * Nombre de l’élément:
@@ -71,6 +71,9 @@ export class ElementJeu extends Intitule {
   public apercu: string = null;
   /** Texte s’affichant lorsqu’on lit l’objet. */
   public texte: string = null;
+
+  /** Propriétés de l’élément */
+  public proprietes: Propriete[] = [];
 
   /**
    * États actuels de l’élément

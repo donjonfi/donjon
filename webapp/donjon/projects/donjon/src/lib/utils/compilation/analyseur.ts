@@ -1,6 +1,6 @@
 import { Action } from '../../models/compilateur/action';
 import { Aide } from '../../models/commun/aide';
-import { Capacite } from '../../models/compilateur/capacite';
+import { Capacite } from '../../models/commun/capacite';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Condition } from '../../models/compilateur/condition';
 import { Definition } from '../../models/compilateur/definition';
@@ -18,7 +18,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionSujetString } from '../../models/compilateur/position-sujet';
-import { Propriete } from '../../models/compilateur/propriete';
+import { Propriete } from '../../models/commun/propriete';
 import { Reaction } from '../../models/compilateur/reaction';
 import { Regle } from '../../models/compilateur/regle';
 import { StringUtils } from '../commun/string.utils';
