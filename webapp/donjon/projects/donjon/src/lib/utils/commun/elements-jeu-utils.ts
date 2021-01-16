@@ -228,6 +228,9 @@ export class ElementsJeuUtils {
 
   static trouverLocalisation(sujet: GroupeNominal) {
 
+    // console.log("$$$ trouverLocalisation sujet=", sujet);
+
+
     switch (sujet.nom) {
       case 'sud':
         return Localisation.Sud;
@@ -254,9 +257,13 @@ export class ElementsJeuUtils {
         return Localisation.Bas;
 
       case 'exterieur':
+      case 'extérieur':
+      case 'dehors':
         return Localisation.Exterieur;
 
       case 'interieur':
+      case 'intérieur':
+      case 'dedans':
         return Localisation.Interieur;
 
       default:

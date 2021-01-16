@@ -107,15 +107,27 @@ export class PhraseUtils {
         }
       }
     } else if (resConditionAucunPourVers) {
-      // ex: si aucun(1) complément(2) (pour|vers)(3) (le|la|les|...(5) xxx(6) yyy(7))|(ceci|cela)(4)
+      // ex: aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
       // ex sujet: ceci, cela, la/pomme/enchantée
-      const sujet = resConditionAucunPourVers[6] ? (new GroupeNominal(resConditionAucunPourVers[5], resConditionAucunPourVers[6], resConditionAucunPourVers[7] ? resConditionAucunPourVers[7] : null)) : (resConditionAucunPourVers[4] ? new GroupeNominal(null, resConditionAucunPourVers[4], null) : null);
+      const sujet = resConditionAucunPourVers[7] ? (new GroupeNominal(resConditionAucunPourVers[6], resConditionAucunPourVers[7], resConditionAucunPourVers[8] ? resConditionAucunPourVers[8] : null)) : (resConditionAucunPourVers[5] ? new GroupeNominal(null, resConditionAucunPourVers[5], null) : null);
       const verbe = "aucun"; // aucun, aucune (c’est pas un verbe mais bon…)
-      // ex compl: description, aperçu, sortie, porte, ...
-      const compl = resConditionAucunPourVers[2];
+      // ex compl1: description, aperçu, sortie, sortie accessible, porte, ...
+      const compl = resConditionAucunPourVers[2] + (resConditionAucunPourVers[3] ? (" " + resConditionAucunPourVers[3]) : "");
       els = new ElementsPhrase(null, sujet, verbe, null, compl);
+
+      // console.warn("$$$$ els=", els);
+      
+
+      if (els.complement1) {
+        const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
+        // console.warn("$$$$ resCompl=", resCompl);
+        if (resCompl) {
+          els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+          // els.preposition1 = resCompl[1] ? resCompl[1] : null;
+        }
+      }
       // prép: pour, vers
-      els.preposition1 = resConditionAucunPourVers[3];
+      els.preposition1 = resConditionAucunPourVers[4];
     } else if (resConditionLaSortieVers) {
       // ex: [si] la(1) porte(2) vers(3) (ceci|cela|[le] nord(5))(4) [n’]est(6) pas(7) ouverte(8)
       // ex sujets: la/porte vers/ceci, la/sortie vers/nord
@@ -460,7 +472,7 @@ export class PhraseUtils {
             // décomposer le nouveau complément si possible
             const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
             if (resCompl) {
-              els.complement1 = null;
+              // els.complement1 = null;
               els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
               els.preposition1 = resCompl[1] ? resCompl[1] : null;
             }
@@ -472,7 +484,7 @@ export class PhraseUtils {
               els.verbe = null;
               els.negation = null;
               els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
-              els.complement1 = null;
+              // els.complement1 = null;
               els.preposition1 = res1ou2elements[4];
               els.sujetComplement1 = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
             }

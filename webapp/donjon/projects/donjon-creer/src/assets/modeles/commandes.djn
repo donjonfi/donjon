@@ -110,7 +110,7 @@ refuser aller vers ceci:
   si ceci est un lieu, dire "Je ne sais pas me rendre directement dans un lieu mais je peux aller vers une direction. Ex: « nord » pour aller vers le nord";
   si ceci n’est pas une direction, dire "Je peux aller vers une direction. Ex: « nord » pour aler vers le nord.";
   si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
-  si la sortie vers ceci est obstruée, dire "[statut sortie vers ceci]".
+  si aucune sortie accessible vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
 
 exécuter aller vers ceci:
   déplacer le joueur vers ceci.
