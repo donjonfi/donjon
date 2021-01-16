@@ -108,13 +108,17 @@ export class Generateur {
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible);
     jeu.objets.push(inventaire);
-    
+
     // AJOUTER LES LIEUX
     // ******************
     let premierIndexLieu = (indexElementJeu + 1);
     monde.lieux.forEach(curEle => {
 
-      let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      // let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      let titre = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      // mettre majuscule en début d’intitulé (début de Phrase)
+      titre = titre[0].toUpperCase() + titre.slice(1);
+
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
       let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
@@ -146,6 +150,7 @@ export class Generateur {
             break;
         }
       });
+      nouvLieu.proprietes = curEle.proprietes;
       jeu.lieux.push(nouvLieu);
     });
 
@@ -231,6 +236,8 @@ export class Generateur {
               break;
           }
         });
+        newObjet.proprietes = curEle.proprietes;
+
 
         // POSITION de l’élément
         // -- PORTE
