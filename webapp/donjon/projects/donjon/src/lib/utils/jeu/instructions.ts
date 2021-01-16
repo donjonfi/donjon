@@ -181,6 +181,25 @@ export class Instructions {
       }
     }
 
+    if (contenu.includes("[obstacle ")) {
+      if (contenu.includes("[obstacle vers ceci]")) {
+        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+          const obstacleVersCeci = this.afficherObstacle(ceci as Localisation);
+          contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
+        } else {
+          console.error("interpreterContenuDire: statut sortie vers ceci: ceci n'est pas une direction");
+        }
+      }
+      if (contenu.includes("[obstacle vers cela]")) {
+        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
+          const obstacleVersCela = this.afficherObstacle(cela as Localisation);
+          contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
+        } else {
+          console.error("interpreterContenuDire: statut sortie vers cela: cela n'est pas une direction");
+        }
+      }
+    }
+
     // sorties
     if (contenu.includes("[sorties ici]")) {
       const sortiesIci = this.afficherSorties(this.eju.curLieu);
@@ -1529,8 +1548,8 @@ export class Instructions {
           // est => ajouter un état
         } else {
           if (this.verbeux) {
-            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
-          }
+          console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+           }
           this.jeu.etats.ajouterEtatElement(element, instruction.complement1);
         }
 
@@ -1579,11 +1598,34 @@ export class Instructions {
           retVal += " Vous pouvez " + (ouvert ? 'le fermer.' : 'l’ouvrir.');
         }
       }
-
     }
+    return retVal;
+  }
 
-    console.warn("afficherStatut=", retVal);
-
+  /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
+  afficherObstacle(direction: Localisation) {
+    let retVal: string = "(aucun obstacle)";
+    // trouver la porte qui est dans le chemin
+    const porteID = this.eju.getVoisin(direction, EClasseRacine.porte);
+    if (porteID !== -1) {
+      const porte = this.eju.getObjet(porteID);
+      const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
+      // const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
+      // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
+      if (porte.genre == Genre.f) {
+        if (ouvert) {
+          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
+        } else {
+          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermée.";
+        }
+      } else {
+        if (ouvert) {
+          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
+        } else {
+          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermé.";
+        }
+      }
+    }
     return retVal;
   }
 
