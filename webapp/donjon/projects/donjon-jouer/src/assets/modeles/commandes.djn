@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-09-0008
+-- Version: 2021-01-16-0009
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -33,8 +33,8 @@ exécuter afficher ceci:
       {n}  - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
   si ceci est l’inventaire:
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]";
-  si ceci est les sorties:
-    dire "[sorties]".
+  si ceci est les sorties ou la sortie:
+    dire "[sorties ici]".
     
 terminer afficher ceci:
   si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
@@ -97,6 +97,43 @@ L'aide pour l'action effacer est "{*Effacer*}
   > {-effacer {/l’écran/}-}
   {+raccourci+} : {-ef-}".
 
+
+CHAPITRE "aller".
+SCÈNE "aller".
+-- =========
+--   ALLER
+-- =========
+-- a) aller vers
+aller vers ceci est une action qui concerne un intitulé.
+
+refuser aller vers ceci:
+  si ceci est un lieu, dire "Je ne sais pas me rendre directement dans un lieu mais je peux aller vers une direction. Ex: « nord » pour aller vers le nord";
+  si ceci n’est pas une direction, dire "Je peux aller vers une direction. Ex: « nord » pour aller vers le nord.";
+  si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
+  si aucune sortie accessible vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
+
+exécuter aller vers ceci:
+  déplacer le joueur vers ceci.
+
+terminer aller vers ceci:
+  dire "{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  dire "{n}{n}[sorties ici]".
+
+L'aide pour l'action aller est "{*Aller*}
+  Permet de d’aller vers la direction indiquée.
+  {+exemples+} :
+  > {-aller vers {/le nord/}-}
+  > {-sud-}
+  > {-monter-}
+  > {-entrer-}
+  {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
+
+ouvrir ceci avec cela est une action qui concerne un objet visible et un objet visible.
+
+terminer ouvrir ceci avec cela:
+  dire "Ça n'a pas fonctionné.".
+
 CHAPITRE "ouvrir et fermer".
 SCÈNE "ouvrir".
 -- ==========
@@ -107,15 +144,15 @@ ouvrir ceci est une action qui concerne un objet visible.
 
 refuser ouvrir ceci:
   si ceci est le joueur, dire "Pardon ?";
-  si ceci n'est pas ouvrable, dire "[Pronom ceci] [s’ouvrir ipr pas ceci].";
-  si ceci est verrouillé, dire "[Pronom ceci] [être ipr ceci] verrouillé[accord ceci].".
+  si ceci n'est pas ouvrable, dire "[Pronom ceci] [v s’ouvrir ipr pas ceci].";
+  si ceci est verrouillé, dire "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
   
 exécuter ouvrir ceci:
   changer ceci est ouvert;
   changer ceci n’est plus intact.
 
 terminer ouvrir ceci:
-  dire "[Pronom ceci] [être ipr ceci] ouvert[accord ceci].";
+  dire "[Pronom ceci] [v être ipr ceci] ouvert[es ceci].";
   si ceci est un contenant, dire "[contenu ceci]".
 
 L'aide pour l'action ouvrir est "{*Ouvrir*}
@@ -151,15 +188,15 @@ fermer ceci est une action qui concerne un objet visible.
 
 refuser fermer ceci:
   si ceci est le joueur, dire "Pardon ?";
-  si ceci n'est pas ouvrable, dire "[Pronom ceci] [se fermer ipr pas ceci].";
-  si ceci est verrouillé, dire "[Pronom ceci] [être ipr ceci] verrouillé[accord ceci].".
+  si ceci n'est pas ouvrable, dire "[Pronom ceci] [v se fermer ipr pas ceci].";
+  si ceci est verrouillé, dire "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
   
 exécuter fermer ceci:
   changer ceci est fermé;
   changer ceci n’est plus intact.
 
 terminer fermer ceci:
-  dire "[Pronom ceci] [être ipr ceci] fermé[accord ceci].".
+  dire "[Pronom ceci] [v être ipr ceci] fermé[es ceci].".
   
 L'aide pour l'action fermer est "{*Fermer*}
   Permet de fermer un objet, une porte, une trappe, ...
@@ -389,7 +426,10 @@ terminer regarder:
   dire "{n}{n}[sorties ici]".
   
 -- b) regarder ceci
-regarder ceci est une action qui concerne un élément visible.
+regarder ceci est une action qui concerne un élément.
+
+refuser regarder ceci:
+  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.".
 
 terminer regarder ceci:
   si ceci est un objet:
@@ -402,14 +442,16 @@ terminer regarder ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire:
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support:
+  si ceci n'est ni un contenant ni un support ni l’inventaire:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
     dire "{_{*[titre ici]*}_}",
     dire "{n}[description ici][contenu ici]",
-    dire "{n}{n}[sorties ici]".
+    dire "{n}{n}[sorties ici]";
+  si ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
   
 L'aide pour l'action regarder est "{*Regarder*}
   Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
@@ -427,9 +469,10 @@ le joueur peut examiner:
   dire "(Si vous souhaitez examiner quelque chose, il faut préciser quoi.)".
 
 -- b) examiner ceci
-examiner ceci est une action qui concerne un élément visible.
+examiner ceci est une action qui concerne un élément.
 
 refuser examiner ceci:
+  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.";
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] ait envie de jouer au docteur.".
 
 terminer examiner ceci:
@@ -445,15 +488,17 @@ terminer examiner ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire:
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support:
+  si ceci n'est ni un contenant ni un support ni l’inventaire:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
     dire "{_{*[titre ici]*}_}",
     dire "{n}[description ici][contenu ici]",
-    dire "{n}{n}[sorties ici]".
-    
+    dire "{n}{n}[sorties ici]";
+  si ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
+
 interpréter fouiller comme examiner.
 
 L'aide pour l'action examiner est "{*Examiner*}
@@ -482,15 +527,15 @@ refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
   si ceci est le joueur, dire "Pardon ?";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
-  si ceci n'est pas accessible, dire "Je ne sais pas y accéder.";
+  si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
-  si ceci est fixé, dire "[Pronom ceci] [être ipr ceci] fixé[accord ceci].".
+  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
 
 exécuter prendre ceci:
   déplacer ceci vers joueur.
   
 terminer prendre ceci:
-  dire "[Intitulé ceci] [être ipac ceci] ajouté[accord ceci] à votre inventaire.".
+  dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.".
 
 L'aide pour l'action prendre est "{*Prendre*}
   Permet de prendre un objet accessible pour le mettre dans votre inventaire.
@@ -543,7 +588,7 @@ le joueur peut jeter:
 jeter ceci est une action qui concerne un objet visible.
 
 refuser jeter ceci:
-  si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
   si ceci est un vivant, dire "Je suis contre la violence.".
   
@@ -551,7 +596,7 @@ exécuter jeter ceci:
   déplacer ceci vers ici.
   
 terminer jeter ceci:
-  dire "Je [l' ceci]ai jeté[accord ceci].".
+  dire "Je [l' ceci]ai jeté[es ceci].".
 
 L'aide pour l'action jeter est "{*Jeter*}
   Permet de jeter un objet que vous possédez sur le sol.
@@ -563,7 +608,7 @@ L'aide pour l'action jeter est "{*Jeter*}
 jeter ceci vers cela est une action qui concerne deux objets visibles.
 
 refuser jeter ceci vers cela:
-  si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
   si cela est un vivant, dire "Je suis contre la violence.".
   
@@ -574,7 +619,7 @@ exécuter jeter ceci vers cela:
     déplacer ceci vers ici.
   
 terminer jeter ceci vers cela:
-  dire "Je [l' ceci]ai jeté[accord ceci].".
+  dire "Je [l' ceci]ai jeté[es ceci].".
 
 L'aide pour l'action jeter est "{*Jeter*}
   Permet de jeter un objet que vous possédez sur le sol.
@@ -593,7 +638,7 @@ SCÈNE "mettre".
 mettre ceci est une action qui concerne un objet visible.
 
 refuser mettre ceci:
-  si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
+  si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est le joueur, dire "Vous avez de drôles d'idées.";
   si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.".
 
@@ -607,10 +652,10 @@ terminer mettre ceci:
 mettre ceci dans cela est une action qui concerne deux objets visibles.
 
 refuser mettre ceci dans cela:
-  si ceci n'est pas accessible, dire "[intitulé ceci] n’est pas accessible.";
-  si cela n'est pas accessible, dire "[intitulé cela] n’est pas accessible.";
-  si cela n'est ni un support ni un contenant ni vivant, dire "[intitulé cela] n’est ni un contenant ni un support ni le joueur.";
-  si cela est fermé, dire "[intitulé cela] est fermé[accord cela].".
+  si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
+  si cela n'est pas accessible, dire "[Intitulé cela] [v être ipr pas cela] accessible[s cela].";
+  si cela n'est ni un support ni un contenant ni vivant, dire "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.";
+  si cela est fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
 
 exécuter mettre ceci dans cela:
   si cela est un support ou un contenant:
@@ -650,7 +695,7 @@ enlever ceci est une action qui concerne un objet visible.
 refuser enlever ceci:
   si ceci est portable mais pas porté, dire "Vous ne portez pas [intitulé ceci].";
   si ceci est le joueur, dire "Vous organisez votre enlèvement... et votre sauvetage.";
-  si ceci est fixé, dire "[Pronom ceci] [être ipr ceci] fixé[accord ceci].".
+  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
 
 exécuter enlever ceci:
   changer le joueur ne porte plus ceci.
@@ -672,7 +717,7 @@ déplacer ceci est une action qui concerne un objet visible.
 refuser déplacer ceci:
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
   si ceci est le joueur, dire "La commande {-aller-} devrait vous convenir.";
-  si ceci est fixé, dire "[Pronom ceci] [être ipr ceci] fixé[accord ceci].".
+  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
   
 exécuter déplacer ceci:
   changer ceci est déplacé.
@@ -733,7 +778,7 @@ exécuter toucher ceci:
   changer ceci n’est plus intact.
 
 terminer toucher ceci:
-  dire "Je [l’ ceci]ai touché[accord ceci].".
+  dire "Je [l’ ceci]ai touché[es ceci].".
 
 interpréter pincer comme toucher.
 
@@ -752,7 +797,7 @@ exécuter secouer ceci:
   changer ceci n’est plus intact.
 
 terminer secouer ceci:
-  dire "Je [l’ ceci]ai secoué[accord ceci].".
+  dire "Je [l’ ceci]ai secoué[es ceci].".
 
 SCÈNE "casser".
 -- ===========
@@ -792,9 +837,10 @@ SCÈNE "manger".
 -- ===========
 --   MANGER
 -- ===========
-manger ceci est une action qui concerne un objet visible.
+manger ceci est une action qui concerne un élément visible.
 
 refuser manger ceci:
+  si ceci est un lieu, dire "Ça ne se mange pas voyons !";
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
   si ceci est un vivant mais pas mangeable, dire "Vous avez de drôles d’idées.";
   si ceci n’est pas mangeable, dire "Ça ne se mange pas voyons !".
@@ -803,7 +849,7 @@ exécuter manger ceci:
   changer effacer ceci.
 
 terminer manger ceci:
-  dire "Je [l’ ceci]ai mangé[accord ceci]. Maintenant je ne [l’ ceci]ai plus.".
+  dire "Je [l’ ceci]ai mangé[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
 
 interpréter engloutir comme manger.
 
@@ -811,9 +857,10 @@ SCÈNE "boire".
 -- ===========
 --   BOIRE
 -- ===========
-boire ceci est une action qui concerne un objet visible.
+boire ceci est une action qui concerne un élément visible.
 
 refuser boire ceci:
+  si ceci est un lieu, dire "Ça ne se mange pas voyons !";
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
   si ceci est un vivant mais pas buvable, dire "Vous avez de drôles d’idées.";
   si ceci n’est pas buvable, dire "Ça ne se boit pas voyons !".
@@ -822,7 +869,7 @@ exécuter boire ceci:
   changer effacer ceci.
 
 terminer boire ceci:
-  dire "Je [l’ ceci]ai bu[accord ceci]. Maintenant je ne [l’ ceci]ai plus.".
+  dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
 
 
 CHAPITRE "frapper, tuer, assommer".
@@ -846,7 +893,7 @@ SCÈNE "tuer".
 tuer ceci est une action qui concerne un objet visible.
 
 refuser tuer ceci:
-  si ceci n’est pas un vivant, dire "[Pronom ceci] [vivre ipr pas ceci].";
+  si ceci n’est pas un vivant, dire "[Pronom ceci] [v vivre ipr pas ceci].";
   si ceci est le joueur, dire "Ça ne va pas ?".
   
 terminer tuer ceci:
@@ -886,7 +933,7 @@ assommer ceci est une action qui concerne un objet visible.
 
 refuser assommer ceci:
   si ceci est le joueur, dire "Il doit y a voir un autre moyen de résoudre votre problème.";
-  si ceci n’est pas un vivant, dire "[Pronom ceci] [vivre ipr pas ceci].".
+  si ceci n’est pas un vivant, dire "[Pronom ceci] [v vivre ipr pas ceci].".
 
 terminer assommer ceci:
   dire "Je suis contre la violence.".
