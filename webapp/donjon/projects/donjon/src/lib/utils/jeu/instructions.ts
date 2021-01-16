@@ -1,11 +1,11 @@
 import { ConditionDebutee, StatutCondition, xFois } from '../../models/jouer/statut-conditions';
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { Conjugaison } from './conjugaison';
-import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
@@ -760,11 +760,23 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        // déplacer sujet vers direction
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+          console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
+          const voisinID = this.eju.getVoisin((ceci as Localisation), EClasseRacine.lieu);
+          if (voisinID != -1) {
+            const voisin = this.eju.getLieu(voisinID);
+            sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, voisin.intitule, null, null);
+            resultat.succes = sousResultat.succes;
+          } else {
+            resultat.succes = false;
+          }
+        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+          console.error("Exécuter infinitif: déplacer sujet vers objet. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
           sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
           resultat.succes = sousResultat.succes;
         } else {
-          console.error("Exécuter infinitif: On ne peut pas déplacer un intitulé.");
+          console.error("Exécuter infinitif: On peut déplacer soit vers un objet, soit vers une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
           resultat.succes = false;
         }
         break;

@@ -142,10 +142,20 @@ export class ElementsJeuUtils {
     }
   }
 
+  /**
+   * Récupérer un lieu sur base de son ID.
+   * Retourne null si pas trouvé.
+   * @param id 
+   */
   getLieu(id: number) {
     return this.jeu.lieux.find(x => x.id === id);
   }
 
+  /**
+   * Récupérer l’ID du voisin dans la direction indiquée. (Retourne -1 si pas trouvé)
+   * @param loc 
+   * @param type 
+   */
   getVoisin(loc: Localisation, type: EClasseRacine) {
     let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);
     return found ? found.id : -1;
