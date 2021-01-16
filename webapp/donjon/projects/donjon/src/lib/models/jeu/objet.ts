@@ -28,7 +28,4 @@ export class Objet extends ElementJeu {
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
   position: PositionObjet = null;
 
-  /** Ils s’agit des autres noms que le joueur peut donner à cet objet. */
-  synonymes: GroupeNominal[] = null;
-
 }

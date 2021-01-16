@@ -278,10 +278,9 @@ export class ElementsJeuUtils {
     // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
     if (objetsTrouves.length === 0 || !prioriteObjetsPresents) {
       const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
-      // console.warn("objetsNonPresents=", objetsNonPresents);
+      // console.warn("objetsNonPresents=", objetsNonPresents, "\nsujetNom=", sujetNom, "\nsujetEpithete=", sujetEpithete, "\nnombre=", nombre);
       objetsTrouves = objetsTrouves.concat(this.suiteTrouverObjet(objetsNonPresents, sujetNom, sujetEpithete, nombre));
       // console.warn("objetsTrouves=", objetsTrouves);
-
     }
 
     return objetsTrouves;
@@ -358,6 +357,12 @@ export class ElementsJeuUtils {
   public verifierContientObjet(ceci: ElementJeu): boolean {
     console.warn("verifierContientObjet: ceci=", ceci);
     let retVal = false;
+
+    // si on vérifier le contenu de l’inventaire, on veut en réaliter vérifier le contenu du joueur
+    if (ceci.nom === 'inventaire') {
+      ceci = this.jeu.joueur;
+    }
+
     if (ceci) {
       let els: Objet[] = null;
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {

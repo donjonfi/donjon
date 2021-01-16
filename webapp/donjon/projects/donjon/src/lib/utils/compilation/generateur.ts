@@ -51,8 +51,8 @@ export class Generateur {
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
     joueur.synonymes = [
-      new GroupeNominal("", "moi", null),
-      new GroupeNominal("l’", "inventaire", null)
+      new GroupeNominal("", "moi", null)
+      // new GroupeNominal("l’", "inventaire", null)
     ];
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
@@ -101,6 +101,14 @@ export class Generateur {
       jeu.licenceLien = licenceDansMonde.proprietes.find(x => x.nom === "lien")?.valeur;
     }
 
+    // INVENTAIRE
+    // **********
+    // (on l’ajoute pour pouvoir interragir avec)
+    let inventaire = new Objet(++indexElementJeu, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
+    inventaire.intituleS = inventaire.intitule;
+    jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible);
+    jeu.objets.push(inventaire);
+    
     // AJOUTER LES LIEUX
     // ******************
     let premierIndexLieu = (indexElementJeu + 1);

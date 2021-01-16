@@ -147,21 +147,21 @@ export class OutilsCommandes {
     }
   }
 
-  afficherInventaire() {
-    let retVal: string;
-    const objets = this.jeu.objets.filter(x => x.position.cibleType == EClasseRacine.objet && x.position.cibleId === this.jeu.joueur.id && x.quantite !== 0);
-    if (objets.length == 0) {
-      retVal = "\nVotre inventaire est vide.";
-    } else {
-      retVal = "\nContenu de l'inventaire :";
-      objets.forEach(o => {
-        if (o.quantite > 0) {
-          retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
-        }
-      });
-    }
-    return retVal;
-  }
+  // afficherInventaire() {
+  //   let retVal: string;
+  //   const objets = this.jeu.objets.filter(x => x.position.cibleType == EClasseRacine.objet && x.position.cibleId === this.jeu.joueur.id && x.quantite !== 0);
+  //   if (objets.length == 0) {
+  //     retVal = "\nVotre inventaire est vide.";
+  //   } else {
+  //     retVal = "\nContenu de l'inventaire :";
+  //     objets.forEach(o => {
+  //       if (o.quantite > 0) {
+  //         retVal += "\n - " + OutilsCommandes.afficherQuantiteIntitule(o, false, null);
+  //       }
+  //     });
+  //   }
+  //   return retVal;
+  // }
 
   afficherIntitule(intitule: GroupeNominal) {
     let retVal = "";

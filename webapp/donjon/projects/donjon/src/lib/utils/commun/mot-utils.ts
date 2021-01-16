@@ -121,6 +121,7 @@ export class MotUtils {
         case "le":
         case "la":
         case "l'":
+        case "l’":
         case "1":
         case "un":
         case "une":
@@ -135,6 +136,7 @@ export class MotUtils {
         case "du":
         case "de la":
         case "de l'":
+        case "de l’":
           retVal = Nombre.i;
           break;
 

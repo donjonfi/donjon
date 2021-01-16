@@ -3,7 +3,6 @@ import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Intitule } from './intitule';
-import { Inventaire } from './inventaire';
 import { Nombre } from '../commun/nombre.enum';
 
 export class ElementJeu extends Intitule {
@@ -105,5 +104,8 @@ export class ElementJeu extends Intitule {
   // decrit = false;
   /** L’ojbet a-t-il déjà été vu par le joueur. */
   // vu = false;
+
+  /** Ils s’agit des autres noms que le joueur peut donner à cet élément du jeu. */
+  synonymes: GroupeNominal[] = null;
 
 }

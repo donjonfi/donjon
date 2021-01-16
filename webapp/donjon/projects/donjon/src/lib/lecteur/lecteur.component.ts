@@ -360,9 +360,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         //   retVal = this.com.sorties();
         //   break;
 
-        case "position":
-          retVal = this.com.ouSuisJe();
-          break;
+        // case "position":
+        //   retVal = this.com.ouSuisJe();
+        //   break;
 
         default:
           const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);

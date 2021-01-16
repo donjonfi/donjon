@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-09-0008
+-- Version: 2021-01-16-0009
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -33,8 +33,8 @@ exécuter afficher ceci:
       {n}  - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
   si ceci est l’inventaire:
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]";
-  si ceci est les sorties:
-    dire "[sorties]".
+  si ceci est les sorties ou la sortie:
+    dire "[sorties ici]".
     
 terminer afficher ceci:
   si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
@@ -107,7 +107,7 @@ SCÈNE "aller".
 aller vers ceci est une action qui concerne un intitulé.
 
 refuser aller vers ceci:
-  si ceci est un lieu, dire "Je peux aller version une direction. Ex: « nord » pour aller vers le nord";
+  si ceci est un lieu, dire "Je ne sais pas me rendre directement dans un lieu mais je peux aller vers une direction. Ex: « nord » pour aller vers le nord";
   si ceci n’est pas une direction, dire "Je peux aller vers une direction. Ex: « nord » pour aler vers le nord.";
   si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
   si la sortie vers ceci est obstruée, dire "[statut sortie vers ceci]".
@@ -426,7 +426,10 @@ terminer regarder:
   dire "{n}{n}[sorties ici]".
   
 -- b) regarder ceci
-regarder ceci est une action qui concerne un élément visible.
+regarder ceci est une action qui concerne un élément.
+
+refuser regarder ceci:
+  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.".
 
 terminer regarder ceci:
   si ceci est un objet:
@@ -439,14 +442,16 @@ terminer regarder ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire:
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support:
+  si ceci n'est ni un contenant ni un support ni l’inventaire:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
     dire "{_{*[titre ici]*}_}",
     dire "{n}[description ici][contenu ici]",
-    dire "{n}{n}[sorties ici]".
+    dire "{n}{n}[sorties ici]";
+  si ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
   
 L'aide pour l'action regarder est "{*Regarder*}
   Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
@@ -464,9 +469,10 @@ le joueur peut examiner:
   dire "(Si vous souhaitez examiner quelque chose, il faut préciser quoi.)".
 
 -- b) examiner ceci
-examiner ceci est une action qui concerne un élément visible.
+examiner ceci est une action qui concerne un élément.
 
 refuser examiner ceci:
+  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.";
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] ait envie de jouer au docteur.".
 
 terminer examiner ceci:
@@ -482,15 +488,17 @@ terminer examiner ceci:
     dire "[contenu ceci]";
   si ceci est un support:
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire:
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support:
+  si ceci n'est ni un contenant ni un support ni l’inventaire:
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
     dire "{_{*[titre ici]*}_}",
     dire "{n}[description ici][contenu ici]",
-    dire "{n}{n}[sorties ici]".
-    
+    dire "{n}{n}[sorties ici]";
+  si ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
+
 interpréter fouiller comme examiner.
 
 L'aide pour l'action examiner est "{*Examiner*}

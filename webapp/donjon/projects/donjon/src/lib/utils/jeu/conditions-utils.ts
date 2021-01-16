@@ -31,7 +31,7 @@ export class ConditionsUtils {
   private verifierConditionElementJeuEst(cond: Condition, sujet: ElementJeu) {
     let resultCondition: boolean = null;
 
-    console.warn("@@@   cond:", cond);
+    // console.warn("@@@   cond:", cond);
 
 
     if (!cond.sujetComplement || !cond.sujetComplement.determinant) {
@@ -46,7 +46,7 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
-          console.log("@@@@", sujet.classe, cond.sujetComplement.nom);
+          // console.log("@@@@", sujet.classe, cond.sujetComplement.nom);
           resultCondition = ClasseUtils.heriteDe(sujet.classe, cond.sujetComplement.nom);
           // console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
@@ -56,7 +56,16 @@ export class ConditionsUtils {
         case "l’":
         case "l'":
         case "les ":
-          resultCondition = (sujet.intitule.nom === cond.sujetComplement.nom);
+          // console.log("cond est sujet=", sujet, "compl=", cond.sujetComplement);
+          resultCondition = (sujet.intitule.nom === cond.sujetComplement.nom) && (sujet.intitule.epithete === cond.sujetComplement.epithete);
+          // si le complément est un groupe nominal, vérifier également les synonymes du sujet
+          if (!resultCondition && sujet.synonymes?.length) {
+            sujet.synonymes.forEach(syn => {
+              if (!resultCondition && (syn.nom === cond.sujetComplement.nom) && (syn.epithete === cond.sujetComplement.epithete)) {
+                resultCondition = true;
+              }
+            });
+          }
           break;
 
         default:
