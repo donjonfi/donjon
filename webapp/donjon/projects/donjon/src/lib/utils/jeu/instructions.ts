@@ -1230,12 +1230,22 @@ export class Instructions {
         break;
     }
 
+    // trouver la destination
     switch (complement.nom) {
-      case 'cela':
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          destination = cela as Objet;
+
+      case 'ceci':
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          destination = ceci as ElementJeu;
         } else {
-          console.error("Déplacer vers cela: cela n'est pas un objet.");
+          console.error("Déplacer vers ceci: ceci n'est pas un élément du jeu.");
+        }
+        break;
+
+      case 'cela':
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          destination = cela as ElementJeu;
+        } else {
+          console.error("Déplacer vers cela: cela n'est pas un élément du jeu.");
         }
         break;
 
@@ -1565,14 +1575,14 @@ export class Instructions {
     switch (instruction.verbe.toLowerCase()) {
       // DÉPLACER LE JOUEUR
       case 'se trouve':
-        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1);
+        resultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
         break;
 
       // AJOUTER UN OBJET A L'INVENTAIRE
       case 'possède':
         // Objet classique
         if (instruction.sujetComplement1) {
-          resultat = this.executerDeplacer(instruction.sujetComplement1, "vers", instruction.sujet);
+          resultat = this.executerDeplacer(instruction.sujetComplement1, "vers", instruction.sujet, ceci as Objet, cela);
           // Instruction spécifique
         } else if (instruction.complement1) {
           let objets: Objet[] = null;
