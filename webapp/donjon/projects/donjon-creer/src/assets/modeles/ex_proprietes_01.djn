@@ -1,0 +1,19 @@
+Le titre du jeu est "Ex − Propriétés 01".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+La place est un lieu.
+L’étale est un support sur la place.
+L’épée est un objet portable sur l’étale.
+Sa description est "Il s’agit d’une épée en bronze.".
+Son prix vaut 45.
+Sa couleur est "bronze".
+ 
+Le bouclier est un objet portable sur l’étale.
+Sa description est "Il s’agit d’un petit bouclier en bois.".
+La couleur du bouclier est "brun".
+
+après examiner l’épée ou examiner le bouclier:
+  dire "[p description ceci]{n}";
+  dire "« [Intitulé ceci] [si aucun prix pour ceci]n’a pas de prix ! Il n’est pas à vendre.[sinon] est à vous pour seulement [p prix ceci] pièces ![fin si] Le [p couleur ceci] vous vas à ravir ! »".
