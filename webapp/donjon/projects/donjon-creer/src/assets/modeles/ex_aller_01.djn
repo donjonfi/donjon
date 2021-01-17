@@ -1,0 +1,21 @@
+Le titre du jeu est "Ex − Aller 01".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+La cuisine est un lieu. "Vous êtes dans votre cuisine. Elle est toute propre.".
+La salon est un lieu. "Vous êtes dans votre salon. Il fait bien chaud.".
+La chambre est un lieu. "Vous êtes dans votre chambre. Elle est bien rangée.".
+
+avant aller vers la cuisine, aller vers le salon ou aller vers la chambre:
+  dire "{/Vous disparaissez de [titre ici]… et vous apparaissez dans [intitulé ceci] !/}{n}";
+  changer le joueur se trouve dans ceci;
+  dire "{n}{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  stopper l’action.
+  
+avant commencer le jeu:
+  dire "En tant que magicien, vous pouvez aller dans la chambre, la cuisine ou le salon juste comme ça !{n}";
+  dire "{n}{_{*[titre ici]*}_}";
+  dire "{n}[description ici][contenu ici]";
+  stopper l’action.
