@@ -177,7 +177,10 @@ export class ConditionsUtils {
         let sujet: ElementJeu | Intitule = null;
 
         if (condition.sujet) {
-          if (condition.sujet.nom === 'ceci') {
+          if (condition.sujet.nom === 'ici') {
+            sujet = this.eju.curLieu;
+          }
+          else if (condition.sujet.nom === 'ceci') {
             sujet = ceci;
             if (!ceci) {
               console.warn("siEstVrai: le « ceci » de la condition est null.");
@@ -322,7 +325,16 @@ export class ConditionsUtils {
               } else if (condition.complement === 'texte') {
                 retVal = (!(sujet as ElementJeu).texte);
               } else {
-                console.error("siEstVrai > condition « aucun » pas encore gérée pour le complément ", condition.complement);
+                // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra true
+                retVal = true;
+                // parcourir les propriétés
+                (sujet as ElementJeu).proprietes.forEach(propriete => {
+                  // si on a trouvé la propriété et qu’elle a une valeur
+                  if (propriete.nom.toLocaleLowerCase() === condition.complement.toLowerCase() && propriete.valeur) {
+                    // on a trouvé la propriété et celle-ci a une valeur
+                    retVal = false;
+                  }
+                });
               }
               break;
 
