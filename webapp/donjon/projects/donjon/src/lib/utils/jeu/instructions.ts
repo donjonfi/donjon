@@ -86,27 +86,27 @@ export class Instructions {
     }
 
     // Aperçu (d’un objet)
-    if (contenu.includes("[aperçu")) {
-      if (contenu.includes("[aperçu ceci]")) {
+    if (contenu.includes("[aperçu") || contenu.includes("[apercu")) {
+      if (contenu.includes("[aperçu ceci]") || contenu.includes("[apercu ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           const objCeci = ceci as Objet;
           const apercuCeci = this.calculerDescription(objCeci.apercu, ++objCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
-          contenu = contenu.replace(/\[aperçu ceci\]/g, apercuCeci);
+          contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
         } else {
           console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un objet");
         }
       }
-      if (contenu.includes("[aperçu cela]")) {
+      if (contenu.includes("[aperçu cela]") || contenu.includes("[apercu cela]")) {
         if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
           const objCela = cela as Objet;
           const apercuCela = this.calculerDescription(objCela.apercu, ++objCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
-          contenu = contenu.replace(/\[aperçu cela\]/g, apercuCela);
+          contenu = contenu.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
         } else {
           console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un objet");
         }
       }
     }
-
+    
     // Texte (d’un objet)
     if (contenu.includes("[texte")) {
       if (contenu.includes("[texte ceci]")) {

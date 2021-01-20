@@ -320,6 +320,7 @@ export class ConditionsUtils {
               else if (condition.complement === 'description') {
                 retVal = (!(sujet as ElementJeu).description);
               } else if (condition.complement === 'aperçu') {
+              } else if (condition.complement === 'apercu') {
                 retVal = (!(sujet as ElementJeu).apercu);
               } else if (condition.complement === 'texte') {
                 retVal = (!(sujet as ElementJeu).texte);

@@ -222,6 +222,7 @@ export class Generateur {
               newObjet.description = pro.valeur;
               break;
             case 'aperçu':
+            case 'apercu':
               newObjet.apercu = pro.valeur;
               break;
             case 'texte':
@@ -433,7 +434,7 @@ export class Generateur {
       case "à l’extérieur":
         retVal = ELocalisation.exterieur;
         break;
-      case "à l'itérieur":
+      case "à l'intérieur":
       case "à l’intérieur":
         retVal = ELocalisation.interieur;
         break;
