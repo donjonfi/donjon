@@ -875,7 +875,7 @@ export class Instructions {
       case 'déplacer':
         // déplacer sujet vers direction
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-          console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
+          // console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
           const voisinID = this.eju.getVoisin((ceci as Localisation), EClasseRacine.lieu);
           if (voisinID != -1) {
             const voisin = this.eju.getLieu(voisinID);
@@ -885,11 +885,11 @@ export class Instructions {
             resultat.succes = false;
           }
         } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          console.error("Exécuter infinitif: déplacer sujet vers objet. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
+          // console.error("Exécuter infinitif: déplacer sujet vers objet. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
           sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
           resultat.succes = sousResultat.succes;
         } else {
-          console.error("Exécuter infinitif: On peut déplacer soit vers un objet, soit vers une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
+          // console.error("Exécuter infinitif: On peut déplacer soit vers un objet, soit vers une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
           resultat.succes = false;
         }
         break;

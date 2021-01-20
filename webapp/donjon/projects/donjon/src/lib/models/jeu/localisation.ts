@@ -44,8 +44,8 @@ export class Localisation extends Intitule {
 
     public static readonly Nord = new Localisation(ELocalisation.nord, "le ", "nord");
     public static readonly Sud = new Localisation(ELocalisation.sud, "le ", "sud");
-    public static readonly Est = new Localisation(ELocalisation.nord, "l'", "est");
-    public static readonly Ouest = new Localisation(ELocalisation.nord, "l'", "ouest");
+    public static readonly Est = new Localisation(ELocalisation.est, "l'", "est");
+    public static readonly Ouest = new Localisation(ELocalisation.ouest, "l'", "ouest");
     public static readonly Haut = new Localisation(ELocalisation.haut, "le ", "haut");
     public static readonly Bas = new Localisation(ELocalisation.bas, "le ", "bas");
     public static readonly Interieur = new Localisation(ELocalisation.interieur, "l'", "intérieur");
