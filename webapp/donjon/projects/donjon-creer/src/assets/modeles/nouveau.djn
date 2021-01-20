@@ -1,20 +1,19 @@
-PARTIE "Informations sur le jeu".
-
+-- "Informations sur le jeu".
 Le titre du jeu est "Nouveau jeu".
-L’auteur du jeu est "Anonyme"
-
-PARTIE "Description du monde".
+L’auteur du jeu est "Anonyme".
 
 -- LE SALON
-Le salon est un lieu. "Vous êtes dans un salon.".
+Le salon est un lieu.
+Sa description est "Vous êtes dans un salon.".
+
 La table basse est un support dans le salon.
-"Il s'agit d'une table basse en bois clair.".
+Sa description est "Il s'agit d'une table basse en bois clair.".
+
 Le magazine est un objet sur la table.
 Sa description est "Il s'agit des programmes TV de la semaine dernière.".
+Le texte du magazine est "Ils repassent un film de Noël ce soir.".
 Interpréter la revue, l'hebdomadaire et le livre comme le magazine.
-Le joueur peut lire le magazine: dire "Ils repassent un film de Noël ce soir.".
 
-PARTIE "Règles".
-
+-- Règles
 avant commencer le jeu:
   changer le joueur se trouve dans le salon.
