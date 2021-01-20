@@ -9,7 +9,12 @@ Sa description est "Vous êtes dans un salon.".
 La table basse est un support dans le salon.
 Sa description est "Il s'agit d'une table basse en bois clair.".
 
-Le magazine est un objet sur la table.
+La pomme est un objet mangeable sur la table.
+Sa description est "Vous avez envie de croquer dedans.".
+interpréter croquer comme manger.
+
+Le magazine est un objet dans le salon.
+Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]"
 Sa description est "Il s'agit des programmes TV de la semaine dernière.".
 Le texte du magazine est "Ils repassent un film de Noël ce soir.".
 Interpréter la revue, l'hebdomadaire et le livre comme le magazine.
