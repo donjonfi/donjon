@@ -1816,16 +1816,8 @@ export class Instructions {
    */
   private trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): Objet {
     let objetCible: Objet = null;
-    // retrouver OBJET CLASSIQUE
-    if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule, false);
-      if (objetsTrouves.length == 1) {
-        objetCible = objetsTrouves[0];
-      } else {
-        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
-      }
-      // retrouver OBJET SPÉCIAL
-    } else if (brute === 'ceci') {
+    // retrouver OBJET SPÉCIAL
+    if (brute === 'ceci') {
       if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
         objetCible = ceci as Objet;
       } else {
@@ -1836,6 +1828,14 @@ export class Instructions {
         objetCible = cela as Objet;
       } else {
         console.error("Instructions > trouverObjetCible > cela n’est pas un objet.");
+      }
+      // retrouver OBJET CLASSIQUE
+    } else if (intitule) {
+      const objetsTrouves = this.eju.trouverObjet(intitule, false);
+      if (objetsTrouves.length == 1) {
+        objetCible = objetsTrouves[0];
+      } else {
+        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
       }
     } else {
       console.error("Instructions > trouverObjetCible > objet spécial pas pris en change :", brute);
