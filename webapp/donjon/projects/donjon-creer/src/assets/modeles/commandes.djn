@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-17-0009
+-- Version: 2021-01-20-0010
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -839,11 +839,11 @@ refuser manger ceci:
   si ceci n’est pas mangeable, dire "Ça ne se mange pas voyons !".
   
 exécuter manger ceci:
-  changer effacer ceci.
+  effacer ceci.
 
 terminer manger ceci:
   dire "Je [l’ ceci]ai mangé[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
-
+  
 interpréter engloutir comme manger.
 
 SCÈNE "boire".
@@ -859,11 +859,10 @@ refuser boire ceci:
   si ceci n’est pas buvable, dire "Ça ne se boit pas voyons !".
   
 exécuter boire ceci:
-  changer effacer ceci.
-
+  effacer ceci.
+  
 terminer boire ceci:
-  dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
-
+  dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.";
 
 CHAPITRE "frapper, tuer, assommer".
 
