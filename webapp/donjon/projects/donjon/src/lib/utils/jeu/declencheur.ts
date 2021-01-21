@@ -40,7 +40,7 @@ export class Declencheur {
       // si un des évènement de l’auditeur est valide, ne pas tester les suivants
       let dejaTrouve = false;
       aud.evenements.forEach(curAudEvenement => {
-        // console.log(">>> check", aud);
+        //  console.log(">>> check", curAudEvenement);
         if (curAudEvenement.infinitif === evenement.infinitif) {
           if (((!curAudEvenement.ceci && !evenement.ceci) || (curAudEvenement.ceci === evenement.ceci))
             && ((!curAudEvenement.cela && !evenement.cela) || (curAudEvenement.cela === evenement.cela))
@@ -61,7 +61,7 @@ export class Declencheur {
 
   avant(evenement: Evenement) {
     if (this.verbeux) {
-      // console.log("Declencheur >>> AVANT", evenement);
+    //   console.log("Declencheur >>> AVANT", evenement);
     }
     return this.retrouverInstructions(this.auditeursAvant, evenement);
   }

@@ -116,7 +116,7 @@ export class PhraseUtils {
       els = new ElementsPhrase(null, sujet, verbe, null, compl);
 
       // console.warn("$$$$ els=", els);
-      
+
 
       if (els.complement1) {
         const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
@@ -236,7 +236,7 @@ export class PhraseUtils {
       let els = PhraseUtils.decomposerCommande(evenementBrut.trim());
       // si on a trouvé une formulation correcte
       if (els) {
-        retVal.push(new Evenement(els.infinitif, (els.sujet ? els.sujet.nom : null), null, els.preposition1, (els.sujetComplement1 ? els.sujetComplement1.nom : null)));
+        retVal.push(new Evenement(els.infinitif, (els.sujet ? (els.sujet.nom + (els.sujet.epithete ? (" " + els.sujet.epithete) : "")) : null), null, els.preposition1, (els.sujetComplement1 ? (els.sujetComplement1.nom + (els.sujetComplement1.epithete ? (" " + els.sujetComplement1.epithete) : "")) : null)));
       } else {
         console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
       }

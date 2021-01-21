@@ -330,8 +330,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       const ceciIntitule = els.sujet;
       const celaIntitule = els.sujetComplement1;
-      const ceciNom = ceciIntitule ? ceciIntitule.nom : null;
-      const celaNom = celaIntitule ? celaIntitule.nom : null;
+      const ceciNom = ceciIntitule ? (ceciIntitule.nom + (ceciIntitule.epithete ? (" " + ceciIntitule.epithete) : "")) : null;
+      const celaNom = celaIntitule ? (celaIntitule.nom + (celaIntitule.epithete ? (" " + celaIntitule.epithete) : "")) : null;
       const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true) : null;
       const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true) : null;
 
@@ -412,11 +412,9 @@ export class LecteurComponent implements OnInit, OnChanges {
             // mettre à jour l'évènement avec les éléments trouvés
             evenement = new Evenement(
               actionCeciCela.action.infinitif,
-              // (actionCeciCela.ceci ? (actionCeciCela.ceci.intitule.nom + (actionCeciCela.ceci.intitule.epithete ? (" " + actionCeciCela.ceci.intitule.epithete) : "")) : null),
               (actionCeciCela.ceci ? actionCeciCela.ceci.nom : null),
               (actionCeciCela.ceci ? actionCeciCela.ceci.classe : null),
               els.preposition1,
-              // (actionCeciCela.cela ? (actionCeciCela.cela.intitule.nom + (actionCeciCela.cela.intitule.epithete ? (" " + actionCeciCela.cela.intitule.epithete) : "")) : null),
               (actionCeciCela.cela ? actionCeciCela.cela.nom : null),
               (actionCeciCela.cela ? actionCeciCela.cela.classe : null)
             );
@@ -607,36 +605,36 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // il s’agit d’un type
     } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
-        // TODO: vérifier s’il s’agit du type (descendants de élémentsJeux)
-        ceciCela.elements.forEach(ele => {
-          if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getClasseIntitule(candidatCeciCela.nom))) {
-            if (retVal === null) {
-              // s'il doit s'agir d'un objet visible, vérifier
-              // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
-              if (candidatCeciCela.epithete) {
-                // if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
-                if (this.jeu.etats.possedeEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
-                  retVal = ele;
-                }
-              } else {
+      // TODO: vérifier s’il s’agit du type (descendants de élémentsJeux)
+      ceciCela.elements.forEach(ele => {
+        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getClasseIntitule(candidatCeciCela.nom))) {
+          if (retVal === null) {
+            // s'il doit s'agir d'un objet visible, vérifier
+            // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
+            if (candidatCeciCela.epithete) {
+              // if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
+              if (this.jeu.etats.possedeEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
                 retVal = ele;
               }
             } else {
-              // déjà un match, on en a plusieurs.
-              retVal = -1;
+              retVal = ele;
             }
+          } else {
+            // déjà un match, on en a plusieurs.
+            retVal = -1;
           }
-        });
-      
-        // si ce n'est pas un élément du jeu,
-        //  - vérifier direction
-        if (retVal == null && ceciCela.localisation && (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule)) {
-          retVal = ceciCela.localisation;
         }
-        //  - vérifier intitué
-        if (retVal == null && ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
-          retVal = ceciCela.intitule;
-        }
+      });
+
+      // si ce n'est pas un élément du jeu,
+      //  - vérifier direction
+      if (retVal == null && ceciCela.localisation && (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule)) {
+        retVal = ceciCela.localisation;
+      }
+      //  - vérifier intitué
+      if (retVal == null && ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
+        retVal = ceciCela.intitule;
+      }
 
     }
     return retVal;
