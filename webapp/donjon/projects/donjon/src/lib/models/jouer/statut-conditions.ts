@@ -1,6 +1,6 @@
 
 // Xe fois
-export const xFois = /^([1-9][0-9]?)(?:e|eme|ème|ere|ère) fois$/i;
+export const xFois = /^([1-9][0-9]?)(?:e|eme|ème|ere|ère|re) fois$/i;
 
 export enum ConditionDebutee {
   aucune = 'aucune',
