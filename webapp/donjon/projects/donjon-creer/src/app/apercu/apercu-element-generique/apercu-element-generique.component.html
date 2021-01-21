@@ -22,8 +22,12 @@
     <li>Propriétés :
       <ul>
         <li *ngIf="el.description">description : {{el.description}}</li>
-        <li *ngIf="el.nomS">singulier : {{el.nomS}}</li>
-        <li *ngIf="el.nomP">pluriel : {{el.nomP}}</li>
+        <li *ngIf="el.nomS">singulier : {{el.nomS}}
+          <span *ngIf="el.epitheteS" class="epithete">{{el.epitheteS}}</span>
+        </li>
+        <li *ngIf="el.nomP">pluriel : {{el.nomP}}
+          <span *ngIf="el.epitheteP" class="epithete">{{el.epitheteP}}</span>
+        </li>
         <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (' : ' + prop.valeur): '')}}</li>
       </ul>
     </li>
