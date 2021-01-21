@@ -313,21 +313,21 @@ export class ElementsJeuUtils {
       switch (nombre) {
 
         case Nombre.i:
-          if (obj.intitule.nom.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intitule.epithete?.toLowerCase())) {
+          if (obj.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === obj.intitule.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
 
         case Nombre.s:
-          if (obj.intituleS?.nom?.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intituleS?.epithete?.toLowerCase())) {
+          if (obj.intituleS?.nom?.toLowerCase() === sujetNom && (sujetEpithete === obj.intituleS?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
           break;
 
         case Nombre.p:
-          if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === obj.intituleP?.epithete?.toLowerCase())) {
+          if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (sujetEpithete === obj.intituleP?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
@@ -337,7 +337,7 @@ export class ElementsJeuUtils {
       // B. Regarder dans les synonymes (si pas déjà ajouté)
       if (!dejaAjoute && obj.synonymes) {
         obj.synonymes.forEach(synonyme => {
-          if (synonyme.nom.toLowerCase() === sujetNom && (!sujetEpithete || sujetEpithete === synonyme.epithete?.toLowerCase())) {
+          if (synonyme.nom.toLowerCase() === sujetNom && (sujetEpithete === synonyme.epithete?.toLowerCase())) {
             retVal.push(obj);
           }
         });
@@ -358,13 +358,13 @@ export class ElementsJeuUtils {
 
     this.jeu.lieux.forEach(li => {
       // A. regarder dans l'intitulé du lieu
-      if (li.intitule.nom.toLowerCase() === sujetNom && (!sujetEpithete || li.intitule.epithete?.toLowerCase() === sujetEpithete)) {
+      if (li.intitule.nom.toLowerCase() === sujetNom && (li.intitule.epithete?.toLowerCase() === sujetEpithete)) {
         retVal.push(li);
       } else {
         // B. Regarder dans les synonymes du lieu
         if (li.synonymes) {
           li.synonymes.forEach(synonyme => {
-            if (synonyme.nom.toLowerCase() === sujetNom && (!sujetEpithete || synonyme.epithete?.toLowerCase() === sujetEpithete)) {
+            if (synonyme.nom.toLowerCase() === sujetNom && (synonyme.epithete?.toLowerCase() === sujetEpithete)) {
               retVal.push(li);
             }
           });
