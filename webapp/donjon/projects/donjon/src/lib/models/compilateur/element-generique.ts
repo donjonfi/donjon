@@ -16,8 +16,6 @@ export class ElementGenerique implements ElementDonjon {
   public proprietes = new Array<Propriete>();
   public capacites = new Array<Capacite>();
   public reactions = new Array<Reaction>();
-  public nomF: string = null;
-  public nomM: string = null;
   public nomS: string = null;
   public nomP: string = null;
   public epitheteS: string = null;
@@ -37,18 +35,13 @@ export class ElementGenerique implements ElementDonjon {
     public quantite: number,
     public attributs: string[],
   ) {
-
-    // masculin / féminin
-    if (genre === Genre.f) {
-      this.nomF = this.nom;
-    } else if (genre === Genre.m) {
-      this.nomM = this.nom;
-    }
     // singulier / pluriel
     if (nombre === Nombre.p) {
       this.nomP = this.nom;
+      this.epitheteP = this.epithete;
     } else if (nombre === Nombre.s) {
       this.nomS = this.nom;
+      this.epitheteS = this.epithete;
     }
 
   }

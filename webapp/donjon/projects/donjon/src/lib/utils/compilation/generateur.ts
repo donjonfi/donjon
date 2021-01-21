@@ -121,7 +121,7 @@ export class Generateur {
 
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
-      let nouvLieu = new Lieu(++indexElementJeu, curEle.nom, intitule, titre);
+      let nouvLieu = new Lieu(++indexElementJeu, (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), intitule, titre);
       nouvLieu.description = curEle.description;
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
@@ -170,7 +170,7 @@ export class Generateur {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        let newObjet = new Objet(++indexElementJeu, curEle.nom, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
+        let newObjet = new Objet(++indexElementJeu, (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         newObjet.description = curEle.description;
         // newObjet.apercu = curEle.apercu;
@@ -260,7 +260,7 @@ export class Generateur {
               if (contenantSupport) {
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
               } else {
-                console.warn("position élément jeu pas trouvé:", curEle.nom, curEle.positionString);
+                console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curEle.positionString);
               }
             }
           }
