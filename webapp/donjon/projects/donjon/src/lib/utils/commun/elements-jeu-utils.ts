@@ -353,12 +353,22 @@ export class ElementsJeuUtils {
 
     let retVal: Lieu[] = [];
 
-    const sujNom = sujet.nom.toLowerCase();
-    const sujEpi = sujet.epithete?.toLowerCase();
+    const sujetNom = sujet.nom.toLowerCase();
+    const sujetEpithete = sujet.epithete?.toLowerCase();
 
     this.jeu.lieux.forEach(li => {
-      if (li.intitule.nom.toLowerCase() === sujNom && (!sujEpi || li.intitule.epithete?.toLowerCase() === sujEpi)) {
+      // A. regarder dans l'intitulé du lieu
+      if (li.intitule.nom.toLowerCase() === sujetNom && (!sujetEpithete || li.intitule.epithete?.toLowerCase() === sujetEpithete)) {
         retVal.push(li);
+      } else {
+        // B. Regarder dans les synonymes du lieu
+        if (li.synonymes) {
+          li.synonymes.forEach(synonyme => {
+            if (synonyme.nom.toLowerCase() === sujetNom && (!sujetEpithete || synonyme.epithete?.toLowerCase() === sujetEpithete)) {
+              retVal.push(li);
+            }
+          });
+        }
       }
     });
 

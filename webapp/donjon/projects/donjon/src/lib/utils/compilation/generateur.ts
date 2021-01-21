@@ -125,6 +125,7 @@ export class Generateur {
       nouvLieu.description = curEle.description;
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
+      nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
 
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
@@ -420,7 +421,7 @@ export class Generateur {
    */
   static getLocalisation(strPosition: string) {
 
-    strPosition = strPosition.replace(/(du|de la|de l'|de l’|des)/g, "").trim();
+    strPosition = strPosition.replace(/(du|de( la|l'|l’)?|des)/g, "").trim();
 
     let retVal = ELocalisation.inconnu;
     switch (strPosition) {
