@@ -39,10 +39,11 @@ export class BalisesHtml {
     // nouvelle ligne {n} ou \n
     retVal = retVal.replace(/\{n\}/g, '<br>');
     retVal = retVal.replace(/\n/g, '<br>');
-    // retrait {t}
+    // retrait {r} ou {t} (tabulation)
+    retVal = retVal.replace(/\{r\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
     retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    // retrait {e}
-    retVal = retVal.replace(/\{e\}/g, '&nbsp;');
+    // espace {e}
+    retVal = retVal.replace(/\{e\}/g, ' ');
     return retVal;
   }
 
