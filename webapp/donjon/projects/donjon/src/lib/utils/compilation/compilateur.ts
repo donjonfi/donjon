@@ -265,7 +265,7 @@ export class Compilateur {
             .replace(/ >>/g, " »")
             .replace(/ \?/g, " ?")
             .replace(/ !/g, " !")
-            // .replace(/ :/g, " :") // pause en souci avec les si/sinon
+            // .replace(/ :/g, " :") // pause un souci avec les si/sinon
             .replace(/\.\.\.(?!:\.)/g, "…");
 
 

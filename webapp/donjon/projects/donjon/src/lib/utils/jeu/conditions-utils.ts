@@ -410,8 +410,6 @@ export class ConditionsUtils {
 
             case 'réagit':
             case 'réagissent':
-              console.warn("réagit: sujet=", sujet);
-
               // remarque: négation appliquée plus loin.
               if ((sujet as Objet).reactions && (sujet as Objet).reactions.length > 0) {
                 retVal = true;

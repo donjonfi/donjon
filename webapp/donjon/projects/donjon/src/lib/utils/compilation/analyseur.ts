@@ -395,10 +395,10 @@ export class Analyseur {
       }
 
       // evenements.forEach(evenement => {
-        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, resultRegle[3]);
+      let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, resultRegle[3]);
       // });
 
-        regles.push(nouvelleRegle);
+      regles.push(nouvelleRegle);
 
       // si phrase morcelée, rassembler les morceaux
       if (phrase.phrase.length > 1) {
@@ -1081,7 +1081,7 @@ export class Analyseur {
         // convertir marque commentaire
         .replace(ExprReg.xCaractereDebutCommentaire, ' "')
         .replace(ExprReg.xCaractereFinCommentaire, '" ')
-        // enlever les espaces en double
+        // enlever les espaces multiples
         .replace(/( +)/g, " ");
       // enlever le point final (ou le ; final pour les sous-conséquences)
       if (conBruNettoyee.endsWith((sousConsequences ? ';' : '.'))) {
@@ -1092,12 +1092,31 @@ export class Analyseur {
       // cas A: INSTRUCTION SIMPLE
       if (els) {
         if (els.complement1) {
-          els.complement1 = els.complement1
-            .replace(ExprReg.xCaractereRetourLigne, ' ')
-            // remettre les , et les ; initiaux dans les commentaires
-            .replace(ExprReg.xCaracterePointVirgule, ';')
-            .replace(ExprReg.xCaractereVirgule, ',');
+          // si le complément est un Texte (entre " "), garder les retours à la ligne
+          if (els.complement1.startsWith('"') && els.complement1.endsWith('"')) {
+            els.complement1 = els.complement1
+              .replace(ExprReg.xCaractereRetourLigne, '\n')
+              // remettre les , et les ; initiaux dans les commentaires
+              .replace(ExprReg.xCaracterePointVirgule, ';')
+              .replace(ExprReg.xCaractereVirgule, ',');
+            // sinon remplacer les retours à la ligne par des espaces
+          } else {
+            els.complement1 = els.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
+            // // remettre les , et les ; initiaux dans les instructions
+            // .replace(ExprReg.xCaracterePointVirgule, ';')
+            // .replace(ExprReg.xCaractereVirgule, ',');
+          }
+
+          // // retirer le \n initial éventuel
+          // if (els.complement1.startsWith(ExprReg.caractereRetourLigne)) {
+          //   els.complement1 = els.complement1.substr(1);
+          // }
+          // // retirer le \n final éventuel
+          // if (els.complement1.length > 1 && els.complement1.endsWith(ExprReg.caractereRetourLigne)) {
+          //   els.complement1 = els.complement1.substr(0, els.complement1.length - 2);
+          // }
         }
+
         instructions.push(new Instruction(els));
         // cas B: INSTRUCTION CONDITIONNELLE
       } else {
