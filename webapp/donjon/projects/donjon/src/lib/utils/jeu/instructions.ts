@@ -1513,20 +1513,24 @@ export class Instructions {
     // réaction à un sujet
     if (sujet) {
       console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
+
+      const nomMinuscules = sujet.intitule.nom.toLowerCase() ?? null;
+      const epitheteMinuscules = sujet.intitule.epithete?.toLowerCase() ?? null;
+
       // rechercher s’il y a une des réaction qui comprend ce sujet
       reaction = (personne as Objet).reactions
-        .find(x => x.sujets && x.sujets.some(y => y.nom === sujet.intitule.nom && y.epithete === sujet.intitule.epithete));
+        .find(x => x.sujets && x.sujets.some(y => y.nom == nomMinuscules && y.epithete == epitheteMinuscules));
       // si on n’a pas de résultat, rechercher le sujet « sujet inconnu »:
       if (!reaction) {
         reaction = (personne as Objet).reactions
-          .find(x => x.sujets && x.sujets.some(y => y.nom === "sujet" && y.epithete === "inconnu"));
+          .find(x => x.sujets && x.sujets.some(y => y.nom == "sujet" && y.epithete == "inconnu"));
       }
     }
     // si pas de réaction à un sujet, prendre réaction par défaut (aucun sujet)
     if (!reaction) {
       console.log("suiteExecuterReaction: réaction à aucun sujet");
       reaction = (personne as Objet).reactions
-        .find(x => x.sujets && x.sujets.some(y => y.nom === "aucun" && y.epithete === "sujet"));
+        .find(x => x.sujets && x.sujets.some(y => y.nom == "aucun" && y.epithete == "sujet"));
     }
     // on a trouvé une réaction
     if (reaction) {

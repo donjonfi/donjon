@@ -143,6 +143,7 @@ export class Abreviations {
           break;
 
         case 'deb':
+        case 'deboguer':
         case 'déb':
           retVal = "déboguer ";
           break;
@@ -152,11 +153,13 @@ export class Abreviations {
           break;
 
         case 'dep':
+        case 'deplacer':
         case 'dép':
           retVal = "déplacer ";
           break;
 
         case 'dev':
+        case 'deverrouiller':
         case 'dév':
           retVal = "déverrouiller";
           break;
@@ -291,9 +294,6 @@ export class Abreviations {
           retVal = "ouvrir ";
           break;
 
-        case 'où':
-          retVal = "où suis-je ?";
-          break;
         // ======================
         //           P
         // ======================

@@ -412,14 +412,16 @@ export class Analyseur {
     }
   }
 
+  /** Retrouver les sujets (pour les réactions) */
   private static retrouverSujets(sujets: string, erreurs: string[], phrase: Phrase) {
     const listeSujetsBruts = PhraseUtils.separerListeIntitules(sujets);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
       const resultGn = ExprReg.xGroupeNominal.exec(sujetBrut);
       if (resultGn) {
-        const sujetNom = resultGn[2];
-        const sujetEpithete = resultGn[3];
+        // on met en minuscules d’office pour éviter les soucis lors des comparaisons
+        const sujetNom = resultGn[2]?.toLocaleLowerCase();
+        const sujetEpithete = resultGn[3]?.toLowerCase();
         listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
       } else {
         erreurs.push(("00000" + phrase.ligne).slice(-5) + " : réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
