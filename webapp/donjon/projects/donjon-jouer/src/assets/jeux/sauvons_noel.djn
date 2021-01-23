@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.4".
+La version du jeu est "1.5".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -12,12 +12,12 @@ avant commencer le jeu:
   changer le joueur se trouve dans la chambre;
   attendre touche;
   dire "{/CRAC !/}
-  {n}{/Pif !/}";
+        {/Pif !/}";
   attendre touche;
   dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.
-  {n}<< Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
+  << Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
   dire "{n}{n}Vous vous levez tant bien que mal.
-  {n}Vous avez froid. C'est normal, vous êtes en slip !{n}";
+        Vous avez froid. C'est normal, vous êtes en slip !";
   attendre touche.
 
 PARTIE "Description du monde".
@@ -47,6 +47,7 @@ La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
 Son titre est "La chambre du Père Noël".
 -- >> Grattepot => sur le chemin
 Grattepot est une personne sur le chemin.
+Sa description est "Votre lutin, habillé de vert, prêt à vous aider.".
 interpréter G et lutin comme Grattepot.
 Sa réaction est :
   si l'historique ne contient pas "clé trouvée":
@@ -67,6 +68,7 @@ Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "C’
 
 -- >> Volebougie => dans la chambre
 Volebougie est une personne dans la chambre.
+Sa description est "Votre lutin, habillé de bleu, prêt à vous aider.".
 interpréter V et lutin comme Volebougie.
 
 Sa réaction est :
@@ -80,6 +82,7 @@ Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Bien
 
 -- >> Chipesaucisse => dans l’atelier
 Chipesaucisse est une personne dans l’atelier.
+Sa description est "Votre lutin, habillé de rouge, prêt à vous aider.".
 interpréter C et lutin comme Chipesaucisse.
 
 Sa réaction est "<< Il nous reste très peu de temps pour charger le traîneau.[si l'historique ne contient pas "clé trouvée"] Il faut nous aider à retrouver la clé de la boite aux lettres.[fin si] >>[si le joueur ne porte pas le pantalon]{n}<< Ha ha ! Vous ne portez pas de pantalon ![fin si] >>".
@@ -212,10 +215,10 @@ après prendre lettre:
   
   après donner lettre à Volebougie, donner lettre à Grattepot ou donner lettre à Chipesaucisse:
   dire "[si cela se trouve dans l’atelier][Intitulé cela] se lance dans la préparation de la caserne de pompiers.[sinon][Intitulé cela] s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.[fin si]
-  {n}Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
-  {n}Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
-  {n}Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
-  {n}Bravo ! Vous avez sauvé Noël !";
+  Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
+  Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
+  Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
+  Bravo ! Vous avez sauvé Noël !";
   terminer le jeu.
 
 -- ==========
