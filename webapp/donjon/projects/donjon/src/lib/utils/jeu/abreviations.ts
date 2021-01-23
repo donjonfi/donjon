@@ -1,4 +1,3 @@
-import { ResolvedStaticSymbol } from '@angular/compiler';
 
 export class Abreviations {
 

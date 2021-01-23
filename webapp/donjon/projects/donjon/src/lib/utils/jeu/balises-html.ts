@@ -39,6 +39,10 @@ export class BalisesHtml {
     // nouvelle ligne {n} ou \n
     retVal = retVal.replace(/\{n\}/g, '<br>');
     retVal = retVal.replace(/\n/g, '<br>');
+    // retrait {t}
+    retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    // retrait {e}
+    retVal = retVal.replace(/\{e\}/g, '&nbsp;');
     return retVal;
   }
 
