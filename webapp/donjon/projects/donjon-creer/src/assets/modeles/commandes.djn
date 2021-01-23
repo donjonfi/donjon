@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-20-0010
+-- Version: 2021-01-24-0011
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -582,6 +582,7 @@ jeter ceci est une action qui concerne un objet visible.
 
 refuser jeter ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
+  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].";
   si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
   si ceci est un vivant, dire "Je suis contre la violence.".
   
