@@ -312,17 +312,21 @@ export class LecteurComponent implements OnInit, OnChanges {
       return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
     }
 
+    // effacer les espaces multiples et faire un trim sur la commande
+    // pour ne pas afficher une erreur en cas de faute de frappe…
+    const commandeNettoyee = commande?.replace(/\s\s+/g, ' ').trim();
+
     // GESTION HISTORIQUE
     // ajouter à l’historique (à condition que différent du précédent)
-    if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commande)) {
-      this.historiqueCommandes.push(commande);
+    if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
+      this.historiqueCommandes.push(commandeNettoyee);
       if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
         this.historiqueCommandes.shift();
       }
     }
 
     // COMPRENDRE LA COMMANDE
-    const els = PhraseUtils.decomposerCommande(commande);
+    const els = PhraseUtils.decomposerCommande(commandeNettoyee);
 
     let retVal = "";
 
@@ -344,7 +348,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       switch (els.infinitif) {
 
-        case "deboguer":
+        case "déboguer":
           retVal = this.com.deboguer(els);
           break;
 
@@ -465,7 +469,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
       }
     } else {
-      retVal = "Désolé, je n'ai pas compris la commande « " + commande + " ».";
+      retVal = "Désolé, je n'ai pas compris la commande « " + commandeNettoyee + " ».";
     }
     return retVal;
   }
