@@ -143,7 +143,8 @@ export class Abreviations {
           break;
 
         case 'deb':
-          retVal = "deboguer ";
+        case 'déb':
+          retVal = "déboguer ";
           break;
 
         case 'dem':

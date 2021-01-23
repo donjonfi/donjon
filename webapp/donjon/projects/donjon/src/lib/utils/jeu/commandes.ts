@@ -171,7 +171,7 @@ export class Commandes {
     if (retVal) {
       retVal += "{n}";
     }
-    retVal += "{/(voir console)/}";
+    retVal += "{/(voir console du navigateur {+ctrl+maj+i+})/}";
     return retVal;
   }
 
