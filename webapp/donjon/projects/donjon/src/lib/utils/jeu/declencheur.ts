@@ -42,8 +42,8 @@ export class Declencheur {
       aud.evenements.forEach(curAudEvenement => {
         //  console.log(">>> check", curAudEvenement);
         if (curAudEvenement.infinitif === evenement.infinitif) {
-          if (((!curAudEvenement.ceci && !evenement.ceci) || (curAudEvenement.ceci === evenement.ceci))
-            && ((!curAudEvenement.cela && !evenement.cela) || (curAudEvenement.cela === evenement.cela))
+          if (((!curAudEvenement.ceci && !evenement.ceci) || (curAudEvenement.ceci?.toLowerCase() === evenement.ceci?.toLowerCase()))
+            && ((!curAudEvenement.cela && !evenement.cela) || (curAudEvenement.cela?.toLowerCase() === evenement.cela?.toLowerCase()))
           ) {
             dejaTrouve = true;
             aud.instructions.forEach(ins => {
