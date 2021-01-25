@@ -162,8 +162,12 @@ export class ConditionsUtils {
     if (condition) {
       // condition spéciale: « historique contient "xxxxx"»
       if (condition.sujet.nom === 'historique' && condition.verbe === "contient") {
-        const recherche = condition.complement?.trim();
+        let recherche = condition.complement?.trim().toLowerCase();
         if (recherche) {
+          // ajouter les guillemets si pas présents
+          if(!recherche?.startsWith('"')){
+            recherche = '"' + recherche + '"';
+          }
           retVal = this.jeu.sauvegardes.includes(recherche);
         } else {
           console.error("check si l’historique contient >>> recherche vide");

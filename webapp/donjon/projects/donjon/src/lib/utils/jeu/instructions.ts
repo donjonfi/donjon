@@ -918,7 +918,7 @@ export class Instructions {
       case 'sauver':
         console.log("executerInfinitif >> sauver=", instruction.complement1);
         if (instruction.complement1) {
-          this.jeu.sauvegardes.push(instruction.complement1);
+          this.jeu.sauvegardes.push(instruction.complement1.trim().toLowerCase());
           resultat.succes = true;
         } else {
           resultat.succes = false;
@@ -1550,7 +1550,7 @@ export class Instructions {
   private executerHistorique(instruction: ElementsPhrase) {
     let resultat = new Resultat(false, '', 1);
     if (instruction.verbe.toLocaleLowerCase() === 'contient') {
-      let valeur = instruction.complement1.trim();
+      let valeur = instruction.complement1.trim().toLocaleLowerCase();
       // trouver valeur dans l’historique
       let foundIndex = this.jeu.sauvegardes.indexOf(valeur);
 
