@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-24-0011
+-- Version: 2021-01-25-0012
 -- Auteur: Jonathan Claes (https://donjon.xax.be)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -22,15 +22,15 @@ afficher ceci est une action qui concerne un intitulé.
 exécuter afficher ceci:
   si ceci est l’aide:
     dire "{_Quelques commandes utiles_}
-      {n}- {-aide {/parler/}-} : afficher l’aide d’une commande
-      {n}- {-aller {/nord/}-} : aller vers le nord
-      {n}- {-regarder-} : regarder autours de vous
-      {n}- {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations
-      {n}- {-prendre {/épée/}-} : prendre un objet
-      {n}- {-inventaire-} : afficher le contenu de votre inventaire
-      {n}- {-parler à {/magicienne/}-} : parler à un personnage
-      {n}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
-      {n}  - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
+      {e}- {-aide {/parler/}-} : afficher l’aide d’une commande
+      {e}- {-aller {/nord/}-} : aller vers le nord
+      {e}- {-regarder-} : regarder autours de vous
+      {e}- {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations
+      {e}- {-prendre {/épée/}-} : prendre un objet
+      {e}- {-inventaire-} : afficher le contenu de votre inventaire
+      {e}- {-parler à {/magicienne/}-} : parler à un personnage
+      {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
+      {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
   si ceci est l’inventaire:
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]";
   si ceci est les sorties ou la sortie:
@@ -451,6 +451,8 @@ L'aide pour l'action regarder est "{*Regarder*}
   {+exemple+} :
   > {-regarder-}
   {+raccourci+} : {-re-}".
+  
+interpréter observer comme regarder.
 
 SCÈNE "examiner".
 -- ============
