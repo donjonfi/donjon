@@ -410,7 +410,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
             }
 
-            console.warn("commande: ", els);
+            // console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
             // mettre à jour l'évènement avec les éléments trouvés
