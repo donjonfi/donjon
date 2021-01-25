@@ -1148,6 +1148,7 @@ export class Instructions {
               // if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.visibleID)) {
               // décrire la porte
               if (curPorte.apercu) {
+                if(curPorte.apercu != '-')
                 // si aperçu, afficher l'aperçu.
                 resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
               } else {
