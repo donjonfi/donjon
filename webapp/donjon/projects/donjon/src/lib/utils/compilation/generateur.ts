@@ -421,7 +421,7 @@ export class Generateur {
    */
   static getLocalisation(strPosition: string) {
 
-    strPosition = strPosition.replace(/(du|de( la|l'|l’)?|des)/g, "").trim();
+    strPosition = strPosition.replace(/(du|de( la| l'| l’)?|des)/g, "").trim();
 
     let retVal = ELocalisation.inconnu;
     switch (strPosition) {
