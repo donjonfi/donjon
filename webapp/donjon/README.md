@@ -23,5 +23,5 @@ ng build donjon-creer --base-href /creer/ --prod
 
 ## Wiki et site officiel Donjon FI
 
-[Site officiel Donjon FI](https://donjon.xax.be)\
-[Wiki Donjon FI](https://wiki.donjon.xax.be)
+[Site officiel Donjon FI](https://donjon.fi)\
+[Wiki Donjon FI](https://donjon.fi/wiki)
