@@ -468,7 +468,7 @@ examiner ceci est une action qui concerne un élément.
 
 refuser examiner ceci:
   si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.";
-  si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v être spr ceci] envie de jouer au docteur.".
+  si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
 terminer examiner ceci:
   si ceci est le joueur:
