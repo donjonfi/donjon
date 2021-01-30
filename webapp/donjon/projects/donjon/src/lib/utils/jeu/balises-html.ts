@@ -44,6 +44,8 @@ export class BalisesHtml {
     retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
     // espace {e}
     retVal = retVal.replace(/\{e\}/g, ' ');
+    // espace insécable {i}
+    retVal = retVal.replace(/\{i\}/g, '&nbsp;');
     return retVal;
   }
 
