@@ -30,83 +30,83 @@ export class Commandes {
   // COMMANDES QUI MODIFIENT LE JEU
   // =========================================
 
-  aller(els: ElementsPhrase) {
+  // aller(els: ElementsPhrase) {
 
-    let locDest: Localisation = null;
+  //   let locDest: Localisation = null;
 
-    switch (els.infinitif) {
+  //   switch (els.infinitif) {
 
-      case "aller":
-        // vérifier la direction
-        switch (els.sujet.nom) {
-          case "nord":
-            locDest = Localisation.Nord;
-            break;
+  //     case "aller":
+  //       // vérifier la direction
+  //       switch (els.sujet.nom) {
+  //         case "nord":
+  //           locDest = Localisation.Nord;
+  //           break;
 
-          case "sud":
-            locDest = Localisation.Sud;
-            break;
+  //         case "sud":
+  //           locDest = Localisation.Sud;
+  //           break;
 
-          case "ouest":
-            locDest = Localisation.Ouest;
-            break;
+  //         case "ouest":
+  //           locDest = Localisation.Ouest;
+  //           break;
 
-          case "est":
-            locDest = Localisation.Est;
-            break;
+  //         case "est":
+  //           locDest = Localisation.Est;
+  //           break;
 
-          default:
-            break;
-        }
-        break;
+  //         default:
+  //           break;
+  //       }
+  //       break;
 
-      case "sortir":
-        locDest = Localisation.Exterieur;
-        break;
-      case "entrer":
-        locDest = Localisation.Interieur;
-        break;
-      case "monter":
-        locDest = Localisation.Haut;
-        break;
-      case "descendre":
-        locDest = Localisation.Bas;
-        break;
+  //     case "sortir":
+  //       locDest = Localisation.Exterieur;
+  //       break;
+  //     case "entrer":
+  //       locDest = Localisation.Interieur;
+  //       break;
+  //     case "monter":
+  //       locDest = Localisation.Haut;
+  //       break;
+  //     case "descendre":
+  //       locDest = Localisation.Bas;
+  //       break;
 
-      default:
-        break;
-    }
+  //     default:
+  //       break;
+  //   }
 
-    const voisinLieu = this.eju.getLieu(this.eju.getVoisin(locDest, EClasseRacine.lieu));
-    const voisinPorte = this.eju.getObjet(this.eju.getVoisin(locDest, EClasseRacine.porte));
+  //   const voisinLieu = this.eju.getLieu(this.eju.getVoisin(locDest, EClasseRacine.lieu));
+  //   const voisinPorte = this.eju.getObjet(this.eju.getVoisin(locDest, EClasseRacine.porte));
 
-    // console.log("voisinLieu", voisinLieu);
-    // console.log("voisinPorte", voisinPorte);
+  //   // console.log("voisinLieu", voisinLieu);
+  //   // console.log("voisinPorte", voisinPorte);
 
-    // TODO: vérifier accès…
-    if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.fermeID)) {
-      // La porte est fermée
-      // TODO: gérer majuscule
-      return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre === Genre.f ? "e" : "") + ".");
-    } else {
-      if (voisinPorte) {
-        console.log("porte ouverte :)");
-      } else {
-        console.log("pas de porte");
-      }
-      if (voisinLieu) {
-        this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
-        this.jeu.joueur.position.cibleId = voisinLieu.id;
+  //   // TODO: vérifier accès…
+  //   if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.fermeID)) {
+  //     // La porte est fermée
+  //     // TODO: gérer majuscule
+  //     return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre === Genre.f ? "e" : "") + ".");
+  //   } else {
+  //     if (voisinPorte) {
+  //       console.log("porte ouverte :)");
+  //     } else {
+  //       console.log("pas de porte");
+  //     }
+  //     if (voisinLieu) {
+  //       this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
+  //       this.jeu.joueur.position.cibleId = voisinLieu.id;
 
-        this.eju.majPresenceDesObjets();
+  //       this.eju.majPresenceDesObjets();
 
-        return this.outils.afficherCurLieu();
-      } else {
-        return "Pas pu aller par là.";
-      }
-    }
+  //       return this.outils.afficherCurLieu();
+  //     } else {
+  //       return "Pas pu aller par là.";
+  //     }
+  //   }
 
-  }
+  // }
 
 
 
@@ -291,18 +291,18 @@ export class Commandes {
   //   }
   // }
 
-  sorties() {
-    return this.ins.afficherSorties(this.eju.curLieu);
-  }
+  // sorties() {
+  //   return this.ins.afficherSorties(this.eju.curLieu);
+  // }
 
-  inventaire() {
-    let retVal = this.ins.executerListerContenu(this.jeu.joueur, true).sortie;
-    if (!retVal) {
-      retVal = "{/Votre inventaire est vide./}";
-    } else {
-      retVal = "Votre inventaire contient:" + retVal;
-    }
-    return retVal;
-  }
+  // inventaire() {
+  //   let retVal = this.ins.executerListerContenu(this.jeu.joueur, true).sortie;
+  //   if (!retVal) {
+  //     retVal = "{/Votre inventaire est vide./}";
+  //   } else {
+  //     retVal = "Votre inventaire contient:" + retVal;
+  //   }
+  //   return retVal;
+  // }
 
 }

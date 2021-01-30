@@ -12,6 +12,7 @@ import { Lieu } from '../../models/jeu/lieu';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { Voisin } from '../../models/jeu/voisin';
 
 export class ElementsJeuUtils {
 
@@ -89,8 +90,25 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+  majAdjacenceLieux() {
+    // console.warn("majAdjacenceLieux");
+    this.jeu.lieux.forEach(lieu => {
+      this.majAdjacenceLieu(lieu);
+    });
+  }
+
+  private majAdjacenceLieu(lieu: Lieu) {
+    // le lieu est adjacent (au lieu actuel, curLieu) si il est son voisin.
+    const voisinTrouve = this.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == lieu.id);
+    // adjacent
+    if (voisinTrouve) {
+      this.jeu.etats.ajouterEtatElement(lieu, EEtatsBase.adjacent, true);
+    } else {
+      this.jeu.etats.retirerEtatElement(lieu, EEtatsBase.adjacent, true);
+    }
+  }
+
   majPresenceDesObjets() {
-    // console.warn("majPresenceDesObjets");
     this.jeu.objets.forEach(obj => {
       this.majPresenceObjet(obj);
     });
@@ -98,7 +116,6 @@ export class ElementsJeuUtils {
 
   majPresenceObjet(obj: Objet) {
     // console.log("majPresenceObjet: ", obj.nom);
-
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
@@ -156,9 +173,48 @@ export class ElementsJeuUtils {
    * @param loc 
    * @param type 
    */
-  getVoisin(loc: Localisation, type: EClasseRacine) {
-    let found = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);
-    return found ? found.id : -1;
+  getVoisinID(loc: Localisation | ELocalisation, type: EClasseRacine) {
+    let voisin: Voisin = null;
+    if (loc instanceof Localisation) {
+      voisin = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);
+    } else {
+      voisin = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc);
+    }
+    return voisin ? voisin.id : -1;
+  }
+
+  /**
+   * Récupérer les lieux voisins visibles depuis le lieu spécifié.
+   * @param loc 
+   * @param type 
+   */
+  getLieuxVoisinsVisibles(lieu: Lieu) {
+    let voisinsVisibles: Voisin[] = [];
+    let voisin: Voisin = null;
+    const allLieuxVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.lieu);
+
+    // s’il y a des voisins
+    if (allLieuxVoisins.length != 0) {
+      // pour chaque voisin vérifier s’il y a une porte dans sa direction
+      allLieuxVoisins.forEach(voisin => {
+        const curVoisinPorte = lieu.voisins.find(x => x.type == EClasseRacine.porte && x.localisation == voisin.localisation);
+        // il y a une porte
+        if (curVoisinPorte) {
+          // retrouver la porte
+          const curPorte = this.getObjet(curVoisinPorte.id);
+          // si la porte est ouverte ou visible, on voit le voisin
+          if(this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID) || this.jeu.etats.estVisible(curPorte, this))
+          {
+            voisinsVisibles.push(voisin);
+          }
+          // il n’y a pas de porte
+        } else {
+          voisinsVisibles.push(voisin);
+        }
+      });
+    }
+
+    return voisinsVisibles;
   }
 
   getObjet(id: number) {

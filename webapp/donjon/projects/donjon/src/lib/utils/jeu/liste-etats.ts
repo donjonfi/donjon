@@ -34,6 +34,7 @@ export class ListeEtats {
   public opaqueID = -1;
   public transparentID = -1;
   public transportableID = -1;
+  public adjacentID = -1;
   public fixeID = -1;
   public decoratifID = -1;
   public clairID = -1;
@@ -109,7 +110,8 @@ export class ListeEtats {
     this.creerBasculeEtats(EEtatsBase.actionne, EEtatsBase.arrete);
     // parlant et muet (personne)
     this.creerBasculeEtats(EEtatsBase.parlant, EEtatsBase.muet);
-
+    // adjacent (lieu)
+    this.adjacentID = this.creerEtat(EEtatsBase.adjacent, Genre.m, Nombre.s, true).id;
   }
 
   /**
@@ -118,7 +120,7 @@ export class ListeEtats {
    */
   trouverEtat(nomEtat: string): Etat {
     // retirer le e et le s final
-    // - cas particulié: si terminaison "ble" on retire pas le e final.
+    // - cas particulier: si terminaison "ble"|"que" on retire pas le e final.
     const trouve = false;
     let retVal: Etat = null;
     // comparer sur le nom tronqué en espérant le trouver rapidement

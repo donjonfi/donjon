@@ -107,12 +107,15 @@ export class LecteurComponent implements OnInit, OnChanges {
         if (resultatAvant.sortie) {
           this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
         }
+
+        // définir visibilité des objets initiale
+        this.eju.majPresenceDesObjets();
+
+        // définir adjacence des lieux initiale
+        this.eju.majAdjacenceLieux();
+
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
         if (resultatAvant.stopper !== true) {
-
-          // définir visibilité des objets initiale
-          this.eju.majPresenceDesObjets();
-
 
           // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
           let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
@@ -168,7 +171,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           // sinon
         } else {
           // remplacer la sortie du joueur
-          this.sortieJoueur = texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
+          this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
         }
         // attendre pour afficher la suite éventuelle
         if (sectionsContenu.length > 1) {
@@ -348,26 +351,12 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       switch (els.infinitif) {
 
+        // commande « en dur »
         case "déboguer":
           retVal = this.com.deboguer(els);
           break;
 
-        // case "aller":
-        // case "entrer": // entrer
-        // case "sortir":
-        // case "monter":
-        // case "descendre":
-        //   retVal = this.com.aller(els);
-        //   break;
-
-        // case "sorties":
-        //   retVal = this.com.sorties();
-        //   break;
-
-        // case "position":
-        //   retVal = this.com.ouSuisJe();
-        //   break;
-
+        // autres commandes
         default:
           const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
 

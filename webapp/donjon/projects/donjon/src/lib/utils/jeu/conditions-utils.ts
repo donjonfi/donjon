@@ -1,13 +1,15 @@
 import { Condition, LienCondition } from '../../models/compilateur/condition';
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from '../commun/classe-utils';
-import { ELocalisation } from '../../models/jeu/localisation';
+import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 
@@ -165,7 +167,7 @@ export class ConditionsUtils {
         let recherche = condition.complement?.trim().toLowerCase();
         if (recherche) {
           // ajouter les guillemets si pas présents
-          if(!recherche?.startsWith('"')){
+          if (!recherche?.startsWith('"')) {
             recherche = '"' + recherche + '"';
           }
           retVal = this.jeu.sauvegardes.includes(recherche);
@@ -209,12 +211,12 @@ export class ConditionsUtils {
               // regarder s'il y a une sortie dans la direction indiquée
             } else {
               if (condition.sujet.nom == "sortie vers") {
-                const voisinID = this.eju.getVoisin(loc, EClasseRacine.lieu);
+                const voisinID = this.eju.getVoisinID(loc, EClasseRacine.lieu);
                 if (voisinID !== -1) {
                   sujet = this.eju.getLieu(voisinID);
                 }
               } else {
-                const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
                 if (porteID !== -1) {
                   sujet = this.eju.getObjet(porteID);
                 }
@@ -272,18 +274,37 @@ export class ConditionsUtils {
               if (condition.sujetComplement.nom === 'sortie') {
                 // console.warn("Test des sorties", condition, sujet);
                 // trouver direction
-                const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
+                let loc: Localisation | ELocalisation = null;
+                // si le sujet est un lieu
+                if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.lieu)) {
+                  // chercher la direction vers ce lieu
+                  let voisin = this.eju.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == (sujet as Lieu).id);
+                  loc = voisin.localisation;
+                  // sinon c’est directement une direction
+                } else {
+                  loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
+                }
                 if (loc == null) {
                   console.error("siEstVrai: sorties vers '", sujet.intitule.nom, "': direction inconnue.");
                   // regarder s'il y a une sortie dans la direction indiquée
                 } else {
-                  const voisinID = this.eju.getVoisin(loc, EClasseRacine.lieu);
+                  let voisinID = this.eju.getVoisinID(loc, EClasseRacine.lieu);
+
+                  // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
+                  if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
+                    const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
+                    if (lieuxVoisinsVisibles.length == 1) {
+                      voisinID = lieuxVoisinsVisibles[0].id;
+                      loc = lieuxVoisinsVisibles[0].localisation;
+                    }
+                  }
+
                   // aucune sortie dans cette direction si pas de voisin
                   if (voisinID == -1) {
                     retVal = true;
                     // aucune sortie si voisin derrière une porte fermée et invisible
                   } else {
-                    const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                    const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
                     if (porteID != -1) {
                       const porte = this.eju.getObjet(porteID);
                       // si on teste « aucune sortie » tout court, il faut que la porte ne soit invisible et fermée pour remplir la condition.
@@ -309,7 +330,7 @@ export class ConditionsUtils {
                   console.error("siEstVrai: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
                   // regarder s'il y a une porte dans la direction indiquée
                 } else {
-                  const porteID = this.eju.getVoisin(loc, EClasseRacine.porte);
+                  const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
                   // aucune porte
                   if (porteID == -1) {
                     retVal = true;
@@ -381,6 +402,20 @@ export class ConditionsUtils {
               let destination: ElementJeu = null;
               if (condition.sujetComplement?.nom === "ici") {
                 destination = this.eju.curLieu;
+              } else if (condition.sujetComplement?.nom === "ceci") {
+                if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+                  destination = ceci as Lieu;
+                  // (la commande aller passe par ici avec une direction)
+                } else if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+                  console.error("condition se trouve dans ceci: ceci n’est pas un lieu ceci=", ceci);
+                }
+              } else if (condition.sujetComplement?.nom === "cela") {
+                if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.lieu)) {
+                  destination = ceci as Lieu;
+                  // (la commande aller passe par ici avec une direction)
+                } else if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
+                  console.error("condition se trouve dans cela : cela n’est pas un lieu cela=", cela);
+                }
               } else {
                 const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false);
                 if (correspondances.nbCor === 1) {
@@ -392,18 +427,8 @@ export class ConditionsUtils {
                 }
               }
 
-              // // retrouver l’objet concerné
-              // const ciblesTrouvees = this.eju.trouverObjet(condition.sujet, false, (condition.verbe.endsWith('e') ? Nombre.s : Nombre.p));
-              // let cible: Objet = null;
-              // if (ciblesTrouvees.length === 1) {
-              //   cible = ciblesTrouvees[0];
-              // } else if (ciblesTrouvees.length === 0) {
-              //   console.error("condition se trouve: pas de correspondance trouvée pour cible=", condition.sujet);
-              // } else if (ciblesTrouvees.length > 1) {
-              //   console.error("condition se trouve: plusieurs correspondances trouvées pour cible=", condition.sujet, "cor=", ciblesTrouvees);
-              // }
-
               // si on a trouvé la cible et la destination
+              // TODO: destination pourrait être un objet !
               if (sujet && destination) {
                 // vérifier que la cible se trouve au bon endroit
                 if ((sujet as Objet).position.cibleId === destination.id) {

@@ -57,13 +57,20 @@ export class Abreviations {
     let mots = commandeModifiee.split(' ');
     if (mots.length > 0) {
       let premierMotComplet = Abreviations.premierMotCommande(mots[0], true);
-      let deuxiemeMotComplet = null;
+      let deuxiemeMotComplet: string = null;
 
       // si commande en plusieurs mots
       if (mots.length > 1) {
         // retrouver la direction abrégée
         if (premierMotComplet.trim() === 'aller') {
           deuxiemeMotComplet = Abreviations.direction(mots[1]);
+          // éviter « aller dedans dans » => « aller dans »
+        } else if (premierMotComplet.trim() === 'aller dedans') {
+          if (mots[1].startsWith('dans')) {
+            premierMotComplet = 'aller';
+          } else if (mots[1].trim()) {
+            premierMotComplet = 'aller dans';
+          }
         }
 
         // c’est un « me » par exemple « me regarder » 
