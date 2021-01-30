@@ -106,7 +106,7 @@ export class Instructions {
         }
       }
     }
-    
+
     // Texte (d’un objet)
     if (contenu.includes("[texte")) {
       if (contenu.includes("[texte ceci]")) {
@@ -183,19 +183,35 @@ export class Instructions {
 
     if (contenu.includes("[obstacle ")) {
       if (contenu.includes("[obstacle vers ceci]")) {
-        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-          const obstacleVersCeci = this.afficherObstacle(ceci as Localisation);
-          contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
+        if (ceci) {
+          let obstacleVersCeci: string = null;
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+            obstacleVersCeci = this.afficherObstacle((ceci as Localisation).id);
+            contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
+          } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+            obstacleVersCeci = this.afficherObstacle(ceci as Lieu);
+            contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
+          } else {
+            console.error("interpreterContenuDire: statut sortie vers ceci: ceci n’est ni une direction ni un lieu.");
+          }
         } else {
-          console.error("interpreterContenuDire: statut sortie vers ceci: ceci n'est pas une direction");
+          console.error("interpreterContenuDire: statut sortie vers ceci: ceci est null.");
         }
       }
       if (contenu.includes("[obstacle vers cela]")) {
-        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
-          const obstacleVersCela = this.afficherObstacle(cela as Localisation);
-          contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
+        if (cela) {
+          let obstacleVersCela: string = null;
+          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
+            obstacleVersCela = this.afficherObstacle((cela as Localisation).id);
+            contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
+          } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.lieu)) {
+            obstacleVersCela = this.afficherObstacle(cela as Lieu);
+            contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
+          } else {
+            console.error("interpreterContenuDire: statut sortie vers cela: cela n’est ni une direction ni un lieu.");
+          }
         } else {
-          console.error("interpreterContenuDire: statut sortie vers cela: cela n'est pas une direction");
+          console.error("interpreterContenuDire: statut sortie vers cela: cela est null.");
         }
       }
     }
@@ -875,8 +891,23 @@ export class Instructions {
       case 'déplacer':
         // déplacer sujet vers direction
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+
+          let loc: Localisation | ELocalisation = ceci as Localisation;
+
           // console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
-          const voisinID = this.eju.getVoisin((ceci as Localisation), EClasseRacine.lieu);
+          let voisinID = this.eju.getVoisinID((loc), EClasseRacine.lieu);
+
+          if (voisinID == -1) {
+            // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
+            if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
+              const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
+              if (lieuxVoisinsVisibles.length == 1) {
+                voisinID = lieuxVoisinsVisibles[0].id;
+                loc = lieuxVoisinsVisibles[0].localisation;
+              }
+            }
+          }
+
           if (voisinID != -1) {
             const voisin = this.eju.getLieu(voisinID);
             sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, voisin.intitule, null, null);
@@ -884,6 +915,11 @@ export class Instructions {
           } else {
             resultat.succes = false;
           }
+          // déplacer sujet vers un lieu
+        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, new GroupeNominal(null, "ceci"), ceci as Lieu, null);
+          resultat.succes = sousResultat.succes;
+          // déplacer sujet vers un objet
         } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
           // console.error("Exécuter infinitif: déplacer sujet vers objet. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
           sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
@@ -1148,9 +1184,9 @@ export class Instructions {
               // if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.visibleID)) {
               // décrire la porte
               if (curPorte.apercu) {
-                if(curPorte.apercu != '-')
-                // si aperçu, afficher l'aperçu.
-                resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
+                if (curPorte.apercu != '-')
+                  // si aperçu, afficher l'aperçu.
+                  resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
               } else {
                 // par défaut, afficher le nom de la porte et ouvert/fermé.
                 resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntitule(curPorte, true) + " est ";
@@ -1193,7 +1229,7 @@ export class Instructions {
   }
 
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
-  private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: Objet = null, cela: ElementJeu | Intitule = null): Resultat {
+  private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu = null, cela: ElementJeu | Intitule = null): Resultat {
 
     if (this.verbeux) {
       console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
@@ -1211,7 +1247,10 @@ export class Instructions {
 
     switch (sujet.nom) {
       case "ceci":
-        objet = ceci;
+        objet = ceci as Objet;
+        break;
+      case "cela":
+        objet = cela as Objet;
         break;
       case "joueur":
         objet = this.jeu.joueur;
@@ -1299,6 +1338,9 @@ export class Instructions {
 
       // la présence des objets a changé
       this.eju.majPresenceDesObjets();
+
+      // l’adjacence des lieux a changé
+      this.eju.majAdjacenceLieux();
 
       // si l'objet à déplacer n'est pas le joueur
     } else {
@@ -1712,10 +1754,31 @@ export class Instructions {
   }
 
   /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
-  afficherObstacle(direction: Localisation) {
-    let retVal: string = "(aucun obstacle)";
+  afficherObstacle(direction: Lieu | ELocalisation, texteSiAucunObstacle = "(aucun obstacle)") {
+    let retVal: string = texteSiAucunObstacle;
+
+    let loc: Localisation | ELocalisation = null;
+
+    // si la direction est un lieu
+    if (direction instanceof Lieu) {
+      // chercher la direction vers ce lieu
+      let voisin = this.eju.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == (direction as Lieu).id);
+      loc = voisin.localisation;
+      // sinon c’est directement une direction
+    } else {
+      loc = direction;
+      // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
+      if (direction == ELocalisation.exterieur /*|| direction == ELocalisation.interieur*/) {
+        const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
+        if (lieuxVoisinsVisibles.length == 1) {
+          loc = lieuxVoisinsVisibles[0].localisation;
+        }
+        // cas normal
+      }
+    }
+
     // trouver la porte qui est dans le chemin
-    const porteID = this.eju.getVoisin(direction, EClasseRacine.porte);
+    const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
     if (porteID !== -1) {
       const porte = this.eju.getObjet(porteID);
       const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
@@ -1723,13 +1786,15 @@ export class Instructions {
       // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
       if (porte.genre == Genre.f) {
         if (ouvert) {
-          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
+          // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
+          retVal = texteSiAucunObstacle;
         } else {
           retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermée.";
         }
       } else {
         if (ouvert) {
-          retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
+          // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
+          retVal = texteSiAucunObstacle;
         } else {
           retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermé.";
         }
@@ -1741,33 +1806,14 @@ export class Instructions {
   afficherSorties(lieu: Lieu): string {
     let retVal: string;
 
-    // ne pas afficher les sorties séparrées par une porte cachée
+    // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
+    const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
 
-    // retrouver les voisins
-    // - lieux
-    let lieuxVoisins = lieu.voisins.filter(x => x.type === EClasseRacine.lieu);
-    // - portes
-    let portesVoisines = lieu.voisins.filter(x => x.type === EClasseRacine.porte);
-
-    // retirer de la liste les voisins séparé par une porte non visible
-    if (lieuxVoisins.length > 0 && portesVoisines.length > 0) {
-      portesVoisines.forEach(voisinPorte => {
-        // retrouver la porte
-        const porte = this.eju.getObjet(voisinPorte.id);
-        // si la porte est invisible
-        if (porte && !this.jeu.etats.estVisible(porte, this.eju)) {
-          // retirer de la liste le lieu voisin lié
-          const voisinLieuIndex = lieuxVoisins.findIndex(x => x.localisation === voisinPorte.localisation);
-          lieuxVoisins.splice(voisinLieuIndex, 1);
-        }
-      });
-    }
-
-    if (lieuxVoisins.length > 0) {
+    if (lieuxVoisinsVisibles.length > 0) {
       retVal = "Sorties :";
-      lieuxVoisins.forEach(voisin => {
+      lieuxVoisinsVisibles.forEach(voisin => {
         // if (voisin.type == EClasseRacine.lieu) {
-        retVal += ("\n - " + this.afficherLocalisation(voisin.localisation, lieu.id, voisin.id));
+        retVal += ("{n}{i}- " + this.afficherLocalisation(voisin.localisation, lieu.id, voisin.id));
         // }
       });
     } else {
@@ -1776,39 +1822,49 @@ export class Instructions {
     return retVal;
   }
 
-  afficherLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
+  private afficherLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;
+    let obstacle = this.afficherObstacle(localisation, "");
+
+    if (obstacle) {
+      obstacle = " ({/obstrué/})";
+      // obstacle = " (obstrué)";
+    }
+
     switch (localisation) {
       case ELocalisation.nord:
-        retVal = "nord (n)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "nord" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.sud:
-        retVal = "sud (s) " + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sud" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.est:
-        retVal = "est (e)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "est" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.ouest:
-        retVal = "ouest (o)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "ouest" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.bas:
-        retVal = "descendre (de) − " + titreLieu;
+        retVal = "descendre" + obstacle + " − " + titreLieu;
         break;
       case ELocalisation.haut:
-        retVal = "monter (mo) − " + titreLieu;
+        retVal = "monter" + obstacle + " − " + titreLieu;
         break;
       case ELocalisation.exterieur:
-        retVal = "sortir (so)" + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sortir" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.interieur:
-        retVal = "entrer (en) − " + titreLieu;
+        retVal = "entrer" + obstacle + " − " + titreLieu;
         break;
 
       default:
         retVal = localisation.toString();
     }
+
+
+
     return retVal;
   }
 
