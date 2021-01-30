@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-26-0013
+-- Version: 2021-01-29-0014
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -105,8 +105,9 @@ SCÈNE "aller".
 aller vers ceci est une action qui concerne un intitulé.
 
 refuser aller vers ceci:
-  si ceci est un lieu, dire "Je ne sais pas me rendre directement dans un lieu mais je peux aller vers une direction. Ex: « nord » pour aller vers le nord";
-  si ceci n’est pas une direction, dire "Je peux aller vers une direction. Ex: « nord » pour aller vers le nord.";
+  si le joueur se trouve dans ceci, dire "Vous y êtes déjà.";
+  si ceci est un lieu mais pas adjacent, dire "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.";
+  si ceci n’est ni une direction ni un lieu, dire "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.";
   si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
   si aucune sortie accessible vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
 
@@ -959,7 +960,7 @@ SCÈNE "dormir".
 dormir est une action.
 
 terminer dormir:
-  dire "Vous prenez un repo bien mérité, quoi qu’un peu inconfortable.".
+  dire "Vous prenez un repos bien mérité, quoi qu’un peu inconfortable.".
   
   
 dormir sur ceci est une action qui concerne un objet visible.
@@ -969,7 +970,7 @@ refuser dormir sur ceci:
   si ceci n’est pas un support, dire "Je ne sais pas me coucher dessus.".
 
 terminer dormir sur ceci:
-  dire "Vous prenez un repo bien mérité.".
+  dire "Vous prenez un repos bien mérité.".
   
 
 SCÈNE "prier".
