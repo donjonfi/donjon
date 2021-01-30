@@ -46,6 +46,24 @@ export class BalisesHtml {
     retVal = retVal.replace(/\{e\}/g, ' ');
     // espace insécable {i}
     retVal = retVal.replace(/\{i\}/g, '&nbsp;');
+
+    // font
+    // - 0) sans-serif (police par défaut)
+    retVal = retVal.replace(/\{0/g, '');
+    retVal = retVal.replace(/0\}/g, '');
+    // - 1) serif
+    retVal = retVal.replace(/\{1/g, '<span class="serif">');
+    retVal = retVal.replace(/1\}/g, '</span>');
+    // - 2) monospace
+    retVal = retVal.replace(/\{2/g, '<span class="monospace">');
+    retVal = retVal.replace(/2\}/g, '</span>');
+    // - 3) cursive
+    retVal = retVal.replace(/\{3/g, '<span class="cursive">');
+    retVal = retVal.replace(/3\}/g, '</span>');
+    // - 4) fantasy
+    retVal = retVal.replace(/\{4/g, '<span class="fantasy">');
+    retVal = retVal.replace(/4\}/g, '</span>');
+
     return retVal;
   }
 
