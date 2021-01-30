@@ -115,9 +115,9 @@ export class Generateur {
     monde.lieux.forEach(curEle => {
 
       // let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
-      let titre = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      let titreSansAutoMaj = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
       // mettre majuscule en début d’intitulé (début de Phrase)
-      titre = titre[0].toUpperCase() + titre.slice(1);
+      let titre = titreSansAutoMaj[0].toUpperCase() + titreSansAutoMaj.slice(1);
 
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
@@ -152,6 +152,11 @@ export class Generateur {
         }
       });
       nouvLieu.proprietes = curEle.proprietes;
+
+      if (nouvLieu.description === null) {
+        nouvLieu.description = "Vous êtes dans " + titreSansAutoMaj + ".";
+      }
+
       jeu.lieux.push(nouvLieu);
     });
 
