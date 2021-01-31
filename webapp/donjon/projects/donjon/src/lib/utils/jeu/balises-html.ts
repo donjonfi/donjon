@@ -42,18 +42,27 @@ export class BalisesHtml {
     // - 0) sans-serif (police par défaut)
     retVal = retVal.replace(/\{0/g, '');
     retVal = retVal.replace(/0\}/g, '');
-    // - 1) serif
-    retVal = retVal.replace(/\{1/g, '<span class="serif">');
+    // - 1)
+    retVal = retVal.replace(/\{1/g, '<span class="font-1">');
     retVal = retVal.replace(/1\}/g, '</span>');
-    // - 2) monospace
-    retVal = retVal.replace(/\{2/g, '<span class="monospace">');
+    // - 2)
+    retVal = retVal.replace(/\{2/g, '<span class="font-2">');
     retVal = retVal.replace(/2\}/g, '</span>');
-    // - 3) cursive
-    retVal = retVal.replace(/\{3/g, '<span class="cursive">');
+    // - 3)
+    retVal = retVal.replace(/\{3/g, '<span class="font-3">');
     retVal = retVal.replace(/3\}/g, '</span>');
-    // - 4) fantasy
-    retVal = retVal.replace(/\{4/g, '<span class="fantasy">');
+    // - 4)
+    retVal = retVal.replace(/\{4/g, '<span class="font-4">');
     retVal = retVal.replace(/4\}/g, '</span>');
+    // - 5)
+    retVal = retVal.replace(/\{5/g, '<span class="font-5">');
+    retVal = retVal.replace(/5\}/g, '</span>');
+    // - 6)
+    retVal = retVal.replace(/\{6/g, '<span class="font-6">');
+    retVal = retVal.replace(/6\}/g, '</span>');
+    // - 7)
+    retVal = retVal.replace(/\{7/g, '<span class="font-7">');
+    retVal = retVal.replace(/7\}/g, '</span>');
 
     // retrait {r} ou {t} (tabulation)
     retVal = retVal.replace(/\{r\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');

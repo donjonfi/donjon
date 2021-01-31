@@ -31,23 +31,116 @@
   font-style: italic;
 }
 
+// ============================================
+// FONTS
+// ============================================
 
-.sans-serif {
-  font-family: Arial, Verdana, Helvetica, sans-serif;
+@font-face {
+  font-family: "arapeyregular";
+  src: url("./assets/fonts/1-arapey/webkit/arapey-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/1-arapey/webkit/arapey-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
-.serif {
-  font-family: Constantia, Times, "Times New Roman", Georgia, serif;
+@font-face {
+  font-family: "courier_primeregular";
+  src: url("./assets/fonts/2-courier-prime/webkit/courier_prime-webfont.woff2") format("woff2"),
+    url("./assets/fonts/2-courier-prime/webkit/courier_prime-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
-.monospace {
-  font-family: "Courier New", "FreeMono", "Consolas", "DejaVu Sans Mono", "Fira Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace;
+@font-face {
+  font-family: "kingthings_petrockregular";
+  src: url("./assets/fonts/3-kingthings-petrock/webkit/Kingthings_Petrock-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
-.cursive {
-  font-family: "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting", "Apple Chancery", cursive;
+@font-face {
+  font-family: "alluraregular";
+  src: url("./assets/fonts/4-allura/webkit/allura-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/4-allura/webkit/allura-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
-.fantasy {
-  font-family: Luminari, "Copperplate Gothic", Herculanum, Papyrus, Party LET, Curlz MT, Harrington, fantasy;
+@font-face {
+  font-family: "journalregular";
+  src: url("./assets/fonts/5-journal/webkit/journal-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
+
+@font-face {
+  font-family: "orbitronmedium";
+  src: url("./assets/fonts/6-orbitron/webkit/orbitron-medium-webfont.woff2") format("woff2"),
+    url("./assets/fonts/6-orbitron/webkit/orbitron-medium-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "bevanregular";
+  src: url("./assets/fonts/7-bevan/webkit/bevan-webfont.woff2") format("woff2"),
+    url("./assets/fonts/7-bevan/webkit/bevan-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-1 {
+  font-family: "arapeyregular", "Times New Roman", Times, serif;
+  font-size: large;
+}
+
+.font-2 {
+  font-family: "courier_primeregular", "Courier New", Courier, monospace;
+}
+
+.font-3 {
+  font-family: "kingthings_petrockregular", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: x-large;
+}
+
+.font-4 {
+  font-family: "alluraregular", "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting",
+    "Apple Chancery", cursive;
+  font-size: xx-large;
+}
+
+.font-5 {
+  font-family: "journalregular", "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting",
+    "Apple Chancery", cursive;
+  font-size: xx-large;
+}
+
+.font-6 {
+  font-family: "orbitronmedium", fantasy;
+  font-size: small;
+}
+
+.font-7 {
+  font-family: "bevanregular", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: large;
+}
+
+// .sans-serif {
+//   font-family: Arial, Verdana, Helvetica, sans-serif;
+// }
+
+// .serif {
+//   font-family: Constantia, Times, "Times New Roman", Georgia, serif;
+// }
+
+// .monospace {
+//   font-family: "Courier New", "FreeMono", "Consolas", "DejaVu Sans Mono", "Fira Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace;
+// }
+
+// .cursive {
+//   font-family: "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting", "Apple Chancery", cursive;
+// }
+
+// .fantasy {
+//   font-family: Luminari, "Copperplate Gothic", Herculanum, Papyrus, Party LET, Curlz MT, Harrington, fantasy;
+// }
