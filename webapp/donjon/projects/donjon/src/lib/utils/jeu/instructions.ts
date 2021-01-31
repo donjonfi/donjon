@@ -492,6 +492,30 @@ export class Instructions {
     if (contenu.includes("[")) {
       contenu = this.calculerDescription(contenu, nbExecutions, null, ceci, cela);
     }
+
+    // ===================================================
+    // RETOUR CONDITIONNEL
+    // ===================================================
+
+    if (contenu.includes("{N}")) {
+      // retirer toutes les balises de style
+      const testVide = contenu
+        .replace(/\{\S\}/g, "") // {x}
+        .replace(/\{\S/g, "")   // {x
+        .replace(/\S\}/g, "")   // x}
+        .trim();
+
+      // contenu vide
+      if (testVide == "") {
+        // => pas de \n
+        contenu = contenu.replace(/\{N\}/g, "");
+        // contenu pas vide
+      } else {
+        // sera remplacé lors de la transformation en HTML si ne débute pas le bloc de texte.
+        // contenu = contenu.replace(/\{N\}/g, "\n");
+      }
+    }
+
     return contenu;
   }
 
@@ -1732,7 +1756,10 @@ export class Instructions {
 
       if (obj.genre == Genre.f) {
         if (ouvert) {
-          retVal += "Elle est ouverte.";
+          // pas besoin de préciser qu’on contenant est ouvert, sauf s’il est ouvrable.
+          if (!ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ouvrable) {
+            retVal += "Elle est ouverte.";
+          }
         } else {
           retVal += "Elle est fermée" + (verrouillable ? (verrou ? " et verrouillée." : " mais pas verrouillée.") : ".");
         }
@@ -1741,7 +1768,10 @@ export class Instructions {
         }
       } else {
         if (ouvert) {
-          retVal += "Il est ouvert.";
+          // pas besoin de préciser qu’on contenant est ouvert, sauf s’il est ouvrable.
+          if (!ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ouvrable) {
+            retVal += "Il est ouvert.";
+          }
         } else {
           retVal += "Il est fermé" + (verrouillable ? (verrou ? " et verrouillé." : " mais pas verrouillé.") : ".");
         }

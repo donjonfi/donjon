@@ -36,16 +36,7 @@ export class BalisesHtml {
     // texte PRIMARY {-texte-}
     retVal = retVal.replace(/\{-/g, '<span class="text-primary">');
     retVal = retVal.replace(/-\}/g, '</span>');
-    // nouvelle ligne {n} ou \n
-    retVal = retVal.replace(/\{n\}/g, '<br>');
-    retVal = retVal.replace(/\n/g, '<br>');
-    // retrait {r} ou {t} (tabulation)
-    retVal = retVal.replace(/\{r\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    // espace {e}
-    retVal = retVal.replace(/\{e\}/g, ' ');
-    // espace insécable {i}
-    retVal = retVal.replace(/\{i\}/g, '&nbsp;');
+
 
     // font
     // - 0) sans-serif (police par défaut)
@@ -63,6 +54,26 @@ export class BalisesHtml {
     // - 4) fantasy
     retVal = retVal.replace(/\{4/g, '<span class="fantasy">');
     retVal = retVal.replace(/4\}/g, '</span>');
+
+    // retrait {r} ou {t} (tabulation)
+    retVal = retVal.replace(/\{r\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    // espace {e}
+    retVal = retVal.replace(/\{e\}/g, ' ');
+    // espace insécable {i}
+    retVal = retVal.replace(/\{i\}/g, '&nbsp;');
+
+    // nouvelle ligne {n} ou \n
+    retVal = retVal.replace(/\{n\}/g, '<br>');
+    retVal = retVal.replace(/\n/g, '<br>');
+
+    // nouvelle ligne, si pas vide, {N}
+    // - si débute par {N}, ne pas en tenir compte
+    if (retVal.startsWith("{N}")) {
+      retVal = retVal.slice(3);
+    }
+    // - remplacer les autres {N} par un \n
+    retVal = retVal.replace(/\{N\}/g, '<br>');
 
     return retVal;
   }
