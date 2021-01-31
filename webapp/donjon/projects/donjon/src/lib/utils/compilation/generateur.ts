@@ -9,6 +9,7 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
@@ -245,6 +246,16 @@ export class Generateur {
         });
         newObjet.proprietes = curEle.proprietes;
 
+
+        if (newObjet.description === null) {
+          // mettre un déterminant indéfini, sauf si intitulé sans déterminant.
+          const detIndefini = newObjet.intitule.determinant ? ElementsJeuUtils.trouverDeterminantIndefini(newObjet) : "";
+          if (newObjet.nombre == Nombre.p) {
+            newObjet.description = "Ce sont " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
+          } else {
+            newObjet.description = "C’est " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
+          }
+        }
 
         // POSITION de l’élément
         // -- PORTE
