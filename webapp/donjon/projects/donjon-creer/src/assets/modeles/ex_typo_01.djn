@@ -1,0 +1,9 @@
+
+avant commencer le jeu:
+  dire "
+  0: Voici {0 Un exemple de texte avec Style 0}
+  1: Voici {1 Un exemple de texte avec Style 1}
+  2: Voici {2 Un exemple de texte avec Style 2}
+  3: Voici {3 Un exemple de texte avec Style 3}
+  4: Voici {4 Un exemple de texte avec Style 4}
+  ".

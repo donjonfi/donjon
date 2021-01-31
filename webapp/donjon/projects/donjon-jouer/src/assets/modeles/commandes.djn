@@ -1,6 +1,6 @@
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-29-0014
+-- Version: 2021-01-31-0015
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -125,7 +125,7 @@ L'aide pour l'action aller est "{*Aller*}
   > {-aller vers {/le nord/}-}
   > {-sud-}
   > {-monter-}
-  > {-entrer-}
+  > {-entrer dans {/la cabane/}-}
   {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
 
 CHAPITRE "ouvrir et fermer".
@@ -428,8 +428,8 @@ refuser regarder ceci:
 terminer regarder ceci:
   si ceci est un objet:
     dire "[description ceci] ";
-  si ceci est une porte ou un contenant :
-    dire "{n}[statut ceci]";
+  si ceci est une porte ou un contenant:
+    dire "{N}[statut ceci]";
   si ceci est un contenant et ouvert:
     dire "[contenu ceci]";
   si ceci est un contenant et fermé et transparent:
@@ -477,7 +477,7 @@ terminer examiner ceci:
   si ceci est un objet:
     dire "[description ceci] ";
   si ceci est une porte ou un contenant :
-    dire "{n}[statut ceci]";
+    dire "{N}[statut ceci]";
   si ceci est un contenant et ouvert:
     dire "[contenu ceci]";
   si ceci est un contenant et fermé et transparent:
