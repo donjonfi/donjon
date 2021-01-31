@@ -5,6 +5,7 @@ import { ClasseUtils } from './classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Correspondance } from '../jeu/correspondance';
 import { ElementJeu } from '../../models/jeu/element-jeu';
+import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
@@ -31,6 +32,56 @@ export class ElementsJeuUtils {
       retVal = retVal[0].toUpperCase() + retVal.slice(1);
     }
     return retVal;
+  }
+
+  static trouverDeterminantIndefini(el: ElementJeu): string {
+
+    switch (el.nombre) {
+      // pluriel
+      case Nombre.p:
+        return "des ";
+
+      // singulier
+      case Nombre.s:
+        switch (el.genre) {
+          // féminin
+          case Genre.f:
+            return "une ";
+
+          // masculin / neutre
+          case Genre.m:
+          case Genre.n:
+            return "un ";
+        }
+
+      // indéfini
+      case Nombre.i:
+        switch (el.genre) {
+          // féminin
+          case Genre.f:
+            if (el.intitule.nom.match(/^{aeiouy}.*/)) {
+              return "de l’"
+            } else {
+              return "de la "
+            }
+
+          // masculin
+          case Genre.m:
+            if (el.intitule.nom.match(/^{aeiouy}.*/)) {
+              return "de l’"
+            } else {
+              return "du "
+            }
+
+          // neutre
+          case Genre.n:
+            return "de l’";
+        }
+    }
+
+
+
+
   }
 
   static possedeCapaciteActionCible(ej: ElementJeu, actionA: string, actionB: string = null, cible: string): boolean {
@@ -203,8 +254,7 @@ export class ElementsJeuUtils {
           // retrouver la porte
           const curPorte = this.getObjet(curVoisinPorte.id);
           // si la porte est ouverte ou visible, on voit le voisin
-          if(this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID) || this.jeu.etats.estVisible(curPorte, this))
-          {
+          if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID) || this.jeu.etats.estVisible(curPorte, this)) {
             voisinsVisibles.push(voisin);
           }
           // il n’y a pas de porte
