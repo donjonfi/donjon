@@ -660,6 +660,7 @@ export class Instructions {
           break;
         // FIN CHOIX
         case 'fin choix':
+        case 'fchoix':
           if (statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
             retVal = true;
           } else {
@@ -668,6 +669,7 @@ export class Instructions {
           break;
         // FIN SI
         case 'fin si':
+        case 'fsi':
           if (statut.conditionDebutee === ConditionDebutee.si) {
             retVal = true;
           } else {

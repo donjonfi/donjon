@@ -91,7 +91,7 @@ export class Compilateur {
     // - DES RÈGLES
     regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, false);
+        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs);
       }
       if (verbeux) {
         console.log(">>> regle:", regle);
@@ -106,7 +106,7 @@ export class Compilateur {
           if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutCommentaire)) {
             reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
           }
-          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, false);
+          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs);
         });
         if (verbeux) {
           console.log(">>> objet avec réactions :", objet);

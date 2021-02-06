@@ -13,7 +13,6 @@ export enum LienCondition {
 
 export class Condition {
   constructor(
-    public estSinon: boolean,
     public typeLien: LienCondition,
     public sujet: GroupeNominal,
     public verbe: string,

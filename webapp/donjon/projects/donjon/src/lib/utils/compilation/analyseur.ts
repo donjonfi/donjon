@@ -791,11 +791,11 @@ export class Analyseur {
               break;
             case 'exécuter':
               action.instructionsBrutes = complement;
-              action.instructions = Analyseur.separerConsequences(complement, erreurs, false);
+              action.instructions = Analyseur.separerConsequences(complement, erreurs);
               break;
             case 'terminer':
               action.instructionsFinalesBrutes = complement;
-              action.instructionsFinales = Analyseur.separerConsequences(complement, erreurs, false);
+              action.instructionsFinales = Analyseur.separerConsequences(complement, erreurs);
               break;
 
             default:
@@ -831,7 +831,7 @@ export class Analyseur {
             action.cibleCeci = new GroupeNominal(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
           }
 
-          action.instructions = Analyseur.separerConsequences(complement, erreurs, false);
+          action.instructions = Analyseur.separerConsequences(complement, erreurs);
 
           actions.push(action);
           return action; // trouvé action simple
@@ -1043,7 +1043,7 @@ export class Analyseur {
         if (!condition) {
           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
         }
-        const consequences = Analyseur.separerConsequences(result[3], erreurs, false);
+        const consequences = Analyseur.separerConsequences(result[3], erreurs);
         verification.push(new Verification([condition], consequences));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
@@ -1068,13 +1068,15 @@ export class Analyseur {
   }
 
 
-  public static separerConsequences(consequencesBrutes: string, erreurs: string[], sousConsequences: boolean) {
+  public static separerConsequences(consequencesBrutes: string, erreurs: string[]) {
 
     // les conséquences sont séparées par des ";"
-    // les sous-conséquences sont séparées par des ","
-    const listeConsequences = consequencesBrutes.split((sousConsequences ? ',' : ';'));
-
+    const listeConsequences = consequencesBrutes.split(';');
     let instructions: Instruction[] = [];
+
+    let blocSiCommence = false;
+    let consequencesCommencees: Instruction[] = null;
+
     listeConsequences.forEach(curConsequence => {
       let conBruNettoyee = curConsequence
         .trim()
@@ -1083,8 +1085,8 @@ export class Analyseur {
         .replace(ExprReg.xCaractereFinCommentaire, '" ')
         // enlever les espaces multiples
         .replace(/( +)/g, " ");
-      // enlever le point final (ou le ; final pour les sous-conséquences)
-      if (conBruNettoyee.endsWith((sousConsequences ? ';' : '.'))) {
+      // enlever le point final ou le point virgule final)
+      if (conBruNettoyee.endsWith(';') || conBruNettoyee.endsWith('.')) {
         conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
       }
 
@@ -1117,16 +1119,31 @@ export class Analyseur {
           // }
         }
 
-        instructions.push(new Instruction(els));
+        // si un bloc si est commencé, ajouter l’instruction aux conséquences
+        if (blocSiCommence) {
+          consequencesCommencees.push(new Instruction(els));
+          // sinon ajouter simplement l’instruction
+        } else {
+          instructions.push(new Instruction(els));
+        }
+
         // cas B: INSTRUCTION CONDITIONNELLE
       } else {
 
         let resultSiCondCons = ExprReg.xSeparerSiConditionConsequences.exec(conBruNettoyee);
 
         // cas B.1 => SI
-        if (resultSiCondCons && !sousConsequences) {
+        if (resultSiCondCons) {
           const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
-          const consequences = Analyseur.separerConsequences(resultSiCondCons[2], erreurs, true);
+          const blocCondition = resultSiCondCons[2] == ':' || resultSiCondCons[2] == 'alors';
+
+
+          const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs);
+
+          if (blocCondition) {
+            blocSiCommence = true;
+            consequencesCommencees = consequences;
+          }
 
           instructions.push(new Instruction(null, condition, consequences, null));
 
@@ -1134,9 +1151,8 @@ export class Analyseur {
         } else {
           // cas B.2 => SINON
           let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
-          if (resultSinonCondCons && !sousConsequences) {
-
-            const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs, true);
+          if (resultSinonCondCons) {
+            const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs);
 
             // récupérer la dernière instruction et remplir le sinon
             let precInstruction = instructions.pop();
@@ -1150,12 +1166,16 @@ export class Analyseur {
             }
             // cas C => RIEN TROUVÉ
           } else {
-            console.error("separerConsequences > RIEN TROUVÉ resultSiCondCons= ", resultSiCondCons, "sousConsequences=", sousConsequences);
+            console.error("separerConsequences > RIEN TROUVÉ resultSiCondCons= ", resultSiCondCons);
             erreurs.push("conséquence : " + conBruNettoyee);
           }
         }
       }
     });
+
+    console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructions);
+
+
     return instructions;
   }
 

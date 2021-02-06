@@ -155,7 +155,7 @@ export class PhraseUtils {
     // TODO: priorité des oppérateurs
     const els = PhraseUtils.decomposerCondition(condition);
     if (els) {
-      let retVal = new Condition(false, LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement1, els.sujetComplement1);
+      let retVal = new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement1, els.sujetComplement1);
 
       // s’il s’agit d’une condition composée (ni ni, mais pas, et, ou, …)
       if (els.conjonction) {
@@ -163,44 +163,44 @@ export class PhraseUtils {
         switch (els.conjonction) {
           case 'et':
           case 'ni':
-            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
             // 3e élément éventuel
             if (els.complement3) {
-              retVal.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              retVal.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;
           case 'ou':
-            retVal.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            retVal.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
             // 3e élément éventuel
             if (els.complement3) {
-              retVal.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              retVal.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(false, LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;
           case 'soit':
             retVal.negation = ""; // correction: soit n’est pas une négation
-            retVal.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+            retVal.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
             // 3e élément éventuel
             if (els.complement3) {
-              retVal.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+              retVal.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
               // 4e élément éventuel
               if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(false, LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+                retVal.lien.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
               }
             }
             break;
           case 'mais pas':
-            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
+            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
             break;
           case 'mais bien':
-            retVal.lien = new Condition(false, LienCondition.et, els.sujet, els.verbe, null, els.complement2, els.sujetComplement2);
+            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, null, els.complement2, els.sujetComplement2);
             break;
 
           default:

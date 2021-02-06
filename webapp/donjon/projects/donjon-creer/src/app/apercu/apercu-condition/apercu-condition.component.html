@@ -1,4 +1,4 @@
-<ng-container *ngIf="!condition.estSinon">
+<ng-container>
   <ul>
     <li>
       <app-apercu-sujet [sujet]="condition.sujet"></app-apercu-sujet>
@@ -15,6 +15,3 @@
     <app-apercu-condition [condition]="condition.lien"></app-apercu-condition>
   </ng-container>
 </ng-container>
-<ul *ngIf="condition.estSinon">
-  <li>sinon</li>
-</ul>
