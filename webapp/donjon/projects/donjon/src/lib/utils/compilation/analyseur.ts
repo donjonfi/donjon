@@ -15,6 +15,7 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
 import { Phrase } from '../../models/compilateur/phrase';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionSujetString } from '../../models/compilateur/position-sujet';
@@ -42,7 +43,7 @@ export class Analyseur {
       if (phrase.commentaire) {
         // le commentaire se rapporte au dernier sujet
         console.error("Commentaire pas attaché :", phrase.phrase[0]);
-        erreurs.push("Commentaire orphelin:", phrase.phrase[0])
+        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : Commentaire orphelin:", phrase.phrase[0])
         phrase.traitee = true;
         // 2) CODE DESCRIPTIF OU REGLE
       } else {
@@ -791,11 +792,11 @@ export class Analyseur {
               break;
             case 'exécuter':
               action.instructionsBrutes = complement;
-              action.instructions = Analyseur.separerConsequences(complement, erreurs);
+              action.instructions = Analyseur.separerConsequences(complement, erreurs, phrase.ligne);
               break;
             case 'terminer':
               action.instructionsFinalesBrutes = complement;
-              action.instructionsFinales = Analyseur.separerConsequences(complement, erreurs);
+              action.instructionsFinales = Analyseur.separerConsequences(complement, erreurs, phrase.ligne);
               break;
 
             default:
@@ -831,7 +832,7 @@ export class Analyseur {
             action.cibleCeci = new GroupeNominal(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
           }
 
-          action.instructions = Analyseur.separerConsequences(complement, erreurs);
+          action.instructions = Analyseur.separerConsequences(complement, erreurs, phrase.ligne);
 
           actions.push(action);
           return action; // trouvé action simple
@@ -1043,7 +1044,7 @@ export class Analyseur {
         if (!condition) {
           erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
         }
-        const consequences = Analyseur.separerConsequences(result[3], erreurs);
+        const consequences = Analyseur.separerConsequences(result[3], erreurs, phrase.ligne);
         verification.push(new Verification([condition], consequences));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
@@ -1068,13 +1069,13 @@ export class Analyseur {
   }
 
 
-  public static separerConsequences(consequencesBrutes: string, erreurs: string[]) {
+  public static separerConsequences(consequencesBrutes: string, erreurs: string[], ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
 
     // les conséquences sont séparées par des ";"
     const listeConsequences = consequencesBrutes.split(';');
     let instructions: Instruction[] = [];
 
-    let blocSiCommence = false;
+    let blocSiCommence = 0;
     let consequencesCommencees: Instruction[] = null;
 
     listeConsequences.forEach(curConsequence => {
@@ -1120,7 +1121,7 @@ export class Analyseur {
         }
 
         // si un bloc si est commencé, ajouter l’instruction aux conséquences
-        if (blocSiCommence) {
+        if (blocSiCommence == 1) {
           consequencesCommencees.push(new Instruction(els));
           // sinon ajouter simplement l’instruction
         } else {
@@ -1138,10 +1139,10 @@ export class Analyseur {
           const blocCondition = resultSiCondCons[2] == ':' || resultSiCondCons[2] == 'alors';
 
 
-          const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs);
+          const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs, ligne);
 
           if (blocCondition) {
-            blocSiCommence = true;
+            blocSiCommence += 1;
             consequencesCommencees = consequences;
           }
 
@@ -1152,7 +1153,7 @@ export class Analyseur {
           // cas B.2 => SINON
           let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
           if (resultSinonCondCons) {
-            const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs);
+            const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs, ligne);
 
             // récupérer la dernière instruction et remplir le sinon
             let precInstruction = instructions.pop();
@@ -1164,10 +1165,38 @@ export class Analyseur {
               console.error("« sinon » orphelin : " + conBruNettoyee);
               erreurs.push("« sinon » orphelin : " + conBruNettoyee);
             }
-            // cas C => RIEN TROUVÉ
+            // cas C => FIN SI
+          } else if (conBruNettoyee.trim().toLowerCase() == 'fin si' || conBruNettoyee.trim().toLowerCase() == 'fsi') {
+            // fermer un si
+            blocSiCommence -= 1;
+
+            // si pas de si ouvert, erreur
+            if (blocSiCommence < 0) {
+              console.error("separerConsequences > fin si orphelin");
+              if (ligne > 0) {
+                erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : fin si orphelin.");
+              } else if (regle) {
+                let ev = regle.evenements[0];
+                erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : fin si orphelin.");
+              } else if (reaction) {
+                erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : fin si orphelin.");
+              } else {
+                erreurs.push("----- : conséquence : fin si orphelin.");
+              }
+            }
+
+            // cas D => RIEN TROUVÉ
           } else {
-            console.error("separerConsequences > RIEN TROUVÉ resultSiCondCons= ", resultSiCondCons);
-            erreurs.push("conséquence : " + conBruNettoyee);
+            console.error("separerConsequences > RIEN TROUVÉ\nconBruNettoyee=", conBruNettoyee);
+            if (ligne > 0) {
+              erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : " + conBruNettoyee + ".");
+            } else if (regle) {
+              erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : conséquence : " + conBruNettoyee + ".");
+            } else if (reaction) {
+              erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction concernant « " + Reaction.reactionIntitule(reaction) + " » : conséquence : " +  conBruNettoyee + ".");
+            } else {
+              erreurs.push("----- : conséquence : " + conBruNettoyee);
+            }
           }
         }
       }

@@ -46,4 +46,8 @@ export class ElementGenerique implements ElementDonjon {
 
   }
 
+  public static elIntitule(el: ElementGenerique) {
+    return el.nom;
+  }
+
 }

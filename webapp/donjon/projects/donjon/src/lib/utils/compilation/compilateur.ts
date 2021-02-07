@@ -12,6 +12,7 @@ import { Genre } from '../../models/commun/genre.enum';
 import { HttpClient } from '@angular/common/http';
 import { Monde } from '../../models/compilateur/monde';
 import { Nombre } from '../../models/commun/nombre.enum';
+import { Objet } from '../../models/jeu/objet';
 import { Phrase } from '../../models/compilateur/phrase';
 import { Regle } from '../../models/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
@@ -91,7 +92,7 @@ export class Compilateur {
     // - DES RÈGLES
     regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs);
+        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, erreurs, -1, regle);
       }
       if (verbeux) {
         console.log(">>> regle:", regle);
@@ -106,7 +107,7 @@ export class Compilateur {
           if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutCommentaire)) {
             reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
           }
-          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs);
+          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, erreurs, -1, null, reaction, objet);
         });
         if (verbeux) {
           console.log(">>> objet avec réactions :", objet);
