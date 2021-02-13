@@ -1,6 +1,8 @@
+Désactiver commandes de base.
+
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-01-31-0015
+-- Version: 2021-02-13-0016
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -31,11 +33,12 @@ exécuter afficher ceci:
       {e}- {-parler à {/magicienne/}-} : parler à un personnage
       {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
       {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
-  si ceci est l’inventaire:
+  ssi ceci est l’inventaire:
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]";
-  si ceci est les sorties ou la sortie:
-    dire "[sorties ici]".
-    
+  ssi ceci est les sorties ou la sortie:
+    dire "[sorties ici]";
+  fsi.
+  
 terminer afficher ceci:
   si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
   
@@ -44,11 +47,12 @@ terminer afficher ceci:
 afficher ceci pour cela est une action qui concerne un intitulé et un intitulé.
 
 exécuter afficher ceci pour cela:
-  si ceci est l’aide:
+  si ceci est l’aide,
     dire "[aide cela]".
   
 terminer afficher ceci cela:
-  si ceci n’est pas l’aide, dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
+  si ceci n’est pas l’aide,
+    dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
 
 L'aide pour l'action afficher est "{*Afficher*}
   Permet d’afficher certains éléments du jeu.
@@ -426,26 +430,28 @@ refuser regarder ceci:
   si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.".
 
 terminer regarder ceci:
-  si ceci est un objet:
+  si ceci est un objet, 
     dire "[description ceci] ";
-  si ceci est une porte ou un contenant:
+  si ceci est une porte ou un contenant, 
     dire "{N}[statut ceci]";
-  si ceci est un contenant et ouvert:
+  si ceci est un contenant et ouvert, 
     dire "[contenu ceci]";
-  si ceci est un contenant et fermé et transparent:
+  si ceci est un contenant et fermé et transparent, 
     dire "[contenu ceci]";
-  si ceci est un support:
+  si ceci est un support, 
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu ni l’inventaire:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire, 
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support ni l’inventaire:
+  si ceci n'est ni un contenant ni un support ni l’inventaire,
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
-    dire "{_{*[titre ici]*}_}",
-    dire "{n}[description ici][contenu ici]",
+    dire "{_{*[titre ici]*}_}";
+    dire "{n}[description ici][contenu ici]";
     dire "{n}{n}[sorties ici]";
-  si ceci est l’inventaire:
+  fsi;
+  si ceci est l’inventaire,
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
+  
   
 L'aide pour l'action regarder est "{*Regarder*}
   Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
@@ -472,27 +478,28 @@ refuser examiner ceci:
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
 terminer examiner ceci:
-  si ceci est le joueur:
+  si ceci est le joueur,
     dire "Étrange...{n}";
-  si ceci est un objet:
+  si ceci est un objet,
     dire "[description ceci] ";
-  si ceci est une porte ou un contenant :
+  si ceci est une porte ou un contenant,
     dire "{N}[statut ceci]";
-  si ceci est un contenant et ouvert:
+  si ceci est un contenant et ouvert,
     dire "[contenu ceci]";
-  si ceci est un contenant et fermé et transparent:
+  si ceci est un contenant et fermé et transparent,
     dire "[contenu ceci]";
-  si ceci est un support:
+  si ceci est un support,
     dire "[contenu ceci]";
-  si ceci n'est ni accessible ni un lieu ni l’inventaire:
+  si ceci n'est ni accessible ni un lieu ni l’inventaire,
     dire " [Pronom ceci] n'est pas accessible.";
-  si ceci n'est ni un contenant ni un support ni l’inventaire:
+  si ceci n'est ni un contenant ni un support ni l’inventaire,
     dire "[si aucune description pour ceci]Vous ne trouvez rien d’intéressant.[fin si]";
   si ceci est un lieu:
-    dire "{_{*[titre ici]*}_}",
-    dire "{n}[description ici][contenu ici]",
+    dire "{_{*[titre ici]*}_}";
+    dire "{n}[description ici][contenu ici]";
     dire "{n}{n}[sorties ici]";
-  si ceci est l’inventaire:
+  fsi;
+  si ceci est l’inventaire,
     dire "Votre inventaire [si l’inventaire contient un objet]contient : [contenu inventaire][sinon]est vide.[fin si]".
 
 interpréter fouiller comme examiner.
@@ -613,7 +620,8 @@ exécuter jeter ceci vers cela:
   si cela est un support :
     déplacer ceci vers cela;
   sinon
-    déplacer ceci vers ici.
+    déplacer ceci vers ici;
+  fsi.
   
 terminer jeter ceci vers cela:
   dire "Je [l' ceci]ai jeté[es ceci].".
@@ -655,19 +663,19 @@ refuser mettre ceci dans cela:
   si cela est fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
 
 exécuter mettre ceci dans cela:
-  si cela est un support ou un contenant:
+  si cela est un support ou un contenant,
     déplacer ceci sur cela;
-  si cela est un vivant mais pas le joueur:
+  si cela est un vivant mais pas le joueur,
     déplacer ceci sur cela;
-  si cela est le joueur:
+  si cela est le joueur,
     changer le joueur porte ceci.
 
 terminer mettre ceci dans cela:
-  si cela est un support ou un contenant:
+  si cela est un support ou un contenant,
     dire "C’est fait.";
-  si cela est un vivant mais pas le joueur:
+  si cela est un vivant mais pas le joueur,
     dire "C’est fait.";
-  si cela est le joueur:
+  si cela est le joueur,
     dire "Vous portez [intitulé ceci].".
     
 interpréter chausser, enfiler, porter, équiper, poser et tenir comme mettre.
