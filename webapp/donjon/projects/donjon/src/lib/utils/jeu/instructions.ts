@@ -1701,6 +1701,25 @@ export class Instructions {
 
         }
         break;
+
+      case 'est':
+      case 'sont':
+        const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
+        // n'est pas => retirer un état
+        if (nEstPas) {
+          if (this.verbeux) {
+            console.log("executerJoueur: retirer l’état '", instruction.complement1, "' ele=", this.jeu.joueur);
+          }
+          this.jeu.etats.retirerEtatElement(this.jeu.joueur, instruction.complement1);
+          // est => ajouter un état
+        } else {
+          if (this.verbeux) {
+            console.log("executerJoueur: ajouter l’état '", instruction.complement1, "'");
+          }
+          this.jeu.etats.ajouterEtatElement(this.jeu.joueur, instruction.complement1);
+        }
+        break;
+
       default:
         console.error("executerJoueur : pas compris verbe", instruction.verbe, instruction);
         break;
