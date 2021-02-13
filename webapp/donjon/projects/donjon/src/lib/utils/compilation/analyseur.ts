@@ -121,7 +121,7 @@ export class Analyseur {
           // ACTIVER / DÉSACTIVER
           // ===============================================
           if (!trouveQuelqueChose) {
-            trouveQuelqueChose = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== null;
+            trouveQuelqueChose = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== false;
           }
 
           // ===============================================
@@ -1096,7 +1096,7 @@ export class Analyseur {
     for (let indexCurConsequence = 0; indexCurConsequence < listeConsequences.length; indexCurConsequence++) {
       const curConsequence = listeConsequences[indexCurConsequence];
 
-      console.log("curConsequence=", curConsequence);
+      // console.log("curConsequence=", curConsequence);
 
       // NETTOYER CONSÉQUENCE
       let conBruNettoyee = curConsequence
