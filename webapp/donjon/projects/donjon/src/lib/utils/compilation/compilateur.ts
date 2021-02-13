@@ -47,7 +47,9 @@ export class Compilateur {
     elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
 
     // inclure les commandes de base, sauf si on les a désactivées.
-    if (!scenario.includes('Désactiver commandes de base.') || scenario.includes('désactiver commandes de base.')) {
+    if (!
+      (scenario.includes('Désactiver les commandes de base.')
+        || scenario.includes('désactiver les commandes de base.'))) {
       try {
         const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
         Compilateur.analyserCode(sourceCommandes, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
