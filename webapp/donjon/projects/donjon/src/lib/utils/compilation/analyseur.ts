@@ -118,6 +118,13 @@ export class Analyseur {
           }
 
           // ===============================================
+          // ACTIVER / DÉSACTIVER
+          // ===============================================
+          if (!trouveQuelqueChose) {
+            trouveQuelqueChose = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== null;
+          }
+
+          // ===============================================
           // MONDE
           // ===============================================
           if (!trouveQuelqueChose) {
@@ -1071,14 +1078,27 @@ export class Analyseur {
 
   public static separerConsequences(consequencesBrutes: string, erreurs: string[], ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
 
+    // on ajoute un «;» après les « fin si» si manquant (pour découper après cette instruction également.)
+    consequencesBrutes = consequencesBrutes.replace(/fin si( )?(?!;|\]|\.)/g, "fin si;");
+    consequencesBrutes = consequencesBrutes.replace(/fsi( )?(?!;|\]|\.)/g, "fsi;");
     // les conséquences sont séparées par des ";"
     const listeConsequences = consequencesBrutes.split(';');
-    let instructions: Instruction[] = [];
 
-    let blocSiCommence = 0;
-    let consequencesCommencees: Instruction[] = null;
+    let instructionsPrincipales: Instruction[] = [];
+    let indexBlocCondCommence = -1;
+    let blocsSiEnCours: Instruction[][] = [];
+    let blocsSinonEnCours: Instruction[][] = [];
+    let dansBlocSinon: boolean[] = [];
+    let prochaineInstructionAttendue: Instruction[] = null;
+    let prochainSiEstSinonSi = false;
 
-    listeConsequences.forEach(curConsequence => {
+    // PARCOURIR LES CONSÉQUENCES
+    for (let indexCurConsequence = 0; indexCurConsequence < listeConsequences.length; indexCurConsequence++) {
+      const curConsequence = listeConsequences[indexCurConsequence];
+
+      console.log("curConsequence=", curConsequence);
+
+      // NETTOYER CONSÉQUENCE
       let conBruNettoyee = curConsequence
         .trim()
         // convertir marque commentaire
@@ -1091,122 +1111,199 @@ export class Analyseur {
         conBruNettoyee = conBruNettoyee.slice(0, conBruNettoyee.length - 1);
       }
 
-      const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
-      // cas A: INSTRUCTION SIMPLE
-      if (els) {
-        if (els.complement1) {
-          // si le complément est un Texte (entre " "), garder les retours à la ligne
-          if (els.complement1.startsWith('"') && els.complement1.endsWith('"')) {
-            els.complement1 = els.complement1
-              .replace(ExprReg.xCaractereRetourLigne, '\n')
-              // remettre les , et les ; initiaux dans les commentaires
-              .replace(ExprReg.xCaracterePointVirgule, ';')
-              .replace(ExprReg.xCaractereVirgule, ',');
-            // sinon remplacer les retours à la ligne par des espaces
-          } else {
-            els.complement1 = els.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
-            // // remettre les , et les ; initiaux dans les instructions
-            // .replace(ExprReg.xCaracterePointVirgule, ';')
-            // .replace(ExprReg.xCaractereVirgule, ',');
-          }
+      if (conBruNettoyee) {
+        console.log("conBruNettoyee=", conBruNettoyee);
 
-          // // retirer le \n initial éventuel
-          // if (els.complement1.startsWith(ExprReg.caractereRetourLigne)) {
-          //   els.complement1 = els.complement1.substr(1);
-          // }
-          // // retirer le \n final éventuel
-          // if (els.complement1.length > 1 && els.complement1.endsWith(ExprReg.caractereRetourLigne)) {
-          //   els.complement1 = els.complement1.substr(0, els.complement1.length - 2);
-          // }
-        }
-
-        // si un bloc si est commencé, ajouter l’instruction aux conséquences
-        if (blocSiCommence == 1) {
-          consequencesCommencees.push(new Instruction(els));
-          // sinon ajouter simplement l’instruction
-        } else {
-          instructions.push(new Instruction(els));
-        }
-
-        // cas B: INSTRUCTION CONDITIONNELLE
-      } else {
-
-        let resultSiCondCons = ExprReg.xSeparerSiConditionConsequences.exec(conBruNettoyee);
-
-        // cas B.1 => SI
-        if (resultSiCondCons) {
-          const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
-          const blocCondition = resultSiCondCons[2] == ':' || resultSiCondCons[2] == 'alors';
-
-
-          const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs, ligne);
-
-          if (blocCondition) {
-            blocSiCommence += 1;
-            consequencesCommencees = consequences;
-          }
-
-          instructions.push(new Instruction(null, condition, consequences, null));
-
-          // pas de si trouvé
-        } else {
-          // cas B.2 => SINON
-          let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
-          if (resultSinonCondCons) {
-            const consequences = Analyseur.separerConsequences(resultSinonCondCons[2], erreurs, ligne);
-
-            // récupérer la dernière instruction et remplir le sinon
-            let precInstruction = instructions.pop();
-
-            if (precInstruction && precInstruction.condition) {
-              precInstruction.instructionsSiConditionPasVerifiee = consequences;
-              instructions.push(precInstruction);
+        // DÉCOMPOSER CONSÉQUENCE
+        const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
+        // CAS A > INSTRUCTION SIMPLE
+        if (els) {
+          if (els.complement1) {
+            // si le complément est un Texte (entre " "), garder les retours à la ligne
+            if (els.complement1.startsWith('"') && els.complement1.endsWith('"')) {
+              els.complement1 = els.complement1
+                .replace(ExprReg.xCaractereRetourLigne, '\n')
+                // remettre les , et les ; initiaux dans les commentaires
+                .replace(ExprReg.xCaracterePointVirgule, ';')
+                .replace(ExprReg.xCaractereVirgule, ',');
+              // sinon remplacer les retours à la ligne par des espaces
             } else {
-              console.error("« sinon » orphelin : " + conBruNettoyee);
-              erreurs.push("« sinon » orphelin : " + conBruNettoyee);
+              els.complement1 = els.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
             }
-            // cas C => FIN SI
-          } else if (conBruNettoyee.trim().toLowerCase() == 'fin si' || conBruNettoyee.trim().toLowerCase() == 'fsi') {
-            // fermer un si
-            blocSiCommence -= 1;
+          }
+          let newInstruction = new Instruction(els);
 
-            // si pas de si ouvert, erreur
-            if (blocSiCommence < 0) {
-              console.error("separerConsequences > fin si orphelin");
-              if (ligne > 0) {
-                erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : fin si orphelin.");
-              } else if (regle) {
-                let ev = regle.evenements[0];
-                erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : fin si orphelin.");
-              } else if (reaction) {
-                erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : fin si orphelin.");
+          // si la prochaine instruction était attendue, l’ajouter
+          if (prochaineInstructionAttendue) {
+            prochaineInstructionAttendue.push(newInstruction);
+            prochaineInstructionAttendue = null;
+            // si un bloc si est commencé, ajouter l’instruction au bloc
+          } else if (indexBlocCondCommence != -1) {
+            if (dansBlocSinon[indexBlocCondCommence]) {
+              blocsSinonEnCours[indexBlocCondCommence].push(newInstruction);
+            } else {
+              blocsSiEnCours[indexBlocCondCommence].push(newInstruction);
+            }
+            // sinon ajouter simplement l’instruction à la liste principale
+          } else {
+            instructionsPrincipales.push(newInstruction);
+          }
+
+          // CAS B > INSTRUCTION CONDITIONNELLE
+        } else {
+
+          let resultSiCondCons = ExprReg.xSeparerSiConditionConsequences.exec(conBruNettoyee);
+
+          // CAS B.1 >> SI
+          if (resultSiCondCons) {
+            const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
+            const estBlocCondition = resultSiCondCons[2] == ':' || resultSiCondCons[2] == 'alors';
+            // // const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs, ligne);
+            // la conséquence directement liée au si doit être insérée dans le liste pour être interprétée à la prochaine itération
+            const consequenceAInserer = resultSiCondCons[3];
+            listeConsequences.splice(indexCurConsequence + 1, 0, consequenceAInserer);
+
+            let nouvelleListeConsequencesSi = new Array<Instruction>();
+            let nouvelleListeConsequencesSinon = new Array<Instruction>();
+            let newInstruction = new Instruction(null, condition, nouvelleListeConsequencesSi, nouvelleListeConsequencesSinon);
+
+            // UN SI RAPIDE EST EN COURS
+            if (prochaineInstructionAttendue) {
+              prochaineInstructionAttendue = null;
+              Analyseur.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", erreurs, regle, reaction, el, ligne);
+              // UN BLOC EST COMMENCÉ
+            } else if (indexBlocCondCommence != -1) {
+
+              // >>> CAS SSI (sinon si)
+              if (prochainSiEstSinonSi) {
+                if (dansBlocSinon[indexBlocCondCommence]) {
+                  Analyseur.afficherErreurBloc("Un ssi (sinon si) peut suivre un si ou un ssi mais pas un sinon.", erreurs, regle, reaction, el, ligne);
+                } else {
+                  // on va ajouter l’instruction ssi dans le sinon de l’instruction conditionnelle ouverte
+                  blocsSinonEnCours[indexBlocCondCommence].push(newInstruction);
+                  // le ssi cloture l’instruction conditionnelle ouverte
+                  indexBlocCondCommence -= 1;
+                  blocsSiEnCours.pop();
+                  blocsSinonEnCours.pop();
+                  dansBlocSinon.pop();
+                }
+                // >>> CAS NORMAL
               } else {
-                erreurs.push("----- : conséquence : fin si orphelin.");
+                if (dansBlocSinon[indexBlocCondCommence]) {
+                  blocsSinonEnCours[indexBlocCondCommence].push(newInstruction);
+                } else {
+                  blocsSiEnCours[indexBlocCondCommence].push(newInstruction);
+                }
+              }
+              // AUCUN BLOC COMMENCÉ
+            } else {
+              // >>> SSI ORPHELIN
+              if (prochainSiEstSinonSi) {
+                Analyseur.afficherErreurBloc("ssi (sinon si) orphelin.", erreurs, regle, reaction, el, ligne);
+
+                // >>> CAS NORMAL
+              } else {
+                // ajouter à la liste principale
+                instructionsPrincipales.push(newInstruction);
               }
             }
 
-            // cas D => RIEN TROUVÉ
-          } else {
-            console.error("separerConsequences > RIEN TROUVÉ\nconBruNettoyee=", conBruNettoyee);
-            if (ligne > 0) {
-              erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : " + conBruNettoyee + ".");
-            } else if (regle) {
-              erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : conséquence : " + conBruNettoyee + ".");
-            } else if (reaction) {
-              erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction concernant « " + Reaction.reactionIntitule(reaction) + " » : conséquence : " +  conBruNettoyee + ".");
+            // intruction conditionnelle avec un bloc de conséquences
+            if (estBlocCondition) {
+              indexBlocCondCommence += 1;
+              // conséquences du si liées au si ouvert
+              blocsSiEnCours.push(nouvelleListeConsequencesSi);
+              blocsSinonEnCours.push(nouvelleListeConsequencesSinon);
+              dansBlocSinon.push(false);
+              // instruction conditionnelle courte
             } else {
-              erreurs.push("----- : conséquence : " + conBruNettoyee);
+              // l’instruction suivante est attendue pour la placer dans les conséquences de l’instruction conditionnelle
+              prochaineInstructionAttendue = nouvelleListeConsequencesSi;
+            }
+
+          } else {
+            // CAS B.2 >> SINON / SSI (sinon si)
+            let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
+            if (resultSinonCondCons) {
+              // si un sinon est attendu
+              if (indexBlocCondCommence != -1 && !dansBlocSinon[indexBlocCondCommence] && !prochaineInstructionAttendue) {
+
+                let typeDeSinon = resultSinonCondCons[1];
+                // sinon classique
+                if (typeDeSinon == 'sinon') {
+                  // on entre dans le bloc sinon
+                  dansBlocSinon[indexBlocCondCommence] = true;
+                  // la conséquence directement liée au sinon doit être insérée dans le liste pour être interprétée à la prochaine itération
+                  const consequenceAInserer = resultSinonCondCons[2];
+                  listeConsequences.splice(indexCurConsequence + 1, 0, consequenceAInserer);
+
+                  // ssi (si sinon)
+                } else if (typeDeSinon == 'ssi') {
+                  // explication : 
+                  // On sait que la prochaine instruction est un si on on voudrait qu’il soit placé
+                  // dans le sinon de l’instruction en cours mais qu’il ne soit pas considéré comme 
+                  // un sinon car il y a encore un sinon qui va suivre après le ssi…
+                  // De plus il n’y aura pas de fsi supplémentaire car il est chainé au si
+                  // déjà ouvert donc on ne veut pas descendre d’un niveau supplémentaire.
+
+                  // la condition directement liée au ssi doit être insérée dans le liste pour être interprétée à la prochaine itération
+                  const conditionAInserer = "si " + resultSinonCondCons[2];
+                  listeConsequences.splice(indexCurConsequence + 1, 0, conditionAInserer);
+                  prochainSiEstSinonSi = true;
+
+                } else {
+                  console.error("type de sinon pas pris en charge:", typeDeSinon);
+                }
+
+                // sinon il est orphelin
+              } else {
+                Analyseur.afficherErreurBloc("sinon orphelin.", erreurs, regle, reaction, el, ligne);
+              }
+
+              // CAS C > FIN SI
+            } else if (conBruNettoyee.trim().toLowerCase() == 'fin si' || conBruNettoyee.trim().toLowerCase() == 'fsi') {
+
+              // si pas de si ouvert, erreur
+              if (indexBlocCondCommence < 0) {
+                Analyseur.afficherErreurBloc("fin si orphelin.", erreurs, regle, reaction, el, ligne);
+                // si bloc conditionnel ouvert => le fermer
+              } else {
+                indexBlocCondCommence -= 1;
+                blocsSiEnCours.pop();
+                blocsSinonEnCours.pop();
+                dansBlocSinon.pop();
+              }
+
+              // CAS D > RIEN TROUVÉ
+            } else {
+              Analyseur.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), erreurs, regle, reaction, el, ligne);
             }
           }
-        }
-      }
-    });
+        } // fin analyse de l’instruction
+      } // fin test instruction vide
+    } // fin parcours des instructions
 
-    console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructions);
+    if (indexBlocCondCommence != -1) {
+      Analyseur.afficherErreurBloc("fin si manquant.", erreurs, regle, reaction, el, ligne);
+    }
 
+    // console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructionsPrincipales);
 
-    return instructions;
+    return instructionsPrincipales;
   }
 
+  private static afficherErreurBloc(message, erreurs: string[], regle: Regle, reaction: Reaction, el: ElementGenerique, ligne: number) {
+    console.error("separerConsequences > " + message);
+    if (ligne > 0) {
+      erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : " + message);
+    } else if (regle) {
+      let ev = regle.evenements[0];
+      erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : " + message);
+    } else if (reaction) {
+      erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : " + message);
+    } else {
+      erreurs.push("----- : conséquence : " + message);
+    }
+  }
 
 }
