@@ -46,15 +46,18 @@ export class Compilateur {
     elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
 
-    try {
-      const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
-      Compilateur.analyserCode(sourceCommandes, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
-    } catch (error) {
-      console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
-      erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
+    // inclure les commandes de base, sauf si on les a désactivées.
+    if (!scenario.includes('Désactiver commandes de base.') || scenario.includes('désactiver commandes de base.')) {
+      try {
+        const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
+        Compilateur.analyserCode(sourceCommandes, monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
+      } catch (error) {
+        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+        erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
+      }
     }
 
-    const regleInfoDonjon = "\naprès afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; continuer l’action.";
+    const regleInfoDonjon = "\n.après afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; continuer l’action.";
 
     // B. Interpréter le scénario
     Compilateur.analyserCode((scenario + regleInfoDonjon), monde, elementsGeneriques, regles, actions, aides, typesUtilisateur, erreurs, verbeux);
