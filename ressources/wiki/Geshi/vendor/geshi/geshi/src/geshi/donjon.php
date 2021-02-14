@@ -48,12 +48,12 @@ $language_data = array (
 			'décor', 'animal', 'personne'
             ),
         3 => array(
-            'si', 'sinon', 'remplacer', 'exécuter', 'refuser', 'terminer', 
+            'si', 'sinon', 'sinonsi', 'remplacer', 'exécuter', 'refuser', 'terminer', 
 			'avant', 'après',
 			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
-			'initialement', 'puis', 'fin', 'choix', 'boucle', 'hasard', 'fois'
+			'initialement', 'puis', 'fin', 'finsi', 'choix', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
             'joueur', 'historique', 'ceci', 'cela', 'ici',
