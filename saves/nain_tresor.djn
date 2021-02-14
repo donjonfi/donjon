@@ -1,0 +1,28 @@
+Le titre du jeu est "Le nain qui voulait un trésor".
+L’auteur du jeu est "l’illustre inconnu".
+avant commencer le jeu:
+  dire "Bonjour mon Héros !{n}";
+  changer le joueur se trouve dans le jardin.
+  
+chapitre "le jardin".
+Le jardin est un lieu. "Vous êtes dans un beau jardin en fleurs. Le soleil brille.".
+Les fleurs (f) sont des objets décoratifs dans le jardin.
+La clé rouge est dans le jardin. "Il s’agit d’une vieille clé rouillée et un peu tordue."
+La clé verte est dans le jardin. "Il s’agit d’une clé faite d’herbe compressée."
+L’abri de jardin est un lieu obscur à l’intérieur du jardin.
+Il est humide et froid.
+Les fourmis sont des animaux du jardin. "Il y en a beaucoup mais elles n’ont pas l’air agressives."
+La porte rouge est une porte au sud de l’abri de jardin.
+Elle est fermée et pas ouvrable.
+La clé rouge permet d’ouvrir la porte rouge.
+Le seau est un contenant dans l’abri de jardin.
+
+chapitre "la forêt et la caverne".
+La forêt est un lieu au nord du jardin. "Vous êtes dans une forêt sombre.".
+Les arbres sont des décors de la forêt.
+Il y a des chauves-souris (chauve-souris, f) dans les arbres.
+Ce sont des annimaux.
+Le lac est un décor de la forêt.
+Il contient de l’eau.
+La caverne ténébreuse est un lieu obscur à l’intérieur de la forêt.
+Le dragon est un animal dans la caverne.

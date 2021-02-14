@@ -1,11 +1,8 @@
-import { ELocalisation, Localisation } from '../../models/jeu/localisation';
-
 import { ClasseUtils } from '../commun/classe-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
-import { Genre } from '../../models/commun/genre.enum';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Objet } from '../../models/jeu/objet';
@@ -27,115 +24,8 @@ export class Commandes {
 
 
   // =========================================
-  // COMMANDES QUI MODIFIENT LE JEU
-  // =========================================
-
-  // aller(els: ElementsPhrase) {
-
-  //   let locDest: Localisation = null;
-
-  //   switch (els.infinitif) {
-
-  //     case "aller":
-  //       // vérifier la direction
-  //       switch (els.sujet.nom) {
-  //         case "nord":
-  //           locDest = Localisation.Nord;
-  //           break;
-
-  //         case "sud":
-  //           locDest = Localisation.Sud;
-  //           break;
-
-  //         case "ouest":
-  //           locDest = Localisation.Ouest;
-  //           break;
-
-  //         case "est":
-  //           locDest = Localisation.Est;
-  //           break;
-
-  //         default:
-  //           break;
-  //       }
-  //       break;
-
-  //     case "sortir":
-  //       locDest = Localisation.Exterieur;
-  //       break;
-  //     case "entrer":
-  //       locDest = Localisation.Interieur;
-  //       break;
-  //     case "monter":
-  //       locDest = Localisation.Haut;
-  //       break;
-  //     case "descendre":
-  //       locDest = Localisation.Bas;
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-
-  //   const voisinLieu = this.eju.getLieu(this.eju.getVoisin(locDest, EClasseRacine.lieu));
-  //   const voisinPorte = this.eju.getObjet(this.eju.getVoisin(locDest, EClasseRacine.porte));
-
-  //   // console.log("voisinLieu", voisinLieu);
-  //   // console.log("voisinPorte", voisinPorte);
-
-  //   // TODO: vérifier accès…
-  //   if (voisinPorte && this.jeu.etats.possedeEtatIdElement(voisinPorte, this.jeu.etats.fermeID)) {
-  //     // La porte est fermée
-  //     // TODO: gérer majuscule
-  //     return (this.outils.afficherIntitule(voisinPorte.intitule) + " est fermé" + (voisinPorte.genre === Genre.f ? "e" : "") + ".");
-  //   } else {
-  //     if (voisinPorte) {
-  //       console.log("porte ouverte :)");
-  //     } else {
-  //       console.log("pas de porte");
-  //     }
-  //     if (voisinLieu) {
-  //       this.jeu.joueur.position.cibleType = EClasseRacine.lieu;
-  //       this.jeu.joueur.position.cibleId = voisinLieu.id;
-
-  //       this.eju.majPresenceDesObjets();
-
-  //       return this.outils.afficherCurLieu();
-  //     } else {
-  //       return "Pas pu aller par là.";
-  //     }
-  //   }
-
-  // }
-
-
-
-  // =========================================
   // COMMANDES QUI NE MODIFIENT PAS LE JEU
   // =========================================
-
-  // aide(els: ElementsPhrase) {
-  //   if (!els.sujet) {
-  //     return "{_Quelques commandes utiles_}\n"
-  //       + " - {-aide {/parler/}-} : afficher l’aide d’une commande\n"
-  //       + " - {-aller {/nord/}-} : aller vers le nord\n"
-  //       + " - {-regarder-} : regarder autours de vous\n"
-  //       + " - {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations\n"
-  //       + " - {-prendre {/épée/}-} : prendre un objet\n"
-  //       + " - {-inventaire-} : afficher le contenu de votre inventaire\n"
-  //       + " - {-parler à {/magicienne/}-} : parler à un personnage\n"
-  //       + " - {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique\n"
-  //       + " - {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée\n"
-  //       + "{+[Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License ]+}";
-  //   } else {
-  //     const ficheAide = this.jeu.aides.find(x => x.infinitif === els.sujet.nom);
-  //     if (ficheAide) {
-  //       return ficheAide.informations;
-  //     } else {
-  //       return "Désolé, je n’ai pas de page d’aide concernant la commande « " + els.sujet.nom + " »";
-  //     }
-  //   }
-  // }
 
   deboguer(els: ElementsPhrase) {
     let retVal = "";
@@ -291,18 +181,6 @@ export class Commandes {
   //   }
   // }
 
-  // sorties() {
-  //   return this.ins.afficherSorties(this.eju.curLieu);
-  // }
 
-  // inventaire() {
-  //   let retVal = this.ins.executerListerContenu(this.jeu.joueur, true).sortie;
-  //   if (!retVal) {
-  //     retVal = "{/Votre inventaire est vide./}";
-  //   } else {
-  //     retVal = "Votre inventaire contient:" + retVal;
-  //   }
-  //   return retVal;
-  // }
 
 }

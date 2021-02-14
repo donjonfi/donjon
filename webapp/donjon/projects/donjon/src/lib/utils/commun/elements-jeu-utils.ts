@@ -195,8 +195,8 @@ export class ElementsJeuUtils {
       return obj.position.cibleId;
       // objet possédé (par le joueur)
     } else if (obj.position.cibleId === this.jeu.joueur.id) {
-      // objet contenu dans un autre objet
-      return null;
+      // objet dans le lieu actuel puisque possédé par le joueur
+      return this.curLieu.id;
     } else {
       // objet dans un contenant qui est dans un lieu
       const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
