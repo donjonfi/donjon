@@ -58,7 +58,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "quand |avant |après |si |sinon|fin si|fsi|refuser |exécuter |terminer |interpréter |comme |" +
+          regex: "quand |avant |après |si |sinon|sinonsi |fin si|finsi|refuser |exécuter |terminer |interpréter |comme |" +
             "au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|puis|fin choix|fchoix|" +
             "et\\b|ou\\b|ni\\b|soit\\b|mais pas|" +
             "partie|chapitre|scène",
