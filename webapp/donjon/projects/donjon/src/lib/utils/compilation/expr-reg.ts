@@ -328,9 +328,9 @@ export class ExprReg {
   static readonly xSeparerSiConditionConsequences = /^si (.+?)(?: )?(:|alors|,)(?: )?(.+)$/i;
 
   /**
-   * (sinon|ssi)(1) :|, ({condition}consequences)(2)
+   * (sinonsi|sinon)(1) :|, ({condition}consequences)(2)
    */
-  static readonly xSeparerSinonConsequences = /^(sinon|ssi)(?: )?(?::|,)?(?: )?(.+)$/i;
+  static readonly xSeparerSinonConsequences = /^(sinonsi|sinon)(?: )?(?::|,)?(?: )?(.+)$/i;
 
   // ================================================================================================
   //  INSTRUCTIONS

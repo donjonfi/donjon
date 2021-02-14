@@ -623,63 +623,86 @@ export class Instructions {
       retVal = statut.siVrai;
       // SUITES
     } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
-      retVal = false;
-      switch (conditionLC) {
-        // OU
-        case 'ou':
-          if (statut.conditionDebutee === ConditionDebutee.hasard) {
-            retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
-          } else {
-            console.warn("[ou] sans 'au hasard'.");
-          }
-          break;
-        // PUIS
-        case 'puis':
-          if (statut.conditionDebutee === ConditionDebutee.fois) {
-            // toutes les fois suivant le dernier Xe fois
-            retVal = (statut.nbAffichage > statut.plusGrandChoix);
-          } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
-            // boucler
-            statut.dernIndexChoix += 1;
-            retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
-          } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
-            // quand on est plus dans initialement
-            retVal = !statut.initial;
-          } else {
-            console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
-          }
-          break;
-        // SINON
-        case 'sinon':
-          if (statut.conditionDebutee === ConditionDebutee.si) {
-            retVal = !statut.siVrai;
-          } else {
-            console.warn("[sinon] sans 'si'.");
-            retVal = false;
-          }
-          break;
-        // FIN CHOIX
-        case 'fin choix':
-        case 'fchoix':
-          if (statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
-            retVal = true;
-          } else {
-            console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
-          }
-          break;
-        // FIN SI
-        case 'fin si':
-        case 'fsi':
-          if (statut.conditionDebutee === ConditionDebutee.si) {
-            retVal = true;
-          } else {
-            console.warn("[fin si] sans 'si'.");
-          }
-          break;
 
-        default:
-          console.warn("estConditionDescriptionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
-          break;
+      // SINONSI
+      if (conditionLC.startsWith("sinonsi ") || conditionLC.startsWith("sinon si ")) {
+        if (statut.conditionDebutee === ConditionDebutee.si) {
+          // le si précédent était vrai => la suite sera fausse
+          if (statut.siVrai) {
+            // (on laisse le statut siVrai à true pour les sinonsi/sinon suivants)
+            retVal = false;
+          // le si précédent était faux => tester le sinonsi
+          } else {
+            // (on retire le « sinon » qui précède le si)
+            conditionLC = conditionLC.substr('sinon'.length).trim()
+            // tester le si
+            const condition = PhraseUtils.getCondition(conditionLC);
+            statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela);
+            retVal = statut.siVrai;
+          }
+        } else {
+          console.warn("[sinonsi …] sans 'si'.");
+          retVal = false;
+        }
+      } else {
+        retVal = false;
+        switch (conditionLC) {
+          // OU
+          case 'ou':
+            if (statut.conditionDebutee === ConditionDebutee.hasard) {
+              retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
+            } else {
+              console.warn("[ou] sans 'au hasard'.");
+            }
+            break;
+          // PUIS
+          case 'puis':
+            if (statut.conditionDebutee === ConditionDebutee.fois) {
+              // toutes les fois suivant le dernier Xe fois
+              retVal = (statut.nbAffichage > statut.plusGrandChoix);
+            } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
+              // boucler
+              statut.dernIndexChoix += 1;
+              retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
+            } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
+              // quand on est plus dans initialement
+              retVal = !statut.initial;
+            } else {
+              console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
+            }
+            break;
+          // SINON
+          case 'sinon':
+            if (statut.conditionDebutee === ConditionDebutee.si) {
+              retVal = !statut.siVrai;
+            } else {
+              console.warn("[sinon] sans 'si'.");
+              retVal = false;
+            }
+            break;
+          // FIN CHOIX
+          case 'fin choix':
+          case 'finchoix':
+            if (statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
+              retVal = true;
+            } else {
+              console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
+            }
+            break;
+          // FIN SI
+          case 'fin si':
+          case 'finsi':
+            if (statut.conditionDebutee === ConditionDebutee.si) {
+              retVal = true;
+            } else {
+              console.warn("[fin si] sans 'si'.");
+            }
+            break;
+
+          default:
+            console.warn("estConditionDescriptionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
+            break;
+        }
       }
     }
 
@@ -1881,7 +1904,6 @@ export class Instructions {
 
     if (obstacle) {
       obstacle = " ({/obstrué/})";
-      // obstacle = " (obstrué)";
     }
 
     switch (localisation) {

@@ -1080,7 +1080,7 @@ export class Analyseur {
 
     // on ajoute un «;» après les « fin si» si manquant (pour découper après cette instruction également.)
     consequencesBrutes = consequencesBrutes.replace(/fin si( )?(?!;|\]|\.)/g, "fin si;");
-    consequencesBrutes = consequencesBrutes.replace(/fsi( )?(?!;|\]|\.)/g, "fsi;");
+    consequencesBrutes = consequencesBrutes.replace(/finsi( )?(?!;|\]|\.)/g, "finsi;");
     // les conséquences sont séparées par des ";"
     const listeConsequences = consequencesBrutes.split(';');
 
@@ -1173,19 +1173,22 @@ export class Analyseur {
               Analyseur.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", erreurs, regle, reaction, el, ligne);
               // UN BLOC EST COMMENCÉ
             } else if (indexBlocCondCommence != -1) {
+              console.log("prochainSiEstSinonSi=", prochainSiEstSinonSi);
 
-              // >>> CAS SSI (sinon si)
+              // >>> CAS SINONSI (sinon si)
               if (prochainSiEstSinonSi) {
                 if (dansBlocSinon[indexBlocCondCommence]) {
-                  Analyseur.afficherErreurBloc("Un ssi (sinon si) peut suivre un si ou un ssi mais pas un sinon.", erreurs, regle, reaction, el, ligne);
+                  Analyseur.afficherErreurBloc("Un sinonsi peut suivre un si ou un autre sinonsi mais pas un sinon car le sinon doit être le dernier cas.", erreurs, regle, reaction, el, ligne);
                 } else {
-                  // on va ajouter l’instruction ssi dans le sinon de l’instruction conditionnelle ouverte
+                  // on va ajouter l’instruction sinonsi dans le sinon de l’instruction conditionnelle ouverte
                   blocsSinonEnCours[indexBlocCondCommence].push(newInstruction);
-                  // le ssi cloture l’instruction conditionnelle ouverte
+                  // le sinonsi cloture l’instruction conditionnelle ouverte
                   indexBlocCondCommence -= 1;
                   blocsSiEnCours.pop();
                   blocsSinonEnCours.pop();
                   dansBlocSinon.pop();
+                  prochainSiEstSinonSi = false;
+                  console.warn("sinon si géré.");
                 }
                 // >>> CAS NORMAL
               } else {
@@ -1197,9 +1200,10 @@ export class Analyseur {
               }
               // AUCUN BLOC COMMENCÉ
             } else {
-              // >>> SSI ORPHELIN
+              // >>> SINONSI ORPHELIN
               if (prochainSiEstSinonSi) {
-                Analyseur.afficherErreurBloc("ssi (sinon si) orphelin.", erreurs, regle, reaction, el, ligne);
+                prochainSiEstSinonSi = false;
+                Analyseur.afficherErreurBloc("sinonsi orphelin.", erreurs, regle, reaction, el, ligne);
 
                 // >>> CAS NORMAL
               } else {
@@ -1207,6 +1211,9 @@ export class Analyseur {
                 instructionsPrincipales.push(newInstruction);
               }
             }
+
+console.warn(">>> estBlocCondition=", estBlocCondition);
+
 
             // intruction conditionnelle avec un bloc de conséquences
             if (estBlocCondition) {
@@ -1222,13 +1229,19 @@ export class Analyseur {
             }
 
           } else {
-            // CAS B.2 >> SINON / SSI (sinon si)
+            // CAS B.2 >> SINON / SINONSI (sinon si)
             let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
             if (resultSinonCondCons) {
+
+              console.warn("indexBlocCondCommence=", indexBlocCondCommence, "dansBlocSinon[indexBlocCondCommence]=", dansBlocSinon[indexBlocCondCommence], "prochaineInstructionAttendue=", prochaineInstructionAttendue);
+
               // si un sinon est attendu
               if (indexBlocCondCommence != -1 && !dansBlocSinon[indexBlocCondCommence] && !prochaineInstructionAttendue) {
 
                 let typeDeSinon = resultSinonCondCons[1];
+
+                console.log(">>typeDeSinon=", typeDeSinon);
+
                 // sinon classique
                 if (typeDeSinon == 'sinon') {
                   // on entre dans le bloc sinon
@@ -1237,13 +1250,13 @@ export class Analyseur {
                   const consequenceAInserer = resultSinonCondCons[2];
                   listeConsequences.splice(indexCurConsequence + 1, 0, consequenceAInserer);
 
-                  // ssi (si sinon)
-                } else if (typeDeSinon == 'ssi') {
+                  // sinonsi (si sinon)
+                } else if (typeDeSinon == 'sinonsi') {
                   // explication : 
                   // On sait que la prochaine instruction est un si on on voudrait qu’il soit placé
                   // dans le sinon de l’instruction en cours mais qu’il ne soit pas considéré comme 
                   // un sinon car il y a encore un sinon qui va suivre après le ssi…
-                  // De plus il n’y aura pas de fsi supplémentaire car il est chainé au si
+                  // De plus il n’y aura pas de finsi supplémentaire car il est chainé au si
                   // déjà ouvert donc on ne veut pas descendre d’un niveau supplémentaire.
 
                   // la condition directement liée au ssi doit être insérée dans le liste pour être interprétée à la prochaine itération
@@ -1261,7 +1274,7 @@ export class Analyseur {
               }
 
               // CAS C > FIN SI
-            } else if (conBruNettoyee.trim().toLowerCase() == 'fin si' || conBruNettoyee.trim().toLowerCase() == 'fsi') {
+            } else if (conBruNettoyee.trim().toLowerCase() == 'fin si' || conBruNettoyee.trim().toLowerCase() == 'finsi') {
 
               // si pas de si ouvert, erreur
               if (indexBlocCondCommence < 0) {
@@ -1284,7 +1297,7 @@ export class Analyseur {
     } // fin parcours des instructions
 
     if (indexBlocCondCommence != -1) {
-      Analyseur.afficherErreurBloc("fin si manquant.", erreurs, regle, reaction, el, ligne);
+      Analyseur.afficherErreurBloc("fin si manquant (" + (indexBlocCondCommence + 1) + ").", erreurs, regle, reaction, el, ligne);
     }
 
     // console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructionsPrincipales);
