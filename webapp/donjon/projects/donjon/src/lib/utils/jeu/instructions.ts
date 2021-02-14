@@ -631,7 +631,7 @@ export class Instructions {
           if (statut.siVrai) {
             // (on laisse le statut siVrai à true pour les sinonsi/sinon suivants)
             retVal = false;
-          // le si précédent était faux => tester le sinonsi
+            // le si précédent était faux => tester le sinonsi
           } else {
             // (on retire le « sinon » qui précède le si)
             conditionLC = conditionLC.substr('sinon'.length).trim()
@@ -1102,7 +1102,7 @@ export class Instructions {
    * Lister le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean): Resultat {
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, retrait: number = 1): Resultat {
 
     let resultat = new Resultat(false, '', 1);
     const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci);
@@ -1117,14 +1117,35 @@ export class Instructions {
         let curObjIndex = 0;
         objets.forEach(obj => {
           ++curObjIndex;
-          resultat.sortie += "\n - " + ElementsJeuUtils.calculerIntitule(obj, false);
+          resultat.sortie += "\n " + Instructions.getRetrait(retrait) + (retrait <= 1 ? "- ": "> ") + ElementsJeuUtils.calculerIntitule(obj, false);
+          // ajouter « (porté) » aux objets portés
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
             resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
+          }
+          // ajouter « contenu » des contenants ouverts ou transparents
+          // S’IL S’AGIT D’UN CONTENANT
+          if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant)) {
+            // si le contenant est fermé => (fermé)
+            if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.fermeID)) {
+              resultat.sortie += " (fermé" + (obj.genre == Genre.f ? 'e' : '') + (obj.nombre == Nombre.p ? 's' : '') + ")";
+            }
+
+            // si on peut voir le contenu du contenant => contenu / (vide)
+            if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID) ||
+              this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.transparentID)
+            ) {
+              let contenu = this.executerListerContenu(obj, false, retrait + 1).sortie;
+              if (contenu) {
+                resultat.sortie += contenu;
+              } else {
+                resultat.sortie += " (vide" + (obj.nombre == Nombre.p ? 's' : '') + ")";
+              }
+            }
           }
 
           // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
           if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
-
+            
           }
 
         });
@@ -1141,6 +1162,14 @@ export class Instructions {
 
     }
     return resultat;
+  }
+
+  private static getRetrait(retrait: number): string {
+    let retVal = "";
+    for (let index = 0; index < retrait; index++) {
+      retVal += "{r}";
+    }
+    return retVal;
   }
 
   /**
