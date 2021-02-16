@@ -130,12 +130,12 @@ export class Instructions {
     }
 
     // ==========================================================
-    // CONTENU [contenu sur|sous|dans ici|ceci|cela|inventaire]
+    // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|ceci|cela|inventaire]
     // ==========================================================
-    if (contenu.includes("[lister contenu ") || contenu.includes("[décrire contenu ")) {
+    if (contenu.includes("[lister objets ") || contenu.includes("[décrire objets ")) {
 
-      // retrouver toutes les balises de contenu [contenu {sur|dans|sous} ceci|cela|ici|inventaire]
-      const xBaliseContenu = /\[(décrire|lister) contenu (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/gi;
+      // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
+      const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/gi;
       const allBalises = contenu.match(xBaliseContenu);
       // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
       const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
@@ -143,7 +143,7 @@ export class Instructions {
       // parcourir chaque balise trouvée
       balisesUniques.forEach(curBalise => {
         // retrouver la préposition et la cible
-        const decoupe = /\[(décrire|lister) contenu (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/i.exec(curBalise);
+        const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/i.exec(curBalise);
 
         const ListerDecrireString = decoupe[1];
         let isLister = ListerDecrireString.toLowerCase() == 'lister';
@@ -203,57 +203,11 @@ export class Instructions {
         }
 
         // remplacer la balise par le résultat
-        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " contenu " + (prepositionString ? (prepositionString + " ") : "") + cibleString + "\\]", "g");
+        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString + "\\]", "g");
         contenu = contenu.replace(xCurBalise, resultatCurBalise);
 
       });
 
-      // if (contenu.includes("[contenu inventaire]")) {
-      //   // (ne pas afficher les objets cachés de ici)
-      //   const contenuInventaire = this.executerListerContenu(this.jeu.joueur, true);
-      //   contenu = contenu.replace(/\[contenu inventaire\]/g, contenuInventaire.sortie);
-      // }
-      // if (contenu.includes("[contenu ici]")) {
-      //   // (ne pas afficher les objets cachés de ici)
-      //   const contenuIci = this.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false);
-      //   contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
-      // }
-      // if (contenu.includes("[contenu dans ceci]")) {
-      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-      //     // (afficher les objets cachés de cela)
-      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.dans);
-      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
-      //   } else {
-      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
-      //   }
-      // }
-      // if (contenu.includes("[contenu sur ceci]")) {
-      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-      //     // (afficher les objets cachés de cela)
-      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.sous);
-      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
-      //   } else {
-      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
-      //   }
-      // }
-      // if (contenu.includes("[contenu sous ceci]")) {
-      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-      //     // (afficher les objets cachés de cela)
-      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.sur);
-      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
-      //   } else {
-      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
-      //   }
-      // }
-      // if (contenu.includes("[contenu cela]")) {
-      //   if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-      //     // (afficher les objets cachés de cela)
-      //     const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(cela.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
-      //     contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
-      //   } else {
-      //     console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
-      //   }
-      // }
     }
 
     // statut (porte, contenant)
