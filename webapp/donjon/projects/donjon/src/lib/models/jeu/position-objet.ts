@@ -9,7 +9,11 @@ export class PositionObjet {
   ) { }
 
   static getPrepositionSpatiale(preposition: string) {
-    switch (preposition) {
+
+    // ne tester que le premier mot (pour retirer le/la/les/)
+    const prepOnly = preposition.split(' ')[0];
+
+    switch (prepOnly) {
       case 'sur':
       case 'sûr':
         return PrepositionSpatiale.sur;
@@ -22,7 +26,6 @@ export class PositionObjet {
 
       default:
         return PrepositionSpatiale.inconnu;
-        break;
     }
   }
 

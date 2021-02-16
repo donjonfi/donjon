@@ -47,7 +47,7 @@ export class Generateur {
 
     // PLACER LE JOUEUR
     // ****************
-    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("Le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
+    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
@@ -264,13 +264,17 @@ export class Generateur {
         } else {
           // -- AUTRE TYPE D'OBJET
           if (curEle.positionString) {
+            console.error("@@ curEle.positionString=", curEle.positionString);
+
             // const localisation = Generateur.getLocalisation(curEle.positionString.position);
             const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
+
             // lieu trouvé
             if (lieuID !== -1) {
               newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
               // pas de lieu trouvé
             } else {
+
               // chercher un contenant ou un support
               const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
               if (contenantSupport) {

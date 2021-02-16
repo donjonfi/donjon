@@ -1112,7 +1112,7 @@ export class Analyseur {
       }
 
       if (conBruNettoyee) {
-        console.log("conBruNettoyee=", conBruNettoyee);
+        // console.log("conBruNettoyee=", conBruNettoyee);
 
         // DÉCOMPOSER CONSÉQUENCE
         const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
@@ -1173,7 +1173,7 @@ export class Analyseur {
               Analyseur.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", erreurs, regle, reaction, el, ligne);
               // UN BLOC EST COMMENCÉ
             } else if (indexBlocCondCommence != -1) {
-              console.log("prochainSiEstSinonSi=", prochainSiEstSinonSi);
+              // console.log("prochainSiEstSinonSi=", prochainSiEstSinonSi);
 
               // >>> CAS SINONSI (sinon si)
               if (prochainSiEstSinonSi) {
@@ -1188,7 +1188,7 @@ export class Analyseur {
                   blocsSinonEnCours.pop();
                   dansBlocSinon.pop();
                   prochainSiEstSinonSi = false;
-                  console.warn("sinon si géré.");
+                  // console.warn("sinon si géré.");
                 }
                 // >>> CAS NORMAL
               } else {
@@ -1212,7 +1212,7 @@ export class Analyseur {
               }
             }
 
-console.warn(">>> estBlocCondition=", estBlocCondition);
+            // console.warn(">>> estBlocCondition=", estBlocCondition);
 
 
             // intruction conditionnelle avec un bloc de conséquences
@@ -1233,14 +1233,14 @@ console.warn(">>> estBlocCondition=", estBlocCondition);
             let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
             if (resultSinonCondCons) {
 
-              console.warn("indexBlocCondCommence=", indexBlocCondCommence, "dansBlocSinon[indexBlocCondCommence]=", dansBlocSinon[indexBlocCondCommence], "prochaineInstructionAttendue=", prochaineInstructionAttendue);
+              // console.warn("indexBlocCondCommence=", indexBlocCondCommence, "dansBlocSinon[indexBlocCondCommence]=", dansBlocSinon[indexBlocCondCommence], "prochaineInstructionAttendue=", prochaineInstructionAttendue);
 
               // si un sinon est attendu
               if (indexBlocCondCommence != -1 && !dansBlocSinon[indexBlocCondCommence] && !prochaineInstructionAttendue) {
 
                 let typeDeSinon = resultSinonCondCons[1];
 
-                console.log(">>typeDeSinon=", typeDeSinon);
+                // console.log(">>typeDeSinon=", typeDeSinon);
 
                 // sinon classique
                 if (typeDeSinon == 'sinon') {
