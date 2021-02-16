@@ -129,36 +129,131 @@ export class Instructions {
       }
     }
 
-    // contenu
-    if (contenu.includes("[contenu")) {
-      if (contenu.includes("[contenu inventaire]")) {
-        // (ne pas afficher les objets cachés de ici)
-        const contenuInventaire = this.executerListerContenu(this.jeu.joueur, true);
-        contenu = contenu.replace(/\[contenu inventaire\]/g, contenuInventaire.sortie);
-      }
-      if (contenu.includes("[contenu ici]")) {
-        // (ne pas afficher les objets cachés de ici)
-        const contenuIci = this.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false);
-        contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
-      }
-      if (contenu.includes("[contenu ceci]")) {
-        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          // (afficher les objets cachés de cela)
-          const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
-          contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
-        } else {
-          console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
+    // ==========================================================
+    // CONTENU [contenu sur|sous|dans ici|ceci|cela|inventaire]
+    // ==========================================================
+    if (contenu.includes("[lister contenu ") || contenu.includes("[décrire contenu ")) {
+
+      // retrouver toutes les balises de contenu [contenu {sur|dans|sous} ceci|cela|ici|inventaire]
+      const xBaliseContenu = /\[(décrire|lister) contenu (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/gi;
+      const allBalises = contenu.match(xBaliseContenu);
+      // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver la préposition et la cible
+        const decoupe = /\[(décrire|lister) contenu (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/i.exec(curBalise);
+
+        const ListerDecrireString = decoupe[1];
+        let isLister = ListerDecrireString.toLowerCase() == 'lister';
+        const prepositionString = decoupe[2]; // dans par défaut
+        const cibleString = decoupe[3];
+
+        let phraseSiVide = "";
+        let phraseSiQuelqueChose = "{n}Vous voyez ";
+        let afficherObjetsCaches = true;
+
+        // retrouver la préposition (dans par défaut)
+        let preposition = PrepositionSpatiale.dans;
+        if (prepositionString) {
+          preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
         }
-      }
-      if (contenu.includes("[contenu cela]")) {
-        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          // (afficher les objets cachés de cela)
-          const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(cela.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
-          contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
-        } else {
-          console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
+        switch (preposition) {
+          case PrepositionSpatiale.sur:
+            phraseSiVide = "{n}Il n’y a rien dessus.";
+            break;
+
+          case PrepositionSpatiale.sous:
+            phraseSiVide = "{n}Il n’y a rien dessous.";
+
+          case PrepositionSpatiale.dans:
+          default:
+            phraseSiVide = "{n}C’est vide.";
+            break;
         }
-      }
+
+        // retrouver la cible
+        let cible: ElementJeu = null;
+        switch (cibleString) {
+          case 'ici':
+            cible = this.eju.curLieu;
+            phraseSiVide = "";
+            afficherObjetsCaches = false;
+            break;
+          case 'ceci':
+            cible = ceci as ElementJeu;
+            break;
+          case 'cela':
+            cible = cela as ElementJeu;
+            break;
+          case 'inventaire':
+            cible = this.jeu.joueur;
+            phraseSiVide = "";
+            phraseSiQuelqueChose = "";
+            break;
+        }
+
+        let resultatCurBalise: string;
+
+        if (isLister) {
+          resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, preposition).sortie;
+        } else {
+          resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, preposition).sortie;
+        }
+
+        // remplacer la balise par le résultat
+        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " contenu " + (prepositionString ? (prepositionString + " ") : "") + cibleString + "\\]", "g");
+        contenu = contenu.replace(xCurBalise, resultatCurBalise);
+
+      });
+
+      // if (contenu.includes("[contenu inventaire]")) {
+      //   // (ne pas afficher les objets cachés de ici)
+      //   const contenuInventaire = this.executerListerContenu(this.jeu.joueur, true);
+      //   contenu = contenu.replace(/\[contenu inventaire\]/g, contenuInventaire.sortie);
+      // }
+      // if (contenu.includes("[contenu ici]")) {
+      //   // (ne pas afficher les objets cachés de ici)
+      //   const contenuIci = this.executerDecrireContenu(this.eju.curLieu, "{n}Vous voyez ", "", false);
+      //   contenu = contenu.replace(/\[contenu ici\]/g, contenuIci.sortie);
+      // }
+      // if (contenu.includes("[contenu dans ceci]")) {
+      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      //     // (afficher les objets cachés de cela)
+      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.dans);
+      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+      //   } else {
+      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
+      //   }
+      // }
+      // if (contenu.includes("[contenu sur ceci]")) {
+      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      //     // (afficher les objets cachés de cela)
+      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.sous);
+      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+      //   } else {
+      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
+      //   }
+      // }
+      // if (contenu.includes("[contenu sous ceci]")) {
+      //   if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+      //     // (afficher les objets cachés de cela)
+      //     const contenuCeci = this.executerDecrireContenu((ceci as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true, PrepositionSpatiale.sur);
+      //     contenu = contenu.replace(/\[contenu ceci\]/g, contenuCeci.sortie);
+      //   } else {
+      //     console.error("interpreterContenuDire: contenu de ceci: ceci n'est pas un objet");
+      //   }
+      // }
+      // if (contenu.includes("[contenu cela]")) {
+      //   if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
+      //     // (afficher les objets cachés de cela)
+      //     const contenuCela = this.executerDecrireContenu((cela as Objet), "{n}Vous voyez ", (ClasseUtils.heriteDe(cela.classe, EClasseRacine.support) ? "{n}Il n'y a rien dessus." : "{n}C'est vide."), true);
+      //     contenu = contenu.replace(/\[contenu cela\]/g, contenuCela.sortie);
+      //   } else {
+      //     console.error("interpreterContenuDire: contenu de cela: cela n'est pas un objet");
+      //   }
+      // }
     }
 
     // statut (porte, contenant)
@@ -1064,18 +1159,21 @@ export class Instructions {
     return resultat;
   }
 
-  /** 
+  /**
+   * 
    * Retrouver les objets contenus dans ceci.
    * En cas d’erreur null est retourné plutôt qu’on tableau d’objets.
+   * @param ceci 
+   * @param inclureObjetsCachesDeCeci 
+   * @param preposition (dans, sur, sous)
    */
-  private trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean) {
+  private trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean, preposition: PrepositionSpatiale) {
     let objets: Objet[] = null;
     if (ceci) {
       // objet
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         // retrouver les objets {contenus dans/posés sur} cet objet
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.cibleId === ceci.id
-          // && ElementsJeuUtils.possedeCetEtat(x, "visible"));
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.pre == preposition && x.position.cibleId === ceci.id
           && this.jeu.etats.estVisible(x, this.eju));
         // si on ne doit pas lister les objets cachés, les enlever
         if (!inclureObjetsCachesDeCeci) {
@@ -1102,10 +1200,10 @@ export class Instructions {
    * Lister le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, retrait: number = 1): Resultat {
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, prepositionSpatiale: PrepositionSpatiale, retrait: number = 1): Resultat {
 
     let resultat = new Resultat(false, '', 1);
-    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci);
+    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
     if (objets !== null) {
@@ -1117,7 +1215,7 @@ export class Instructions {
         let curObjIndex = 0;
         objets.forEach(obj => {
           ++curObjIndex;
-          resultat.sortie += "\n " + Instructions.getRetrait(retrait) + (retrait <= 1 ? "- ": "> ") + ElementsJeuUtils.calculerIntitule(obj, false);
+          resultat.sortie += "\n " + Instructions.getRetrait(retrait) + (retrait <= 1 ? "- " : "> ") + ElementsJeuUtils.calculerIntitule(obj, false);
           // ajouter « (porté) » aux objets portés
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
             resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
@@ -1145,7 +1243,7 @@ export class Instructions {
 
           // S’IL S’AGIT D’UN SUPPORT, AFFICHER LES ÉLÉMENTS POSITIONNÉS DESSUS
           if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
-            
+
           }
 
         });
@@ -1154,7 +1252,7 @@ export class Instructions {
         let supportsSansApercu = objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerListerContenu(support, false);
+          const sousRes = this.executerListerContenu(support, false, PrepositionSpatiale.sur);
           resultat.sortie += sousRes.sortie;
         });
 
@@ -1176,10 +1274,10 @@ export class Instructions {
    * Décrire le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean): Resultat {
+  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean, prepositionSpatiale: PrepositionSpatiale): Resultat {
 
     let resultat = new Resultat(false, '', 1);
-    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci);
+    const objets = this.trouverContenu(ceci, afficherObjetsCachesDeCeci, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
     if (objets !== null) {
@@ -1206,7 +1304,7 @@ export class Instructions {
             // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
             if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
               // ne pas afficher objets cachés du support, on ne l’examine pas directement
-              const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false);
+              const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false, PrepositionSpatiale.sur);
               resultat.sortie += sousRes.sortie;
             }
           }
@@ -1220,7 +1318,7 @@ export class Instructions {
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
       supportsDecoratifs.forEach(support => {
         // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-        const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), "", false);
+        const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), "", false, PrepositionSpatiale.sur);
         resultat.sortie += sousRes.sortie;
       });
 
@@ -1244,7 +1342,7 @@ export class Instructions {
         let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support, false) + "."), false);
+          const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support, false) + "."), false, PrepositionSpatiale.sur);
           resultat.sortie += sousRes.sortie;
         });
 
