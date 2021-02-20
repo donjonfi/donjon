@@ -11,11 +11,11 @@ avant aller vers la cuisine, aller vers la cave ou aller vers la chambre:
   dire "{/Vous disparaissez de [intitulé ici]… et vous apparaissez dans [intitulé ceci] !/}{n}";
   changer le joueur se trouve dans ceci;
   dire "{n}{_{*[titre ici]*}_}";
-  dire "{n}[description ici][contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   stopper l’action.
   
 avant commencer le jeu:
   dire "En tant que magicien, vous pouvez aller dans la chambre, la cuisine ou la cave juste comme ça !{n}";
   dire "{n}{_{*[titre ici]*}_}";
-  dire "{n}[description ici][contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   stopper l’action.

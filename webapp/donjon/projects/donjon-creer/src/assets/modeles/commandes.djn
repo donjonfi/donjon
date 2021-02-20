@@ -34,7 +34,7 @@ exécuter afficher ceci:
       {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
       {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée";
   sinonsi ceci est l’inventaire:
-    dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister contenu inventaire][sinon]est vide.[fin si]";
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
   sinonsi ceci est les sorties ou la sortie:
     dire "[sorties ici]";
   fin si.
@@ -75,7 +75,7 @@ exécuter effacer:
 
 terminer effacer:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   dire "{n}{n}[sorties ici]".
 
 -- b) effacer l’écran
@@ -89,7 +89,7 @@ exécuter effacer ceci:
   
 terminer effacer ceci:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   dire "{n}{n}[sorties ici]".
 
 L'aide pour l'action effacer est "{*Effacer*}
@@ -120,7 +120,7 @@ exécuter aller vers ceci:
 
 terminer aller vers ceci:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   dire "{n}{n}[sorties ici]".
 
 L'aide pour l'action aller est "{*Aller*}
@@ -151,7 +151,7 @@ exécuter ouvrir ceci:
 
 terminer ouvrir ceci:
   dire "[Pronom ceci] [v être ipr ceci] ouvert[es ceci].";
-  si ceci est un contenant, dire "[décrire contenu dans ceci]".
+  si ceci est un contenant, dire "[décrire objets dans ceci]".
 
 L'aide pour l'action ouvrir est "{*Ouvrir*}
   Permet d'ouvrir un objet, une porte, une trappe, ...
@@ -420,7 +420,7 @@ regarder est une action.
 
 terminer regarder:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire contenu ici]";
+  dire "{n}[description ici][décrire objets ici]";
   dire "{n}{n}[sorties ici]".
   
 -- b) regarder ceci
@@ -439,22 +439,22 @@ terminer regarder ceci:
       dire "{N}[statut ceci]";
 -- >> contenu de l’objet
     si ceci est un contenant et ouvert :
-      dire "[décrire contenu dans ceci]";
+      dire "[décrire objets dans ceci]";
     sinonsi ceci est un contenant et fermé et transparent :
-      dire "[décrire contenu dans ceci]";
+      dire "[décrire objets dans ceci]";
     sinonsi ceci est un support :
-      dire "[décrire contenu sur ceci]";
+      dire "[décrire objets sur ceci]";
     fin si;
 --  >> ojbet inaccessible
     si ceci n'est ni accessible ni l’inventaire, 
       dire " [Pronom ceci] n'est pas accessible.";
 --  >> inventaire
     si ceci est l’inventaire,
-      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister contenu inventaire][sinon]est vide.[fin si]";
+      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- lieu
   sinonsi ceci est un lieu :
     dire "{_{*[titre ici]*}_}";
-    dire "{n}[description ici][décrire contenu ici]";
+    dire "{n}[description ici][décrire objets ici]";
     dire "{n}{n}[sorties ici]";
 -- inconnu
   sinon
@@ -498,22 +498,22 @@ terminer examiner ceci:
       dire "{N}[statut ceci]";
 -- >> contenu de l’objet
     si ceci est un contenant et ouvert :
-      dire "[décrire contenu dans ceci]";
+      dire "[décrire objets dans ceci]";
     sinonsi ceci est un contenant et fermé et transparent :
-      dire "[décrire contenu dans ceci]";
+      dire "[décrire objets dans ceci]";
     sinonsi ceci est un support :
-      dire "[décrire contenu sur ceci]";
+      dire "[décrire objets sur ceci]";
     fin si;
 --  >> ojbet inaccessible
     si ceci n'est ni accessible ni l’inventaire, 
       dire " [Pronom ceci] n'est pas accessible.";
 --  >> inventaire
     si ceci est l’inventaire,
-      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister contenu inventaire][sinon]est vide.[fin si]";
+      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- lieu
   sinonsi ceci est un lieu :
     dire "{_{*[titre ici]*}_}";
-    dire "{n}[description ici][lister contenu ici]";
+    dire "{n}[description ici][décrire objets ici]";
     dire "{n}{n}[sorties ici]";
 -- inconnu
   sinon
