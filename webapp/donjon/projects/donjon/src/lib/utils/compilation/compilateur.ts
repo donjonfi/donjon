@@ -41,7 +41,7 @@ export class Compilateur {
     console.warn("analyserScenario >> verbeux=", verbeux);
 
     // ajouter le joueur au monde
-    elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, "joueur", ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
+    elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, EClasseRacine.joueur, ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
     elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
@@ -59,6 +59,7 @@ export class Compilateur {
       }
     }
 
+    // rem: le point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
     const regleInfoDonjon = "\n.après afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; continuer l’action.";
 
     // B. Interpréter le scénario

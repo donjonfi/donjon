@@ -168,7 +168,7 @@ export class Analyseur {
                     // genre de l'élément précédent
                     dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
                     // attributs de l'élément précédent
-                    dernierElementGenerique.positionString = new PositionSujetString(dernierElementGenerique.nom, result[2], result[1]);
+                    dernierElementGenerique.positionString = new PositionSujetString(dernierElementGenerique.nom.toLowerCase() + (dernierElementGenerique.epithete ? (' ' + dernierElementGenerique.epithete.toLowerCase()) : ''), result[2].toLowerCase(), result[1]);
                     if (verbeux) {
                       console.log("=> trouvé xPronomPersonnelPosition:", dernierElementGenerique);
                     }
@@ -506,8 +506,7 @@ export class Analyseur {
         result[3],
         ClasseUtils.getClasseIntitule(result[5]),
         null,
-        // TODO: épithète
-        new PositionSujetString(result[2], result[8], result[7]),
+        new PositionSujetString(result[2].toLowerCase() + (result[3] ? (' ' + result[3].toLowerCase()) : ''), result[8].toLowerCase(), result[7]),
         MotUtils.getGenre(result[1], estFeminin),
         MotUtils.getNombre(result[1]),
         MotUtils.getQuantite(result[1]),
@@ -586,7 +585,7 @@ export class Analyseur {
         // retrouver les attributs
         attributs = PhraseUtils.separerListeIntitules(attributsString);
 
-        position = new PositionSujetString(result[2], result[10], result[9]);
+        position = new PositionSujetString(nom.toLowerCase() + (epithete ? (" " + epithete.toLowerCase()) : ""), result[10].toLowerCase(), result[9]);
 
         newElementGenerique = new ElementGenerique(
           determinant,
@@ -620,7 +619,7 @@ export class Analyseur {
       // avant d'ajouter l'élément vérifier s'il existe déjà
       let newEleNom = newElementGenerique.nom.toLowerCase();
       let newEleEpi = newElementGenerique.epithete?.toLowerCase() ?? null;
-      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() === newEleNom && x.epithete?.toLowerCase() === newEleEpi);
+      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() == newEleNom && x.epithete?.toLowerCase() == newEleEpi);
 
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
@@ -964,9 +963,9 @@ export class Analyseur {
 
         // attributs ?
         attributs = null;
-        if (result[6] && result[6].trim() !== '') {
+        if (result[5] && result[5].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = PhraseUtils.separerListeIntitules(result[6]);
+          attributs = PhraseUtils.separerListeIntitules(result[5]);
         }
 
         nouvelElementGenerique = new ElementGenerique(
@@ -1029,7 +1028,11 @@ export class Analyseur {
         }
 
         if (elementConcerne == elementGeneriqueTrouve && nouvelElementGenerique.attributs.length > 0) {
-          elementGeneriqueTrouve.attributs = elementGeneriqueTrouve.attributs.concat(nouvelElementGenerique.attributs);
+          if( elementGeneriqueTrouve.attributs){
+            elementGeneriqueTrouve.attributs = elementGeneriqueTrouve.attributs.concat(nouvelElementGenerique.attributs);
+          }else{
+            elementGeneriqueTrouve.attributs = nouvelElementGenerique.attributs;
+          }
         }
       } else {
         // ajouter le nouvel élément

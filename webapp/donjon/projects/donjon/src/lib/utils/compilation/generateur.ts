@@ -45,48 +45,6 @@ export class Generateur {
     // jeu.etats.ajouterEtatElement(ecran, EEtatsBase.invisible);
     // jeu.objets.push(ecran);
 
-    // PLACER LE JOUEUR
-    // ****************
-    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
-    jeu.joueur = joueur;
-    joueur.intituleS = joueur.intitule;
-    joueur.description = "(C’est vous)";
-    joueur.synonymes = [
-      new GroupeNominal("", "moi", null)
-      // new GroupeNominal("l’", "inventaire", null)
-    ];
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
-    // ajouter le joueur aux objets du jeu
-    jeu.objets.push(joueur);
-    // regarder si on a positionné le joueur dans le monde
-    const joueurDansMonde = monde.speciaux.find(x => x.nom === 'joueur');
-    if (joueurDansMonde) {
-
-      if (joueurDansMonde.positionString) {
-        const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
-        const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
-        if (lieuID !== -1) {
-          joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
-        }
-
-      }
-      // parcourir les propriétés du lieu
-      joueurDansMonde.proprietes.forEach(pro => {
-        switch (pro.nom) {
-          case 'description':
-            joueurDansMonde.description = pro.valeur;
-            break;
-
-          default:
-            break;
-        }
-      });
-      if (joueurDansMonde.description) {
-        joueur.description = joueurDansMonde.description;
-      }
-    }
-
     // INFOS SUR LE JEU
     // ****************
     const jeuDansMonde = monde.speciaux.find(x => x.nom === 'jeu');
@@ -166,6 +124,53 @@ export class Generateur {
     for (let index = 0; index < monde.lieux.length; index++) {
       const curEle = monde.lieux[index];
       Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index));
+    }
+
+    // PLACER LE JOUEUR
+    // ****************
+    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
+    jeu.joueur = joueur;
+    joueur.intituleS = joueur.intitule;
+    joueur.description = "(C’est vous)";
+    joueur.synonymes = [
+      new GroupeNominal("", "moi", null)
+      // new GroupeNominal("l’", "inventaire", null)
+    ];
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
+    // ajouter le joueur aux objets du jeu
+    jeu.objets.push(joueur);
+    // regarder si on a positionné le joueur dans le monde
+    const joueurDansMonde = monde.speciaux.find(x => x.nom === 'joueur');
+    if (joueurDansMonde) {
+      if (joueurDansMonde.positionString) {
+        const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
+        const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
+        if (lieuID !== -1) {
+          joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
+        }
+      }
+      // parcourir les propriétés du joueur
+      joueurDansMonde.proprietes.forEach(pro => {
+        switch (pro.nom) {
+          case 'description':
+            joueurDansMonde.description = pro.valeur;
+            break;
+
+          default:
+            break;
+        }
+      });
+      // ajouter description du joueur
+      if (joueurDansMonde.description) {
+        joueur.description = joueurDansMonde.description;
+      }
+      // ajouter attributs du joueur
+      if (joueurDansMonde.attributs) {
+        joueurDansMonde.attributs.forEach(attribut => {
+          jeu.etats.ajouterEtatElement(joueur, attribut);
+        });
+      }
     }
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
@@ -373,7 +378,8 @@ export class Generateur {
     // trouver le sujet complet
     const intituleLieuLower = intituleLieu.toLowerCase();
     lieux.forEach(lieu => {
-      if (lieu.nom.toLowerCase() == intituleLieuLower) {
+      // rem: le nom d’un lieu est toujours un minuscule, pas besoin de forcer ici
+      if (lieu.nom == intituleLieuLower) {
         candidats.push(lieu);
       }
     });
@@ -413,7 +419,7 @@ export class Generateur {
     const nomObjetLower = nomObjet.toLowerCase();
 
     objets.forEach(el => {
-       // rem: le nom d’un Objet est toujours en lower case c’est pourquoi on ne le force pas ici.
+      // rem: le nom d’un Objet est toujours en lower case c’est pourquoi on ne le force pas ici.
       if (el.nom === nomObjetLower) {
         trouve = el;
       }
