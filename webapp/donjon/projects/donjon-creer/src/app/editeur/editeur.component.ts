@@ -207,6 +207,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
 
+    let verbeux = false;
     // setTimeout(() => {
     this.showTab('analyse');
     // }, 0);
@@ -220,7 +221,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
     if (this.codeSource && this.codeSource.trim() !== '') {
       // interpréter le code
-      Compilateur.analyserScenario(this.codeSource, false, this.http).then(resultat => {
+      Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resultat => {
         this.monde = resultat.monde;
         this.regles = resultat.regles;
         this.actions = resultat.actions.sort((a, b) => (

@@ -15,7 +15,6 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
-import { Objet } from '../../models/jeu/objet';
 import { Phrase } from '../../models/compilateur/phrase';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionSujetString } from '../../models/compilateur/position-sujet';
@@ -207,13 +206,11 @@ export class Analyseur {
                           const elementConcerneBrut = result[3];
                           const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
                           if (elementConcerneIntitule) {
-                            const elementConcerneNom = elementConcerneIntitule[2];
-                            const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3] : null;
+                            const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
+                            const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
                             // retrouver l’élément générique concerné
-                            let elementsTrouves = elementsGeneriques.filter(x => x.nom === elementConcerneNom);
-                            if (elementConcerneEpithete) {
-                              elementsTrouves = elementsGeneriques.filter(x => x.epithete === elementConcerneEpithete);
-                            }
+                            const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() === elementConcerneNom && x.epithete?.toLowerCase() === elementConcerneEpithete);
+                      
                             if (elementsTrouves.length === 1) {
                               elementCible = elementsTrouves[0];
                             } else {
@@ -617,11 +614,14 @@ export class Analyseur {
     // s'il y a un résultat, l'ajouter
     if (newElementGenerique) {
 
+
       // normalement l’élément concerné est le nouveau
       elementConcerne = newElementGenerique;
-
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      const filtered = elementsGeneriques.filter(x => x.nom === newElementGenerique.nom);
+      let newEleNom = newElementGenerique.nom.toLowerCase();
+      let newEleEpi = newElementGenerique.epithete?.toLowerCase() ?? null;
+      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() === newEleNom && x.epithete?.toLowerCase() === newEleEpi);
+
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let elementGeneriqueFound = filtered[filtered.length - 1];
@@ -707,12 +707,11 @@ export class Analyseur {
         if (resultatGn) {
           let determinant = resultatGn[1] ? resultatGn[1] : null;
           let nom = resultatGn[2];
-          let ephitete = resultatGn[3] ? resultatGn[3] : null;
+          let epithete = resultatGn[3] ? resultatGn[3] : null;
           // retrouver l’élément générique correspondant
-          let elementsTrouves = elementsGeneriques.filter(x => x.nom === nom);
-          if (ephitete) {
-            elementsTrouves = elementsTrouves.filter(x => x.epithete === ephitete);
-          }
+          let nomLower = nom.toLowerCase();
+          let epiLower = epithete?.toLowerCase();
+          const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() === nomLower && x.epithete?.toLowerCase() === epiLower);    
           // 1 élément trouvé
           if (elementsTrouves.length === 1) {
             let elementTrouve = elementsTrouves[0];
@@ -722,8 +721,8 @@ export class Analyseur {
               if (resultatGn) {
                 determinant = resultatGn[1] ? resultatGn[1] : null;
                 nom = resultatGn[2];
-                ephitete = resultatGn[3] ? resultatGn[3] : null;
-                const synonyme = new GroupeNominal(determinant, nom, ephitete);
+                epithete = resultatGn[3] ? resultatGn[3] : null;
+                const synonyme = new GroupeNominal(determinant, nom, epithete);
                 // ajouter le synonyme à l’élément
                 elementTrouve.synonymes.push(synonyme);
               } else {
@@ -1000,7 +999,10 @@ export class Analyseur {
       elementConcerne = nouvelElementGenerique;
 
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      const filtered = elementsGeneriques.filter(x => x.nom === nouvelElementGenerique.nom);
+      let nomLower = nouvelElementGenerique.nom.toLowerCase();
+      let epiLower = nouvelElementGenerique.epithete?.toLowerCase();
+      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() === nomLower && x.epithete?.toLowerCase() === epiLower);    
+
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let elementGeneriqueTrouve = filtered[filtered.length - 1];

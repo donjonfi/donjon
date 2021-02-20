@@ -122,7 +122,7 @@ export class Generateur {
 
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
-      let nouvLieu = new Lieu(++indexElementJeu, (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), intitule, titre);
+      let nouvLieu = new Lieu(++indexElementJeu, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, titre);
       nouvLieu.description = curEle.description;
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
@@ -170,13 +170,11 @@ export class Generateur {
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
-    let premierIndexObjet = (indexElementJeu + 1);
-
     monde.objets.forEach(curEle => {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        let newObjet = new Objet(++indexElementJeu, (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
+        let newObjet = new Objet(++indexElementJeu, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         newObjet.description = curEle.description;
         // newObjet.apercu = curEle.apercu;
@@ -264,7 +262,7 @@ export class Generateur {
         } else {
           // -- AUTRE TYPE D'OBJET
           if (curEle.positionString) {
-            console.error("@@ curEle.positionString=", curEle.positionString);
+            //console.error("@@ curEle.positionString=", curEle.positionString);
 
             // const localisation = Generateur.getLocalisation(curEle.positionString.position);
             const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
@@ -276,7 +274,7 @@ export class Generateur {
             } else {
 
               // chercher un contenant ou un support
-              const contenantSupport = Generateur.getContenantSupport(jeu.objets, curEle.positionString.complement);
+              const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curEle.positionString.complement);
               if (contenantSupport) {
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
               } else {
@@ -373,8 +371,9 @@ export class Generateur {
     let candidats: Lieu[] = [];
     let retVal = -1;
     // trouver le sujet complet
+    const intituleLieuLower = intituleLieu.toLowerCase();
     lieux.forEach(lieu => {
-      if (lieu.nom == intituleLieu) {
+      if (lieu.nom.toLowerCase() == intituleLieuLower) {
         candidats.push(lieu);
       }
     });
@@ -403,15 +402,19 @@ export class Generateur {
     return retVal;
   }
 
-  static getContenantSupport(objets: Objet[], nomObjet: string) {
+  /** Trouver l’objet qui fait office de contenant (dans), support (sur) ou couvrant (sous) */
+  static getContenantSupportOuCouvrant(objets: Objet[], nomObjet: string) {
 
     // TODO: check si contenant ou support ?
     // mais quid pour « sous » ?
 
     let trouve: Objet = null;
 
+    const nomObjetLower = nomObjet.toLowerCase();
+
     objets.forEach(el => {
-      if (el.nom === nomObjet) {
+       // rem: le nom d’un Objet est toujours en lower case c’est pourquoi on ne le force pas ici.
+      if (el.nom === nomObjetLower) {
         trouve = el;
       }
     });

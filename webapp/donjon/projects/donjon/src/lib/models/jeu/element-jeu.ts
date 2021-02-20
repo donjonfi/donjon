@@ -14,12 +14,6 @@ export class ElementJeu extends Intitule {
 
     /** Nom de l’élément */
     public nom: string,
-    /**
-     * Genre de l’élément
-     * - Féminin
-     * - Masculin
-     * - Neutre
-     */
 
     /**
      * Intitulé de l’élément pour le joueur.
@@ -44,7 +38,14 @@ export class ElementJeu extends Intitule {
     super(nom, intitule, classe);
   }
 
+  /**
+ * Genre de l’élément
+ * - Féminin
+ * - Masculin
+ * - Neutre
+ */
   public genre: Genre = null;
+
   /**
    * Nombre de l’élément:
    * - Singulier
@@ -52,6 +53,7 @@ export class ElementJeu extends Intitule {
    * - Indéfini
    */
   public nombre: Nombre = null;
+  
   /**
    * Quantité disponible de l’élément.
    * > -1: illimité.
