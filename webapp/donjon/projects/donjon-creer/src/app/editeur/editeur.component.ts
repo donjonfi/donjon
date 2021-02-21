@@ -2,7 +2,6 @@ import 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/text';
 import '../../mode-donjon.js';
-// import 'brace/mode/javascript';
 import 'brace/theme/chrome';
 import 'brace/theme/crimson_editor';
 import 'brace/theme/dracula';
@@ -24,6 +23,29 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
+
+// import 'brace/mode/javascript';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @Component({
   selector: 'app-editeur',
@@ -168,13 +190,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
           this.selPartieIndex = selPartieIndexStr ? +selPartieIndexStr : null;
           if (this.selPartieIndex !== null) {
             console.log(">>> selPartieIndex=", this.selPartieIndex);
-            this.onChangerSelPartie();
+            this.onChangerSelPartie(true);
           }
           const selChapitreIndexStr = sessionStorage.getItem("SelChapitreIndex");
           this.selChapitreIndex = selChapitreIndexStr ? +selChapitreIndexStr : null;
           if (this.selChapitreIndex !== null) {
             console.log(">>> selChapitreIndex=", this.selChapitreIndex);
-            this.onChangerSelChapitre();
+            this.onChangerSelChapitre(true);
           }
           const selSceneIndexStr = sessionStorage.getItem("SelSceneIndex");
           this.selSceneIndex = selSceneIndexStr ? +selSceneIndexStr : null;
@@ -417,6 +439,19 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // supprimer le découpage en scènes
       this.viderSectionsCodeSource("scène");
 
+      // recalculer les chapitres qui peuvent avoir changées
+      if (this.sectionMode != 'chapitre') {
+        // sauver la chapitre choisi
+        let bakChapitreIndex = this.selChapitreIndex;
+
+        // recalculer les chapitres
+        this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+
+        // restaurer le chapitre choisi
+        this.selChapitreIndex = bakChapitreIndex;
+      }
+
+
       // TOUS LES CHAPITRES
       if (this.selChapitreIndex === null || this.selChapitreIndex >= this.allChapitresCodeSource.length) {
         // afficher la partie sélectionnée
@@ -438,7 +473,20 @@ export class EditeurComponent implements OnInit, OnDestroy {
   onChangerSelScene(): void {
     // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
+
+      // rassembler la source pour prendre en compte les modifs
       this.rassemblerSource();
+
+      // recalculer les scènes qui peuvent avoir changées
+      if (this.sectionMode != 'scène') {
+        // sauver la scène choisie
+        let bakSceneIndex = this.selSceneIndex;
+        // recalculer les scènes
+        this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+        // restaurer la scène choisie
+        this.selSceneIndex = bakSceneIndex;
+      }
+
       // si on veut afficher toutes les scènes
       if (this.selSceneIndex === null || this.selSceneIndex >= this.allScenesCodeSource.length) {
         // afficher le chapitre sélectionné
@@ -456,6 +504,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Rassembler le code source pour ne rien perdre */
   rassemblerSource(): void {
+
+    console.warn(">>>> rassemblerSource");
+
+
     switch (this.sectionMode) {
       case "tout":
         this.codeSource = this.sectionCodeSourceVisible;
@@ -480,6 +532,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Rassembler les parties ensemble */
   private rassemblerLesParties(): void {
+    console.log(">>>>>>> rassembler Parties");
+    // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
+    if (!this.sectionCodeSourceVisible.endsWith('\n')) {
+      this.sectionCodeSourceVisible += "\n";
+      if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+        this.sectionCodeSourceVisible += "\n";
+      }
+    }
+
     // mettre à jour la PARTIE en cours d’édition dans la liste des parties
     this.allPartiesCodeSource[this.actPartieIndex] = this.sectionCodeSourceVisible;
     // joindre les parties dans le code source
@@ -488,6 +549,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Rassembler les chapitres ensemble */
   private rassemblerLesChapitres(): void {
+    console.log(">>>>>>> rassembler Chapitres");
+    // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
+    if (!this.sectionCodeSourceVisible.endsWith('\n')) {
+      this.sectionCodeSourceVisible += "\n";
+      if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+        this.sectionCodeSourceVisible += "\n";
+      }
+    }
     // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
     this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
     const chapitresRassembles = this.allChapitresCodeSource.join("");
@@ -507,6 +576,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Rassembler les scènes ensemble */
   private rassemblerLesScenes(): void {
+    console.log(">>>>>>> rassembler Scènes");
+
+    // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
+    if (!this.sectionCodeSourceVisible.endsWith('\n')) {
+      this.sectionCodeSourceVisible += "\n";
+      if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+        this.sectionCodeSourceVisible += "\n";
+      }
+    }
     // mettre à jour la SCÈNE en cours d’édition dans la liste des scènes
     this.allScenesCodeSource[this.actSceneIndex] = this.sectionCodeSourceVisible;
     const scenesRassemblees = this.allScenesCodeSource.join("");

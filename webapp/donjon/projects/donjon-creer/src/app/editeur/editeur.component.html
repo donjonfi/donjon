@@ -43,8 +43,8 @@
           <i class="fas fa-fw fa-terminal fa-lg"></i>
         </button>
         <br>
-        <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu"
-          placement="right">
+        <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
+          tooltip="Aperçu" placement="right">
           <i class="fas fa-fw fa-sitemap fa-lg"></i>
         </button>
       </ng-container>
@@ -80,8 +80,7 @@
 
         <!-- sections -->
         <br>
-        <button
-          *ngIf="false && (allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)"
+        <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)"
           class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
           placement="right" title="Sections">
           <i class="fas fa-fw fa-thumbtack fa-lg"></i>
@@ -188,8 +187,7 @@
             <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
               <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
                 <option [ngValue]="null">
-                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
-                  partie)':'(tout le code)'))}}
+                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
                 </option>
                 <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                   <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
