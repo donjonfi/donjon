@@ -158,9 +158,9 @@
             </div>
           </div>
           <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-          <div  *ngIf="afficherSections" class="row mb-2">
+          <div *ngIf="afficherSections" class="row mb-2">
             <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
-              <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie()" class="form-control"
+              <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-control"
                 name="choixPartie">
                 <option [ngValue]="null">(tout le code)</option>
                 <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
@@ -172,7 +172,7 @@
             </div>
 
             <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
-              <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre()" class="form-control"
+              <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)" class="form-control"
                 name="choixChapitre">
                 <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le code)')}}</option>
                 <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
@@ -184,7 +184,8 @@
             </div>
 
             <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
-              <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene()" class="form-control" name="choixScene">
+              <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
+                name="choixScene">
                 <option [ngValue]="null">
                   {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
                 </option>
@@ -196,7 +197,8 @@
               </select>
             </div>
 
-            <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length" class="font-italic ml-4">
+            <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length"
+              class="font-italic ml-4">
               (Votre scénario n’est pas découpé en sections)
             </p>
 
@@ -204,7 +206,8 @@
 
           <!-- CODE SOURCE (Scénario) -->
           <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-            <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
+            <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
+              (focusout)="onCodeFocusOut()"></ace>
           </div>
 
         </div>
@@ -215,7 +218,11 @@
         <div class="card-body">
 
           <div *ngIf="compilationEnCours">
-            <p>Analyse en cours …</p>
+            <p>Analyse en cours …
+            </p>
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </div>
 
           <div *ngIf="compilationTerminee">
