@@ -187,13 +187,12 @@ export class Compilateur {
     // // terminer les commentaires par un «.».
     // let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
 
-    // (finalement on va interpréter les parties, chapitres, scènes plus tard.)
-    // // commenter et terminer par un . les parties, chapitre et scènes
-    // const sectionsCommentees = source.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "-- $1.");
+    // terminer par un « . » les parties, chapitre et scènes.
+    const sectionsAvecPoint = source.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
 
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
-    const sansCommentaires = source.replace(/^((?: *)--(?:.*))$/gm, " ");
+    const sansCommentaires = sectionsAvecPoint.replace(/^((?: *)--(?:.*))$/gm, " ");
 
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les éventuels espaces consécutifs par un simple espace.
