@@ -2,14 +2,20 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Coincé".
 L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "1.3".
+La version du jeu est "1.5".
 Le titre de la licence est "Creative Commons Attribution 4.0 International License".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
 PARTIE "Description du monde".
+
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 --               MONDE
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+CHAPITRE "Le joueur".
+
+le joueur est dans le cabinet.
+la description du joueur est "Vos vêtements sont sales. Vous avez perdu des kilos. Il est temps de sortir d’ici !".
 
 CHAPITRE "Le salon".
 -- /////////////////////
@@ -17,47 +23,57 @@ CHAPITRE "Le salon".
 -- /////////////////////
 Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
 
+scène "les objets"
 -- ==========
 --   OBJETS
 -- ==========
--- > LUCARNE
+
+-- lucarne
 La lucarne est un objet décoratif dans le salon. "Impossible de l'atteindre : elle est bien trop haute.". Elle est inaccessible.
 
 interpréter la fenêtre comme la lucarne.
--- > FAUTEUIL
+
+-- fauteuil --
 Le fauteuil est un support dans le salon.
 Sa description est "C’est un vieux fauteuil en cuir brun bien patiné.".
 Son aperçu est "Il y a un fauteuil de style anglais[initialement] au centre de la pièce[puis] que vous avez déplacé[fin choix].".
 Interpréter canapé et divan comme fauteuil.
--- > BILLE
+
+-- bille --
 La bille est dans le salon. "C'est une bille en verre décorée de petits pois bleus.".
--- > PAPIER
+
+-- papier --
 Le bout de papier est un objet caché sur le fauteuil. "Il y a quelque chose d'écrit dessus".
 Son aperçu est "[initialement]Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.[puis]Il y a un bout de papier.[fin choix]".
 Son texte est "Il est écrit << ne pas oublier: {+uaenna+} >>".
 Interpréter papier et feuille comme le bout de papier.
--- > COFFRE
+
+-- coffre --
 Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmonté d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.)[fin si]".
 Il est invisible, fermé, ouvrable et verrouillé.
 Interpréter le clavier comme le coffre.
--- > ANNEAU
+
+-- anneau
 L'anneau est un objet dans le coffre. "C'est un anneau doré. Il est probablement magique.".
-Il est portable.
--- > PORTE
+  Il est portable.
+
+-- porte
 La porte secrète est une porte au nord du salon.
 Elle est fermée, verrouillée et invisible.
--- > MUR
+
+-- mur
 Le mur est un support décoratif dans le salon. "Les murs de la pièce sont peints en vert."
--- > TABLEAU
+
+-- tableau
 Le tableau est sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
 Son aperçu est "Il y a un tableau [si le tableau se trouve sur le mur]accroché à l’un des murs.[sinon]par terre.[fin si]".
 Interpréter peinture et cadre comme le tableau.
 
--- > BOUTON
+-- bouton --
 Le bouton est un objet fixé sur le mur. Il est couvert. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
+interpréter bouton rouge, gros bouton et bouton rond comme le bouton.
 
-interpréter bouton rouge et bouton rond comme le bouton.
-
+scène "les actions"
 -- ===========
 --   ACTIONS
 -- ===========
@@ -65,20 +81,25 @@ interpréter bouton rouge et bouton rond comme le bouton.
 -- > POUSSER/DÉPLACER FAUTEUIL
 avant pousser le fauteuil ou déplacer le fauteuil:
   si le fauteuil n'est pas déplacé:
-    dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.",
-    changer le coffre n’est plus invisible,
+    dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.";
+    changer le coffre n’est plus invisible;
     changer le fauteuil est déplacé;
   sinon
     dire "Ce n'est plus nécessaire.";
+  fin si
   stopper l'action.
-
+  
+-- > SOULEVER ou PRENDRE ou JETER le FAUTEUIL
+Le joueur peut soulever le fauteuil:
+  dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
+  
+avant prendre le fauteuil ou jeter le fauteuil:
+  dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.";
+  stopper l’action.
+  
 -- > JETER BILLE SUR LUCARNE
 après jeter la bille vers la lucarne:
   dire "[au hasard]Vous atteignez la lucarne avec la bille, ça fait << poc >> puis la bille retombe.[ou]Raté.[ou]Bien essayé.[fin choix]".
-
--- > POUSSER FAUTEUIL
-Le joueur peut soulever le fauteuil:
-  dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
 
 -- > TAPER CODE
 taper ceci est une action qui concerne un intitulé.
@@ -89,10 +110,11 @@ refuser taper ceci:
   
 exécuter taper ceci:
   si ceci vaut "anneau":
-    dire "Le coffre émet un déclic.",
+    dire "Le coffre émet un déclic.";
     changer le coffre est déverrouillé;
   sinon
-    dire "Rien ne se passe. Ce n'est pas le bon code.".
+    dire "Rien ne se passe. Ce n'est pas le bon code.";
+  fin si.
 
 l'aide pour l'action taper est "{*taper*}
   Cette commande permet de taper un mot de passe pour déverrouiller le coffre.
@@ -103,32 +125,36 @@ l'aide pour l'action taper est "{*taper*}
 -- > DÉCROCHER TABLEAU
 Le joueur peut décrocher le tableau:
   si le tableau se trouve sur le mur:
-    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}",
-    changer le bouton n’est plus couvert,
+    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}";
+    changer le bouton n’est plus couvert;
     changer le tableau se trouve dans le salon;
-  sinon:
-    dire "Le taleau n'est pas accroché.".
-    
+  sinon
+    dire "Le taleau n'est pas accroché.";
+  fin si.
+
+scène "les règles"
 -- ==========
 --   RÈGLES
 -- ==========
 
--- > AVANT − PRENDRE TABLEAU
-avant prendre le tableau ou enlever le tableau:
+-- > AVANT − PRENDRE, ENLEVER ou JETER le TABLEAU
+avant prendre le tableau, enlever le tableau ou jeter le tableau:
   si le tableau se trouve sur le mur:
-    changer le bouton n’est plus couvert,
-    changer le tableau se trouve dans le salon,
-    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}";
-  sinon:
+    changer le bouton n’est plus couvert;
+    changer le tableau se trouve dans le salon;
+    dire "Vous décrochez le tableau et vous découvrez un bouton bouton rouge.{n}";
+  sinon
     dire "Vous avez déjà enlevé le tableau du mur.";
+  fin si
   stopper l’action.
 
 après pousser le bouton:
   dire "Vous entendez un déclic.";
   si la porte secrète est fermée:
-    dire "{n}Une porte s'ouvre dans le mur nord de la pièce.",
-    changer la porte secrète est ouverte,
-    changer la porte secrète n'est plus invisible.
+    dire "{n}Une porte s'ouvre dans le mur nord de la pièce.";
+    changer la porte secrète est ouverte;
+    changer la porte secrète n'est plus invisible;
+  fin si.
 
 CHAPITRE "Le cabinet".
 -- ///////////////////////
@@ -137,10 +163,15 @@ CHAPITRE "Le cabinet".
 
 Le cabinet est un lieu au nord du salon. "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées."
 
-Les toiles d'araignées sont des décors dans le cabinet. "Brrr c'est n'est pas très rassurant.".
-Elles sont décoratives.
+SCÈNE "les décors".
 
-La magicienne est une femme dans le cabinet. "Une magicienne vous observe.".
+Les toiles d’araignées sont des décors dans le cabinet. "Brrr c'est n'est pas très rassurant.".
+Elles sont décoratives.
+interpréter araignées, araignée, toile et toiles comme les toiles d’araignées.
+
+SCÈNE "la magicienne".
+
+La magicienne est une femme dans le cabinet. "la magicienne vous observe.".
 
 Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
 Sa réaction concernant l'anneau est "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
@@ -152,23 +183,26 @@ Sa réaction concernant un sujet inconnu est:
 après donner pièce à la magicienne:
   dire "<< Elle ne semble pas magique malheureusement. >>".
   
-après donner anneau à la magicienne:
-  dire "<< Mon héro! >> ";
-  dire "{n}{n}La magicienne tend la main et un éclair vous aveugle.";
-  dire "{n}{n}Vous êtes de retour chez vous!";
-  dire "{n}{n}{+Bravo! Vous avez gagné !+}";
-  terminer le jeu.
-  
+avant donner anneau à la magicienne ou montrer anneau à la magicienne:
+  dire "<< Mon héro! >>
+        La magicienne tend la main et un éclair vous aveugle.";
+  attendre touche;
+  dire "Vous êtes de retour chez vous!
+        
+        {+Bravo! Vous avez gagné !+}";
+  terminer le jeu;
+  stopper l’action.
+
+CHAPITRE "Objets non placés".
 -- 3) objets non placés
 La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
 
+
 PARTIE "Règles".
+
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 --              RÈGLES
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 avant commencer le jeu :
-  changer le joueur se trouve dans le salon;
   changer le joueur possède la pièce.
-
-la description du joueur est "Vos vêtements sont sales. Vous avez perdu des kilos. Il est temps de sortir d’ici !".
