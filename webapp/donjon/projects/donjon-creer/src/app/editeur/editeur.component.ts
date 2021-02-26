@@ -190,13 +190,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
           this.selPartieIndex = selPartieIndexStr ? +selPartieIndexStr : null;
           if (this.selPartieIndex !== null) {
             console.log(">>> selPartieIndex=", this.selPartieIndex);
-            this.onChangerSelPartie(true);
+            this.onChangerSelPartie(false);
           }
           const selChapitreIndexStr = sessionStorage.getItem("SelChapitreIndex");
           this.selChapitreIndex = selChapitreIndexStr ? +selChapitreIndexStr : null;
           if (this.selChapitreIndex !== null) {
             console.log(">>> selChapitreIndex=", this.selChapitreIndex);
-            this.onChangerSelChapitre(true);
+            this.onChangerSelChapitre(false);
           }
           const selSceneIndexStr = sessionStorage.getItem("SelSceneIndex");
           this.selSceneIndex = selSceneIndexStr ? +selSceneIndexStr : null;
@@ -234,12 +234,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.showTab('analyse');
     // }, 0);
 
-    // sauver le code
-    this.sauvegarderSession();
-    // màj de la découpe des sections
-    this.decouperEnSections(this.codeSource, "partie");
-    this.selPartieIndex = null;
-    this.onChangerSelPartie(false);
+    // // sauver le code
+    // this.sauvegarderSession();
+    // // màj de la découpe des sections
+    // this.decouperEnSections(this.codeSource, "partie");
+    // this.selPartieIndex = null;
+    // this.onChangerSelPartie(false);
+
+    // sauver le code et mettre à jour les sections
+    this.onMajSections();
 
     if (this.codeSource && this.codeSource.trim() !== '') {
       // interpréter le code
@@ -330,6 +333,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }
   }
 
+  onCodeFocusOut() {
+    console.warn("Tadaaaa");
+    this.onMajSections();
+  }
+
   onChargerFichierLocal(evenement): void {
     if (this.fichierCharge) {
       // fichier choisi par l’utilisateur
@@ -354,14 +362,63 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.codeSource = codeSource;
     this.sectionCodeSourceVisible = codeSource;
     this.sectionMode = "tout";
-    this.decouperEnSections(this.codeSource, "partie");
+
+    // this.decouperEnSections(this.codeSource, "partie");
+    this.onMajSections();
+
     this.chargementFichierEnCours = false;
-    this.onChangerSelPartie();
+    this.onChangerSelPartie(false);
   }
 
   // =============================================
   //  GESTION DES SECTIONS
   // =============================================
+
+  /** Mettre à jour les listes de sections (parties, chapitres, scènes) */
+  onMajSections() {
+
+    console.log("onMajSections IN >>> ", "\nactPartieIndex=", this.actPartieIndex, "actChapitreIndex=", this.actChapitreIndex, "actSceneIndex=", this.actSceneIndex);
+
+    // sauver partie en cours et rassembler les sections
+    this.sauvegarderSession();
+
+    const backPartie = this.actPartieIndex;
+    const backChapitre = this.actChapitreIndex;
+    const backScene = this.actSceneIndex;
+
+    // A) DÉCOUPE EN PARTIES
+    this.decouperEnSections(this.codeSource, "partie");
+    // choisir la partie précédemment sélectionnée (peut être null)
+    this.selPartieIndex = backPartie;
+    this.onChangerSelPartie(false);
+
+    // B) DÉCOUPE EN CHAPITRES
+    // si on a pu récupérer la partie précédente ou s’il n’y a pas de partie
+    if (this.actPartieIndex !== null || !this.allPartiesIntitule?.length) {
+      // afficher les chapitres
+      this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+      // choisir le chapitre précédent
+      this.selChapitreIndex = backChapitre;
+      if (this.selChapitreIndex !== null) {
+        this.onChangerSelChapitre(false);
+      }
+      // C) DÉCOUPE EN SCÈNES
+      // si on a pu récupérer le chapitre précédent ou s’il n’y a pas de chapitre
+      if (this.actChapitreIndex !== null || !this.allChapitresIntitule?.length) {
+        // afficher les scènes
+        this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+        // choisir scène précédente
+        this.selSceneIndex = backScene;
+        if (this.selSceneIndex !== null) {
+          this.onChangerSelScene();
+        }
+      }
+    }
+
+    console.log("onMajSections OUT>>> ", "\nactPartieIndex=", this.actPartieIndex, "actChapitreIndex=", this.actChapitreIndex, "actSceneIndex=", this.actSceneIndex);
+    
+
+  }
 
   /** Vider le code source. */
   private viderSectionsCodeSource(typeSection: 'partie' | 'chapitre' | 'scène'): void {
@@ -397,6 +454,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       if (rassemblerAvant) {
         this.rassemblerSource();
       }
+
       // supprimer le découpage en chapitres
       this.viderSectionsCodeSource("chapitre");
 
@@ -432,25 +490,28 @@ export class EditeurComponent implements OnInit, OnDestroy {
   onChangerSelChapitre(rassemblerAvant = true): void {
     // ne rien faire si un chargement de fichier est en cours
     if (!this.chargementFichierEnCours) {
+
       // sauvegarder la section visible actuellement pour ne rien perdre
       if (rassemblerAvant) {
         this.rassemblerSource();
       }
+
+      //// recalculer les chapitres qui peuvent avoir changées
+      ///if (this.sectionMode != 'chapitre') {
+      //// sauver la chapitre choisi
+      ////let bakChapitreIndex = this.selChapitreIndex;
+      ////
+      // // // recalculer les chapitres
+      // // this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+      /////
+      // // // restaurer le chapitre choisi
+      // // this.selChapitreIndex = bakChapitreIndex;
+      ////      } else {
+
       // supprimer le découpage en scènes
       this.viderSectionsCodeSource("scène");
 
-      // recalculer les chapitres qui peuvent avoir changées
-      if (this.sectionMode != 'chapitre') {
-        // sauver la chapitre choisi
-        let bakChapitreIndex = this.selChapitreIndex;
-
-        // recalculer les chapitres
-        this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
-
-        // restaurer le chapitre choisi
-        this.selChapitreIndex = bakChapitreIndex;
-      }
-
+      ///  }
 
       // TOUS LES CHAPITRES
       if (this.selChapitreIndex === null || this.selChapitreIndex >= this.allChapitresCodeSource.length) {
@@ -477,15 +538,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // rassembler la source pour prendre en compte les modifs
       this.rassemblerSource();
 
-      // recalculer les scènes qui peuvent avoir changées
-      if (this.sectionMode != 'scène') {
-        // sauver la scène choisie
-        let bakSceneIndex = this.selSceneIndex;
-        // recalculer les scènes
-        this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
-        // restaurer la scène choisie
-        this.selSceneIndex = bakSceneIndex;
-      }
+      // // recalculer les scènes qui peuvent avoir changées
+      // if (this.sectionMode != 'scène') {
+      //   // sauver la scène choisie
+      //   let bakSceneIndex = this.selSceneIndex;
+      //   // recalculer les scènes
+      //   this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+      //   // restaurer la scène choisie
+      //   this.selSceneIndex = bakSceneIndex;
+      // }
 
       // si on veut afficher toutes les scènes
       if (this.selSceneIndex === null || this.selSceneIndex >= this.allScenesCodeSource.length) {
@@ -505,7 +566,6 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Rassembler le code source pour ne rien perdre */
   rassemblerSource(): void {
 
-    console.warn(">>>> rassemblerSource");
 
 
     switch (this.sectionMode) {
@@ -514,11 +574,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
         break;
 
       case "partie":
-        this.rassemblerLesParties();
+        this.rassemblerLesParties(false);
         break;
 
       case "chapitre":
-        this.rassemblerLesChapitres();
+        this.rassemblerLesChapitres(false);
         break;
 
       case "scène":
@@ -528,45 +588,56 @@ export class EditeurComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+    console.warn("> rassemblerSource:","\n>> allPartiesCodeSource", this.allPartiesCodeSource, "\n>> allChapitresCodeSource", this.allChapitresCodeSource, "\n>> allScenesCodeSource", this.allScenesCodeSource);
+    
+
   }
 
   /** Rassembler les parties ensemble */
-  private rassemblerLesParties(): void {
+  private rassemblerLesParties(ignorerCodeVisible: boolean): void {
     console.log(">>>>>>> rassembler Parties");
-    // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
-    if (!this.sectionCodeSourceVisible.endsWith('\n')) {
-      this.sectionCodeSourceVisible += "\n";
-      if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+
+    if (!ignorerCodeVisible) {
+      // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
+      if (!this.sectionCodeSourceVisible.endsWith('\n')) {
         this.sectionCodeSourceVisible += "\n";
+        if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+          this.sectionCodeSourceVisible += "\n";
+        }
       }
+      // mettre à jour la PARTIE en cours d’édition dans la liste des parties
+      this.allPartiesCodeSource[this.actPartieIndex] = this.sectionCodeSourceVisible;
     }
 
-    // mettre à jour la PARTIE en cours d’édition dans la liste des parties
-    this.allPartiesCodeSource[this.actPartieIndex] = this.sectionCodeSourceVisible;
     // joindre les parties dans le code source
     this.codeSource = this.allPartiesCodeSource.join("");
   }
 
   /** Rassembler les chapitres ensemble */
-  private rassemblerLesChapitres(): void {
+  private rassemblerLesChapitres(ignorerCodeVisible: boolean): void {
     console.log(">>>>>>> rassembler Chapitres");
-    // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
-    if (!this.sectionCodeSourceVisible.endsWith('\n')) {
-      this.sectionCodeSourceVisible += "\n";
-      if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+    let chapitresRassembles: string = null;
+    if (!ignorerCodeVisible) {
+      // si la section en cours d’édition contient ne termine pas par "\n\n", l’ajouter.
+      if (!this.sectionCodeSourceVisible.endsWith('\n')) {
         this.sectionCodeSourceVisible += "\n";
+        if (!this.sectionCodeSourceVisible.endsWith('\n\n')) {
+          this.sectionCodeSourceVisible += "\n";
+        }
       }
+      // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
+      this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
+      chapitresRassembles = this.allChapitresCodeSource.join("");
+      this.sectionCodeSourceVisible = chapitresRassembles;
+    } else {
+      chapitresRassembles = this.allChapitresCodeSource.join("");
     }
-    // mettre à jour le CHAPITRE en cours d’édition dans la liste des chapitres
-    this.allChapitresCodeSource[this.actChapitreIndex] = this.sectionCodeSourceVisible;
-    const chapitresRassembles = this.allChapitresCodeSource.join("");
-    this.sectionCodeSourceVisible = chapitresRassembles;
     // s’il y a une partie sélectionnée
     if (this.actPartieIndex !== null) {
       // rassembler les chapitres dans la partie sélectionnée
       this.allPartiesCodeSource[this.actPartieIndex] = chapitresRassembles;
       // rassembler les parties
-      this.rassemblerLesParties();
+      this.rassemblerLesParties(true);
       // si aucune sélection parent
     } else {
       // ressembler les chapitres dans le code source
@@ -594,13 +665,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // rassembler les scènes dans le chapitre sélectionné
       this.allChapitresCodeSource[this.actChapitreIndex] = scenesRassemblees;
       // rassembler les chapitres
-      this.rassemblerLesChapitres();
+      this.rassemblerLesChapitres(true);
       // sinon s’il y a une partie sélectionnée
     } else if (this.actPartieIndex !== null) {
       // rassembler les scènes dans la partie sélectionnée
       this.allPartiesCodeSource[this.actPartieIndex] = scenesRassemblees;
       // rassembler les parties
-      this.rassemblerLesParties();
+      this.rassemblerLesParties(true);
       // si aucune sélection parent
     } else {
       // ressembler les scènes dans le code source
@@ -656,7 +727,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       decoupageEnSections.forEach(element => {
         if (element) {
           if (element.match(regexpMatchSections)) {
-            // si c’était déjà une partie juste avant (càd sans code source), ajouter du code source à la partie
+            // si c’était déjà une définition de section juste avant (càd sans code source), ajouter du code source à la partie
             if (dernEstSection) {
               // ajouter le code source de la partie précédé de l’instruction « partie »
               allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
@@ -680,6 +751,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
           }
         }
       });
+      // si on termine sur une déclaration de section, lui ajouter du code source pour qu’elle ne soit pas vide.
+      if (dernEstSection) {
+        allSectionsCodeSource.push(prefixe + dernSection + '".' + ("\n"));
+      }
     } else {
       allSectionsCodeSource.push(decoupageEnSections[0]);
     }
@@ -704,31 +779,18 @@ export class EditeurComponent implements OnInit, OnDestroy {
         break;
     }
 
+    console.warn("> decouperEnSections (" + typeSection + "):","\n>> allPartiesCodeSource", this.allPartiesCodeSource, "\n>> allChapitresCodeSource", this.allChapitresCodeSource, "\n>> allScenesCodeSource", this.allScenesCodeSource);
+
+
   }
 
   showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario'): void {
     this.tab = tab;
 
+    /** focus sur le champ commandes si on est sur le tab jeu */
     if (this.tab == 'jeu') {
       ((this.lecteurRef as any) as LecteurComponent).focusCommande();
     }
-
-    // switch (tab) {
-    //   case 'scenario':
-    //     // this.editeurTabs.tabs[0].active = true;
-    //     break;
-    //   case 'analyse':
-    //     this.editeurTabs.tabs[1].active = true;
-    //     break;
-    //   case 'jeu':
-    //     this.editeurTabs.tabs[2].active = true;
-    //     break;
-    //   case 'apercu':
-    //     this.editeurTabs.tabs[3].active = true;
-    //     break;
-    //   default:
-    //     break;
-    // }
   }
 
   // =============================================

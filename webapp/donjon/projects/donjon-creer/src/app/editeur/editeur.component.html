@@ -80,8 +80,8 @@
 
         <!-- sections -->
         <br>
-        <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)"
-          class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
+        <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
+        <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
           placement="right" title="Sections">
           <i class="fas fa-fw fa-thumbtack fa-lg"></i>
         </button>
@@ -158,8 +158,7 @@
             </div>
           </div>
           <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-          <div class="row mb-2" *ngIf="afficherSections && (allPartiesIntitule?.length || allChapitresIntitule?.length ||
-            allScenesIntitule?.length)">
+          <div  *ngIf="afficherSections" class="row mb-2">
             <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
               <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie()" class="form-control"
                 name="choixPartie">
@@ -196,11 +195,19 @@
                 </ng-container>
               </select>
             </div>
+
+            <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length" class="font-italic ml-4">
+              (Votre scénario n’est pas découpé en sections)
+            </p>
+
+            <button class="btn btn-primary ml-2" title="Mettre à jour les sections." (click)="onMajSections()">
+              <i class="fas fa-sync"></i>
+            </button>
           </div>
 
           <!-- CODE SOURCE (Scénario) -->
           <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-            <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"></ace>
+            <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
           </div>
 
         </div>

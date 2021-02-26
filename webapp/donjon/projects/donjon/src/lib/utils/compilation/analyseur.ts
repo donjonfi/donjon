@@ -209,12 +209,12 @@ export class Analyseur {
                             const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
                             const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
                             // retrouver l’élément générique concerné
-                            const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() === elementConcerneNom && x.epithete?.toLowerCase() === elementConcerneEpithete);
-                      
+                            const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom && x.epithete?.toLowerCase() == elementConcerneEpithete);
+
                             if (elementsTrouves.length === 1) {
                               elementCible = elementsTrouves[0];
                             } else {
-                              console.warn("xAttribut: Pas trouvé le complément:", elementConcerneBrut);
+                              console.warn("xAttribut: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
                             }
                           } else {
                             erreurs.push(("00000" + phrase.ligne).slice(-5) + " : l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
@@ -710,7 +710,7 @@ export class Analyseur {
           // retrouver l’élément générique correspondant
           let nomLower = nom.toLowerCase();
           let epiLower = epithete?.toLowerCase();
-          const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() === nomLower && x.epithete?.toLowerCase() === epiLower);    
+          const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
           // 1 élément trouvé
           if (elementsTrouves.length === 1) {
             let elementTrouve = elementsTrouves[0];
@@ -1000,7 +1000,7 @@ export class Analyseur {
       // avant d'ajouter l'élément vérifier s'il existe déjà
       let nomLower = nouvelElementGenerique.nom.toLowerCase();
       let epiLower = nouvelElementGenerique.epithete?.toLowerCase();
-      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() === nomLower && x.epithete?.toLowerCase() === epiLower);    
+      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
 
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
@@ -1028,9 +1028,9 @@ export class Analyseur {
         }
 
         if (elementConcerne == elementGeneriqueTrouve && nouvelElementGenerique.attributs.length > 0) {
-          if( elementGeneriqueTrouve.attributs){
+          if (elementGeneriqueTrouve.attributs) {
             elementGeneriqueTrouve.attributs = elementGeneriqueTrouve.attributs.concat(nouvelElementGenerique.attributs);
-          }else{
+          } else {
             elementGeneriqueTrouve.attributs = nouvelElementGenerique.attributs;
           }
         }
