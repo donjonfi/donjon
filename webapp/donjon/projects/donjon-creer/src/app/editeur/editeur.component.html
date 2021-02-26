@@ -162,7 +162,7 @@
             <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
               <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-control"
                 name="choixPartie">
-                <option [ngValue]="null">(tout le code)</option>
+                <option [ngValue]="null">(tout le scénario)</option>
                 <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
                   <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
                     Partie « {{intitule}} »
@@ -174,7 +174,7 @@
             <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
               <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)" class="form-control"
                 name="choixChapitre">
-                <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le code)')}}</option>
+                <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}</option>
                 <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
                   <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
                     Chapitre « {{intitule}} »
@@ -187,7 +187,7 @@
               <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
                 name="choixScene">
                 <option [ngValue]="null">
-                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le code)'))}}
+                  {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
                 </option>
                 <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                   <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
