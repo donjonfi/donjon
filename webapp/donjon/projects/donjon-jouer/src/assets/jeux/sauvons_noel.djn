@@ -2,71 +2,50 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.5".
+La version du jeu est "1.6".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
-PARTIE "Règles".
+PARTIE "Description du monde"
 
-avant commencer le jeu:
-  changer le joueur se trouve dans la chambre;
-  attendre touche;
-  dire "{/CRAC !/}
-        {/Pif !/}";
-  attendre touche;
-  dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.
-  << Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
-  dire "{n}{n}Vous vous levez tant bien que mal.
-        Vous avez froid. C'est normal, vous êtes en slip !";
-  attendre touche.
-
-PARTIE "Description du monde".
-
+CHAPITRE "le joueur".
 -- Le joueur
 Le description du joueur est "Bon clairement vous avez quelques kilos à perdre mais d’un autre coté ces rondeurs et votre barbe blanche vous donnent un air sympathique.
   [si le joueur porte le bonnet]Vous portez un bonnet rouge[sinon]Vous ne portez rien[fin si] sur votre tête.
   [si le joueur porte la veste et le pantalon]Vous avez enfilé votre veste et votre pantalon.[fin si][si le joueur porte le pantalon mais pas la veste]Vous avez enfilé votre pantalon de velour mais vous êtes toujours torse-nu[fin si][si le joueur porte la veste mais pas le pantalon]Vous êtes en slip en dessous de votre veste, ce qui fait beaucoup rire vos lutins.[fin si][si le joueur ne porte ni la veste ni le pantalon]Vous êtes en slip, ce qui fait beaucoup rire vos lutins.[fin si]
   [si le joueur porte les bottes]Vous êtes chaussés.[sinon]Vous êtes pieds nus. C’est un peu désagréable.[fin si]".
-
--- Le hall
-Le hall est un lieu. "Vous êtes dans le hall.".
-Son titre est "Le hall de la maison du Père Noël".
-Les bottes (f) sont des objets portables dans le hall. "Ce sont vos bottes fourrées indispensables pour sortir.".
--- La porte d'entrée
-La porte d'entrée est une porte à l'extérieur du hall.
-Elle est fermée et ouvrable.
-Sa description est "Cette porte conçue par vos lutins dans votre atelier vous protège efficacement du froid.".
-interpréter porte comme porte d'entrée.
-avant ouvrir porte d'entrée:
-  si le joueur ne porte pas la veste ou le pantalon ou le bonnet ou les bottes :
-    dire "Vous n'êtes pas suffisamment équipé pour le froid[si le joueur ne porte pas le pantalon] et de toute manière vous ne pouvez pas sortir dans cette tenue[fin si].",
-    stopper l'action.
-
--- La chambre
-La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
-Son titre est "La chambre du Père Noël".
--- >> Grattepot => sur le chemin
+  
+CHAPITRE "les lutins".
+  
+SCÈNE "Grattepot (chemin)".
+-- Grattepot
 Grattepot est une personne sur le chemin.
 Sa description est "Votre lutin, habillé de vert, prêt à vous aider.".
 interpréter G et lutin comme Grattepot.
 Sa réaction est :
-  si l'historique ne contient pas "clé trouvée":
-    dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>[si le joueur ne porte pas le pantalon] {n}<< Ha ha ! Vous ne portez pas de pantalon ! >>[fin si]";
-  si l'historique contient "lettre trouvée":
+  si l’historique contient "lettre trouvée":
     dire "<< Pouvez-vous me donner la lettre à présent ? >>";
-  si l'historique ne contient "clé trouvée" mais pas "lettre trouvée":
-    dire "<< Vous devriez pouvoir ouvrir la boîte aux lettre à présent.".
+  sinonsi l’historique contient "clé trouvée":
+    dire "<< Vous devriez pouvoir ouvrir la boîte aux lettre à présent.";
+  sinon
+    dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>";
+    si le joueur ne porte pas le pantalon:
+      dire "{n}<< Ha ha ! Vous ne portez pas de pantalon ! >>";
+    fin si
+  fin si.
   
 Sa réaction concernant la clé est :
   si l'historique contient "clé trouvée" :
     dire "<< Je suis heureux que vous l'ayez retrouvée. Vous pouvez ouvrir la boîte aux lettres à présent. >>";
   sinon
-    dire "<< Vous savez-bien, c'est la clé en forme de Bretzel. >>".
+    dire "<< Vous savez-bien, c'est la clé en forme de Bretzel. >>";
+  fin si.
   
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
 Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "C’est important de bien vous couvrir pour sortir dehors.".
 
--- >> Volebougie => dans la chambre
+SCÈNE "Volebougie (chambre)"
+-- Volebougie
 Volebougie est une personne dans la chambre.
 Sa description est "Votre lutin, habillé de bleu, prêt à vous aider.".
 interpréter V et lutin comme Volebougie.
@@ -80,7 +59,8 @@ Sa réaction concernant la clé est "<< C'est Grattepot qui l'a perdu ![si l'his
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
 Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Bien rangé, vite retrouvé !".
 
--- >> Chipesaucisse => dans l’atelier
+SCÈNE "Chipesaucisse (atelier)".
+-- Chipesaucisse
 Chipesaucisse est une personne dans l’atelier.
 Sa description est "Votre lutin, habillé de rouge, prêt à vous aider.".
 interpréter C et lutin comme Chipesaucisse.
@@ -90,6 +70,28 @@ Sa réaction concernant la clé est "<< J'ai toujours eu envie de croquer dedans
 
 Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
 Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Il faut que vous arrêtiez de jeter vos affaires n’importe où.".
+
+CHAPITRE "le hall".
+-- Le hall
+Le hall est un lieu. "Vous êtes dans le hall.".
+Son titre est "Le hall de la maison du Père Noël".
+Les bottes (f) sont des objets portables dans le hall. "Ce sont vos bottes fourrées indispensables pour sortir.".
+
+-- La porte d'entrée
+La porte d'entrée est une porte à l'extérieur du hall.
+Elle est fermée et ouvrable.
+Sa description est "Cette porte conçue par vos lutins dans votre atelier vous protège efficacement du froid.".
+interpréter porte comme porte d'entrée.
+avant ouvrir porte d'entrée:
+  si le joueur ne porte pas la veste ou le pantalon ou le bonnet ou les bottes :
+    dire "Vous n'êtes pas suffisamment équipé pour le froid[si le joueur ne porte pas le pantalon] et de toute manière vous ne pouvez pas sortir dans cette tenue[fin si].";
+    stopper l'action;
+  fin si.
+
+CHAPITRE " la chambre".
+-- La chambre
+La chambre est un lieu à l'ouest du hall. "Vous êtes dans votre chambre.".
+Son titre est "La chambre du Père Noël".
 
 -- > Le lit
 Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
@@ -165,31 +167,40 @@ avant donner clé à Grattepot, donner clé à Chipesaucisse ou donner clé à V
   dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>";
   stopper l'action.
 
+CHAPITRE " le séjour".
 -- Le séjour
 Le séjour est un lieu à l'est du hall. "Vous êtes dans votre séjour. Il fait bien chaud ici.".
--- > La table à manger
+
+-- La table à manger
 La grande table est un support dans le séjour. "C'est une grande table en bois qui peut accueillir tous vos lutins.".
 interpréter la table comme la grande table.
--- > Le feu
+
+-- Le feu
 Le feu est un décor dans le séjour. "Un grand feu brule dans le cheminée.[1ère fois]{n}Sa chaleur vous fait du bien.{n}Vous prenez le temps de humer son odeur.{n}Vous appréciez le crépitement du bois.[fin choix]".
 Son apeçu est "Un feu brûle dans le cheminée.".
 interpréter la cheminée comme le feu.
 le joueur peut toucher le feu:
   dire "Je ne me ferai pas avoir.".
 
---> Le fauteuil
+-- Le fauteuil
 Le fauteuil est un support dans le séjour. "C'est un fauteuil en cuir vert bien patiné. Vous l'avez placé près du feu. Là où il fait bon de se reposer.".
--- > La veste
+
+-- La veste
 La veste est un objet portable sur le fauteuil. "C'est votre veste polaire. Elle vous tient chaud.".
+
+CHAPITRE " le chemin".
 -- =========
 -- LE CHEMIN
 -- =========
 Le chemin est un lieu à l'extérieur du hall. "Vous vous trouvez sur le chemin enneigé devant votre maison. Il y a des traces de pattes de vos rennes dans la neige.".
 Son titre est "Le chemin enneigé".
---> la boîte aux lettes
+
+scène "la boite aux lettres"
+
+-- la boîte aux lettes
 La boîte est un contenant fixé sur le chemin. "C'est une boîte aux lettres en forme de tonneau maintenue par des cannes en sucre d'orge.".
 son intitulé est "la boîte aux lettres".
-interpréter la boite, la boîte, la boîte aux lettres et la boite aux lettres comme la boîte.
+interpréter la boite, la boîte et la boite aux lettres comme la boîte.
 Elle est fermée, ouvrable et verrouillée.
 
 avant mettre clé dans boîte:
@@ -200,12 +211,14 @@ avant mettre clé dans boîte:
   
 avant ouvrir boîte, ouvrir boîte avec clé ou déverrouiller boîte avec clé:
   si le joueur possède la clé:
-    dire "Vous ouvrez la boîte avec la clé.",
-    changer la boîte est ouverte,
-    changer la boite est déverrouillée,
-    stopper l'action.
+    dire "Vous ouvrez la boîte avec la clé.";
+    changer la boîte est ouverte;
+    changer la boite est déverrouillée;
+    stopper l'action;
+  fin si.
 
---> La lettre
+scène "la lettre"
+-- La lettre
 La lettre est un objet dans la boîte. "Il s'agit d'une lettre manuscrite.".
 Son texte est "[1ère fois]Vous lisez la lettre à l'écriture enfantine: {n}<< Cher Père Noël, {n}J'ai été très sage cette année. {n}J'aimerais recevoir une caserne de pompiers. Merci! {n}Tom >>[puis] La lettre indique que Tom aimerait recevoir une caserne de pompiers.[fin choix]".
 
@@ -213,18 +226,21 @@ après prendre lettre:
   changer l'historique contient "lettre trouvée";
   continuer l'action.
   
-  après donner lettre à Volebougie, donner lettre à Grattepot ou donner lettre à Chipesaucisse:
+après donner lettre à Volebougie, donner lettre à Grattepot ou donner lettre à Chipesaucisse:
   dire "[si cela se trouve dans l’atelier][Intitulé cela] se lance dans la préparation de la caserne de pompiers.[sinon][Intitulé cela] s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.[fin si]
   Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
   Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
   Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
   Bravo ! Vous avez sauvé Noël !";
   terminer le jeu.
-
+  
+CHAPITRE " l’atelier".
 -- ==========
 -- L'ATELIER
 -- ==========
 L'atelier est un lieu à l'ouest du chemin. "Vous vous trouvez dans votre atelier. C'est ici que vos elfes fabriquent et emballent les jouets tout au long de l'année. L'atelier n'est plus très rempli, les jouets à livrer se trouvent sûrement déjà dans votre traineau.". 
+
+SCÈNE "le train, la loco et la clé".
 --> Le train électrique
 Le train est un support dans l'atelier. "C'est une réplique miniature du Poudlard Express.[En boucle] Prochain arrêt: Gare de Pré-au-Lard.[puis] Prochain arrêt: Gare de King's Cross.[fin choix]".
 Son aperçu est "Un train électrique miniature fait le tour de l'atelier en dégageant de la vapeur.".
@@ -241,53 +257,79 @@ le joueur peut arrêter la locomotive:
   dire "Vous n'avez pas le cœur à ça.".
 
 interpréter arreter et stopper comme arrêter.
+
 --> La clé
 La clé est un objet caché sur le train. "C'est une clé dorée dont la tête est en forme de Bretzel.". Son aperçu est "[initialement]Quelque chose brille dans la locomotive.[puis]Vous voyez une clé.[fin choix]".
-interpréter chose brillante et objet brillant comme la clé.
 après prendre clé:
   changer l'historique contient "clé trouvée";
   dire "Vous trouvez une clé dorée dont la tête est en forme de Bretzel.".
-  
+interpréter chose brillante et objet brillant comme la clé.
+
 --> La locomotive
 La locomotive est un objet caché dans l'atelier. "L'objet brillant est en fait une clé.".
 avant prendre locomotive:
   dire "[1ère fois]Vous n'allez quand même pas arrêter ce train en marche ?![2e fois]Vous risqueriez de faire dérailler le train.[puis]Rien ne vous empêche de l'examiner de plus près sans mettre fin à ce beau spectacle.[fin choix]";
   stopper action.
 interpréter loco comme locomotive.
---> Le sapin
+
+SCÈNE "le sapin et co.".
+-- Le sapin
 Le sapin est un objet fixé dans l'atelier. "C'est un imposant sapin de type Nordman qui fait environ trois fois votre taille.". Son aperçu est "Un immense sapin de Noël recouvert de boules et de guirlandes de toutes les couleurs trône au centre de la pièce.".
 
+-- les boules
 Les boules sont des objets décoratifs sur le sapin. "Elles sont fragiles. Faites attention !".
 interpréter boule comme boules.
 avant prendre boules:
   dire "Ma femme va me gronder, je préfère ne pas y toucher.";
   stopper action.
 
+-- les guirlandes
 Les guirlandes sont des objets décoratifs sur le sapin. "Elle brilles de partout c'est trop beau !".
 interpréter guirlande comme guirlandes.
 avant prendre guirlandes:
   dire "Ça pourra servir pour le nouvel an mais ce n'est pas le sujet actuellement.";
   stopper action.
 
+
+PARTIE "Règles".
+
+CHAPITRE "début du jeu".
+
+avant commencer le jeu:
+  changer le joueur se trouve dans la chambre;
+  attendre touche;
+  dire "{/CRAC !/}
+        {/Pif !/}";
+  attendre touche;
+  dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.
+  << Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
+  dire "{n}{n}Vous vous levez tant bien que mal.
+        Vous avez froid. C'est normal, vous êtes en slip !";
+  attendre touche.
+
+CHAPITRE "morts idiotes".
+
 après enlever veste:
   si le joueur se trouve sur le chemin:
     dire "Ces quelques minutes sans veste vous ont fait attraper un rhume carabiné. Vous passez le reste de la soirée dans votre lit au lieu de distribuer les cadeaux aux enfants.
     {n}Vous n'avez pas pu sauver Noël.
-    {n}Vous avez perdu.",
-    terminer le jeu.
+    {n}Vous avez perdu.";
+    terminer le jeu;
+  fin si.
 
 après enlever pantalon:
   si le joueur se trouve sur le chemin:
     dire "Vous ne savez plus trop ce qui vous a pris. Lorsque vous vous réveillez, Noël est passé depuis longtemps. Vous avez manqué la distribution des cadeaux.
     {n}Vous n'avez pas pu sauver Noël.
-    {n}Vous avez perdu.",
-    terminer le jeu.
+    {n}Vous avez perdu.";
+    terminer le jeu;
+  fin si.
     
 après enlever bottes:
   si le joueur se trouve sur le chemin:
     dire "Malheureusement vous glissez sur la glace. Vous voilà immobilisé pour plusieurs jours dans votre lit.
     {n}Vous n'avez pas pu sauver Noël.
-    {n}Vous avez perdu.",
-    terminer le jeu.
+    {n}Vous avez perdu.";
+    terminer le jeu;
+  fin si.
 
-    
