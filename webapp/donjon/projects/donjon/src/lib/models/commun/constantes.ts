@@ -103,4 +103,6 @@ export enum EEtatsBase {
   transportable = 'transportable',
   /** adjacent : lieu */
   adjacent = 'adjacent',
+  /** lu : objet */
+  lu = "lu",
 }

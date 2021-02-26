@@ -112,6 +112,9 @@ export class ListeEtats {
     this.creerBasculeEtats(EEtatsBase.parlant, EEtatsBase.muet);
     // adjacent (lieu)
     this.adjacentID = this.creerEtat(EEtatsBase.adjacent, Genre.m, Nombre.s, true).id;
+    // lu (objet)
+    this.creerEtat(EEtatsBase.lu, Genre.m, Nombre.s, false).id;
+    this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.lu); // est-ce une bonne idée ?
   }
 
   /**
@@ -376,7 +379,7 @@ export class ListeEtats {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return element.id == eju.curLieu.id;
-        // objet
+          // objet
         } else {
           return this.estVisible((element as Objet), eju);
         }
@@ -509,8 +512,8 @@ export class ListeEtats {
     if (objet.etats.includes(this.couvertID)) {
       return false;
     }
-     // si inaccessible -> pas accessible
-     if (objet.etats.includes(this.inaccessibleID)) {
+    // si inaccessible -> pas accessible
+    if (objet.etats.includes(this.inaccessibleID)) {
       return false;
     }
 

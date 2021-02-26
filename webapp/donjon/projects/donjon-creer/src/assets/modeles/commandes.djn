@@ -2,7 +2,7 @@ Désactiver les commandes de base.
 
 Partie "informations".
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-02-16-0017
+-- Version: 2021-02-25-0017
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1065,6 +1065,9 @@ lire ceci est une action qui concerne un objet visible.
 refuser lire ceci:
   si ceci est le joueur, dire "Vous lisez en vous. Hein ?";
   si aucun texte pour ceci, dire "Je ne vois rien à lire.".
+
+exécuter lire ceci:
+  changer ceci est lu.
 
 terminer lire ceci:
   dire "[texte ceci]".
