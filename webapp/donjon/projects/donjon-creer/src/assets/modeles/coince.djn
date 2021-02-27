@@ -62,7 +62,7 @@ La porte secrète est une porte au nord du salon.
 Elle est fermée, verrouillée et invisible.
 
 -- mur
-Le mur est un support décoratif dans le salon. "Les murs de la pièce sont peints en vert."
+Le mur est un support décoratif dans le salon. "Les murs de la pièce sont peints en vert.".
 
 -- tableau
 Le tableau est sur le mur. "Il s'agit d'une peinture a l'huile. Elle représente un voilier en pleine mer.".
@@ -175,8 +175,8 @@ La magicienne est une femme dans le cabinet. "la magicienne vous observe.".
 
 Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
 Sa réaction concernant l'anneau est "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
-Sa réaction concernant la sortie est "<< Grâce à mon anneau, j'aurais nous faire sortir d’ici >>".
-Sa réaction concernant uaenna est "<< Oh ! Vous savez parlez en verlan ! >>".
+Sa réaction concernant la sortie est "<< Grâce à mon anneau, je pourrai nous faire sortir d’ici >>".
+Sa réaction concernant uaenna est "<< Oh ! Vous savez parler en verlan ! >>".
 Sa réaction concernant un sujet inconnu est:
   dire "<< L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. >>".
 
