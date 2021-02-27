@@ -110,22 +110,30 @@ export class EditeurComponent implements OnInit, OnDestroy {
   allPartiesIntitule: string[] = [];
   /** Liste des différentes parties du code source */
   allPartiesCodeSource: string[] = [];
+  /*** Liste du 1er numéro de ligne pour chaque partie */
+  allPartiesPremierNumeroLigne: number[] = [];
+
   /** Liste des intitulés des différents chapitres de la partie. */
   allChapitresIntitule: string[] = [];
   /** Liste des différents chapitres de la partie */
   allChapitresCodeSource: string[] = [];
+  /*** Liste du 1er numéro de ligne pour chaque chapitre */
+  allChapitresPremierNumeroLigne: number[] = [];
+
   /** Liste des intitulés des différentes scenes du chapitre. */
   allScenesIntitule: string[] = [];
   /** Liste des différentes scenes du chapitre */
   allScenesCodeSource: string[] = [];
+  /*** Liste du 1er numéro de ligne pour chaque scène */
+  allScenesPremierNumeroLigne: number[] = [];
 
   chargementFichierEnCours = false;
   /** Fichier d'exemple par défaut. */
   nomExemple = "coince";
   /** Afficher les préférences ou non */
   afficherPreferences = false;
-  /** Afficher les sectinos ou non */
-  afficherSections = false;
+  /** Afficher les sections ou non */
+  afficherSections = true;
 
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   compilationEnCours = false;
@@ -230,7 +238,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationTerminee = false;
 
     let verbeux = false;
-    
+
     this.showTab('analyse');
     // sauver le code et mettre à jour les sections
     this.onMajSections();
@@ -373,8 +381,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     const backChapitre = this.actChapitreIndex;
     const backScene = this.actSceneIndex;
 
+    let premiereLigne = 1;
+
     // A) DÉCOUPE EN PARTIES
-    this.decouperEnSections(this.codeSource, "partie");
+    this.decouperEnSections(this.codeSource, "partie", premiereLigne);
     // choisir la partie précédemment sélectionnée (peut être null)
     this.selPartieIndex = backPartie;
     this.onChangerSelPartie(false, false);
@@ -382,8 +392,18 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // B) DÉCOUPE EN CHAPITRES
     // si on a pu récupérer la partie précédente ou s’il n’y a pas de partie
     if (this.actPartieIndex !== null || !this.allPartiesIntitule?.length) {
+
+      // définir premier numéro de ligne
+      // -- partie sélectionnée => 1ère ligne de la partie sélectionnée
+      if (this.actPartieIndex !== null) {
+        premiereLigne = this.allPartiesPremierNumeroLigne[this.actPartieIndex]
+        // -- aucune partie => 1
+      } else {
+        premiereLigne = 1;
+      }
+
       // afficher les chapitres
-      this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+      this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre", premiereLigne);
       // choisir le chapitre précédent
       this.selChapitreIndex = backChapitre;
       if (this.selChapitreIndex !== null) {
@@ -392,8 +412,21 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // C) DÉCOUPE EN SCÈNES
       // si on a pu récupérer le chapitre précédent ou s’il n’y a pas de chapitre
       if (this.actChapitreIndex !== null || !this.allChapitresIntitule?.length) {
+
+        // définir premier numéro de ligne
+        // -- chapitre sélectionné => 1ère ligne du chapitre sélectionné
+        if (this.actChapitreIndex !== null) {
+          premiereLigne = this.allChapitresPremierNumeroLigne[this.actChapitreIndex]
+          // -- pas de chapitre sélectinné mais partie sélectionnée => 1ère ligne de la partie sélectionnée
+        } else if (this.actPartieIndex !== null) {
+          premiereLigne = this.allPartiesPremierNumeroLigne[this.actPartieIndex]
+          // -- ni chaptire ni partie sélectionné => 1
+        } else {
+          premiereLigne = 1;
+        }
+
         // afficher les scènes
-        this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+        this.decouperEnSections(this.sectionCodeSourceVisible, "scène", premiereLigne);
         // choisir scène précédente
         this.selSceneIndex = backScene;
         if (this.selSceneIndex !== null) {
@@ -453,13 +486,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
         // si aucune partie trouvée, essayer de découper en chapitres
         if (!this.allPartiesIntitule?.length) {
           if (decouperPlusBas) {
-            this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+            this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre", 1);
             // si aucun chapitre trouvé, essyaer de découper en scènes
             if (!this.allChapitresIntitule?.length) {
-              this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+              this.decouperEnSections(this.sectionCodeSourceVisible, "scène", 1);
             }
           }
         }
+        this.setPremierNumeroLigne(1);
         // PARTIE SPÉCIFIQUE
       } else {
         this.sectionMode = "partie";
@@ -467,12 +501,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.actPartieIndex = this.selPartieIndex;
         if (decouperPlusBas) {
           // découper la partie visible actuellement en chapitres
-          this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre");
+          this.decouperEnSections(this.sectionCodeSourceVisible, "chapitre", this.allPartiesPremierNumeroLigne[this.actPartieIndex]);
           // si aucun chapitre trouvé, essyaer de découper en scènes
           if (!this.allChapitresIntitule?.length) {
-            this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+            this.decouperEnSections(this.sectionCodeSourceVisible, "scène", this.allPartiesPremierNumeroLigne[this.actPartieIndex]);
           }
         }
+        this.setPremierNumeroLigne(this.allPartiesPremierNumeroLigne[this.actPartieIndex]);
       }
     }
   }
@@ -503,8 +538,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.actChapitreIndex = this.selChapitreIndex;
         if (decouperPlusBas) {
           // découper le chapitre visible actuellement en scènes
-          this.decouperEnSections(this.sectionCodeSourceVisible, "scène");
+          this.decouperEnSections(this.sectionCodeSourceVisible, "scène", this.allChapitresPremierNumeroLigne[this.actChapitreIndex]);
         }
+        this.setPremierNumeroLigne(this.allChapitresPremierNumeroLigne[this.actChapitreIndex]);
       }
     }
   }
@@ -530,6 +566,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.sectionMode = "scène";
         this.sectionCodeSourceVisible = this.allScenesCodeSource[this.selSceneIndex];
         this.actSceneIndex = this.selSceneIndex;
+        this.setPremierNumeroLigne(this.allScenesPremierNumeroLigne[this.actSceneIndex]);
       }
     }
   }
@@ -649,7 +686,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   /** Découper le code source en sections (parties, chapitres ou scènes) */
-  private decouperEnSections(codeSource: string, typeSection: 'partie' | 'chapitre' | 'scène'): void {
+  private decouperEnSections(codeSource: string, typeSection: 'partie' | 'chapitre' | 'scène', premierNumeroLigne: number): void {
     this.viderSectionsCodeSource(typeSection);
 
     // découper pour avoir les intitulés des parties de code et leur contenu en alternance
@@ -686,8 +723,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     const decoupageEnSections = codeSource.split(regexpSplitSections);
     let dernEstSection = false;
     let dernSection: string;
+    let dernierNumeroLigne: number = premierNumeroLigne;
     let allSectionsCodeSource: string[] = [];
     let allSectionsIntitule: string[] = null;
+    let allSectionsPremierNumeroLigne: number[] = [];
 
     // si on a trouvé au moins une section, remplir la liste des sections
     if (decoupageEnSections.length > 1) {
@@ -700,11 +739,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
             if (dernEstSection) {
               // ajouter le code source de la partie précédé de l’instruction « partie »
               allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+              // dernierNumeroLigne += 1; // +1 numéro de ligne pour le code ajouté (?)
             }
             // ajouter le titre de la nouvelle partie
             dernSection = element.replace(regexpReplaceSections, "");
             allSectionsIntitule.push(dernSection);
             dernEstSection = true;
+            // dernierNumeroLigne += 1; // + 1 numéro de ligne pour le titre de la section
           } else {
             // si pas précédé d’une partie, ajouter un intitulé pour la partie
             if (!dernEstSection) {
@@ -716,6 +757,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
               // ajouter le code source de la partie précédé de l’instruction « partie »
               allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
             }
+            
+            allSectionsPremierNumeroLigne.push(dernierNumeroLigne);
+            const nombreLignesSection = element.split(/\r\n|\r|\n/).length
+            dernierNumeroLigne += nombreLignesSection - 1;
+
             dernEstSection = false;
           }
         }
@@ -732,16 +778,19 @@ export class EditeurComponent implements OnInit, OnDestroy {
       case 'partie':
         this.allPartiesCodeSource = allSectionsCodeSource;
         this.allPartiesIntitule = allSectionsIntitule;
+        this.allPartiesPremierNumeroLigne = allSectionsPremierNumeroLigne;
         break;
 
       case 'chapitre':
         this.allChapitresCodeSource = allSectionsCodeSource;
         this.allChapitresIntitule = allSectionsIntitule;
+        this.allChapitresPremierNumeroLigne = allSectionsPremierNumeroLigne;
         break;
 
       case 'scène':
         this.allScenesCodeSource = allSectionsCodeSource;
         this.allScenesIntitule = allSectionsIntitule;
+        this.allScenesPremierNumeroLigne = allSectionsPremierNumeroLigne;
         break;
 
       default:
@@ -792,6 +841,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
       // en fonction du navigateur cette valeur est variable !
       this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
+    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
+  }
+
+  /** changer le premier numéro de ligne de l’éditeur */
+  setPremierNumeroLigne(debut: number): void {
+    setTimeout(() => {
+      this.codeEditorElmRef["directiveRef"].ace().setOption("firstLineNumber", debut);
     }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
   }
 
