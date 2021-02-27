@@ -65,7 +65,6 @@ export class Analyseur {
           let actionTrouvee: Action = null;
           let proprieteTrouvee = false;
           let reactionTrouvee = false;
-          let sectionTrouvee = false;
           let trouveQuelqueChose = false;
 
           // ===============================================

@@ -143,7 +143,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.focusCommande();
 
     } else {
-      console.warn("pas de jeu :(");
+      console.log("Lecteur: Pas de jeu chargé.");
     }
   }
 
