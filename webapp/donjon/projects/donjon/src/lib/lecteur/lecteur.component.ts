@@ -339,8 +339,8 @@ export class LecteurComponent implements OnInit, OnChanges {
       const celaIntitule = els.sujetComplement1;
       const ceciNom = ceciIntitule ? (ceciIntitule.nom + (ceciIntitule.epithete ? (" " + ceciIntitule.epithete) : "")) : null;
       const celaNom = celaIntitule ? (celaIntitule.nom + (celaIntitule.epithete ? (" " + celaIntitule.epithete) : "")) : null;
-      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true) : null;
-      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true) : null;
+      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true, true) : null;
+      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true, true) : null;
 
       let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition1, celaNom);
 

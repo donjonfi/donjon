@@ -225,7 +225,7 @@ export class ConditionsUtils {
           } else if (condition.sujet.nom == "porte vers") {
             retVal = false;
           } else {
-            const correspondances = this.eju.trouverCorrespondance(condition.sujet, false);
+            const correspondances = this.eju.trouverCorrespondance(condition.sujet, false, false);
             if (correspondances.elements.length == 1) {
               sujet = correspondances.elements[0];
             } else if (correspondances.elements.length > 1) {
@@ -417,7 +417,7 @@ export class ConditionsUtils {
                   console.error("condition se trouve dans cela : cela n’est pas un lieu cela=", cela);
                 }
               } else {
-                const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false);
+                const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
                 if (correspondances.nbCor === 1) {
                   destination = correspondances.elements[0];
                 } else if (correspondances.nbCor === 0) {

@@ -1386,7 +1386,7 @@ export class Instructions {
         objet = this.jeu.joueur;
         break;
       default:
-        let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false);
+        let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
         // un élément trouvé
         if (correspondanceSujet.elements.length === 1) {
           objet = correspondanceSujet.objets[0];
@@ -1428,7 +1428,7 @@ export class Instructions {
         break;
 
       default:
-        let correspondanceCompl = this.eju.trouverCorrespondance(complement, false);
+        let correspondanceCompl = this.eju.trouverCorrespondance(complement, false, false);
         // un élément trouvé
         if (correspondanceCompl.elements.length === 1) {
           destination = correspondanceCompl.elements[0];
@@ -1437,7 +1437,7 @@ export class Instructions {
           console.error("executerDeplacer >>> je n’ai pas trouvé la destination:", complement);
           // plusieurs éléments trouvés
         } else {
-          console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour la destination:", complement);
+          console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour la destination:", complement, correspondanceCompl);
         }
         break;
     }
@@ -1589,7 +1589,7 @@ export class Instructions {
           break;
 
         default:
-          let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false);
+          let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false, false);
 
           // PAS OBJET ET PAS LIEU
           if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {

@@ -34,7 +34,7 @@ export class Commandes {
     } else if (els.sujet.nom == "états") {
       console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
     } else {
-      const cor = this.eju.trouverCorrespondance(els.sujet, true);
+      const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
       if (cor.elements.length !== 0) {
         if (cor.elements.length === 1) {
           const el = cor.elements[0];

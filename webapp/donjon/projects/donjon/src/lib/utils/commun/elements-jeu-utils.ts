@@ -293,7 +293,7 @@ export class ElementsJeuUtils {
   /**
    * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
    */
-  trouverCorrespondance(sujet: GroupeNominal, prioriteObjetsPresents: boolean): Correspondance {
+  trouverCorrespondance(sujet: GroupeNominal, prioriteObjetsPresents: boolean, prioriteLieuxAdjacents: boolean): Correspondance {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
@@ -305,7 +305,7 @@ export class ElementsJeuUtils {
         cor.nbCor = 1;
       } else {
         // 2. Chercher dans la liste des lieux.
-        cor.lieux = this.trouverLieu(sujet);
+        cor.lieux = this.trouverLieu(sujet, prioriteLieuxAdjacents);
         // ajouter les lieux aux éléments
         if (cor.lieux.length > 0) {
           cor.elements = cor.elements.concat(cor.lieux);
@@ -382,7 +382,6 @@ export class ElementsJeuUtils {
 
   /**
    * Retrouver un objet parmis tous les objets sur base de son intitulé.
-   * Si pas d’épithète précisé, on ne regarde que le nom.
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
@@ -433,7 +432,7 @@ export class ElementsJeuUtils {
           break;
 
         case Nombre.p:
-          if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (sujetEpithete === obj.intituleP?.epithete?.toLowerCase())) {
+          if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (sujetEpithete == obj.intituleP?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
           }
@@ -443,7 +442,7 @@ export class ElementsJeuUtils {
       // B. Regarder dans les synonymes (si pas déjà ajouté)
       if (!dejaAjoute && obj.synonymes) {
         obj.synonymes.forEach(synonyme => {
-          if (synonyme.nom.toLowerCase() === sujetNom && (sujetEpithete === synonyme.epithete?.toLowerCase())) {
+          if (synonyme.nom.toLowerCase() === sujetNom && (sujetEpithete == synonyme.epithete?.toLowerCase())) {
             retVal.push(obj);
           }
         });
@@ -454,23 +453,46 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+  /**
+   * Retrouver un lieu parmis tous les lieux sur base de son intitulé.
+   * Remarque: Il peut y avoir plus d’une correspondance.
+   */
+  trouverLieu(sujet: GroupeNominal, prioriteLieuxAdjacents: boolean): Lieu[] {
 
-  trouverLieu(sujet: GroupeNominal): Lieu[] {
-
-    let retVal: Lieu[] = [];
-
+    let lieuxTrouves: Lieu[] = null;
     const sujetNom = sujet.nom.toLowerCase();
     const sujetEpithete = sujet.epithete?.toLowerCase();
 
-    this.jeu.lieux.forEach(li => {
+    // chercher parmis les objets présents
+    const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
+    // console.warn("lieuxAdjacents=", lieuxAdjacents);
+    lieuxTrouves = this.suiteTrouverLieu(lieuxAdjacents, sujetNom, sujetEpithete);
+    // console.warn("lieuxTrouves=", lieuxTrouves);
+
+    // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
+    if (lieuxTrouves.length === 0 || !prioriteLieuxAdjacents) {
+      const lieuxNonAdjacents = this.jeu.lieux.filter(x => !x.etats.includes(this.jeu.etats.adjacentID) && this.curLieu.id != x.id);
+      lieuxTrouves = lieuxTrouves.concat(this.suiteTrouverLieu(lieuxNonAdjacents, sujetNom, sujetEpithete));
+      // console.warn("lieuxTrouves=", lieuxTrouves);
+    }
+
+    return lieuxTrouves;
+  }
+
+
+  private suiteTrouverLieu(lieux: Lieu[], sujetNom: string, sujetEpithete: string): Lieu[] {
+
+    let retVal: Lieu[] = [];
+
+    lieux.forEach(li => {
       // A. regarder dans l'intitulé du lieu
-      if (li.intitule.nom.toLowerCase() === sujetNom && (li.intitule.epithete?.toLowerCase() === sujetEpithete)) {
+      if (li.intitule.nom.toLowerCase() === sujetNom && (li.intitule.epithete?.toLowerCase() == sujetEpithete)) {
         retVal.push(li);
       } else {
         // B. Regarder dans les synonymes du lieu
         if (li.synonymes) {
           li.synonymes.forEach(synonyme => {
-            if (synonyme.nom.toLowerCase() === sujetNom && (synonyme.epithete?.toLowerCase() === sujetEpithete)) {
+            if (synonyme.nom.toLowerCase() === sujetNom && (synonyme.epithete?.toLowerCase() == sujetEpithete)) {
               retVal.push(li);
             }
           });
