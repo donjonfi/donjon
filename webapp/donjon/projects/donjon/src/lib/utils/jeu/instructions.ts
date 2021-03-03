@@ -1366,7 +1366,7 @@ export class Instructions {
     }
     let resultat = new Resultat(false, '', 1);
 
-    if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur') {
+    if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {
       console.error("executerDeplacer >>> préposition pas reconnue:", preposition);
     }
 
@@ -1455,6 +1455,17 @@ export class Instructions {
    */
   private exectuterDeplacerObjetVersDestination(objet: Objet, preposition: string, destination: ElementJeu): Resultat {
     let resultat = new Resultat(false, '', 1);
+
+    // interpréter "vers" comme "dans".
+    if (preposition == 'vers') {
+      // support => sur
+      if (ClasseUtils.heriteDe(destination.classe, EClasseRacine.support)) {
+        preposition = "sur";
+      // contenant, joueur, lieu, ...
+      } else {
+        preposition = "dans";
+      }
+    }
 
     // TODO: vérifications
     objet.position = new PositionObjet(
@@ -1759,7 +1770,7 @@ export class Instructions {
       case 'possède':
         // Objet classique
         if (instruction.sujetComplement1) {
-          resultat = this.executerDeplacer(instruction.sujetComplement1, "vers", instruction.sujet, ceci as Objet, cela);
+          resultat = this.executerDeplacer(instruction.sujetComplement1, "dans", instruction.sujet, ceci as Objet, cela);
           // Instruction spécifique
         } else if (instruction.complement1) {
           let objets: Objet[] = null;
@@ -1781,7 +1792,7 @@ export class Instructions {
           // objets contenus trouvés
           if (objets) {
             objets.forEach(el => {
-              resultat = this.exectuterDeplacerObjetVersDestination(el, 'vers', this.jeu.joueur);
+              resultat = this.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur);
             });
           }
         }
@@ -1798,7 +1809,7 @@ export class Instructions {
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
-            resultat = this.exectuterDeplacerObjetVersDestination(objet, "vers", this.jeu.joueur);
+            resultat = this.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur);
             // l'objet est porté
             this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
           }
