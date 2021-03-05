@@ -3,9 +3,6 @@ const { app, shell, BrowserWindow, Menu } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
 
-//const ipcRoute = require('./core/ipc-route')
-//ipcRoute.initialize()
-
 let mainWindow
 
 const createWindow = () => {

@@ -9,9 +9,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "electron-dev": "concurrently \"BROWSER=none ng build donjon && ng serve donjon-creer\" \"wait-on http://localhost:4200 && electron .\"",
+    "electron-dev": "concurrently \"cross-env BROWSER=none ng build donjon && ng serve donjon-creer\" \"wait-on http://localhost:4200 && electron .\"",
     "postinstall": "electron-builder install-app-deps",
-    "preelectron-pack": "ng build && ng build donjon-creer --prod",
+    "preelectron-pack": "ng build && ng build donjon-creer --prod --base-href=./",
     "electron-pack-mac": "electron-builder build -m",
     "electron-pack-linux": "electron-builder build -l",
     "electron-pack-win": "electron-builder build -w"
@@ -44,6 +44,11 @@
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
+    "concurrently": "^6.0.0",
+    "cross-env": "^7.0.3",
+    "electron": "^12.0.0",
+    "electron-builder": "^22.10.5",
+    "electron-devtools-installer": "^3.1.1",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.1.0",
@@ -56,11 +61,7 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.0.2",
-    "concurrently": "^5.2.0",
-    "electron": "^9.1.0",
-    "electron-builder": "^22.7.0",
-    "electron-devtools-installer": "^3.1.1",
-    "wait-on": "^5.0.1"
+    "wait-on": "^5.2.1"
   },
   "build": {
     "appId": "com.donjon.creer",
@@ -70,11 +71,12 @@
       "category": "public.app-category.utilities"
     },
     "files": [
-      "dist/**/*",
-      "node_modules/**/*"
+      "dist/donjon-creer/**/*",
+      "desktop/**/*"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "desktop-dist"
     }
   }
 }
