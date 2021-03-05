@@ -5,13 +5,13 @@
 Donjon FI vous permet d’écrire des *fictions interactives* et d’y jouer.\
 Tout est en français.
 
-Vous pouvez utiliser Donjon FI directement sur le site [donjon.xax.be](https://donjon.xax.be) . Il y a également des exemples de jeux.
+Vous pouvez utiliser Donjon FI directement sur le site [donjon.fi](https://donjon.fi) . Il y a également des exemples de jeux.
 
 ## Documentation et site officiel Donjon FI
 
-[Site officiel](https://donjon.fi) avec exemples de jeux et éditeur en ligne\
-[Chaîne vidéo](https://donjon.fi/wiki) avec tutoriels\
-[Wiki](https://donjon.fi/wiki) avec documentation complète
+<a href="https://donjon.fi" target="_blank">Site officiel</a> avec éditeur en ligne et exemples de jeux\
+<a href="https://vimeo.com/channels/1676422" target="_blank">Chaîne vidéo</a>  avec tutoriels\
+<a href="https://donjon.fi/wiki" target="_blank">Wiki</a> avec documentation complète
 
 ## Publier votre jeu
 
