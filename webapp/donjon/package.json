@@ -1,13 +1,20 @@
 {
   "name": "donjon",
   "version": "2.0.0",
+  "main": "desktop/electron.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "electron-dev": "concurrently \"BROWSER=none ng build donjon && ng serve donjon-creer\" \"wait-on http://localhost:4200 && electron .\"",
+    "postinstall": "electron-builder install-app-deps",
+    "preelectron-pack": "ng build && ng build donjon-creer --prod",
+    "electron-pack-mac": "electron-builder build -m",
+    "electron-pack-linux": "electron-builder build -l",
+    "electron-pack-win": "electron-builder build -w"
   },
   "private": true,
   "dependencies": {
@@ -27,7 +34,8 @@
     "ngx-bootstrap": "^6.2.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2"
+    "zone.js": "~0.10.2",
+    "electron-is-dev": "^1.2.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1100.2",
@@ -47,6 +55,26 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.0.2"
+    "typescript": "~4.0.2",
+    "concurrently": "^5.2.0",
+    "electron": "^9.1.0",
+    "electron-builder": "^22.7.0",
+    "electron-devtools-installer": "^3.1.1",
+    "wait-on": "^5.0.1"
+  },
+  "build": {
+    "appId": "com.donjon.creer",
+    "productName": "DonjonCreer",
+    "copyright": "Copyright © 2021",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   }
 }
