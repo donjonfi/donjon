@@ -298,3 +298,4 @@ __pycache__/
 /*.7z
 /ressources/DonjonTypes.dia.autosave
 /saves/*.sav
+/builds/donjon-creer.appimage
