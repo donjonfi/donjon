@@ -11,7 +11,7 @@
     "e2e": "ng e2e",
     "electron-dev": "concurrently \"cross-env BROWSER=none ng build donjon && ng serve donjon-creer\" \"wait-on http://localhost:4200 && electron .\"",
     "postinstall": "electron-builder install-app-deps",
-    "preelectron-pack": "ng build && ng build donjon-creer --prod --base-href=./",
+    "preelectron-pack": "ng build donjon && ng build donjon-creer --prod --base-href=./",
     "electron-pack-mac": "electron-builder build -m",
     "electron-pack-linux": "electron-builder build -l",
     "electron-pack-win": "electron-builder build -w"
