@@ -450,7 +450,7 @@ export class Generateur {
    */
   static getLocalisation(strPosition: string) {
 
-    strPosition = strPosition.replace(/(du|de( la| l'| l’)?|des)/g, "").trim();
+    strPosition = strPosition.replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')/g, "").trim();
 
     let retVal = ELocalisation.inconnu;
     switch (strPosition) {
@@ -461,11 +461,17 @@ export class Generateur {
         retVal = ELocalisation.haut;
         break;
       case "à l'extérieur":
+      case "à l'exterieur":
       case "à l’extérieur":
+      case "à l’exterieur":
+      case "hors":
         retVal = ELocalisation.exterieur;
         break;
       case "à l'intérieur":
       case "à l’intérieur":
+      case "à l’interieur":
+      case "à l'interieur":
+      case "dans":
         retVal = ELocalisation.interieur;
         break;
       case "à l'est":
