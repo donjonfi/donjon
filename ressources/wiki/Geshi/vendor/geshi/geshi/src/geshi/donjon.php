@@ -50,7 +50,10 @@ $language_data = array (
         3 => array(
             'si', 'sinon', 'sinonsi', 'remplacer', 'exécuter', 'refuser', 'terminer', 
 			'avant', 'après',
-			'peut', 'est', 'sont', 'pas', 'plus', 'possède', 'contient', 'réagit',
+			'peut', 'est', 'sont', 'pas', 'plus',
+			'possède', 'possèdent', 'contient', 'contiennent', 'réagit', 'réagissent',
+			'vaut', 'valent', 'augmente', 'augmentent', 'diminue', 'diminuent',
+			'atteint', 'atteignent', 'dépasse', 'dépassent',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
 			'initialement', 'puis', 'fin', 'finsi', 'choix', 'boucle', 'hasard', 'fois'
@@ -62,7 +65,8 @@ $language_data = array (
             ),
 		5 => array(
 			'au', 'en', 'sur', 'dans', 'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
-			'possédé', 'visible', 'mangeable', 'buvable', 'porté'
+			'possédé', 'visible', 'mangeable', 'buvable', 'porté',
+			'initialisé'
 			)
         ),
     'SYMBOLS' => array(
