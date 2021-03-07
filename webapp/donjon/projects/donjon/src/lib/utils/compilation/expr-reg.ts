@@ -20,21 +20,42 @@ export class ExprReg {
 
   /**
    * Verbe à l’infinitif.
-   * - verbe(1)
-   * - ex: marcher
-   * - ex: se brosser
-   * - ex: s’égosiller
+   * - Découpage :
+   *     - verbe(1)
+   * - Exemples :
+   *     - marcher
+   *     - partir
+   *     - boire
+   *     - se brosser
+   *     - s’égosiller
+   * - Tests unitaires :
+   *     - marcher
+   *     - partir
+   *     - boire
+   *     - se brosser
+   *     - s’égosiller
+   *     - s'éveiller
+   *     - 💥 oiseau
+   *     - 💥 un boucher
    */
   static readonly xVerbeInfinitif = /^((?:se |s’|s')?\S+(?:ir|er|re))$/i;
 
   /**
    * Groupe nominal.
-   * - Déterminant(1), Nom(2), Épithète(3)
-   * - ex: la(1) pomme de terre(2) pourrie(3)
-   * - ex: la(1) canne à pèche(2)
-   * - ex: le(1) chapeau(2) gris(3)
-   * - ex: chapeau(2)
-   * - ex: le(1) chapeau(2)
+   * - Découpage :
+   *     - Déterminant(1), Nom(2), Épithète(3)
+   * - Exemples :
+   *     - la(1) pomme de terre(2) pourrie(3)
+   *     - la(1) canne à pèche(2)
+   *     - le(1) chapeau(2) gris(3)
+   *     - chapeau(2)
+   *     - le(1) chapeau(2)
+   * - Tests unitaires :
+   *     - La pomme de terre pourrie
+   *     - la canne à pèche
+   *     - le chapeau gris
+   *     - l’arracheur de dents dorrées
+   *     - Bruxelles-Capitale
    */
   static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$/i;
 
@@ -46,22 +67,41 @@ export class ExprReg {
   /** élément générique simple
  * - ex1: Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
  * - => Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6).
+ * - Tests unitaires :
+ *     - Paris est un lieu
+ *     - La table basse est un objet
+ *     - L'apprentie sorcière (f) est une personne fatiguée
  */
   static readonly xDefinitionTypeElement = /^(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
 
   /** élément générique positionné par rapport à complément
-   * - => determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
-   * - ex : La (1) {pomme de terre}(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) {dans le}(7) jardin(8).
-   * - ex : Les(1) {torches en bois}(2) enflamées(3) (f)(4) sont des objets(5) maudits(6) {dans le}(7) jardin(8).
-   * - ex: L’allée(1) (f)(4) est un lieu(5) {au sud du}(7) départ(8)
+   * - Découpage :
+   *     - determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
+   * - Exemples :
+   *     - La (1) {pomme de terre}(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) {dans le}(7) jardin(8).
+   *     - Les(1) {torches en bois}(2) enflamées(3) (f)(4) sont des objets(5) maudits(6) {dans le}(7) jardin(8).
+   *     - L’allée(1) (f)(4) est un lieu(5) {au sud du}(7) départ(8)
+   * - Tests unitaires
+   *     - Les torches en bois enflamées sont des objets maudits dans le jardin
+   *     - La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée
+   *     - L’allée principale (f) est un lieu au sud du départ
+   *     - La gare est un lieu dans Lisbonne
    */
   static readonly xPositionElementGeneriqueDefini = /^(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:|(?:un|une|des) (\S+?)(?:(?: )(\S+?))? )?((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|hors|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(.+)/i;
 
   /** élément générique positionné par rapport à complément :
-   * - ex1: Il y a des pommes de terre anciennes (f, pomme de terre) dans le champ.
-   * - => déterminant(1), nom (2), épithète (3), féminin+autre forme(4), position(9), complément(10).
-   * - ex2: Une canne à pèche neuve (cannes à pèche) est sur le bord du lac.
-   * - => déterminant(5), nom (6), épithète (7), féminin+autre forme(8), position(9), complément(10).
+   * - Découpage :
+   *     - Formulation A : déterminant(1), nom (2), épithète (3), féminin+autre forme(4), position(9), complément(10)
+   *     - Formulation B : déterminant(5), nom (6), épithète (7), féminin+autre forme(8), position(9), complément(10)
+   * - Exemples :
+   *     - Formulation A : Il y a des pommes de terre anciennes (f, pomme de terre) dans le champ. 
+   *     - Formulation B : Une canne à pèche neuve (cannes à pèche) est sur le bord du lac.
+   * - Tests unitaires :
+   *     - 
+   *     - 
+   *     - 
+   *     - 
+   *     - 
    */
   static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de la |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+?))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')intérieur|à l(?:’|')extérieur|hors|au sud|au nord|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')?|les |un |une )?))(.+)/i;
 
