@@ -71,6 +71,10 @@ export class Abreviations {
           } else if (mots[1].trim()) {
             premierMotComplet = 'aller dans';
           }
+        } else if (premierMotComplet.trim() === 'aller dehors') {
+          if (mots[1].trim()) {
+            premierMotComplet = 'aller hors';
+          }
         }
 
         // c’est un « me » par exemple « me regarder » 

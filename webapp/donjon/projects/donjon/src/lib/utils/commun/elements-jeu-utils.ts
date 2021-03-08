@@ -365,11 +365,13 @@ export class ElementsJeuUtils {
       case 'exterieur':
       case 'extérieur':
       case 'dehors':
+      case 'hors':
         return Localisation.Exterieur;
 
       case 'interieur':
       case 'intérieur':
       case 'dedans':
+      case 'dans':
         return Localisation.Interieur;
 
       default:

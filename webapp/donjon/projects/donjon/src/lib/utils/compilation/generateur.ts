@@ -450,42 +450,42 @@ export class Generateur {
    */
   static getLocalisation(strPosition: string) {
 
-    strPosition = strPosition.replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')/g, "").trim();
+    strPosition = strPosition
+      .trim()
+      .replace(/^((à (l’|l')|en |au ))/, "")
+      .replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')$/, "")
+      .trim();
 
     let retVal = ELocalisation.inconnu;
     switch (strPosition) {
-      case "en bas":
+      case "bas":
+      case "dessous":
         retVal = ELocalisation.bas;
         break;
-      case "en haut":
+      case "haut":
+      case "dessus":
         retVal = ELocalisation.haut;
         break;
-      case "à l'extérieur":
-      case "à l'exterieur":
-      case "à l’extérieur":
-      case "à l’exterieur":
+      case "extérieur":
+      case "exterieur":
       case "hors":
         retVal = ELocalisation.exterieur;
         break;
-      case "à l'intérieur":
-      case "à l’intérieur":
-      case "à l’interieur":
-      case "à l'interieur":
+      case "intérieur":
+      case "intérieur":
       case "dans":
         retVal = ELocalisation.interieur;
         break;
-      case "à l'est":
-      case "à l’est":
+      case "est":
         retVal = ELocalisation.est;
         break;
-      case "à l'ouest":
-      case "à l’ouest":
+      case "ouest":
         retVal = ELocalisation.ouest;
         break;
-      case "au nord":
+      case "nord":
         retVal = ELocalisation.nord;
         break;
-      case "au sud":
+      case "sud":
         retVal = ELocalisation.sud;
         break;
 
