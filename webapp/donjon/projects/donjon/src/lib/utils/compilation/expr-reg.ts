@@ -2,8 +2,8 @@ export class ExprReg {
 
   // Caractères réservés:
   // Ƶ et ƶ − commentaire
-  static readonly caractereDebutCommentaire = 'Ƶ';
-  static readonly caractereFinCommentaire = 'ƶ';
+  static readonly caractereDebutTexte = 'Ƶ';
+  static readonly caractereFinTexte = 'ƶ';
   static readonly xCaracteresCommentaire = /Ƶ|ƶ/g;
   static readonly xCaractereDebutCommentaire = /Ƶ/g;
   static readonly xCaractereFinCommentaire = /ƶ/g;

@@ -3,6 +3,7 @@ import { Aide } from '../../models/commun/aide';
 import { Capacite } from '../../models/commun/capacite';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Condition } from '../../models/compilateur/condition';
+import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
 import { Definition } from '../../models/compilateur/definition';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
@@ -12,7 +13,6 @@ import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
-import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
@@ -21,6 +21,7 @@ import { PositionSujetString } from '../../models/compilateur/position-sujet';
 import { Propriete } from '../../models/commun/propriete';
 import { Reaction } from '../../models/compilateur/reaction';
 import { Regle } from '../../models/compilateur/regle';
+import { ResultatAnalysePhrase } from '../../models/compilateur/resultat-analyse-phrase';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
@@ -29,331 +30,348 @@ import { Verification } from '../../models/compilateur/verification';
 export class Analyseur {
 
 
-  public static analyserPhrases(phrases: Phrase[], monde: Monde, elementsGeneriques: ElementGenerique[], regles: Regle[], actions: Action[], aides: Aide[], typesUtilisateur: Map<string, Definition>, erreurs: string[], verbeux: boolean) {
-
-    let dernierePropriete: Propriete = null;
-    let derniereReaction: Reaction = null;
-    let dernierElementGenerique: ElementGenerique = null;
-    let result: RegExpExecArray;
-
+  /**
+   * Analyser les phrases fournies et ajouter les résultats dans le contexte de l’analyse.
+   * @param phrases phrases à analyser.
+   * @param ctx contexte de l’analyse.
+   */
+  public static analyserPhrases(phrases: Phrase[], ctx: ContexteAnalyse) {
     phrases.forEach(phrase => {
-
-      // 1) COMMENTAIRE
-      if (phrase.commentaire) {
-        // le commentaire se rapporte au dernier sujet
-        console.error("Commentaire pas attaché :", phrase.phrase[0]);
-        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : Commentaire orphelin:", phrase.phrase[0])
-        phrase.traitee = true;
-        // 2) CODE DESCRIPTIF OU REGLE
-      } else {
-
-        if (verbeux) {
-          console.log("Analyse: ", phrase);
-        }
-
-        // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
-        if (phrase.phrase[0].slice(0, 2) === "--") {
-          phrase.traitee = true;
-          if (verbeux) {
-            console.log("=> commentaire");
-          }
-        } else {
-
-          let elementGeneriqueTrouve = false;
-          let regleTrouvee: Regle = null;
-          let synonymeTrouve = false;
-          let actionTrouvee: Action = null;
-          let proprieteTrouvee = false;
-          let reactionTrouvee = false;
-          let trouveQuelqueChose = false;
-
-          // ===============================================
-          // SECTIONS (parties, chapitres, ...)
-          // ===============================================
-          const section = ExprReg.xSection.exec(phrase.phrase[0]);
-          if (section) {
-            trouveQuelqueChose = true;
-          }
-
-          // ===============================================
-          // AIDE
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            const aide = ExprReg.xAide.exec(phrase.phrase[0]);
-            if (aide) {
-              trouveQuelqueChose = true;
-              aides.push(
-                new Aide(aide[1],
-                  phrase.phrase[1]
-                    .replace(ExprReg.xCaractereDebutCommentaire, '')
-                    .replace(ExprReg.xCaractereFinCommentaire, '')
-                    .replace(ExprReg.xCaractereRetourLigne, '\n')
-                    .replace(ExprReg.xCaracterePointVirgule, ';')
-                    .replace(ExprReg.xCaractereVirgule, ',')
-                )
-              );
-            }
-          }
-          // ===============================================
-          // RÈGLES
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            regleTrouvee = Analyseur.testerRegle(regles, phrase, erreurs);
-            trouveQuelqueChose = regleTrouvee !== null;
-          }
-          // ===============================================
-          // SYNONYMES
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            trouveQuelqueChose = synonymeTrouve = Analyseur.testerSynonyme(actions, elementsGeneriques, phrase, erreurs, verbeux)
-          }
-          // ===============================================
-          // ACTIONS
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            actionTrouvee = Analyseur.testerAction(actions, phrase, erreurs, verbeux);
-            trouveQuelqueChose = actionTrouvee !== null;
-          }
-
-          // ===============================================
-          // ACTIVER / DÉSACTIVER
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            trouveQuelqueChose = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== false;
-          }
-
-          // ===============================================
-          // MONDE
-          // ===============================================
-          if (!trouveQuelqueChose) {
-            // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
-            elementGeneriqueTrouve = true;
-            trouveQuelqueChose = true;
-            // 1 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT AVEC POSITION
-            let elementConcerne = Analyseur.testerPosition(elementsGeneriques, phrase);
-            if (elementConcerne) {
-              dernierElementGenerique = elementConcerne;
-              if (verbeux) {
-                console.log("=> trouvé testerPosition:", dernierElementGenerique);
-              }
-            } else {
-              // 2 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT SANS POSITION
-              elementConcerne = Analyseur.testerElementSimple(typesUtilisateur, elementsGeneriques, phrase, verbeux);
-              if (elementConcerne) {
-                dernierElementGenerique = elementConcerne;
-                if (verbeux) {
-                  console.log("=> trouvé testerElementSimple:", dernierElementGenerique);
-                }
-              } else {
-                // 3 - TESTER LES INFORMATIONS SE RAPPORTANT AU DERNIER ÉLÉMENT
-                // pronom démonstratif
-                result = ExprReg.xPronomDemonstratif.exec(phrase.phrase[0]);
-                if (result !== null) {
-                  // définir type de l'élément précédent
-                  if (result[2] && result[2].trim() !== '') {
-                    dernierElementGenerique.classeIntitule = ClasseUtils.getClasseIntitule(result[2]);
-                  }
-                  // attributs de l'élément précédent
-                  if (result[3] && result[3].trim() !== '') {
-                    dernierElementGenerique.attributs.push(result[3]);
-                  }
-                  if (verbeux) {
-                    console.log("=> trouvé xPronomDemonstratif:", dernierElementGenerique);
-                  }
-                } else {
-                  // pronom personnel position
-                  result = ExprReg.xPronomPersonnelPosition.exec(phrase.phrase[0]);
-                  if (result !== null) {
-                    // genre de l'élément précédent
-                    dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
-                    // attributs de l'élément précédent
-                    dernierElementGenerique.positionString = new PositionSujetString(dernierElementGenerique.nom.toLowerCase() + (dernierElementGenerique.epithete ? (' ' + dernierElementGenerique.epithete.toLowerCase()) : ''), result[2].toLowerCase(), result[1]);
-                    if (verbeux) {
-                      console.log("=> trouvé xPronomPersonnelPosition:", dernierElementGenerique);
-                    }
-                  } else {
-                    // pronom personnel attributs
-                    result = ExprReg.xPronomPersonnelAttribut.exec(phrase.phrase[0]);
-                    if (result !== null) {
-                      // attributs de l'élément précédent
-                      if (result[1] && result[1].trim() !== '') {
-                        // découper les attributs
-                        const attributs = PhraseUtils.separerListeIntitules(result[1]);
-                        dernierElementGenerique.attributs = dernierElementGenerique.attributs.concat(attributs);
-                      }
-                      // genre de l'élément précédent
-                      dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
-
-                      if (verbeux) {
-                        console.log("=> trouvé xPronomPersonnelAttribut:", dernierElementGenerique);
-                      }
-                    } else {
-                      // TESTER ATTRIBUT/PROPRIÉTÉ/RÉACTION
-                      // **********************************
-                      result = ExprReg.xAttribut.exec(phrase.phrase[0]);
-                      if (result) {
-
-                        let elementCible: ElementGenerique = null;
-                        let nomProprieteCible: string = null;
-                        // cas 1 (son/sa xxx[1] est)
-                        if (result[1]) {
-                          elementCible = dernierElementGenerique;
-                          nomProprieteCible = result[1];
-                          // cas 2 (la xxx[2] de yyy[3] est)
-                        } else {
-                          nomProprieteCible = result[2];
-                          const elementConcerneBrut = result[3];
-                          const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
-                          if (elementConcerneIntitule) {
-                            const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
-                            const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
-                            // retrouver l’élément générique concerné
-                            const elementsTrouves = elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom && x.epithete?.toLowerCase() == elementConcerneEpithete);
-
-                            if (elementsTrouves.length === 1) {
-                              elementCible = elementsTrouves[0];
-                            } else {
-                              console.warn("xAttribut: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
-                            }
-                          } else {
-                            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
-                          }
-                        }
-
-                        // si on a trouvé l’élément cible, lui attribuer la réaction ou la propriété
-                        if (elementCible) {
-
-                          // RÉACTION
-                          if (nomProprieteCible === ("réaction")) {
-                            // on a trouvée une réaction et non un élément générique
-                            reactionTrouvee = true;
-                            elementGeneriqueTrouve = false;
-                            // - RETROUVER LA LISTE DES SUJETS
-                            const listeSujets = Analyseur.retrouverSujets(result[5], erreurs, phrase);
-                            // s’il s’agit du sujet par défaut (aucun sujet)
-                            if (listeSujets.length === 0) {
-                              listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
-                            }
-                            // - RETROUVER LES INSTRUCTIONS
-                            const instructionsBrutes = Analyseur.retrouverInstructionsBrutes(result[7], erreurs, phrase);
-                            // AJOUTER LA RÉACTION
-                            derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
-                            // retrouver l’objet qui réagit et lui ajouter la réaction
-                            elementCible.reactions.push(derniereReaction);
-                            if (verbeux) {
-                              console.log("=> trouvé xAttribut réaction:", elementCible);
-                            }
-                            // PROPRIÉTÉ
-                          } else {
-                            proprieteTrouvee = true;
-                            dernierePropriete = new Propriete(nomProprieteCible, (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
-                            // ajouter la propriété au dernier élément
-                            elementCible.proprietes.push(dernierePropriete);
-                            if (verbeux) {
-                              console.log("=> trouvé xAttribut propriété:", elementCible);
-                            }
-                          }
-
-                        }
-                        // TESTER CAPACITÉ
-                        // ***************
-                      } else {
-                        result = ExprReg.xCapacite.exec(phrase.phrase[0]);
-
-                        if (result) {
-                          const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
-                          // ajouter la capacité au dernier élément
-                          dernierElementGenerique.capacites.push(capacite);
-                          if (verbeux) {
-                            console.log("=> trouvé pour xCapacite:", dernierElementGenerique);
-                          }
-                        } else {
-                          // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
-                          // *****************************************************
-                          elementGeneriqueTrouve = false;
-                          trouveQuelqueChose = false;
-                          erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
-                          if (verbeux) {
-                            console.warn("=> PAS trouvé de signification.");
-                          }
-                        }
-                      }
-                    }
-                  }
-
-                }
-              }
-            }
-          } // fin test monde
-
-          // ===============================================
-          // IMPORT D’UN AUTRE FICHIER DE CODE
-          // ===============================================
-          if (!trouveQuelqueChose) {
-
-          } // fin test import
-
-          // ===============================================
-          // FINALISATION
-          // ===============================================
-          // si on a trouvé est un élément générique
-          if (elementGeneriqueTrouve) {
-            // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
-            if (phrase.phrase.length > 1) {
-              // si le dernier élément trouvé est une propriété, il s'agit de
-              // la valeur de cette propriété
-              if (proprieteTrouvee) {
-                // ajouter la valeur en enlevant les caractères spéciaux
-                dernierePropriete.valeur = phrase.phrase[1]
-                  .replace(ExprReg.xCaractereDebutCommentaire, '')
-                  .replace(ExprReg.xCaractereFinCommentaire, '')
-                  .replace(ExprReg.xCaractereRetourLigne, '\n')
-                  .replace(ExprReg.xCaracterePointVirgule, ';')
-                  .replace(ExprReg.xCaractereVirgule, ',');
-
-
-                // si dernier élémént trouvé est une réaction, il s’agit de
-                // la valeur de cette réaction (dire).
-              } else if (reactionTrouvee) {
-
-
-                // sinon c’est la description du dernier élément
-              } else {
-                // ajouter la description en enlevant les caractères spéciaux
-                dernierElementGenerique.description = phrase.phrase[1]
-                  .replace(ExprReg.xCaractereDebutCommentaire, '')
-                  .replace(ExprReg.xCaractereFinCommentaire, '')
-                  .replace(ExprReg.xCaractereRetourLigne, '\n')
-                  .replace(ExprReg.xCaracterePointVirgule, ';')
-                  .replace(ExprReg.xCaractereVirgule, ',');
-              }
-            }
-            // si on a trouvé une réaction (réponse à une conversation)
-          } else if (reactionTrouvee) {
-            if (verbeux) {
-              console.log("=> trouvé Réaction:", reactionTrouvee);
-            }
-            // si on a trouvé une règle
-          } else if (regleTrouvee) {
-            if (verbeux) {
-              console.log("=> trouvé Règle:", regleTrouvee);
-            }
-          } else if (actionTrouvee) {
-            if (verbeux) {
-              console.log("=> trouvé Action:", actionTrouvee);
-            }
-          } else if (synonymeTrouve) {
-            if (verbeux) {
-              console.log("=> trouvé synonyme(s)");
-            }
-          }
-
-        } // fin analyse phrase != commentaire
-      } // fin analyse de la phrase
+      Analyseur.analyserPhrase(phrase, ctx);
     });
   }
 
-  private static testerRegle(regles: Regle[], phrase: Phrase, erreurs: string[]) {
+  /**
+   * Ajouter la phrase fournie et ajouter les résultats dans le contexte de l’analyse.
+   * @param phrase phrase à analyser.
+   * @param ctx contexte de l’analyse.
+   */
+  private static analyserPhrase(phrase: Phrase, ctx: ContexteAnalyse) {
+    let result: RegExpExecArray;
+
+    let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
+
+    // // COMMENTAIRE
+    // if (phrase.commentaire) {
+    //   // le commentaire se rapporte au dernier sujet
+    //   console.error("Commentaire pas attaché :", phrase.phrase[0]);
+    //   ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : Commentaire orphelin:", phrase.phrase[0])
+    //   phrase.traitee = true;
+    // } else {      
+
+    // CODE DESCRIPTIF OU REGLE
+
+    if (ctx.verbeux) {
+      console.log("Analyse: ", phrase);
+    }
+
+    // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
+    if (phrase.phrase[0].slice(0, 2) === "--") {
+      phrase.traitee = true;
+      if (ctx.verbeux) {
+        console.log("=> commentaire");
+      }
+    } else {
+
+      let elementGeneriqueTrouve = false;
+      let regleTrouvee: Regle = null;
+      let synonymeTrouve = false;
+      let actionTrouvee: Action = null;
+      let proprieteTrouvee = false;
+      let reactionTrouvee = false;
+      let trouveQuelqueChose = false;
+
+      // ===============================================
+      // SECTIONS (parties, chapitres, ...)
+      // ===============================================
+      const section = ExprReg.xSection.exec(phrase.phrase[0]);
+      if (section) {
+        trouveQuelqueChose = true;
+      }
+
+      // ===============================================
+      // AIDE
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        const aide = ExprReg.xAide.exec(phrase.phrase[0]);
+        if (aide) {
+          trouveQuelqueChose = true;
+          ctx.aides.push(
+            new Aide(aide[1],
+              phrase.phrase[1]
+                .replace(ExprReg.xCaractereDebutCommentaire, '')
+                .replace(ExprReg.xCaractereFinCommentaire, '')
+                .replace(ExprReg.xCaractereRetourLigne, '\n')
+                .replace(ExprReg.xCaracterePointVirgule, ';')
+                .replace(ExprReg.xCaractereVirgule, ',')
+            )
+          );
+        }
+      }
+      // ===============================================
+      // RÈGLES
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        regleTrouvee = Analyseur.testerPourRegle(phrase, ctx);
+        trouveQuelqueChose = regleTrouvee !== null;
+      }
+      // ===============================================
+      // SYNONYMES
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        trouveQuelqueChose = synonymeTrouve = Analyseur.testerSynonyme(ctx.actions, ctx.elementsGeneriques, phrase, ctx.erreurs, ctx.verbeux)
+      }
+      // ===============================================
+      // ACTIONS
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        actionTrouvee = Analyseur.testerAction(ctx.actions, phrase, ctx.erreurs, ctx.verbeux);
+        trouveQuelqueChose = actionTrouvee !== null;
+      }
+
+      // ===============================================
+      // ACTIVER / DÉSACTIVER
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        trouveQuelqueChose = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== false;
+      }
+
+      // ===============================================
+      // MONDE
+      // ===============================================
+      if (!trouveQuelqueChose) {
+        // on part du principe qu’on va trouver quelque chosee, sinon on le mettra à faux.
+        elementGeneriqueTrouve = true;
+        trouveQuelqueChose = true;
+        // 1 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT AVEC POSITION
+        let elementConcerne = Analyseur.testerPosition(ctx.elementsGeneriques, phrase);
+        if (elementConcerne) {
+          ctx.dernierElementGenerique = elementConcerne;
+          if (ctx.verbeux) {
+            console.log("=> trouvé testerPosition:", ctx.dernierElementGenerique);
+          }
+        } else {
+          // 2 - TESTER NOUVEL ÉLÉMENT / ÉLÉMENT EXISTANT SANS POSITION
+          elementConcerne = Analyseur.testerElementSimple(ctx.typesUtilisateur, ctx.elementsGeneriques, phrase, ctx.verbeux);
+          if (elementConcerne) {
+            ctx.dernierElementGenerique = elementConcerne;
+            if (ctx.verbeux) {
+              console.log("=> trouvé testerElementSimple:", ctx.dernierElementGenerique);
+            }
+          } else {
+            // 3 - TESTER LES INFORMATIONS SE RAPPORTANT AU DERNIER ÉLÉMENT
+            // pronom démonstratif
+            result = ExprReg.xPronomDemonstratif.exec(phrase.phrase[0]);
+            if (result !== null) {
+              // définir type de l'élément précédent
+              if (result[2] && result[2].trim() !== '') {
+                ctx.dernierElementGenerique.classeIntitule = ClasseUtils.getClasseIntitule(result[2]);
+              }
+              // attributs de l'élément précédent
+              if (result[3] && result[3].trim() !== '') {
+                ctx.dernierElementGenerique.attributs.push(result[3]);
+              }
+              if (ctx.verbeux) {
+                console.log("=> trouvé xPronomDemonstratif:", ctx.dernierElementGenerique);
+              }
+            } else {
+              // pronom personnel position
+              result = ExprReg.xPronomPersonnelPosition.exec(phrase.phrase[0]);
+              if (result !== null) {
+                // genre de l'élément précédent
+                ctx.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
+                // attributs de l'élément précédent
+                ctx.dernierElementGenerique.positionString = new PositionSujetString(
+                  ctx.dernierElementGenerique.nom.toLowerCase() + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''),
+                  result[2].toLowerCase(),
+                  result[1]
+                );
+                if (ctx.verbeux) {
+                  console.log("=> trouvé xPronomPersonnelPosition:", ctx.dernierElementGenerique);
+                }
+              } else {
+                // pronom personnel attributs
+                result = ExprReg.xPronomPersonnelAttribut.exec(phrase.phrase[0]);
+                if (result !== null) {
+                  // attributs de l'élément précédent
+                  if (result[1] && result[1].trim() !== '') {
+                    // découper les attributs
+                    const attributs = PhraseUtils.separerListeIntitules(result[1]);
+                    ctx.dernierElementGenerique.attributs = ctx.dernierElementGenerique.attributs.concat(attributs);
+                  }
+                  // genre de l'élément précédent
+                  ctx.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
+
+                  if (ctx.verbeux) {
+                    console.log("=> trouvé xPronomPersonnelAttribut:", ctx.dernierElementGenerique);
+                  }
+                } else {
+                  // TESTER ATTRIBUT/PROPRIÉTÉ/RÉACTION
+                  // **********************************
+                  result = ExprReg.xAttribut.exec(phrase.phrase[0]);
+                  if (result) {
+
+                    let elementCible: ElementGenerique = null;
+                    let nomProprieteCible: string = null;
+                    // cas 1 (son/sa xxx[1] est)
+                    if (result[1]) {
+                      elementCible = ctx.dernierElementGenerique;
+                      nomProprieteCible = result[1];
+                      // cas 2 (la xxx[2] de yyy[3] est)
+                    } else {
+                      nomProprieteCible = result[2];
+                      const elementConcerneBrut = result[3];
+                      const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
+                      if (elementConcerneIntitule) {
+                        const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
+                        const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
+                        // retrouver l’élément générique concerné
+                        const elementsTrouves = ctx.elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom && x.epithete?.toLowerCase() == elementConcerneEpithete);
+
+                        if (elementsTrouves.length === 1) {
+                          elementCible = elementsTrouves[0];
+                        } else {
+                          console.warn("xAttribut: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
+                        }
+                      } else {
+                        ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
+                      }
+                    }
+
+                    // si on a trouvé l’élément cible, lui attribuer la réaction ou la propriété
+                    if (elementCible) {
+
+                      // RÉACTION
+                      if (nomProprieteCible === ("réaction")) {
+                        // on a trouvée une réaction et non un élément générique
+                        reactionTrouvee = true;
+                        elementGeneriqueTrouve = false;
+                        // - RETROUVER LA LISTE DES SUJETS
+                        const listeSujets = Analyseur.retrouverSujets(result[5], ctx.erreurs, phrase);
+                        // s’il s’agit du sujet par défaut (aucun sujet)
+                        if (listeSujets.length === 0) {
+                          listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
+                        }
+                        // - RETROUVER LES INSTRUCTIONS
+                        const instructionsBrutes = Analyseur.retrouverInstructionsBrutes(result[7], ctx.erreurs, phrase);
+                        // AJOUTER LA RÉACTION
+                        ctx.derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
+                        // retrouver l’objet qui réagit et lui ajouter la réaction
+                        elementCible.reactions.push(ctx.derniereReaction);
+                        if (ctx.verbeux) {
+                          console.log("=> trouvé xAttribut réaction:", elementCible);
+                        }
+                        // PROPRIÉTÉ
+                      } else {
+                        proprieteTrouvee = true;
+                        ctx.dernierePropriete = new Propriete(nomProprieteCible, (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
+                        // ajouter la propriété au dernier élément
+                        elementCible.proprietes.push(ctx.dernierePropriete);
+                        if (ctx.verbeux) {
+                          console.log("=> trouvé xAttribut propriété:", elementCible);
+                        }
+                      }
+
+                    }
+                    // TESTER CAPACITÉ
+                    // ***************
+                  } else {
+                    result = ExprReg.xCapacite.exec(phrase.phrase[0]);
+
+                    if (result) {
+                      const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
+                      // ajouter la capacité au dernier élément
+                      ctx.dernierElementGenerique.capacites.push(capacite);
+                      if (ctx.verbeux) {
+                        console.log("=> trouvé pour xCapacite:", ctx.dernierElementGenerique);
+                      }
+                    } else {
+                      // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
+                      // *****************************************************
+                      elementGeneriqueTrouve = false;
+                      trouveQuelqueChose = false;
+                      ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
+                      if (ctx.verbeux) {
+                        console.warn("=> PAS trouvé de signification.");
+                      }
+                    }
+                  }
+                }
+              }
+
+            }
+          }
+        }
+      } // fin test monde
+
+      // ===============================================
+      // IMPORT D’UN AUTRE FICHIER DE CODE
+      // ===============================================
+      if (!trouveQuelqueChose) {
+
+      } // fin test import
+
+      // ===============================================
+      // FINALISATION
+      // ===============================================
+      // si on a trouvé est un élément générique
+      if (elementGeneriqueTrouve) {
+        // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
+        if (phrase.phrase.length > 1) {
+          // si le dernier élément trouvé est une propriété, il s'agit de
+          // la valeur de cette propriété
+          if (proprieteTrouvee) {
+            // ajouter la valeur en enlevant les caractères spéciaux
+            ctx.dernierePropriete.valeur = phrase.phrase[1]
+              .replace(ExprReg.xCaractereDebutCommentaire, '')
+              .replace(ExprReg.xCaractereFinCommentaire, '')
+              .replace(ExprReg.xCaractereRetourLigne, '\n')
+              .replace(ExprReg.xCaracterePointVirgule, ';')
+              .replace(ExprReg.xCaractereVirgule, ',');
+
+
+            // si dernier élémént trouvé est une réaction, il s’agit de
+            // la valeur de cette réaction (dire).
+          } else if (reactionTrouvee) {
+
+
+            // sinon c’est la description du dernier élément
+          } else {
+            // ajouter la description en enlevant les caractères spéciaux
+            ctx.dernierElementGenerique.description = phrase.phrase[1]
+              .replace(ExprReg.xCaractereDebutCommentaire, '')
+              .replace(ExprReg.xCaractereFinCommentaire, '')
+              .replace(ExprReg.xCaractereRetourLigne, '\n')
+              .replace(ExprReg.xCaracterePointVirgule, ';')
+              .replace(ExprReg.xCaractereVirgule, ',');
+          }
+        }
+        // si on a trouvé une réaction (réponse à une conversation)
+      } else if (reactionTrouvee) {
+        if (ctx.verbeux) {
+          console.log("=> trouvé Réaction:", reactionTrouvee);
+        }
+        // si on a trouvé une règle
+      } else if (regleTrouvee) {
+        if (ctx.verbeux) {
+          console.log("=> trouvé Règle:", regleTrouvee);
+        }
+      } else if (actionTrouvee) {
+        if (ctx.verbeux) {
+          console.log("=> trouvé Action:", actionTrouvee);
+        }
+      } else if (synonymeTrouve) {
+        if (ctx.verbeux) {
+          console.log("=> trouvé synonyme(s)");
+        }
+      }
+    } // fin analyse de la phrase
+  }
+
+  /**
+   * Tester la phrase afin d’y trouver une règle.
+   */
+  private static testerPourRegle(phrase: Phrase, ctxAnalyse: ContexteAnalyse) {
     let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.phrase[0]);
 
     if (resultRegle !== null) {
@@ -379,7 +397,7 @@ export class Analyseur {
           typeRegle = TypeRegle[motCle];
           evenements = PhraseUtils.getEvenements(resultRegle[2]);
           if (!evenements?.length) {
-            erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement(s) : " + resultRegle[2]);
+            ctxAnalyse.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement(s) : " + resultRegle[2]);
           }
           break;
 
@@ -392,7 +410,7 @@ export class Analyseur {
         //   break;
 
         default:
-          erreurs.push(("00000" + phrase.ligne).slice(-5) + " : type règle : " + resultRegle[2]);
+          ctxAnalyse.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : type règle : " + resultRegle[2]);
           console.error("tester regle: opérateur inconnu:", resultRegle[1]);
           typeRegle = TypeRegle.inconnu;
           break;
@@ -402,7 +420,7 @@ export class Analyseur {
       let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, resultRegle[3]);
       // });
 
-      regles.push(nouvelleRegle);
+      ctxAnalyse.regles.push(nouvelleRegle);
 
       // si phrase morcelée, rassembler les morceaux
       if (phrase.phrase.length > 1) {
