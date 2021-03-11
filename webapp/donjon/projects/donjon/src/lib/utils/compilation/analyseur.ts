@@ -58,20 +58,12 @@ export class Analyseur {
 
     // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
     // rem: normalement les commentaires sont déjà retirés du scénario avant d’arriver ici.
-    if (phrase.phrase[0].trimLeft().slice(0, 2) === "--") {
+    if (phrase.phrase[0].trim().slice(0, 2) === "--") {
       phrase.traitee = true;
       if (ctx.verbeux) {
         console.log("=> commentaire trouvé");
       }
     } else {
-
-      // let elementGeneriqueTrouve = false;
-      // let regleTrouvee: Regle = null;
-      // let synonymeTrouve = false;
-      // let actionTrouvee: Action = null;
-      // let proprieteTrouvee = false;
-      // let reactionTrouvee = false;
-      // let trouveQuelqueChose = false;
 
       // ===============================================
       // SECTIONS (parties, chapitres, ...)
@@ -166,6 +158,7 @@ export class Analyseur {
         const elementConcerne = Analyseur.testerPosition(ctx.elementsGeneriques, phrase);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
+          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementAvecPosition;
           if (ctx.verbeux) {
             console.log("=> trouvé élément avec position:", ctx.dernierElementGenerique);
@@ -180,6 +173,7 @@ export class Analyseur {
         const elementConcerne = Analyseur.testerElementSimple(ctx.typesUtilisateur, ctx.elementsGeneriques, phrase, ctx.verbeux);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
+          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementSansPosition;
           if (ctx.verbeux) {
             console.log("=> trouvé testerElementSimple:", ctx.dernierElementGenerique);
@@ -202,6 +196,7 @@ export class Analyseur {
           if (result[3] && result[3].trim() !== '') {
             ctx.dernierElementGenerique.attributs.push(result[3]);
           }
+          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
           // résultat
           elementTrouve = ResultatAnalysePhrase.pronomDemontratifTypeAttribut;
           if (ctx.verbeux) {
@@ -224,6 +219,7 @@ export class Analyseur {
             result[2].toLowerCase(),
             result[1]
           );
+          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
           // résultat
           elementTrouve = ResultatAnalysePhrase.pronomPersonnelPosition;
           if (ctx.verbeux) {
@@ -247,6 +243,7 @@ export class Analyseur {
           }
           // genre de l'élément précédent
           ctx.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
+          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
           // résultat
           elementTrouve = ResultatAnalysePhrase.pronomPersonnelAttribut;
           if (ctx.verbeux) {
@@ -317,110 +314,79 @@ export class Analyseur {
               ctx.dernierePropriete = new Propriete(nomProprieteCible, (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
               // ajouter la propriété au dernier élément
               elementCible.proprietes.push(ctx.dernierePropriete);
-              // résultat
-              elementTrouve = ResultatAnalysePhrase.propriete;
-              // // proprieteTrouvee = true;
-              if (ctx.verbeux) {
-                console.log("=> trouvé propriété :", elementCible);
+
+              // si phrase en plusieurs morceaux, ajouter valeur (texte) de la propriété
+              if (phrase.phrase.length > 1) {
+                // ajouter la valeur en enlevant les caractères spéciaux
+                ctx.dernierePropriete.valeur = phrase.phrase[1]
+                  .replace(ExprReg.xCaractereDebutCommentaire, '')
+                  .replace(ExprReg.xCaractereFinCommentaire, '')
+                  .replace(ExprReg.xCaractereRetourLigne, '\n')
+                  .replace(ExprReg.xCaracterePointVirgule, ';')
+                  .replace(ExprReg.xCaractereVirgule, ',');
               }
+            }
+
+            // résultat
+            elementTrouve = ResultatAnalysePhrase.propriete;
+            // // proprieteTrouvee = true;
+            if (ctx.verbeux) {
+              console.log("=> trouvé propriété :", elementCible);
             }
           }
         }
       }
-
-      // ==========================================================================================================
-      // MONDE 7 - CAPACITÉ SE RAPPORTANT À UN ÉLÉMENT EXISTANT
-      // ==========================================================================================================
-      if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        const result = ExprReg.xCapacite.exec(phrase.phrase[0]);
-        if (result) {
-          const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
-          // ajouter la capacité au dernier élément
-          ctx.dernierElementGenerique.capacites.push(capacite);
-          // résultat
-          elementTrouve = ResultatAnalysePhrase.capacite;
-          if (ctx.verbeux) {
-            console.log("=> trouvé capacité :", ctx.dernierElementGenerique);
-          }
-        }
-      }
-
-      // ===============================================
-      // IMPORT D’UN AUTRE FICHIER DE CODE (TODO)
-      // ===============================================
-      if (elementTrouve === ResultatAnalysePhrase.aucun) {
-
-      } // fin test import
-
-      // ==========================================================================================================
-      // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
-      // ==========================================================================================================
-      if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        // résultat
-        ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
-        if (ctx.verbeux) {
-          console.warn("=> PAS trouvé de signification.");
-        }
-      }
-
-
-
-      // ===============================================
-      // FINALISATION
-      // ===============================================
-      // si on a trouvé est un élément générique
-      if (elementGeneriqueTrouve) {
-        // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
-        if (phrase.phrase.length > 1) {
-          // si le dernier élément trouvé est une propriété, il s'agit de
-          // la valeur de cette propriété
-          if (proprieteTrouvee) {
-            // ajouter la valeur en enlevant les caractères spéciaux
-            ctx.dernierePropriete.valeur = phrase.phrase[1]
-              .replace(ExprReg.xCaractereDebutCommentaire, '')
-              .replace(ExprReg.xCaractereFinCommentaire, '')
-              .replace(ExprReg.xCaractereRetourLigne, '\n')
-              .replace(ExprReg.xCaracterePointVirgule, ';')
-              .replace(ExprReg.xCaractereVirgule, ',');
-
-
-            // si dernier élémént trouvé est une réaction, il s’agit de
-            // la valeur de cette réaction (dire).
-          } else if (reactionTrouvee) {
-
-
-            // sinon c’est la description du dernier élément
-          } else {
-            // ajouter la description en enlevant les caractères spéciaux
-            ctx.dernierElementGenerique.description = phrase.phrase[1]
-              .replace(ExprReg.xCaractereDebutCommentaire, '')
-              .replace(ExprReg.xCaractereFinCommentaire, '')
-              .replace(ExprReg.xCaractereRetourLigne, '\n')
-              .replace(ExprReg.xCaracterePointVirgule, ';')
-              .replace(ExprReg.xCaractereVirgule, ',');
-          }
-        }
-        // si on a trouvé une réaction (réponse à une conversation)
-      } else if (reactionTrouvee) {
-        if (ctx.verbeux) {
-          console.log("=> trouvé Réaction:", reactionTrouvee);
-        }
-        //  // si on a trouvé une règle
-        // } else if (regleTrouvee) {
-        //   if (ctx.verbeux) {
-        //     console.log("=> trouvé Règle:", regleTrouvee);
-        //   }
-        // } else if (actionTrouvee) {
-        //   if (ctx.verbeux) {
-        //     console.log("=> trouvé Action:", actionTrouvee);
-        //   }
-        // } else if (synonymeTrouve) {
-        //   if (ctx.verbeux) {
-        //     console.log("=> trouvé synonyme(s)");
-        //   }
-        // }
-      } // fin analyse de la phrase
     }
+
+    // ==========================================================================================================
+    // MONDE 7 - CAPACITÉ SE RAPPORTANT À UN ÉLÉMENT EXISTANT
+    // ==========================================================================================================
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      const result = ExprReg.xCapacite.exec(phrase.phrase[0]);
+      if (result) {
+        const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
+        // ajouter la capacité au dernier élément
+        ctx.dernierElementGenerique.capacites.push(capacite);
+        // résultat
+        elementTrouve = ResultatAnalysePhrase.capacite;
+        if (ctx.verbeux) {
+          console.log("=> trouvé capacité :", ctx.dernierElementGenerique);
+        }
+      }
+    }
+
+    // ===============================================
+    // IMPORT D’UN AUTRE FICHIER DE CODE (TODO)
+    // ===============================================
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+
+    } // fin test import
+
+    // ==========================================================================================================
+    // AUCUN DES TESTS N’A PERMIS DE COMPRENDRE CETTE PHRASE
+    // ==========================================================================================================
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      // résultat
+      ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
+      if (ctx.verbeux) {
+        console.warn("=> PAS trouvé de signification.");
+      }
+    }
+
+  }
+
+  private static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
+    // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
+    if (phrase.phrase.length > 1) {
+      // ajouter la description en enlevant les caractères spéciaux
+      ctx.dernierElementGenerique.description = phrase.phrase[1]
+        .replace(ExprReg.xCaractereDebutCommentaire, '')
+        .replace(ExprReg.xCaractereFinCommentaire, '')
+        .replace(ExprReg.xCaractereRetourLigne, '\n')
+        .replace(ExprReg.xCaracterePointVirgule, ';')
+        .replace(ExprReg.xCaractereVirgule, ',');
+    }
+  }
 
 
   /**
