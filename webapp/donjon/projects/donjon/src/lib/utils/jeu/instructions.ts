@@ -1412,7 +1412,7 @@ export class Instructions {
       case "contenu ici":
         objets = this.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
         break;
-        
+
       default:
         let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
         // un élément trouvé
@@ -1899,7 +1899,11 @@ export class Instructions {
           if (this.verbeux) {
             console.log("executerJoueur: ajouter l’état '", instruction.complement1, "'");
           }
-          this.jeu.etats.ajouterEtatElement(this.jeu.joueur, instruction.complement1);
+          // séparer les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+          const attributsSepares = PhraseUtils.separerListeIntitules(instruction.complement1);
+          attributsSepares.forEach(attribut => {
+            this.jeu.etats.ajouterEtatElement(this.jeu.joueur, attribut);
+          });
         }
         break;
 
@@ -1929,7 +1933,11 @@ export class Instructions {
           if (this.verbeux) {
             console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
           }
-          this.jeu.etats.ajouterEtatElement(element, instruction.complement1);
+           // séparer les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+           const attributsSepares = PhraseUtils.separerListeIntitules(instruction.complement1);
+           attributsSepares.forEach(attribut => {
+             this.jeu.etats.ajouterEtatElement(element, attribut);
+           });
         }
 
         break;

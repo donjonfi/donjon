@@ -244,7 +244,7 @@ export class PhraseUtils {
     return retVal;
   }
 
-  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"/"ou" */
   public static separerListeIntitules(attributsString: string): string[] {
     if (attributsString && attributsString.trim() !== '') {
       // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
