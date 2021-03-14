@@ -10,6 +10,11 @@ export class PositionObjet {
 
   static getPrepositionSpatiale(preposition: string) {
 
+    // accepter « à l’intérieur » pour dans
+    if (preposition.startsWith('à l’intérieur') || preposition.startsWith('à l\'intérieur')) {
+      preposition = "dans";
+    }
+
     // ne tester que le premier mot (pour retirer le/la/les/)
     const prepOnly = preposition.split(' ')[0];
 
