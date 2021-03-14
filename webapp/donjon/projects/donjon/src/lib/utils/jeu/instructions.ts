@@ -1186,7 +1186,7 @@ export class Instructions {
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID) ||
               this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.transparentID)
             ) {
-              let contenu = this.executerListerContenu(obj, false, retrait + 1).sortie;
+              let contenu = this.executerListerContenu(obj, false, prepositionSpatiale, retrait + 1).sortie;
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
@@ -1375,8 +1375,9 @@ export class Instructions {
       console.error("executerDeplacer >>> préposition pas reconnue:", preposition);
     }
 
-    let objet: Objet;
-    let destination: ElementJeu;
+    let objet: Objet = null;
+    let destination: ElementJeu = null;
+    let objets: Objet[] = null;
 
     // trouver l’élément à déplacer
 
@@ -1390,6 +1391,28 @@ export class Instructions {
       case "joueur":
         objet = this.jeu.joueur;
         break;
+      case "contenu dans ceci":
+        objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
+        break;
+      case "contenu sur ceci":
+        objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
+        break;
+      case "contenu sous ceci":
+        objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
+        break;
+      case "contenu dans cela":
+        objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
+        break;
+      case "contenu sur cela":
+        objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
+        break;
+      case "contenu sous cela":
+        objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
+        break;
+      case "contenu ici":
+        objets = this.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
+        break;
+        
       default:
         let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
         // un élément trouvé
@@ -1450,6 +1473,13 @@ export class Instructions {
     // si on a trouver le sujet et la distination, effectuer le déplacement.
     if (objet && destination) {
       resultat = this.exectuterDeplacerObjetVersDestination(objet, preposition, destination);
+      // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
+    } else if (objets && destination) {
+      resultat.succes = true;
+      // objets contenus trouvés
+      objets.forEach(el => {
+        resultat.succes = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, preposition, destination).succes);
+      });
     }
 
     return resultat;
@@ -1821,12 +1851,16 @@ export class Instructions {
             } else {
               console.error("Joueur possède contenu sous cela: cela n'est as un objet.");
             }
+            // - Contenu ici
+          } else if (instruction.complement1.endsWith('contenu ici')) {
+            objets = this.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
           }
 
           // objets contenus trouvés
           if (objets) {
+            resultat.succes = true;
             objets.forEach(el => {
-              resultat = this.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur);
+              resultat = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur));
             });
           }
         }
