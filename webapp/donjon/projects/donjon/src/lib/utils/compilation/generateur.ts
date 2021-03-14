@@ -452,7 +452,7 @@ export class Generateur {
 
     strPosition = strPosition
       .trim()
-      .replace(/^((à (l’|l')|en |au ))/, "")
+      .replace(/^((à (l’|l')|en |au( |\-)))/, "")
       .replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')$/, "")
       .trim();
 

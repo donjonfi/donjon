@@ -357,9 +357,11 @@ export class ElementsJeuUtils {
         return Localisation.Haut;
 
       case 'dessus':
+      case 'au-dessus':
         return Localisation.Haut;
 
       case 'dessous':
+      case 'au-dessous':
         return Localisation.Bas;
 
       case 'exterieur':

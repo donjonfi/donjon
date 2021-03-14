@@ -65,6 +65,7 @@ export class ElementJeu extends Intitule {
   /** Intitulé (pluriel) */
   public intituleP: GroupeNominal = null;
 
+  /** Titre (lieux) */
   public titre: string = null;
 
   /** Description du lieu (regarder) ou de l’objet (examiner) */
