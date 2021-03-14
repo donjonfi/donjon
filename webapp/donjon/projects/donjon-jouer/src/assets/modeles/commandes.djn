@@ -1,14 +1,25 @@
 Désactiver les commandes de base.
 
-Partie "informations".
+PARTIE "informations".
+
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-02-25-0017
+-- Version: 2021-03-14-0017
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
 --   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
 
-Partie "commandes".
+PARTIE "commandes".
+
+-- =========================================
+--   UTILISER
+-- =========================================
+CHAPITRE "utiliser".
+
+utiliser ceci est une action qui concerne un objet visible.
+
+terminer utiliser ceci:
+  dire "Ça n’a rien donné.".
 
 CHAPITRE "aide, effacer".
 
@@ -101,6 +112,7 @@ L'aide pour l'action effacer est "{*Effacer*}
 
 
 CHAPITRE "aller".
+
 SCÈNE "aller".
 -- =========
 --   ALLER
@@ -133,6 +145,7 @@ L'aide pour l'action aller est "{*Aller*}
   {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
 
 CHAPITRE "ouvrir et fermer".
+
 SCÈNE "ouvrir".
 -- ==========
 --   OUVRIR
@@ -204,6 +217,7 @@ L'aide pour l'action fermer est "{*Fermer*}
   {+raccourci+} : {-fe-}".
 
 CHAPITRE "parler, interroger, montrer".
+
 
 SCÈNE "parler".
 -- ====================
@@ -358,6 +372,7 @@ L'aide pour l'action montrer est "{*Montrer*}
   
 CHAPITRE "insulter, énerver, crier".
 
+
 SCÈNE "insulter".
 -- ============
 --   INSULTER
@@ -410,6 +425,7 @@ terminer crier sur ceci:
   dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
 
 CHAPITRE "regarder et examiner".
+
 SCÈNE "regarder".
 -- ============
 --   REGARDER
@@ -530,6 +546,7 @@ L'aide pour l'action examiner est "{*Examiner*}
   {+raccourci+} : {-ex-}".
 
 CHAPITRE "prendre, donner, jeter et déposer".
+
 SCÈNE "prendre".
 -- ===========
 --   PRENDRE
@@ -681,13 +698,16 @@ refuser mettre ceci dans cela:
   si cela est fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
 
 exécuter mettre ceci dans cela:
-  si cela est un support ou un contenant,
+  si cela est un support:
     déplacer ceci sur cela;
-  si cela est un vivant mais pas le joueur,
+  sinonsi cela est un contenant:
+    déplacer ceci dans cela;
+  sinonsi cela est un vivant mais pas le joueur:
     déplacer ceci sur cela;
-  si cela est le joueur,
-    changer le joueur porte ceci.
-
+  sinonsi cela est le joueur:
+    changer le joueur porte ceci;
+  fin si.
+  
 terminer mettre ceci dans cela:
   si cela est un support ou un contenant,
     dire "C’est fait.";
@@ -730,6 +750,7 @@ interpréter retirer comme enlever.
 
 
 CHAPITRE "déplacer, pousser, tirer".
+
 
 SCÈNE "déplacer".
 -- ===========
@@ -785,6 +806,7 @@ terminer tirer ceci:
   dire "Ça n’a rien donné.".
 
 CHAPITRE "pousser, tirer".
+
 
 SCÈNE "toucher".
 -- ===========
@@ -856,6 +878,7 @@ interpréter bruler comme brûler.
 
 CHAPITRE "manger, boire".
 
+
 SCÈNE "manger".
 -- ===========
 --   MANGER
@@ -895,6 +918,7 @@ terminer boire ceci:
   dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.";
 
 CHAPITRE "frapper, tuer, assommer".
+
 
 SCÈNE "frapper".
 -- ===========
@@ -962,6 +986,7 @@ terminer assommer ceci:
 
 CHAPITRE "écouter, sentir, dormir, prier".
 
+
 SCÈNE "écouter".
 -- ===========
 --   ÉCOUTER
@@ -1018,6 +1043,7 @@ terminer prier ceci:
 
 CHAPITRE "chanter, danser, sauter, attendre".
 
+
 SCÈNE "chanter".
 -- ===========
 --   CHANTER
@@ -1056,6 +1082,7 @@ terminer attendre:
 
 CHAPITRE "lire".
 
+
 SCÈNE "lire".
 -- ===========
 --    LIRE
@@ -1073,6 +1100,7 @@ terminer lire ceci:
   dire "[texte ceci]".
 
 CHAPITRE "péter, raconter".
+
 
 SCÈNE "péter".
 -- ===========
