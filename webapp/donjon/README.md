@@ -90,8 +90,8 @@ ng build donjon-jouer --prod
 
 Publier ensuie le contenu du dossier `dist` à la racine du site web.
 
-Il est possible de publier l'application dans un sous-dossier du site web. Dans ce cas il faut ajouter la variable `baseHref` lors de la compilation :
+Il est possible de publier l'application dans un sous-dossier du site web. Dans ce cas il faut ajouter la variable `--base-href` lors de la compilation :
 ```shell
---baseHref=/sous-dossier
+--base-href=/sous-dossier/
 ```
 
