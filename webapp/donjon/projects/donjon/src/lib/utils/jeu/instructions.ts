@@ -1391,25 +1391,25 @@ export class Instructions {
       case "joueur":
         objet = this.jeu.joueur;
         break;
-      case "contenu dans ceci":
+      case "objets dans ceci":
         objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
         break;
-      case "contenu sur ceci":
+      case "objets sur ceci":
         objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
         break;
-      case "contenu sous ceci":
+      case "objets sous ceci":
         objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
         break;
-      case "contenu dans cela":
+      case "objets dans cela":
         objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
         break;
-      case "contenu sur cela":
+      case "objets sur cela":
         objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
         break;
-      case "contenu sous cela":
+      case "objets sous cela":
         objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
         break;
-      case "contenu ici":
+      case "objets ici":
         objets = this.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
         break;
 
@@ -1525,6 +1525,8 @@ export class Instructions {
         // l'objet n'est plus possédé ni porté
         this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
         this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+        // l’objet n’est plus caché (car on n’est pas sensé examiner directement un lieu)
+        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
         // si la destination est le lieu actuel, l'objet est présent
         if (objet.position.cibleId === this.eju.curLieu.id) {
           this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
@@ -1809,50 +1811,50 @@ export class Instructions {
           // Instruction spécifique
         } else if (instruction.complement1) {
           let objets: Objet[] = null;
-          // - Contenu dans ceci
-          if (instruction.complement1.endsWith('contenu dans ceci')) {
+          // - objets dans ceci
+          if (instruction.complement1.endsWith('objets dans ceci')) {
             if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
             } else {
-              console.error("Joueur possède contenu dans ceci: ceci n'est as un objet.");
+              console.error("Joueur possède objets dans ceci: ceci n'est as un objet.");
             }
-            // - Contenu sur ceci
-          } else if (instruction.complement1.endsWith('contenu sur ceci')) {
+            // - objets sur ceci
+          } else if (instruction.complement1.endsWith('objets sur ceci')) {
             if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
             } else {
-              console.error("Joueur possède contenu sur ceci: ceci n'est as un objet.");
+              console.error("Joueur possède objets sur ceci: ceci n'est as un objet.");
             }
-            // - Contenu sous ceci
-          } else if (instruction.complement1.endsWith('contenu sous ceci')) {
+            // - objets sous ceci
+          } else if (instruction.complement1.endsWith('objets sous ceci')) {
             if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
             } else {
-              console.error("Joueur possède contenu sous ceci: ceci n'est as un objet.");
+              console.error("Joueur possède objets sous ceci: ceci n'est as un objet.");
             }
-            // - Contenu dans cela
-          } else if (instruction.complement1.endsWith('contenu dans cela')) {
+            // - objets dans cela
+          } else if (instruction.complement1.endsWith('objets dans cela')) {
             if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
             } else {
-              console.error("Joueur possède contenu dans cela: cela n'est as un objet.");
+              console.error("Joueur possède objets dans cela: cela n'est as un objet.");
             }
-            // - Contenu sur cela
-          } else if (instruction.complement1.endsWith('contenu sur cela')) {
+            // - objets sur cela
+          } else if (instruction.complement1.endsWith('objets sur cela')) {
             if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
             } else {
-              console.error("Joueur possède contenu sur cela: cela n'est as un objet.");
+              console.error("Joueur possède objets sur cela: cela n'est as un objet.");
             }
-            // - Contenu sous cela
-          } else if (instruction.complement1.endsWith('contenu sous cela')) {
+            // - objets sous cela
+          } else if (instruction.complement1.endsWith('objets sous cela')) {
             if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
               objets = this.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
             } else {
-              console.error("Joueur possède contenu sous cela: cela n'est as un objet.");
+              console.error("Joueur possède objets sous cela: cela n'est as un objet.");
             }
-            // - Contenu ici
-          } else if (instruction.complement1.endsWith('contenu ici')) {
+            // - objets ici
+          } else if (instruction.complement1.endsWith('objets ici')) {
             objets = this.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
           }
 
