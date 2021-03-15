@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-03-14-0018
+-- Version: 2021-03-15-0019
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -218,7 +218,6 @@ L'aide pour l'action fermer est "{*Fermer*}
 
 CHAPITRE "parler, interroger, montrer".
 
-
 SCÈNE "parler".
 -- ====================
 --   PARLER (discuter)
@@ -372,7 +371,6 @@ L'aide pour l'action montrer est "{*Montrer*}
   
 CHAPITRE "insulter, énerver, crier".
 
-
 SCÈNE "insulter".
 -- ============
 --   INSULTER
@@ -434,7 +432,7 @@ SCÈNE "regarder".
 -- a) regarder
 regarder est une action.
 
-terminer regarder:
+exécuter regarder:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
   dire "{n}{n}[sorties ici]".
@@ -502,7 +500,7 @@ refuser examiner ceci:
   si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.";
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
-terminer examiner ceci:
+exécuter examiner ceci:
 -- objet
   si ceci est un objet:
     si ceci est le joueur,
@@ -545,7 +543,7 @@ L'aide pour l'action examiner est "{*Examiner*}
   > {-examiner {/l'épée/}}
   {+raccourci+} : {-ex-}".
 
-CHAPITRE "prendre, donner, jeter et déposer".
+CHAPITRE "prendre, donner, jeter, mettre et déposer".
 
 SCÈNE "prendre".
 -- ===========
@@ -751,7 +749,6 @@ interpréter retirer comme enlever.
 
 CHAPITRE "déplacer, pousser, tirer".
 
-
 SCÈNE "déplacer".
 -- ===========
 --   DÉPLACER
@@ -806,7 +803,6 @@ terminer tirer ceci:
   dire "Ça n’a rien donné.".
 
 CHAPITRE "pousser, tirer".
-
 
 SCÈNE "toucher".
 -- ===========
@@ -878,7 +874,6 @@ interpréter bruler comme brûler.
 
 CHAPITRE "manger, boire".
 
-
 SCÈNE "manger".
 -- ===========
 --   MANGER
@@ -918,7 +913,6 @@ terminer boire ceci:
   dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.";
 
 CHAPITRE "frapper, tuer, assommer".
-
 
 SCÈNE "frapper".
 -- ===========
@@ -986,7 +980,6 @@ terminer assommer ceci:
 
 CHAPITRE "écouter, sentir, dormir, prier".
 
-
 SCÈNE "écouter".
 -- ===========
 --   ÉCOUTER
@@ -1043,7 +1036,6 @@ terminer prier ceci:
 
 CHAPITRE "chanter, danser, sauter, attendre".
 
-
 SCÈNE "chanter".
 -- ===========
 --   CHANTER
@@ -1082,7 +1074,6 @@ terminer attendre:
 
 CHAPITRE "lire".
 
-
 SCÈNE "lire".
 -- ===========
 --    LIRE
@@ -1100,7 +1091,6 @@ terminer lire ceci:
   dire "[texte ceci]".
 
 CHAPITRE "péter, raconter".
-
 
 SCÈNE "péter".
 -- ===========
