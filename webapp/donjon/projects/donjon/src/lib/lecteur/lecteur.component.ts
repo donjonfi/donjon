@@ -184,11 +184,15 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   private afficherSuiteSortie() {
     // prochaine section à afficher
-    const texteSection = this.resteDeLaSortie.shift();
+    let texteSection = this.resteDeLaSortie.shift();
     // retrouver le dernier effacement d’écran éventuel
     const indexDernierEffacement = texteSection.lastIndexOf("@@effacer écran@@");
     // s’il ne faut pas effacer l’écran
     if (indexDernierEffacement == -1) {
+      // enlever premier retour à la ligne
+      if (texteSection.startsWith("<br>")) {
+        texteSection = texteSection.slice("<br>".length);
+      }
       // ajouter à la suite
       this.sortieJoueur += ("<p>" + texteSection + "</p>");
       // sinon
