@@ -67,14 +67,16 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "constant.language",
           regex: "(au (sud|nord))|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
-            // + "vide(s)?|plein(e)?(s)?|"
-            + "((présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
+            + "(\\b(ceci|cela|ici)\\b)|"
+            + "(\\b("
+            + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|"
-            + "marche|arrêt|parlant|opaque|transparent|fixé|transportable)(e)?(s)?)|"
-            + "ceci|cela|ici|"
-            + "(in)?visible(s)?|(in)accessible(s)?|"
-            + "(porté|possédé|disponible|occupé)(e)?(s)?"
+            + "marche|arrêt|parlant|opaque|transparent|fixé|transportable|"
+            + "porté|possédé|disponible|occupé|"
+            + "(in)?visible|(in)accessible"
+            + ")(e)?(s)?\\b)"
+
         }, {
           token: "storage.type",
           regex: "une (clé|porte|personne|action)|l('|’)action|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
