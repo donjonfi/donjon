@@ -1,6 +1,6 @@
 
-export const version = "0.115"
-export const versionNum = 115;
+export const version = "0.116"
+export const versionNum = 116;
 
 export enum EClasseRacine {
   intitule = 'intitule',
@@ -33,7 +33,7 @@ export enum EEtatsBase {
   modifie = "modifié",
   /** caché */
   cache = 'caché',
-  /** ouvert */
+  /** couvert */
   couvert = 'couvert',
   /** visible (calculé) */
   visible = 'visible',

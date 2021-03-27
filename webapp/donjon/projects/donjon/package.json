@@ -1,6 +1,6 @@
 {
   "name": "@donjon/core",
-  "version": "0.0.1",
+  "version": "0.116.0",
   "peerDependencies": {
     "@angular/common": "^11.0.1",
     "@angular/core": "^11.0.1"
