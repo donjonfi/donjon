@@ -9,6 +9,7 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
+import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -86,6 +87,16 @@ export class Generateur {
       nouvLieu.nombre = curEle.nombre;
       nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
 
+      // ajouter les états par défaut de la classe du lieu
+      //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+      Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats);
+      // ajouter les états du lieu définis explicitements
+      if (curEle.attributs) {
+        curEle.attributs.forEach(attribut => {
+          jeu.etats.ajouterEtatElement(nouvLieu, attribut);
+        });
+      }
+
       // parcourir les propriétés du lieu
       curEle.proprietes.forEach(pro => {
         switch (pro.nom) {
@@ -134,7 +145,6 @@ export class Generateur {
     joueur.description = "(C’est vous)";
     joueur.synonymes = [
       new GroupeNominal("", "moi", null)
-      // new GroupeNominal("l’", "inventaire", null)
     ];
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
@@ -188,12 +198,10 @@ export class Generateur {
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
         newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
-        // ajouter les états par défaut de la classe de l’objet:
-        // (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
-        // console.warn("BEGIN attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
-        Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
-        // console.warn("END attribuerEtatsParDefaut >> obj=", newObjet, "cla=", newObjet.classe);
 
+        // ajouter les états par défaut de la classe de l’objet
+        //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+        Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
         // ajouter les états de l'objet définis explicitements
         if (curEle.attributs) {
           curEle.attributs.forEach(attribut => {
@@ -411,6 +419,11 @@ export class Generateur {
   /** Trouver l’objet qui fait office de contenant (dans), support (sur) ou couvrant (sous) */
   static getContenantSupportOuCouvrant(objets: Objet[], nomObjet: string) {
 
+    // patch pour l’inventaire qui est en réalité le joueur:
+    if (nomObjet === 'inventaire') {
+      nomObjet = 'joueur';
+    }
+
     // TODO: check si contenant ou support ?
     // mais quid pour « sous » ?
 
@@ -432,16 +445,14 @@ export class Generateur {
    * Atribuer les états par défaut de l’objet sur base de la classe spécifiée.
    * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
    */
-  static attribuerEtatsParDefaut(classe: Classe, obj: Objet, etats: ListeEtats) {
+  static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats) {
     // commencer par la classe parent (s’il y en a)
     if (classe.parent) {
-      // console.log(">>>>> on regarde le parent=", classe.parent);
-      Generateur.attribuerEtatsParDefaut(classe.parent, obj, etats);
-      // attribuer les états par défaut de la classe
+      Generateur.attribuerEtatsParDefaut(classe.parent, ele, etats);
     }
-    // console.log(">>>>>> on regarde dedans");
+    // attribuer les états par défaut de la classe
     classe.etats.forEach(nomEtat => {
-      etats.ajouterEtatElement(obj, nomEtat);
+      etats.ajouterEtatElement(ele, nomEtat);
     });
   }
 
