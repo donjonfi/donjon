@@ -1,4 +1,5 @@
-import { Analyseur } from './analyseur';
+import { Analyseur } from './analyseur/analyseur';
+import { AnalyseurConsequences } from './Analyseur/analyseur.consequences';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -90,7 +91,7 @@ export class Compilateur {
     // - DES RÈGLES
     ctxAnalyse.regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        regle.instructions = Analyseur.separerConsequences(regle.consequencesBrutes, ctxAnalyse.erreurs, -1, regle);
+        regle.instructions = AnalyseurConsequences.separerConsequences(regle.consequencesBrutes, ctxAnalyse.erreurs, -1, regle);
       }
       if (verbeux) {
         console.log(">>> regle:", regle);
@@ -105,7 +106,7 @@ export class Compilateur {
           if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
             reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
           }
-          reaction.instructions = Analyseur.separerConsequences(reaction.instructionsBrutes, ctxAnalyse.erreurs, -1, null, reaction, objet);
+          reaction.instructions = AnalyseurConsequences.separerConsequences(reaction.instructionsBrutes, ctxAnalyse.erreurs, -1, null, reaction, objet);
         });
         if (verbeux) {
           console.log(">>> objet avec réactions :", objet);

@@ -58,7 +58,7 @@ export * from './lib/utils/commun/mot-utils';
 export * from './lib/utils/commun/phrase-utils';
 export * from './lib/utils/commun/string.utils';
 
-export * from './lib/utils/compilation/analyseur';
+export * from './lib/utils/compilation/analyseur/analyseur';
 export * from './lib/utils/compilation/compilateur';
 export * from './lib/utils/compilation/expr-reg';
 export * from './lib/utils/compilation/generateur';
