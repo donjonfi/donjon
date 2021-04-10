@@ -163,6 +163,45 @@ export class ExprReg {
   static readonly xActiverDesactiver = /^(?:activer|désactiver) (.+)$/i;
 
   // ================================================================================================
+  //  TYPES
+  // ================================================================================================
+
+  /**
+   * Nouveau type d’élément.
+   * - Découpage :
+   *     - un/une(1) nouveauType(2) est un/une typeParent(3) {attributs}(4)
+   * - Exemples :
+   *     - Un meuble est un objet.
+   *     - Un fruit est un objet mangeable, léger et périssable.
+   *     - Un lutin est une personne.
+   * - Tests unitaires :
+   *     - Un meuble est un objet
+   *     - Un fruit est un objet mangeable, léger et périssable
+   *     - un lutin est une personne bavarde
+   *     - 💥 Le lutin est une personne bavarde
+   *     - 💥 Un meuble est fixé
+   */
+  static readonly xNouveauType = /^(un(?:e)?) (\S+) est (?:un(?:e)?) (\S+)(?: ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?))?$/i;
+
+  /**
+   * Précision pour un type d’élément.
+   * - Découpage :
+   *     - un/une(1) type(2) est attributs(3)
+   * - Exemples :
+   *     - Un meuble est fixé.
+   *     - Un lutin est bavard, peureux et farceur.
+   * - Tests unitaires
+   *     - Un meuble est fixé
+   *     - un chien est affectueux et poilu
+   *     - Un lutin est bavard, peureux et farceur
+   *     - 💥 Un meuble est un objet
+   *     - 💥 Un fruit est un objet mangeable, léger et périssable
+   *     - 💥 Un lutin est une personne bavarde
+   *     - 💥 Le meuble est fixé
+   */
+  static readonly xPrecisionType = /^(un(?:e)?) (\S+) est (?!un |une )(?:((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?))$/i;
+
+  // ================================================================================================
   //  ACTIONS
   // ================================================================================================
 
