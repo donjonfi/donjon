@@ -110,6 +110,12 @@ export class MotUtils {
           }
           break;
       }
+    } else {
+      if (feminin) {
+        retVal = Genre.f;
+      } else {
+        retVal = Genre.m;
+      }
     }
     return retVal;
   }
@@ -183,13 +189,17 @@ export class MotUtils {
           break;
 
         default:
+          // précédé d’un nombre > 1 ?
           if (MotUtils.xNombrePluriel.exec(determinant.trim()) !== null) {
             retVal = +(determinant.trim());
+          // (nombre 1 déjà testé plus haut)
           } else {
             retVal = 0;
           }
           break;
       }
+    }else{
+      retVal = 1; // 1 par défaut
     }
     return retVal;
   }
