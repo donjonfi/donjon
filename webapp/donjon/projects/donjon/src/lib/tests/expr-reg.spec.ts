@@ -122,7 +122,7 @@ describe('Epressions régulières − Définition des éléments du monde', () =
 
 
   it('Élément générique simple: « Paris est un lieu »', () => {
-    const result = ExprReg.xDefinitionTypeElement.exec("Paris est un lieu");
+    const result = ExprReg.xDefinitionElementAvecType.exec("Paris est un lieu");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("Paris"); // nom
@@ -134,7 +134,7 @@ describe('Epressions régulières − Définition des éléments du monde', () =
 
 
   it('Élément générique simple: « La table basse est un objet »', () => {
-    const result = ExprReg.xDefinitionTypeElement.exec("La table basse est un objet");
+    const result = ExprReg.xDefinitionElementAvecType.exec("La table basse est un objet");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
     expect(result[2]).toEqual("table"); // nom
@@ -145,7 +145,7 @@ describe('Epressions régulières − Définition des éléments du monde', () =
   })
 
   it('Élément générique simple: « Le champignon des bois odorant (champignons des bois) est un légume mangeable »', () => {
-    const result = ExprReg.xDefinitionTypeElement.exec("Le champignon des bois odorant (champignons des bois) est un légume mangeable");
+    const result = ExprReg.xDefinitionElementAvecType.exec("Le champignon des bois odorant (champignons des bois) est un légume mangeable");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le "); // déterminant
     expect(result[2]).toEqual("champignon des bois"); // nom
@@ -156,7 +156,7 @@ describe('Epressions régulières − Définition des éléments du monde', () =
   })
 
   it('Élément générique simple: « L\'apprentie sorcière (f) est une personne fatiguée »', () => {
-    const result = ExprReg.xDefinitionTypeElement.exec("L'apprentie sorcière (f) est une personne fatiguée");
+    const result = ExprReg.xDefinitionElementAvecType.exec("L'apprentie sorcière (f) est une personne fatiguée");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("L'"); // déterminant
     expect(result[2]).toEqual("apprentie"); // nom

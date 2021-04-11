@@ -72,7 +72,7 @@ export class ExprReg {
  *     - La table basse est un objet
  *     - L'apprentie sorcière (f) est une personne fatiguée
  */
-  static readonly xDefinitionTypeElement = /^(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(.+))?/i;
+  static readonly xDefinitionElementAvecType = /^(?!un |une )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(?!(?:au|à|dans) )(.+))?$/i;
 
   /** élément générique positionné par rapport à complément
    * - Découpage :
@@ -87,7 +87,7 @@ export class ExprReg {
    *     - L’allée principale (f) est un lieu au sud du départ
    *     - La gare est un lieu dans Lisbonne
    */
-  static readonly xPositionElementGeneriqueDefini = /^(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont|se trouve(?:nt)?) (?:|(?:un|une|des) (\S+?)(?:(?: )(?!hors)(\S+?))? )?((?:(?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest))|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord|sud)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(.+)/i;
+  static readonly xPositionElementGeneriqueDefini = /^(?!un |une )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont|se trouve(?:nt)?) (?:|(?:un|une|des) (\S+?)(?:(?: )(?!hors)(\S+?))? )?((?:(?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest))|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord|sud)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(.+)/i;
 
   /** élément générique positionné par rapport à complément :
    * - Découpage :
@@ -147,7 +147,7 @@ export class ExprReg {
   /** élément générique ->
    * Les (1) pommes de terre (2) pourries (3) [(f, pomme de terre)]\(4) sont mauves, odorantes et humides (5).
    */
-  static readonly xElementSimpleAttribut = /^(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
+  static readonly xElementSimpleAttribut = /^(?!un |une )(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   /**
    * Synonymes

@@ -164,7 +164,7 @@ export class Compilateur {
    * Convertir le code source en une tableau de phrases.
    * @param scenario Code source à analyser.
    */
-  private static convertirCodeSourceEnPhrases(scenario: string) {
+  public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
 
     // // gestion des commentaires de ligne (--)
     // // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)

@@ -121,7 +121,7 @@ export class Analyseur {
       // MONDE 1 - TESTER ÉLÉMENT (NOUVEAU OU EXISTANT) AVEC POSITION
       // ===================================================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        const elementConcerne = AnalyseurElementPosition.testerElementAvecPosition(ctx.elementsGeneriques, phrase);
+        const elementConcerne = AnalyseurElementPosition.testerElementAvecPosition(phrase, ctx);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
           Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
@@ -241,7 +241,7 @@ export class Analyseur {
    * @param phrase 
    * @param ctx 
    */
-  private static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
+  public static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
     // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
     if (phrase.phrase.length > 1) {
       // ajouter la description en enlevant les caractères spéciaux

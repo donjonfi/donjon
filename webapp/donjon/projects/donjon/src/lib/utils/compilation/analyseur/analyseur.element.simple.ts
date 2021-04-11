@@ -31,7 +31,7 @@ export class AnalyseurElementSimple {
     let position: PositionSujetString;
 
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
-    let result = ExprReg.xDefinitionTypeElement.exec(phrase.phrase[0]);
+    let result = ExprReg.xDefinitionElementAvecType.exec(phrase.phrase[0]);
     if (result !== null) {
       let genreSingPlur = result[4];
       let estFeminin = false;
