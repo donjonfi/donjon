@@ -16,4 +16,6 @@ export enum ResultatAnalysePhrase {
   propriete,
   reaction,
   capacite,
+  type,
+  precisionType,
 }
