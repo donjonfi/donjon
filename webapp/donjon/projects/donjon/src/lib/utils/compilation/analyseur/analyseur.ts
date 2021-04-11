@@ -11,6 +11,8 @@ import { ContexteAnalyse } from '../../../models/compilateur/contexte-analyse';
 import { ExprReg } from '../expr-reg';
 import { Phrase } from '../../../models/compilateur/phrase';
 import { ResultatAnalysePhrase } from '../../../models/compilateur/resultat-analyse-phrase';
+import { AnalyseurUtils } from './analyseur.utils';
+import { AnalyseurType } from './analyseur.type';
 
 export class Analyseur {
 
@@ -31,7 +33,7 @@ export class Analyseur {
    * @param phrase phrase à analyser.
    * @param ctx contexte de l’analyse.
    */
-  private static analyserPhrase(phrase: Phrase, ctx: ContexteAnalyse) {
+  public static analyserPhrase(phrase: Phrase, ctx: ContexteAnalyse): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -104,6 +106,27 @@ export class Analyseur {
         }
       }
 
+      
+      // ===============================================
+      // NOUVEAU TYPE
+      // ===============================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurType.testerNouveauType(phrase, ctx);
+        if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.type) {
+          console.log("=> trouvé type");
+        }
+      }
+      
+      // ===============================================
+      // PRÉCISION TYPE
+      // ===============================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurType.testerPrecisionType(phrase, ctx);
+        if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.precisionType) {
+          console.log("=> trouvé précision type");
+        }
+      }
+
       // ===============================================
       // ACTIVER / DÉSACTIVER
       // ===============================================
@@ -124,7 +147,7 @@ export class Analyseur {
         const elementConcerne = AnalyseurElementPosition.testerElementAvecPosition(phrase, ctx);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
-          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
+          AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementAvecPosition;
           if (ctx.verbeux) {
             console.log("=> trouvé élément avec position:", ctx.dernierElementGenerique);
@@ -139,7 +162,7 @@ export class Analyseur {
         const elementConcerne = AnalyseurElementSimple.testerElementSansPosition(phrase, ctx);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
-          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
+          AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementSansPosition;
           if (ctx.verbeux) {
             console.log("=> trouvé testerElementSimple:", ctx.dernierElementGenerique);
@@ -154,7 +177,7 @@ export class Analyseur {
         elementTrouve = AnalyseurAttributs.testerPronomDemonstratifTypeAttributs(phrase, ctx);
         if (elementTrouve === ResultatAnalysePhrase.pronomDemontratifTypeAttribut) {
           // ajout d’une éventuelle description
-          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
+          AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           if (ctx.verbeux) {
             console.log("=> trouvé type dernier élément (+ attributs) (pronom démonstratif) :", ctx.dernierElementGenerique);
           }
@@ -168,7 +191,7 @@ export class Analyseur {
         elementTrouve = AnalyseurElementPosition.testerPronomPersonnelPosition(phrase, ctx);
         if (elementTrouve === ResultatAnalysePhrase.pronomPersonnelPosition) {
           // ajout d’une éventuelle description
-          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
+          AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           if (ctx.verbeux) {
             console.log("=> trouvé position (pronom personnel) :", ctx.dernierElementGenerique);
           }
@@ -183,7 +206,7 @@ export class Analyseur {
         elementTrouve = AnalyseurAttributs.testerPronomPersonnelAttributs(phrase, ctx);
         if (elementTrouve === ResultatAnalysePhrase.pronomPersonnelAttribut) {
           // ajout d’une éventuelle description
-          Analyseur.ajouterDescriptionDernierElement(phrase, ctx);
+          AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           if (ctx.verbeux) {
             console.log("=> trouvé attribut (pronom personnel) :", ctx.dernierElementGenerique);
           }
@@ -234,24 +257,7 @@ export class Analyseur {
       }
     }
 
-  }
-
-  /**
-   * Ajouter la description éventuelle au dernier élément générique trouvé.
-   * @param phrase 
-   * @param ctx 
-   */
-  public static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
-    // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
-    if (phrase.phrase.length > 1) {
-      // ajouter la description en enlevant les caractères spéciaux
-      ctx.dernierElementGenerique.description = phrase.phrase[1]
-        .replace(ExprReg.xCaractereDebutCommentaire, '')
-        .replace(ExprReg.xCaractereFinCommentaire, '')
-        .replace(ExprReg.xCaractereRetourLigne, '\n')
-        .replace(ExprReg.xCaracterePointVirgule, ';')
-        .replace(ExprReg.xCaractereVirgule, ',');
-    }
+    return elementTrouve;
   }
 
 

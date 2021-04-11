@@ -15,8 +15,7 @@ export class AnalyseurAction {
  * @param phrase phrase à analyser.
  * @param erreurs liste des erreurs.
  */
-  // public static testerAction(actions: Action[], phrase: Phrase, erreurs: string[], verbeux: boolean) {
-  public static testerAction(phrase: Phrase, ctxAnalyse: ContexteAnalyse) {
+  public static testerAction(phrase: Phrase, ctxAnalyse: ContexteAnalyse): Action {
 
     const result = ExprReg.xAction.exec(phrase.phrase[0]);
     // A. Nouvelle action complète
