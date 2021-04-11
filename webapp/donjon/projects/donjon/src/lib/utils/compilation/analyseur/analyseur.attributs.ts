@@ -18,16 +18,23 @@ export class AnalyseurAttributs {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    // pronom démonstratif (C’est)
-    const result = ExprReg.xPronomDemonstratif.exec(phrase.phrase[0]);
+    // pronom démonstratif (C’est) + type (+ attributs)
+    const result = ExprReg.xPronomDemonstratifTypeAttributs.exec(phrase.phrase[0]);
     if (result !== null) {
+
+      const type = result[2];
+      const attributsBruts = result[3];
+
       // définir type de l'élément précédent
-      if (result[2] && result[2].trim() !== '') {
+      if (type?.trim() !== '') {
         ctxAnalyse.dernierElementGenerique.classeIntitule = ClasseUtils.getClasseIntitule(result[2]);
       }
       // attributs de l'élément précédent
-      if (result[3] && result[3].trim() !== '') {
-        ctxAnalyse.dernierElementGenerique.attributs.push(result[3]);
+      if (attributsBruts?.trim() !== '') {
+        // découper les attributs
+        const nouveauAttributs = PhraseUtils.separerListeIntitules(result[1]);
+        // ajouter les attributs
+        ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
 
       // résultat
@@ -50,11 +57,15 @@ export class AnalyseurAttributs {
     // pronom personnel attributs
     const result = ExprReg.xPronomPersonnelAttribut.exec(phrase.phrase[0]);
     if (result !== null) {
+
+      const attributsBruts = result[1];
+
       // attributs de l'élément précédent
-      if (result[1] && result[1].trim() !== '') {
+      if (attributsBruts?.trim() !== '') {
         // découper les attributs
-        const attributs = PhraseUtils.separerListeIntitules(result[1]);
-        ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(attributs);
+        const nouveauAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
+        // ajouter les attributs
+        ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
       // genre de l'élément précédent
       ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);

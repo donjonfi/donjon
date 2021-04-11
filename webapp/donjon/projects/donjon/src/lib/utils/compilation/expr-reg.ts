@@ -110,10 +110,10 @@ export class ExprReg {
 
 
   /** pronom démonstratif
-   * - C’est/sont un/des(1), type(2), attributs(3)
+   * - (C’est/Ce sont un/des)(1), type(2), [attributs(3)]
    * - Ex: C’est une personne fachée.
   */
-  static readonly xPronomDemonstratif = /^((?:c(?:’|')est (?:un|une))|(?:ce sont des)) (\S+)( .+|)/i;
+  static readonly xPronomDemonstratifTypeAttributs = /^((?:c(?:’|')est (?:un|une))|(?:ce sont des)) (\S+)( .+)?/i;
 
   /** pronom personnel
    * - attributs(1)
