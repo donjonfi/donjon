@@ -14,7 +14,7 @@ import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-anal
 export class AnalyseurElementPosition {
 
   // Tester phrase avec élement générique + position
-  public static testerElementAvecPosition(elementsGeneriques: ElementGenerique[], phrase: Phrase): ElementGenerique {
+  public static testerElementAvecPosition(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
 
     // nouvel élément (sera éventuellement pas ajouté si on se rend compte qu’on fait référence à un élément existant)
     let newElementGenerique: ElementGenerique = null;
@@ -185,7 +185,7 @@ export class AnalyseurElementPosition {
       // avant d'ajouter l'élément vérifier s'il existe déjà
       let newEleNom = newElementGenerique.nom.toLowerCase();
       let newEleEpi = newElementGenerique.epithete?.toLowerCase() ?? null;
-      const filtered = elementsGeneriques.filter(x => x.nom.toLowerCase() == newEleNom && x.epithete?.toLowerCase() == newEleEpi);
+      const filtered = ctx.elementsGeneriques.filter(x => x.nom.toLowerCase() == newEleNom && x.epithete?.toLowerCase() == newEleEpi);
 
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
@@ -196,7 +196,7 @@ export class AnalyseurElementPosition {
         if (newElementGenerique.positionString) {
           // s'il y avait déjà une position définie, c'est un autre élément, donc on ajoute quand même le nouveau !
           if (elementGeneriqueFound.positionString) {
-            elementsGeneriques.push(newElementGenerique);
+            ctx.elementsGeneriques.push(newElementGenerique);
             elementConcerne = newElementGenerique;
           } else {
             // sinon, ajouter la position à l’élément trouvé
@@ -215,7 +215,7 @@ export class AnalyseurElementPosition {
 
       } else {
         // ajouter le nouvel élément
-        elementsGeneriques.push(newElementGenerique);
+        ctx.elementsGeneriques.push(newElementGenerique);
       }
 
     }
