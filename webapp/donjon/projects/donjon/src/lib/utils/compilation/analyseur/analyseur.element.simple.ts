@@ -71,7 +71,8 @@ export class AnalyseurElementSimple {
       attributs = PhraseUtils.separerListeIntitules(attributsString);
       position = null;
 
-      AnalyseurElementSimple.addOrUpdDefinition(ctxAnalyse.typesUtilisateur, nom, nombre, intituleClasse, attributs);
+      // Pourquoi ajouter un nouveau type ici ?
+      // // AnalyseurElementSimple.addOrUpdDefinition(ctxAnalyse.typesUtilisateur, nom, nombre, intituleClasse, attributs);
 
       nouvelElementGenerique = new ElementGenerique(
         determinant,
