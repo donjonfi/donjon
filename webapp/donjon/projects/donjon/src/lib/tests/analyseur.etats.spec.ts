@@ -1,10 +1,10 @@
+import { ExprReg } from "../utils/compilation/expr-reg";
+
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ——————————————————————————————————————————————————————————————————————————————————————————————————————————
 //    [1/1] EXPRESSIONS RÉGULIÈRES
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-
-import { ExprReg } from "../utils/compilation/expr-reg";
 
 describe('Epressions régulières − États (attributs) d’un élément jeu', () => {
 
@@ -36,6 +36,16 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
         expect(result[3]).toEqual('rouge'); // épithète
         expect(result[4]).toEqual('(f, aliances du lac)'); // (féminin, autre forme)
         expect(result[5]).toEqual('petite, fragile, vieille et dorée'); // attributs
+    });
+    
+    it('Attribut ele : « Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides » ', () => {
+        const result = ExprReg.xElementSimpleAttribut.exec('Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides');
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual('Les '); // déterminant
+        expect(result[2]).toEqual('pommes de terre'); // nom
+        expect(result[3]).toEqual('pourries'); // épithète
+        expect(result[4]).toEqual('(f, pomme de terre)'); // (féminin, autre forme)
+        expect(result[5]).toEqual('mauves, odorantes et humides'); // attributs
     });
 
 });

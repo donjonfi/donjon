@@ -150,18 +150,29 @@ export class ExprReg {
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;
 
   /** élément générique ->
-   * Les (1) pommes de terre (2) pourries (3) [(f, pomme de terre)]\(4) sont mauves, odorantes et humides (5).
+   * - Découpage :
+   *     - Déterminant(1) nom(2) épithète(3) [(f, autre forme)]\(4) est/sont attributs(5).
+   * - Exemples :
+   *     - Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides.
+   * - Tests unitaires :
+   *     - Le bateau est vieux et troué
+   *     - Julien est grand
+   *     - L’aliance du lac rouge (f) est petite, fragile, vieille et dorée
+   *     - Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides
    */
   static readonly xElementSimpleAttribut = /^(?!un |une )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   /**
    * Synonymes
-   * - interpréter (synonymeA[[, synonymeBCD] et synonymeE])(1) comme original(2)
-   * - ex: interpréter Alain comme le capitaine
-   * - ex: interpréter Alain et le marin comme le capitaine
-   * - ex: interpréter le marin, Alain et le boss comme le capitaine
-   * - ex: interpréter marcher comme se déplacer
-   * - ex: interpréter marcher, courrir, sauter et danser comme s’exercer
+   * - Découpage :
+   *     - interpréter (synonymeA[[, synonymeBCD] et synonymeE])(1) comme original(2)
+   * - Tests unitaires :
+   *     - interpréter Alain comme le capitaine
+   *     - interpréter Alain et le marin comme l’apprenti du village
+   *     - interpréter le marin, Alain et le boss comme le capitaine crochet
+   *     - Interpréter marcher comme se déplacer
+   *     - interpréter marcher, courrir, sauter, s’étirer et danser comme s’exercer
+   *     (- 💥 interpréter courir comme le pied de bois)
    */
   static readonly xSynonymes = /^interpréter ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?) comme (.+)$/i;
 

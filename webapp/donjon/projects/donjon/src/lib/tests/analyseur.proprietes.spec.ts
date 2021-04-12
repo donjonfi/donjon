@@ -1,5 +1,11 @@
 import { ExprReg } from "../utils/compilation/expr-reg";
 
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [1/1] EXPRESSIONS RÉGULIÈRES
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
 describe('Epressions régulières − Propriétes/Réactions d’un élément jeu', () => {
 
     it('Prop. élé : « Son texte est "Voici ce qui est écrit" »', () => {
