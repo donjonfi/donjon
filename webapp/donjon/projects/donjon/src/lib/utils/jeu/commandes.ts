@@ -41,14 +41,24 @@ export class Commandes {
           // retrouver les états de l’élément
           const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(el);
           let visible: boolean = null;
+          let accessible: boolean = null;
           let emplacement: ElementJeu = null;
-          if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
+          let estObjet = ClasseUtils.heriteDe(el.classe, EClasseRacine.objet);
+          if (estObjet) {
             let obj = (el as Objet);
             visible = this.jeu.etats.estVisible(obj, this.eju);
+            accessible = this.jeu.etats.estAccessible(obj, this.eju);
             emplacement = this.eju.getLieu(this.eju.getLieuObjet(obj));
           }
           console.warn("#DEB# trouvé " + els.sujet.nom, "\n >> el=", el, "\n >> etats=", etats, "\n >> visible=", visible, "\n >> position=", emplacement);
-          retVal = "trouvé.";
+          retVal =
+            "{*" + ElementsJeuUtils.calculerIntitule(el, false) + "*} (" + el.genre + ", " + el.nombre + ")" +
+            "{n}{e}{_type_}{n}" + el.classe.intitule +
+            "{n}{e}{_synonymes_}{n}" + (el.synonymes?.length ? el.synonymes.map(x=> x.toString()).join(", ") : '(aucun)') +
+            (estObjet ? ("{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non')) : '') +
+            "{n}{e}{_états_}{n}" + etats +
+            (estObjet ? ("{n}{e}{_position_}{n}" + (emplacement ? emplacement.nom : 'aucune')) : '') +
+            "";
         } else {
           console.warn("#DEB# erreur: plusieurs correspondances pour sujet=", els.sujet);
           retVal = "pas trouvé > plusieurs correspondances";
@@ -61,7 +71,7 @@ export class Commandes {
     if (retVal) {
       retVal += "{n}";
     }
-    retVal += "{/(voir console du navigateur {+ctrl+maj+i+})/}";
+    retVal += "{/(voir également console du navigateur {+ctrl+maj+i+})/}";
     return retVal;
   }
 
