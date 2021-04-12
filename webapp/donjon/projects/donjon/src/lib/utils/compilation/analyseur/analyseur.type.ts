@@ -5,6 +5,7 @@ import { Phrase } from "../../../models/compilateur/phrase";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { MotUtils } from "../../commun/mot-utils";
 import { PhraseUtils } from "../../commun/phrase-utils";
+import { StringUtils } from "../../commun/string.utils";
 import { ExprReg } from "../expr-reg";
 import { AnalyseurUtils } from "./analyseur.utils";
 
@@ -25,8 +26,9 @@ export class AnalyseurType {
         if (result !== null) {
 
             const determinant = result[1];
-            const nouveauType = result[2];
-            const typeParent = result[3];
+            const nouveauTypeIntitule = result[2];
+            const nouveauTypeNom =StringUtils.normaliserMot(nouveauTypeIntitule);
+            const typeParent = StringUtils.normaliserMot(result[3]);
             const attributsBruts = result[4];
 
             // retrouver les attributs éventuels
@@ -42,26 +44,26 @@ export class AnalyseurType {
             }
 
             // si le type est déjà défini
-            if (ctxAnalyse.typesUtilisateur.has(nouveauType)) {
+            if (ctxAnalyse.typesUtilisateur.has(nouveauTypeNom)) {
 
-                let typeExistant = ctxAnalyse.typesUtilisateur.get(nouveauType);
+                let typeExistant = ctxAnalyse.typesUtilisateur.get(nouveauTypeNom);
 
                 // garder dernier type parent défini
                 typeExistant.typeParent = typeParent;
 
                 // si type parent a déjà été précisé, ajouter une erreur
                 if (typeExistant.typeParent !== EClasseRacine.objet) {
-                    
+
                     AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Type défini plusieurs fois (" + typeExistant.intitule + "). Seul le type parent le plus récent est conservé (" + typeExistant.typeParent + ")");
                 }
 
                 // ajouter les nouveaux attributs
-                typeExistant.attributs = typeExistant.attributs.concat(nouveauxAttributs);
+                typeExistant.etats = typeExistant.etats.concat(nouveauxAttributs);
 
                 // si le type n’est pas encore défini
             } else {
-                ctxAnalyse.typesUtilisateur.set(nouveauType, new Definition(
-                    nouveauType,
+                ctxAnalyse.typesUtilisateur.set(nouveauTypeNom, new Definition(
+                    nouveauTypeIntitule,
                     typeParent,
                     MotUtils.getNombre(determinant),
                     nouveauxAttributs
@@ -90,7 +92,8 @@ export class AnalyseurType {
         if (result !== null) {
 
             const determinant = result[1];
-            const type = result[2];
+            const typeIntitule = result[2];
+            const typeNom =StringUtils.normaliserMot(typeIntitule);
             const attributsBruts = result[3];
 
             // retrouver les attributs éventuels
@@ -101,14 +104,14 @@ export class AnalyseurType {
             }
 
             // si le type est déjà défini
-            if (ctxAnalyse.typesUtilisateur.has(type)) {
+            if (ctxAnalyse.typesUtilisateur.has(typeNom)) {
                 // ajouter les nouveaux attributs
-                ctxAnalyse.typesUtilisateur.get(type).attributs = ctxAnalyse.typesUtilisateur.get(type).attributs.concat(nouveauxAttributs);
+                ctxAnalyse.typesUtilisateur.get(typeNom).etats = ctxAnalyse.typesUtilisateur.get(typeNom).etats.concat(nouveauxAttributs);
 
                 // si le type n’est pas encore défini
             } else {
-                ctxAnalyse.typesUtilisateur.set(type, new Definition(
-                    type,
+                ctxAnalyse.typesUtilisateur.set(typeNom, new Definition(
+                    typeIntitule,
                     EClasseRacine.objet, // objet par défaut
                     MotUtils.getNombre(determinant),
                     nouveauxAttributs

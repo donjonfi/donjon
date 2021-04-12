@@ -208,17 +208,6 @@ export class AnalyseurElementSimple {
     return elementConcerne;
   }
 
-  private static addOrUpdDefinition(dictionnaire: Map<string, Definition>, intitule: string, nombre: Nombre, typeParent: string, attributs: string[]) {
-    // mise à jour
-    if (dictionnaire.has(intitule)) {
-      let found = dictionnaire.get(intitule);
-      found.typeParent = typeParent;
-      found.attributs.concat(attributs);
-      // ajout
-    } else {
-      const definition = new Definition(intitule, typeParent, nombre, attributs);
-      dictionnaire.set(intitule, definition)
-    }
-  }
+
 
 }

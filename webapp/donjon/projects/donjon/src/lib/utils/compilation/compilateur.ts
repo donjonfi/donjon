@@ -14,6 +14,9 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
+import { MotUtils } from '../commun/mot-utils';
+import { Definition } from '../../models/compilateur/definition';
+import { AnalyseurUtils } from './analyseur/analyseur.utils';
 
 export class Compilateur {
 
@@ -61,6 +64,12 @@ export class Compilateur {
     // le monde qui est décrit
     let monde = new Monde();
 
+    // retrouver les types utilisateurs (classes)
+    ctxAnalyse.typesUtilisateur.forEach(def => {
+      Compilateur.ajouterClasseDuTypeUtilisateur(def.intitule, ctxAnalyse, monde);
+    });
+
+    // retrouver les éléments génériques
     ctxAnalyse.elementsGeneriques.forEach(el => {
       el.classe = Compilateur.trouverClasse(monde.classes, el.classeIntitule);
       // objets
@@ -91,7 +100,7 @@ export class Compilateur {
     // - DES RÈGLES
     ctxAnalyse.regles.forEach(regle => {
       if (regle.consequencesBrutes) {
-        regle.instructions = AnalyseurConsequences.separerConsequences(regle.consequencesBrutes, ctxAnalyse.erreurs, -1, regle);
+        regle.instructions = AnalyseurConsequences.separerConsequences(regle.consequencesBrutes, ctxAnalyse, -1, regle);
       }
       if (verbeux) {
         console.log(">>> regle:", regle);
@@ -106,7 +115,7 @@ export class Compilateur {
           if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
             reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
           }
-          reaction.instructions = AnalyseurConsequences.separerConsequences(reaction.instructionsBrutes, ctxAnalyse.erreurs, -1, null, reaction, objet);
+          reaction.instructions = AnalyseurConsequences.separerConsequences(reaction.instructionsBrutes, ctxAnalyse, -1, null, reaction, objet);
         });
         if (verbeux) {
           console.log(">>> objet avec réactions :", objet);
@@ -292,6 +301,50 @@ export class Compilateur {
     if (retVal == null) {
       retVal = new Classe(recherche, nom, ClassesRacines.Objet, 2, []);
       classes.push(retVal);
+    }
+
+    return retVal;
+  }
+
+  private static ajouterClasseDuTypeUtilisateur(nomTypeUtilisateur, ctxAnalyse: ContexteAnalyse, monde: Monde): Classe {
+
+    // > NOM
+    const nom = StringUtils.normaliserMot(nomTypeUtilisateur);
+
+    // > DEFINITION
+    let def: Definition = null;
+    // retrouver la définition du type
+    if (ctxAnalyse.typesUtilisateur.has(nom)) {
+      def = ctxAnalyse.typesUtilisateur.get(nom);
+      // définition pas trouvé => hériter de objet par défaut
+    } else {
+      def = new Definition(nomTypeUtilisateur, EClasseRacine.objet, Nombre.s, []);
+    }
+
+    // > INTITULÉ
+    const intitule = def.intitule;
+
+    // > PARENT
+    let parent = monde.classes.find(x => x.nom === StringUtils.normaliserMot(def.typeParent));
+    // si parent pas encore présent, le définir
+    if (!parent) {
+      parent = Compilateur.ajouterClasseDuTypeUtilisateur(def.typeParent, ctxAnalyse, monde);
+    }
+
+    // > NIVEAU
+    const niveau = parent.niveau + 1;
+
+    // > CRÉATION
+    // vérifier si existe déjà
+    let retVal = monde.classes.find(x => x.nom == nom);
+    // existe déjà
+    if (retVal) {
+      // AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, ("Type défini plusieurs fois : " + retVal.intitule));
+      // n’existe pas encore
+    } else {
+      retVal = new Classe(nom, intitule, parent, niveau, def.etats);
+      // ajouter une nouvelle classe pour ce type utilisateur
+      monde.classes.push(retVal);
     }
 
     return retVal;

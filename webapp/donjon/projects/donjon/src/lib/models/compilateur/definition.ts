@@ -5,6 +5,6 @@ export class Definition {
         public intitule: string,
         public typeParent: string,
         public nombre: Nombre,
-        public attributs: string[],
+        public etats: string[],
     ) { }
 }

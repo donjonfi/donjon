@@ -193,7 +193,7 @@ describe('Analyseur − Définition de nouveaux types', () => {
         expect(ctxAnalyse.typesUtilisateur.get('meuble').intitule).toBe('meuble'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('meuble').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('meuble').typeParent).toBe('objet'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('meuble').attributs).toHaveSize(0); // aucun attribut spécifique
+        expect(ctxAnalyse.typesUtilisateur.get('meuble').etats).toHaveSize(0); // aucun attribut spécifique
         expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     });
@@ -216,8 +216,8 @@ describe('Analyseur − Définition de nouveaux types', () => {
         expect(ctxAnalyse.typesUtilisateur.get('fée').intitule).toBe('fée'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('fée').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('fée').typeParent).toBe('personne'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('fée').attributs).toHaveSize(1); // attribut spécifique défini
-        expect(ctxAnalyse.typesUtilisateur.get('fée').attributs[0]).toBe('magique'); // attribut spécifique
+        expect(ctxAnalyse.typesUtilisateur.get('fée').etats).toHaveSize(1); // attribut spécifique défini
+        expect(ctxAnalyse.typesUtilisateur.get('fée').etats[0]).toBe('magique'); // attribut spécifique
         expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     });
@@ -281,7 +281,7 @@ describe('Analyseur − Définition de nouveaux types', () => {
         expect(ctxAnalyse.typesUtilisateur.get('statue').intitule).toBe('statue'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('statue').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('statue').typeParent).toBe('objet'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('statue').attributs).toHaveSize(1); // attribut spécifique
+        expect(ctxAnalyse.typesUtilisateur.get('statue').etats).toHaveSize(1); // attribut spécifique
         expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     });
@@ -307,7 +307,7 @@ describe('Analyseur − Définition de nouveaux types', () => {
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('personne'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('lutin').attributs).toHaveSize(4); // attributs spécifiques (1 + 3)
+        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(4); // attributs spécifiques (1 + 3)
         expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     });
@@ -326,7 +326,7 @@ describe('Analyseur − Définition de nouveaux types', () => {
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('créature-magique'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('lutin').attributs).toHaveSize(2); // attributs spécifiques (1+1)
+        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(2); // attributs spécifiques (1+1)
         expect(ctxAnalyse.erreurs).toHaveSize(1); // 1 erreur a été générée
     });
 
