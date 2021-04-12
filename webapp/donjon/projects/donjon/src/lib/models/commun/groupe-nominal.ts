@@ -27,4 +27,9 @@ export class GroupeNominal {
     public epithete: string = null
   ) { }
 
+  toString() {
+    let retVal = (this.determinant ? this.determinant : "") + this.nom + (this.epithete ? (" " + this.epithete) : "");
+    return retVal;
+  }
+
 }
