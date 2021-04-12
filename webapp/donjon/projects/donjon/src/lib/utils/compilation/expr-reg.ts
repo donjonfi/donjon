@@ -122,7 +122,7 @@ export class ExprReg {
    */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
-  /** attribut
+  /** Propriété
    * - son|sa propriété(1) est|vaut(6) valeur(7)
    * - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(6) valeur(7)
    * - sa réaction(1) (concernant le)(4) sujet(5) est|vaut(6) valeur(7)
@@ -135,11 +135,7 @@ export class ExprReg {
    * - Ex: La réaction du capitaine concernant les pirates, les méchants hargneux ou les malfrats est "Aïe aïe aïe…"
    * - Ex: La réaction du schérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
    */
-
-  static readonly xAttribut = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?( .+|)/i;
-
-  // static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l'))(\S+?))) (?:((?:(?:à propos|au sujet) (?:de (?:la |l’|l')|du |des ))|(?:concernant (?:la |le |les |l’|l')))(\S+) )?(est|vaut)(?:(?: )?\:(?: )?)?( .+|)/i;
-  // static readonly xAttribut = /^(?:(?:(?:son|sa) (\S+))|(?:(?:la |le |l(?:’|'))(\S+) (?:du |de la |de l(?:’|'))(\S+))) (est|vaut)( .+|)/i;
+  static readonly xPropriete = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?(?: (.+))?$/i;
 
   /** capacité -> verbe(1) complément(2) */
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;

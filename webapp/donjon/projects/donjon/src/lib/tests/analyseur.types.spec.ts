@@ -9,8 +9,8 @@ import { ExprReg } from "../utils/compilation/expr-reg";
 
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
-//    EXPRESSIONS RÉGULIÈRES
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [1/2] EXPRESSIONS RÉGULIÈRES
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 describe('Epressions régulières − Nouveaux types (classes)', () => {
@@ -25,7 +25,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[2]).toEqual("meuble"); // nouveau type
         expect(result[3]).toEqual("objet"); // type parent
         expect(result[4]).toBeUndefined(); // attribut(s)
-    })
+    });
 
     it('Nouveau type :  « Un fruit est un objet mangeable, léger et périssable »', () => {
         const result = ExprReg.xNouveauType.exec("Un fruit est un objet mangeable, léger et périssable");
@@ -107,7 +107,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
-//    ANALYSEUR
+//    [2/2] ANALYSEUR
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
@@ -155,12 +155,12 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.type); // trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
-        expect(ctxAnalyse.typesUtilisateur.has('fée')).toBeTrue(); // nouveau type retrouvé
-        expect(ctxAnalyse.typesUtilisateur.get('fée').intitule).toBe('fée'); // intitulé
-        expect(ctxAnalyse.typesUtilisateur.get('fée').nombre).toBe(Nombre.s); // nombre
-        expect(ctxAnalyse.typesUtilisateur.get('fée').typeParent).toBe('personne'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('fée').etats).toHaveSize(1); // attribut spécifique défini
-        expect(ctxAnalyse.typesUtilisateur.get('fée').etats[0]).toBe('magique'); // attribut spécifique
+        expect(ctxAnalyse.typesUtilisateur.has('fee')).toBeTrue(); // nouveau type retrouvé
+        expect(ctxAnalyse.typesUtilisateur.get('fee').intitule).toBe('fée'); // intitulé
+        expect(ctxAnalyse.typesUtilisateur.get('fee').nombre).toBe(Nombre.s); // nombre
+        expect(ctxAnalyse.typesUtilisateur.get('fee').typeParent).toBe('personne'); // type parent
+        expect(ctxAnalyse.typesUtilisateur.get('fee').etats).toHaveSize(1); // attribut spécifique défini
+        expect(ctxAnalyse.typesUtilisateur.get('fee').etats[0]).toBe('magique'); // attribut spécifique
         expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     });
@@ -268,7 +268,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBeTrue(); // type existant retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
-        expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('créature-magique'); // type parent
+        expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('creature-magique'); // type parent
         expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(2); // attributs spécifiques (1+1)
         expect(ctxAnalyse.erreurs).toHaveSize(1); // 1 erreur a été générée
     });

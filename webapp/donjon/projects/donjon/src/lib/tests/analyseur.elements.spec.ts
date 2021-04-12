@@ -13,7 +13,7 @@ import { ExprReg } from "../utils/compilation/expr-reg";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
-//    EXPRESSIONS RÉGULIÈRES
+//    [1/2] EXPRESSIONS RÉGULIÈRES
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
@@ -190,7 +190,7 @@ describe('Epressions régulières − Définition des éléments', () => {
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
-//    ANALYSEUR
+//    [2/2] ANALYSEUR
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
