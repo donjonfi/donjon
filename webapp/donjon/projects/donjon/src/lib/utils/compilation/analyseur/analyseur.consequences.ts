@@ -4,6 +4,8 @@ import { Instruction } from "../../../models/compilateur/instruction";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { Reaction } from "../../../models/compilateur/reaction";
 import { Regle } from "../../../models/compilateur/regle";
+import { AnalyseurUtils } from "./analyseur.utils";
+import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 
 export class AnalyseurConsequences {
 
@@ -17,7 +19,7 @@ export class AnalyseurConsequences {
    * @param el 
    * @returns 
    */
-  public static separerConsequences(consequencesBrutes: string, erreurs: string[], ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
+  public static separerConsequences(consequencesBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
 
     // on ajoute un «;» après les « fin si» si manquant (pour découper après cette instruction également.)
     consequencesBrutes = consequencesBrutes.replace(/fin si( )?(?!;|\]|\.)/g, "fin si;");
@@ -111,7 +113,7 @@ export class AnalyseurConsequences {
             // UN SI RAPIDE EST EN COURS
             if (prochaineInstructionAttendue) {
               prochaineInstructionAttendue = null;
-              AnalyseurConsequences.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", erreurs, regle, reaction, el, ligne);
+              AnalyseurConsequences.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", ctxAnalyse, regle, reaction, el, ligne);
               // UN BLOC EST COMMENCÉ
             } else if (indexBlocCondCommence != -1) {
               // console.log("prochainSiEstSinonSi=", prochainSiEstSinonSi);
@@ -119,7 +121,7 @@ export class AnalyseurConsequences {
               // >>> CAS SINONSI (sinon si)
               if (prochainSiEstSinonSi) {
                 if (dansBlocSinon[indexBlocCondCommence]) {
-                  AnalyseurConsequences.afficherErreurBloc("Un sinonsi peut suivre un si ou un autre sinonsi mais pas un sinon car le sinon doit être le dernier cas.", erreurs, regle, reaction, el, ligne);
+                  AnalyseurConsequences.afficherErreurBloc("Un sinonsi peut suivre un si ou un autre sinonsi mais pas un sinon car le sinon doit être le dernier cas.", ctxAnalyse, regle, reaction, el, ligne);
                 } else {
                   // on va ajouter l’instruction sinonsi dans le sinon de l’instruction conditionnelle ouverte
                   blocsSinonEnCours[indexBlocCondCommence].push(newInstruction);
@@ -144,7 +146,7 @@ export class AnalyseurConsequences {
               // >>> SINONSI ORPHELIN
               if (prochainSiEstSinonSi) {
                 prochainSiEstSinonSi = false;
-                AnalyseurConsequences.afficherErreurBloc("sinonsi orphelin.", erreurs, regle, reaction, el, ligne);
+                AnalyseurConsequences.afficherErreurBloc("sinonsi orphelin.", ctxAnalyse, regle, reaction, el, ligne);
 
                 // >>> CAS NORMAL
               } else {
@@ -211,7 +213,7 @@ export class AnalyseurConsequences {
 
                 // sinon il est orphelin
               } else {
-                AnalyseurConsequences.afficherErreurBloc("sinon orphelin.", erreurs, regle, reaction, el, ligne);
+                AnalyseurConsequences.afficherErreurBloc("sinon orphelin.", ctxAnalyse, regle, reaction, el, ligne);
               }
 
               // CAS C > FIN SI
@@ -219,7 +221,7 @@ export class AnalyseurConsequences {
 
               // si pas de si ouvert, erreur
               if (indexBlocCondCommence < 0) {
-                AnalyseurConsequences.afficherErreurBloc("fin si orphelin.", erreurs, regle, reaction, el, ligne);
+                AnalyseurConsequences.afficherErreurBloc("fin si orphelin.", ctxAnalyse, regle, reaction, el, ligne);
                 // si bloc conditionnel ouvert => le fermer
               } else {
                 indexBlocCondCommence -= 1;
@@ -230,7 +232,7 @@ export class AnalyseurConsequences {
 
               // CAS D > RIEN TROUVÉ
             } else {
-              AnalyseurConsequences.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), erreurs, regle, reaction, el, ligne);
+              AnalyseurConsequences.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), ctxAnalyse, regle, reaction, el, ligne);
             }
           }
         } // fin analyse de l’instruction
@@ -238,7 +240,7 @@ export class AnalyseurConsequences {
     } // fin parcours des instructions
 
     if (indexBlocCondCommence != -1) {
-      AnalyseurConsequences.afficherErreurBloc("fin si manquant (" + (indexBlocCondCommence + 1) + ").", erreurs, regle, reaction, el, ligne);
+      AnalyseurConsequences.afficherErreurBloc("fin si manquant (" + (indexBlocCondCommence + 1) + ").", ctxAnalyse, regle, reaction, el, ligne);
     }
 
     // console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructionsPrincipales);
@@ -255,17 +257,16 @@ export class AnalyseurConsequences {
   * @param el 
   * @param ligne 
   */
-  private static afficherErreurBloc(message, erreurs: string[], regle: Regle, reaction: Reaction, el: ElementGenerique, ligne: number) {
+  private static afficherErreurBloc(message, ctxAnalyse: ContexteAnalyse, regle: Regle, reaction: Reaction, el: ElementGenerique, ligne: number) {
     console.error("separerConsequences > " + message);
     if (ligne > 0) {
-      erreurs.push(("00000" + ligne).slice(-5) + " : conséquence : " + message);
+      AnalyseurUtils.ajouterErreur(ctxAnalyse, ligne, "conséquence : " + message);
     } else if (regle) {
-      let ev = regle.evenements[0];
-      erreurs.push("règle « " + Regle.regleIntitule(regle) + " » : " + message);
+      AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "règle « " + Regle.regleIntitule(regle) + " » : " + message);
     } else if (reaction) {
-      erreurs.push("élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : " + message);
+      AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : " + message);
     } else {
-      erreurs.push("----- : conséquence : " + message);
+      AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "----- : conséquence : " + message);
     }
   }
 }

@@ -251,7 +251,7 @@ export class Analyseur {
     // ==========================================================================================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       // résultat
-      ctx.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : " + phrase.phrase);
+      AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, phrase.phrase[0]);
       if (ctx.verbeux) {
         console.warn("=> PAS trouvé de signification.");
       }

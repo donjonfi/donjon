@@ -8,6 +8,7 @@ import { PhraseUtils } from "../../commun/phrase-utils";
 import { Regle } from "../../../models/compilateur/regle";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
+import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurRegle {
 
@@ -40,7 +41,7 @@ export class AnalyseurRegle {
             typeRegle = TypeRegle[motCle];
             evenements = PhraseUtils.getEvenements(resultRegle[2]);
             if (!evenements?.length) {
-              ctxAnalyse.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : évènement(s) : " + resultRegle[2]);
+              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "évènement(s) : " + resultRegle[2]);
             }
             break;
   
@@ -53,7 +54,7 @@ export class AnalyseurRegle {
           //   break;
   
           default:
-            ctxAnalyse.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : type règle : " + resultRegle[2]);
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "type règle : " + resultRegle[2]);
             console.error("tester regle: opérateur inconnu:", resultRegle[1]);
             typeRegle = TypeRegle.inconnu;
             break;

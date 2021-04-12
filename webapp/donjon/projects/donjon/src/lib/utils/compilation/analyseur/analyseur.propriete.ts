@@ -8,6 +8,7 @@ import { Propriete } from "../../../models/commun/propriete";
 import { Reaction } from "../../../models/compilateur/reaction";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { TypeValeur } from "../../../models/compilateur/type-valeur";
+import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurPropriete {
 
@@ -40,7 +41,7 @@ export class AnalyseurPropriete {
             console.warn("xPropriete: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
           }
         } else {
-          ctxAnalyse.erreurs.push(("00000" + phrase.ligne).slice(-5) + " : l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
         }
       }
 
@@ -52,7 +53,7 @@ export class AnalyseurPropriete {
         // RÉACTION
         if (nomProprieteCible === ("réaction")) {
           // - RETROUVER LA LISTE DES SUJETS
-          const listeSujets = AnalyseurPropriete.retrouverSujets(result[5], ctxAnalyse.erreurs, phrase);
+          const listeSujets = AnalyseurPropriete.retrouverSujets(result[5], ctxAnalyse, phrase);
           // s’il s’agit du sujet par défaut (aucun sujet)
           if (listeSujets.length === 0) {
             listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
@@ -93,7 +94,7 @@ export class AnalyseurPropriete {
 
 
   /** Retrouver les sujets (pour les réactions) */
-  private static retrouverSujets(sujets: string, erreurs: string[], phrase: Phrase) {
+  private static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
     const listeSujetsBruts = PhraseUtils.separerListeIntitules(sujets);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
@@ -104,7 +105,7 @@ export class AnalyseurPropriete {
         const sujetEpithete = resultGn[3]?.toLowerCase();
         listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
       } else {
-        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
       }
     });
     return listeSujets;

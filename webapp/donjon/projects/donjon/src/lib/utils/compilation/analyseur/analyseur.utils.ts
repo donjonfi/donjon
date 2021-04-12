@@ -25,7 +25,7 @@ export class AnalyseurUtils {
     /** Ajouter une nouvelle erreur. */
     public static ajouterErreur(ctx: ContexteAnalyse, ligne: number, erreur: string) {
         if (ligne) {
-            ctx.erreurs.push(("0000" + ligne).slice(-5) + erreur);
+            ctx.erreurs.push(("0000" + ligne).slice(-5) + " : " + erreur);
         } else {
             ctx.erreurs.push(erreur);
         }

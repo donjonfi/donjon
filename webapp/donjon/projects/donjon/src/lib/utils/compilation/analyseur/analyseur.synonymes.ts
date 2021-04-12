@@ -4,6 +4,7 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurSynonymes {
 
@@ -42,11 +43,11 @@ export class AnalyseurSynonymes {
               });
               resultatTrouve = ResultatAnalysePhrase.synonyme;
             } else {
-              ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
+              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
             }
           });
         } else {
-          ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’une action : action originale pas trouvée : " + infinitif);
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’une action : action originale pas trouvée : " + infinitif);
         }
       } else {
         // tester si l’original est un GROUPE NOMINAL
@@ -73,17 +74,17 @@ export class AnalyseurSynonymes {
                 // ajouter le synonyme à l’élément
                 elementTrouve.synonymes.push(synonyme);
               } else {
-                ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
+                AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
               }
             });
             resultatTrouve = ResultatAnalysePhrase.synonyme;
 
             // AUCUN élément trouvé
           } else if (elementsTrouves.length === 0) {
-            ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
             // PLUSIEURS éléments trouvés
           } else {
-            ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
           }
         }
       }

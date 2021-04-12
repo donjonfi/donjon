@@ -6,6 +6,7 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { Verification } from "../../../models/compilateur/verification";
+import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurAction {
 
@@ -62,15 +63,15 @@ export class AnalyseurAction {
           switch (motCle) {
             case 'refuser':
               action.verificationsBrutes = complement;
-              action.verifications = AnalyseurAction.testerRefuser(complement, phrase, ctxAnalyse.erreurs);
+              action.verifications = AnalyseurAction.testerRefuser(complement, phrase, ctxAnalyse);
               break;
             case 'exécuter':
               action.instructionsBrutes = complement;
-              action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse.erreurs, phrase.ligne);
+              action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
               break;
             case 'terminer':
               action.instructionsFinalesBrutes = complement;
-              action.instructionsFinales = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse.erreurs, phrase.ligne);
+              action.instructionsFinales = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
               break;
 
             default:
@@ -82,7 +83,7 @@ export class AnalyseurAction {
           if (ctxAnalyse.verbeux) {
             console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
           }
-          ctxAnalyse.erreurs.push(("0000" + phrase.ligne).slice(-5) + " : action pas trouvée : " + phrase.phrase);
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "action pas trouvée : " + phrase.phrase);
         }
         // action existante mise à jour
         return action;
@@ -108,7 +109,7 @@ export class AnalyseurAction {
             action.cibleCeci = new GroupeNominal(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
           }
 
-          action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse.erreurs, phrase.ligne);
+          action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
 
           ctxAnalyse.actions.push(action);
           // Renvoyer la nouvelle action
@@ -120,7 +121,7 @@ export class AnalyseurAction {
     }
   }
 
-  private static testerRefuser(complement: string, phrase: Phrase, erreurs: string[]) {
+  private static testerRefuser(complement: string, phrase: Phrase, ctxAnalyse: ContexteAnalyse) {
     let verification: Verification[] = [];
 
     // séparer les conditions avec le ";"
@@ -132,13 +133,13 @@ export class AnalyseurAction {
         const typeRefuser = result[1]; // si uniquement pour l'instant
         const condition = PhraseUtils.getCondition(result[2]);
         if (!condition) {
-          erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + result[2]);
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
         }
-        const consequences = AnalyseurConsequences.separerConsequences(result[3], erreurs, phrase.ligne);
+        const consequences = AnalyseurConsequences.separerConsequences(result[3], ctxAnalyse, phrase.ligne);
         verification.push(new Verification([condition], consequences));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
-        erreurs.push(("00000" + phrase.ligne).slice(-5) + " : refuser : " + cond);
+        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "refuser : " + cond);
       }
     });
 
