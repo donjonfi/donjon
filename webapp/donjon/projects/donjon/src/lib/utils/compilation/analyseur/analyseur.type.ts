@@ -53,8 +53,7 @@ export class AnalyseurType {
 
                 // si type parent a déjà été précisé, ajouter une erreur
                 if (typeExistant.typeParent !== EClasseRacine.objet) {
-
-                    AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Type défini plusieurs fois (" + typeExistant.intitule + "). Seul le type parent le plus récent est conservé (" + typeExistant.typeParent + ")");
+                    AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Le type parent de « " + typeExistant.intitule + " » a été défini plusieurs fois. Seul le plus récent sera conservé : « " + typeExistant.typeParent + " ».");
                 }
 
                 // ajouter les nouveaux attributs

@@ -1,175 +1,118 @@
-import { EClasseRacine } from "../models/commun/constantes";
-import { Genre } from "../models/commun/genre.enum";
 import { Nombre } from "../models/commun/nombre.enum";
 import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
 import { Definition } from "../models/compilateur/definition";
-import { PositionSujetString } from "../models/compilateur/position-sujet";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 import { Analyseur } from "../utils/compilation/analyseur/analyseur";
-import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
-import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
-import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
 import { Compilateur } from "../utils/compilation/compilateur";
+import { ExprReg } from "../utils/compilation/expr-reg";
 
-describe('Analyseur − Définition de nouveaux éléments', () => {
 
-    // =========================================================
-    // ÉLÉMENTS SANS POSITION
-    // =========================================================
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    EXPRESSIONS RÉGULIÈRES
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+describe('Epressions régulières − Nouveaux types (classes)', () => {
 
-    it('Élément sans pos: « La cuisine est un lieu. »', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            "La cuisine est un lieu."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-        // tester l’analyse spécifique
-        const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
-        expect(el).not.toBeNull(); // élément trouvé
-        ctxAnalyse.dernierElementGenerique = el; // dernier élément trouvé
-        expect(el.determinant).toEqual('la '); // déterminant
-        expect(el.nom).toEqual('cuisine'); // nom
-        expect(el.epithete).toBeUndefined(); // épithète pas défini
-        expect(el.genre).toEqual(Genre.f); // genre
-        expect(el.nombre).toEqual(Nombre.s); // nombre
-        expect(el.quantite).toEqual(1); // quantité
-        expect(el.classeIntitule).not.toBeNull(); // intitulé classe défini
-        expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
-        expect(el.positionString).toBeNull(); // position pas définie
-        AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-        expect(el.description).toBeNull(); // desrcription pas définie
-        expect(el.capacites).toHaveSize(0); // aucune capacité
-        expect(el.attributs).toHaveSize(0); // aucun attribut
-        expect(el.proprietes).toHaveSize(0); // aucune propriété
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // TYPE UTILISATEUR > NOUVEAU TYPE
+    // - un/une(1) nouveauType(2) est un/une typeParent(3) {attributs}(4)
 
+    it('Nouveau type :  « Un meuble est un objet »', () => {
+        const result = ExprReg.xNouveauType.exec("Un meuble est un objet");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("Un"); // déterminant
+        expect(result[2]).toEqual("meuble"); // nouveau type
+        expect(result[3]).toEqual("objet"); // type parent
+        expect(result[4]).toBeUndefined(); // attribut(s)
+    })
+
+    it('Nouveau type :  « Un fruit est un objet mangeable, léger et périssable »', () => {
+        const result = ExprReg.xNouveauType.exec("Un fruit est un objet mangeable, léger et périssable");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("Un"); // déterminant
+        expect(result[2]).toEqual("fruit"); // nouveau type
+        expect(result[3]).toEqual("objet"); // type parent
+        expect(result[4]).toEqual("mangeable, léger et périssable"); // attribut(s)
     });
 
-    it('Élément sans pos: « Paris (f) est un lieu gris. "Vous êtes dans Paris.". »', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            'Paris (f) est un lieu gris. "Vous êtes dans Paris.".'
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(2); // 2 morceaux
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-        // tester l’analyse spécifique
-        const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
-        expect(el).not.toBeNull(); // élément trouvé
-        ctxAnalyse.dernierElementGenerique = el; // dernier élément trouvé
-        expect(el.determinant).toBeNull(); // déterminant
-        expect(el.nom).toEqual('Paris'); // nom
-        expect(el.epithete).toBeUndefined(); // épithète pas défini
-        expect(el.genre).toEqual(Genre.f); // genre
-        expect(el.nombre).toEqual(Nombre.s); // nombre
-        expect(el.quantite).toEqual(1); // quantité
-        expect(el.classeIntitule).not.toBeNull(); // intitulé classe défini
-        expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
-        expect(el.positionString).toBeNull(); // position pas définie
-        AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-        expect(el.description).toBe('Vous êtes dans Paris.'); // desrcription définie
-        expect(el.capacites).toHaveSize(0); // aucune capacité
-        expect(el.attributs).toHaveSize(1); // aucun attribut
-        expect(el.proprietes).toHaveSize(0); // aucune propriété
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
-    });
-
-    it('Élément sans pos: « La château du comte est un lieu au nord du village. » (💥)', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            "La château du comte est un lieu au nord du village."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-        // tester l’analyse spécifique
-        const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
-        expect(resultat).toBeNull(); // résultat PAS trouvé.
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
-    });
-
-    it('Élément sans pos: « Un lutin est une personne. » (💥)', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            "Un lutin est une personne."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
-        // tester l’analyse spécifique
-        const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
-        expect(resultat).toBeNull(); // résultat PAS trouvé.
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
+    it('Nouveau type :  « un lutin est une personne bavarde »', () => {
+        const result = ExprReg.xNouveauType.exec("un lutin est une personne bavarde");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("un"); // déterminant
+        expect(result[2]).toEqual("lutin"); // nouveau type
+        expect(result[3]).toEqual("personne"); // type parent
+        expect(result[4]).toEqual("bavarde"); // attribut(s)
     });
 
 
-    // =========================================================
-    // ÉLÉMENT AVEC POSITION
-    // =========================================================
-
-
-    it('Élément pos: « Le château du comte est un lieu au nord du village. »', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            "Le château du comte est un lieu au nord du village."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-        // tester l’analyse spécifique
-        const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
-        expect(el).not.toBeNull(); // élément trouvé
-        ctxAnalyse.dernierElementGenerique = el; // dernier élément trouvé
-        expect(el.determinant).toEqual('le '); // déterminant
-        expect(el.nom).toEqual('château du comte'); // nom de l’élément
-        expect(el.epithete).toBeUndefined(); // épithète pas défini
-        expect(el.genre).toEqual(Genre.m); // genre
-        expect(el.nombre).toEqual(Nombre.s); // nombre
-        expect(el.quantite).toEqual(1); // quantité
-        expect(el.classeIntitule).not.toBeNull(); // intitulé classe défini
-        expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
-        expect(el.positionString).not.toBeNull(); // position définie
-        expect(el.positionString).toEqual(new PositionSujetString('château du comte', 'village', 'au nord du ')); // position
-        AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-        expect(el.description).toBeNull(); // desrcription pas définie
-        expect(el.capacites).toHaveSize(0); // aucune capacité
-        expect(el.attributs).toHaveSize(0); // aucun attribut
-        expect(el.proprietes).toHaveSize(0); // aucune propriété
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
+    it('Nouveau type :  « le lutin est une personne bavarde » (💥)', () => {
+        const result = ExprReg.xNouveauType.exec("le lutin est une personne bavarde");
+        expect(result).toEqual(null);
     });
 
-
-    it('Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
-            "L’abri est un lieu sombre."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-        // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-        // tester l’analyse spécifique
-        const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
-        expect(resultat).toBeNull(); // résultat PAS trouvé.
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
+    it('Nouveau type :  « Un meuble est fixé » (💥)', () => {
+        const result = ExprReg.xNouveauType.exec("Un meuble est fixé");
+        expect(result).toEqual(null);
     });
+
+    // TYPE UTILISATEUR > PRÉCISION TYPE
+    // - un/une(1) type(2) est {attributs}(3)
+
+    it('Précision type :  « Un meuble est fixé »', () => {
+        const result = ExprReg.xPrecisionType.exec("Un meuble est fixé");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("Un"); // déterminant
+        expect(result[2]).toEqual("meuble"); // nouveau type
+        expect(result[3]).toEqual("fixé"); // attribut(s)
+    });
+
+    it('Précision type :  « un chien est affectueux et poilu »', () => {
+        const result = ExprReg.xPrecisionType.exec("un chien est affectueux et poilu");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("un"); // déterminant
+        expect(result[2]).toEqual("chien"); // nouveau type
+        expect(result[3]).toEqual("affectueux et poilu"); // attribut(s)
+    });
+
+    it('Précision type :  « Un lutin est bavard, peureux et farceur »', () => {
+        const result = ExprReg.xPrecisionType.exec("Un lutin est bavard, peureux et farceur");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("Un"); // déterminant
+        expect(result[2]).toEqual("lutin"); // nouveau type
+        expect(result[3]).toEqual("bavard, peureux et farceur"); // attribut(s)
+    });
+
+    it('Précision type :  « Un meuble est un objet » (💥)', () => {
+        const result = ExprReg.xPrecisionType.exec("Un meuble est un objet");
+        expect(result).toEqual(null);
+    });
+
+    it('Précision type :  « Un fruit est un objet mangeable, léger et périssable » (💥)', () => {
+        const result = ExprReg.xPrecisionType.exec("Un fruit est un objet mangeable, léger et périssable");
+        expect(result).toEqual(null);
+    });
+
+    it('Précision type :  « Un lutin est une personne bavarde » (💥)', () => {
+        const result = ExprReg.xPrecisionType.exec("Un lutin est une personne bavarde");
+        expect(result).toEqual(null);
+    });
+
+    it('Précision type :  « Le meuble est fixé » (💥)', () => {
+        const result = ExprReg.xPrecisionType.exec("Le meuble est fixé");
+        expect(result).toEqual(null);
+    });
+
 });
 
-describe('Analyseur − Définition de nouveaux types', () => {
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    ANALYSEUR
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
+
+describe('Analyseur − Nouveaux types (classes)', () => {
 
     // =========================================================
     // NOUVEAUX TYPES
