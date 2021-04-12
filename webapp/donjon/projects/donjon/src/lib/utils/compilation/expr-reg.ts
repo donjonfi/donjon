@@ -123,19 +123,28 @@ export class ExprReg {
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
 
   /** Propriété
-   * - son|sa propriété(1) est|vaut(6) valeur(7)
-   * - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(6) valeur(7)
-   * - sa réaction(1) (concernant le)(4) sujet(5) est|vaut(6) valeur(7)
-   * - la réaction(2) du|de la|de l' complément(3) (au sujet du|de la)(4) sujet(5) est|vaut(6) valeur(7)
-   * - Ex: Sa réaction est "Je viens avec vous.".
-   * - Ex: La description du bateau est "C’est un fameux rafio.".
-   * - Ex: Sa réaction à propos de la pomme ou des poires est "C’est bon pour la santé.".
-   * - Ex: Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !".
-   * - Ex: La réaction du capitaine concernant les pirates est "Aïe aïe aïe…".
-   * - Ex: La réaction du capitaine concernant les pirates, les méchants hargneux ou les malfrats est "Aïe aïe aïe…"
-   * - Ex: La réaction du schérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
+   * - Découpage :
+   *     - son|sa propriété(1) est|vaut(6) valeur(7)
+   *     - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(6) valeur(7)
+   *     - sa réaction(1) (concernant le)(4) sujet(5) est|vaut(6) valeur(7)
+   *     - la réaction(2) du|de la|de l' complément(3) (au sujet du|de la)(4) sujet(5) est|vaut(6) valeur(7)
+   * - Exemples :
+   *     - Sa réaction est "Je viens avec vous.".
+   *     - La description du bateau est "C’est un fameux rafio.".
+   *     - Sa réaction à propos de la pomme ou des poires est "C’est bon pour la santé.".
+   *     - Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !".
+   *     - La réaction du capitaine concernant les pirates est "Aïe aïe aïe…".
+   *     - La réaction du capitaine concernant les pirates, les méchants hargneux ou les malfrats est "Aïe aïe aïe…"
+   *     - La réaction du schérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
+   * - Tests unitaires :
+   *     - Son texte est "Voici ce qui est écrit"
+   *     - Sa valeur vaut 3
+   *     - La description du bateau est "C’est un fameux rafio"
+   *     - La réaction du capitaine du bateau concernant le trésor est "Vous ne l’aurez pas !"
+   *     - La réaction de la cavalière hantée au sujet des bois, de la prairie ou des fleurs est dire "C’est naturel"; dire "Quoi d’autre ?"
+   *     - Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !"
    */
-  static readonly xPropriete = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?(?: (.+))?$/i;
+  static readonly xProprieteReaction = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:du |de la |des |la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:du |de la |des |la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut)(?:(?: )?\:(?: )?)?(?: (.+))?$/i;
 
   /** capacité -> verbe(1) complément(2) */
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;

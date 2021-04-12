@@ -16,7 +16,7 @@ export class AnalyseurPropriete {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xPropriete.exec(phrase.phrase[0]);
+    const result = ExprReg.xProprieteReaction.exec(phrase.phrase[0]);
     if (result) {
       let elementCible: ElementGenerique = null;
       let nomProprieteCible: string = null;

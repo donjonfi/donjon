@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LecteurComponent } from '../lecteur/lecteur.component';
 
-describe('LecteurComponent', () => {
-  let component: LecteurComponent;
-  let fixture: ComponentFixture<LecteurComponent>;
+// describe('LecteurComponent', () => {
+//   let component: LecteurComponent;
+//   let fixture: ComponentFixture<LecteurComponent>;
 
   // beforeEach(async () => {
   //   await TestBed.configureTestingModule({
@@ -24,4 +24,4 @@ describe('LecteurComponent', () => {
   // });
 
 
-});
+// });
