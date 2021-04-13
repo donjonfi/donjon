@@ -26,13 +26,13 @@ export class AnalyseurAttributs {
       const attributsBruts = result[3];
 
       // définir type de l'élément précédent
-      if (type?.trim() !== '') {
-        ctxAnalyse.dernierElementGenerique.classeIntitule = ClasseUtils.getClasseIntitule(result[2]);
+      if (type && type.trim() !== '') {
+        ctxAnalyse.dernierElementGenerique.classeIntitule = type;
       }
       // attributs de l'élément précédent
-      if (attributsBruts?.trim() !== '') {
+      if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
-        const nouveauAttributs = PhraseUtils.separerListeIntitules(result[1]);
+        const nouveauAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
         // ajouter les attributs
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
@@ -61,7 +61,7 @@ export class AnalyseurAttributs {
       const attributsBruts = result[1];
 
       // attributs de l'élément précédent
-      if (attributsBruts?.trim() !== '') {
+      if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
         const nouveauAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
         // ajouter les attributs
