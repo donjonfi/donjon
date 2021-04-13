@@ -18,7 +18,11 @@ export class StringUtils {
     return fileName;
   }
 
-  /** Retirer déterminant et caractères spéciaux et mettre le mot en minuscules */
+  /** 
+   * - Retirer déterminant
+   * - Retirer caractères spéciaux
+   * - mettre le mot en minuscules
+   */
   static normaliserMot(mot: string) {
     let retVal = "";
     if (mot) {

@@ -14,9 +14,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
-import { MotUtils } from '../commun/mot-utils';
 import { Definition } from '../../models/compilateur/definition';
-import { AnalyseurUtils } from './analyseur/analyseur.utils';
 
 export class Compilateur {
 
@@ -64,14 +62,38 @@ export class Compilateur {
     // le monde qui est décrit
     let monde = new Monde();
 
+    // CLASSES
     // retrouver les types utilisateurs (classes)
     ctxAnalyse.typesUtilisateur.forEach(def => {
       Compilateur.ajouterClasseDuTypeUtilisateur(def.intitule, ctxAnalyse, monde);
     });
 
-    // retrouver les éléments génériques
+    // CLASSE ÉVÈNEMENTS DES RÈGLES
+    // parcour des règles
+    ctxAnalyse.regles.forEach(regle => {
+      // parcour des évènements de la règle
+      regle.evenements.forEach(evenement => {
+        // retrouver classe de ceci
+        if (evenement.isCeci) {
+          const ceciEstClasse = (evenement.ceci.match(/^un(e)? /i));
+          if (ceciEstClasse) {
+            evenement.classeCeci = ClasseUtils.trouverOuCreerClasse(monde.classes, evenement.ceci);
+          }
+        }
+        // retrouver classe de cela
+        if (evenement.isCela) {
+          const celaEstClasse = (evenement.cela.match(/^un(e)? /i));
+          if (celaEstClasse) {
+            evenement.classeCela = ClasseUtils.trouverOuCreerClasse(monde.classes, evenement.cela);
+          }
+        }
+      });
+    });
+
+    // ÉLÉMENTS
+    // définir la classe des éléments génériques et les trier.
     ctxAnalyse.elementsGeneriques.forEach(el => {
-      el.classe = Compilateur.trouverClasse(monde.classes, el.classeIntitule);
+      el.classe = ClasseUtils.trouverOuCreerClasse(monde.classes, el.classeIntitule);
       // objets
       if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
         monde.objets.push(el);
@@ -93,6 +115,7 @@ export class Compilateur {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe);
       }
     });
+
 
     // *************************
     // SÉPARER LES CONSÉQUENCES
@@ -289,22 +312,6 @@ export class Compilateur {
     return phrases;
   }
 
-
-  private static trouverClasse(classes: Classe[], nom: string): Classe {
-    const recherche = StringUtils.normaliserMot(nom);
-
-    // console.log("TROUVER CLASSE: recherche=", recherche, "classes=", classes);
-
-    let retVal = classes.find(x => x.nom === recherche);
-
-    // si aucune classe trouvée, créer nouvelle classe dérivée d’un objet.
-    if (retVal == null) {
-      retVal = new Classe(recherche, nom, ClassesRacines.Objet, 2, []);
-      classes.push(retVal);
-    }
-
-    return retVal;
-  }
 
   private static ajouterClasseDuTypeUtilisateur(nomTypeUtilisateur, ctxAnalyse: ContexteAnalyse, monde: Monde): Classe {
 

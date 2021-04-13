@@ -70,7 +70,7 @@ export class AnalyseurElementPosition {
         result[1] ? result[1].toLowerCase() : null,
         result[2],
         result[3],
-        ClasseUtils.getClasseIntitule(result[5]),
+        ClasseUtils.getIntituleNormalise(result[5]),
         null,
         new PositionSujetString(result[2].toLowerCase() + (result[3] ? (' ' + result[3].toLowerCase()) : ''), result[8].toLowerCase(), result[7]),
         MotUtils.getGenre(result[1], estFeminin),
@@ -88,7 +88,7 @@ export class AnalyseurElementPosition {
       }
 
       // Pour les humains, on peut déterminer le genre selon que c'est un homme ou une femme
-      switch (newElementGenerique.classeIntitule) {
+      switch (newElementGenerique.classeIntitule.toLocaleLowerCase()) {
         case 'homme':
         case 'hommmes':
           newElementGenerique.genre = Genre.m;
@@ -116,7 +116,7 @@ export class AnalyseurElementPosition {
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
         intituleClasse = nom;
-        type = ClasseUtils.getClasseIntitule(intituleClasse);
+        type = ClasseUtils.getIntituleNormalise(intituleClasse);
         attributsString = epithete;
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
@@ -209,7 +209,7 @@ export class AnalyseurElementPosition {
           elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
         }
         // - màj type élément de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.classeIntitule !== EClasseRacine.objet) {
+        if ((elementConcerne == elementGeneriqueFound) && ClasseUtils.getIntituleNormalise(newElementGenerique.classeIntitule) !== EClasseRacine.objet) {
           elementConcerne.classeIntitule = newElementGenerique.classeIntitule;
         }
 

@@ -354,7 +354,7 @@ export class Generateur {
         lieu.voisins.push(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
-        if (elVoisin.classeIntitule == EClasseRacine.lieu) {
+        if (elVoisin.classe.nom == EClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
           const newVoisin = new Voisin(lieuTrouveID, elVoisin.classe.nom, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);

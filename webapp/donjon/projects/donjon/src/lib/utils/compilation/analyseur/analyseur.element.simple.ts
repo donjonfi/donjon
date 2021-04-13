@@ -63,7 +63,7 @@ export class AnalyseurElementSimple {
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
       epithete = result[3];
-      intituleClasse = ClasseUtils.getClasseIntitule(result[5]);
+      intituleClasse = ClasseUtils.getIntituleNormalise(result[5]);
       genre = MotUtils.getGenre(result[1], estFeminin);
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1]);
@@ -175,9 +175,9 @@ export class AnalyseurElementSimple {
         elementConcerne = elementGeneriqueTrouve;
 
         // - type d'élément
-        if (nouvelElementGenerique.classeIntitule !== EClasseRacine.objet) {
+        if (ClasseUtils.getIntituleNormalise(nouvelElementGenerique.classeIntitule) !== EClasseRacine.objet) {
           // s'il y avait déjà un type défini, c'est un autre élément donc finalement on va quand même l’ajouter
-          if (elementGeneriqueTrouve.classeIntitule !== EClasseRacine.objet) {
+          if (ClasseUtils.getIntituleNormalise(elementGeneriqueTrouve.classeIntitule) !== EClasseRacine.objet) {
             ctxAnalyse.elementsGeneriques.push(nouvelElementGenerique);
             // finalement c’est le nouvel élément qui est concerné
             elementConcerne = nouvelElementGenerique;

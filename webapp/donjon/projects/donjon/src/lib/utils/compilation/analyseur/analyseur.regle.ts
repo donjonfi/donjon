@@ -17,50 +17,37 @@ export class AnalyseurRegle {
    */
      public static testerPourRegle(phrase: Phrase, ctxAnalyse: ContexteAnalyse) : Regle{
       let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.phrase[0]);
-  
+
       if (resultRegle !== null) {
   
         let typeRegle: TypeRegle;
         let motCle = StringUtils.normaliserMot(resultRegle[1]);
-        let condition: Condition = null;
+        let evenementsBruts = resultRegle[2];
+        let consequencesBrutes = resultRegle[3];
+
         let evenements: Evenement[] = null;
+        let condition: Condition = null;
         let commande: ElementsPhrase = null;
   
         switch (motCle) {
-          // case 'si':
-          //   typeRegle = TypeRegle.si;
-          //   condition = PhraseUtils.getCondition(resultRegle[2]);
-          //   if (!condition) {
-          //     erreurs.push(("00000" + phrase.ligne).slice(-5) + " : condition : " + resultRegle[2]);
-          //   }
-          //   break;
-  
-          // case 'quand':
+
           case 'avant':
           case 'apres':
             typeRegle = TypeRegle[motCle];
-            evenements = PhraseUtils.getEvenements(resultRegle[2]);
+            evenements = PhraseUtils.getEvenementsRegle(evenementsBruts);
             if (!evenements?.length) {
-              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "évènement(s) : " + resultRegle[2]);
+              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "évènement(s) : " + evenementsBruts);
             }
             break;
   
-          // case 'remplacer':
-          //   typeRegle = TypeRegle.remplacer;
-          //   commande = PhraseUtils.getCommande(resultRegle[2]);
-          //   if (!commande) {
-          //     erreurs.push(("00000" + phrase.ligne).slice(-5) + " : commande : " + resultRegle[2]);
-          //   }
-          //   break;
-  
           default:
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "type règle : " + resultRegle[2]);
-            console.error("tester regle: opérateur inconnu:", resultRegle[1]);
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "type règle : " + motCle);
+            console.error("tester regle: opérateur inconnu:", motCle);
             typeRegle = TypeRegle.inconnu;
             break;
         }
   
-        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, resultRegle[3]);
+        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, consequencesBrutes);
   
         ctxAnalyse.regles.push(nouvelleRegle);
   

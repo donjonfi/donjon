@@ -56,9 +56,10 @@
             Événement {{(i+1)}} :
             <ul>
               <li>Infinitif : {{curEv.infinitif}}</li>
-              <li *ngIf="curEv.ceci">Ceci : {{curEv.ceci}}</li>
+              <li *ngIf="curEv.ceci">
+                Ceci : {{curEv.ceci}} <i>{{(curEv.classeCeci ? '(classe)' : '')}}</i></li>
               <li *ngIf="curEv.preposition">Preposition : {{curEv.preposition}}</li>
-              <li *ngIf="curEv.cela">Cela : {{curEv.cela}}</li>
+              <li *ngIf="curEv.cela">Cela : {{curEv.cela}} <i>{{(curEv.classeCela ? '(classe)' : '')}}</i></li>
             </ul>
           </li>
         </ul>

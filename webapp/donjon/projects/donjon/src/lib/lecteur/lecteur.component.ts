@@ -19,6 +19,7 @@ import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
 import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
+import { ClassesRacines } from '../models/commun/classes-racines';
 
 @Component({
   selector: 'djn-lecteur',
@@ -100,7 +101,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.sortieJoueur += "<p>";
 
         // évènement COMMENCER JEU
-        let evCommencerJeu = new Evenement('commencer', 'jeu');
+        let evCommencerJeu = new Evenement('commencer', true, 'jeu', ClassesRacines.Special);
 
         // éxécuter les instructions AVANT le jeu commence
         let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
@@ -339,14 +340,24 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     if (els) {
 
-      const ceciIntitule = els.sujet;
-      const celaIntitule = els.sujetComplement1;
-      const ceciNom = ceciIntitule ? (ceciIntitule.nom + (ceciIntitule.epithete ? (" " + ceciIntitule.epithete) : "")) : null;
-      const celaNom = celaIntitule ? (celaIntitule.nom + (celaIntitule.epithete ? (" " + celaIntitule.epithete) : "")) : null;
-      const resultatCeci = ceciIntitule ? this.eju.trouverCorrespondance(ceciIntitule, true, true) : null;
-      const resultatCela = celaIntitule ? this.eju.trouverCorrespondance(celaIntitule, true, true) : null;
+      const isCeciV1 = els.sujet ? true : false;
+      const ceciIntituleV1 = els.sujet;
+      const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
+      const ceciClasseV1 = null;
+      const resultatCeci = isCeciV1 ? this.eju.trouverCorrespondance(ceciIntituleV1, true, true) : null;
 
-      let evenement = new Evenement(els.infinitif, ceciNom, null, els.preposition1, celaNom);
+      const isCelaV1 = els.sujetComplement1 ? true : false;
+      const celaIntituleV1 = els.sujetComplement1;
+      const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
+      const celaClasseV1 = null;
+      const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
+
+      let evenement = new Evenement(
+        els.infinitif,
+        isCeciV1, ceciNomV1, ceciClasseV1,
+        els.preposition1,
+        isCelaV1, celaNomV1, celaClasseV1
+      );
 
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
@@ -367,10 +378,10 @@ export class LecteurComponent implements OnInit, OnChanges {
           if (actionCeciCela === -1) {
             retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
             // vérifier si on a trouvé les éléments de la commande.
-            if (ceciIntitule) {
+            if (ceciIntituleV1) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCeci.nbCor === 0) {
-                retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntitule) + " ».)+}";
+                retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntituleV1) + " ».)+}";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 // vérifier si les objets de la commande sont visibles
@@ -381,10 +392,10 @@ export class LecteurComponent implements OnInit, OnChanges {
                 }
               }
             }
-            if (celaIntitule) {
+            if (celaIntituleV1) {
               // ON N'A PAS TROUVÉ L'OBJET
               if (resultatCela.nbCor === 0) {
-                retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntitule) + " ».)+}";
+                retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntituleV1) + " ».)+}";
               } else {
                 // ON NE VOIT PAS L'OBJET
                 if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
@@ -406,14 +417,20 @@ export class LecteurComponent implements OnInit, OnChanges {
             // console.warn("commande: ", els);
           } else if (actionCeciCela) {
 
+            const isCeciV2 = actionCeciCela.ceci ? true : false;
+            const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
+            const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
+
+            const isCelaV2 = actionCeciCela.cela ? true : false;
+            const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
+            const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
+
             // mettre à jour l'évènement avec les éléments trouvés
             evenement = new Evenement(
               actionCeciCela.action.infinitif,
-              (actionCeciCela.ceci ? actionCeciCela.ceci.nom : null),
-              (actionCeciCela.ceci ? actionCeciCela.ceci.classe : null),
+              isCeciV2, ceciNomV2, ceciClasseV2,
               els.preposition1,
-              (actionCeciCela.cela ? actionCeciCela.cela.nom : null),
-              (actionCeciCela.cela ? actionCeciCela.cela.classe : null)
+              isCelaV2, celaNomV2, celaClasseV2
             );
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
@@ -604,7 +621,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
       // TODO: vérifier s’il s’agit du type (descendants de élémentsJeux)
       ceciCela.elements.forEach(ele => {
-        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getClasseIntitule(candidatCeciCela.nom))) {
+        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCela.nom))) {
           if (retVal === null) {
             // s'il doit s'agir d'un objet visible, vérifier
             // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
@@ -625,11 +642,11 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // si ce n'est pas un élément du jeu,
       //  - vérifier direction
-      if (retVal == null && ceciCela.localisation && (ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule)) {
+      if (retVal == null && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
         retVal = ceciCela.localisation;
       }
       //  - vérifier intitué
-      if (retVal == null && ClasseUtils.getClasseIntitule(candidatCeciCela.nom) === EClasseRacine.intitule) {
+      if (retVal == null && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
         retVal = ceciCela.intitule;
       }
 
