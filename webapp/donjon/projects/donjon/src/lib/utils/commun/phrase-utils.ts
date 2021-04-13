@@ -4,6 +4,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { ClasseUtils } from './classe-utils';
 
 export class PhraseUtils {
 
@@ -227,7 +228,7 @@ export class PhraseUtils {
     }
   }
 
-  public static getEvenements(evenementsBruts: string) {
+  public static getEvenementsRegle(evenementsBruts: string) {
     // découper les attributs, les séparateurs possibles sont «, », et « ou ».
     const evenementsSepares = PhraseUtils.separerListeIntitules(evenementsBruts);
     let retVal: Evenement[] = [];
@@ -236,7 +237,22 @@ export class PhraseUtils {
       let els = PhraseUtils.decomposerCommande(evenementBrut.trim());
       // si on a trouvé une formulation correcte
       if (els) {
-        retVal.push(new Evenement(els.infinitif, (els.sujet ? (els.sujet.nom + (els.sujet.epithete ? (" " + els.sujet.epithete) : "")) : null), null, els.preposition1, (els.sujetComplement1 ? (els.sujetComplement1.nom + (els.sujetComplement1.epithete ? (" " + els.sujetComplement1.epithete) : "")) : null)));
+        const isCeci = els.sujet ? true : false;
+        const ceci = els.sujet;
+        const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")) : null);
+        const ceciClasse = null;
+        // const ceciEstClasse = (isCeci && (ceci?.match(/un(e)? /i) ?? false));
+
+        const isCela = els.sujetComplement1 ? true : false;
+        const cela = els.sujetComplement1;
+        const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")) : null);
+        const celaClasse = null;
+        // const celaEstClasse = (isCela && (cela.determinant?.match(/un(e)? /i) ?? false));
+
+        const ev = new Evenement(els.infinitif, isCeci, ceciNom, ceciClasse, els.preposition1, isCela, celaNom, celaClasse);
+
+        retVal.push(ev);
+
       } else {
         console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
       }
