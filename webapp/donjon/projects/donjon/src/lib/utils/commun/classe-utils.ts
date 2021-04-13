@@ -1,5 +1,7 @@
 import { Classe } from '../../models/commun/classe';
+import { ClassesRacines } from '../../models/commun/classes-racines';
 import { EClasseRacine } from '../../models/commun/constantes';
+import { MotUtils } from './mot-utils';
 import { StringUtils } from './string.utils';
 
 export class ClasseUtils {
@@ -17,80 +19,55 @@ export class ClasseUtils {
     return retVal;
   }
 
-  public static getClasseIntitule(classeElement: string): EClasseRacine | string {
-    let retVal: EClasseRacine | string = EClasseRacine.objet;
+  public static getIntituleNormalise(intituleClasse: string): string {
+    // si pas de classe, on renvoit « objet ».
+    let retVal: string = EClasseRacine.objet;
 
-    if (classeElement) {
-      switch (classeElement.trim().toLocaleLowerCase()) {
+    let nomNormalise = intituleClasse.trim();
+    // si classe définie, normaliser le nom
+    if (nomNormalise) {
+      // enlever caractères spéciaux, déterminant et majuscules.
+      nomNormalise = StringUtils.normaliserMot(intituleClasse);
+      // mettre le mot au singulier
+      nomNormalise =  MotUtils.getSingulier(nomNormalise);
+     
+      switch (nomNormalise) {
 
-        case "intitulé":
-        case "intitule":
-        case "intitulés":
-        case "intitules":
-          retVal = EClasseRacine.intitule;
-          break;
-
-        case "objet":
-        case "objets":
-          retVal = EClasseRacine.objet;
-          break;
-
-        case "animal":
-        case "animaux":
-          retVal = EClasseRacine.animal;
-          break;
-        case "personne":
-        case "personnes":
+        // homme, femme => personne
         case "homme":
-        case "hommes":
         case "femme":
-        case "femmes":
           retVal = EClasseRacine.personne;
-          break;
-        // case "clé":
-        // case "cle":
-        // case "clef":
-        // case "clefs":
-        // case "clés":
-        // case "cles":
-        //   retVal = ClasseRacine.cle;
-        //   break;
-        case "contenant":
-        case "contenants":
-          retVal = EClasseRacine.contenant;
-          break;
-        case "support":
-        case "supports":
-          retVal = EClasseRacine.support;
-          break;
-        // case "décors":
-        // case "décor":
-        // case "decor":
-        // case "decors":
-        //   retVal = ClasseRacine.decor;
-        //   break;
-
-        case "porte":
-        case "portes":
-          retVal = EClasseRacine.porte;
-          break;
-        case "lieu":
-        case "lieux":
-          retVal = EClasseRacine.lieu;
-          break;
-
-        case "joueur":
-        case "joueurs":
-          retVal = EClasseRacine.joueur;
           break;
 
         default:
-          retVal = classeElement; // EClasseRacine.objet;
+          // mettre le mot au singulier selon les gèles les plus courantes en FR
+          retVal = nomNormalise;
           break;
       }
     }
     return retVal;
   }
 
-}
+  /**
+   * Retrouver la classe correspondante parmis la liste fournie sur base de l’intitulé fourni.
+   * Si la classe n’est pas trouvée, elle est crée et ajoutée à la liste, comme nouveau dérivé de la classe « objet ».
+   * @param classes Liste des classes 
+   * @param intitule Intitulé de la classe à retrouver.
+   * @returns Classe trouvée ou créée.
+   */
+  public static trouverOuCreerClasse(classes: Classe[], intitule: string): Classe {
+    // effectuer la recherche sur base de l’intitulé normalisé
+    const intituleNormalise = ClasseUtils.getIntituleNormalise(intitule);
 
+    let retVal = classes.find(x => x.nom === intituleNormalise);
+
+    // si aucune classe trouvée, créer nouvelle classe dérivée d’un objet.
+    if (retVal == null) {
+      retVal = new Classe(intituleNormalise, intitule, ClassesRacines.Objet, 2, []);
+      classes.push(retVal);
+    }
+
+    return retVal;
+  }
+  
+}
