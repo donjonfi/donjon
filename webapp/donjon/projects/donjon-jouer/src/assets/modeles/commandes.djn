@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-03-15-0019
+-- Version: 2021-04-13-0020
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -231,19 +231,21 @@ parler à ceci est une action qui concerne un objet visible.
 
 refuser parler avec ceci:
   si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
+  si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Vous entamez un monologue.".
 
 exécuter parler avec ceci:
-  si ceci réagit, exécuter réaction de ceci;
+  si ceci réagit, exécuter réaction de ceci.
 
 terminer parler avec ceci:
-  si ceci ne réagit pas dire "(Et ils eurent une conversation peu intéressante.)".
+  si ceci ne réagit pas, dire "(Et ils eurent une conversation peu intéressante.)".
   
 -- c) parler à ceci de cela
 parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
 
 refuser parler avec ceci concernant cela:
   si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
+  si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Je connais déjà la réponse.".
 
 exécuter parler avec ceci concernant cela:
@@ -310,6 +312,7 @@ L'aide pour l'action interroger est "{*Interroger*}
 interpréter questionner comme interroger.
 
 SCÈNE "demander".
+
 -- ==============
 --   DEMANDER
 -- ==============
@@ -368,7 +371,7 @@ L'aide pour l'action montrer est "{*Montrer*}
   > {-montrer {/chausette/} au {/lutin/}-}
   {+Voir également+} : {-parler-}, {-questionner-}, {-demander-} et {-donner-}.
   {+raccourci+} : {-mon-}".
-  
+
 CHAPITRE "insulter, énerver, crier".
 
 SCÈNE "insulter".
@@ -400,7 +403,6 @@ refuser énerver ceci:
   
 terminer énerver ceci:
   dire "Vous essayez d’énerver [intitulé ceci] sans succès.".
-
 
 SCÈNE "crier".
 -- ============
@@ -1016,7 +1018,6 @@ refuser dormir sur ceci:
 terminer dormir sur ceci:
   dire "Vous prenez un repos bien mérité.".
   
-
 SCÈNE "prier".
 -- ===========
 --   PRIER
@@ -1125,4 +1126,3 @@ raconter ceci à cela est une action qui concerne un intitulé et un objet.
 terminer raconter ceci à cela:
   dire "{/Voici une blague :/}";
   dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
-
