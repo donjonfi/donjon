@@ -17,7 +17,7 @@
 <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
 
   <ul>
-    <li>Classe : {{el.classeIntitule + " / " + el.classe.intitule}}</li>
+    <li>Classe : {{(el.classe != null ? el.classe.intitule : '?')}}</li>
     <li>Genre/nombre/quantité : {{el.genre}}/{{el.nombre}}/{{el.quantite}}</li>
     <li>Propriétés :
       <ul>
