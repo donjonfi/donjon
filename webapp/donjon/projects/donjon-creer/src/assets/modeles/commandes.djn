@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-04-13-0020
+-- Version: 2021-04-14-0020
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -679,6 +679,7 @@ mettre ceci est une action qui concerne un objet visible.
 
 refuser mettre ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
+  si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].";
   si ceci est le joueur, dire "Vous avez de drôles d'idées.";
   si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.".
 
@@ -694,6 +695,7 @@ mettre ceci dans cela est une action qui concerne deux objets visibles.
 refuser mettre ceci dans cela:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si cela n'est pas accessible, dire "[Intitulé cela] [v être ipr pas cela] accessible[s cela].";
+  si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].";
   si cela n'est ni un support ni un contenant ni vivant, dire "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.";
   si cela est fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
 
