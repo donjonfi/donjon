@@ -23,7 +23,7 @@ export class ClasseUtils {
     // si pas de classe, on renvoit « objet ».
     let retVal: string = EClasseRacine.objet;
 
-    let nomNormalise = intituleClasse.trim();
+    let nomNormalise = intituleClasse?.trim();
     // si classe définie, normaliser le nom
     if (nomNormalise) {
       // enlever caractères spéciaux, déterminant et majuscules.
