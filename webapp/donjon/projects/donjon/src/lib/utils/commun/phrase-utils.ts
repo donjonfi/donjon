@@ -239,13 +239,13 @@ export class PhraseUtils {
       if (els) {
         const isCeci = els.sujet ? true : false;
         const ceci = els.sujet;
-        const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")) : null);
+        const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
         const ceciClasse = null;
         // const ceciEstClasse = (isCeci && (ceci?.match(/un(e)? /i) ?? false));
 
         const isCela = els.sujetComplement1 ? true : false;
         const cela = els.sujetComplement1;
-        const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")) : null);
+        const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
         const celaClasse = null;
         // const celaEstClasse = (isCela && (cela.determinant?.match(/un(e)? /i) ?? false));
 
