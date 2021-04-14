@@ -1,5 +1,4 @@
 import { Analyseur } from './analyseur/analyseur';
-import { AnalyseurConsequences } from './Analyseur/analyseur.consequences';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -15,6 +14,7 @@ import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
 import { Definition } from '../../models/compilateur/definition';
+import { AnalyseurConsequences } from './analyseur/analyseur.consequences';
 
 export class Compilateur {
 
