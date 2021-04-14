@@ -68,4 +68,13 @@ describe('Epressions régulières − Propriétes/Réactions d’un élément je
         expect(result[7]).toEqual('changer le joueur possède la pomme; dire "Je vous la donne !"'); // valeur
     });
 
+    it('Prop. élé : « Sa réaction est "Bonjour !" » ', () => {
+        const result = ExprReg.xProprieteReaction.exec('Sa réaction est "Bonjour !"');
+        expect(result).not.toEqual(null);
+        expect(result[3]).toBeUndefined // élément jeu
+        expect(result[1]).toEqual('réaction'); // propriété
+        expect(result[6]).toEqual('est'); // est
+        expect(result[7]).toEqual('"Bonjour !"'); // valeur
+    });
+
 });
