@@ -514,7 +514,7 @@ export class ElementsJeuUtils {
    * @param ceci objet ou lieu.
    */
   public verifierContientObjet(ceci: ElementJeu): boolean {
-    console.warn("verifierContientObjet: ceci=", ceci);
+    // console.warn("verifierContientObjet: ceci=", ceci);
     let retVal = false;
 
     // si on vérifier le contenu de l’inventaire, on veut en réaliter vérifier le contenu du joueur
