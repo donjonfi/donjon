@@ -1,6 +1,8 @@
 {
   "name": "donjon",
   "version": "0.117.0",
+  "author": {"name": "zigotteau"},
+  "description": "Donjon FI",
   "main": "desktop/electron.js",
   "scripts": {
     "ng": "ng",
