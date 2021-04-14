@@ -28,7 +28,7 @@ export class AnalyseurPropriete {
       } else {
         nomProprieteCible = result[2];
         const elementConcerneBrut = result[3];
-        const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(result[3]);
+        const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(elementConcerneBrut);
         if (elementConcerneIntitule) {
           const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
           const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
@@ -50,25 +50,30 @@ export class AnalyseurPropriete {
 
         ctxAnalyse.dernierElementGenerique = elementCible;
 
-        // RÉACTION
+        const valeurBrut = result[7] ?? '';
+        const estVaut = result[6];
+
+        // A) RÉACTION
         if (nomProprieteCible === ("réaction")) {
           // - RETROUVER LA LISTE DES SUJETS
-          const listeSujets = AnalyseurPropriete.retrouverSujets(result[5], ctxAnalyse, phrase);
+          const sujetsBruts = result[5];
+          const listeSujets = AnalyseurPropriete.retrouverSujets(sujetsBruts, ctxAnalyse, phrase);
           // s’il s’agit du sujet par défaut (aucun sujet)
           if (listeSujets.length === 0) {
             listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
           }
           // - RETROUVER LES INSTRUCTIONS
-          const instructionsBrutes = AnalyseurPropriete.retrouverInstructionsBrutes(result[7], ctxAnalyse.erreurs, phrase);
+          const instructionsBrutes = AnalyseurPropriete.retrouverInstructionsBrutes((valeurBrut), ctxAnalyse.erreurs, phrase);
           // AJOUTER LA RÉACTION
           ctxAnalyse.derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
           // retrouver l’objet qui réagit et lui ajouter la réaction
           elementCible.reactions.push(ctxAnalyse.derniereReaction);
           // résultat
           elementTrouve = ResultatAnalysePhrase.reaction;
-          // PROPRIÉTÉ
+
+          // B) PROPRIÉTÉ
         } else {
-          ctxAnalyse.dernierePropriete = new Propriete(nomProprieteCible, (result[6] === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), result[7]);
+          ctxAnalyse.dernierePropriete = new Propriete(nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
           // ajouter la propriété au dernier élément
           elementCible.proprietes.push(ctxAnalyse.dernierePropriete);
 
