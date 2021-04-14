@@ -353,7 +353,7 @@ SCÈNE "montrer".
 -- ==========
   
 -- c) montrer ceci à cela
-montrer ceci à cela est une action qui concerne un objet visible et un vivant.
+montrer ceci à cela est une action qui concerne un objet visible et un vivant visible.
 
 refuser montrer ceci à cela:
   si cela est le joueur, dire "Je pense qu'[pronom cela] me voit déjà.".
@@ -679,9 +679,9 @@ mettre ceci est une action qui concerne un objet visible.
 
 refuser mettre ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
-  si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].";
   si ceci est le joueur, dire "Vous avez de drôles d'idées.";
-  si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.".
+  si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.";
+  si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
 
 exécuter mettre ceci:
   changer le joueur porte ceci.
