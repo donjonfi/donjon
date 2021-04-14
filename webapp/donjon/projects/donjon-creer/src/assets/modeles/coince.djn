@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Coincé".
 L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "1.5".
+La version du jeu est "1.6".
 Le titre de la licence est "Creative Commons Attribution 4.0 International License".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -14,14 +14,15 @@ PARTIE "Description du monde".
 
 CHAPITRE "Le joueur".
 
-le joueur est dans le salon.
-la description du joueur est "Vos vêtements sont sales. Vous avez perdu des kilos. Il est temps de sortir d’ici !".
+Le joueur est dans le salon.
+Sa description est "Vos vêtements sont sales. Vous avez perdu des kilos. Il est temps de sortir d’ici !".
 
 CHAPITRE "Le salon".
 -- /////////////////////
 --   LIEU 1 − LE SALON
 -- /////////////////////
-Le salon est un lieu. "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
+Le salon est un lieu.
+Sa description est "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
 
 scène "les objets"
 -- ==========
@@ -29,7 +30,9 @@ scène "les objets"
 -- ==========
 
 -- lucarne
-La lucarne est un objet décoratif dans le salon. "Impossible de l'atteindre : elle est bien trop haute.". Elle est inaccessible.
+La lucarne est un objet décoratif dans le salon.
+Sa description est "Impossible de l'atteindre : elle est bien trop haute.".
+Elle est inaccessible.
 
 interpréter la fenêtre comme la lucarne.
 
@@ -125,7 +128,7 @@ l'aide pour l'action taper est "{*taper*}
 -- > DÉCROCHER TABLEAU
 Le joueur peut décrocher le tableau:
   si le tableau se trouve sur le mur:
-    dire "Vous décrochez le tableau et vous découvrez un bouton gros bouton rouge.{n}";
+    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.{n}";
     changer le bouton n’est plus couvert;
     changer le tableau se trouve dans le salon;
   sinon
@@ -142,7 +145,7 @@ avant prendre le tableau, enlever le tableau ou jeter le tableau:
   si le tableau se trouve sur le mur:
     changer le bouton n’est plus couvert;
     changer le tableau se trouve dans le salon;
-    dire "Vous décrochez le tableau et vous découvrez un bouton bouton rouge.{n}";
+    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.{n}";
   sinon
     dire "Vous avez déjà enlevé le tableau du mur.";
   fin si
@@ -193,16 +196,6 @@ avant donner anneau à la magicienne ou montrer anneau à la magicienne:
   terminer le jeu;
   stopper l’action.
 
-CHAPITRE "Objets non placés".
+CHAPITRE "Objets initialements dans l’inventaire".
 -- 3) objets non placés
-La pièce est un objet. "Il s'agit d'une pièce en cuivre.".
-
-
-PARTIE "Règles".
-
--- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
---              RÈGLES
--- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-avant commencer le jeu :
-  changer le joueur possède la pièce.
+La pièce est un objet dans l’inventaire. "Il s'agit d'une pièce en cuivre.".
