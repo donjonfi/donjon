@@ -1,0 +1,28 @@
+// =================================================
+// Système de redimensionnement de la sortie du jeu
+// =================================================
+
+.grid {
+    display: grid;
+    height: 100vh;
+    max-height: 100%;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .r1 {
+    grid-row: 1;
+  }
+  
+  .r2 {
+    grid-row: 2;
+  }
+  
+  .max{
+    max-height: 100%;
+    overflow: auto;
+  }
+  

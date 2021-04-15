@@ -1,16 +1,19 @@
-<router-outlet></router-outlet>
-
-<div class="container-fluid">
-  <footer class="mt-2">
-    <hr>
-    <p class="mt-n3 mb-0">
-      <span class="text-warning">Donjon <i>jouer</i> v{{version}} ©2018-2021 Jonathan Claes −
-        <a href="https://donjon.fi" target="_blank">donjon.fi</a>
-      </span>
-      /
-      <span class="text-danger">Code source sur
-        <a href="https://github.com/zigotteau/donjon" target="_blank">GitHub</a>.
-      </span>
-    </p>
-  </footer>
+<div class="grid">
+  <div class="r1 max">
+    <router-outlet></router-outlet>
+  </div>
+  <div class="r2">
+    <footer class="container-fluid mt-2">
+      <hr>
+      <p class="mt-n3 mb-0">
+        <span class="text-warning">Donjon <i>jouer</i> v{{version}} ©2018-2021 Jonathan Claes −
+          <a href="https://donjon.fi" target="_blank">donjon.fi</a>
+        </span>
+        /
+        <span class="text-danger">Code source sur
+          <a href="https://github.com/zigotteau/donjon" target="_blank">GitHub</a>.
+        </span>
+      </p>
+    </footer>
+  </div>
 </div>

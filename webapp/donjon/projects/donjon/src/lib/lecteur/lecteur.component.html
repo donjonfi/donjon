@@ -1,18 +1,32 @@
-<!-- resultat -->
-<div id="taResultat" #taResultat class="card my-2" [style.height]="'500px'"
-  style="width:100%;overflow:auto;background-color:rgb(241, 241, 232); padding:5px;"
-  [innerHTML]="sortieJoueur">
-</div>
-<!-- entrée utilisateur -->
-<div class="input-group">
-  <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
-    (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);" (keydown)="onKeyDown($event)"
-    (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control" id="txtCommande"
-    [placeholder]="resteDeLaSortie?.length ? 'Appuyez sur une touche…' : 'Entrez une commande (infinitif + compl. direct + compl. indirect)'">
-  <div class="input-group-append">
-    <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
-      id="btExecuter">Valider</button>
-    <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button" id="btExecuter">↑</button>
+<div class="grid-lecteur">
+  <div class="rl-1 max">
+        <!-- resultat -->
+        <div id="taResultat" #taResultat class="card" [innerHTML]="sortieJoueur"
+          style="height: 100%; background-color:rgb(241, 241, 232); overflow: auto; padding:5px;">
+        </div>
+
+        <!-- <div id="taResultat" style="background-color: rgb(241, 241, 232);">
+          <h5>Coincé<small> 1.6</small></h5><p>Un jeu de Jonathan Claes<br>Licence : <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a></p><p></p><p><u><b>Le salon</b></u><br>Vous êtes dans un petit salon dépouillé.<br>La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.<br>Il y a un fauteuil de style anglais au centre de la pièce.<br>Il y a un tableau accroché à l’un des murs.<br>Vous voyez la bille.<br><br>Il n’y a pas de sortie.</p><p></p><p><span class="text-primary"> &gt; uaie</span><br>Désolé, je n'ai pas compris la commande « uaie ».</p><p><span class="text-primary"> &gt; uae</span><br>Désolé, je n'ai pas compris la commande « uae ».</p><p><span class="text-primary"> &gt; uai</span><br>Désolé, je n'ai pas compris la commande « uai ».</p><p><span class="text-primary"> &gt; uie</span><br>Désolé, je n'ai pas compris la commande « uie ».</p><p><span class="text-primary"> &gt; uae</span><br>Désolé, je n'ai pas compris la commande « uae ».</p><p><span class="text-primary"> &gt; u (utiliser )</span><br>Je comprends « utiliser » mais il y a un souci avec la suite de la commande.<br><i>(Il n’y a pas de page d’aide concernant cette commande.)</i></p>
+        </div> -->
+
   </div>
+  <div class="rl-2">
+    <!-- entrée utilisateur -->
+    <div class="input-group mt-2">
+      <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
+        (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
+        (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
+        id="txtCommande"
+        [placeholder]="resteDeLaSortie?.length ? 'Appuyez sur une touche…' : 'Entrez une commande (infinitif + compl. direct + compl. indirect)'">
+      <div class="input-group-append">
+        <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
+          id="btExecuter">Valider</button>
+        <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
+          id="btExecuter">↑</button>
+      </div>
+    </div>
+    <small class="mt-n2">Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus
+      courantes.</small>
+  </div>
+
 </div>
-<small class="mt-n2">Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus courantes.</small>

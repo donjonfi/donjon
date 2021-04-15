@@ -1,52 +1,61 @@
-<nav class="navbar navbar-dark bg-success text-light mb-2 p-0">
-  <a class="navbar-brand" routerLink="/">
-    <img src="./assets/tower_50px.png" width="30" height="30" class="d-inline-block align-top" alt="">
-    Donjon
-  </a>
-  <form class="form-inline">
-    <label class="btn btn-primary btn-file mr-2" tooltip="Charger nouveau jeu ou partie sauvegardée" container="body" placement="bottom"
-      title="Charger un nouveau jeu ou une partie sauvegardée">
-      <i class="fas fa-folder-open"></i><input type="file" [(ngModel)]="fichierCharge" accept=".djn,.sav,.txt"
-        style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event)">
-    </label>
+<div class="subgrid">
+  <div class="rr1">
+    <nav class="navbar navbar-dark bg-success text-light mb-2 p-0">
+      <a class="navbar-brand" routerLink="/">
+        <img src="./assets/tower_50px.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        Donjon
+      </a>
+      <form class="form-inline">
+        <label class="btn btn-primary btn-file mr-2" tooltip="Charger nouveau jeu ou partie sauvegardée"
+          container="body" placement="bottom" title="Charger un nouveau jeu ou une partie sauvegardée">
+          <i class="fas fa-folder-open"></i><input type="file" [(ngModel)]="fichierCharge" accept=".djn,.sav,.txt"
+            style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event)">
+        </label>
 
-    <button *ngIf="jeu" class="btn btn-sm btn-danger mr-2" tooltip="Sauvergarder partie" container="body" placement="bottom"
-      title="Sauvegarder la partie" name="btnSauver" (click)="onSauvegarderJeu()"><i class="fas fa-save fa-fw"></i>
-    </button>
+        <button *ngIf="jeu" class="btn btn-sm btn-danger mr-2" tooltip="Sauvergarder partie" container="body"
+          placement="bottom" title="Sauvegarder la partie" name="btnSauver" (click)="onSauvegarderJeu()"><i
+            class="fas fa-save fa-fw"></i>
+        </button>
 
-  </form>
-</nav>
-
-<div class="container-fluid">
-  <p *ngIf="chargement">
-    Chargement du jeu…
-  </p>
-
-  <p *ngIf="compilation">
-    Compilation du jeu…
-  </p>
-
-  <p *ngIf="!chargement && !compilation && !jeu">
-    Veuillez charger un fichier de jeu ou une partie sauvegardée.
-    <br>
-    <label class="btn btn-secondary btn-file mr-2 mt-2" title="Charger un nouveau jeu ou une partie sauvegardée">
-      <i class="fas fa-folder-open mr-2"></i>Charger<input type="file" [(ngModel)]="fichierCharge"
-        accept=".djn,.sav,.txt" style="display: none;" name="choixFichierNouveau"
-        (change)="onChargerFichierLocal($event)">
-    </label>
-  </p>
-
-  <div *ngIf="erreurs">
-    <div class="text-warning" *ngIf="erreurs.length > 0">
-      😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
-    </div>
-    <code class="text-danger">
-      <span *ngFor="let err of erreurs">
-          {{err}}<br>
-      </span>
-    </code>
+      </form>
+    </nav>
   </div>
 
-  <!-- Lecteur -->
-  <djn-lecteur *ngIf="jeu" [jeu]="jeu"></djn-lecteur>
+  <div class="rr2 max">
+    <!-- <div class="container-fluid"> -->
+      <p *ngIf="chargement">
+        Chargement du jeu…
+      </p>
+
+      <p *ngIf="compilation">
+        Compilation du jeu…
+      </p>
+
+      <p *ngIf="!chargement && !compilation && !jeu">
+        Veuillez charger un fichier de jeu ou une partie sauvegardée.
+        <br>
+        <label class="btn btn-secondary btn-file mr-2 mt-2" title="Charger un nouveau jeu ou une partie sauvegardée">
+          <i class="fas fa-folder-open mr-2"></i>Charger<input type="file" [(ngModel)]="fichierCharge"
+            accept=".djn,.sav,.txt" style="display: none;" name="choixFichierNouveau"
+            (change)="onChargerFichierLocal($event)">
+        </label>
+      </p>
+
+      <div *ngIf="erreurs">
+        <div class="text-warning" *ngIf="erreurs.length > 0">
+          😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
+        </div>
+        <code class="text-danger">
+              <span *ngFor="let err of erreurs">
+                  {{err}}<br>
+              </span>
+            </code>
+      </div>
+
+      <!-- Lecteur -->
+      <djn-lecteur *ngIf="jeu" [jeu]="jeu"></djn-lecteur>
+    <!-- </div> -->
+  </div>
+
+
 </div>
