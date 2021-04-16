@@ -16,215 +16,215 @@
     </nav>
   </div>
 
-  <div class="rr2 max">
-    <div class="container-fluid" style="height: 100%;">
+  <div class="rr2 max" style="height: 100%;">
+    <div class="container-fluid max" style="height: 100%;">
 
-    <div class="row max" style="height: 100%">
+      <div class="row max" style="height: 100%">
 
-      <!-- LISTE DES ONGLETS -->
-      <div class="col-auto pl-2 pr-0">
-        <div class="btn-group-vertical">
-          <button class="btn btn-primary" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
-            title="Scénario" tooltip="Scénario" placement="right">
-            <i class="fas fa-fw fa-book fa-lg"></i>
-          </button>
-          <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
-            (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
-            <i class="fas fa-fw fa-glasses fa-lg"></i>
-          </button>
-          <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
-            (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
-            <i class="fas fa-fw fa-terminal fa-lg"></i>
-          </button>
-          <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
-            (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
-            <i class="fas fa-fw fa-sitemap fa-lg"></i>
-          </button>
-        </div>
-
-        <ng-container *ngIf="tab == 'analyse' && jeu">
-          <br>
-          <button class="btn btn-secondary mt-4" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
-            placement="right">
-            <i class="fas fa-fw fa-terminal fa-lg"></i>
-          </button>
-          <br>
-          <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
-            tooltip="Aperçu" placement="right">
-            <i class="fas fa-fw fa-sitemap fa-lg"></i>
-          </button>
-        </ng-container>
-
-        <ng-container *ngIf="tab == 'scenario'">
-          <br>
-          <!-- analyser -->
-          <button class="btn btn-warning mt-4" (click)="onCompiler()" tooltip="Analyser" placement="right"
-            title="Anaylser">
-            <i class="fas fa-fw fa-magic fa-lg"></i>
-          </button>
-
-          <!-- sauvegarder fichier localement -->
-          <br>
-          <button class="btn btn-danger mt-4" (click)="onSauvegarderSous()" tooltip="Sauvegarder" placement="right"
-            title="Sauvegarder">
-            <i class="fas fa-fw fa-save fa-lg"></i>
-          </button>
-
-          <!-- wiki -->
-          <br>
-          <a class="btn btn-primary mt-4" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
-            placement="right">
-            <i class="fas fa-fw fa-question fa-lg"></i>
-          </a>
-
-          <!-- préférences -->
-          <br>
-          <button class="btn btn-secondary mt-4" (click)="afficherPreferences = !afficherPreferences"
-            tooltip="Préférences" placement="right" title="Préférences">
-            <i class="fas fa-fw fa-sliders-h fa-lg"></i>
-          </button>
-
-          <!-- sections -->
-          <br>
-          <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
-          <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
-            placement="right" title="Sections">
-            <i class="fas fa-fw fa-thumbtack fa-lg"></i>
-          </button>
-
-        </ng-container>
-
-      </div>
-
-      <!-- CONTENU ONGLET -->
-      <div class="col max" style="height: 100%">
-
-        <!-- <tabset #editeurTabs type="pills"> -->
-        <!-- TAB : Scénario (code source) -->
-        <!-- <tab heading="Scénario" id="scenario"> -->
-        <div [ngClass]="{'display-none': tab !== 'scenario'}">
-          <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )">
-
-            <div *ngIf="afficherPreferences" class="row mb-2">
-              <div class="col-auto">
-                <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
-                  <option disabled>*** Thèmes clairs ***</option>
-                  <option [ngValue]="'chrome'">chrome</option>
-                  <option [ngValue]="'crimson_editor'">crimson_editor</option>
-                  <option [ngValue]="'katzenmilch'">katzenmilch</option>
-                  <option [ngValue]="'solarized_light'">solarized_light</option>
-                  <option [ngValue]="'tomorrow'">tomorrow</option>
-                  <option disabled>*** Thèmes foncés ***</option>
-                  <option [ngValue]="'ambiance'">ambiance</option>
-                  <option [ngValue]="'dracula'">dracula</option>
-                  <option [ngValue]="'monokai'">monokai</option>
-                  <option [ngValue]="'solarized_dark'">solarized_dark</option>
-                  <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
-
-                </select>
-              </div>
-              <div class="col-auto">
-                <select [(ngModel)]="nbLignesCode" (change)="onChangerNbLignesCode()" class="form-control"
-                  name="choixNbLignesCodes">
-                  <option [ngValue]="10">10 lignes visibles</option>
-                  <option [ngValue]="15">15 lignes visibles</option>
-                  <option [ngValue]="20">20 lignes visibles</option>
-                  <option [ngValue]="25">25 lignes visibles</option>
-                  <option [ngValue]="30">30 lignes visibles</option>
-                  <option [ngValue]="35">35 lignes visibles</option>
-                  <option [ngValue]="40">40 lignes visibles</option>
-                  <option [ngValue]="45">45 lignes visibles</option>
-                  <option [ngValue]="50">50 lignes visibles</option>
-                  <option [ngValue]="60">60 lignes visibles</option>
-                  <option [ngValue]="70">70 lignes visibles</option>
-                  <option [ngValue]="80">80 lignes visibles</option>
-                </select>
-              </div>
-
-              <div class="col-auto">
-                <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
-                  name="choixNbLignesCodes">
-                  <option [ngValue]="13">police 13</option>
-                  <option [ngValue]="14">police 14</option>
-                  <option [ngValue]="15">police 15</option>
-                  <option [ngValue]="16">police 16</option>
-                  <option [ngValue]="17">police 17</option>
-                  <option [ngValue]="18">police 18</option>
-                  <option [ngValue]="19">police 19</option>
-                  <option [ngValue]="20">police 20</option>
-                  <option [ngValue]="21">police 21</option>
-                  <option [ngValue]="22">police 22</option>
-                  <option [ngValue]="23">police 23</option>
-                  <option [ngValue]="24">police 24</option>
-                  <option [ngValue]="25">police 25</option>
-                </select>
-              </div>
-            </div>
-            <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-            <div *ngIf="afficherSections" class="row mb-2">
-              <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
-                <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-control"
-                  name="choixPartie">
-                  <option [ngValue]="null">(tout le scénario)</option>
-                  <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
-                    <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                      Partie « {{intitule}} »
-                    </option>
-                  </ng-container>
-                </select>
-              </div>
-
-              <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
-                <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)" class="form-control"
-                  name="choixChapitre">
-                  <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le
-                    scénario)')}}
-                  </option>
-                  <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
-                    <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                      Chapitre « {{intitule}} »
-                    </option>
-                  </ng-container>
-                </select>
-              </div>
-
-              <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
-                <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
-                  name="choixScene">
-                  <option [ngValue]="null">
-                    {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
-                    partie)':'(tout le scénario)'))}}
-                  </option>
-                  <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
-                    <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                      Scène « {{intitule}} »
-                    </option>
-                  </ng-container>
-                </select>
-              </div>
-
-              <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length"
-                class="font-italic ml-4">
-                (Votre scénario n’est pas découpé en sections)
-              </p>
-
-            </div>
-
-            <!-- CODE SOURCE (Scénario) -->
-            <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'">
-              <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
-                (focusout)="onCodeFocusOut()"></ace>
-            </div>
-
+        <!-- COL 1 : LISTE DES ONGLETS -->
+        <div class="col-auto pl-2 pr-0">
+          <div class="btn-group-vertical">
+            <button class="btn btn-primary" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
+              title="Scénario" tooltip="Scénario" placement="right">
+              <i class="fas fa-fw fa-book fa-lg"></i>
+            </button>
+            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
+              (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
+              <i class="fas fa-fw fa-glasses fa-lg"></i>
+            </button>
+            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
+              (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
+              <i class="fas fa-fw fa-terminal fa-lg"></i>
+            </button>
+            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
+              (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
+              <i class="fas fa-fw fa-sitemap fa-lg"></i>
+            </button>
           </div>
-          <!-- </tab> -->
+
+          <ng-container *ngIf="tab == 'analyse' && jeu">
+            <br>
+            <button class="btn btn-secondary mt-4" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
+              placement="right">
+              <i class="fas fa-fw fa-terminal fa-lg"></i>
+            </button>
+            <br>
+            <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
+              tooltip="Aperçu" placement="right">
+              <i class="fas fa-fw fa-sitemap fa-lg"></i>
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="tab == 'scenario'">
+            <br>
+            <!-- analyser -->
+            <button class="btn btn-warning mt-4" (click)="onCompiler()" tooltip="Analyser" placement="right"
+              title="Anaylser">
+              <i class="fas fa-fw fa-magic fa-lg"></i>
+            </button>
+
+            <!-- sauvegarder fichier localement -->
+            <br>
+            <button class="btn btn-danger mt-4" (click)="onSauvegarderSous()" tooltip="Sauvegarder" placement="right"
+              title="Sauvegarder">
+              <i class="fas fa-fw fa-save fa-lg"></i>
+            </button>
+
+            <!-- wiki -->
+            <br>
+            <a class="btn btn-primary mt-4" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
+              placement="right">
+              <i class="fas fa-fw fa-question fa-lg"></i>
+            </a>
+
+            <!-- préférences -->
+            <br>
+            <button class="btn btn-secondary mt-4" (click)="afficherPreferences = !afficherPreferences"
+              tooltip="Préférences" placement="right" title="Préférences">
+              <i class="fas fa-fw fa-sliders-h fa-lg"></i>
+            </button>
+
+            <!-- sections -->
+            <br>
+            <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
+            <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
+              placement="right" title="Sections">
+              <i class="fas fa-fw fa-thumbtack fa-lg"></i>
+            </button>
+
+          </ng-container>
+
         </div>
 
+        <!-- COL 2 : CONTENU ONGLET -->
+        <div class="col" style="height: 100%;">
+          <!-- TAB : Scénario (code source) -->
+          <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
+            <div class="grid-scenario">
+              <div class="rs1">
+                <div *ngIf="afficherPreferences" class="row mb-2">
+                  <div class="col-auto">
+                    <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
+                      <option disabled>*** Thèmes clairs ***</option>
+                      <option [ngValue]="'chrome'">chrome</option>
+                      <option [ngValue]="'crimson_editor'">crimson_editor</option>
+                      <option [ngValue]="'katzenmilch'">katzenmilch</option>
+                      <option [ngValue]="'solarized_light'">solarized_light</option>
+                      <option [ngValue]="'tomorrow'">tomorrow</option>
+                      <option disabled>*** Thèmes foncés ***</option>
+                      <option [ngValue]="'ambiance'">ambiance</option>
+                      <option [ngValue]="'dracula'">dracula</option>
+                      <option [ngValue]="'monokai'">monokai</option>
+                      <option [ngValue]="'solarized_dark'">solarized_dark</option>
+                      <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
 
-        <!-- TAB: ANALYSE -->
-        <ng-container *ngIf="tab === 'analyse'">
-          <div class="card">
-            <!-- <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card"> -->
+                    </select>
+                  </div>
+
+                  <div class="col-auto">
+                    <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
+                      name="choixNbLignesCodes">
+                      <option [ngValue]="13">police 13</option>
+                      <option [ngValue]="14">police 14</option>
+                      <option [ngValue]="15">police 15</option>
+                      <option [ngValue]="16">police 16</option>
+                      <option [ngValue]="17">police 17</option>
+                      <option [ngValue]="18">police 18</option>
+                      <option [ngValue]="19">police 19</option>
+                      <option [ngValue]="20">police 20</option>
+                      <option [ngValue]="21">police 21</option>
+                      <option [ngValue]="22">police 22</option>
+                      <option [ngValue]="23">police 23</option>
+                      <option [ngValue]="24">police 24</option>
+                      <option [ngValue]="25">police 25</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
+                <div *ngIf="afficherSections" class="row mb-2">
+                  <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
+                    <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-control"
+                      name="choixPartie">
+                      <option [ngValue]="null">(tout le scénario)</option>
+                      <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
+                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                          Partie « {{intitule}} »
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
+
+                  <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
+                    <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
+                      class="form-control" name="choixChapitre">
+                      <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le
+                        scénario)')}}
+                      </option>
+                      <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
+                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                          Chapitre « {{intitule}} »
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
+
+                  <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
+                    <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
+                      name="choixScene">
+                      <option [ngValue]="null">
+                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
+                        partie)':'(tout le scénario)'))}}
+                      </option>
+                      <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
+                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
+                          Scène « {{intitule}} »
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
+
+                  <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length"
+                    class="font-italic ml-4">
+                    (Votre scénario n’est pas découpé en sections)
+                  </p>
+
+                </div>
+              </div>
+
+
+
+              <!-- CODE SOURCE (Scénario) -->
+              <!-- <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'"> -->
+              <div class="rs2 max">
+                <div class="card max" style="height: 100%;">
+                  <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
+                    (focusout)="onCodeFocusOut()"></ace>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- TAB: TESTER LE JEU -->
+          <!-- <div *ngIf="tab === 'jeu'" style="height: 100%;" class="max"> -->
+          <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
+            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false" [debogueur]="true"></djn-lecteur>
+          </div>
+          <!-- </div> -->
+
+          <!-- TAB: APERÇU ÉLÉMENTS -->
+          <!-- <div [style.display]="(tab === 'apercu' ? 'block' : 'none' )" class="card"> -->
+          <div *ngIf="tab === 'apercu'" class="card">
+            <div class="card-body">
+              <div *ngIf="compilationTerminee">
+                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions"></app-apercu-monde>
+              </div>
+            </div>
+          </div>
+          <!-- </div> -->
+
+          <!-- TAB: ANALYSE -->
+          <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">
             <div class="card-body">
 
               <div *ngIf="compilationEnCours">
@@ -260,41 +260,17 @@
                 </ng-container>
 
                 <code class="text-danger">
-                          <span *ngFor="let err of erreurs">
-                              {{err}}<br>
-                          </span>
-                        </code>
+                                    <span *ngFor="let err of erreurs">
+                                        {{err}}<br>
+                                    </span>
+                                  </code>
               </div>
             </div>
-            <!-- </div> -->
           </div>
 
-        </ng-container>
 
-        <!-- TAB: TESTER LE JEU -->
-        <div *ngIf="tab === 'jeu'" style="height: 100%;" class="max">
-          <!-- <div class="ro1 max"> -->
-          <!-- <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="mt-n2"> -->
-          <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false"></djn-lecteur>
-          <!-- <br><small>Tapez : « <span class="text-primary">déb épée</span> »
-            pour déboguer l’épée dans la console.</small> -->
-          <!-- </div> -->
-          <!-- </div> -->
         </div>
-
-        <!-- TAB: APERÇU ÉLÉMENTS -->
-        <!-- <div [style.display]="(tab === 'apercu' ? 'block' : 'none' )" class="card"> -->
-        <div *ngIf="tab === 'apercu'" class="card">
-          <div class="card-body">
-            <div *ngIf="compilationTerminee">
-              <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions"></app-apercu-monde>
-            </div>
-          </div>
-        </div>
-        <!-- </div> -->
-
       </div>
-    </div>
     </div>
   </div>
 </div>

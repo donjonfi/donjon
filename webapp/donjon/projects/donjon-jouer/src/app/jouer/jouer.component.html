@@ -22,7 +22,7 @@
   </div>
 
   <div class="rr2 max">
-    <!-- <div class="container-fluid"> -->
+    <div class="container-fluid" style="height: 100%;">
       <p *ngIf="chargement">
         Chargement du jeu…
       </p>
@@ -53,8 +53,8 @@
       </div>
 
       <!-- Lecteur -->
-      <djn-lecteur *ngIf="jeu" [jeu]="jeu"></djn-lecteur>
-    <!-- </div> -->
+      <djn-lecteur *ngIf="jeu" [jeu]="jeu" [debogueur]="false"></djn-lecteur>
+    </div>
   </div>
 
 

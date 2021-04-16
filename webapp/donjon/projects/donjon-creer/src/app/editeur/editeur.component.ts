@@ -159,13 +159,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
 
     // RÉCUPÉRER LES PRÉFÉRENCES DE L’UTILISATEUR
-    // - nombre de lignes de code visibles
-    let retVal = localStorage.getItem('EditeurNbLignesCodes');
-    if (retVal) {
-      this.nbLignesCode = +retVal;
-    }
+
     // - taille texte
-    retVal = localStorage.getItem('EditeurTailleTexte');
+    let retVal = localStorage.getItem('EditeurTailleTexte');
     if (retVal) {
       this.tailleTexte = +retVal;
     }
@@ -807,7 +803,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
     /** focus sur le champ commandes si on est sur le tab jeu */
     if (this.tab == 'jeu') {
+      setTimeout(() => {
       ((this.lecteurRef as any) as LecteurComponent).focusCommande();
+      }, 100);
     }
   }
 
@@ -820,12 +818,6 @@ export class EditeurComponent implements OnInit, OnDestroy {
     localStorage.setItem('EditeurTheme', this.theme);
   }
 
-  /** Changer le nombre de lignes de codes visibles. */
-  onChangerNbLignesCode(): void {
-    localStorage.setItem('EditeurNbLignesCodes', this.nbLignesCode.toString());
-    this.majTailleAce();
-  }
-
   /** Changer la taille de la police de caractères. */
   onChangerTailleFont(): void {
     localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
@@ -836,7 +828,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   majTailleAce(): void {
     setTimeout(() => {
       this.codeEditorElmRef["directiveRef"].ace().resize();
-      this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
+      // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
       this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
       this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
       // en fonction du navigateur cette valeur est variable !
