@@ -5,41 +5,33 @@
   <h4>Lieux</h4>
   <p *ngIf="monde.lieux && monde.lieux.length == 0">Aucun lieu trouvé.</p>
   <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.lieux">
-      <li>
-        <app-apercu-element-generique [el]=el [estLieu]="true"></app-apercu-element-generique>
-      </li>
-    </ng-template>
+    <li *ngFor="let el of monde.lieux">
+      <app-apercu-element-generique [el]="el" [estLieu]="true"></app-apercu-element-generique>
+    </li>
   </ul>
 
   <h4>Portes</h4>
   <p *ngIf="monde.portes && monde.portes.length == 0">Aucune porte trouvée.</p>
   <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.portes">
-      <li>
-        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
-      </li>
-    </ng-template>
+    <li *ngFor="let el of monde.portes">
+      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+    </li>
   </ul>
 
   <h4>Objets, animaux et humains</h4>
   <p *ngIf="monde.classiques && monde.classiques.length == 0">Aucun objet trouvé.</p>
   <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.classiques">
-      <li>
-        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
-      </li>
-    </ng-template>
+    <li *ngFor="let el of monde.classiques">
+      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+    </li>
   </ul>
 
   <h4>Éléments spéciaux</h4>
   <p *ngIf="monde.speciaux && monde.speciaux.length == 0">Aucun élément spécial trouvé.</p>
   <ul>
-    <ng-template ngFor let-el [ngForOf]="monde.speciaux">
-      <li>
-        <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
-      </li>
-    </ng-template>
+    <li *ngFor="let el of monde.speciaux">
+      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+    </li>
   </ul>
 
 </div>
@@ -62,5 +54,3 @@
     <app-apercu-action [action]="action"></app-apercu-action>
   </li>
 </ul>
-
-
