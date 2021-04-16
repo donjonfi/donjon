@@ -3,6 +3,8 @@ import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { StringUtils } from "../../commun/string.utils";
+import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurDivers {
 
@@ -57,13 +59,38 @@ export class AnalyseurDivers {
    * @param ctxAnalyse 
    * @returns 
    */
-  public static testerActiverDesactiver(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerActiverDesactiverParametre(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const trouveDesactiver = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== false;
-    if (trouveDesactiver) {
-      elementTrouve = ResultatAnalysePhrase.desactiver;
+    const result = ExprReg.xActiverDesactiver.exec(phrase.phrase[0]);
+
+    if (result) {
+      elementTrouve = ResultatAnalysePhrase.activerParametre;
+
+      const isActiver = result[1].trim().toLowerCase() == 'activer';
+      const parametre = result[2].trim();
+      // enlever caractères spéciaux et premier déterminant
+      const parametreNormalise = StringUtils.normaliserMot(result[2]).trim();
+
+      switch (parametreNormalise) {
+        case 'commandes de base':
+          // ne rien faire ici car déja interprété au début de la compilation.
+          break;
+
+        case 'affichage des sorties':
+          ctxAnalyse.parametres.activerAffichageSorties = isActiver;
+          break;
+
+        case 'affichage des directions des sorties':
+          ctxAnalyse.parametres.activerAffichageDirectionSorties = isActiver;
+          break;
+
+        default:
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
+          break;
+      }
+
     }
 
     return elementTrouve;

@@ -36,7 +36,7 @@ export class StringUtils {
         .replace(/ï/g, 'i')
         .replace(/(à|ä)/g, 'a')
         .replace(/ç/g, 'c')
-        // retirer déterminants
+        // retirer déterminant qui débute la chaîne
         .replace(/^(un |une |des |le |la |l'|l’|les )/, '');
     }
     return retVal;

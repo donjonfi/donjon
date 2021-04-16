@@ -2109,23 +2109,47 @@ export class Instructions {
   afficherSorties(lieu: Lieu): string {
     let retVal: string;
 
-    // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
-    const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
+    if (this.jeu.parametres.activerAffichageSorties) {
+      // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
+      const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
 
-    if (lieuxVoisinsVisibles.length > 0) {
-      retVal = "Sorties :";
-      lieuxVoisinsVisibles.forEach(voisin => {
-        // if (voisin.type == EClasseRacine.lieu) {
-        retVal += ("{n}{i}- " + this.afficherLocalisation(voisin.localisation, lieu.id, voisin.id));
-        // }
-      });
-    } else {
-      retVal = "Il n’y a pas de sortie.";
+      if (lieuxVoisinsVisibles.length > 0) {
+        retVal = "Sorties :";
+        // afficher les voisins : directions + lieux
+        if (this.jeu.parametres.activerAffichageDirectionSorties) {
+          lieuxVoisinsVisibles.forEach(voisin => {
+            retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id));
+          });
+          // afficher les voisins: lieux
+        } else {
+          lieuxVoisinsVisibles.forEach(voisin => {
+            retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisin.localisation, lieu.id, voisin.id));
+          });
+        }
+
+      } else {
+        retVal = "Il n’y a pas de sortie.";
+      }
+    }else{
+      retVal = "";
     }
+
     return retVal;
   }
 
-  private afficherLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
+  private afficherLieuVoisin(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
+    let retVal: string = null;
+    let lieu = this.eju.getLieu(voisinIndex);
+    let titreLieu = lieu.titre;
+    let obstacle = this.afficherObstacle(localisation, "");
+    if (obstacle) {
+      obstacle = " ({/obstrué/})";
+    }
+    retVal = titreLieu + obstacle;
+    return retVal;
+  }
+
+  private afficherLieuVoisinEtLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;

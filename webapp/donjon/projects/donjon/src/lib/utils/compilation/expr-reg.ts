@@ -176,7 +176,12 @@ export class ExprReg {
    */
   static readonly xSynonymes = /^interpréter ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?) comme (.+)$/i;
 
-  static readonly xActiverDesactiver = /^(?:activer|désactiver) (.+)$/i;
+  /**
+   * Activer / Désactiver un paramètre
+   * - Découpage :
+   *     - activer/désactiver(1) paramètre(2)
+   */
+  static readonly xActiverDesactiver = /^(activer|désactiver) (.+)$/i;
 
   // ================================================================================================
   //  TYPES

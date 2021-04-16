@@ -166,7 +166,7 @@ export class Compilateur {
     resultat.actions = ctxAnalyse.actions;
     resultat.erreurs = ctxAnalyse.erreurs;
     resultat.aides = ctxAnalyse.aides;
-
+    resultat.parametres = ctxAnalyse.parametres;
     return resultat;
 
   }

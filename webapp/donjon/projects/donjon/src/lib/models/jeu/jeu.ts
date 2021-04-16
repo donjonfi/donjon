@@ -6,6 +6,7 @@ import { Lieu } from './lieu';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Regle } from '../compilateur/regle';
+import { Parametres } from '../commun/parametres';
 
 export class Jeu {
 
@@ -67,5 +68,8 @@ export class Jeu {
 
   /** Fiches d'aides */
   aides: Aide[] = [];
+
+  /** Paramètres spécifiques au jeu */
+  parametres: Parametres = new Parametres();
 
 }

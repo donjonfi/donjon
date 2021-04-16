@@ -249,9 +249,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
         ));
         this.aides = resultat.aides;
         this.erreurs = resultat.erreurs;
-
         // générer le jeu
-        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.aides);
+        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.aides, resultat.parametres);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -751,7 +750,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
               allSectionsCodeSource.push(element);
             } else {
               // ajouter le code source de la partie précédé de l’instruction « partie »
-              allSectionsCodeSource.push(prefixe + dernSection + '".' + (element.startsWith('\n') ? "" : "\n") + element);
+              allSectionsCodeSource.push(prefixe + dernSection + '".' + ((element.startsWith('\n') || element.startsWith('\r')) ? "" : "\n") + element);
             }
             
             allSectionsPremierNumeroLigne.push(dernierNumeroLigne);

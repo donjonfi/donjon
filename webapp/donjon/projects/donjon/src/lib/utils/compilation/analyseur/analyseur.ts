@@ -106,7 +106,7 @@ export class Analyseur {
         }
       }
 
-      
+
       // ===============================================
       // NOUVEAU TYPE
       // ===============================================
@@ -116,7 +116,7 @@ export class Analyseur {
           console.log("=> trouvé type");
         }
       }
-      
+
       // ===============================================
       // PRÉCISION TYPE
       // ===============================================
@@ -128,15 +128,12 @@ export class Analyseur {
       }
 
       // ===============================================
-      // ACTIVER / DÉSACTIVER
+      // ACTIVER / DÉSACTIVER PARAMÈTRE
       // ===============================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        const trouveDesactiver = ExprReg.xActiverDesactiver.test(phrase.phrase[0]) !== false;
-        if (trouveDesactiver) {
-          elementTrouve = ResultatAnalysePhrase.desactiver;
-          if (ctx.verbeux) {
-            console.log("=> trouvé Activer/Désactier.");
-          }
+        elementTrouve = AnalyseurDivers.testerActiverDesactiverParametre(phrase, ctx);
+        if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.activerParametre) {
+          console.log("=> trouvé Activer/Désactier.");
         }
       }
 

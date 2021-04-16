@@ -23,10 +23,11 @@ import { Objet } from '../../models/jeu/objet';
 import { Regle } from '../../models/compilateur/regle';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
+import { Parametres } from '../../models/commun/parametres';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], aides: Aide[]): Jeu {
+  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], aides: Aide[], parametres: Parametres): Jeu {
 
     let indexElementJeu = 0;
     let jeu = new Jeu();
@@ -38,6 +39,10 @@ export class Generateur {
     // DÉFINIR LES FICHES D'AIDE
     // *************************
     jeu.aides = aides;
+
+    // DÉFINIR LES PARAMÈTRES
+    // *************************
+    jeu.parametres = parametres;
 
     // // ÉCRAN
     // // ****************

@@ -5,6 +5,7 @@ import { ElementGenerique } from "./element-generique";
 import { Propriete } from "../commun/propriete";
 import { Reaction } from "./reaction";
 import { Regle } from "./regle";
+import { Parametres } from "../commun/parametres";
 
 export class ContexteAnalyse {
   constructor(
@@ -15,6 +16,7 @@ export class ContexteAnalyse {
     public aides = new Array<Aide>(),
     public typesUtilisateur = new Map<string, Definition>(),
     public erreurs = new Array<string>(),
+    public parametres = new Parametres(),
   ) { }
 
   public dernierePropriete: Propriete = null;

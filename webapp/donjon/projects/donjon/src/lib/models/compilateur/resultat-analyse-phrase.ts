@@ -7,7 +7,7 @@ export enum ResultatAnalysePhrase {
   regle,
   synonyme,
   action,
-  desactiver,
+  activerParametre,
   elementAvecPosition,
   elementSansPosition,
   pronomDemontratifTypeAttribut,
