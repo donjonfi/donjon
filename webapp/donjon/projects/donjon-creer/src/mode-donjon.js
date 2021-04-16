@@ -58,10 +58,10 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "quand |avant |après |si |sinon|sinonsi |fin si|finsi|refuser |exécuter |terminer |interpréter |comme |" +
-            "au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|puis|fin choix|fchoix|" +
-            "et\\b|ou\\b|ni\\b|soit\\b|mais pas|" +
-            "partie |chapitre |scène ",
+          regex: "(\\b(désactiver|quand|avant|après|si|sinon|sinonsi|fin si|finsi|refuser|exécuter|terminer|interpréter|comme)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|puis|fin choix|finchoix)\\b)|" +
+            "(\\b(et|ou|ni|soit|mais pas)\\b)|" +
+            "(\\b(partie|chapitre|scène) )",
           caseInsensitive: true
         },
         {
@@ -69,6 +69,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "(au (sud|nord))|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
             + "(\\b(ceci|cela|ici)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
+            
             + "(\\b("
             + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
@@ -92,13 +93,13 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: keywordMapper,
           regex: "[a-zA-Zéèàêç_$][a-zA-Z0-9éèàêç_$]*"
-        }, 
-        
+        },
+
         // {
         //   token: "keyword.operator",
         //   regex: "\\+|\\-|\\/|\\/\\/|%|<@>|@>|<@|&|\\^|~|<|>|<=|=>|==|!=|<>|="
         // }, 
-        
+
         {
           token: "paren.lparen",
           regex: "[\\(]"
