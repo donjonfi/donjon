@@ -1,13 +1,9 @@
 <div class="grid-lecteur">
   <div class="rl-1 max">
-        <!-- resultat -->
-        <div id="taResultat" #taResultat class="card" [innerHTML]="sortieJoueur"
-          style="height: 100%; background-color:rgb(241, 241, 232); overflow: auto; padding:5px;">
-        </div>
-
-        <!-- <div id="taResultat" style="background-color: rgb(241, 241, 232);">
-          <h5>Coincé<small> 1.6</small></h5><p>Un jeu de Jonathan Claes<br>Licence : <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a></p><p></p><p><u><b>Le salon</b></u><br>Vous êtes dans un petit salon dépouillé.<br>La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.<br>Il y a un fauteuil de style anglais au centre de la pièce.<br>Il y a un tableau accroché à l’un des murs.<br>Vous voyez la bille.<br><br>Il n’y a pas de sortie.</p><p></p><p><span class="text-primary"> &gt; uaie</span><br>Désolé, je n'ai pas compris la commande « uaie ».</p><p><span class="text-primary"> &gt; uae</span><br>Désolé, je n'ai pas compris la commande « uae ».</p><p><span class="text-primary"> &gt; uai</span><br>Désolé, je n'ai pas compris la commande « uai ».</p><p><span class="text-primary"> &gt; uie</span><br>Désolé, je n'ai pas compris la commande « uie ».</p><p><span class="text-primary"> &gt; uae</span><br>Désolé, je n'ai pas compris la commande « uae ».</p><p><span class="text-primary"> &gt; u (utiliser )</span><br>Je comprends « utiliser » mais il y a un souci avec la suite de la commande.<br><i>(Il n’y a pas de page d’aide concernant cette commande.)</i></p>
-        </div> -->
+    <!-- resultat -->
+    <div id="taResultat" #taResultat class="card" [innerHTML]="sortieJoueur"
+      style="height: 100%; background-color:rgb(241, 241, 232); overflow: auto; padding:5px;">
+    </div>
 
   </div>
   <div class="rl-2">
@@ -25,8 +21,16 @@
           id="btExecuter">↑</button>
       </div>
     </div>
-    <small class="mt-n2">Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus
-      courantes.</small>
+    <small class="mt-n2">
+      <p>
+        Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus
+        courantes.
+        <ng-container *ngIf="debogueur">
+          <br>Tapez : « <span class="text-primary">déb épée</span> »
+          pour déboguer l’épée dans la console.
+        </ng-container>
+      </p>
+    </small>
   </div>
 
 </div>

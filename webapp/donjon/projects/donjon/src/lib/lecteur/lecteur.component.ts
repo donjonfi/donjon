@@ -32,6 +32,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   @Input() jeu: Jeu;
   @Input() verbeux = false;
+  @Input() debogueur = false;
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 10;
 
