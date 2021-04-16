@@ -78,8 +78,12 @@ export class BalisesHtml {
 
     // nouvelle ligne, si pas vide, {N}
     // - si débute par {N}, ne pas en tenir compte
-    if (retVal.startsWith("{N}")) {
+    while (retVal.startsWith("{N}")) {
       retVal = retVal.slice(3);
+    }
+    // si termine par {N}, ne pas en tenir compte
+    while (retVal.endsWith("{N}")) {
+      retVal = retVal.slice(0, retVal.length - 3);
     }
     // - remplacer les autres {N} par un \n
     retVal = retVal.replace(/\{N\}/g, '<br>');
