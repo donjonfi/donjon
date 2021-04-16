@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-04-14-0020
+-- Version: 2021-04-16-0021
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -87,7 +87,7 @@ exécuter effacer:
 terminer effacer:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{n}{n}[sorties ici]".
+  dire "{N}{N}[sorties ici]".
 
 -- b) effacer l’écran
 effacer ceci est une action qui concerne un intitulé.
@@ -101,7 +101,7 @@ exécuter effacer ceci:
 terminer effacer ceci:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{n}{n}[sorties ici]".
+  dire "{N}{N}[sorties ici]".
 
 L'aide pour l'action effacer est "{*Effacer*}
   Permet d’effacer l’écran
@@ -133,7 +133,7 @@ exécuter aller vers ceci:
 terminer aller vers ceci:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{n}{n}[sorties ici]".
+  dire "{N}{N}[sorties ici]".
 
 L'aide pour l'action aller est "{*Aller*}
   Permet de d’aller vers la direction indiquée.
@@ -437,7 +437,7 @@ regarder est une action.
 exécuter regarder:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{n}{n}[sorties ici]".
+  dire "{N}{N}[sorties ici]".
   
 -- b) regarder ceci
 regarder ceci est une action qui concerne un élément.
@@ -471,7 +471,7 @@ terminer regarder ceci:
   sinonsi ceci est un lieu :
     dire "{_{*[titre ici]*}_}";
     dire "{n}[description ici][décrire objets ici]";
-    dire "{n}{n}[sorties ici]";
+    dire "{N}{N}[sorties ici]";
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
@@ -530,7 +530,7 @@ exécuter examiner ceci:
   sinonsi ceci est un lieu :
     dire "{_{*[titre ici]*}_}";
     dire "{n}[description ici][décrire objets ici]";
-    dire "{n}{n}[sorties ici]";
+    dire "{N}{N}[sorties ici]";
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
