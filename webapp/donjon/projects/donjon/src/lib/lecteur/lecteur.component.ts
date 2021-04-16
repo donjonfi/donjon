@@ -117,8 +117,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.eju.majAdjacenceLieux();
 
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
-        if (resultatAvant.stopper !== true) {
-
+        if (!resultatAvant.stopper) {
           // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
           let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
           if (resultatRemplacer.nombre === 0) {
@@ -129,10 +128,12 @@ export class LecteurComponent implements OnInit, OnChanges {
 
           // éxécuter les instructions APRÈS le jeu commence
           const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
-          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
+          if (resultatApres.sortie) {
+            this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
+          }
         }
         //terminer le paragraphe sauf si on attends une touche pour continuer
-        if (!this.resteDeLaSortie?.length) {
+        if (!this.resteDeLaSortie?.length && !this.sortieJoueur.endsWith("</p>")) {
           this.sortieJoueur += "</p>";
         }
         // REPRISE D’UNE PARTIE
