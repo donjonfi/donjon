@@ -139,8 +139,6 @@ export class EditeurComponent implements OnInit, OnDestroy {
   compilationEnCours = false;
   compilationTerminee = false;
 
-  fichierCharge = null;
-
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -331,10 +329,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.onMajSections();
   }
 
-  onChargerFichierLocal(evenement): void {
-    if (this.fichierCharge) {
+  onChargerFichierLocal(files: FileList): void {
+
+    if (files.length > 0) {
       // fichier choisi par l’utilisateur
-      const file = evenement.target.files[0];
+      const file = files[0];
       if (file) {
         this.viderSectionsCodeSource("partie");
         this.sectionCodeSourceVisible = "";

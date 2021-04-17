@@ -20,8 +20,6 @@ export class JouerComponent implements OnInit {
   erreurs: string[] = null;
   jeu: Jeu = null;
 
-  fichierCharge = null;
-
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -59,11 +57,12 @@ export class JouerComponent implements OnInit {
   }
 
   /** Charger un fichier depuis l'ordinateur de l'utilisateur. */
-  onChargerFichierLocal(evenement) {
-    if (this.fichierCharge) {
+  onChargerFichierLocal(files: FileList) {
+
+    if (files.length > 0) {
 
       // fichier choisi par l’utilisateur
-      const file = evenement.target.files[0];
+      const file = files[0];
       this.erreurs = [];
       if (file) {
         this.chargement = true;
