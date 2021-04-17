@@ -53,7 +53,7 @@ export class Commandes {
           console.warn("#DEB# trouvé " + els.sujet.nom, "\n >> el=", el, "\n >> etats=", etats, "\n >> visible=", visible, "\n >> position=", emplacement);
           retVal =
             "{*" + ElementsJeuUtils.calculerIntitule(el, false) + "*} (" + el.genre + ", " + el.nombre + ")" +
-            "{n}{e}{_type_}{n}" + el.classe.intitule +
+            "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(el.classe) +
             "{n}{e}{_synonymes_}{n}" + (el.synonymes?.length ? el.synonymes.map(x=> x.toString()).join(", ") : '(aucun)') +
             (estObjet ? ("{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non')) : '') +
             "{n}{e}{_états_}{n}" + etats +

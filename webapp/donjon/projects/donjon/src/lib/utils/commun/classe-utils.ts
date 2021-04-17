@@ -29,8 +29,8 @@ export class ClasseUtils {
       // enlever caractères spéciaux, déterminant et majuscules.
       nomNormalise = StringUtils.normaliserMot(intituleClasse);
       // mettre le mot au singulier
-      nomNormalise =  MotUtils.getSingulier(nomNormalise);
-     
+      nomNormalise = MotUtils.getSingulier(nomNormalise);
+
       switch (nomNormalise) {
 
         // homme, femme => personne
@@ -69,5 +69,19 @@ export class ClasseUtils {
 
     return retVal;
   }
-  
+
+  public static getHierarchieClasse(classe: Classe) {
+    let retVal = "−";
+    if (classe) {
+      retVal = classe.intitule;
+      let curParent = classe.parent;
+      while (curParent != null) {
+        retVal += " >> " + curParent.intitule;
+        // parent suivant
+        curParent = curParent.parent;
+      }
+    }
+    return retVal;
+  }
+
 }

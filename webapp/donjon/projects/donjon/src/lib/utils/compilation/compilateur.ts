@@ -112,7 +112,7 @@ export class Compilateur {
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
         monde.speciaux.push(el);
       } else {
-        console.error("ParseCode >>> classe racine pas prise en charge:", el.classe);
+        console.error("ParseCode >>> classe racine pas prise en charge:", el.classe, el);
       }
     });
 
