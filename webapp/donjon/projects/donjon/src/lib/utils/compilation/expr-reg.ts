@@ -420,7 +420,7 @@ export class ExprReg {
   /** 
    * si aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela|ici)(5)
    */
-  static readonly xConditionAucunPourVers = /^(?:si )?(aucun(?:e)?) (\S+)(?: (\S+))? (pour|vers) ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela|ici)$/i;
+  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela|ici)$/i;
 
   /**
    * si (condition)(1) (:|,)(2) (consequences)(3)

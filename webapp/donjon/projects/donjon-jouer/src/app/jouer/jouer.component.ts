@@ -1,11 +1,10 @@
 import * as FileSaver from 'file-saver';
 
-import { Action, Compilateur, Generateur, Jeu, ListeEtats, StringUtils } from '@donjon/core';
+import { Compilateur, Generateur, Jeu, ListeEtats, StringUtils } from '@donjon/core';
 import { Component, OnInit } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { MotUtils } from 'projects/donjon/src/public-api';
 
 @Component({
   selector: 'app-jouer',

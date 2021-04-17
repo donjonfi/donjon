@@ -260,12 +260,12 @@ export class ConditionsUtils {
               break;
 
 
-            // PAS DE (aucun)
+            // EXISTANCE
             // forme "aucun·e xxxx pour yyyy" ou "aucun·e xxx vers yyyy"
-            // Ex: aucune description pour ceci. 
-            // Ex: aucune sortie vers le nord.
-            case 'aucun':
-            case 'aucune':
+            // Ex: aucune description n’existe pour ceci. 
+            // Ex: aucune sortie n’existe vers le nord.
+            // Ex: un aperçu existe pour cela.
+            case 'existe':
 
               // console.warn("$$$ condition=", condition);
 
@@ -301,22 +301,22 @@ export class ConditionsUtils {
 
                   // aucune sortie dans cette direction si pas de voisin
                   if (voisinID == -1) {
-                    retVal = true;
+                    retVal = false;
                     // aucune sortie si voisin derrière une porte fermée et invisible
                   } else {
                     const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
                     if (porteID != -1) {
                       const porte = this.eju.getObjet(porteID);
-                      // si on teste « aucune sortie » tout court, il faut que la porte ne soit invisible et fermée pour remplir la condition.
+                      // si on teste « existe sortie » tout court, il faut que la porte ne soit invisible et fermée pour ne pas remplir la condition.
                       if (!condition.sujetComplement.epithete) {
-                        retVal = this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
-                        // si on test « aucune sortie accessible », il faut que la porte soit fermée pour remplir la condition.
+                        retVal = ! this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
+                        // si on test « existe sortie accessible », il faut que la porte soit fermée pour ne pas remplir la condition.
                       } else if (condition.sujetComplement.epithete == 'accessible') {
-                        retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ferme, this.eju);
+                        retVal = ! this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ferme, this.eju);
                         // attribut pas pris en charge
                       } else {
                         console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
-                        retVal = true; // ???
+                        retVal = false; // => pas de sortie
                       }
 
                     }
@@ -333,31 +333,30 @@ export class ConditionsUtils {
                   const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
                   // aucune porte
                   if (porteID == -1) {
-                    retVal = true;
+                    retVal = false;
                     // la porte est invisible => aucune porte
                   } else {
                     const porte = this.eju.getObjet(porteID);
-                    retVal = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+                    retVal = ! this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
                   }
                 }
               }
               // B) PROPRIÉTÉ
               else if (condition.complement === 'description') {
-                retVal = (!(sujet as ElementJeu).description);
-              } else if (condition.complement === 'aperçu') {
-              } else if (condition.complement === 'apercu') {
-                retVal = (!(sujet as ElementJeu).apercu);
+                retVal = (sujet as ElementJeu).description ? true : false;
+              } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
+                retVal = (sujet as ElementJeu).apercu ? true : false;
               } else if (condition.complement === 'texte') {
-                retVal = (!(sujet as ElementJeu).texte);
+                retVal = (sujet as ElementJeu).texte ? true : false;
               } else {
-                // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra true
-                retVal = true;
+                // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false
+                retVal = false;
                 // parcourir les propriétés
                 (sujet as ElementJeu).proprietes.forEach(propriete => {
                   // si on a trouvé la propriété et qu’elle a une valeur
                   if (propriete.nom.toLocaleLowerCase() === condition.complement.toLowerCase() && propriete.valeur) {
                     // on a trouvé la propriété et celle-ci a une valeur
-                    retVal = false;
+                    retVal = true;
                   }
                 });
               }

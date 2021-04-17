@@ -48,7 +48,7 @@ export class PhraseUtils {
         resConditionLaSortieVers = ExprReg.xConditionLaSortieVers.exec(condition);
         if (!resConditionLaSortieVers) {
           // D. tester la formulation [aucun pour]
-          resConditionAucunPourVers = ExprReg.xConditionAucunPourVers.exec(condition);
+          resConditionAucunPourVers = ExprReg.xConditionExistePourVers.exec(condition);
           if (!resConditionAucunPourVers) {
             // E. tester la formulation simple
             resCondSimple = ExprReg.xCondition.exec(condition);
@@ -108,13 +108,15 @@ export class PhraseUtils {
         }
       }
     } else if (resConditionAucunPourVers) {
-      // ex: aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
+      // ex1: aucun(1) complément(2) attribut(3) {n’existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
+      // ex2: un(1) complément(2) attribut(3) {existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
       // ex sujet: ceci, cela, la/pomme/enchantée
       const sujet = resConditionAucunPourVers[7] ? (new GroupeNominal(resConditionAucunPourVers[6], resConditionAucunPourVers[7], resConditionAucunPourVers[8] ? resConditionAucunPourVers[8] : null)) : (resConditionAucunPourVers[5] ? new GroupeNominal(null, resConditionAucunPourVers[5], null) : null);
-      const verbe = "aucun"; // aucun, aucune (c’est pas un verbe mais bon…)
+      const verbe = "existe";
       // ex compl1: description, aperçu, sortie, sortie accessible, porte, ...
       const compl = resConditionAucunPourVers[2] + (resConditionAucunPourVers[3] ? (" " + resConditionAucunPourVers[3]) : "");
-      els = new ElementsPhrase(null, sujet, verbe, null, compl);
+      const negation = resConditionAucunPourVers[1].match(/^aucun|aucune$/i) ? resConditionAucunPourVers[1].toLowerCase() : null;
+      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
 
       // console.warn("$$$$ els=", els);
 
