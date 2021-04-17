@@ -25,6 +25,8 @@ export enum EEtatsBase {
   present = 'présent',
   /** absent (calculé) (↔ présent) */
   absent = 'absent',
+  /** visité : lieu */
+  visite = "visité",
   /** intact (≠ déplacé) */
   intact = "intact",
   /** déplacé (≠ intact) */

@@ -131,10 +131,10 @@ export class ElementsJeuUtils {
   get curLieu() {
     // TODO: retenir le lieu
     const lieuID = this.getLieuObjet(this.jeu.joueur);
-    const retVal = this.jeu.lieux.find(x => x.id === lieuID);
+    const retVal: Lieu = this.jeu.lieux.find(x => x.id === lieuID);
     if (retVal) {
       // le lieu a été visité par le joueur
-      retVal.visite = true;
+      this.jeu.etats.ajouterEtatElement(retVal, EEtatsBase.visite, true);
     } else {
       console.warn("Pas trouvé la curLieu:", lieuID);
     }
@@ -150,6 +150,7 @@ export class ElementsJeuUtils {
 
   private majAdjacenceLieu(lieu: Lieu) {
     // le lieu est adjacent (au lieu actuel, curLieu) si il est son voisin.
+    // (même si séparé par une porte fermée et invisible !)
     const voisinTrouve = this.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == lieu.id);
     // adjacent
     if (voisinTrouve) {
@@ -224,7 +225,7 @@ export class ElementsJeuUtils {
    * @param loc 
    * @param type 
    */
-  getVoisinID(loc: Localisation | ELocalisation, type: EClasseRacine) {
+  getVoisinDirectionID(loc: Localisation | ELocalisation, type: EClasseRacine) {
     let voisin: Voisin = null;
     if (loc instanceof Localisation) {
       voisin = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);

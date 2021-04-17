@@ -13,6 +13,7 @@ import { Objet } from '../../models/jeu/objet';
 export class ListeEtats {
 
   public presentID = -1;
+  public visiteID = -1;
   public intactID = -1;
   public deplaceID = -1;
   public modifieID = -1;
@@ -53,6 +54,8 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
+    // visité (lieu)
+    this.visiteID = this.creerEtat(EEtatsBase.visite).id;
     // intact, déplacé et modifié (objet, lieu)
     this.intactID = this.creerEtat(EEtatsBase.intact).id;
     this.deplaceID = this.creerEtat(EEtatsBase.deplace).id;
