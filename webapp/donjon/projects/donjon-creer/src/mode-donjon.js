@@ -33,7 +33,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
       "start": [
         {
           token: "comment",
-          regex: "^( |)--.*$"
+          regex: "^( *)--.*$"
         }, {
           token: "comment",
           start: "/\\*",
