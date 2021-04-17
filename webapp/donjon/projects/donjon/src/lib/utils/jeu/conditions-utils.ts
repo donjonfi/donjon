@@ -211,12 +211,12 @@ export class ConditionsUtils {
               // regarder s'il y a une sortie dans la direction indiquée
             } else {
               if (condition.sujet.nom == "sortie vers") {
-                const voisinID = this.eju.getVoisinID(loc, EClasseRacine.lieu);
+                const voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
                 if (voisinID !== -1) {
                   sujet = this.eju.getLieu(voisinID);
                 }
               } else {
-                const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
+                const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
                 if (porteID !== -1) {
                   sujet = this.eju.getObjet(porteID);
                 }
@@ -267,8 +267,6 @@ export class ConditionsUtils {
             // Ex: un aperçu existe pour cela.
             case 'existe':
 
-              // console.warn("$$$ condition=", condition);
-
               // remarque: négation appliquée plus loin.
               // A) SORTIE, PORTE
               if (condition.sujetComplement.nom === 'sortie') {
@@ -288,7 +286,7 @@ export class ConditionsUtils {
                   console.error("siEstVrai: sorties vers '", sujet.intitule.nom, "': direction inconnue.");
                   // regarder s'il y a une sortie dans la direction indiquée
                 } else {
-                  let voisinID = this.eju.getVoisinID(loc, EClasseRacine.lieu);
+                  let voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
 
                   // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
                   if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
@@ -299,26 +297,30 @@ export class ConditionsUtils {
                     }
                   }
 
-                  // aucune sortie dans cette direction si pas de voisin
+                  // Pas de voisin => aucune sortie dans cette direction
                   if (voisinID == -1) {
                     retVal = false;
-                    // aucune sortie si voisin derrière une porte fermée et invisible
+                    // voisin existe
                   } else {
-                    const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
-                    if (porteID != -1) {
+                    // trouver si porte séparre voisin
+                    const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
+                    // aucune porte => sortie existe et est accessible
+                    if (porteID == -1) {
+                      retVal = true;
+                      // une porte
+                    } else {
                       const porte = this.eju.getObjet(porteID);
-                      // si on teste « existe sortie » tout court, il faut que la porte ne soit invisible et fermée pour ne pas remplir la condition.
+                      // si on teste « existe sortie » tout court, il y a une sortie (sauf si porte invisible fermée.)
                       if (!condition.sujetComplement.epithete) {
-                        retVal = ! this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
-                        // si on test « existe sortie accessible », il faut que la porte soit fermée pour ne pas remplir la condition.
+                        retVal = !this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
+                        // si on test « existe sortie accessible », il faut que la porte soit ouverte pour retourner vrai.
                       } else if (condition.sujetComplement.epithete == 'accessible') {
-                        retVal = ! this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ferme, this.eju);
+                        retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ouvert, this.eju);
                         // attribut pas pris en charge
                       } else {
                         console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
                         retVal = false; // => pas de sortie
                       }
-
                     }
                   }
                 }
@@ -330,24 +332,41 @@ export class ConditionsUtils {
                   console.error("siEstVrai: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
                   // regarder s'il y a une porte dans la direction indiquée
                 } else {
-                  const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
+                  const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
                   // aucune porte
                   if (porteID == -1) {
                     retVal = false;
                     // la porte est invisible => aucune porte
                   } else {
                     const porte = this.eju.getObjet(porteID);
-                    retVal = ! this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+                    retVal = !this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
                   }
                 }
               }
               // B) PROPRIÉTÉ
+              // desrciption
               else if (condition.complement === 'description') {
                 retVal = (sujet as ElementJeu).description ? true : false;
+                // aperçu
               } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
-                retVal = (sujet as ElementJeu).apercu ? true : false;
+                // => aperçu dans une direction
+                if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
+                  const dirCeci = ceci as Localisation;
+                  let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
+                  if (voisinID !== -1) {
+                    let voisin = this.eju.getLieu(voisinID);
+                    retVal = voisin.apercu ? true : false;
+                  } else {
+                    console.error("cond aperçu existe vers direction: voisin pas trouvé dans cette direction.");
+                  }
+                  // => aperçu d’un objet
+                } else {
+                  retVal = (sujet as ElementJeu).apercu ? true : false;
+                }
+                // texte
               } else if (condition.complement === 'texte') {
                 retVal = (sujet as ElementJeu).texte ? true : false;
+                // autre
               } else {
                 // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false
                 retVal = false;
@@ -473,6 +492,17 @@ export class ConditionsUtils {
     if (condition.negation) {
       retVal = !retVal;
     }
+
+    console.warn(
+      "Condition:",
+      "\n Suj:", ((condition.sujet?.nom ?? "") + " " + (condition.sujet?.epithete ?? "")),
+      ((condition.sujet ? (condition.sujet.nom === 'ceci' ? ("(" + (ceci?.nom ?? '-') + ")") : '') : '') +
+      (condition.sujet ? (condition.sujet.nom === 'cela' ? ("(" + (cela?.nom ?? '-') + ")") : '') : '') +
+      (condition.sujet ? (condition.sujet.nom === 'ici' ? ("(" + this.eju.curLieu.nom + ")") : '') : '')),
+      "\n Ver:", condition.verbe,
+      "\n Neg:", (condition.negation ?? "−"),
+      "\n Com:", ((condition.sujetComplement?.nom ?? "") + " " + (condition.sujetComplement?.epithete ?? "")),
+      "\n >>> ", retVal);
 
     return retVal;
   }

@@ -20,6 +20,8 @@ import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { Reaction } from '../../models/compilateur/reaction';
 import { Resultat } from '../../models/jouer/resultat';
+import { Etat } from '../../models/commun/etat';
+import { Classe } from '../../models/commun/classe';
 
 export class Instructions {
 
@@ -88,21 +90,42 @@ export class Instructions {
     // Aperçu (d’un objet)
     if (contenu.includes("[aperçu") || contenu.includes("[apercu")) {
       if (contenu.includes("[aperçu ceci]") || contenu.includes("[apercu ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const objCeci = ceci as Objet;
-          const apercuCeci = this.calculerDescription(objCeci.apercu, ++objCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela);
+        let apercuCeci = "???";
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          const eleCeci = ceci as ElementJeu;
+          apercuCeci = this.calculerDescription(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
+        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
+          const dirCeci = ceci as Localisation;
+          let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
+          if (voisinID !== -1) {
+            let voisin = this.eju.getLieu(voisinID);
+            apercuCeci = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ceci, cela);
+          } else {
+            console.error("interpreterContenuDire: aperçu de ceci: voisin pas trouvé dans cette direction.");
+          }
         } else {
-          console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un objet");
+          console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un élément jeu");
         }
+        contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
       }
       if (contenu.includes("[aperçu cela]") || contenu.includes("[apercu cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const objCela = cela as Objet;
-          const apercuCela = this.calculerDescription(objCela.apercu, ++objCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela);
+        let apercuCela = "???";
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          const eleCela = cela as ElementJeu;
+          apercuCela = this.calculerDescription(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ceci, cela);
           contenu = contenu.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
+        } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
+          const dirCela = cela as Localisation;
+          let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
+          if (voisinID !== -1) {
+            let voisin = this.eju.getLieu(voisinID);
+            apercuCela = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ceci, cela);
+          } else {
+            console.error("interpreterContenuDire: aperçu de cela: voisin pas trouvé dans cette direction.");
+          }
         } else {
-          console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un objet");
+          console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un élément jeu");
         }
       }
     }
@@ -409,14 +432,14 @@ export class Instructions {
       }
     }
 
-    // l’ ou les
+    // cod: l’ ou les
     if (contenu.includes("[l’ ") || contenu.includes("[l' ")) {
       if (contenu.includes("[l’ ceci]") || contenu.includes("[l' ceci]")) {
         if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
           const leCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "les " : "l’");
           contenu = contenu.replace(/\[l’ ceci\]|\[l' ceci\]/g, leCeci);
         } else {
-          console.error("interpreterContenuDire: l’ ceci: ceci n'est pas un élément du jeu");
+          console.error("interpreterContenuDire: l’ ceci (cod): ceci n'est pas un élément du jeu");
         }
       }
       if (contenu.includes("[l’ cela]") || contenu.includes("[l' cela]")) {
@@ -424,7 +447,56 @@ export class Instructions {
           const leCela = ((cela as ElementJeu).nombre === Nombre.p ? "les " : "l’");
           contenu = contenu.replace(/\[l’ cela\]|\[l' cela\]/g, leCela);
         } else {
-          console.error("interpreterContenuDire: l’ cela: cela n'est pas un élément du jeu");
+          console.error("interpreterContenuDire: l’ cela (cod): cela n'est pas un élément du jeu");
+        }
+      }
+    }
+
+
+    // cod: le, la ou les
+    // lui, elle, eux, elles
+    if (contenu.includes("[le ")) {
+      if (contenu.includes("[le ceci]")) {
+        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          let codCeci = "";
+          // singulier
+          if ((ceci as ElementJeu).nombre !== Nombre.p) {
+            // masculin
+            if ((ceci as ElementJeu).genre !== Genre.f) {
+              codCeci = "le";
+              // féminin
+            } else {
+              codCeci = "la";
+            }
+            // pluriel
+          } else {
+            codCeci = "les";
+          }
+          contenu = contenu.replace(/\[le ceci\]/g, codCeci);
+        } else {
+          console.error("interpreterContenuDire: le ceci (cod): ceci n'est pas un élément du jeu");
+        }
+      }
+
+      if (contenu.includes("[le cela]")) {
+        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          let codCela = "";
+          // singulier
+          if ((cela as ElementJeu).nombre !== Nombre.p) {
+            // masculin
+            if ((cela as ElementJeu).genre !== Genre.f) {
+              codCela = "le";
+              // féminin
+            } else {
+              codCela = "la";
+            }
+            // pluriel
+          } else {
+            codCela = "les";
+          }
+          contenu = contenu.replace(/\[le cela\]/g, codCela);
+        } else {
+          console.error("interpreterContenuDire: le cela (cod): cela n'est pas un élément du jeu");
         }
       }
     }
@@ -1052,7 +1124,7 @@ export class Instructions {
           let loc: Localisation | ELocalisation = ceci as Localisation;
 
           // console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
-          let voisinID = this.eju.getVoisinID((loc), EClasseRacine.lieu);
+          let voisinID = this.eju.getVoisinDirectionID((loc), EClasseRacine.lieu);
 
           if (voisinID == -1) {
             // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
@@ -2081,7 +2153,7 @@ export class Instructions {
     }
 
     // trouver la porte qui est dans le chemin
-    const porteID = this.eju.getVoisinID(loc, EClasseRacine.porte);
+    const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
     if (porteID !== -1) {
       const porte = this.eju.getObjet(porteID);
       const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
@@ -2130,7 +2202,7 @@ export class Instructions {
       } else {
         retVal = "Il n’y a pas de sortie.";
       }
-    }else{
+    } else {
       retVal = "";
     }
 
@@ -2159,18 +2231,20 @@ export class Instructions {
       obstacle = " ({/obstrué/})";
     }
 
+    let lieuDejaVisite = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID);
+
     switch (localisation) {
       case ELocalisation.nord:
-        retVal = "nord" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "nord" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.sud:
-        retVal = "sud" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sud" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.est:
-        retVal = "est" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "est" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.ouest:
-        retVal = "ouest" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "ouest" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.bas:
         retVal = "descendre" + obstacle + " − " + titreLieu;
@@ -2179,7 +2253,7 @@ export class Instructions {
         retVal = "monter" + obstacle + " − " + titreLieu;
         break;
       case ELocalisation.exterieur:
-        retVal = "sortir" + obstacle + (lieu.visite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sortir" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.interieur:
         retVal = "entrer" + obstacle + " − " + titreLieu;
@@ -2188,8 +2262,6 @@ export class Instructions {
       default:
         retVal = localisation.toString();
     }
-
-
 
     return retVal;
   }

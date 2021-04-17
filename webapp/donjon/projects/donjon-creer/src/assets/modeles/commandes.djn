@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-04-16-0021
+-- Version: 2021-04-17-0022
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -124,8 +124,8 @@ refuser aller vers ceci:
   si le joueur se trouve dans ceci, dire "Vous y êtes déjà.";
   si ceci est un lieu mais pas adjacent, dire "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.";
   si ceci n’est ni une direction ni un lieu, dire "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.";
-  si aucune sortie vers ceci, dire "Je ne peux pas aller par là.";
-  si aucune sortie accessible vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
+  si aucune sortie n’existe vers ceci, dire "Je ne peux pas aller par là.";
+  si aucune sortie accessible n’existe vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
 
 exécuter aller vers ceci:
   déplacer le joueur vers ceci.
@@ -440,10 +440,12 @@ exécuter regarder:
   dire "{N}{N}[sorties ici]".
   
 -- b) regarder ceci
-regarder ceci est une action qui concerne un élément.
+regarder ceci est une action qui concerne un intitulé.
 
 refuser regarder ceci:
-  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.".
+  si ceci n’est ni un element ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.";
+  si ceci n’est ni une direction ni visible ni l’inventaire ni adjacent, dire "Je ne [le ceci] vois pas actuellement.";
+  si ceci est un élément et invisible, dire "Je ne [le ceci] vois pas actuellement.".
 
 terminer regarder ceci:
 -- objet
@@ -469,9 +471,36 @@ terminer regarder ceci:
       dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- lieu
   sinonsi ceci est un lieu :
-    dire "{_{*[titre ici]*}_}";
-    dire "{n}[description ici][décrire objets ici]";
-    dire "{N}{N}[sorties ici]";
+    -- > lieu actuel
+    si le joueur se trouve dans ceci:
+      dire "{_{*[titre ici]*}_}";
+      dire "{n}[description ici][décrire objets ici]";
+      dire "{N}{N}[sorties ici]";
+    -- > lieu adjacent
+    sinon
+      -- >> avec aperçu
+      si un aperçu existe pour ceci:
+        dire "[aperçu ceci]";
+      -- >> sans aperçu, déjà visité
+      sinonsi ceci est visité:
+        dire "Il faudrait y retourner.";
+      -- >> sans aperçu, pas encore visité
+      sinon
+        dire "Pour en savoir plus, il faut s’y rendre.";
+      fin si
+    fin si
+-- direction
+  sinonsi ceci est une direction:
+    -- s’il n’y a rien dans cette direction
+    si aucune sortie n’existe vers ceci:
+      dire "Il n’y a rien dans cette direction.";
+    -- s’il y a un lieu avec un aperçu dans cette direction
+    sinonsi un aperçu existe pour ceci:
+      dire "[aperçu ceci]";
+    -- s’il y a un lieu sans aperçu dans cette direction
+    sinon
+      dire "Le mieux est de se rendre vers [intitulé ceci].";
+    fin si
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
@@ -499,24 +528,30 @@ le joueur peut examiner:
 examiner ceci est une action qui concerne un élément.
 
 refuser examiner ceci:
-  si ceci n’est ni visible ni l’inventaire, dire "Je ne vois pas [intitulé ceci] actuellement.";
-  si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
+  si ceci n’est ni visible ni l’inventaire ni adjacent, dire "Je ne [le ceci] vois pas actuellement.";
+  si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.";
+  si ceci est un élément et invisible, dire "Je ne [le ceci] vois pas actuellement.".
+
 
 exécuter examiner ceci:
 -- objet
   si ceci est un objet:
+    -- > joueur
     si ceci est le joueur,
       dire "Étrange...{n}";
--- >> description de l’objet
+    -- > description de l’objet
     dire "[description ceci] ";
--- >> statut de l’objet
+    -- > statut de l’objet
     si ceci est une porte ou un contenant,
       dire "{N}[statut ceci]";
--- >> contenu de l’objet
+    -- > contenu de l’objet
+    -- >> contenant ouvert
     si ceci est un contenant et ouvert :
       dire "[décrire objets dans ceci]";
+    -- >> contenant fermé mais transparent
     sinonsi ceci est un contenant et fermé et transparent :
       dire "[décrire objets dans ceci]";
+    -- >> support
     sinonsi ceci est un support :
       dire "[décrire objets sur ceci]";
     fin si;
@@ -528,9 +563,24 @@ exécuter examiner ceci:
       dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- lieu
   sinonsi ceci est un lieu :
-    dire "{_{*[titre ici]*}_}";
-    dire "{n}[description ici][décrire objets ici]";
-    dire "{N}{N}[sorties ici]";
+    -- > lieu actuel
+    si le joueur se trouve dans ceci:
+      dire "{_{*[titre ici]*}_}";
+      dire "{n}[description ici][décrire objets ici]";
+      dire "{N}{N}[sorties ici]";
+    -- > lieu adjacent
+    sinon
+      -- >> avec aperçu
+      si un aperçu existe pour ceci:
+        dire "[aperçu ceci]";
+      -- >> sans aperçu, déjà visité
+      sinonsi ceci est visité:
+        dire "Il faudrait y retourner.";
+      -- >> sans aperçu, pas encore visité
+      sinon
+        dire "Pour en savoir plus, il faut s’y rendre.";
+      fin si
+    fin si
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
