@@ -97,6 +97,12 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[6]).toBeUndefined(); // attribut
     });
 
+    
+    it('Élément générique simple: « si ceci est un élément, dire "bla bla" »  (💥)', () => {
+        const result = ExprReg.xDefinitionElementAvecType.exec('si ceci est un élément, dire "bla bla"');
+        expect(result).toEqual(null);
+    });
+
 
     it('Élément générique simple: « La table basse est un objet »', () => {
         const result = ExprReg.xDefinitionElementAvecType.exec("La table basse est un objet");

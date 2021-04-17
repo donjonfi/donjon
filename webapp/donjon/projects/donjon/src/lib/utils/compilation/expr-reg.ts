@@ -72,7 +72,7 @@ export class ExprReg {
  *     - La table basse est un objet
  *     - L'apprentie sorcière (f) est une personne fatiguée
  */
-  static readonly xDefinitionElementAvecType = /^(?!un |une |elle |il |elles |ils |sa |son |ses )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(?!(?:au|à|dans) )(.+))?$/i;
+  static readonly xDefinitionElementAvecType = /^(?!un |une |elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!d'|d’|\()\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(?!(?:au|à|dans) )(.+))?$/i;
 
   /** élément générique positionné par rapport à complément
    * - Découpage :
