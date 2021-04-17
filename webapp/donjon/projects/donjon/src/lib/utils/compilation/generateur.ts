@@ -122,6 +122,12 @@ export class Generateur {
             nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
             break;
 
+
+          case 'aperçu':
+          case 'apercu':
+            nouvLieu.apercu = pro.valeur;
+            break;
+
           default:
             break;
         }
