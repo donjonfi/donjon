@@ -493,16 +493,19 @@ export class ConditionsUtils {
       retVal = !retVal;
     }
 
-    console.warn(
-      "Condition:",
-      "\n Suj:", ((condition.sujet?.nom ?? "") + " " + (condition.sujet?.epithete ?? "")),
-      ((condition.sujet ? (condition.sujet.nom === 'ceci' ? ("(" + (ceci?.nom ?? '-') + ")") : '') : '') +
-      (condition.sujet ? (condition.sujet.nom === 'cela' ? ("(" + (cela?.nom ?? '-') + ")") : '') : '') +
-      (condition.sujet ? (condition.sujet.nom === 'ici' ? ("(" + this.eju.curLieu.nom + ")") : '') : '')),
-      "\n Ver:", condition.verbe,
-      "\n Neg:", (condition.negation ?? "−"),
-      "\n Com:", ((condition.sujetComplement?.nom ?? "") + " " + (condition.sujetComplement?.epithete ?? "")),
-      "\n >>> ", retVal);
+    // // -------------------------------------------------------
+    // // DEB: Affichage détaillé de la condition et du retour
+    // // -------------------------------------------------------
+    // console.warn(
+    //   "Condition:",
+    //   "\n Suj:", ((condition.sujet?.nom ?? "") + " " + (condition.sujet?.epithete ?? "")),
+    //   ((condition.sujet ? (condition.sujet.nom === 'ceci' ? ("(" + (ceci?.nom ?? '-') + ")") : '') : '') +
+    //   (condition.sujet ? (condition.sujet.nom === 'cela' ? ("(" + (cela?.nom ?? '-') + ")") : '') : '') +
+    //   (condition.sujet ? (condition.sujet.nom === 'ici' ? ("(" + this.eju.curLieu.nom + ")") : '') : '')),
+    //   "\n Ver:", condition.verbe,
+    //   "\n Neg:", (condition.negation ?? "−"),
+    //   "\n Com:", ((condition.sujetComplement?.nom ?? "") + " " + (condition.sujetComplement?.epithete ?? "")),
+    //   "\n >>> ", retVal);
 
     return retVal;
   }
