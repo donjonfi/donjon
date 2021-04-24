@@ -3,14 +3,12 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
-import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { Conjugaison } from './conjugaison';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
-import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
@@ -93,16 +91,19 @@ export class Instructions {
     // PROPRIÉTÉS [description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui ceci|cela|ici]
     // ======================================================================================================
 
-    const xBaliseDescription = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ceci|cela|ici)\]/gi;
-    if (xBaliseDescription.test(contenu)) {
+    const balisePropriete = "(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ceci|cela|ici)";
+    const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
+    const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
+
+    if (xBaliseProprieteMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
-      const allBalises = contenu.match(xBaliseDescription);
+      const allBalises = contenu.match(xBaliseProprieteMulti);
       // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
       const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
       // parcourir chaque balise trouvée
       balisesUniques.forEach(curBalise => {
         // retrouver la préposition et la cible
-        const decoupe = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ici|ceci|cela)\]/i.exec(curBalise);
+        const decoupe = xBaliseProprieteSolo.exec(curBalise);
 
         const proprieteString = decoupe[1];
         const cibleString = decoupe[2];
@@ -464,7 +465,7 @@ export class Instructions {
               resultatCurBalise = cible.titre;
               break;
             case 'description':
-              resultatCurBalise =  this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
+              resultatCurBalise = this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
               break;
             case 'intitulé':
             case 'intitule':
@@ -500,43 +501,38 @@ export class Instructions {
     // CONJUGAISON
     // ===================================================
 
-    if (contenu.includes("[v ")) {
-      // - être (s’)
-      if (contenu.includes("[v être ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "être", ceci, cela);
-      }
-      if (contenu.includes("[v s’être ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’être", ceci, cela);
-      }
-      if (contenu.includes("[v s'être ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'être", ceci, cela);
-      }
-      // - avoir
-      if (contenu.includes("[v avoir ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "avoir", ceci, cela);
-      }
-      // - vivre
-      if (contenu.includes("[v vivre ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "vivre", ceci, cela);
-      }
-      // - ouvrir (s’)
-      if (contenu.includes("[v ouvrir ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "ouvrir", ceci, cela);
-      }
-      if (contenu.includes("[v s’ouvrir ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s’ouvrir", ceci, cela);
-      }
-      if (contenu.includes("[v s'ouvrir ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "s'ouvrir", ceci, cela);
-      }
-      // - fermer (se)
-      if (contenu.includes("[v fermer ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "fermer", ceci, cela);
-      }
-      if (contenu.includes("[v se fermer ")) {
-        contenu = this.calculerToutesLesFormesEtSujetsConjugaison(contenu, "se fermer", ceci, cela);
-      }
+    // verbe(1) modeTemps(2) [negation(3)] sujet(4)
+    const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici)";
+    const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
+    const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
+
+    if (xBaliseVerbeMulti.test(contenu)) {
+
+      // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
+      const allBalises = contenu.match(xBaliseVerbeMulti);
+      // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver la préposition et la cible
+        const decoupe = xBaliseVerbeSolo.exec(curBalise);
+
+        const verbe = decoupe[1];
+        const modeTemps = decoupe[2];
+        const negation = decoupe[3];
+        const sujet = decoupe[4];
+
+        // retrouver le verbe conjugué
+        const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, ceci, cela);
+
+        // remplacer la balise par le verbe conjugué
+        const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujet}`;
+        const regExp = new RegExp("\\[" + expression + "\\]", "g");
+        contenu = contenu.replace(regExp, verbeConjugue);
+
+      });
     }
+
     // ===================================================
     // CONDITIONS
     // ===================================================
@@ -769,160 +765,92 @@ export class Instructions {
   // CONJUGAISON
   // ===================================================
 
-  private calculerToutesLesFormesEtSujetsConjugaison(contenu: string, verbe: string, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-    // liste des sujets
-    const sujets: string[] = [];
-    if (contenu.includes("ceci]")) {
-      sujets.push("ceci");
-    }
-    if (contenu.includes("cela]")) {
-      sujets.push("cela");
-    }
-    if (contenu.includes("ici]")) {
-      sujets.push("ici");
-    }
-    // si au moins un sujet (sinon ça sert à rien de continuer)
-    if (sujets.length != 0) {
-      // sans négation
-      sujets.forEach(sujet => {
-        contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, null, ceci, cela);
-      });
-      // avec négation
-      if (contenu.includes(" pas ")) {
-        sujets.forEach(sujet => {
-          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "pas", ceci, cela);
-        });
-      }
-      if (contenu.includes(" plus ")) {
-        sujets.forEach(sujet => {
-          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "plus", ceci, cela);
-        });
-      }
-      if (contenu.includes(" que ")) {
-        sujets.forEach(sujet => {
-          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "que", ceci, cela);
-        });
-      }
-      if (contenu.includes(" ni ")) {
-        sujets.forEach(sujet => {
-          contenu = this.calculerToutesLesFormesConjugaison(contenu, verbe, sujet, "ni", ceci, cela);
-        });
-      }
-    }
-    return contenu;
-  }
+  private calculerConjugaison(verbe: string, modeTemps: string, negation: string, sujetStr: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): string {
 
-  private calculerToutesLesFormesConjugaison(contenu: string, verbe: string, sujet: string, negation: string, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-    contenu = this.calculerConjugaison(contenu, verbe, "ipr", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ipac", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "iimp", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ipqp", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ipas", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ipaa", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ifus", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "ifua", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "cpr", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "cpa", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "spr", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "spa", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "simp", negation, sujet, ceci, cela);
-    contenu = this.calculerConjugaison(contenu, verbe, "spqp", negation, sujet, ceci, cela);
+    // retrouver et contrôler le sujet
+    let sujet: ElementJeu | Intitule = null;
+    switch (sujetStr) {
+      case 'ceci':
+        sujet = ceci;
+        break;
+      case 'cela':
+        sujet = cela;
+        break;
+      case 'ici':
+        sujet = this.eju.curLieu;
+        break;
+      default:
+        break;
+    }
+    if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
+      console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
+    }
 
-    return contenu;
-  }
-
-  private calculerConjugaison(contenu: string, verbe: string, modeTemps: string, negation: string, sujetStr: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
-    // vérifier si cette forme apparaît dans le contenu
-    const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujetStr}`;
-    if (contenu.includes("[" + expression + "]")) {
-      // retrouver et contrôler le sujet
-      let sujet: ElementJeu | Intitule = null;
-      switch (sujetStr) {
-        case 'ceci':
-          sujet = ceci;
-          break;
-        case 'cela':
-          sujet = cela;
-          break;
-        case 'ici':
-          sujet = this.eju.curLieu;
-          break;
-        default:
-          break;
-      }
-      if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
-        console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu", contenu);
-      }
-
-      // retrouver le verbe
-      let conjugaison = Conjugaison.getVerbe(verbe);
-      let verbeConjugue: string = null;
-      // verbe trouvé
-      if (conjugaison) {
-        // retrouver la forme demandée
-        const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
-        const cle = modeTemps + " " + personne;
-        // forme trouvée
-        if (conjugaison.has(cle)) {
-          verbeConjugue = conjugaison.get(cle);
-          // forme pas trouvée
-        } else {
-          verbeConjugue = "(forme pas prise en charge : " + verbe + ": " + cle + ")";
-        }
-        // verbe pas trouvé
+    // retrouver le verbe
+    let conjugaison = Conjugaison.getVerbe(verbe);
+    let verbeConjugue: string = null;
+    // verbe trouvé
+    if (conjugaison) {
+      // retrouver la forme demandée
+      const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
+      const cle = modeTemps + " " + personne;
+      // forme trouvée
+      if (conjugaison.has(cle)) {
+        verbeConjugue = conjugaison.get(cle);
+        // forme pas trouvée
       } else {
-        console.error("calculerConjugaison > verbe pas pris en charge:", verbe);
-        verbeConjugue = "(verbe pas pris en charge : " + verbe + ")";
+        verbeConjugue = "(forme pas prise en charge : " + verbe + ": " + cle + ")";
       }
+      // verbe pas trouvé
+    } else {
+      console.error("calculerConjugaison > verbe pas pris en charge:", verbe);
+      verbeConjugue = "(verbe pas pris en charge : " + verbe + ")";
+    }
 
-      let verbeDecoupe = verbeConjugue.split(" ", 2);
+    let verbeDecoupe = verbeConjugue.split(" ", 2);
 
-      // tenir compte du se/s’
-      if (verbe.match(/(se |s’|s')(.+)/)) {
-        let se: string = null;
+    // tenir compte du se/s’
+    if (verbe.match(/(se |s’|s')(.+)/)) {
+      let se: string = null;
+      if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+        se = "s’";
+      } else {
+        se = "se ";
+      }
+      // se avec négation
+      if (negation) {
+        // temps simple
+        if (verbeDecoupe.length == 1) {
+          verbeConjugue = "ne " + se + verbeConjugue + " " + negation;
+          // temps composé
+        } else {
+          verbeConjugue = "ne " + se + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
+        }
+        // se sans négation
+      } else {
+        verbeConjugue = se + verbeConjugue;
+      }
+      // pas de se/s’
+    } else {
+      // ajouter la négation (sans se)
+      if (negation) {
+        let ne: string = null;
         if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
-          se = "s’";
+          ne = "n’";
         } else {
-          se = "se ";
+          ne = "ne ";
         }
-        // se avec négation
-        if (negation) {
-          // temps simple
-          if (verbeDecoupe.length == 1) {
-            verbeConjugue = "ne " + se + verbeConjugue + " " + negation;
-            // temps composé
-          } else {
-            verbeConjugue = "ne " + se + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
-          }
-          // se sans négation
+        // temps simple
+        if (verbeDecoupe.length == 1) {
+          verbeConjugue = ne + verbeConjugue + " " + negation;
+          // temps composé
         } else {
-          verbeConjugue = se + verbeConjugue;
-        }
-        // pas de se/s’
-      } else {
-        // ajouter la négation (sans se)
-        if (negation) {
-          let ne: string = null;
-          if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
-            ne = "n’";
-          } else {
-            ne = "ne ";
-          }
-          // temps simple
-          if (verbeDecoupe.length == 1) {
-            verbeConjugue = ne + verbeConjugue + " " + negation;
-            // temps composé
-          } else {
-            verbeConjugue = ne + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
-          }
+          verbeConjugue = ne + verbeDecoupe[0] + " " + negation + " " + verbeDecoupe[1];
         }
       }
-
-      // remplacer dans le contenu par le résultat
-      const regExp = new RegExp("\\[" + expression + "\\]", "g");
-      contenu = contenu.replace(regExp, verbeConjugue);
     }
-    return contenu;
+
+    return verbeConjugue;
   }
 
   /** Exécuter une instruction */
