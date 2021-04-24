@@ -60,31 +60,151 @@ export class Instructions {
     return nbChoix;
   }
 
+  /** Retrouver la cible sur base de son texte (ici, ceci, cela, inventaire, joueur) */
+  private getCible(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): ElementJeu {
+    let cible: ElementJeu = null;
+    // retrouver la cible
+    switch (cibleString) {
+      case 'ici':
+        cible = this.eju.curLieu;
+        // afficherObjetsCaches = false;
+        break;
+      case 'ceci':
+        cible = ceci as ElementJeu;
+        break;
+      case 'cela':
+        cible = cela as ElementJeu;
+        break;
+      case 'inventaire':
+      case 'joueur':
+        cible = this.jeu.joueur;
+        // phraseSiVide = "";
+        // phraseSiQuelqueChose = "";
+        break;
+    }
+    return cible;
+  }
+
   private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-    // description
-    if (contenu.includes("[description")) {
-      if (contenu.includes("[description ici]")) {
-        const descIci = this.calculerDescription(this.eju.curLieu.description, ++this.eju.curLieu.nbAffichageDescription, null, ceci, cela);
-        contenu = contenu.replace(/\[description ici\]/g, descIci);
-      }
-      if (contenu.includes("[description ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const eleCeci = ceci as ElementJeu;
-          const descCeci = this.calculerDescription(eleCeci.description, ++eleCeci.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ceci, cela);
-          contenu = contenu.replace(/\[description ceci\]/g, descCeci);
-        } else {
-          console.error("interpreterContenuDire: Description de ceci: ceci n'est pas un objet");
+    // A) description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui
+    const xBaliseDescription = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ici|ceci|cela)\]/gi;
+    if (xBaliseDescription.test(contenu)) {
+      // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
+      const allBalises = contenu.match(xBaliseDescription);
+      // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver la préposition et la cible
+        const decoupe = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ici|ceci|cela)\]/i.exec(curBalise);
+
+        const proprieteString = decoupe[1];
+        const cibleString = decoupe[2];
+        const cible: ElementJeu = this.getCible(cibleString, ceci, cela);
+
+        let resultat: string = '';
+
+        switch (proprieteString) {
+          // > description
+          case 'description':
+          case 'Description':
+            resultat = this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
+            break;
+
+          case 'intitulé':
+          case 'intitule':
+            resultat = ElementsJeuUtils.calculerIntitule(cible, false);
+            break;
+
+          case 'Intitulé':
+          case 'Intitule':
+            resultat = ElementsJeuUtils.calculerIntitule(cible, true);
+            break;
+
+          // es ceci | accord ceci (féminin et pluriel)
+          case 'accord':
+          case 'es':
+            resultat = (cible.genre === Genre.f ? "e" : "") + (cible.nombre === Nombre.p ? "s" : "");
+            break;
+
+          // s ceci (pluriel)
+          case 's':
+            resultat = (cible.nombre === Nombre.p ? "s" : "");
+            break;
+
+          // pronom
+          case 'pronom':
+          case 'il':
+            if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
+              resultat = (cible.genre === Genre.f ? "elle" : "il") + (cible.nombre === Nombre.p ? "s" : "");
+            } else {
+              console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un élément.");
+            }
+            break;
+
+          // pronom (majuscule)
+          case 'Pronom':
+          case 'Il':
+            resultat = (cible.genre === Genre.f ? "Elle" : "Il") + (cible.nombre === Nombre.p ? "s" : "");
+            break;
+
+          // cod: l’ ou les
+          case 'l’':
+          case 'l\'':
+            resultat = (cible.nombre === Nombre.p ? "les " : "l’");
+            break;
+
+          // cod: le, la ou les
+          case 'le':
+            // singulier
+            if ((ceci as ElementJeu).nombre !== Nombre.p) {
+              // masculin
+              if ((ceci as ElementJeu).genre !== Genre.f) {
+                resultat = "le";
+                // féminin
+              } else {
+                resultat = "la";
+              }
+              // pluriel
+            } else {
+              resultat = "les";
+            }
+            break;
+
+          // lui, elle, eux, elles
+          case 'lui':
+            // singulier
+            if ((ceci as ElementJeu).nombre !== Nombre.p) {
+              // masculin
+              if ((ceci as ElementJeu).genre !== Genre.f) {
+                resultat = "lui";
+                // féminin
+              } else {
+                resultat = "elle";
+              }
+              // pluriel
+            } else {
+              // masculin
+              if ((ceci as ElementJeu).genre !== Genre.f) {
+                resultat = "eux";
+                // féminin
+              } else {
+                resultat = "elles";
+              }
+            }
+
+          // inconnu
+          default:
+            console.error("interpreterContenuDire: propriete pas prise en charge:", proprieteString);
+            break;
         }
-      }
-      if (contenu.includes("[description cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const eleCela = cela as ElementJeu;
-          const descCela = this.calculerDescription((cela as Objet).description, ++(cela as Objet).nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ceci, cela);
-          contenu = contenu.replace(/\[description cela\]/g, descCela);
-        } else {
-          console.error("interpreterContenuDire: Description de cela: cela n'est pas un objet");
-        }
-      }
+
+        // remplacer la balise par le résultat
+        const xCurBalise = new RegExp("\\[" + proprieteString + " " + cibleString + "\\]", "g");
+        contenu = contenu.replace(xCurBalise, resultat);
+
+      });
+
     }
 
     // Aperçu (d’un objet)
@@ -177,24 +297,15 @@ export class Instructions {
         let phraseSiQuelqueChose = "{n}Vous voyez ";
         let afficherObjetsCaches = true;
 
-        // retrouver la cible
-        let cible: ElementJeu = null;
-        switch (cibleString) {
-          case 'ici':
-            cible = this.eju.curLieu;
-            afficherObjetsCaches = false;
-            break;
-          case 'ceci':
-            cible = ceci as ElementJeu;
-            break;
-          case 'cela':
-            cible = cela as ElementJeu;
-            break;
-          case 'inventaire':
-            cible = this.jeu.joueur;
-            phraseSiVide = "";
-            phraseSiQuelqueChose = "";
-            break;
+        const cible: ElementJeu = this.getCible(cibleString, ceci, cela);
+
+        // cas particuliers
+        // > inventaire / joueur
+        if (cible == this.jeu.joueur) {
+          phraseSiQuelqueChose = "";
+          // > ici
+        } else if (cible == this.eju.curLieu) {
+          afficherObjetsCaches = false;
         }
 
         // retrouver la préposition (dans par défaut)
@@ -202,7 +313,7 @@ export class Instructions {
         if (prepositionString) {
           preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
         }
-        if (cibleString !== 'ici') {
+        if (cible != this.eju.curLieu) {
           switch (preposition) {
             case PrepositionSpatiale.sur:
               phraseSiVide = "{n}Il n’y a rien dessus.";
@@ -312,253 +423,6 @@ export class Instructions {
       }
     }
 
-    // intitulé
-    if (contenu.includes("[intitulé")) {
-      if (contenu.includes("[intitulé ici]")) {
-        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
-        contenu = contenu.replace(/\[intitulé ici\]/g, intIci);
-      }
-      if (contenu.includes("[intitulé ceci]")) {
-        const intCeci = ElementsJeuUtils.calculerIntitule(ceci, false);
-        contenu = contenu.replace(/\[intitulé ceci\]/g, intCeci);
-      }
-      if (contenu.includes("[intitulé cela]")) {
-        const intCela = ElementsJeuUtils.calculerIntitule(cela, false);
-        contenu = contenu.replace(/\[intitulé cela\]/g, intCela);
-      }
-    }
-
-    // Intitulé (Majuscule)
-    if (contenu.includes("[Intitulé")) {
-      if (contenu.includes("[Intitulé ici]")) {
-        const intIci = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, true);
-        contenu = contenu.replace(/\[Intitulé ici\]/g, intIci);
-      }
-      if (contenu.includes("[Intitulé ceci]")) {
-        const intCeci = ElementsJeuUtils.calculerIntitule(ceci, true);
-        contenu = contenu.replace(/\[Intitulé ceci\]/g, intCeci);
-      }
-      if (contenu.includes("[Intitulé cela]")) {
-        const intCela = ElementsJeuUtils.calculerIntitule(cela, true);
-        contenu = contenu.replace(/\[Intitulé cela\]/g, intCela);
-      }
-    }
-
-    // pronom
-    if (contenu.includes("[pronom") || contenu.includes("[il ")) {
-      if (contenu.includes("[pronom ceci]") || contenu.includes("[il ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const pronomCeci = ((ceci as ElementJeu).genre === Genre.f ? "elle" : "il") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(pronom|il) ceci\]/g, pronomCeci);
-        } else {
-          console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un objet");
-        }
-      }
-      if (contenu.includes("[pronom cela]") || contenu.includes("[il cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const pronomCela = ((cela as ElementJeu).genre === Genre.f ? "elle" : "il") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(pronom|il) cela\]/g, pronomCela);
-        } else {
-          console.error("interpreterContenuDire: pronom cela: cela n'est pas un objet");
-        }
-      }
-    }
-
-    // pronom (majuscule)
-    if (contenu.includes("[Pronom ") || contenu.includes("[Il ")) {
-      if (contenu.includes("[Pronom ceci]") || contenu.includes("[Il ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const pronomCeci = ((ceci as ElementJeu).genre === Genre.f ? "Elle" : "Il") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(Pronom|Il) ceci\]/g, pronomCeci);
-        } else {
-          console.error("interpreterContenuDire: Pronom ceci: ceci n'est pas un objet");
-        }
-      }
-      if (contenu.includes("[Pronom cela]") || contenu.includes("[Il cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const pronomCela = ((cela as ElementJeu).genre === Genre.f ? "Elle" : "Il") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(Pronom|Il) cela\]/g, pronomCela);
-        } else {
-          console.error("interpreterContenuDire: Pronom cela: cela n'est pas un objet");
-        }
-      }
-    }
-
-    // es ceci | accord ceci (féminin et pluriel)
-    if (contenu.includes("[accord ") || contenu.includes("[es ")) {
-      if (contenu.includes("[accord ici]") || contenu.includes("[es ici]")) {
-        const accordIci = (this.eju.curLieu.genre === Genre.f ? "e" : "") + (this.eju.curLieu.nombre === Nombre.p ? "s" : "");
-        contenu = contenu.replace(/\[(accord|es) ici\]/g, accordIci);
-      }
-      if (contenu.includes("[accord ceci]") || contenu.includes("[es ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const accordCeci = ((ceci as ElementJeu).genre === Genre.f ? "e" : "") + ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(accord|es) ceci\]/g, accordCeci);
-        } else {
-          console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
-        }
-      }
-      if (contenu.includes("[accord cela]") || contenu.includes("[es cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const accordCela = ((cela as ElementJeu).genre === Genre.f ? "e" : "") + ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[(accord|es) cela\]/g, accordCela);
-        } else {
-          console.error("interpreterContenuDire: accord cela: cela n'est pas un élément du jeu");
-        }
-      }
-    }
-
-    // s ceci (pluriel)
-    if (contenu.includes("[s ")) {
-      if (contenu.includes("[s ici]")) {
-        const accordIci = (this.eju.curLieu.nombre === Nombre.p ? "s" : "");
-        contenu = contenu.replace(/\[s ici\]/g, accordIci);
-      }
-      if (contenu.includes("[s ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const accordCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[s ceci\]/g, accordCeci);
-        } else {
-          console.error("interpreterContenuDire: accord ceci: ceci n'est pas un objet");
-        }
-      }
-      if (contenu.includes("[s cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const accordCela = ((cela as ElementJeu).nombre === Nombre.p ? "s" : "");
-          contenu = contenu.replace(/\[s cela\]/g, accordCela);
-        } else {
-          console.error("interpreterContenuDire: accord cela: cela n'est pas un élément du jeu");
-        }
-      }
-    }
-
-    // cod: l’ ou les
-    if (contenu.includes("[l’ ") || contenu.includes("[l' ")) {
-      if (contenu.includes("[l’ ceci]") || contenu.includes("[l' ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const leCeci = ((ceci as ElementJeu).nombre === Nombre.p ? "les " : "l’");
-          contenu = contenu.replace(/\[l’ ceci\]|\[l' ceci\]/g, leCeci);
-        } else {
-          console.error("interpreterContenuDire: l’ ceci (cod): ceci n'est pas un élément du jeu");
-        }
-      }
-      if (contenu.includes("[l’ cela]") || contenu.includes("[l' cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const leCela = ((cela as ElementJeu).nombre === Nombre.p ? "les " : "l’");
-          contenu = contenu.replace(/\[l’ cela\]|\[l' cela\]/g, leCela);
-        } else {
-          console.error("interpreterContenuDire: l’ cela (cod): cela n'est pas un élément du jeu");
-        }
-      }
-    }
-
-
-    // cod: le, la ou les
-    // lui, elle, eux, elles
-    if (contenu.includes("[le ")) {
-      if (contenu.includes("[le ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          let codCeci = "";
-          // singulier
-          if ((ceci as ElementJeu).nombre !== Nombre.p) {
-            // masculin
-            if ((ceci as ElementJeu).genre !== Genre.f) {
-              codCeci = "le";
-              // féminin
-            } else {
-              codCeci = "la";
-            }
-            // pluriel
-          } else {
-            codCeci = "les";
-          }
-          contenu = contenu.replace(/\[le ceci\]/g, codCeci);
-        } else {
-          console.error("interpreterContenuDire: le ceci (cod): ceci n'est pas un élément du jeu");
-        }
-      }
-
-      if (contenu.includes("[le cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          let codCela = "";
-          // singulier
-          if ((cela as ElementJeu).nombre !== Nombre.p) {
-            // masculin
-            if ((cela as ElementJeu).genre !== Genre.f) {
-              codCela = "le";
-              // féminin
-            } else {
-              codCela = "la";
-            }
-            // pluriel
-          } else {
-            codCela = "les";
-          }
-          contenu = contenu.replace(/\[le cela\]/g, codCela);
-        } else {
-          console.error("interpreterContenuDire: le cela (cod): cela n'est pas un élément du jeu");
-        }
-      }
-    }
-
-    // lui, elle, eux, elles
-    if (contenu.includes("[lui ")) {
-      if (contenu.includes("[lui ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          let luiCeci = "";
-          // singulier
-          if ((ceci as ElementJeu).nombre !== Nombre.p) {
-            // masculin
-            if ((ceci as ElementJeu).genre !== Genre.f) {
-              luiCeci = "lui";
-              // féminin
-            } else {
-              luiCeci = "elle";
-            }
-            // pluriel
-          } else {
-            // masculin
-            if ((ceci as ElementJeu).genre !== Genre.f) {
-              luiCeci = "eux";
-              // féminin
-            } else {
-              luiCeci = "elles";
-            }
-          }
-          contenu = contenu.replace(/\[lui ceci\]/g, luiCeci);
-        } else {
-          console.error("interpreterContenuDire: lui ceci: ceci n'est pas un élément du jeu");
-        }
-      }
-
-      if (contenu.includes("[lui cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          let luiCela = "";
-          // singulier
-          if ((cela as ElementJeu).nombre !== Nombre.p) {
-            // masculin
-            if ((cela as ElementJeu).genre !== Genre.f) {
-              luiCela = "lui";
-              // féminin
-            } else {
-              luiCela = "elle";
-            }
-            // pluriel
-          } else {
-            // masculin
-            if ((cela as ElementJeu).genre !== Genre.f) {
-              luiCela = "eux";
-              // féminin
-            } else {
-              luiCela = "elles";
-            }
-          }
-          contenu = contenu.replace(/\[lui cela\]/g, luiCela);
-        } else {
-          console.error("interpreterContenuDire: lui cela: cela n'est pas un élément du jeu");
-        }
-      }
-    }
 
     // ===================================================
     // PROPRIÉTÉS [p nomPropriété ici|ceci|cela]
