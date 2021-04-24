@@ -86,8 +86,14 @@ export class Instructions {
   }
 
   private interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-    // A) description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui
-    const xBaliseDescription = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ici|ceci|cela)\]/gi;
+    // A) 
+
+
+    // ======================================================================================================
+    // PROPRIÉTÉS [description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui ceci|cela|ici]
+    // ======================================================================================================
+
+    const xBaliseDescription = /\[(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ceci|cela|ici)\]/gi;
     if (xBaliseDescription.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseDescription);
@@ -272,9 +278,9 @@ export class Instructions {
       }
     }
 
-    // ==========================================================
+    // ================================================================================
     // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|ceci|cela|inventaire]
-    // ==========================================================
+    // ================================================================================
     if (contenu.includes("[lister objets ") || contenu.includes("[décrire objets ")) {
 
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
@@ -344,6 +350,10 @@ export class Instructions {
 
     }
 
+    // ================================================================================
+    // STATUT
+    // ================================================================================
+
     // statut (porte, contenant)
     if (contenu.includes("[statut")) {
       if (contenu.includes("[statut ceci]")) {
@@ -363,6 +373,10 @@ export class Instructions {
         }
       }
     }
+
+    // ================================================================================
+    // OSTACLE
+    // ================================================================================
 
     if (contenu.includes("[obstacle ")) {
       if (contenu.includes("[obstacle vers ceci]")) {
@@ -439,17 +453,7 @@ export class Instructions {
         const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
         const proprieteString = decoupe[1];
         const cibleString = decoupe[2];
-        let cible: ElementJeu;
-        switch (cibleString) {
-          case 'ici':
-            cible = this.eju.curLieu;
-            break;
-          case 'ceci':
-            cible = ceci as ElementJeu;
-            break;
-          case 'cela':
-            cible = cela as ElementJeu;
-        }
+        let cible: ElementJeu = this.getCible(cibleString, ceci, cela);
         let resultatCurBalise: string = null;
         if (cible) {
           switch (proprieteString) {
@@ -459,14 +463,19 @@ export class Instructions {
             case 'titre':
               resultatCurBalise = cible.titre;
               break;
+            case 'description':
+              resultatCurBalise =  this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
+              break;
             case 'intitulé':
-              resultatCurBalise = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
+            case 'intitule':
+              resultatCurBalise = ElementsJeuUtils.calculerIntitule(cible, false);
               break;
             case 'Intitulé':
-              resultatCurBalise = ElementsJeuUtils.calculerIntitule(this.eju.curLieu, false);
+            case 'Intitule':
+              resultatCurBalise = ElementsJeuUtils.calculerIntitule(cible, true);
               break;
             case 'texte':
-              resultatCurBalise = cible.texte;
+              resultatCurBalise = this.calculerDescription(cible.texte, ++cible.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
               break;
             default:
               const propriete = cible.proprietes.find(x => x.nom == proprieteString);
