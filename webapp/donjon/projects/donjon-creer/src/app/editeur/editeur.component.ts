@@ -24,29 +24,6 @@ import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
 
-// import 'brace/mode/javascript';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Component({
   selector: 'app-editeur',
   templateUrl: './editeur.component.html',

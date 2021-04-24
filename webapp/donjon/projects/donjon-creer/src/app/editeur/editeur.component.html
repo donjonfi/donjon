@@ -197,7 +197,7 @@
               <!-- <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'"> -->
               <div class="rs2 max">
                 <div class="card max" style="height: 100%;">
-                  <ace #codeEditor [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
+                  <ace #codeEditor spellcheck="true" contenteditable [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
                     (focusout)="onCodeFocusOut()"></ace>
                 </div>
               </div>
