@@ -7,6 +7,7 @@ import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Objet } from '../../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
+import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 export class Commandes {
 
@@ -43,21 +44,36 @@ export class Commandes {
           let visible: boolean = null;
           let accessible: boolean = null;
           let emplacement: ElementJeu = null;
-          let estObjet = ClasseUtils.heriteDe(el.classe, EClasseRacine.objet);
+          let contenant: Objet = null;
+          const estObjet = ClasseUtils.heriteDe(el.classe, EClasseRacine.objet);
+          const estContenant = ClasseUtils.heriteDe(el.classe, EClasseRacine.contenant);
+          const estSupport = ClasseUtils.heriteDe(el.classe, EClasseRacine.support);
+          let obj: Objet = null;
           if (estObjet) {
-            let obj = (el as Objet);
+            obj = (el as Objet);
             visible = this.jeu.etats.estVisible(obj, this.eju);
             accessible = this.jeu.etats.estAccessible(obj, this.eju);
             emplacement = this.eju.getLieu(this.eju.getLieuObjet(obj));
+            contenant = (obj.position?.cibleType === EClasseRacine.objet ? this.eju.getObjet(obj.position.cibleId) : null)
           }
-          console.warn("#DEB# trouvé " + els.sujet.nom, "\n >> el=", el, "\n >> etats=", etats, "\n >> visible=", visible, "\n >> position=", emplacement);
+          console.warn(
+            "#DEB# trouvé " + els.sujet.nom,
+            "\n >> el=", el,
+            "\n >> etats=", etats,
+            "\n >> visible=", visible,
+            "\n >> position=", obj.position,
+            "\n >> lieu=", emplacement,
+            "\n >> contenant=", contenant
+          );
           retVal =
             "{*" + ElementsJeuUtils.calculerIntitule(el, false) + "*} (" + el.genre + ", " + el.nombre + ")" +
             "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(el.classe) +
-            "{n}{e}{_synonymes_}{n}" + (el.synonymes?.length ? el.synonymes.map(x=> x.toString()).join(", ") : '(aucun)') +
+            "{n}{e}{_synonymes_}{n}" + (el.synonymes?.length ? el.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
             (estObjet ? ("{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non')) : '') +
             "{n}{e}{_états_}{n}" + etats +
-            (estObjet ? ("{n}{e}{_position_}{n}" + (emplacement ? emplacement.nom : 'aucune')) : '') +
+            (estObjet ? ("{n}{e}{_lieu_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenant.nom + ')') : ''))) : '') +
+            (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.executerDecrireContenu(obj, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
+            (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.executerDecrireContenu(obj, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
             "";
         } else {
           console.warn("#DEB# erreur: plusieurs correspondances pour sujet=", els.sujet);
