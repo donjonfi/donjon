@@ -182,7 +182,6 @@ export class Instructions {
         switch (cibleString) {
           case 'ici':
             cible = this.eju.curLieu;
-            phraseSiVide = "";
             afficherObjetsCaches = false;
             break;
           case 'ceci':
@@ -203,17 +202,19 @@ export class Instructions {
         if (prepositionString) {
           preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
         }
-        switch (preposition) {
-          case PrepositionSpatiale.sur:
-            phraseSiVide = "{n}Il n’y a rien dessus.";
-            break;
+        if (cibleString !== 'ici') {
+          switch (preposition) {
+            case PrepositionSpatiale.sur:
+              phraseSiVide = "{n}Il n’y a rien dessus.";
+              break;
 
-          case PrepositionSpatiale.sous:
-            phraseSiVide = "{n}Il n’y a rien dessous.";
+            case PrepositionSpatiale.sous:
+              phraseSiVide = "{n}Il n’y a rien dessous.";
 
-          case PrepositionSpatiale.dans:
-          default:
-            phraseSiVide = "{n}[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
+            case PrepositionSpatiale.dans:
+            default:
+              phraseSiVide = "{n}[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
+          }
         }
 
         let resultatCurBalise: string;

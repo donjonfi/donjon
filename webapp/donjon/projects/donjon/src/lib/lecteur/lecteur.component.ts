@@ -4,6 +4,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClasseUtils } from '../utils/commun/classe-utils';
+import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
 import { Correspondance } from '../utils/jeu/correspondance';
@@ -19,7 +20,6 @@ import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
 import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
-import { ClassesRacines } from '../models/commun/classes-racines';
 
 @Component({
   selector: 'djn-lecteur',
@@ -303,6 +303,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
         const result = this.doCommande(commandeComplete.trim());
         if (result) {
+          // console.log("resultat commande:", result);
           this.ajouterSortieJoueur(BalisesHtml.doHtml(result));
         }
         this.sortieJoueur += "</p>";
