@@ -3,12 +3,14 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
+import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { Conjugaison } from './conjugaison';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
+import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
@@ -20,8 +22,6 @@ import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { Reaction } from '../../models/compilateur/reaction';
 import { Resultat } from '../../models/jouer/resultat';
-import { Etat } from '../../models/commun/etat';
-import { Classe } from '../../models/commun/classe';
 
 export class Instructions {
 
@@ -177,25 +177,6 @@ export class Instructions {
         let phraseSiQuelqueChose = "{n}Vous voyez ";
         let afficherObjetsCaches = true;
 
-        // retrouver la préposition (dans par défaut)
-        let preposition = PrepositionSpatiale.dans;
-        if (prepositionString) {
-          preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
-        }
-        switch (preposition) {
-          case PrepositionSpatiale.sur:
-            phraseSiVide = "{n}Il n’y a rien dessus.";
-            break;
-
-          case PrepositionSpatiale.sous:
-            phraseSiVide = "{n}Il n’y a rien dessous.";
-
-          case PrepositionSpatiale.dans:
-          default:
-            phraseSiVide = "{n}C’est vide.";
-            break;
-        }
-
         // retrouver la cible
         let cible: ElementJeu = null;
         switch (cibleString) {
@@ -215,6 +196,24 @@ export class Instructions {
             phraseSiVide = "";
             phraseSiQuelqueChose = "";
             break;
+        }
+
+        // retrouver la préposition (dans par défaut)
+        let preposition = PrepositionSpatiale.dans;
+        if (prepositionString) {
+          preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
+        }
+        switch (preposition) {
+          case PrepositionSpatiale.sur:
+            phraseSiVide = "{n}Il n’y a rien dessus.";
+            break;
+
+          case PrepositionSpatiale.sous:
+            phraseSiVide = "{n}Il n’y a rien dessous.";
+
+          case PrepositionSpatiale.dans:
+          default:
+            phraseSiVide = "{n}[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
         }
 
         let resultatCurBalise: string;
@@ -1683,6 +1682,20 @@ export class Instructions {
           this.eju.majPresenceObjet(objet);
         }
       }
+
+      // si l’objet déplacé est un contenant ou un support, il faut màj les objets contenus
+      let contenu: Objet[] = [];
+      if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) {
+        contenu = this.obtenirContenu(objet, PrepositionSpatiale.sur);
+      } else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) {
+        contenu = this.obtenirContenu(objet, PrepositionSpatiale.dans);
+      }
+      if (contenu?.length > 0) {
+        contenu.forEach(curObj => {
+          this.eju.majPresenceObjet(curObj);
+        });
+      }
+
     }
 
     // l’objet a été déplacé
