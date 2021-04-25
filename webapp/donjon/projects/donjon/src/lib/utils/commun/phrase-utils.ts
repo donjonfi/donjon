@@ -1,10 +1,10 @@
 import { Condition, LienCondition } from '../../models/compilateur/condition';
 
+import { ClasseUtils } from './classe-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
-import { ClasseUtils } from './classe-utils';
 
 export class PhraseUtils {
 
@@ -460,8 +460,10 @@ export class PhraseUtils {
     return retVal;
   }
 
-  static decomposerInstruction(instruction: string) {
-
+  /** Décompser une instruction (verbe + complément) 
+   * (sans le ";" ou le ".")
+   */
+  static decomposerInstruction(instruction: string): ElementsPhrase {
 
     let els: ElementsPhrase = null;
 
@@ -469,7 +471,11 @@ export class PhraseUtils {
     const resInfinitifCompl = ExprReg.xInstruction.exec(instruction);
 
     if (resInfinitifCompl) {
-      els = new ElementsPhrase(resInfinitifCompl[1], null, null, null, resInfinitifCompl[2]);
+
+      const infinitif = resInfinitifCompl[1];
+      const complement = resInfinitifCompl[2] ?? null;
+
+      els = new ElementsPhrase(infinitif, null, null, null, complement);
 
       // s’il y a un complément qui suit l’infinitif, essayer de le décomposer
       if (els.complement1) {
@@ -480,13 +486,13 @@ export class PhraseUtils {
           // ex: le joueur ne se trouve plus dans la piscine.
           const resSuite = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec(els.complement1);
           if (resSuite) {
-            let sujDet = (resSuite[1] ? resSuite[1] : null);
+            let sujDet = resSuite[1] ?? null;
             let sujNom = resSuite[2];
-            let sujAtt = (resSuite[3] ? resSuite[3] : null);
+            let sujAtt = resSuite[3] ?? null;
             els.sujet = new GroupeNominal(sujDet, sujNom, sujAtt);
-            els.verbe = resSuite[4]?.trim();
-            els.negation = resSuite[5]?.trim();
-            els.complement1 = resSuite[6]?.trim();
+            els.verbe = resSuite[4]?.trim() ?? null;
+            els.negation = resSuite[5]?.trim() ?? null;
+            els.complement1 = resSuite[6]?.trim() ?? null;
             // décomposer le nouveau complément si possible
             const resCompl = GroupeNominal.xPrepositionDeterminantArticheNomEpithete.exec(els.complement1);
             if (resCompl) {
@@ -498,20 +504,31 @@ export class PhraseUtils {
             // ex: déplacer le trésor vers le joueur.
           } else {
             const res1ou2elements = ExprReg.xComplementInstruction1ou2elements.exec(els.complement1);
+
             if (res1ou2elements) {
+
+              const determinant1 = res1ou2elements[1] ?? null;
+              const nom1 = res1ou2elements[2];
+              const epithete1 = res1ou2elements[3] ?? null;
+              const preposition = res1ou2elements[4] ?? null;
+              const determinant2 = res1ou2elements[5] ?? null;
+              const nom2 = res1ou2elements[6] ?? null;
+              const epithete2 = res1ou2elements[7] ?? null;
+
               els.verbe = null;
               els.negation = null;
-              els.sujet = new GroupeNominal(res1ou2elements[1], res1ou2elements[2], res1ou2elements[3]);
-              // els.complement1 = null;
-              els.preposition1 = res1ou2elements[4];
-              els.sujetComplement1 = new GroupeNominal(res1ou2elements[5], res1ou2elements[6], res1ou2elements[7]);
+              els.sujet = new GroupeNominal(determinant1, nom1, epithete1);
+              els.preposition1 = preposition;
+              if (nom2) {
+                els.sujetComplement1 = new GroupeNominal(determinant2, nom2, epithete2);
+              } else {
+                els.complement1 = null;
+              }
             }
           }
         }
       }
     }
-
-
 
     return els;
   }

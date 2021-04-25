@@ -164,7 +164,9 @@ CHAPITRE "Le cabinet".
 --   LIEU 2 − LE CABINET
 -- ///////////////////////
 
-Le cabinet est un lieu au nord du salon. "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées."
+Le cabinet est un lieu au nord du salon.
+Sa description est "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées.".
+Son aperçu est "Une pièce sombre.".
 
 SCÈNE "les décors".
 

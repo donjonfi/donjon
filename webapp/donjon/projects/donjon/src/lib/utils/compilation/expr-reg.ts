@@ -441,8 +441,15 @@ export class ExprReg {
    * - Dire '.......'
    * - Remplacer ....... par .....
    * - Changer ..........
+   * 
+   * - Tests unitaires :
+   *     - continuer l’action
+   *     - changer le joueur possède la canne à pèche
+   *     - dire 
+   *     - dire "Bonjour !"
+   *     - 💥 la pomme est verte
    */
-  static readonly xInstruction = /^(\S+(?:ir|er|re)) (.+|)$/i;
+  static readonly xInstruction = /^(\S+(?:ir|er|re)) (.+)?$/i;
 
   /**
    * Phrase simple avec un verbe conjugé.
@@ -453,6 +460,12 @@ export class ExprReg {
    * - cela se trouve dans le jardin
    * - les chauves-souris ne sont pas fixées
    * - la porte close est ouverte
+   * 
+   * - Tests unitaires :
+   *     - la porte secrète n’est plus fermée
+   *     - la canne à pèche rouge est ouverte
+   *     - ceci n’est plus vide
+   *     - 💥 l’action
    */
   static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
 
@@ -461,6 +474,13 @@ export class ExprReg {
    * - Déplacer le(1) trésor(2) vers(4) le(5) joueur(6).
    * - Utiliser l’(1)arc à flèches(2) rouillé(3) avec(4) la(5) flèche(6) rouge(7).
    * - => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
+   * 
+   * - Tests unitaires :
+   *     - l'action
+   *     - tomate
+   *     - le trésor vers le joueur
+   *     - l’arc à flèches rouillé avec la flèche rouge
+   *     - 💥 manger le biscuit
    */
   static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous|dans) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 
