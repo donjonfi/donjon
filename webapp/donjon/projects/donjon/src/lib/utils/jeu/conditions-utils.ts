@@ -463,6 +463,7 @@ export class ConditionsUtils {
               }
               break;
 
+            // comparaison : égalité
             case 'vaut':
               // TODO: gérer plus de situations (en test)
               // remarque: négation appliquée plus loin.
@@ -472,6 +473,16 @@ export class ConditionsUtils {
                 retVal = true;
               }
               break;
+
+            // comparaison: plus grand que (dépasse)  - plus petit ou égal (ne dépasse pas)
+            case 'dépasse':
+              console.warn("condition « dépasse » : pas encore implémenté.");
+              break
+
+            // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
+            case 'atteint':
+              console.warn("condition « atteint » : pas encore implémenté.");
+              break
 
             default:
               console.error("siEstVrai: verbe pas connu::", condition);
