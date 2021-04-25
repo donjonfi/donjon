@@ -19,6 +19,7 @@ export * from './lib/models/commun/nombre.enum';
 
 export * from './lib/models/compilateur/action';
 export * from './lib/models/commun/capacite';
+export * from './lib/models/compilateur/compteur';
 export * from './lib/models/compilateur/condition';
 export * from './lib/models/compilateur/consequence';
 export * from './lib/models/compilateur/definition';

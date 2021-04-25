@@ -36,6 +36,17 @@
 
 </div>
 
+
+<h3>Compteurs</h3>
+<p *ngIf="!compteurs">Veuillez commencer par interpréter le code.</p>
+
+<p *ngIf="compteurs && compteurs.length == 0">Aucun compteur trouvé.</p>
+<ul>
+  <li *ngFor="let comnpteur of compteurs">
+    <app-apercu-element-generique [el]="comnpteur"></app-apercu-element-generique>
+  </li>
+</ul>
+
 <h3>Règles</h3>
 <p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
 

@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, Compilateur, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, Compilateur, ElementGenerique, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -63,6 +63,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   monde: Monde = null;
   regles: Regle[] = null;
   actions: Action[] = null;
+  compteurs: ElementGenerique[] = null;
   aides: Aide[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
@@ -219,6 +220,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resultat => {
         this.monde = resultat.monde;
         this.regles = resultat.regles;
+        this.compteurs = resultat.compteurs;
         this.actions = resultat.actions.sort((a, b) => (
           (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
         ));
@@ -241,6 +243,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.regles = null;
       this.actions = null;
       this.aides = null;
+      this.compteurs = null;
       this.erreurs = [];
       this.compilationEnCours = false;
       this.compilationTerminee = true;

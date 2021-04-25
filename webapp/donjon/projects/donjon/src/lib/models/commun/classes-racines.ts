@@ -4,7 +4,10 @@ import { Classe } from './classe';
 
 export class ClassesRacines {
 
-  /** Il s’agit d’un mot ou d’un groupe nominal. */
+  /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
+  public static Compteur = new Classe(EClasseRacine.compteur, "compteur", null, 0, []);
+
+  /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
   public static Intitule = new Classe(EClasseRacine.intitule, "intitulé", null, 0, []);
 
   /** Il s’agit d’une direction (nord, sud, est, ouest, haut, bas, intérieur, extérieur) */

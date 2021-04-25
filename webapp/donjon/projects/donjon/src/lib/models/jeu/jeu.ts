@@ -2,11 +2,12 @@ import { Action } from '../compilateur/action';
 import { Aide } from '../commun/aide';
 import { Auditeur } from '../jouer/auditeur';
 import { Classe } from '../commun/classe';
+import { Compteur } from '../compilateur/compteur';
 import { Lieu } from './lieu';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
-import { Regle } from '../compilateur/regle';
 import { Parametres } from '../commun/parametres';
+import { Regle } from '../compilateur/regle';
 
 export class Jeu {
 
@@ -59,6 +60,9 @@ export class Jeu {
 
   /** Règles ajoutées au jeu. */
   regles: Regle[] = [];
+
+  /** Compteurs ajoutés au jeu */
+  compteurs: Compteur[] = [];
 
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];

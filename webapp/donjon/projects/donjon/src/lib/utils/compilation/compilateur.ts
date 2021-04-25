@@ -1,8 +1,10 @@
 import { Analyseur } from './analyseur/analyseur';
+import { AnalyseurConsequences } from './analyseur/analyseur.consequences';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
+import { Definition } from '../../models/compilateur/definition';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ExprReg } from './expr-reg';
@@ -13,8 +15,6 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
-import { Definition } from '../../models/compilateur/definition';
-import { AnalyseurConsequences } from './analyseur/analyseur.consequences';
 
 export class Compilateur {
 
@@ -38,12 +38,16 @@ export class Compilateur {
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
 
     // inclure les commandes de base, sauf si on les a désactivées.
-    if (!
-      (scenario.includes('Désactiver les commandes de base.')
-        || scenario.includes('désactiver les commandes de base.'))) {
+    if (!(scenario.includes('Désactiver les commandes de base.') || scenario.includes('désactiver les commandes de base.'))) {
       try {
         const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
-        Compilateur.analyserCode(sourceCommandes, ctxAnalyse);
+        
+        try {
+          Compilateur.analyserCode(sourceCommandes, ctxAnalyse);
+        } catch (error) {
+          console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
+        }
+
       } catch (error) {
         console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
         ctxAnalyse.erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
@@ -91,6 +95,7 @@ export class Compilateur {
     });
 
     // ÉLÉMENTS
+    let compteurs: ElementGenerique[] = [];
     // définir la classe des éléments génériques et les trier.
     ctxAnalyse.elementsGeneriques.forEach(el => {
       el.classe = ClasseUtils.trouverOuCreerClasse(monde.classes, el.classeIntitule);
@@ -111,6 +116,8 @@ export class Compilateur {
         // spécial
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
         monde.speciaux.push(el);
+      } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.compteur)) {
+        compteurs.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe, el);
       }
@@ -155,6 +162,7 @@ export class Compilateur {
     console.log("monde:", monde);
     console.log("règles:", ctxAnalyse.regles);
     console.log("actions:", ctxAnalyse.actions);
+    console.log("compteurs:", compteurs);
     console.log("aides:", ctxAnalyse.aides);
     console.log("typesUtilisateur:", ctxAnalyse.typesUtilisateur);
     console.log("==================\n");
@@ -164,6 +172,7 @@ export class Compilateur {
     resultat.monde = monde;
     resultat.regles = ctxAnalyse.regles;
     resultat.actions = ctxAnalyse.actions;
+    resultat.compteurs = compteurs;
     resultat.erreurs = ctxAnalyse.erreurs;
     resultat.aides = ctxAnalyse.aides;
     resultat.parametres = ctxAnalyse.parametres;

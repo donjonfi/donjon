@@ -1,6 +1,5 @@
+import { Classe, ClasseUtils, ElementGenerique } from '@donjon/core';
 import { Component, Input, OnInit } from '@angular/core';
-
-import { ElementGenerique } from '@donjon/core';
 
 @Component({
   selector: 'app-apercu-element-generique',
@@ -17,6 +16,10 @@ export class ApercuElementGeneriqueComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  getHierarchieClasse(classe: Classe): string {
+    return ClasseUtils.getHierarchieClasse(classe);
   }
 
 }

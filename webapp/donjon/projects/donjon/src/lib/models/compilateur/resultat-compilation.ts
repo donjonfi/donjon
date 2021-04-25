@@ -1,8 +1,10 @@
 import { Action } from './action';
 import { Aide } from '../commun/aide';
+import { Compteur } from './compteur';
+import { ElementGenerique } from './element-generique';
 import { Monde } from './monde';
-import { Regle } from './regle';
 import { Parametres } from '../commun/parametres';
+import { Regle } from './regle';
 
 export class ResultatCompilation {
 
@@ -10,6 +12,7 @@ export class ResultatCompilation {
     regles: Regle[];
     actions: Action[];
     aides: Aide[];
+    compteurs: ElementGenerique[]
     erreurs: string[];
     parametres: Parametres;
 

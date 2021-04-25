@@ -1,4 +1,4 @@
-import { Action, Monde, Regle, TypeRegle } from '@donjon/core';
+import { Action, Compteur, Monde, Regle, TypeRegle } from '@donjon/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
@@ -12,6 +12,7 @@ export class ApercuMondeComponent implements OnInit {
 
   @Input() monde: Monde;
   @Input() regles: Regle[];
+  @Input() compteurs: Compteur[];
   @Input() actions: Action[];
 
   constructor() { }
