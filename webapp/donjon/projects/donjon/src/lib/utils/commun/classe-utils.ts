@@ -76,7 +76,7 @@ export class ClasseUtils {
       retVal = classe.intitule;
       let curParent = classe.parent;
       while (curParent != null) {
-        retVal += " >> " + curParent.intitule;
+        retVal += " → " + curParent.intitule;
         // parent suivant
         curParent = curParent.parent;
       }
