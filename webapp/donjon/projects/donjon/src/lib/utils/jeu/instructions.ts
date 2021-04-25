@@ -91,7 +91,7 @@ export class Instructions {
     // PROPRIÉTÉS [description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui ceci|cela|ici]
     // ======================================================================================================
 
-    const balisePropriete = "(description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui) (ceci|cela|ici)";
+    const balisePropriete = "(description|intitulé|intitule|accord|es|s|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici)";
     const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
     const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -199,6 +199,7 @@ export class Instructions {
                 resultat = "elles";
               }
             }
+            break;
 
           // inconnu
           default:
