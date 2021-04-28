@@ -983,7 +983,7 @@ export class Instructions {
         break;
 
       case 'sauver':
-        console.log("executerInfinitif >> sauver=", instruction.complement1);
+        // console.log("executerInfinitif >> sauver=", instruction.complement1);
         if (instruction.complement1) {
           this.jeu.sauvegardes.push(instruction.complement1.trim().toLowerCase());
           resultat.succes = true;
@@ -993,9 +993,9 @@ export class Instructions {
         break;
 
       case 'exécuter':
-        console.log("executerInfinitif >> exécuter=", instruction);
+        // console.log("executerInfinitif >> exécuter=", instruction);
         if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
-          console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
+          // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
           sousResultat = this.executerReaction(instruction, ceci, cela);
           resultat.sortie = sousResultat.sortie;
           resultat.succes = sousResultat.succes;
