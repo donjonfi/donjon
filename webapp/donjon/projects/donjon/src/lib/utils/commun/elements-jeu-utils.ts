@@ -1,8 +1,11 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
+import { Capacite } from '../../models/commun/capacite';
 import { ClasseUtils } from './classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
+import { Compteur } from '../../models/compilateur/compteur';
 import { Correspondance } from '../jeu/correspondance';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { Genre } from '../../models/commun/genre.enum';
@@ -13,6 +16,8 @@ import { Lieu } from '../../models/jeu/lieu';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { Propriete } from '../../models/commun/propriete';
+import { ResolvedStaticSymbol } from '@angular/compiler';
 import { Voisin } from '../../models/jeu/voisin';
 
 export class ElementsJeuUtils {
@@ -103,29 +108,54 @@ export class ElementsJeuUtils {
     }
   }
 
+  /**
+   * Dupliquer l’objet.
+   * 
+   * Remarques:
+   *  - L’objet n’est pas automatiquement ajouté aux objets du jeu.
+   *  - L’id du nouvel objet est défini à 0 et l’ID de l’objet original est complété.
+   *  - La quantité de la copie est définie à 1.
+   *  - Les propriétés, capacités et états sont copiés égalements.
+   *  - Le nombre d’affichage des description, aperçu et texte est copié également.
+   *  - Les objets contenus ne sont PAS copiés.
+   *  - La position de l’objet n’est PAS copiée.
+   * 
+   * @param original objet à dupliquer.
+   * @returns copie de l’objet.
+   */
   static copierObjet(original: Objet) {
-    // Rem: La quantité est toujours à 1, et le nombre est donc toujours singulier.
-    // Rem: L’id reste le même que celui de l’original.
-    // TODO: attribuer un nouvel id aux clones ?
-    let retVal = new Objet(original.id, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
-    retVal.description = original.description;
-    retVal.apercu = original.apercu;
-    retVal.texte = original.texte;
-    // retVal.intituleF = original.intituleF;
-    // retVal.intituleM = original.intituleM;
-    retVal.intituleS = original.intituleS;
-    retVal.intituleP = original.intituleP;
+    let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
+    copie.description = original.description;
+    copie.apercu = original.apercu;
+    copie.texte = original.texte;
+    copie.intituleS = original.intituleS;
+    copie.intituleP = original.intituleP;
+    // retrouver id de l’objet original
+    copie.originalId = original.originalId ? original.originalId : original.id;
 
-    // TODO: faut-il copier le nombre d’affichage de la description ?
-    retVal.nbAffichageDescription = original.nbAffichageDescription;
-    retVal.nbAffichageApercu = original.nbAffichageApercu;
-    retVal.nbAffichageTexte = original.nbAffichageTexte;
+    // copier le nombre d’affichage de la description
+    copie.nbAffichageDescription = original.nbAffichageDescription;
+    copie.nbAffichageApercu = original.nbAffichageApercu;
+    copie.nbAffichageTexte = original.nbAffichageTexte;
 
-    // TODO: copier les états
-    // TODO: copier les capacités
-    // TODO: copier les propriétés
-    // TODO: faut-il copier l’inventaire ?
-    return retVal;
+    // copier les états
+    original.etats.forEach(etat => {
+      copie.etats.push(etat);
+    });
+
+    // copier les capacités
+    original.capacites.forEach(cap => {
+      copie.capacites.push(new Capacite(cap.verbe, cap.complement));
+    });
+
+    // copier les propriétés
+    original.proprietes.forEach(prop => {
+      copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
+    });
+
+
+    // TODO: faut-il copier le contenu ?
+    return copie;
   }
 
   get curLieu() {
@@ -186,6 +216,7 @@ export class ElementsJeuUtils {
       this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, true);
     }
   }
+
 
   getLieuObjet(obj: Objet): number {
     // objet pas positionné
@@ -276,21 +307,6 @@ export class ElementsJeuUtils {
 
   }
 
-  getObjetsQuiSeTrouventLa(position: string): Objet[] {
-    let retVal: Objet[] = [];
-
-    if (position === 'ici') {
-      this.jeu.objets.forEach(obj => {
-        if (obj.position && obj.position.cibleType === EClasseRacine.lieu && obj.position.cibleId === this.curLieu.id) {
-          retVal.push(obj);
-        }
-      });
-    } else {
-      console.warn("getObjetsQuiSeTrouventLa >>> position pas encore gérée:", position);
-    }
-    return retVal;
-  }
-
   /**
    * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
    */
@@ -314,17 +330,24 @@ export class ElementsJeuUtils {
         }
 
         // 3. Chercher parmis les objets
-        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : Nombre.i;
+
+        // déterminer si le mot à chercher est au pluriel
+        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : (MotUtils.estFormePlurielle(sujet.nom) ? Nombre.p : Nombre.s);
+
         cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
           cor.elements = cor.elements.concat(cor.objets);
           cor.nbCor += cor.objets.length;
         }
+        // 4. Chercher parmais les compteurs
+        cor.compteurs = this.trouverCompteur(sujet);
+        cor.nbCor += cor.compteurs.length;
       }
-      if (this.verbeux) {
-        console.log(" >>>> éléments trouvés:", cor.elements);
-      }
+      // if (this.verbeux) {
+      console.log(" >>>> éléments trouvés:", cor.elements);
+      // }
+
       // console.log(" >>>> objets trouvés:", cor.objets);
       // console.log(" >>>> lieux trouvés:", cor.lieux);
       // console.log(" >>>> intitulé:", cor.intitule);
@@ -459,6 +482,27 @@ export class ElementsJeuUtils {
   }
 
   /**
+   * Retrouver un compteur parmis tous les compteurs sur base de son intitulé.
+   * Remarque: Il peut y avoir plus d’une correspondance.
+   */
+  trouverCompteur(sujet: GroupeNominal): Compteur[] {
+
+    let compteursTrouves: Compteur[] = [];
+    const sujetNom = sujet.nom.toLowerCase();
+    const sujetEpithete = sujet.epithete?.toLowerCase();
+
+    this.jeu.compteurs.forEach(
+      cpt => {
+        if (cpt.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === cpt.intitule.epithete?.toLowerCase())) {
+          compteursTrouves.push(cpt);
+        }
+      }
+    );
+
+    return compteursTrouves;
+  }
+
+  /**
    * Retrouver un lieu parmis tous les lieux sur base de son intitulé.
    * Remarque: Il peut y avoir plus d’une correspondance.
    */
@@ -539,6 +583,65 @@ export class ElementsJeuUtils {
       console.error("verifierContientObjet ceci est null.");
     }
     return retVal;
+  }
+
+  /**
+ * 
+ * Retrouver les objets contenus dans ceci.
+ * En cas d’erreur null est retourné plutôt qu’on tableau d’objets.
+ * @param ceci 
+ * @param inclureObjetsCachesDeCeci 
+ * @param preposition (dans, sur, sous)
+ */
+  public trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean, preposition: PrepositionSpatiale) {
+    let objets: Objet[] = null;
+    if (ceci) {
+      // objet
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        // retrouver les objets {contenus dans/posés sur} cet objet
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.pre == preposition && x.position.cibleId === ceci.id
+          && this.jeu.etats.estVisible(x, this));
+        // si on ne doit pas lister les objets cachés, les enlever
+        if (!inclureObjetsCachesDeCeci) {
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
+        }
+        // console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
+        // lieu
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+        // retrouver les objets présents dans le lieu
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
+          && this.jeu.etats.estVisible(x, this));
+        if (!inclureObjetsCachesDeCeci) {
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
+        }
+        // console.warn("objets contenus dans ceci:", objets, "ceci lieu=", ceci);
+      } else {
+        console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
+      }
+    }
+    return objets;
+  }
+
+  /**
+   * Renvoyer le contenu d'un objet ou d'un lieu.
+   */
+  public obtenirContenu(ceci: ElementJeu, preposition: PrepositionSpatiale): Objet[] {
+    let els: Objet[] = null;
+    if (ceci) {
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
+        els = this.jeu.objets.filter(x => x.position
+          && x.position.pre == preposition
+          && x.position.cibleType === EClasseRacine.objet
+          && x.position.cibleId === ceci.id);
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
+        els = this.jeu.objets.filter(x => x.position
+          && x.position.cibleType === EClasseRacine.lieu
+          && x.position.cibleId === ceci.id);
+      } else {
+        console.error("obtenirContenu: classe racine pas pris en charge:", ceci.classe);
+      }
+    }
+    return els;
   }
 
 }
