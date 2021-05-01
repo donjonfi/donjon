@@ -1,15 +1,15 @@
-import { EClasseRacine } from "../models/commun/constantes";
-import { Genre } from "../models/commun/genre.enum";
-import { Nombre } from "../models/commun/nombre.enum";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
-import { PositionSujetString } from "../models/compilateur/position-sujet";
-import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 import { Analyseur } from "../utils/compilation/analyseur/analyseur";
 import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
 import { Compilateur } from "../utils/compilation/compilateur";
+import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { EClasseRacine } from "../models/commun/constantes";
 import { ExprReg } from "../utils/compilation/expr-reg";
+import { Genre } from "../models/commun/genre.enum";
+import { Nombre } from "../models/commun/nombre.enum";
+import { PositionSujetString } from "../models/compilateur/position-sujet";
+import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -135,6 +135,11 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[4]).toEqual("(f)"); // féminin et autre forme
         expect(result[5]).toEqual("personne"); // classe
         expect(result[6]).toEqual("fatiguée"); // attribut
+    })
+
+    it('Élément générique simple: « Ce sont des fruits » (💥)', () => {
+        const result = ExprReg.xDefinitionElementAvecType.exec("Ce sont des fruits");
+        expect(result).toEqual(null);
     })
 
     // ÉLÉMENT GÉNÉRIQUE POSITIONNÉ PAR RAPPORT À UN COMPLÉMENT
