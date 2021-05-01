@@ -34,6 +34,13 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
         expect(result[2]).toEqual("\"Bonjour !\""); // complément
     });
 
+    it('Phrase: « changer le score augmente de 1 »', () => {
+        const result = ExprReg.xInstruction.exec("changer le score augmente de 1");
+        expect(result).not.toBeNull();
+        expect(result[1]).toEqual("changer"); // verbe
+        expect(result[2]).toEqual("le score augmente de 1"); // complément
+    });
+
     it('Phrase:  « la pomme est verte » (💥)', () => {
         const result = ExprReg.xInstruction.exec("la pomme est verte");
         expect(result).toBeNull();
@@ -78,6 +85,16 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
         expect(result[6]).toEqual("vide"); // complément
     });
 
+    it('Phrase:  « le score augmente de 1 »', () => {
+        const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("le score augmente de 1");
+        expect(result).not.toBeNull();
+        expect(result[1]).toEqual('le '); // déterminant
+        expect(result[2]).toEqual("score"); // nom
+        expect(result[3]).toBeUndefined(); // attribut
+        expect(result[4]).toEqual("augmente"); // verbe conjugué
+        expect(result[5]).toBeUndefined(); // négation
+        expect(result[6]).toEqual("de 1"); // complément
+    });
 
     it('Phrase:  « l’action » (💥)', () => {
         const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("l’action");
