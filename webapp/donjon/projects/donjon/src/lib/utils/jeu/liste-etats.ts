@@ -81,6 +81,11 @@ export class ListeEtats {
     // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
     // dénombrable et indénombrable (objet)
     this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
+    // unique, multiple, illimité
+    this.creerBasculeEtats(EEtatsBase.unique, EEtatsBase.multiple);
+    this.creerEtat(EEtatsBase.illimite);
+    this.ajouterContradiction(EEtatsBase.unique, EEtatsBase.illimite);
+
     // mangeable, buvable, portable (objet)
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);

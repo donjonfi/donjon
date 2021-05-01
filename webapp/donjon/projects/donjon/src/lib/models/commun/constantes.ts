@@ -60,6 +60,14 @@ export enum EEtatsBase {
   denombrable = 'dénombrable',
   /** indénombrable (↔ dénombrable) */
   indenombrable = 'indénombrable',
+
+  /** unique (≠ multiple, ≠ illimité) */
+  unique = 'unique',
+  /** multiple (≠ unique) */
+  multiple = 'multiple',
+  /** illimité (≠ unique) */
+  illimite = 'illimité',
+
   /** mangeable */
   mangeable = 'mangeable',
   /** buvable */
