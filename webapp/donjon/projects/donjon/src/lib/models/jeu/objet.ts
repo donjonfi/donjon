@@ -24,7 +24,7 @@ export class Objet extends ElementJeu {
   }
 
   /** ID de l’objet dont celui-ci est une copie. */
-  originalId: number;
+  idOriginal: number;
 
   reactions: Reaction[] = null;
 

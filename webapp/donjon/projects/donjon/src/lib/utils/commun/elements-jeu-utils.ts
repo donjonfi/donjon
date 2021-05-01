@@ -1,6 +1,5 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
-import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Capacite } from '../../models/commun/capacite';
 import { ClasseUtils } from './classe-utils';
@@ -16,8 +15,8 @@ import { Lieu } from '../../models/jeu/lieu';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Propriete } from '../../models/commun/propriete';
-import { ResolvedStaticSymbol } from '@angular/compiler';
 import { Voisin } from '../../models/jeu/voisin';
 
 export class ElementsJeuUtils {
@@ -108,55 +107,6 @@ export class ElementsJeuUtils {
     }
   }
 
-  /**
-   * Dupliquer l’objet.
-   * 
-   * Remarques:
-   *  - L’objet n’est pas automatiquement ajouté aux objets du jeu.
-   *  - L’id du nouvel objet est défini à 0 et l’ID de l’objet original est complété.
-   *  - La quantité de la copie est définie à 1.
-   *  - Les propriétés, capacités et états sont copiés égalements.
-   *  - Le nombre d’affichage des description, aperçu et texte est copié également.
-   *  - Les objets contenus ne sont PAS copiés.
-   *  - La position de l’objet n’est PAS copiée.
-   * 
-   * @param original objet à dupliquer.
-   * @returns copie de l’objet.
-   */
-  static copierObjet(original: Objet) {
-    let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
-    copie.description = original.description;
-    copie.apercu = original.apercu;
-    copie.texte = original.texte;
-    copie.intituleS = original.intituleS;
-    copie.intituleP = original.intituleP;
-    // retrouver id de l’objet original
-    copie.originalId = original.originalId ? original.originalId : original.id;
-
-    // copier le nombre d’affichage de la description
-    copie.nbAffichageDescription = original.nbAffichageDescription;
-    copie.nbAffichageApercu = original.nbAffichageApercu;
-    copie.nbAffichageTexte = original.nbAffichageTexte;
-
-    // copier les états
-    original.etats.forEach(etat => {
-      copie.etats.push(etat);
-    });
-
-    // copier les capacités
-    original.capacites.forEach(cap => {
-      copie.capacites.push(new Capacite(cap.verbe, cap.complement));
-    });
-
-    // copier les propriétés
-    original.proprietes.forEach(prop => {
-      copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
-    });
-
-
-    // TODO: faut-il copier le contenu ?
-    return copie;
-  }
 
   get curLieu() {
     // TODO: retenir le lieu
@@ -306,6 +256,10 @@ export class ElementsJeuUtils {
   getPrecisionTypeElement(typeElement: string) {
 
   }
+
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  //  TROUVER CORRESPONDANCE
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   /**
    * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
@@ -552,6 +506,9 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  //  CONTENU
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   /**
    * Renvoyer true si ceci contient au moins un objet.
@@ -642,6 +599,79 @@ export class ElementsJeuUtils {
       }
     }
     return els;
+  }
+
+    /**
+   * Savoir si le contenant spécifié (lieu/contenant/support) contient déjà un exemplaire de l’objet.
+   * @param objet objet à tester.
+   * @param preposition position de l’objet par rapport au contenant (dans/sur/sous)
+   * @param contenant contenant à tester.
+   * @returns objet déjà contenu si trouvé.
+   */
+     public getExemplaireDejaContenu(objet: Objet, preposition: PrepositionSpatiale, contenant: ElementJeu): Objet {
+      let retVal: Objet = null;
+  
+      let idOriginal = objet.idOriginal ?? objet.id;
+
+      const contenuContenant = this.obtenirContenu(contenant, preposition);
+
+      retVal = contenuContenant.find(x => x.id === idOriginal || x.idOriginal === idOriginal) ?? null;
+
+      return retVal;
+    }
+
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  //  COPIE D’OBJETS
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /**
+   * Dupliquer l’objet.
+   * 
+   * Remarques:
+   *  - L’objet n’est pas automatiquement ajouté aux objets du jeu.
+   *  - L’id du nouvel objet est défini à 0 et l’ID de l’objet original est complété.
+   *  - La quantité de la copie est définie à 1.
+   *  - Les propriétés, capacités et états sont copiés égalements.
+   *  - Le nombre d’affichage des description, aperçu et texte est copié également.
+   *  - Les objets contenus ne sont PAS copiés.
+   *  - La position de l’objet n’est PAS copiée.
+   * 
+   * @param original objet à dupliquer.
+   * @returns copie de l’objet.
+   */
+  static copierObjet(original: Objet) {
+    let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
+    copie.description = original.description;
+    copie.apercu = original.apercu;
+    copie.texte = original.texte;
+    copie.intituleS = original.intituleS;
+    copie.intituleP = original.intituleP;
+    // retrouver id de l’objet original
+    copie.idOriginal = original.idOriginal ? original.idOriginal : original.id;
+
+    // copier le nombre d’affichage de la description
+    copie.nbAffichageDescription = original.nbAffichageDescription;
+    copie.nbAffichageApercu = original.nbAffichageApercu;
+    copie.nbAffichageTexte = original.nbAffichageTexte;
+
+    // copier les états
+    original.etats.forEach(etat => {
+      copie.etats.push(etat);
+    });
+
+    // copier les capacités
+    original.capacites.forEach(cap => {
+      copie.capacites.push(new Capacite(cap.verbe, cap.complement));
+    });
+
+    // copier les propriétés
+    original.proprietes.forEach(prop => {
+      copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
+    });
+
+
+    // TODO: faut-il copier le contenu ?
+    return copie;
   }
 
 }

@@ -35,7 +35,7 @@ export class Instructions {
     this.insDire = new InstructionDire(this.jeu, this.eju, this.verbeux);
   }
 
-  get dire (){
+  get dire() {
     return this.insDire;
   }
 
@@ -577,6 +577,28 @@ export class Instructions {
       original.quantite += 1;
       // destination de la copie est différente
     } else {
+
+      // si cet objet est déjà présent à cet endroit, augmenter la quantité
+      let exemplaireDejaContenu = this.eju.getExemplaireDejaContenu(original, positionCopie.pre, destination);
+
+      // déjà présent
+      if (exemplaireDejaContenu !== null) {
+        // => destination: on augmente la quantité de l’objet
+        exemplaireDejaContenu.quantite += 1;
+
+        // pas à cette fonction de le faire à priori…
+        // // // => source: on diminue la quantité de l’objet (si pas illimité)
+        // // if (!this.jeu.etats.possedeEtatElement(original, EEtatsBase.illimite, this.eju)) {
+        // // }
+        // // original.quantite -= 1;
+
+        // pas encore présent => on ajoute la copie aux objets
+      } else {
+        copie.id = this.jeu.objets.push(copie);
+        // remarque: on utiliser la méthode déplacer afin de mettre à jour tous les attributs de l’objet et du contenant.
+        this.exectuterDeplacerObjetVersDestination(copie, preposition, destination);
+      }
+
       // si la destination est un lieu
       if (original.position.cibleType === EClasseRacine.lieu) {
 
