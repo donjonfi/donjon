@@ -23,6 +23,9 @@ export class Objet extends ElementJeu {
     this.nombre = nombre;
   }
 
+  /** ID de l’objet dont celui-ci est une copie. */
+  originalId: number;
+
   reactions: Reaction[] = null;
 
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
