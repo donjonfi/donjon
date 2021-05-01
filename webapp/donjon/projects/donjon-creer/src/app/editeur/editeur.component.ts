@@ -227,7 +227,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.aides = resultat.aides;
         this.erreurs = resultat.erreurs;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.aides, resultat.parametres);
+        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs , this.aides, resultat.parametres);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;

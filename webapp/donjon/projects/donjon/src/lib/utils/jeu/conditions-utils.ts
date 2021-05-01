@@ -3,7 +3,6 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from '../commun/classe-utils';
-import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -464,6 +463,7 @@ export class ConditionsUtils {
               break;
 
             // comparaison : égalité
+            case 'valent':
             case 'vaut':
               // TODO: gérer plus de situations (en test)
               // remarque: négation appliquée plus loin.
@@ -476,11 +476,13 @@ export class ConditionsUtils {
 
             // comparaison: plus grand que (dépasse)  - plus petit ou égal (ne dépasse pas)
             case 'dépasse':
+            case 'dépassent':
               console.warn("condition « dépasse » : pas encore implémenté.");
               break
 
             // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
             case 'atteint':
+            case 'atteignent':
               console.warn("condition « atteint » : pas encore implémenté.");
               break
 

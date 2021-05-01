@@ -96,7 +96,7 @@ export class JouerComponent implements OnInit {
         Compilateur.analyserScenario(scenario, false, this.http).then(
           resultat => {
             // générer le jeu
-            this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions, resultat.aides, resultat.parametres);
+            this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions, resultat.compteurs, resultat.aides, resultat.parametres);
           }
         );
       }

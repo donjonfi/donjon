@@ -17,6 +17,31 @@ export class ExprReg {
   static readonly caracterePointVirgule = 'ʖ';
   static readonly xCaracterePointVirgule = /ʖ/g;
 
+  /** Nombre
+   * - Exemples :
+   *     - 0
+   *     - 233242342134
+   *     - 3
+   *     - 42
+   *     - 9.2333
+   *     - 998,333
+   *     - 0,3
+   *     - 0,03
+   *     - 303,3
+   */
+  static readonly xNombre = /^(0|([1-9][0-9]*)|(([1-9][0-9]*|0)[\.|,][0-9]+))$/;
+
+  /** Nombre décimal
+   * - Exemples :
+   *     - 
+   */
+  static readonly xNombreEntier = /^(0|([1-9][0-9]*))$/;
+
+  /** Nombre décimal
+   * - Exemples :
+   *     - 
+   */
+  static readonly xNombreDecimal = /^(0|(([1-9][0-9]*|0)[\.|,][0-9]+))$/;
 
   /**
    * Verbe à l’infinitif.
@@ -447,6 +472,7 @@ export class ExprReg {
    *     - changer le joueur possède la canne à pèche
    *     - dire 
    *     - dire "Bonjour !"
+   *     - le score augmente de 1
    *     - 💥 la pomme est verte
    */
   static readonly xInstruction = /^(\S+(?:ir|er|re)) (.+)?$/i;
@@ -465,9 +491,10 @@ export class ExprReg {
    *     - la porte secrète n’est plus fermée
    *     - la canne à pèche rouge est ouverte
    *     - ceci n’est plus vide
+   *     - le score augmente de 1
    *     - 💥 l’action
    */
-  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)|diminue(?:nt)|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
+  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
 
   /**
    * - Manger tomate(2).

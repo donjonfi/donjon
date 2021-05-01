@@ -7,6 +7,7 @@ import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
+import { Compteur } from '../../models/compilateur/compteur';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -20,14 +21,14 @@ import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { Parametres } from '../../models/commun/parametres';
 import { Regle } from '../../models/compilateur/regle';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
-import { Parametres } from '../../models/commun/parametres';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], aides: Aide[], parametres: Parametres): Jeu {
+  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
 
     let indexElementJeu = 0;
     let jeu = new Jeu();
@@ -339,6 +340,14 @@ export class Generateur {
     // *******************
     actions.forEach(action => {
       jeu.actions.push(action);
+    });
+
+    // GÉNÉRER LES COMPTEURS
+    // *********************
+    compteurs.forEach(cpt => {
+      const curCompteur = new Compteur(cpt.nom, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
+      curCompteur.valeur = 0;
+      jeu.compteurs.push(curCompteur);
     });
 
     return jeu;

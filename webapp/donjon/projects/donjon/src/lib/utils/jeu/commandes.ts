@@ -72,8 +72,8 @@ export class Commandes {
             (estObjet ? ("{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non')) : '') +
             "{n}{e}{_états_}{n}" + etats +
             (estObjet ? ("{n}{e}{_lieu_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenant.nom + ')') : ''))) : '') +
-            (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.executerDecrireContenu(obj, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
-            (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.executerDecrireContenu(obj, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
+            (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(obj, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
+            (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(obj, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
             "";
         } else {
           console.warn("#DEB# erreur: plusieurs correspondances pour sujet=", els.sujet);
