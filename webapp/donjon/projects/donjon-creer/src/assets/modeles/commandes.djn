@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-04-28-0023
+-- Version: 2021-05-01-0024
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -620,7 +620,16 @@ refuser prendre ceci:
   si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
 
 exécuter prendre ceci:
-  déplacer ceci vers joueur.
+  -- unique
+  si ceci est unique:
+    déplacer ceci vers joueur;
+  -- multiple limité
+  sinonsi ceci est multiple mais pas illimité:
+    déplacer ceci vers joueur;
+  -- multiple illimité
+  sinon
+    copier ceci vers joueur;
+  fin si.
   
 terminer prendre ceci:
   dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.".
