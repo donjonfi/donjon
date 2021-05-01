@@ -120,6 +120,32 @@ export class MotUtils {
     return retVal;
   }
 
+  /**
+   * Ce mot est-il une forme plurielle ?
+   * => un mot qui se termine par 's', 'x' ou 'z' ne change pas de forme
+   *    au pluriel, on peut donc dire qu’il est pluriel.
+   * => un mot composé dont 1 des mots a une terminaison plurielle à de fortes chances d’être au pluriel.
+   */
+  public static estFormePlurielle(mot: string): boolean {
+    let retVal = false;
+    // si le mot ne contient pas d’espace et se termine par 's', 'x' ou 'z'
+    // on peut considérer que c’est une forme plurielle.
+
+    // mot composé avec 2 terminaisons plurielles => ex: choux-fleurs, sourds-muets
+    if (mot.match(/^\S+?(s|x|z)\-\S+(s|x|z)$/i)) {
+      retVal = true;
+      // mot composé avec 1er mot terminaison plurielle => ex: timbres-poste, crocs-en-jambe
+    } else if (mot.match(/^\S+?(s|x|z)\-\S$/i)) {
+      retVal = true;
+      // mot simple ou composé avec 1 terminaison plurielle => ex: chats, couvre-lits, tragi-comédies, arrière-boutiques
+    }
+    if (mot.match(/^\S+(s|x|z)$/i)) {
+      retVal = true;
+    }
+
+    return retVal
+  }
+
   public static getNombre(determinant: string) {
     let retVal = Nombre.s;
     if (determinant) {
@@ -192,13 +218,13 @@ export class MotUtils {
           // précédé d’un nombre > 1 ?
           if (MotUtils.xNombrePluriel.exec(determinant.trim()) !== null) {
             retVal = +(determinant.trim());
-          // (nombre 1 déjà testé plus haut)
+            // (nombre 1 déjà testé plus haut)
           } else {
             retVal = 0;
           }
           break;
       }
-    }else{
+    } else {
       retVal = 1; // 1 par défaut
     }
     return retVal;
