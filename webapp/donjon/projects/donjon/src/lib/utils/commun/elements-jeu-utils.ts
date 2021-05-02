@@ -26,10 +26,103 @@ export class ElementsJeuUtils {
     private verbeux: boolean,
   ) { }
 
-  static calculerIntitule(ceci: Intitule, forcerMajuscule: boolean) {
+  static calculerIntituleGenerique(ceci: Intitule, forcerMajuscule: boolean) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
-      retVal = (ceci.intitule.determinant ? ceci.intitule.determinant : "") + ceci.intitule.nom + (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+
+      let determinant = (ceci.intitule.determinant ? ceci.intitule.determinant : "");
+      let nom = ceci.intitule.nom;
+      let epithete = (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+
+      retVal = determinant + nom + epithete;
+    }
+    // mettre majuscule en début d’intitulé (début de Phrase)
+    if (forcerMajuscule) {
+      retVal = retVal[0].toUpperCase() + retVal.slice(1);
+    }
+    return retVal;
+  }
+
+  calculerIntituleElement(ceci: ElementJeu, forcerMajuscule: boolean, forcerConnu: boolean, forcerNombre: Nombre = null) {
+    let retVal = ceci?.nom ?? "???";
+    if (ceci.intitule) {
+
+      let determinant = ceci.intitule.determinant ?? "";
+      let nom = ceci.intitule.nom;
+      let epithete = ceci.intitule.epithete ?? "";
+
+      // indénombrable
+      if (this.jeu.etats.possedeEtatElement(ceci, EEtatsBase.indenombrable, this)) {
+        if (nom.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+          determinant = "de l’";
+        } else {
+          if (ceci.genre === Genre.f) {
+            determinant = "de la ";
+          } else {
+            determinant = "du ";
+          }
+        }
+        nom = ceci.intituleS.nom;
+        epithete = ceci.intituleS.epithete ?? "";
+        // dénombrable
+      } else {
+        // 1 exemplaire => un/une ou le/la selon le contexte
+        if (forcerNombre === Nombre.s || (forcerNombre !== Nombre.p && ceci.quantite == 1)) {
+          nom = ceci.intituleS.nom;
+          epithete = ceci.intituleS.epithete ?? "";
+          // n’ajouter un déterminant que si cet élément possède un déterminant
+          // (sinon c’est que c’est un nom propre…)
+          if (ceci.intitule.determinant) {
+            // il existe de multiples exemplaires
+            if (this.jeu.etats.possedeEtatElement(ceci, EEtatsBase.multiple, this)) {
+              if (ceci.genre === Genre.f) {
+                determinant = "une ";
+              } else {
+                determinant = "un ";
+              }
+
+              // il n’existe qu’un seul exemplaire
+            } else {
+
+              // si l’élément est encore intact
+              if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID)) {
+                if (ceci.genre === Genre.f) {
+                  determinant = "une ";
+                } else {
+                  determinant = "un ";
+                }
+                // si l’élément a déjà été déplacer ou modifié
+              } else {
+                // commence par une voyelle
+                if (nom.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+                  determinant = "l’";
+                  // commence par une consonne
+                } else {
+                  if (ceci.genre === Genre.f) {
+                    determinant = "la ";
+                  } else {
+                    determinant = "le ";
+                  }
+                }
+              }
+
+            }
+          }
+        }
+        // quantité infinie => des
+        else if (ceci.quantite == -1 || forcerNombre === Nombre.p) {
+          determinant = "des ";
+          nom = ceci.intituleP.nom;
+          epithete = ceci.intituleP.epithete ?? "";
+          // plusieurs exemplaires => nombre d’exemplaire
+        } else {
+          determinant = (ceci.quantite + " ");
+          nom = ceci.intituleP.nom;
+          epithete = ceci.intituleP.epithete ?? "";
+        }
+      }
+
+      retVal = determinant + nom + epithete;
     }
     // mettre majuscule en début d’intitulé (début de Phrase)
     if (forcerMajuscule) {
@@ -601,24 +694,24 @@ export class ElementsJeuUtils {
     return els;
   }
 
-    /**
-   * Savoir si le contenant spécifié (lieu/contenant/support) contient déjà un exemplaire de l’objet.
-   * @param objet objet à tester.
-   * @param preposition position de l’objet par rapport au contenant (dans/sur/sous)
-   * @param contenant contenant à tester.
-   * @returns objet déjà contenu si trouvé.
-   */
-     public getExemplaireDejaContenu(objet: Objet, preposition: PrepositionSpatiale, contenant: ElementJeu): Objet {
-      let retVal: Objet = null;
-  
-      let idOriginal = objet.idOriginal ?? objet.id;
+  /**
+ * Savoir si le contenant spécifié (lieu/contenant/support) contient déjà un exemplaire de l’objet.
+ * @param objet objet à tester.
+ * @param preposition position de l’objet par rapport au contenant (dans/sur/sous)
+ * @param contenant contenant à tester.
+ * @returns objet déjà contenu si trouvé.
+ */
+  public getExemplaireDejaContenu(objet: Objet, preposition: PrepositionSpatiale, contenant: ElementJeu): Objet {
+    let retVal: Objet = null;
 
-      const contenuContenant = this.obtenirContenu(contenant, preposition);
+    let idOriginal = objet.idOriginal ?? objet.id;
 
-      retVal = contenuContenant.find(x => x.id === idOriginal || x.idOriginal === idOriginal) ?? null;
+    const contenuContenant = this.obtenirContenu(contenant, preposition);
 
-      return retVal;
-    }
+    retVal = contenuContenant.find(x => x.id === idOriginal || x.idOriginal === idOriginal) ?? null;
+
+    return retVal;
+  }
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   //  COPIE D’OBJETS
@@ -639,8 +732,8 @@ export class ElementsJeuUtils {
    * @param original objet à dupliquer.
    * @returns copie de l’objet.
    */
-  static copierObjet(original: Objet) {
-    let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, original.nombre);
+  copierObjet(original: Objet) {
+    let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, Nombre.s);
     copie.description = original.description;
     copie.apercu = original.apercu;
     copie.texte = original.texte;
@@ -656,8 +749,10 @@ export class ElementsJeuUtils {
 
     // copier les états
     original.etats.forEach(etat => {
-      copie.etats.push(etat);
+        copie.etats.push(etat);
     });
+    // enlever l’état illimité
+    this.jeu.etats.retirerEtatElement(copie, EEtatsBase.illimite, false);
 
     // copier les capacités
     original.capacites.forEach(cap => {

@@ -4,6 +4,7 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
+import { CompteursUtils } from './compteurs-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
@@ -570,7 +571,7 @@ export class Instructions {
       destination.id
     );
 
-    let copie = ElementsJeuUtils.copierObjet(original);
+    let copie = this.eju.copierObjet(original);
 
     // si la destination de la copie est la même que celle de l’original, augmenter la quantité
     if (PositionsUtils.positionsIdentiques(original.position, positionCopie)) {
@@ -984,17 +985,17 @@ export class Instructions {
     switch (instruction.verbe.toLowerCase()) {
       case 'augmente':
       case 'augmentent':
-        this.changerValeurCompteur(compteur, 'augmente', instruction.complement1)
+        CompteursUtils.changerValeurCompteur(compteur, 'augmente', instruction.complement1)
         break;
 
       case 'diminue':
       case 'diminuent':
-        this.changerValeurCompteur(compteur, 'diminue', instruction.complement1)
+        CompteursUtils.changerValeurCompteur(compteur, 'diminue', instruction.complement1)
         break;
 
       case 'vaut':
       case 'valent':
-        this.changerValeurCompteur(compteur, 'vaut', instruction.complement1)
+        CompteursUtils.changerValeurCompteur(compteur, 'vaut', instruction.complement1)
         break;
 
       default:
@@ -1007,48 +1008,7 @@ export class Instructions {
 
   }
 
-  /** Changer la valeur d’un compteur */
-  private changerValeurCompteur(compteur: Compteur, verbe: 'vaut' | 'augmente' | 'diminue', opperationStr: string) {
 
-    // enlever le de qui débute la nouvelle valeur
-    opperationStr = opperationStr.replace(/^(de |d’|d')/i, "");
-
-    let opperationNum: number = null;
-
-    // calculer la nouvelle valeur
-    // A) nombre entier
-    if (opperationStr.match(ExprReg.xNombreEntier)) {
-      opperationNum = Number.parseInt(opperationStr);
-      // B) nombre décimal
-    } else if (opperationStr.match(ExprReg.xNombreDecimal)) {
-      opperationStr = opperationStr.replace(',', '.');
-      opperationNum = Number.parseFloat(opperationStr);
-      // C) compteur ou propriété
-    } else {
-      console.warn("changerValeurCompteur: TODO: valeur de type compteur ou propriété :", opperationStr);
-    }
-
-    if (opperationNum !== null) {
-      switch (verbe) {
-        case 'vaut':
-          compteur.valeur = opperationNum;
-          break;
-
-        case 'diminue':
-          compteur.valeur -= opperationNum;
-          break;
-
-        case 'augmente':
-          compteur.valeur += opperationNum;
-          break;
-
-        default:
-          console.error("changerValeurCompteur: verbe inconnu:", verbe);
-          break;
-      }
-    }
-
-  }
 
   private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
 

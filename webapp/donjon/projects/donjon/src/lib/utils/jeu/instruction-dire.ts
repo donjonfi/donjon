@@ -33,10 +33,10 @@ export class InstructionDire {
         // A) 
 
         // ======================================================================================================
-        // PROPRIÉTÉS [description|intitulé|intitule|accord|es|s|pronom|Pronom|l’|l'|le|lui ceci|cela|ici]
+        // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici]
         // ======================================================================================================
 
-        const balisePropriete = "(description|intitulé|intitule|accord|es|s|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici)";
+        const balisePropriete = "(description|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici)";
         const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
         const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -65,12 +65,28 @@ export class InstructionDire {
 
                     case 'intitulé':
                     case 'intitule':
-                        resultat = ElementsJeuUtils.calculerIntitule(cible, false);
+                        resultat = this.eju.calculerIntituleElement(cible, false, true);
                         break;
 
                     case 'Intitulé':
                     case 'Intitule':
-                        resultat = ElementsJeuUtils.calculerIntitule(cible, true);
+                        resultat = this.eju.calculerIntituleElement(cible, true, true);
+                        break;
+
+                    case 'Singulier':
+                        resultat = this.eju.calculerIntituleElement(cible, true, true, Nombre.s);
+                        break;
+
+                    case 'singulier':
+                        resultat = this.eju.calculerIntituleElement(cible, false, true, Nombre.s);
+                        break;
+
+                    case 'Pluriel':
+                        resultat = this.eju.calculerIntituleElement(cible, true, true, Nombre.p);
+                        break;
+
+                    case 'pluriel':
+                        resultat = this.eju.calculerIntituleElement(cible, false, true, Nombre.p);
                         break;
 
                     // es ceci | accord ceci (féminin et pluriel)
@@ -82,6 +98,11 @@ export class InstructionDire {
                     // s ceci (pluriel)
                     case 's':
                         resultat = (cible.nombre === Nombre.p ? "s" : "");
+                        break;
+
+                    // e ceci (féminin)
+                    case 'e':
+                        resultat = (cible.genre === Genre.f ? "e" : "");
                         break;
 
                     // pronom
@@ -415,11 +436,11 @@ export class InstructionDire {
                             break;
                         case 'intitulé':
                         case 'intitule':
-                            resultatCurBalise = ElementsJeuUtils.calculerIntitule(cible, false);
+                            resultatCurBalise = this.eju.calculerIntituleElement(cible, false, true);
                             break;
                         case 'Intitulé':
                         case 'Intitule':
-                            resultatCurBalise = ElementsJeuUtils.calculerIntitule(cible, true);
+                            resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
                             break;
                         case 'texte':
                             resultatCurBalise = this.calculerDescription(cible.texte, ++cible.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela);
@@ -887,7 +908,7 @@ export class InstructionDire {
                 let curObjIndex = 0;
                 objets.forEach(obj => {
                     ++curObjIndex;
-                    resultat.sortie += "\n " + InstructionDire.getRetrait(retrait) + (retrait <= 1 ? "- " : "> ") + ElementsJeuUtils.calculerIntitule(obj, false);
+                    resultat.sortie += "\n " + InstructionDire.getRetrait(retrait) + (retrait <= 1 ? "- " : "> ") + this.eju.calculerIntituleElement(obj, false, false);
                     // ajouter « (porté) » aux objets portés
                     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
                         resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
@@ -979,7 +1000,7 @@ export class InstructionDire {
                         // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
                         if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
                             // ne pas afficher objets cachés du support, on ne l’examine pas directement
-                            const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(obj, false) + " il y a "), "", false, PrepositionSpatiale.sur);
+                            const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + this.eju.calculerIntituleElement(obj, false, true) + " il y a "), "", false, PrepositionSpatiale.sur);
                             resultat.sortie += sousRes.sortie;
                         }
                     }
@@ -993,7 +1014,7 @@ export class InstructionDire {
             // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
             supportsDecoratifs.forEach(support => {
                 // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-                const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), "", false, PrepositionSpatiale.sur);
+                const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, PrepositionSpatiale.sur);
                 resultat.sortie += sousRes.sortie;
             });
 
@@ -1003,7 +1024,7 @@ export class InstructionDire {
                 let curObjIndex = 0;
                 objetsSansApercu.forEach(obj => {
                     ++curObjIndex;
-                    resultat.sortie += ElementsJeuUtils.calculerIntitule(obj, false);
+                    resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
                     if (curObjIndex < (nbObjetsSansApercus - 1)) {
                         resultat.sortie += ", ";
                     } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
@@ -1017,7 +1038,7 @@ export class InstructionDire {
                 let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
                 supportsSansApercu.forEach(support => {
                     // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-                    const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + ElementsJeuUtils.calculerIntitule(support, false) + " il y a "), ("{n}Il n’y a rien sur " + ElementsJeuUtils.calculerIntitule(support, false) + "."), false, PrepositionSpatiale.sur);
+                    const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{n}Il n’y a rien sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, PrepositionSpatiale.sur);
                     resultat.sortie += sousRes.sortie;
                 });
 
@@ -1040,7 +1061,7 @@ export class InstructionDire {
                                     resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null);
                             } else {
                                 // par défaut, afficher le nom de la porte et ouvert/fermé.
-                                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntitule(curPorte, true) + " est ";
+                                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntituleGenerique(curPorte, true) + " est ";
                                 if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID)) {
                                     resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.ouvertID)
                                 } else {
@@ -1098,14 +1119,14 @@ export class InstructionDire {
                     // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
                     retVal = texteSiAucunObstacle;
                 } else {
-                    retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermée.";
+                    retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermée.";
                 }
             } else {
                 if (ouvert) {
                     // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
                     retVal = texteSiAucunObstacle;
                 } else {
-                    retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est fermé.";
+                    retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermé.";
                 }
             }
         }

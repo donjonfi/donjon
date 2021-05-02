@@ -110,8 +110,8 @@ export class AnalyseurElementPosition {
       if (result != null) {
         // selon le type de résultat ("il y a un xxx" ou "un xxx est")
         let offset = result[1] ? 0 : 4;
-        determinant = result[1 + offset] ? result[1 + offset].toLowerCase() : null;
-        nombre = MotUtils.getNombre(result[1 + offset]);
+        determinant = result[1 + offset]?.toLowerCase() ?? null;
+        nombre = MotUtils.getNombre(determinant);
         nom = result[2 + offset];
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
@@ -173,6 +173,7 @@ export class AnalyseurElementPosition {
             newElementGenerique.nomS = autreForme;
           }
         }
+
       }
 
     }
