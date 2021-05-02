@@ -7,6 +7,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
@@ -38,7 +39,7 @@ export class Commandes {
       console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
     } else {
       const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
-      if (cor.elements.length !== 0 || cor.compteurs.length !== 0) {
+      if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.localisation !== null) {
         // éléments
         if (cor.elements.length) {
           if (cor.elements.length > 1) {
@@ -66,6 +67,12 @@ export class Commandes {
           cor.compteurs.forEach(cpt => {
             retVal += "\n\n" + this.afficherDetailCompteur((cpt as Compteur));
           });
+        }
+
+        // direction
+        if (cor.localisation) {
+          retVal += "1 direction trouvée :";
+          retVal += "\n\n" + this.afficherDetailDirection(cor.localisation);
         }
 
 
@@ -122,6 +129,14 @@ export class Commandes {
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(compteur, false) + "*}" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(compteur.classe) +
       "{n}{e}{_valeur_}{n}" + compteur.valeur?.toString() ?? '?' +
+      "";
+    return sortie;
+  }
+
+  private afficherDetailDirection(direction: Localisation) {
+    const sortie =
+      "{* • " + ElementsJeuUtils.calculerIntituleGenerique(direction, false) + "*}" +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(direction.classe) +
       "";
     return sortie;
   }
