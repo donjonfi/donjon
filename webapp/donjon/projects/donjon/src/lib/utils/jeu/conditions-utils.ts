@@ -3,6 +3,7 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from '../commun/classe-utils';
+import { Compteur } from '../../models/compilateur/compteur';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -155,7 +156,7 @@ export class ConditionsUtils {
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -178,7 +179,7 @@ export class ConditionsUtils {
       } else {
         // 1 - Trouver le sujet
         // ++++++++++++++++++++
-        let sujet: ElementJeu | Intitule = null;
+        let sujet: ElementJeu | Compteur | Intitule = null;
 
         if (condition.sujet) {
           if (condition.sujet.nom === 'ici') {
@@ -187,12 +188,12 @@ export class ConditionsUtils {
           else if (condition.sujet.nom === 'ceci') {
             sujet = ceci;
             if (!ceci) {
-              console.warn("siEstVrai: le « ceci » de la condition est null.");
+              console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
             }
           } else if (condition.sujet.nom === 'cela') {
             sujet = cela;
             if (!cela) {
-              console.warn("siEstVrai: le « cela » de la condition est null.");
+              console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
             }
             // } else if (condition.sujet.nom === 'joueur') {
             //   sujet = this.jeu.joueur;
@@ -206,7 +207,7 @@ export class ConditionsUtils {
             const loc = ElementsJeuUtils.trouverLocalisation(new GroupeNominal(null, locString));
 
             if (loc == null) {
-              console.error("siEstVrai: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
+              console.error("siEstVraiSansLien: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
               // regarder s'il y a une sortie dans la direction indiquée
             } else {
               if (condition.sujet.nom == "sortie vers") {
@@ -227,16 +228,21 @@ export class ConditionsUtils {
             const correspondances = this.eju.trouverCorrespondance(condition.sujet, false, false);
             if (correspondances.elements.length == 1) {
               sujet = correspondances.elements[0];
-            } else if (correspondances.elements.length > 1) {
-              console.error("siEstVrai >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
+            } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
+              console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
+            } else if (correspondances.compteurs.length === 1) {
+              sujet = correspondances.compteurs[0];
             } else {
-              console.error("siEstVrai >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
             }
           }
         }
 
 
-        if (sujet) {
+        // *********************************************
+        //  A. ÉLÉMENT DU JEU
+        // *********************************************
+        if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
 
           // 2 - Trouver le verbe
           // ++++++++++++++++++++
@@ -254,7 +260,7 @@ export class ConditionsUtils {
               if (condition.sujetComplement && condition.sujetComplement.nom === 'objet' && (condition.sujetComplement.determinant?.trim() === 'un' || condition.sujetComplement.determinant === "d'" || condition.sujetComplement.determinant === 'd’')) {
                 retVal = this.eju.verifierContientObjet(sujet as ElementJeu);
               } else {
-                console.error("siEstVrai > condition « contient » pas encore gérée pour le complément ", condition.complement);
+                console.error("siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ", condition.complement);
               }
               break;
 
@@ -282,7 +288,7 @@ export class ConditionsUtils {
                   loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
                 }
                 if (loc == null) {
-                  console.error("siEstVrai: sorties vers '", sujet.intitule.nom, "': direction inconnue.");
+                  console.error("siEstVraiSansLien: sorties vers '", sujet.intitule.nom, "': direction inconnue.");
                   // regarder s'il y a une sortie dans la direction indiquée
                 } else {
                   let voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
@@ -328,7 +334,7 @@ export class ConditionsUtils {
                 // trouver direction
                 const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
                 if (loc != null) {
-                  console.error("siEstVrai: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
+                  console.error("siEstVraiSansLien: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
                   // regarder s'il y a une porte dans la direction indiquée
                 } else {
                   const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
@@ -391,7 +397,7 @@ export class ConditionsUtils {
                 }
                 break;
               } else {
-                console.error("siEstVrai > condition « possède » prise en charge uniquement pour le joueur.");
+                console.error("siEstVraiSansLien > condition « possède » prise en charge uniquement pour le joueur.");
               }
               break;
 
@@ -407,7 +413,7 @@ export class ConditionsUtils {
                 }
                 break;
               } else {
-                console.error("siEstVrai > condition « porte » prise en charge uniquement pour le joueur.", sujet.nom);
+                console.error("siEstVraiSansLien > condition « porte » prise en charge uniquement pour le joueur.", sujet.nom);
               }
               break;
 
@@ -424,23 +430,23 @@ export class ConditionsUtils {
                   destination = ceci as Lieu;
                   // (la commande aller passe par ici avec une direction)
                 } else if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-                  console.error("condition se trouve dans ceci: ceci n’est pas un lieu ceci=", ceci);
+                  console.error("siEstVraiSansLien > condition se trouve dans ceci: ceci n’est pas un lieu ceci=", ceci);
                 }
               } else if (condition.sujetComplement?.nom === "cela") {
                 if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.lieu)) {
                   destination = ceci as Lieu;
                   // (la commande aller passe par ici avec une direction)
                 } else if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
-                  console.error("condition se trouve dans cela : cela n’est pas un lieu cela=", cela);
+                  console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", cela);
                 }
               } else {
                 const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
                 if (correspondances.nbCor === 1) {
                   destination = correspondances.elements[0];
                 } else if (correspondances.nbCor === 0) {
-                  console.error("condition se trouve: pas de correspondance trouvée pour dest=", condition.sujetComplement);
+                  console.error("siEstVraiSansLien > condition se trouve: pas de correspondance trouvée pour dest=", condition.sujetComplement);
                 } else if (correspondances.nbCor > 1) {
-                  console.error("condition se trouve: plusieurs correspondances trouvées pour dest=", condition.sujetComplement, "cor=", correspondances);
+                  console.error("siEstVraiSansLien > condition se trouve: plusieurs correspondances trouvées pour dest=", condition.sujetComplement, "cor=", correspondances);
                 }
               }
 
@@ -474,32 +480,95 @@ export class ConditionsUtils {
               }
               break;
 
-            // comparaison: plus grand que (dépasse)  - plus petit ou égal (ne dépasse pas)
+            default:
+              console.error(
+                "siEstVraiSansLien > Condition élément du jeu: verbe pas connu (" + condition.verbe + ").\n",
+                "Les verbes connus sont : être, contenir, exister, posséder, porter, se trouver, réagir et valoir.\n",
+                condition);
+              break;
+          }
+          // *********************************************
+          //  B. COMPTEUR
+          // *********************************************
+        } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.compteur)) {
+
+          // 2 - Trouver le verbe
+          // ++++++++++++++++++++
+          switch (condition.verbe) {
+
+            // comparaison : égalité
+            case 'valent':
+            case 'vaut':
+              // remarque: négation appliquée plus loin.
+              console.warn("vaut condi=", condition, "ceci=", ceci, "cela=", cela);
+
+              if (('"' + sujet.nom + '"') === condition.complement) {
+                retVal = true;
+              }
+              break;
+
+            // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
             case 'dépasse':
             case 'dépassent':
-              console.warn("condition « dépasse » : pas encore implémenté.");
+              // remarque: négation appliquée plus loin.
+              console.warn("siEstVraiSansLien > condition « dépasse » : pas encore implémenté.");
               break
 
             // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
             case 'atteint':
             case 'atteignent':
-              console.warn("condition « atteint » : pas encore implémenté.");
+              // remarque: négation appliquée plus loin.
+              console.warn("siEstVraiSansLien > condition « atteint » : pas encore implémenté.");
               break
 
             default:
-              console.error("siEstVrai: verbe pas connu::", condition);
+              console.error(
+                "Condition compteur: verbe pas connu (" + condition.verbe + ").\n",
+                "Les verbes connus sont : valoir, déppasser et atteindre.\n",
+                condition);
               break;
+
           }
+          // *********************************************
+          //  C. INTITULÉ
+          // *********************************************
+        } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
+
+          // 2 - Trouver le verbe
+          // ++++++++++++++++++++
+          switch (condition.verbe) {
+
+            // comparaison : égalité
+            case 'valent':
+            case 'vaut':
+              // remarque: négation appliquée plus loin.
+              if (('"' + sujet.nom + '"') === condition.complement) {
+                retVal = true;
+              }
+              break;
+
+            default:
+              console.error(
+                "Condition intitulé: verbe pas connu (" + condition.verbe + ").\n",
+                "Les verbes connus sont : valoir.\n",
+                condition);
+              break;
+
+          }
+          // *********************************************
+          //  D. AUCUN SUJET
+          // *********************************************
         } else {
-          console.error("siEstVrai: Condition sans sujet pas gérée:", condition);
+          console.error("siEstVraiSansLien > Condition sans sujet pas gérée: \nsujet:", sujet, "\ncondition:", condition);
         }
       }
+
     } else {
-      console.error("siEstVrai: condition pas comprise:", condition);
+      console.error("siEstVraiSansLien > condition pas comprise:", condition);
     }
 
     if (this.verbeux) {
-      console.log("siEstVrai: ", condition, retVal);
+      console.log("siEstVraiSansLien > ", condition, retVal);
     }
     // prise en compte de la négation
     if (condition.negation) {
