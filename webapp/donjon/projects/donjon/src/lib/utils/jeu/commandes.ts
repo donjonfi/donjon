@@ -1,10 +1,12 @@
 import { ClasseUtils } from '../commun/classe-utils';
+import { Compteur } from '../../models/compilateur/compteur';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { OutilsCommandes } from './outils-commandes';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
@@ -36,59 +38,92 @@ export class Commandes {
       console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
     } else {
       const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
-      if (cor.elements.length !== 0) {
-        if (cor.elements.length === 1) {
-          const el = cor.elements[0];
-          // retrouver les états de l’élément
-          const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(el);
-          let visible: boolean = null;
-          let accessible: boolean = null;
-          let emplacement: ElementJeu = null;
-          let contenant: Objet = null;
-          const estObjet = ClasseUtils.heriteDe(el.classe, EClasseRacine.objet);
-          const estContenant = ClasseUtils.heriteDe(el.classe, EClasseRacine.contenant);
-          const estSupport = ClasseUtils.heriteDe(el.classe, EClasseRacine.support);
-          let obj: Objet = null;
-          if (estObjet) {
-            obj = (el as Objet);
-            visible = this.jeu.etats.estVisible(obj, this.eju);
-            accessible = this.jeu.etats.estAccessible(obj, this.eju);
-            emplacement = this.eju.getLieu(this.eju.getLieuObjet(obj));
-            contenant = (obj.position?.cibleType === EClasseRacine.objet ? this.eju.getObjet(obj.position.cibleId) : null)
+      if (cor.elements.length !== 0 || cor.compteurs.length !== 0) {
+        // éléments
+        if (cor.elements.length) {
+          if (cor.elements.length > 1) {
+            retVal += (cor.elements.length + " éléments trouvés :");
+          } else {
+            retVal += (" 1 élément trouvé :");
           }
-          console.warn(
-            "#DEB# trouvé " + els.sujet.nom,
-            "\n >> el=", el,
-            "\n >> etats=", etats,
-            "\n >> visible=", visible,
-            "\n >> position=", obj.position,
-            "\n >> lieu=", emplacement,
-            "\n >> contenant=", contenant
-          );
-          retVal =
-            "{*" + ElementsJeuUtils.calculerIntitule(el, false) + "*} (" + el.genre + ", " + el.nombre + ")" +
-            "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(el.classe) +
-            "{n}{e}{_synonymes_}{n}" + (el.synonymes?.length ? el.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
-            (estObjet ? ("{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non')) : '') +
-            "{n}{e}{_états_}{n}" + etats +
-            (estObjet ? ("{n}{e}{_lieu_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenant.nom + ')') : ''))) : '') +
-            (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(obj, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
-            (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(obj, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
-            "";
-        } else {
-          console.warn("#DEB# erreur: plusieurs correspondances pour sujet=", els.sujet);
-          retVal = "pas trouvé > plusieurs correspondances";
+          cor.elements.forEach(el => {
+            const estLieu = ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu);
+            if (estLieu) {
+              retVal += "\n\n" + this.afficherDetailLieu((el as Lieu));
+            } else {
+              retVal += "\n\n" + this.afficherDetailObjet((el as Objet));
+            }
+          });
         }
+
+        // compteurs
+        if (cor.compteurs.length) {
+          if (cor.compteurs.length > 1) {
+            retVal += (cor.compteurs.length + " compteurs trouvés :");
+          } else {
+            retVal += (" 1 compteur trouvé :");
+          }
+          cor.compteurs.forEach(cpt => {
+            retVal += "\n\n" + this.afficherDetailCompteur((cpt as Compteur));
+          });
+        }
+
+
       } else {
         console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
         retVal = "pas trouvé > aucune correspondance";
       }
     }
-    if (retVal) {
-      retVal += "{n}";
-    }
-    retVal += "{/(voir également console du navigateur {+ctrl+maj+i+})/}";
     return retVal;
+  }
+
+  private afficherDetailObjet(objet: Objet) {
+    // retrouver les états de l’élément
+    const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(objet);
+    let visible: boolean = null;
+    let accessible: boolean = null;
+    let emplacement: ElementJeu = null;
+    let contenant: Objet = null;
+    const estContenant = ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant);
+    const estSupport = ClasseUtils.heriteDe(objet.classe, EClasseRacine.support);
+    visible = this.jeu.etats.estVisible(objet, this.eju);
+    accessible = this.jeu.etats.estAccessible(objet, this.eju);
+    emplacement = this.eju.getLieu(this.eju.getLieuObjet(objet));
+    contenant = (objet.position?.cibleType === EClasseRacine.objet ? this.eju.getObjet(objet.position.cibleId) : null)
+
+    const sortie =
+      "{* • " + this.eju.calculerIntituleElement(objet, false, true) + "*} (" + objet.genre + ", " + objet.nombre + ")" +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(objet.classe) +
+      "{n}{e}{_synonymes_}{n}" + (objet.synonymes?.length ? objet.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
+      "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
+      "{n}{e}{_états_}{n}" + etats +
+      "{n}{e}{_lieu_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenant.nom + ')') : '')) +
+      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
+      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
+      "";
+    return sortie;
+  }
+
+  private afficherDetailLieu(lieu: Lieu) {
+    // retrouver les états de l’élément
+    const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(lieu);
+    const sortie =
+      "{* • " + ElementsJeuUtils.calculerIntituleGenerique(lieu, false) + "*} (" + lieu.genre + ", " + lieu.nombre + ")" +
+      "{n}{e}{_titre_}{n}" + lieu.titre +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(lieu.classe) +
+      "{n}{e}{_synonymes_}{n}" + (lieu.synonymes?.length ? lieu.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
+      "{n}{e}{_états_}{n}" + etats +
+      "";
+    return sortie;
+  }
+
+  private afficherDetailCompteur(compteur: Compteur) {
+    const sortie =
+      "{* • " + ElementsJeuUtils.calculerIntituleGenerique(compteur, false) + "*}" +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(compteur.classe) +
+      "{n}{e}{_valeur_}{n}" + compteur.valeur?.toString() ?? '?' +
+      "";
+    return sortie;
   }
 
   ouSuisJe() {
@@ -99,5 +134,7 @@ export class Commandes {
       return this.outils.afficherCurLieu();
     }
   }
+
+
 
 }
