@@ -632,7 +632,11 @@ exécuter prendre ceci:
   fin si.
   
 terminer prendre ceci:
-  dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.".
+  si ceci est illimité et dénombrable:
+    dire "[Singulier ceci] a été ajouté[e ceci] à votre inventaire.";
+  sinon
+    dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.";
+  fin si.
 
 L'aide pour l'action prendre est "{*Prendre*}
   Permet de prendre un objet accessible pour le mettre dans votre inventaire.

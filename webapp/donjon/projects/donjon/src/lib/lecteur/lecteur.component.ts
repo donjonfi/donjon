@@ -552,6 +552,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               // plusieurs éléments trouvés => il faut être plus précis.
               console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Ceci:", ceci);
             } else {
+               // vérifier complément (CELA)
               if (els.complement1) {
                 if (candidat.cibleCela) {
                   matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
@@ -578,7 +579,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             resultat = new ActionCeciCela(candidat, matchCeci, matchCela);
           } else {
             // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
-            console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
+            console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els, candidats);
           }
         }
 
@@ -589,7 +590,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         resultat = new ActionCeciCela(candidats[0], null, null);
       } else {
         // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
-        console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els);
+        console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els, candidats);
       }
     }
     return resultat;
@@ -600,23 +601,64 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     // il s’agit d’un sujet précis
     if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
-      console.log("cibleCeci > sujet précis");
-      // vérifier s’il s’agit du sujet précis
 
-      ceciCela.elements.forEach(ele => {
-        console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
-        console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-        console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+      // Vérifier s’il s’agit du sujet précis
+      // >> élément (objet ou lieu)
+      if (ceciCela.elements.length) {
+        console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // vérifier s’il s’agit du sujet précis
+        ceciCela.elements.forEach(ele => {
+          console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
+          console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+          console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-        if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
-          if (retVal === null) {
-            retVal = ele;
-          } else {
-            // déjà un match, on en a plusieurs.
-            retVal = -1;
+          if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
+            if (retVal === null) {
+              retVal = ele;
+            } else {
+              // déjà un match, on en a plusieurs.
+              retVal = -1;
+            }
           }
-        }
-      });
+        });
+      // >> compteur
+      }else if (ceciCela.compteurs.length) {
+        console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // vérifier s’il s’agit du sujet précis
+        ceciCela.compteurs.forEach(cpt => {
+          console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
+          console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+          console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+
+          if (cpt.intitule.nom === candidatCeciCela.nom && cpt.intitule.epithete === candidatCeciCela.epithete) {
+            if (retVal === null) {
+              retVal = cpt;
+            } else {
+              // déjà un match, on en a plusieurs.
+              retVal = -1;
+            }
+          }
+        });
+      // >> intitulé
+      } else if ( ceciCela.intitule) {
+        console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+
+        const intitule = ceciCela.intitule;
+
+        // vérifier s’il s’agit du sujet précis
+          console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
+          console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+          console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+
+          if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
+            if (retVal === null) {
+              retVal = intitule;
+            } else {
+              // déjà un match, on en a plusieurs.
+              retVal = -1;
+            }
+          }
+      }
 
       // todo: vérifier début de nom si aucune correspondance exacte
 

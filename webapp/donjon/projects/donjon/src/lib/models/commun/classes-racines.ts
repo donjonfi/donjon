@@ -26,7 +26,7 @@ export class ClassesRacines {
 
   /** Il s’agit d’un objet du jeu */
   public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 2,
-    [EEtatsBase.eteint, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.muet]);
+    [EEtatsBase.eteint, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.muet, EEtatsBase.denombrable]);
 
   /** Il s’agit d’un être vivant */
   public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 3,

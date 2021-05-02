@@ -221,6 +221,18 @@ export class Generateur {
           });
         }
 
+        // attributs liés à la quantité d’objets
+        if (newObjet.quantite == 1) {
+          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.unique);
+        } else {
+          // plusieurs exemplaires
+          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.multiple);
+          // quantité illimitée
+          if(newObjet.quantite == -1){
+            jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.illimite);
+          }
+        }
+
         // Déterminer le SINGULIER à partir du pluriel.
         if (curEle.nombre === Nombre.p) {
           // on a déjà le pluriel
