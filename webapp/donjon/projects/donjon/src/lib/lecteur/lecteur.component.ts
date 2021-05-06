@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
+import { CibleAction } from '../models/compilateur/cible-action';
 import { ClasseUtils } from '../utils/commun/classe-utils';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandes } from '../utils/jeu/commandes';
@@ -552,7 +553,7 @@ export class LecteurComponent implements OnInit, OnChanges {
               // plusieurs éléments trouvés => il faut être plus précis.
               console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Ceci:", ceci);
             } else {
-               // vérifier complément (CELA)
+              // vérifier complément (CELA)
               if (els.complement1) {
                 if (candidat.cibleCela) {
                   matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
@@ -596,14 +597,23 @@ export class LecteurComponent implements OnInit, OnChanges {
     return resultat;
   }
 
-  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: GroupeNominal) {
+  /**
+   * Vérifier si on trouve l’élément rechercher parmis les correspondances.
+   * @param ceciCela  élément recherché
+   * @param candidatCeciCela  correspondances
+   * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.
+   */
+  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: CibleAction) {
     let retVal: ElementJeu | Intitule | -1 = null;
+
+    // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
+    let bestScore = 0;
 
     // il s’agit d’un sujet précis
     if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
 
       // Vérifier s’il s’agit du sujet précis
-      // >> élément (objet ou lieu)
+      // PRIORITÉ 1 >> élément (objet ou lieu)
       if (ceciCela.elements.length) {
         console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
@@ -611,18 +621,27 @@ export class LecteurComponent implements OnInit, OnChanges {
           console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
           console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
           console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
-
           if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
-            if (retVal === null) {
+            let curScore = 1000;
+            // si priorité respectée, score augmente
+            if (candidatCeciCela.priorite) {
+              if (ClasseUtils.heriteDe(ele.classe, candidatCeciCela.priorite)) {
+                curScore += 2000; // prioritaire
+              }
+            }
+            // meilleur score jusqu’à présent => on le prend
+            if (curScore > bestScore) {
+              bestScore = curScore;
               retVal = ele;
-            } else {
-              // déjà un match, on en a plusieurs.
-              retVal = -1;
+              // 2 scores équivalents => on annonce qu’on ne sait pas quoi faire
+              // (mais ça pourra encore changer)
+            } else if (curScore === bestScore) {
+              retVal = -1
             }
           }
         });
-      // >> compteur
-      }else if (ceciCela.compteurs.length) {
+        // PRIORITÉ 2 >> compteur
+      } else if (ceciCela.compteurs.length) {
         console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCela.compteurs.forEach(cpt => {
@@ -639,48 +658,53 @@ export class LecteurComponent implements OnInit, OnChanges {
             }
           }
         });
-      // >> intitulé
-      } else if ( ceciCela.intitule) {
+        // PRIORITÉ 3 >> intitulé
+      } else if (ceciCela.intitule) {
         console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
 
         const intitule = ceciCela.intitule;
 
         // vérifier s’il s’agit du sujet précis
-          console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
-          console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-          console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+        console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
+        console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+        console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-          if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
-            if (retVal === null) {
-              retVal = intitule;
-            } else {
-              // déjà un match, on en a plusieurs.
-              retVal = -1;
-            }
+        if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
+          if (retVal === null) {
+            retVal = intitule;
+          } else {
+            // déjà un match, on en a plusieurs.
+            retVal = -1;
           }
+        }
       }
 
       // todo: vérifier début de nom si aucune correspondance exacte
 
       // il s’agit d’un type
     } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
-      // TODO: vérifier s’il s’agit du type (descendants de élémentsJeux)
       ceciCela.elements.forEach(ele => {
+        // vérifier si l’ojet est du bon type
         if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCela.nom))) {
-          if (retVal === null) {
-            // s'il doit s'agir d'un objet visible, vérifier
-            // si on est ici et qu'il doit pouvoir être visible, c'est forcément un descendant d'un objet.
-            if (candidatCeciCela.epithete) {
-              // if (candidatCeciCela.epithete.startsWith('visible') && (ele as Objet).visible) {
-              if (this.jeu.etats.possedeEtatElement((ele as Objet), candidatCeciCela.epithete, this.eju)) {
-                retVal = ele;
+
+          // s’il n’y a pas d’état requis ou si l’état est respecté
+          if (!candidatCeciCela.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.epithete, this.eju)) {
+            let curScore = 100;
+            // si priorité respectée, score augmente
+            if (candidatCeciCela.priorite) {
+              if (ClasseUtils.heriteDe(ele.classe, candidatCeciCela.priorite)) {
+                curScore += 200; // prioritaire
               }
-            } else {
-              retVal = ele;
             }
-          } else {
-            // déjà un match, on en a plusieurs.
-            retVal = -1;
+            // meilleur score jusqu’à présent => on le prend
+            if (curScore > bestScore) {
+              bestScore = curScore;
+              retVal = ele;
+              // 2 scores équivalents => on annonce qu’on ne sait pas quoi faire
+              // (mais ça pourra encore changer)
+            } else if (curScore === bestScore) {
+              retVal = -1
+            }
           }
         }
       });

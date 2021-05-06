@@ -252,12 +252,22 @@ export class ExprReg {
   //  ACTIONS
   // ================================================================================================
 
-  /** nouvelle action
-   * - verbe(1) [[à/de/…]\(2) ceci(3)[[ à/de/sur/…]\(4) cela(5)]] est une action[ qui concerne un|une|deux(6) typeObjetA(7) attributObjetA(8) [et un|une(9) typeObjetB(10) attributObjetB(11)]]
-   * - ex: Jeter est une action qui concerne un objet possédé.
-   * - ex: Examiner est une action qui concerne un objet visible.
+  /** 
+   * nouvelle action
+   * - Découpage :
+   *     - verbe(1) [[à/de/…]\(2) ceci(3)[[ à/de/sur/…]\(4) cela(5)]] est une action[ qui concerne un|une|deux(6) typeObjetA(7) attributObjetA(8) [prioriteAttributObjetA(9)] [et un|une(10) typeObjetB(11) attributObjetB(12) [prioriteAttributObjetB(13)]]]
+   * - Exemples :
+   *     - Jeter ceci est une action qui concerne un objet possédé.
+   *     - Examiner ceci est une action qui concerne un objet visible prioritairement disponible.
+   *     - prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé
+   *     - Appuyer sur ceci avec cela est une action qui concerne deux objets accessibles prioritairement possédés.
+   * - Tests unitaires
+   *     - Jeter ceci est une action qui concerne un objet possédé.
+   *     - Examiner ceci est une action qui concerne un objet visible prioritairement disponible.
+   *     - prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé
+   *     - Appuyer sur ceci avec cela est une action qui concerne deux objets accessibles prioritairement possédés.
    */
-  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un|une|deux|la|le) (\S+)(?: (\S+))?(?: et (un|une|la|le) (\S+)(?: (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un|une|deux|la|le) (\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un|une|la|le) (\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?$/i;
 
   /** Le joueur peut verbe(1) [déterminant(2) nom(3) epithete(4)]: instructions(5) */
   static readonly xActionSimple = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?: (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?(?: )?:(.+)?$/i;

@@ -1,12 +1,12 @@
 import { Action } from "../../../models/compilateur/action";
 import { AnalyseurConsequences } from "./analyseur.consequences";
+import { AnalyseurUtils } from "./analyseur.utils";
+import { CibleAction } from "../../../models/compilateur/cible-action";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
-import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { Verification } from "../../../models/compilateur/verification";
-import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurAction {
 
@@ -27,13 +27,13 @@ export class AnalyseurAction {
       let action = new Action(verbe, ceci, cela);
       // concerne un élément ?
       if (ceci) {
-        action.cibleCeci = new GroupeNominal(result[6], result[7], result[8]);
+        action.cibleCeci = new CibleAction(result[6], result[7], result[8], result[9]);
         // concerne également un 2e élément ?
         if (cela) {
           if (result[6] === 'deux') {
-            action.cibleCela = new GroupeNominal(result[6], result[7], result[8]);
+            action.cibleCela = new CibleAction(result[6], result[7], result[8], result[9]);
           } else {
-            action.cibleCela = new GroupeNominal(result[9], result[10], result[11]);
+            action.cibleCela = new CibleAction(result[10], result[11], result[12], result[13]);
           }
         }
       }
@@ -106,7 +106,7 @@ export class AnalyseurAction {
 
           let action = new Action(verbe, ceci, false);
           if (ceci) {
-            action.cibleCeci = new GroupeNominal(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
+            action.cibleCeci = new CibleAction(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
           }
 
           action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);

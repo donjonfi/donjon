@@ -1,10 +1,7 @@
+import { CibleAction } from './cible-action';
 import { ElementJeu } from '../jeu/element-jeu';
-import { ElementsPhrase } from '../commun/elements-phrase';
-import { GroupeNominal } from '../commun/groupe-nominal';
 import { Instruction } from './instruction';
 import { Intitule } from '../jeu/intitule';
-import { Lieu } from '../jeu/lieu';
-import { Objet } from '../jeu/objet';
 import { Verification } from './verification';
 
 export class Action {
@@ -13,8 +10,8 @@ export class Action {
     public infinitif: string,
     public ceci: boolean,
     public cela: boolean,
-    public cibleCeci: GroupeNominal = null,
-    public cibleCela: GroupeNominal = null,
+    public cibleCeci: CibleAction = null,
+    public cibleCela: CibleAction = null,
     public verificationsBrutes: string = null,
     public verifications: Verification[] = [],
     public instructionsBrutes: string = null,
