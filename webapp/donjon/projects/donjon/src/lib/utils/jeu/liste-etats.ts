@@ -73,9 +73,10 @@ export class ListeEtats {
     this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
     this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;
     // possédé, disponible et occupé (objet)
-    this.possedeID = this.creerEtat(EEtatsBase.possede, Genre.m, Nombre.s, true).id;
-    this.disponibleID = this.creerEtat(EEtatsBase.disponible, Genre.m, Nombre.s, true).id;
-    this.occupeID = this.creerEtat(EEtatsBase.occupe, Genre.m, Nombre.s, true).id;
+    const poDiOc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe],Genre.m, Nombre.s );
+    this.possedeID = poDiOc[0].id;
+    this.disponibleID = poDiOc[1].id;
+    this.occupeID = poDiOc[2].id;
     // porté (objet)
     this.porteID = this.creerEtat(EEtatsBase.porte, Genre.m, Nombre.s, true).id;
     // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);

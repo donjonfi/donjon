@@ -228,7 +228,7 @@ export class Generateur {
           // plusieurs exemplaires
           jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.multiple);
           // quantité illimitée
-          if(newObjet.quantite == -1){
+          if (newObjet.quantite == -1) {
             jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.illimite);
           }
         }
@@ -304,16 +304,32 @@ export class Generateur {
             // const localisation = Generateur.getLocalisation(curEle.positionString.position);
             const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
 
-            // lieu trouvé
+            // A) lieu trouvé
             if (lieuID !== -1) {
               newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
-              // pas de lieu trouvé
+
+              // vu que l’objet est dans un lieu, il ni porté ni occupé donc il est disponible
+              jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
+
+              // B) pas de lieu trouvé
             } else {
 
               // chercher un contenant ou un support
               const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curEle.positionString.complement);
+              // >> trouvé contenant
               if (contenantSupport) {
+
+                // si le contenant est vivant, l’objet est « occupé »
+                if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.occupe, true);
+                  // sinon l’objet est disponible
+                } else {
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
+                }
+
+
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+                // >> pas trouvé de contenant
               } else {
                 console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curEle.positionString);
               }

@@ -21,6 +21,7 @@ import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
 import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
+import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
 @Component({
   selector: 'djn-lecteur',
@@ -503,8 +504,8 @@ export class LecteurComponent implements OnInit, OnChanges {
     // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
 
     let candidats: Action[] = [];
-    let matchCeci: ElementJeu | Intitule | -1 = null;
-    let matchCela: ElementJeu | Intitule | -1 = null;
+    let matchCeci: ResultatVerifierCandidat = null;
+    let matchCela: ResultatVerifierCandidat = null;
     let resultat: ActionCeciCela | -1 = null;
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
@@ -599,12 +600,12 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   /**
    * Vérifier si on trouve l’élément rechercher parmis les correspondances.
-   * @param ceciCela  élément recherché
-   * @param candidatCeciCela  correspondances
+   * @param ceciCela  correspondances
+   * @param candidatCeciCela  élément recherché
    * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.
    */
-  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: CibleAction) {
-    let retVal: ElementJeu | Intitule | -1 = null;
+  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: CibleAction): ResultatVerifierCandidat {
+    let retVal: Array<ElementJeu | Intitule> = [];
 
     // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
     let bestScore = 0;
@@ -625,18 +626,17 @@ export class LecteurComponent implements OnInit, OnChanges {
             let curScore = 1000;
             // si priorité respectée, score augmente
             if (candidatCeciCela.priorite) {
-              if (ClasseUtils.heriteDe(ele.classe, candidatCeciCela.priorite)) {
-                curScore += 2000; // prioritaire
+              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.priorite, this.eju)) {
+                curScore += 500; // prioritaire
               }
             }
-            // meilleur score jusqu’à présent => on le prend
+            // meilleur score jusqu’à présent => remplace le précédent résultat
             if (curScore > bestScore) {
               bestScore = curScore;
-              retVal = ele;
-              // 2 scores équivalents => on annonce qu’on ne sait pas quoi faire
-              // (mais ça pourra encore changer)
+              retVal = [ele];
+              // 2 scores équivalents => on ajoute au résultat existant
             } else if (curScore === bestScore) {
-              retVal = -1
+              retVal.push(ele);
             }
           }
         });
@@ -650,11 +650,14 @@ export class LecteurComponent implements OnInit, OnChanges {
           console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
           if (cpt.intitule.nom === candidatCeciCela.nom && cpt.intitule.epithete === candidatCeciCela.epithete) {
-            if (retVal === null) {
-              retVal = cpt;
+            let curScore = 500;
+            if (curScore > bestScore) {
+              bestScore = curScore;
+              retVal = [cpt];
             } else {
-              // déjà un match, on en a plusieurs.
-              retVal = -1;
+              // déjà un match, on en a plusieurs
+              // (ici ils ont toujours la même valeur)
+              retVal.push(cpt);
             }
           }
         });
@@ -670,11 +673,14 @@ export class LecteurComponent implements OnInit, OnChanges {
         console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
         if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
-          if (retVal === null) {
-            retVal = intitule;
+          let curScore = 250;
+          if (curScore > bestScore) {
+            bestScore = curScore;
+            retVal = [intitule];
           } else {
-            // déjà un match, on en a plusieurs.
-            retVal = -1;
+            // déjà un match, on en a plusieurs
+            // (ici ils ont toujours la même valeur)
+            retVal.push(intitule);
           }
         }
       }
@@ -689,21 +695,20 @@ export class LecteurComponent implements OnInit, OnChanges {
 
           // s’il n’y a pas d’état requis ou si l’état est respecté
           if (!candidatCeciCela.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.epithete, this.eju)) {
-            let curScore = 100;
+            let curScore = 125;
             // si priorité respectée, score augmente
             if (candidatCeciCela.priorite) {
-              if (ClasseUtils.heriteDe(ele.classe, candidatCeciCela.priorite)) {
-                curScore += 200; // prioritaire
+              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.priorite, this.eju)) {
+                curScore += 75; // prioritaire
               }
             }
-            // meilleur score jusqu’à présent => on le prend
+            // meilleur score jusqu’à présent => remplace le précédent résultat
             if (curScore > bestScore) {
               bestScore = curScore;
-              retVal = ele;
-              // 2 scores équivalents => on annonce qu’on ne sait pas quoi faire
-              // (mais ça pourra encore changer)
+              retVal = [ele];
+              // 2 scores équivalents => on ajoute au résultat existant
             } else if (curScore === bestScore) {
-              retVal = -1
+              retVal.push(ele);
             }
           }
         }
@@ -711,16 +716,19 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // si ce n'est pas un élément du jeu,
       //  - vérifier direction
-      if (retVal == null && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
-        retVal = ceciCela.localisation;
+      if (bestScore === 0 && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
+        bestScore = 75;
+        retVal = [ceciCela.localisation];
       }
       //  - vérifier intitué
-      if (retVal == null && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
-        retVal = ceciCela.intitule;
+      if (bestScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
+        bestScore = 50;
+        retVal = [ceciCela.intitule];
       }
 
     }
-    return retVal;
+    console.warn("VerifierCandidat >>> \nbestScore=", bestScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
+    return new ResultatVerifierCandidat(retVal, bestScore);
   }
 
 }

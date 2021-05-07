@@ -9,13 +9,13 @@ import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
-import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionDire } from './instruction-dire';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionsUtils } from '../commun/positions-utils';
@@ -435,7 +435,7 @@ export class Instructions {
     // trouver la destination
     const destination = this.trouverDestinationDeplacementCopie(complement, ceci, cela);
 
-    // si on a trouver le sujet et la distination, effectuer la copie.
+    // si on a trouvé le sujet et la distination, effectuer la copie.
     if (objets?.length == 1 && destination) {
       resultat = this.exectuterCopierObjetVersDestination(objets[0], preposition, destination);
       // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
@@ -499,6 +499,8 @@ export class Instructions {
         } else {
           this.jeu.etats.retirerEtatElement(objet, EEtatsBase.present, true);
         }
+        // l’élément est disponible puisque ni porté ni occupé par un autre vivant
+        this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.disponible, true);
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent, possédé et n’est plus caché.
@@ -514,6 +516,9 @@ export class Instructions {
           this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
           // TODO: un objet dans un contenant porté est-il porté ?
           this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+          // L’objet est disponible
+          // TODO: statut « occupé » si le contenant est un être vivant.
+          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.disponible, true);
           this.eju.majPresenceObjet(objet);
         }
       }
@@ -576,6 +581,7 @@ export class Instructions {
     // si la destination de la copie est la même que celle de l’original, augmenter la quantité
     if (PositionsUtils.positionsIdentiques(original.position, positionCopie)) {
       original.quantite += 1;
+      original.nombre = Nombre.p;
       // destination de la copie est différente
     } else {
 
@@ -586,7 +592,7 @@ export class Instructions {
       if (exemplaireDejaContenu !== null) {
         // => destination: on augmente la quantité de l’objet
         exemplaireDejaContenu.quantite += 1;
-
+        exemplaireDejaContenu.nombre = Nombre.p;
         // pas à cette fonction de le faire à priori…
         // // // => source: on diminue la quantité de l’objet (si pas illimité)
         // // if (!this.jeu.etats.possedeEtatElement(original, EEtatsBase.illimite, this.eju)) {

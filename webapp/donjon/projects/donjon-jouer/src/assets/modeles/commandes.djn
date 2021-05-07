@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-05-01-0024
+-- Version: 2021-05-07-0025
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -609,7 +609,7 @@ exécuter prendre:
   dire "Je sais prendre mais il faut me dire quoi.".
   
 -- b) prendre ceci
-prendre ceci est une action qui concerne un objet visible.
+prendre ceci est une action qui concerne un objet visible prioritairement disponible.
 
 refuser prendre ceci:
   si ceci est possédé, dire "Vous l’avez déjà.";
@@ -654,7 +654,7 @@ le joueur peut donner:
   dire "Je sais donner mais il faut me dire quoi et à qui.".
   
 -- c) donner ceci à cela
-donner ceci à cela est une action qui concerne un objet visible et un vivant visible.
+donner ceci à cela est une action qui concerne un objet visible prioritairement possédé et un vivant visible.
 
 refuser donner ceci à cela:
   si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
@@ -686,7 +686,7 @@ le joueur peut jeter:
   dire "Je sais jeter mais il faut me dire quoi.".
   
 -- b) jeter ceci
-jeter ceci est une action qui concerne un objet visible.
+jeter ceci est une action qui concerne un objet visible prioritairement possédé.
 
 refuser jeter ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
@@ -707,7 +707,7 @@ L'aide pour l'action jeter est "{*Jeter*}
   {+raccourci+} : {-j-}".
   
 -- b) jeter ceci vers cela
-jeter ceci vers cela est une action qui concerne deux objets visibles.
+jeter ceci vers cela est une action qui concerne un objet visible prioritairement possédé et un objet visible.
 
 refuser jeter ceci vers cela:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
