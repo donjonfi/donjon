@@ -125,60 +125,58 @@ export class Instructions {
         break;
 
       case 'déplacer':
-        // déplacer sujet vers direction
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
 
-          let loc: Localisation | ELocalisation = ceci as Localisation;
+        console.warn("$$$$ Déplacer", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
 
-          // console.error("Exécuter infinitif: déplacer sujet vers direction. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
-          let voisinID = this.eju.getVoisinDirectionID((loc), EClasseRacine.lieu);
+        let destinationDeplacement: ElementJeu | Intitule = null;
+        if (instruction.sujetComplement1?.nom === 'ceci') {
+          destinationDeplacement = ceci;
+        } else if (instruction.sujetComplement1?.nom === 'cela') {
+          destinationDeplacement = cela;
+        } else if (instruction.sujetComplement1?.nom === 'ici') {
+          destinationDeplacement = this.eju.curLieu;
+        }
 
-          if (voisinID == -1) {
-            // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
-            if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
-              const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
-              if (lieuxVoisinsVisibles.length == 1) {
-                voisinID = lieuxVoisinsVisibles[0].id;
-                loc = lieuxVoisinsVisibles[0].localisation;
+        if (destinationDeplacement) {
+          // déplacer sujet vers direction
+          if (ClasseUtils.heriteDe(destinationDeplacement.classe, EClasseRacine.direction)) {
+            let loc: Localisation | ELocalisation = destinationDeplacement as Localisation;
+            let voisinID = this.eju.getVoisinDirectionID((loc), EClasseRacine.lieu);
+            if (voisinID == -1) {
+              // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
+              if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
+                const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
+                if (lieuxVoisinsVisibles.length == 1) {
+                  voisinID = lieuxVoisinsVisibles[0].id;
+                  loc = lieuxVoisinsVisibles[0].localisation;
+                }
               }
             }
-          }
-
-          if (voisinID != -1) {
-            const voisin = this.eju.getLieu(voisinID);
-            sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, voisin.intitule, null, null);
+            if (voisinID != -1) {
+              const voisin = this.eju.getLieu(voisinID);
+              sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, voisin.intitule, null, null);
+              resultat.succes = sousResultat.succes;
+            } else {
+              resultat.succes = false;
+            }
+            // déplacer sujet vers un élément du jeu (lieu ou objet)
+          } else if (ClasseUtils.heriteDe(destinationDeplacement.classe, EClasseRacine.element)) {
+            // (on place la destination dans ceci)
+            sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, new GroupeNominal(null, "ceci"), destinationDeplacement as ElementJeu, null);
             resultat.succes = sousResultat.succes;
           } else {
+            console.error("Exécuter infinitif: déplacer: la destination (ceci, cela ou ici) doit être soit un lieu, soit un objet, soit une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
             resultat.succes = false;
           }
-          // déplacer sujet vers un lieu
-        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, new GroupeNominal(null, "ceci"), ceci as Lieu, null);
-          resultat.succes = sousResultat.succes;
-          // déplacer sujet vers un objet
-        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          // console.error("Exécuter infinitif: déplacer sujet vers objet. \nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, "\ninstruction=", instruction, ")");
-          sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
-          resultat.succes = sousResultat.succes;
         } else {
-          console.error("Exécuter infinitif: On peut déplacer soit vers un lieu, soit vers un objet, soit vers une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
-          resultat.succes = false;
+          console.error("Exécuter infinitif: déplacer: la destination n’est pas prise en charge (supportés: ceci, cela ou ici) \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
         }
         break;
 
       case 'copier':
-        // copier sujet vers un lieu
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-          sousResultat = this.executerCopier(instruction.sujet, instruction.preposition1, new GroupeNominal(null, "ceci"), ceci as Lieu, null);
-          resultat.succes = sousResultat.succes;
-          // copier sujet vers un objet
-        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          sousResultat = this.executerCopier(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci as Objet, cela);
-          resultat.succes = sousResultat.succes;
-        } else {
-          console.error("Exécuter infinitif: On peut copier soit vers un lieu, soit vers un objet. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
-          resultat.succes = false;
-        }
+        console.warn("$$$$ Copier", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
+        // copier l’élément
+        sousResultat = this.executerCopier(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
         break;
 
       case 'effacer':
@@ -273,55 +271,64 @@ export class Instructions {
   /**
    * Trouver les objets à déplacer ou à copier.
    */
-  private trouverObjetsDeplacementCopie(sujet: GroupeNominal, ceci: ElementJeu = null, cela: ElementJeu | Intitule = null) {
+  private trouverObjetsDeplacementCopie(sujet: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
     let objet: Objet = null;
     let objets: Objet[] = null;
 
-    switch (sujet.nom) {
-      case "ceci":
-        objet = ceci as Objet;
-        break;
-      case "cela":
-        objet = cela as Objet;
-        break;
-      case "joueur":
-        objet = this.jeu.joueur;
-        break;
-      case "objets dans ceci":
-        objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
-        break;
-      case "objets sur ceci":
-        objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
-        break;
-      case "objets sous ceci":
-        objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
-        break;
-      case "objets dans cela":
-        objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
-        break;
-      case "objets sur cela":
-        objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
-        break;
-      case "objets sous cela":
-        objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
-        break;
-      case "objets ici":
-        objets = this.eju.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
-        break;
+    // si on déplace ceci, vérifier si ceci est un objet
+    if ((sujet.nom.endsWith(" ceci") || sujet.nom === 'ceci') && (!ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet))) {
+      console.error("Copier/Déplacer ceci ou contenu ceci: ceci n'est pas un objet.");
+    }
+    // si on déplace cela, vérifier si cela est un objet
+    else if ((sujet.nom.endsWith(" cela") || sujet.nom === 'cela') && (!ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet))) {
+      console.error("Copier/Déplacer cela ou contenu cela: cela n'est pas un objet.");
+    } else {
+      switch (sujet.nom) {
+        case "ceci":
+          objet = ceci as Objet;
+          break;
+        case "cela":
+          objet = cela as Objet;
+          break;
+        case "joueur":
+          objet = this.jeu.joueur;
+          break;
+        case "objets dans ceci":
+          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
+          break;
+        case "objets sur ceci":
+          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
+          break;
+        case "objets sous ceci":
+          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
+          break;
+        case "objets dans cela":
+          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
+          break;
+        case "objets sur cela":
+          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
+          break;
+        case "objets sous cela":
+          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
+          break;
+        case "objets ici":
+          objets = this.eju.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);
+          break;
 
-      default:
-        let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
-        // un élément trouvé
-        if (correspondanceSujet.elements.length === 1) {
-          objet = correspondanceSujet.objets[0];
-          // aucun élément trouvé
-        } else if (correspondanceSujet.elements.length === 0) {
-          console.error("executerDeplacer >>> je n’ai pas trouvé l’objet:", sujet);
-          // plusieurs éléments trouvés
-        } else {
-          console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour l’objet:", sujet);
-        }
-        break;
+        default:
+          let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
+          // un élément trouvé
+          if (correspondanceSujet.elements.length === 1) {
+            objet = correspondanceSujet.objets[0];
+            // aucun élément trouvé
+          } else if (correspondanceSujet.elements.length === 0) {
+            console.error("executerDeplacer >>> je n’ai pas trouvé l’objet:", sujet);
+            // plusieurs éléments trouvés
+          } else {
+            console.error("executerDeplacer >>> j’ai trouvé plusieurs correspondances pour l’objet:", sujet);
+          }
+          break;
+      }
     }
 
     // si un seul objet, le mettre dans un tableau pour le retour
@@ -336,7 +343,7 @@ export class Instructions {
   /**
    * Trouver la destination pour un déplacement ou une copie.
    */
-  private trouverDestinationDeplacementCopie(complement: GroupeNominal, ceci: ElementJeu = null, cela: ElementJeu | Intitule = null) {
+  private trouverDestinationDeplacementCopie(complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
 
     let destination: ElementJeu = null;
 
@@ -387,9 +394,9 @@ export class Instructions {
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    if (this.verbeux) {
-      console.log("executerDeplacer >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
-    }
+    // if (this.verbeux) {
+    console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+    // }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {
@@ -417,19 +424,19 @@ export class Instructions {
     return resultat;
   }
 
-  /** Copier (ceci) vers (cela, joueur, ici). */
-  private executerCopier(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu = null, cela: ElementJeu | Intitule = null): Resultat {
+  /** Copier sujet (ceci) vers complément (cela, joueur, ici). */
+  private executerCopier(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    if (this.verbeux) {
-      console.log("executerCopier >>> sujet=", sujet, "preposition=", preposition, "complément=", complement, "ceci=", ceci, "cela=", cela);
-    }
+    // if (this.verbeux) {
+    console.log("executerCopier >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+    // }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {
       console.error("executerCopier >>> préposition pas reconnue:", preposition);
     }
 
-    // trouver l’élément à déplacer
+    // trouver l’élément à copier
     const objets = this.trouverObjetsDeplacementCopie(sujet, ceci, cela);
 
     // trouver la destination
