@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-05-07-0025
+-- Version: 2021-05-08-0025
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1124,11 +1124,19 @@ SCÈNE "sauter".
 -- ===========
 --   SAUTER
 -- ===========
+
+-- sauter sur place
 sauter est une action.
 
 terminer sauter:
   dire "Vous sautez sur place.".
   
+-- sauter sur quelque chose
+sauter sur ceci est une action qui concerne un objet visible.
+
+terminer sauter sur ceci:
+  dire "J’ai peur de me blesser.".
+
 SCÈNE "attendre".
 -- ============
 --   ATTENDRE
