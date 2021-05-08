@@ -1,4 +1,4 @@
-import { Action, ActionCeciCela } from '../models/compilateur/action';
+import { Action, ActionCeciCela, CandidatActionCeciCela } from '../models/compilateur/action';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -15,11 +15,9 @@ import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Evenement } from '../models/jouer/evenement';
-import { GroupeNominal } from '../models/commun/groupe-nominal';
 import { Instructions } from '../utils/jeu/instructions';
 import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
-import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
 import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
@@ -442,7 +440,28 @@ export class LecteurComponent implements OnInit, OnChanges {
             // =============================================================================
           } else {
 
-            const actionCeciCela = actionsCeciCela[0];
+            console.log("Une action se démarque !");
+
+            const candidatVainqueur = actionsCeciCela[0];
+
+            // il peut y avoir plusieurs correspondances avec le même score pour un objet.
+            // Ex: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
+            // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
+            let indexCeci = 0;
+            let indexCela = 0;
+
+            if (candidatVainqueur.ceci?.length > 1) {
+              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
+              indexCeci = Math.floor(Math.random() * candidatVainqueur.ceci.length);
+              console.log("indexCeci=", indexCeci);
+            }
+            if (candidatVainqueur.cela?.length > 1) {
+              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
+              indexCela = Math.floor(Math.random() * candidatVainqueur.cela.length);
+              console.log("indexCela=", indexCela);
+            }
+
+            const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
 
             const isCeciV2 = actionCeciCela.ceci ? true : false;
             const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
@@ -462,7 +481,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
             const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela);
-            retVal = resultatAvant.sortie;
+            retVal += resultatAvant.sortie;
             // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
             if (resultatAvant.stopper !== true) {
               // PHASE REFUSER (vérifier l'action)
@@ -521,14 +540,14 @@ export class LecteurComponent implements OnInit, OnChanges {
     return resultat;
   }
 
-  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela[] {
+  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): CandidatActionCeciCela[] {
 
     // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
 
     let candidats: Action[] = [];
     let matchCeci: ResultatVerifierCandidat = null;
     let matchCela: ResultatVerifierCandidat = null;
-    let resultat: ActionCeciCela[] = null;
+    let resultat: CandidatActionCeciCela[] = null;
     let verbeConnu: boolean = false;
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
@@ -580,10 +599,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             // A. aucun candidat valide trouvé
             if (matchCeci.elementsTrouves.length === 0) {
               console.log(">>> Pas de candidat valide trouvé pour ceci avec le candidat:", candidat, "ceci:", ceci);
-              // B. plusieurs candidats se démarquent
-            } else if (matchCeci.elementsTrouves.length !== 1) {
-              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
-              // C. exactement un candidat se démarque
+              // B. au moins un candidat se démarque
             } else {
               // 2) vérifier complément (CELA)
               if (els.complement1) {
@@ -592,10 +608,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                   // A. aucun candidat valide trouvé
                   if (matchCela.elementsTrouves.length === 0) {
                     console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
-                    // B. plusieurs candidats se démarquent
-                  } else if (matchCela.elementsTrouves.length !== 1) {
-                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
-                    // C. exactement un candidat se démarque
+                    // B. au moins un candidat se démarque
                   } else {
                     candidatCorrespond = true;
                   }
@@ -607,6 +620,19 @@ export class LecteurComponent implements OnInit, OnChanges {
             }
           }
 
+          /*
+
+                 // B. plusieurs candidats se démarquent
+            } else if (matchCeci.elementsTrouves.length !== 1) {
+              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
+
+
+                 // B. plusieurs candidats se démarquent
+                  } else if (matchCela.elementsTrouves.length !== 1) {
+                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
+
+          */
+
           if (candidatCorrespond) {
 
             const score = matchCeci.meilleurScore + (matchCela?.meilleurScore ?? 0);
@@ -614,10 +640,10 @@ export class LecteurComponent implements OnInit, OnChanges {
             // meilleur score jusqu’à présent => remplace le précédent résultat
             if (score > meilleurScore) {
               meilleurScore = score;
-              resultat = [new ActionCeciCela(candidat, (matchCeci ? matchCeci[0] : null), (matchCela ? matchCela[0] : null))];
+              resultat = [new CandidatActionCeciCela(candidat, matchCeci?.elementsTrouves, matchCela?.elementsTrouves)];
               // plusieurs scores équivalents => on ajoute au résultat existant
             } else if (score === meilleurScore) {
-              resultat.push(new ActionCeciCela(candidat, (matchCeci ? matchCeci[0] : null), (matchCela ? matchCela[0] : null)));
+              resultat.push(new CandidatActionCeciCela(candidat, matchCeci?.elementsTrouves, matchCela?.elementsTrouves));
             }
           }
         });
@@ -626,7 +652,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       } else {
         // à priori on ne devrait avoir qu’un seul résultat vue que verbe simple…
         candidats.forEach(candidat => {
-          resultat.push(new ActionCeciCela(candidat, null, null));
+          resultat.push(new CandidatActionCeciCela(candidat, null, null));
         });
       }
     }
@@ -680,9 +706,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCela.compteurs.forEach(cpt => {
-          console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
-          console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-          console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+          // console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
+          // console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+          // console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
           if (cpt.intitule.nom === candidatCeciCela.nom && cpt.intitule.epithete === candidatCeciCela.epithete) {
             let curScore = 500;
@@ -703,9 +729,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         const intitule = ceciCela.intitule;
 
         // vérifier s’il s’agit du sujet précis
-        console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
-        console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-        console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+        // console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
+        // console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+        // console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
         if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
           let curScore = 250;
@@ -762,7 +788,9 @@ export class LecteurComponent implements OnInit, OnChanges {
       }
 
     }
-    console.warn("VerifierCandidat >>> \nbestScore=", meilleurScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
+    if (this.verbeux) {
+      console.log("VerifierCandidat >>> \nbestScore=", meilleurScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
+    }
     return new ResultatVerifierCandidat(retVal, meilleurScore);
   }
 
