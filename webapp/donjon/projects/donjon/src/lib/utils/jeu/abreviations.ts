@@ -123,6 +123,10 @@ export class Abreviations {
           retVal = "afficher aide";
           break;
 
+        case 'af':
+          retVal = "afficher ";
+          break;
+
         case 'a':
         case 'al':
         case 'all':
