@@ -378,10 +378,21 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         // autres commandes
         default:
-          const actionCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
+          const actionsCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
 
-          if (actionCeciCela === -1) {
-            retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec la suite de la commande.";
+          // =====================================================
+          //  A. VERBE PAS CONNU
+          // =====================================================
+          if (actionsCeciCela === null) {
+
+            retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
+
+            // =====================================================
+            // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
+            // =====================================================
+          } else if (actionsCeciCela.length === 0) {
+
+            retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec les arguments ou la formulation de la commande.";
             // vérifier si on a trouvé les éléments de la commande.
             if (ceciIntituleV1) {
               // ON N'A PAS TROUVÉ L'OBJET
@@ -419,8 +430,19 @@ export class LecteurComponent implements OnInit, OnChanges {
               retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
             }
 
-            // console.warn("commande: ", els);
-          } else if (actionCeciCela) {
+            // =============================================================================
+            // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
+            // =============================================================================
+          } else if (actionsCeciCela.length > 1) {
+
+            retVal = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + els.infinitif + ").+}";
+
+            // =============================================================================
+            // D. UNE ACTION SE DÉMARQUE (ont a trouvé l’action)
+            // =============================================================================
+          } else {
+
+            const actionCeciCela = actionsCeciCela[0];
 
             const isCeciV2 = actionCeciCela.ceci ? true : false;
             const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
@@ -478,9 +500,9 @@ export class LecteurComponent implements OnInit, OnChanges {
                 }
               }
             }
-          } else {
-            retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
+
           }
+
           break;
       }
     } else {
@@ -499,14 +521,15 @@ export class LecteurComponent implements OnInit, OnChanges {
     return resultat;
   }
 
-  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela | -1 {
+  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): ActionCeciCela[] {
 
     // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
 
     let candidats: Action[] = [];
     let matchCeci: ResultatVerifierCandidat = null;
     let matchCela: ResultatVerifierCandidat = null;
-    let resultat: ActionCeciCela | -1 = null;
+    let resultat: ActionCeciCela[] = null;
+    let verbeConnu: boolean = false;
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
@@ -522,7 +545,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       }
 
       if (infinitifOk) {
-        resultat = -1; // le verbe est connu.
+        verbeConnu = true;
         // vérifier sujet
         if ((els.sujet && action.ceci) || (!els.sujet && !action.ceci)) {
           // vérifier complément
@@ -531,68 +554,80 @@ export class LecteurComponent implements OnInit, OnChanges {
           }
         }
       }
+
     });
 
     if (this.verbeux) {
       console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
     }
-    // TODO: prise en charge des sujets génériques (objet, personne, portes, ...)
 
-    // infinitif + sujet (+complément), vérifier que celui de la commande correspond
-    if (els.sujet) {
+    if (verbeConnu) {
+      resultat = []; // verbe connu
 
-      candidats.forEach(candidat => {
-        let candidatCorrespond = false;
-        matchCeci = null;
-        matchCela = null;
+      // infinitif + sujet (+complément), vérifier que celui de la commande correspond
+      if (els.sujet) {
 
-        // vérifier sujet (CECI)
-        if (candidat.cibleCeci) {
-          matchCeci = this.verifierCandidatCeciCela(ceci, candidat.cibleCeci);
-          if (matchCeci !== null) {
-            if (matchCeci === -1) {
-              // plusieurs éléments trouvés => il faut être plus précis.
-              console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Ceci:", ceci);
+        let meilleurScore = 0;
+
+        candidats.forEach(candidat => {
+          let candidatCorrespond = false;
+          matchCeci = null;
+          matchCela = null;
+
+          // 1) vérifier sujet (CECI)
+          if (candidat.cibleCeci) {
+            matchCeci = this.verifierCandidatCeciCela(ceci, candidat.cibleCeci);
+            // A. aucun candidat valide trouvé
+            if (matchCeci.elementsTrouves.length === 0) {
+              console.log(">>> Pas de candidat valide trouvé pour ceci avec le candidat:", candidat, "ceci:", ceci);
+              // B. plusieurs candidats se démarquent
+            } else if (matchCeci.elementsTrouves.length !== 1) {
+              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
+              // C. exactement un candidat se démarque
             } else {
-              // vérifier complément (CELA)
+              // 2) vérifier complément (CELA)
               if (els.complement1) {
                 if (candidat.cibleCela) {
                   matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
-                  if (matchCela !== null) {
-                    if (matchCela === -1) {
-                      // plusieurs éléments trouvés => il faut être plus précis.
-                      console.error("trouverActionPersonnalisee >>> plusieurs candidats trouvés pour Cela:", cela);
-                    } else {
-                      candidatCorrespond = true;
-                    }
+                  // A. aucun candidat valide trouvé
+                  if (matchCela.elementsTrouves.length === 0) {
+                    console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
+                    // B. plusieurs candidats se démarquent
+                  } else if (matchCela.elementsTrouves.length !== 1) {
+                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
+                    // C. exactement un candidat se démarque
+                  } else {
+                    candidatCorrespond = true;
                   }
                 }
+                // pas de cela
               } else {
                 candidatCorrespond = true;
               }
             }
           }
-        } else {
-          // candidat ne correspond pas.
-        }
 
-        if (candidatCorrespond && matchCeci !== -1 && matchCela !== -1) {
-          if (resultat === -1) {
-            resultat = new ActionCeciCela(candidat, matchCeci, matchCela);
-          } else {
-            // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
-            console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els, candidats);
+          if (candidatCorrespond) {
+
+            const score = matchCeci.meilleurScore + (matchCela?.meilleurScore ?? 0);
+
+            // meilleur score jusqu’à présent => remplace le précédent résultat
+            if (score > meilleurScore) {
+              meilleurScore = score;
+              resultat = [new ActionCeciCela(candidat, (matchCeci ? matchCeci[0] : null), (matchCela ? matchCela[0] : null))];
+              // plusieurs scores équivalents => on ajoute au résultat existant
+            } else if (score === meilleurScore) {
+              resultat.push(new ActionCeciCela(candidat, (matchCeci ? matchCeci[0] : null), (matchCela ? matchCela[0] : null)));
+            }
           }
-        }
+        });
 
-      });
-      // infinitif simple
-    } else {
-      if (candidats.length == 1) {
-        resultat = new ActionCeciCela(candidats[0], null, null);
+        // infinitif simple
       } else {
-        // TODO: regarder le niveau de la classe des différents candidats et prendre celui le plus élevé.
-        console.warn("trouverActionPersonnalisee >>> Plusieurs actions trouvées pour", els, candidats);
+        // à priori on ne devrait avoir qu’un seul résultat vue que verbe simple…
+        candidats.forEach(candidat => {
+          resultat.push(new ActionCeciCela(candidat, null, null));
+        });
       }
     }
     return resultat;
@@ -608,7 +643,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     let retVal: Array<ElementJeu | Intitule> = [];
 
     // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
-    let bestScore = 0;
+    let meilleurScore = 0;
 
     // il s’agit d’un sujet précis
     if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
@@ -631,11 +666,11 @@ export class LecteurComponent implements OnInit, OnChanges {
               }
             }
             // meilleur score jusqu’à présent => remplace le précédent résultat
-            if (curScore > bestScore) {
-              bestScore = curScore;
+            if (curScore > meilleurScore) {
+              meilleurScore = curScore;
               retVal = [ele];
               // 2 scores équivalents => on ajoute au résultat existant
-            } else if (curScore === bestScore) {
+            } else if (curScore === meilleurScore) {
               retVal.push(ele);
             }
           }
@@ -651,8 +686,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
           if (cpt.intitule.nom === candidatCeciCela.nom && cpt.intitule.epithete === candidatCeciCela.epithete) {
             let curScore = 500;
-            if (curScore > bestScore) {
-              bestScore = curScore;
+            if (curScore > meilleurScore) {
+              meilleurScore = curScore;
               retVal = [cpt];
             } else {
               // déjà un match, on en a plusieurs
@@ -674,8 +709,8 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
           let curScore = 250;
-          if (curScore > bestScore) {
-            bestScore = curScore;
+          if (curScore > meilleurScore) {
+            meilleurScore = curScore;
             retVal = [intitule];
           } else {
             // déjà un match, on en a plusieurs
@@ -703,11 +738,11 @@ export class LecteurComponent implements OnInit, OnChanges {
               }
             }
             // meilleur score jusqu’à présent => remplace le précédent résultat
-            if (curScore > bestScore) {
-              bestScore = curScore;
+            if (curScore > meilleurScore) {
+              meilleurScore = curScore;
               retVal = [ele];
-              // 2 scores équivalents => on ajoute au résultat existant
-            } else if (curScore === bestScore) {
+              // plusieurs scores équivalents => on ajoute au résultat existant
+            } else if (curScore === meilleurScore) {
               retVal.push(ele);
             }
           }
@@ -716,19 +751,19 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       // si ce n'est pas un élément du jeu,
       //  - vérifier direction
-      if (bestScore === 0 && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
-        bestScore = 75;
+      if (meilleurScore === 0 && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
+        meilleurScore = 75;
         retVal = [ceciCela.localisation];
       }
       //  - vérifier intitué
-      if (bestScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
-        bestScore = 50;
+      if (meilleurScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
+        meilleurScore = 50;
         retVal = [ceciCela.intitule];
       }
 
     }
-    console.warn("VerifierCandidat >>> \nbestScore=", bestScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
-    return new ResultatVerifierCandidat(retVal, bestScore);
+    console.warn("VerifierCandidat >>> \nbestScore=", meilleurScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
+    return new ResultatVerifierCandidat(retVal, meilleurScore);
   }
 
 }
