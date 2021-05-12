@@ -113,6 +113,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Afficher les sections ou non */
   afficherSections = true;
 
+  /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
+  electronActif = false;
+
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   compilationEnCours = false;
   compilationTerminee = false;
@@ -133,6 +136,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // https://www.npmjs.com/package/ngx-ace-wrapper
     // => this.codeEditorElmRef["directiveRef"] : directiveRef;
     // => this.codeEditorElmRef["directiveRef"].ace() : Returns the Ace instance reference for full API access.
+
+
+    // VÉRIFIER SI ON UTILISE ELECTRON
+    var userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.indexOf(' electron/') > -1) {
+      this.electronActif = true;
+    } else {
+      this.electronActif = false;
+    }
 
     // RÉCUPÉRER LES PRÉFÉRENCES DE L’UTILISATEUR
 
@@ -227,7 +239,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.aides = resultat.aides;
         this.erreurs = resultat.erreurs;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs , this.aides, resultat.parametres);
+        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs, this.aides, resultat.parametres);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -263,8 +275,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
     sessionStorage.setItem('SelSceneIndex', this.selSceneIndex?.toString() ?? "");
   }
 
-  /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur. */
   onSauvegarderSous(): void {
+    if (this.electronActif) {
+      this.doSauvegarderSousElectron();
+    } else {
+      this.doSauvegarderSousWeb();
+    }
+  }
+
+  /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur (Navigateur). */
+  private doSauvegarderSousWeb(): void {
 
     // sauver le code dans le cache
     this.sauvegarderSession();
@@ -275,6 +295,36 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([this.codeSource], "donjon.djn", { type: "text/plain;charset=utf-8" });
     FileSaver.saveAs(file);
+  }
+
+  /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur (Electron). */
+  private doSauvegarderSousElectron(): void {
+
+    // sauvegarde Electron fonctionne pas encore pour le moment on
+    // garde la sauvegarde web.
+    this.doSauvegarderSousWeb();
+
+    // // sauver le code dans le cache
+    // this.sauvegarderSession();
+
+    // // sauver le code dans un fichier de l'utilisateur
+
+    // var dialog = remote.dialog;
+
+    // var browserWindow = remote.getCurrentWindow();
+    // var options = {
+    //     title: "Save new file as...",
+    //     // defaultPath : "/path/to/new_file.jsx",
+    //     filters: [
+    //         {name: 'Donjon FI', extensions: ['djn']}
+    //     ]
+    // }
+
+    // let saveDialog = dialog.showSaveDialog(browserWindow, options);
+    // saveDialog.then(function(saveTo) {
+    //     console.log(saveTo.filePath);
+    // })
+
   }
 
   // =============================================
@@ -731,7 +781,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
               // ajouter le code source de la partie précédé de l’instruction « partie »
               allSectionsCodeSource.push(prefixe + dernSection + '".' + ((element.startsWith('\n') || element.startsWith('\r')) ? "" : "\n") + element);
             }
-            
+
             allSectionsPremierNumeroLigne.push(dernierNumeroLigne);
             const nombreLignesSection = element.split(/\r\n|\r|\n/).length
             dernierNumeroLigne += nombreLignesSection - 1;
@@ -782,7 +832,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     /** focus sur le champ commandes si on est sur le tab jeu */
     if (this.tab == 'jeu') {
       setTimeout(() => {
-      ((this.lecteurRef as any) as LecteurComponent).focusCommande();
+        ((this.lecteurRef as any) as LecteurComponent).focusCommande();
       }, 100);
     }
   }

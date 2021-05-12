@@ -3,7 +3,7 @@
     <nav class="navbar navbar-dark bg-success text-light mb-2 p-0">
       <a class="navbar-brand" routerLink="/">
         <img src="./assets/tower_50px.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        Donjon {{jeu && jeu.titre ? (' − ' + jeu.titre):''}}
+        Donjon {{jeu && jeu.titre ? (' − ' + jeu.titre):''}} {{(electronActif ? ' (electron)' : '(navigateur)')}}
       </a>
 
       <!-- charger fichier local -->
