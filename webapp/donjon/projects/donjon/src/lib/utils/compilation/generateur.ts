@@ -30,7 +30,6 @@ export class Generateur {
 
   public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
 
-    let indexElementJeu = 0;
     let jeu = new Jeu();
 
     // DÉFINIR LES CLASSES
@@ -47,7 +46,7 @@ export class Generateur {
 
     // // ÉCRAN
     // // ****************
-    // let ecran = new Objet(++indexElementJeu, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);
+    // let ecran = new Objet(jeu.nextID++, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);
     // ecran.intituleS = ecran.intitule;
     // jeu.etats.ajouterEtatElement(ecran, EEtatsBase.invisible);
     // jeu.objets.push(ecran);
@@ -70,14 +69,14 @@ export class Generateur {
     // INVENTAIRE
     // **********
     // (on l’ajoute pour pouvoir interragir avec)
-    let inventaire = new Objet(++indexElementJeu, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
+    let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible);
     jeu.objets.push(inventaire);
 
     // AJOUTER LES LIEUX
     // ******************
-    let premierIndexLieu = (indexElementJeu + 1);
+    let premierIndexLieu = (jeu.nextID);
     monde.lieux.forEach(curEle => {
 
       // let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
@@ -87,7 +86,7 @@ export class Generateur {
 
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
-      let nouvLieu = new Lieu(++indexElementJeu, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, titre);
+      let nouvLieu = new Lieu(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, titre);
       nouvLieu.description = curEle.description;
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
@@ -151,7 +150,7 @@ export class Generateur {
 
     // PLACER LE JOUEUR
     // ****************
-    let joueur = new Objet(++indexElementJeu, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
+    let joueur = new Objet(jeu.nextID++, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.description = "(C’est vous)";
@@ -201,7 +200,7 @@ export class Generateur {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        let newObjet = new Objet(++indexElementJeu, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
+        let newObjet = new Objet(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         newObjet.description = curEle.description;
         // newObjet.apercu = curEle.apercu;

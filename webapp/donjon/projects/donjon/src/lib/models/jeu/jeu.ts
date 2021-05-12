@@ -52,6 +52,9 @@ export class Jeu {
   /** Tous les objets du jeu */
   objets: Objet[] = [];
 
+  /** Prochain ID disponible pour un élément du jeu. */
+  nextID: number = 1;
+
   /** Un auditeur écoute un évènement en particulier.
    * Lorsque l'évènement se déclanche, on exécute les actions
    * de l'auditeur.

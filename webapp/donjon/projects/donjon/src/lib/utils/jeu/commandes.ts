@@ -101,12 +101,13 @@ export class Commandes {
     const sortie =
       "{* • " + this.eju.calculerIntituleElement(objet, false, true) + "*} (" + objet.genre + ", " + objet.nombre + ")" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(objet.classe) +
+      "{n}{e}{_ID_}{n}" + objet.id + (objet.idOriginal ? (' (copie de ' + objet.idOriginal + ')') : '') +
       "{n}{e}{_synonymes_}{n}" + (objet.synonymes?.length ? objet.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
       "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_lieu_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenant.nom + ')') : '')) +
-      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, PrepositionSpatiale.dans).sortie)) : '') +
-      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, PrepositionSpatiale.sur).sortie)) : '') +
+      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, PrepositionSpatiale.dans).sortie)) : '') +
+      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, PrepositionSpatiale.sur).sortie)) : '') +
       "";
     return sortie;
   }

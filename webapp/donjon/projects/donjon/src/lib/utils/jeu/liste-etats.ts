@@ -9,6 +9,7 @@ import { LienCondition } from '../../models/compilateur/condition';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
+import { stringify } from '@angular/compiler/src/util';
 
 export class ListeEtats {
 
@@ -73,7 +74,7 @@ export class ListeEtats {
     this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
     this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;
     // possédé, disponible et occupé (objet)
-    const poDiOc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe],Genre.m, Nombre.s );
+    const poDiOc = this.creerGroupeEtats([EEtatsBase.possede, EEtatsBase.disponible, EEtatsBase.occupe], Genre.m, Nombre.s);
     this.possedeID = poDiOc[0].id;
     this.disponibleID = poDiOc[1].id;
     this.occupeID = poDiOc[2].id;
@@ -555,21 +556,26 @@ export class ListeEtats {
       // récupérer le contenant
       const parent = eju.getObjet(objet.position.cibleId);
       if (parent) {
-        // si l'objet est dans un contenant
-        if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
-          // si le contenant est fermé
-          if (parent.etats.includes(this.fermeID)) {
-            // tester également s’il est opaque
-            if (testerOpaque && parent.etats.includes(this.opaqueID)) {
-              return true; // on s’arrête, il y a un contenant opaque et fermé
-              // se contenter de fermé
-            } else {
-              return true; // on s’arrête, il y a un contenant fermé
+
+        if (parent.id === objet.id) {
+         throw new Error("estObjetDansUnContenantFermeEtOpaque >>> l’objet est positionné sur lui même !\n" + JSON.stringify(objet));
+        } else {
+          // si l'objet est dans un contenant
+          if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
+            // si le contenant est fermé
+            if (parent.etats.includes(this.fermeID)) {
+              // tester également s’il est opaque
+              if (testerOpaque && parent.etats.includes(this.opaqueID)) {
+                return true; // on s’arrête, il y a un contenant opaque et fermé
+                // se contenter de fermé
+              } else {
+                return true; // on s’arrête, il y a un contenant fermé
+              }
             }
           }
+          // vérifier également le parent éventuel de l'objet
+          return this.estObjetDansUnContenantFermeEtOpaque(parent, eju, testerOpaque);
         }
-        // vérifier également le parent éventuel de l'objet
-        return this.estObjetDansUnContenantFermeEtOpaque(parent, eju, testerOpaque);
       } else {
         console.error("estObjetMasqueParUnContenantOpaqueFerme > Pas trouvé le parent \n > obj=", objet, "\n > position=", objet.position);
         return false;

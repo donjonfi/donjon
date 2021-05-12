@@ -18,6 +18,7 @@ import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Propriete } from '../../models/commun/propriete';
 import { Voisin } from '../../models/jeu/voisin';
+import { stringify } from '@angular/compiler/src/util';
 
 export class ElementsJeuUtils {
 
@@ -43,7 +44,7 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  calculerIntituleElement(ceci: ElementJeu, forcerMajuscule: boolean, forcerConnu: boolean, forcerNombre: Nombre = null) {
+  calculerIntituleElement(ceci: ElementJeu, forcerMajuscule: boolean, forcerConnu: boolean, forcerNombre: Nombre = null) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
 
@@ -276,7 +277,12 @@ export class ElementsJeuUtils {
       // objet dans un contenant qui est dans un lieu
       const contenant = this.jeu.objets.find(x => x.id === obj.position.cibleId);
       if (contenant) {
-        return this.getLieuObjet(contenant);
+
+        if (obj.id == contenant.id) {
+          throw new Error("getLieuObjet >>> l’objet est positionné sur lui même !\n" + JSON.stringify(obj));
+        } else {
+          return this.getLieuObjet(contenant);
+        }
         // objet porté par le joueur => pas de lieu
       } else {
         console.error("getLieuObjet: contenant pas trouvé pour", obj);
@@ -643,15 +649,19 @@ export class ElementsJeuUtils {
  * @param inclureObjetsCachesDeCeci 
  * @param preposition (dans, sur, sous)
  */
-  public trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean, preposition: PrepositionSpatiale) {
+  public trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean, inclureObjetsNonVisibles: boolean, preposition: PrepositionSpatiale) {
     let objets: Objet[] = null;
     if (ceci) {
       // objet
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
         // retrouver les objets {contenus dans/posés sur} cet objet
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.pre == preposition && x.position.cibleId === ceci.id
-          && this.jeu.etats.estVisible(x, this));
-        // si on ne doit pas lister les objets cachés, les enlever
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.objet && x.position.pre == preposition && x.position.cibleId === ceci.id);
+
+        // si on ne doit pas lister les objets non visibles, garder uniquement les objets visibles.
+        if (!inclureObjetsNonVisibles) {
+          objets = objets.filter(x => this.jeu.etats.estVisible(x, this));
+        }
+        // si on ne doit pas lister les objets cachés, garder uniqument les objets non cachés
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
@@ -749,7 +759,7 @@ export class ElementsJeuUtils {
 
     // copier les états
     original.etats.forEach(etat => {
-        copie.etats.push(etat);
+      copie.etats.push(etat);
     });
     // enlever l’état illimité
     this.jeu.etats.retirerEtatElement(copie, EEtatsBase.illimite, false);
