@@ -440,7 +440,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             // =============================================================================
           } else {
 
-            console.log("Une action se démarque !");
+            // console.log("Une action se démarque !");
 
             const candidatVainqueur = actionsCeciCela[0];
 
@@ -598,7 +598,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             matchCeci = this.verifierCandidatCeciCela(ceci, candidat.cibleCeci);
             // A. aucun candidat valide trouvé
             if (matchCeci.elementsTrouves.length === 0) {
-              console.log(">>> Pas de candidat valide trouvé pour ceci avec le candidat:", candidat, "ceci:", ceci);
+              // console.log(">>> Pas de candidat valide trouvé pour ceci avec le candidat:", candidat, "ceci:", ceci);
               // B. au moins un candidat se démarque
             } else {
               // 2) vérifier complément (CELA)
@@ -607,7 +607,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                   matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
                   // A. aucun candidat valide trouvé
                   if (matchCela.elementsTrouves.length === 0) {
-                    console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
+                    // console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
                     // B. au moins un candidat se démarque
                   } else {
                     candidatCorrespond = true;
@@ -677,12 +677,12 @@ export class LecteurComponent implements OnInit, OnChanges {
       // Vérifier s’il s’agit du sujet précis
       // PRIORITÉ 1 >> élément (objet ou lieu)
       if (ceciCela.elements.length) {
-        console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCela.elements.forEach(ele => {
-          console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
-          console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-          console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
+          // console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
+          // console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
+          // console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
           if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
             let curScore = 1000;
             // si priorité respectée, score augmente
@@ -703,7 +703,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         });
         // PRIORITÉ 2 >> compteur
       } else if (ceciCela.compteurs.length) {
-        console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCela.compteurs.forEach(cpt => {
           // console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
@@ -724,7 +724,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         });
         // PRIORITÉ 3 >> intitulé
       } else if (ceciCela.intitule) {
-        console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
 
         const intitule = ceciCela.intitule;
 

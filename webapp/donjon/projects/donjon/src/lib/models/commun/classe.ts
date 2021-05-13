@@ -14,5 +14,10 @@ export class Classe {
     public etats: string[]
   ) { }
 
+  /** Identifiant unique de la classe
+   * => utilisé pour les objets qui sont directement des instances de la classe (il y a un xxxx)
+   */
+  public id: number;
+
 }
 

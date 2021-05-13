@@ -975,7 +975,7 @@ export class InstructionDire {
         let resultat = new Resultat(false, '', 1);
         const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, prepositionSpatiale);
 
-        console.log("@@@ executerDecrireContenu > \nceci:", ceci, "\nprepositionSpatiale:", prepositionSpatiale, "\nobjets:", objets);
+        // console.log("@@@ executerDecrireContenu > \nceci:", ceci, "\nprepositionSpatiale:", prepositionSpatiale, "\nobjets:", objets);
         
 
 

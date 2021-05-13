@@ -126,7 +126,7 @@ export class Instructions {
 
       case 'déplacer':
 
-        console.warn("$$$$ Déplacer", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
+        // console.warn("$$$$ Déplacer", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
 
         let destinationDeplacement: ElementJeu | Intitule = null;
         if (instruction.sujetComplement1?.nom === 'ceci') {
@@ -176,7 +176,7 @@ export class Instructions {
         break;
 
       case 'copier':
-        console.warn("$$$$ Copier", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
+        // console.warn("$$$$ Copier", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
         // copier l’élément
         sousResultat = this.executerCopier(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
         break;
@@ -396,9 +396,9 @@ export class Instructions {
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    // if (this.verbeux) {
-    console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
-    // }
+    if (this.verbeux) {
+      console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+    }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {
@@ -429,9 +429,9 @@ export class Instructions {
   /** Copier sujet (ceci) vers complément (cela, joueur, ici). */
   private executerCopier(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    // if (this.verbeux) {
-    console.log("executerCopier >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
-    // }
+    if (this.verbeux) {
+      console.log("executerCopier >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+    }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {

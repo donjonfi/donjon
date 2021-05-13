@@ -4,6 +4,7 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 import { Action } from '../../models/compilateur/action';
 import { Aide } from '../../models/commun/aide';
 import { Auditeur } from '../../models/jouer/auditeur';
+import { ClassGetter } from '@angular/compiler/src/output/output_ast';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -34,7 +35,11 @@ export class Generateur {
 
     // DÉFINIR LES CLASSES
     // *******************
-    jeu.classes = monde.classes;
+    jeu.classes = [];
+    monde.classes.forEach(classe => {
+      classe.id = jeu.nextID++;
+      jeu.classes.push(classe);
+    });
 
     // DÉFINIR LES FICHES D'AIDE
     // *************************
@@ -201,6 +206,11 @@ export class Generateur {
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         let newObjet = new Objet(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
+
+        // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
+        if (curEle.determinant.match(/^(un |une |des |\d+ )$/i)) {
+          newObjet.idOriginal = newObjet.classe.id;
+        }
 
         newObjet.description = curEle.description;
         // newObjet.apercu = curEle.apercu;
