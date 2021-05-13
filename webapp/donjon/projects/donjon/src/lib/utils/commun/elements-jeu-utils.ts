@@ -397,9 +397,9 @@ export class ElementsJeuUtils {
         cor.compteurs = this.trouverCompteur(sujet);
         cor.nbCor += cor.compteurs.length;
       }
-      // if (this.verbeux) {
-      console.log(" >>>> éléments trouvés:", cor.elements);
-      // }
+      if (this.verbeux) {
+        console.log(" >>>> éléments trouvés:", cor.elements);
+      }
 
       // console.log(" >>>> objets trouvés:", cor.objets);
       // console.log(" >>>> lieux trouvés:", cor.lieux);
@@ -669,8 +669,13 @@ export class ElementsJeuUtils {
         // lieu
       } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
         // retrouver les objets présents dans le lieu
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
-          && this.jeu.etats.estVisible(x, this));
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
+
+        // si on ne doit pas lister les objets non visibles, garder uniquement les objets visibles.
+        if (!inclureObjetsNonVisibles) {
+          objets = objets.filter(x => this.jeu.etats.estVisible(x, this));
+        }
+        // si on ne doit pas lister les objets cachés, garder uniqument les objets non cachés
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }

@@ -33,54 +33,62 @@ export class Commandes {
 
   deboguer(els: ElementsPhrase) {
     let retVal = "";
-    if (els.sujet.nom == 'ici') {
-      console.warn("#DEB# ici=", this.eju.curLieu);
-    } else if (els.sujet.nom == "états") {
-      console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
-    } else {
-      const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
-      if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.localisation !== null) {
-        // éléments
-        if (cor.elements.length) {
-          if (cor.elements.length > 1) {
-            retVal += (cor.elements.length + " éléments trouvés :");
-          } else {
-            retVal += (" 1 élément trouvé :");
-          }
-          cor.elements.forEach(el => {
-            const estLieu = ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu);
-            if (estLieu) {
-              retVal += "\n\n" + this.afficherDetailLieu((el as Lieu));
-            } else {
-              retVal += "\n\n" + this.afficherDetailObjet((el as Objet));
-            }
-          });
-        }
-
-        // compteurs
-        if (cor.compteurs.length) {
-          if (cor.compteurs.length > 1) {
-            retVal += (cor.compteurs.length + " compteurs trouvés :");
-          } else {
-            retVal += (" 1 compteur trouvé :");
-          }
-          cor.compteurs.forEach(cpt => {
-            retVal += "\n\n" + this.afficherDetailCompteur((cpt as Compteur));
-          });
-        }
-
-        // direction
-        if (cor.localisation) {
-          retVal += "1 direction trouvée :";
-          retVal += "\n\n" + this.afficherDetailDirection(cor.localisation);
-        }
 
 
+    if (els.sujet) {
+      if (els.sujet.nom == 'ici') {
+        console.warn("#DEB# ici=", this.eju.curLieu);
+      } else if (els.sujet.nom == "états") {
+        console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
       } else {
-        console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
-        retVal = "pas trouvé > aucune correspondance";
+        const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
+        if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.localisation !== null) {
+          // éléments
+          if (cor.elements.length) {
+            if (cor.elements.length > 1) {
+              retVal += (cor.elements.length + " éléments trouvés :");
+            } else {
+              retVal += (" 1 élément trouvé :");
+            }
+            cor.elements.forEach(el => {
+              const estLieu = ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu);
+              if (estLieu) {
+                retVal += "\n\n" + this.afficherDetailLieu((el as Lieu));
+              } else {
+                retVal += "\n\n" + this.afficherDetailObjet((el as Objet));
+              }
+            });
+          }
+
+          // compteurs
+          if (cor.compteurs.length) {
+            if (cor.compteurs.length > 1) {
+              retVal += (cor.compteurs.length + " compteurs trouvés :");
+            } else {
+              retVal += (" 1 compteur trouvé :");
+            }
+            cor.compteurs.forEach(cpt => {
+              retVal += "\n\n" + this.afficherDetailCompteur((cpt as Compteur));
+            });
+          }
+
+          // direction
+          if (cor.localisation) {
+            retVal += "1 direction trouvée :";
+            retVal += "\n\n" + this.afficherDetailDirection(cor.localisation);
+          }
+
+
+        } else {
+          console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
+          retVal = "pas trouvé > aucune correspondance";
+        }
       }
     }
+    else{
+      retVal = "La commande n’est pas complète.";
+    }
+
     return retVal;
   }
 
@@ -121,6 +129,8 @@ export class Commandes {
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(lieu.classe) +
       "{n}{e}{_synonymes_}{n}" + (lieu.synonymes?.length ? lieu.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
       "{n}{e}{_états_}{n}" + etats +
+      ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(lieu, 'Il y a ', '(vide)', true, true, PrepositionSpatiale.inconnu).sortie)) +
+
       "";
     return sortie;
   }
