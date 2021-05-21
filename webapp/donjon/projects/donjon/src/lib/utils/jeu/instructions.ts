@@ -14,7 +14,6 @@ import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionDire } from './instruction-dire';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
-import { Lieu } from '../../models/jeu/lieu';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
@@ -114,6 +113,11 @@ export class Instructions {
         let contenu = complement.slice(1, complement.length - 1).trim();
         contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, ceci, cela);
         resultat.sortie += contenu;
+
+        console.warn("------ complement:", complement);
+        console.warn("------ contenu:", contenu);
+        
+
         // si la chaine se termine par un espace, ajouter un saut de ligne.
         if (complement.endsWith(' "')) {
           resultat.sortie += "\n";

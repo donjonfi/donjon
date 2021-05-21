@@ -88,6 +88,13 @@ export class BalisesHtml {
     // - remplacer les autres {N} par un \n
     retVal = retVal.replace(/\{N\}/g, '<br>');
 
+    // // remplacer les @F@ par un <br> (sauf celui qui termine le texte)
+  
+    // console.log(">>>>> retVal=", retVal);
+    // retVal = retVal.replace(/@F@$/g, '');
+    // retVal = retVal.replace(/@F@/g, '@<br>');
+    // console.log("<<<<< retVal=", retVal);
+    
     return retVal;
   }
 

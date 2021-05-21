@@ -87,7 +87,7 @@ exécuter effacer:
 terminer effacer:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{N}{N}[sorties ici]".
+  dire "{N}[sorties ici]".
 
 -- b) effacer l’écran
 effacer ceci est une action qui concerne un intitulé.
@@ -101,7 +101,7 @@ exécuter effacer ceci:
 terminer effacer ceci:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{N}{N}[sorties ici]".
+  dire "{N}[sorties ici]".
 
 L'aide pour l'action effacer est "{*Effacer*}
   Permet d’effacer l’écran
@@ -133,7 +133,7 @@ exécuter aller vers ceci:
 terminer aller vers ceci:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{N}{N}[sorties ici]".
+  dire "{N}[sorties ici]".
 
 L'aide pour l'action aller est "{*Aller*}
   Permet de d’aller vers la direction indiquée.
@@ -437,7 +437,7 @@ regarder est une action.
 exécuter regarder:
   dire "{_{*[titre ici]*}_}";
   dire "{n}[description ici][décrire objets ici]";
-  dire "{N}{N}[sorties ici]".
+  dire "{N}[sorties ici]".
   
 -- b) regarder ceci
 regarder ceci est une action qui concerne un intitulé.
@@ -475,7 +475,7 @@ terminer regarder ceci:
     si le joueur se trouve dans ceci:
       dire "{_{*[titre ici]*}_}";
       dire "{n}[description ici][décrire objets ici]";
-      dire "{N}{N}[sorties ici]";
+      dire "{N}[sorties ici]";
     -- > lieu adjacent
     sinon
       -- >> avec aperçu
@@ -567,7 +567,7 @@ exécuter examiner ceci:
     si le joueur se trouve dans ceci:
       dire "{_{*[titre ici]*}_}";
       dire "{n}[description ici][décrire objets ici]";
-      dire "{N}{N}[sorties ici]";
+      dire "{N}[sorties ici]";
     -- > lieu adjacent
     sinon
       -- >> avec aperçu
@@ -612,7 +612,7 @@ exécuter prendre:
 prendre ceci est une action qui concerne un objet visible prioritairement disponible.
 
 refuser prendre ceci:
-  si ceci est possédé, dire "Vous l’avez déjà.";
+  si ceci est possédé, dire "Vous [l’ ceci]avez déjà.";
   si ceci est le joueur, dire "Pardon ?";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
@@ -665,7 +665,7 @@ exécuter donner ceci à cela:
   déplacer ceci vers cela.
 
 terminer donner ceci à cela:
-  dire "Vous avez donné [intitulé ceci] à [intitulé cela].".
+  dire "[Pronom cela] [v avoir ipr cela] reçu [intitulé ceci].".
   
 L'aide pour l'action donner est "{*Donner*}
   Permet de donner un objet que vous possédez à quelqu'un.

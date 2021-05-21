@@ -292,7 +292,7 @@ export class InstructionDire {
                 const cibleString = decoupe[3];
 
                 let phraseSiVide = "";
-                let phraseSiQuelqueChose = "{n}Vous voyez ";
+                let phraseSiQuelqueChose = "Vous voyez ";
                 let afficherObjetsCaches = true;
 
                 const cible: ElementJeu = this.getCible(cibleString, ceci, cela);
@@ -314,15 +314,15 @@ export class InstructionDire {
                 if (cible != this.eju.curLieu) {
                     switch (preposition) {
                         case PrepositionSpatiale.sur:
-                            phraseSiVide = "{n}Il n’y a rien dessus.";
+                            phraseSiVide = "Il n’y a rien dessus.";
                             break;
 
                         case PrepositionSpatiale.sous:
-                            phraseSiVide = "{n}Il n’y a rien dessous.";
+                            phraseSiVide = "Il n’y a rien dessous.";
 
                         case PrepositionSpatiale.dans:
                         default:
-                            phraseSiVide = "{n}[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
+                            phraseSiVide = "[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
                     }
                 }
 
@@ -540,16 +540,15 @@ export class InstructionDire {
         // RETOUR CONDITIONNEL
         // ===================================================
 
-        if (contenu.includes("{N}")) {
-            // retirer toutes les balises de style
-            const testVide = contenu
-                .replace(/\{\S\}/g, "") // {x}
-                .replace(/\{\S/g, "")   // {x
-                .replace(/\S\}/g, "")   // x}
-                .trim();
+        // retirer toutes les balises de style
+        const contenuSansBaliseStyle = contenu
+            .replace(/\{\S\}/g, "") // {x}
+            .replace(/\{\S/g, "")   // {x
+            .replace(/\S\}/g, "");   // x}
 
+        if (contenu.includes("{N}")) {
             // contenu vide
-            if (testVide == "") {
+            if (contenuSansBaliseStyle.trim() == "") {
                 // => pas de \n
                 contenu = contenu.replace(/\{N\}/g, "");
                 // contenu pas vide
@@ -559,7 +558,20 @@ export class InstructionDire {
             }
         }
 
+        // ======================================================================================================
+        // POINT FINAL => ajout d’un retour à la ligne conditionnel automatiquement, sauf si balise {+}
+        // ======================================================================================================
+        if (contenuSansBaliseStyle.endsWith(".")) {
+            // si le contenu se termine par une balise de type {x}, ne pas ajouter de retour à la ligne auto.
+            if (contenu.match(/\{\w\}$/)) {
+            // sinon ajouter retour à la ligne auto.
+            } else {
+                contenu += "@{N}";
+            }
+        }
+
         return contenu;
+
     }
 
     /** Vérifier si une condition [] est remplie. */
@@ -976,7 +988,7 @@ export class InstructionDire {
         const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, prepositionSpatiale);
 
         // console.log("@@@ executerDecrireContenu > \nceci:", ceci, "\nprepositionSpatiale:", prepositionSpatiale, "\nobjets:", objets);
-        
+
 
 
         // si la recherche n’a pas retourné d’erreur
