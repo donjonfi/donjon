@@ -27,19 +27,7 @@
     <ul>
       <li *ngFor="let ins of ins.instructionsSiConditionVerifiee; index as k">
         Instruction {{(k+1)}} :
-        <ul *ngIf="!ins.condition">
-          <li>Action : {{ins.instruction.infinitif}}</li>
-          <li *ngIf="ins.instruction.sujet">
-            <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
-          </li>
-          <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
-          <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
-          <li *ngIf="ins.instruction.preposition1">Préposition : {{ins.instruction.preposition1}}</li>
-          <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément : {{ins.instruction.complement1}}</li>
-          <li *ngIf="ins.instruction.sujetComplement1">
-            <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
-          </li>
-        </ul>
+        <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
       </li>
     </ul>
   </li>
