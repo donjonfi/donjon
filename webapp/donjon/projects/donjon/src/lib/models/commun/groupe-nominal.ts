@@ -12,7 +12,7 @@ export class GroupeNominal {
    * - la(2) canne à pèche(2)
    * - => préposition(1) déterminant article(2) nom(3) épithète(4).
    */
-  static readonly xPrepositionDeterminantArticheNomEpithete = /^(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |des |du |de la )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
+  static readonly xPrepositionDeterminantArticheNomEpithete = /^(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |des |du |de la |\d+)?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
 
   // un groupe nominal peut-être composé :
   // - [déterminant +] nom [+ épithète]

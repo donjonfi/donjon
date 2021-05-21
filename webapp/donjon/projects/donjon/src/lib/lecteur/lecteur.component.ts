@@ -91,7 +91,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         if (this.jeu.licenceLien) {
           this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
         } else {
-          this.sortieJoueur += ("<br>Licence :" + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
+          this.sortieJoueur += ("<br>Licence : " + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
         }
       }
       this.sortieJoueur += "</p>";

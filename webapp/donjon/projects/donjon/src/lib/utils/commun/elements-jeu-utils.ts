@@ -112,18 +112,18 @@ export class ElementsJeuUtils {
         }
         // quantité infinie => des
         else if (ceci.quantite == -1 || forcerNombre === Nombre.p) {
-          determinant = "des ";
+          determinant = 'des ';
           nom = ceci.intituleP.nom;
-          epithete = ceci.intituleP.epithete ?? "";
+          epithete = ceci.intituleP.epithete ?? '';
           // plusieurs exemplaires => nombre d’exemplaire
         } else {
-          determinant = (ceci.quantite + " ");
+          determinant = (ceci.quantite + ' ');
           nom = ceci.intituleP.nom;
-          epithete = ceci.intituleP.epithete ?? "";
+          epithete = ceci.intituleP.epithete ?? '';
         }
       }
 
-      retVal = determinant + nom + epithete;
+      retVal = determinant + nom + (epithete ? (' ' + epithete) : '');
     }
     // mettre majuscule en début d’intitulé (début de Phrase)
     if (forcerMajuscule) {

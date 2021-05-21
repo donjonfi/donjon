@@ -78,6 +78,24 @@ describe('Epressions régulières − Groupes nominaux', () => {
         expect(result[2]).toEqual("Bruxelles-Capitale"); // nom
         expect(result[3]).toBeUndefined(); // attribut
     });
+
+    
+    it('Élément générique simple: « 20 tomates » ', () => {
+        const result = ExprReg.xGroupeNominal.exec("20 tomates");
+        expect(result).toEqual(null);
+        // expect(result[1]).toEqual("20 "); // déterminant
+        // expect(result[2]).toEqual("tomates"); // nom
+        // expect(result[3]).toBeUndefined(); // attribut
+    });
+
+    it('Élément générique simple: « une tomates » ', () => {
+        const result = ExprReg.xGroupeNominal.exec("une tomates");
+        expect(result).toEqual(null);
+        // expect(result[1]).toEqual("20 "); // déterminant
+        // expect(result[2]).toEqual("tomates"); // nom
+        // expect(result[3]).toBeUndefined(); // attribut
+    });
+
 });
 
 describe('Epressions régulières − Définition des éléments', () => {

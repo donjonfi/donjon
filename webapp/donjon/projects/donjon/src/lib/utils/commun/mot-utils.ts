@@ -3,7 +3,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 
 export class MotUtils {
 
-  static readonly xNombrePluriel = /^[2-9]\d*$/;
+  static readonly xNombrePluriel = /^([2-9]$)|([1-9]\d+$)/;
 
   /** essayer de déterminer le singulier sur base des règles les plus communes */
   static getSingulier(nomP: string) {

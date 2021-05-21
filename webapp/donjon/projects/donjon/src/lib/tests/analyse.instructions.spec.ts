@@ -23,14 +23,14 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
     it('Phrase:  « dire  »', () => {
         const result = ExprReg.xInstruction.exec("dire ");
         expect(result).not.toBeNull();
-        expect(result[1]).toEqual("dire"); // verbe
+        expect(result[1]).toEqual('dire'); // verbe
         expect(result[2]).toBeUndefined(); // complément
     });
 
     it('Phrase:  « dire "Bonjour !" »', () => {
         const result = ExprReg.xInstruction.exec("dire \"Bonjour !\"");
         expect(result).not.toBeNull();
-        expect(result[1]).toEqual("dire"); // verbe
+        expect(result[1]).toEqual('dire'); // verbe
         expect(result[2]).toEqual("\"Bonjour !\""); // complément
     });
 
