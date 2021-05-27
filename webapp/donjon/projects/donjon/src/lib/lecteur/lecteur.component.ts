@@ -18,6 +18,7 @@ import { Evenement } from '../models/jouer/evenement';
 import { Instructions } from '../utils/jeu/instructions';
 import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
+import { MotUtils } from '../utils/commun/mot-utils';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
 import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
@@ -102,7 +103,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.sortieJoueur += "<p>";
 
         // évènement COMMENCER JEU
-        let evCommencerJeu = new Evenement('commencer', true, 'jeu', ClassesRacines.Special);
+        let evCommencerJeu = new Evenement('commencer', true, null, 0, 'jeu', ClassesRacines.Special);
 
         // éxécuter les instructions AVANT le jeu commence
         let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
@@ -345,21 +346,25 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       const isCeciV1 = els.sujet ? true : false;
       const ceciIntituleV1 = els.sujet;
+      const ceciQuantiteV1 = isCeciV1 ? (MotUtils.getQuantite(els.sujet.determinant)) : 0;
       const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
       const ceciClasseV1 = null;
       const resultatCeci = isCeciV1 ? this.eju.trouverCorrespondance(ceciIntituleV1, true, true) : null;
 
       const isCelaV1 = els.sujetComplement1 ? true : false;
       const celaIntituleV1 = els.sujetComplement1;
+      const celaQuantiteV1 = isCelaV1 ? (MotUtils.getQuantite(els.sujetComplement1.determinant)) : 0;
       const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
       const celaClasseV1 = null;
       const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
 
       let evenement = new Evenement(
+        // verbe
         els.infinitif,
-        isCeciV1, ceciNomV1, ceciClasseV1,
-        els.preposition1,
-        isCelaV1, celaNomV1, celaClasseV1
+        // ceci
+        isCeciV1, els.preposition0, ceciQuantiteV1, ceciNomV1, ceciClasseV1,
+        // cela
+        isCelaV1, els.preposition1, celaQuantiteV1, celaNomV1, celaClasseV1
       );
 
       // si on a déjà une erreur, ne pas continuer.
@@ -464,24 +469,29 @@ export class LecteurComponent implements OnInit, OnChanges {
             const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
 
             const isCeciV2 = actionCeciCela.ceci ? true : false;
+            const ceciQuantiteV2 = ceciQuantiteV1;
             const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
             const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
 
             const isCelaV2 = actionCeciCela.cela ? true : false;
+            const celaQuantiteV2 = celaQuantiteV1;
             const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
             const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
 
             // mettre à jour l'évènement avec les éléments trouvés
             evenement = new Evenement(
+              // verbe
               actionCeciCela.action.infinitif,
-              isCeciV2, ceciNomV2, ceciClasseV2,
-              els.preposition1,
-              isCelaV2, celaNomV2, celaClasseV2
+              // ceci
+              isCeciV2, els.preposition0, ceciQuantiteV2, ceciNomV2, ceciClasseV2,
+              // cela
+              isCelaV2, els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2
             );
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
-            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela);
+            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela, evenement);
             retVal += resultatAvant.sortie;
+
             // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
             if (resultatAvant.stopper !== true) {
               // PHASE REFUSER (vérifier l'action)
@@ -491,9 +501,9 @@ export class LecteurComponent implements OnInit, OnChanges {
                 // parcourir les vérifications
                 actionCeciCela.action.verifications.forEach(verif => {
                   if (verif.conditions.length == 1) {
-                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela)) {
+                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenement)) {
                       // console.warn("> commande vérifie cela:", verif);
-                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela);
+                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenement);
                       retVal += resultatRefuser.sortie;
                       refus = true;
                     }
@@ -506,15 +516,15 @@ export class LecteurComponent implements OnInit, OnChanges {
               // exécuter l’action si pas refusée
               if (!refus) {
                 // PHASE EXÉCUTER l’action
-                const resultatExecuter = this.executerAction(actionCeciCela);
+                const resultatExecuter = this.executerAction(actionCeciCela, evenement);
                 retVal += resultatExecuter.sortie;
                 // ÉVÈNEMENT APRÈS la commande
-                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement), actionCeciCela.ceci, actionCeciCela.cela);
+                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement), actionCeciCela.ceci, actionCeciCela.cela, evenement);
                 retVal += resultatApres.sortie;
                 // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
                 if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
                   // terminer l’action
-                  const resultatFinaliser = this.finaliserAction(actionCeciCela);
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenement);
                   retVal += resultatFinaliser.sortie;
                 }
               }
@@ -530,13 +540,13 @@ export class LecteurComponent implements OnInit, OnChanges {
     return retVal;
   }
 
-  private executerAction(action: ActionCeciCela) {
-    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela);
+  private executerAction(action: ActionCeciCela, evenement: Evenement) {
+    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela, evenement);
     return resultat;
   }
 
-  private finaliserAction(action: ActionCeciCela) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela);
+  private finaliserAction(action: ActionCeciCela, evenement: Evenement) {
+    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela, evenement);
     return resultat;
   }
 

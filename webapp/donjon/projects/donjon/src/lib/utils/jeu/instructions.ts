@@ -9,6 +9,7 @@ import { ConditionsUtils } from './conditions-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
+import { Evenement } from '../../models/jouer/evenement';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionDire } from './instruction-dire';
@@ -40,12 +41,12 @@ export class Instructions {
   }
 
   /** Exécuter une liste d’instructions */
-  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null): Resultat {
 
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
-        const sousResultat = this.executerInstruction(ins, ceci, cela);
+        const sousResultat = this.executerInstruction(ins, ceci, cela, evenement);
         resultat.nombre += sousResultat.nombre;
         resultat.succes = (resultat.succes && sousResultat.succes);
         resultat.sortie += sousResultat.sortie;
@@ -59,7 +60,7 @@ export class Instructions {
 
 
   /** Exécuter une instruction */
-  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null): Resultat {
 
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
@@ -71,19 +72,19 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
-      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela);
+      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela, evenement);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
       }
       if (estVrai) {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela, evenement);
       } else {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela, evenement);
       }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
-        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela);
+        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela, evenement);
       } else {
         console.warn("executerInstruction : pas d'infinitif :", instruction);
       }
@@ -98,7 +99,7 @@ export class Instructions {
   }
 
 
-  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement): Resultat {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
@@ -132,6 +133,7 @@ export class Instructions {
 
         // console.warn("$$$$ Déplacer", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
 
+        // retrouver la destination du déplacement pour détecter si spéciale
         let destinationDeplacement: ElementJeu | Intitule = null;
         if (instruction.sujetComplement1?.nom === 'ceci') {
           destinationDeplacement = ceci;
@@ -143,7 +145,7 @@ export class Instructions {
 
         // destination spéciale (ceci, cela, ici)
         if (destinationDeplacement) {
-          // déplacer sujet vers direction
+          // déplacer sujet vers DIRECTION
           if (ClasseUtils.heriteDe(destinationDeplacement.classe, EClasseRacine.direction)) {
             let loc: Localisation | ELocalisation = destinationDeplacement as Localisation;
             let voisinID = this.eju.getVoisinDirectionID((loc), EClasseRacine.lieu);
@@ -164,7 +166,7 @@ export class Instructions {
             } else {
               resultat.succes = false;
             }
-            // déplacer sujet vers un élément du jeu (lieu ou objet)
+            // déplacer sujet vers un ÉLÉMENT du jeu (lieu ou objet)
           } else if (ClasseUtils.heriteDe(destinationDeplacement.classe, EClasseRacine.element)) {
             sousResultat = this.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
             resultat.succes = sousResultat.succes;
@@ -872,7 +874,7 @@ export class Instructions {
     // on a trouvé une réaction
     if (reaction) {
       // TODO: faut-il fournir ceci et cela ?
-      resultat = this.executerInstructions(reaction.instructions, null, null);
+      resultat = this.executerInstructions(reaction.instructions, null, null, null);
       // on n’a pas trouvé de réaction
     } else {
       // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.

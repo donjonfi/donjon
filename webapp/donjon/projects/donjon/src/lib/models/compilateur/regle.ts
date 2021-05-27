@@ -22,12 +22,21 @@ export class Regle {
     if (regle) {
       let ev = regle.evenements[0];
       retVal = regle.typeRegle + " " + ev.infinitif;
+      // 1er complément (ceci)
       if (ev.ceci) {
-        retVal += " " + ev.ceci;
-        if (ev.preposition) {
-          retVal += " " + ev.preposition;
+        // préposition ceci
+        if (ev.prepositionCeci) {
+          retVal += " " + ev.prepositionCeci;
         }
+        // ceci
+        retVal += " " + ev.ceci;
+        // 2e complément (cela)
         if (ev.cela) {
+          // préposition cela
+          if (ev.prepositionCela) {
+            retVal += " " + ev.prepositionCela;
+          }
+          // cela
           retVal += " " + ev.cela;
         }
       }

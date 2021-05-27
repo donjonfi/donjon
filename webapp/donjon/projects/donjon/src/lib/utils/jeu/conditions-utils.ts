@@ -4,8 +4,10 @@ import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
+import { CompteursUtils } from './compteurs-utils';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { Evenement } from '../../models/jouer/evenement';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
@@ -30,9 +32,9 @@ export class ConditionsUtils {
   /**
    * Vérifier la condition ainsi que les liens.
    */
-  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule) {
+  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement) {
 
-    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela);
+    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela, evenement);
     let resultConditionB: boolean = null;
     let resultConditionC: boolean = null;
     let resultConditionD: boolean = null;
@@ -44,13 +46,13 @@ export class ConditionsUtils {
         case LienCondition.et:
           // si c’est un ET et que la première condition est vraie, tester la 2e
           if (resultFinal === true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
             // si les 2 premières conditions sont vraies, tester la 3e
             if (condition.lien.lien && resultFinal === true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
               // si les 3 premières conditions sont vraies, tester la 4e
               if (condition.lien.lien.lien && resultFinal === true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
               }
             }
           }
@@ -59,13 +61,13 @@ export class ConditionsUtils {
         case LienCondition.ou:
           // si c’est un OU et que la premièr condition est fausse, tester la 2e
           if (resultConditionA !== true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
             // si les 2 premières conditions sont fausses, tester la 3e
             if (condition.lien.lien && resultFinal !== true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
               // si les 3 premières conditions sont fausses, tester la 4e
               if (condition.lien.lien.lien && resultFinal !== true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
               }
             }
           }
@@ -74,17 +76,17 @@ export class ConditionsUtils {
         case LienCondition.soit:
           let nbVraiSoit = resultConditionA ? 1 : 0;
           // si c’est un SOIT, tester la 2e
-          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela);
+          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
           nbVraiSoit += resultConditionB ? 1 : 0;
           // tester la 3e condition (si pas encore sûr que c’est faux)
           if (nbVraiSoit < 2 && condition.lien.lien) {
             // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela);
+            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
             nbVraiSoit += resultConditionC ? 1 : 0;
             // tester la 4e condition (si pas encore sûr que c’est faux)
             if (nbVraiSoit < 2 && condition.lien.lien.lien) {
               // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela);
+              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
               nbVraiSoit += resultConditionD ? 1 : 0;
             }
           }
@@ -103,7 +105,7 @@ export class ConditionsUtils {
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule) {
+  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -327,29 +329,32 @@ export class ConditionsUtils {
           // *********************************************
         } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.compteur)) {
 
+          const compteur = sujet as Compteur;
+
           // 2 - Trouver le verbe
           // ++++++++++++++++++++
           switch (condition.verbe) {
 
-            // comparaison : égalité
+            // comparaison : égal (vaut) − différent (ne vaut pas)
             case 'valent':
             case 'vaut':
-              console.warn("siEstVraiSansLien > condition « vaut » (compteur) : pas encore implémentée.");
+              // remarque: négation appliquée plus loin.
+              retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement);
               break;
 
             // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
             case 'dépasse':
             case 'dépassent':
               // remarque: négation appliquée plus loin.
-              console.warn("siEstVraiSansLien > condition « dépasse » (compteur) : pas encore implémentée.");
-              break
+              retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement);
+              break;
 
             // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
             case 'atteint':
             case 'atteignent':
               // remarque: négation appliquée plus loin.
-              console.warn("siEstVraiSansLien > condition « atteint » (compteur) : pas encore implémentée.");
-              break
+              retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement);
+              break;
 
             default:
               console.error(

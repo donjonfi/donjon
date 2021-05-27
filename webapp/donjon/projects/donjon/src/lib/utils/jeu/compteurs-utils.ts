@@ -7,22 +7,9 @@ export class CompteursUtils {
     public static changerValeurCompteur(compteur: Compteur, verbe: 'vaut' | 'augmente' | 'diminue', opperationStr: string) {
 
         // enlever le de qui débute la nouvelle valeur
-        opperationStr = opperationStr.replace(/^(de |d’|d')/i, "");
+        const valeurStr = opperationStr.replace(/^(de |d’|d')/i, "");
 
-        let opperationNum: number = null;
-
-        // calculer la nouvelle valeur
-        // A) nombre entier
-        if (opperationStr.match(ExprReg.xNombreEntier)) {
-            opperationNum = Number.parseInt(opperationStr);
-            // B) nombre décimal
-        } else if (opperationStr.match(ExprReg.xNombreDecimal)) {
-            opperationStr = opperationStr.replace(',', '.');
-            opperationNum = Number.parseFloat(opperationStr);
-            // C) compteur ou propriété
-        } else {
-            console.warn("changerValeurCompteur: TODO: valeur de type compteur ou propriété :", opperationStr);
-        }
+        let opperationNum: number = this.intituleValeurVersNombre(valeurStr);
 
         if (opperationNum !== null) {
             switch (verbe) {
@@ -45,6 +32,22 @@ export class CompteursUtils {
         }
     }
 
+    public static intituleValeurVersNombre(valeurString: string): number {
+        let valeurNum: number = null;
 
-    
+        // calculer la nouvelle valeur
+        // A) nombre entier
+        if (valeurString.match(ExprReg.xNombreEntier)) {
+            valeurNum = Number.parseInt(valeurString);
+            // B) nombre décimal
+        } else if (valeurString.match(ExprReg.xNombreDecimal)) {
+            valeurString = valeurString.replace(',', '.');
+            valeurNum = Number.parseFloat(valeurString);
+            // C) compteur ou propriété
+        } else {
+            console.warn("CompteursUtils: intituleValeurVersNombre: TODO: valeur de type compteur ou propriété :", valeurString);
+        }
+        return valeurNum;
+    }
+
 }

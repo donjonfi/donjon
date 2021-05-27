@@ -251,7 +251,14 @@ export class PhraseUtils {
         const celaClasse = null;
         // const celaEstClasse = (isCela && (cela.determinant?.match(/un(e)? /i) ?? false));
 
-        const ev = new Evenement(els.infinitif, isCeci, ceciNom, ceciClasse, els.preposition1, isCela, celaNom, celaClasse);
+        const ev = new Evenement(
+          // verbe
+          els.infinitif,
+          // ceci
+          isCeci, els.preposition0, 0, ceciNom, ceciClasse,
+          // cela
+          isCela, els.preposition1, 0, celaNom, celaClasse
+        );
 
         retVal.push(ev);
 
