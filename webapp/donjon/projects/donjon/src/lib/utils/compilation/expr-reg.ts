@@ -416,7 +416,7 @@ export class ExprReg {
   /**
    * [si] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si )?((?:(le |la |l(?:’|')|les )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|dépasse|atteint|possède|porte|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|dépasse|atteint|possède|porte|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)
@@ -432,12 +432,12 @@ export class ExprReg {
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
-  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
+  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
 
   /**
    *  [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5)( pas| )(6)complément1(7) (et|ou)(8) complément2(9) [(et|ou) complément3(10)]  [(et|ou) complément3(11)]
    */
-  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
+  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
@@ -448,7 +448,7 @@ export class ExprReg {
    * - Si l’inventaire contient le sucre et la farine
    * - le joueur possède le chat ou le chien ou l’autruche ou la poule
    */
-  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+)( (?!ne )\S+?)?)|ceci|cela) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
+  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
 
   // /**
   //  * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
@@ -458,7 +458,7 @@ export class ExprReg {
   /** 
    * si aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela|ici)(5)
    */
-  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((le |la |les |l'|l’|du |de la|des |un |une )(\S+)(?:(?: )(\S+))?|ceci|cela|ici)$/i;
+  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!d'|d’|ne|n'|n’)\S+))?)|ceci|cela|ici)$/i;
 
   /**
    * si (condition)(1) (:|,)(2) (consequences)(3)
@@ -507,7 +507,7 @@ export class ExprReg {
    *     - le score augmente de 1
    *     - 💥 l’action
    */
-  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
+  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!ne|n’|n')(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
 
   /**
    * - Manger tomate(2).
@@ -522,7 +522,7 @@ export class ExprReg {
    *     - l’arc à flèches rouillé avec la flèche rouge
    *     - 💥 manger le biscuit
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous|dans) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
+  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (vers|avec|sur|sous|dans) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 
   // ================================================================================================
   //  DIVERS
