@@ -617,7 +617,9 @@ refuser prendre ceci:
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
-  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+  si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].";
+  -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant ! ([c quantitéCeci] / [p quantité ceci])".
 
 exécuter prendre ceci:
   -- unique
@@ -625,12 +627,12 @@ exécuter prendre ceci:
     déplacer ceci vers joueur;
   -- multiple limité
   sinonsi ceci est multiple mais pas illimité:
-    déplacer ceci vers joueur;
+    déplacer quantitéCeci ceci vers joueur;
   -- multiple illimité
   sinon
-    copier ceci vers joueur;
+    copier quantitéCeci ceci vers joueur;
   fin si.
-  
+
 terminer prendre ceci:
   si ceci est illimité et dénombrable:
     dire "[Singulier ceci] a été ajouté[e ceci] à votre inventaire.";
