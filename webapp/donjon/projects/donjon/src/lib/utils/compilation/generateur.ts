@@ -382,8 +382,7 @@ export class Generateur {
     // GÉNÉRER LES COMPTEURS
     // *********************
     compteurs.forEach(cpt => {
-      const curCompteur = new Compteur(cpt.nom, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
-      curCompteur.valeur = 0;
+      const curCompteur = new Compteur(cpt.nom, 0, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
       jeu.compteurs.push(curCompteur);
     });
 

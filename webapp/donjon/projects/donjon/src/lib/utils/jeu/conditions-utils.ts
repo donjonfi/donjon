@@ -131,21 +131,53 @@ export class ConditionsUtils {
         let sujet: ElementJeu | Compteur | Intitule = null;
 
         if (condition.sujet) {
+          // ici
           if (condition.sujet.nom === 'ici') {
             sujet = this.eju.curLieu;
           }
+          // ceci
           else if (condition.sujet.nom === 'ceci') {
             sujet = ceci;
             if (!ceci) {
               console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
             }
+          // cela
           } else if (condition.sujet.nom === 'cela') {
             sujet = cela;
             if (!cela) {
               console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
             }
-            // } else if (condition.sujet.nom === 'joueur') {
-            //   sujet = this.jeu.joueur;
+          // quantitéCeci
+          } else if (condition.sujet.nom === 'quantitéCeci') {
+            const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
+            sujet = cpt;
+            if (!ceci) {
+              console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
+            }
+          // quantitéCela
+          } else if (condition.sujet.nom === 'quantitéCela') {
+            const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
+            sujet = cpt;
+            if (!cela) {
+              console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
+            }
+          // quantité de ceci
+          } else if (condition.sujet.nom === 'quantité de ceci') {
+            if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+              console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
+            }else{
+              const cpt = new Compteur("quantité de ceci", (ceci as ElementJeu).quantite);
+              sujet = cpt;
+            }
+          // quantité de cela
+          } else if (condition.sujet.nom === 'quantité de cela') {
+            if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+              console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
+            } else {
+              const cpt = new Compteur("quantité de cela", (cela as ElementJeu).quantite);
+              sujet = cpt;
+            }
+          // sortie/porte vers ceci/cela
           } else if (condition.sujet.nom == "sortie vers" || condition.sujet.nom == "porte vers") {
             let locString: string = condition.sujet.epithete;
             if (condition.sujet.epithete == 'ceci') {

@@ -3,6 +3,7 @@ import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
 import { ClasseUtils } from "../commun/classe-utils";
+import { Compteur } from "../../models/compilateur/compteur";
 import { ConditionsUtils } from "./conditions-utils";
 import { Conjugaison } from "./conjugaison";
 import { EClasseRacine } from "../../models/commun/constantes";
@@ -58,6 +59,14 @@ export class InstructionDire {
                 let resultat: string = '';
 
                 switch (proprieteString) {
+
+                    case 'Quantité':
+                    case 'quantité':
+                    case 'quantite':
+                    case 'quantite':
+                        resultat = cible.quantite.toString();
+                        break;
+
                     // > description
                     case 'description':
                     case 'Description':
@@ -432,6 +441,10 @@ export class InstructionDire {
                         case 'titre':
                             resultatCurBalise = cible.titre;
                             break;
+                        case 'quantité':
+                        case 'quantite':
+                            resultatCurBalise = cible.quantite.toString();
+                            break;
                         case 'description':
                             resultatCurBalise = this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement);
                             break;
@@ -476,11 +489,22 @@ export class InstructionDire {
             const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
             // parcourir chaque balise trouvée
             balisesUniques.forEach(curBalise => {
+                let resultatCurBalise: string = null;
                 // retrouver la proppriété et la cible
                 const decoupe = /\[c (\S+)\]/i.exec(curBalise);
                 const compteurString = decoupe[1];
-                let resultatCurBalise: string = null;
-                const compteur = this.jeu.compteurs.find(x => x.nom == compteurString);
+                let compteur: Compteur = null;
+                // quantitéCeci
+                if (compteurString == 'quantitéCeci' || compteurString == 'quantiteCeci') {
+                    compteur = new Compteur('quantitéCeci', evenement.quantiteCeci);
+                    // quantitéCela
+                } else if (compteurString == 'quantitéCela' || compteurString == 'quantiteCela') {
+                    compteur = new Compteur('quantitéCela', evenement.quantiteCela);
+                    // compteur normal
+                } else {
+                    compteur = this.jeu.compteurs.find(x => x.nom == compteurString);
+                }
+
                 if (compteur) {
                     resultatCurBalise = compteur.valeur.toString();
                 } else {
@@ -565,7 +589,7 @@ export class InstructionDire {
         if (contenuSansBaliseStyle.endsWith(".")) {
             // si le contenu se termine par une balise de type {x}, ne pas ajouter de retour à la ligne auto.
             if (contenu.match(/\{\w\}$/)) {
-            // sinon ajouter retour à la ligne auto.
+                // sinon ajouter retour à la ligne auto.
             } else {
                 contenu += "@{N}";
             }
