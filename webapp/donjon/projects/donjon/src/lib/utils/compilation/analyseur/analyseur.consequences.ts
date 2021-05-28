@@ -1,11 +1,11 @@
+import { AnalyseurUtils } from "./analyseur.utils";
+import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { Reaction } from "../../../models/compilateur/reaction";
 import { Regle } from "../../../models/compilateur/regle";
-import { AnalyseurUtils } from "./analyseur.utils";
-import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 
 export class AnalyseurConsequences {
 
@@ -39,7 +39,7 @@ export class AnalyseurConsequences {
     for (let indexCurConsequence = 0; indexCurConsequence < listeConsequences.length; indexCurConsequence++) {
       const curConsequence = listeConsequences[indexCurConsequence];
 
-      // console.log("curConsequence=", curConsequence);
+      console.log("curConsequence=", curConsequence);
 
       // NETTOYER CONSÉQUENCE
       let conBruNettoyee = curConsequence
@@ -99,7 +99,13 @@ export class AnalyseurConsequences {
 
           // CAS B.1 >> SI
           if (resultSiCondCons) {
-            const condition = PhraseUtils.getCondition(resultSiCondCons[1]);
+            const conditionStr = resultSiCondCons[1];
+            const condition = PhraseUtils.getCondition(conditionStr);
+
+            if (!condition) {
+              AnalyseurUtils.ajouterErreur(ctxAnalyse, ligne, "condition : " + conditionStr);
+            }
+
             const estBlocCondition = resultSiCondCons[2] == ':' || resultSiCondCons[2] == 'alors';
             // // const consequences = Analyseur.separerConsequences(resultSiCondCons[3], erreurs, ligne);
             // la conséquence directement liée au si doit être insérée dans le liste pour être interprétée à la prochaine itération
@@ -248,15 +254,15 @@ export class AnalyseurConsequences {
     return instructionsPrincipales;
   }
 
- /**
-  * Ajouter une erreur dans son contexte précis (règle, réaction)
-  * @param message 
-  * @param erreurs 
-  * @param regle 
-  * @param reaction 
-  * @param el 
-  * @param ligne 
-  */
+  /**
+   * Ajouter une erreur dans son contexte précis (règle, réaction)
+   * @param message 
+   * @param erreurs 
+   * @param regle 
+   * @param reaction 
+   * @param el 
+   * @param ligne 
+   */
   private static afficherErreurBloc(message, ctxAnalyse: ContexteAnalyse, regle: Regle, reaction: Reaction, el: ElementGenerique, ligne: number) {
     console.error("separerConsequences > " + message);
     if (ligne > 0) {
