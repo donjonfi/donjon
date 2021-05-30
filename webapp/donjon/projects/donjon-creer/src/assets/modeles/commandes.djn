@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-05-08-0025
+-- Version: 2021-05-30-0026
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -501,6 +501,9 @@ terminer regarder ceci:
     sinon
       dire "Le mieux est de se rendre vers [intitulé ceci].";
     fin si
+-- inventaire
+  sinonsi ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
@@ -581,6 +584,9 @@ exécuter examiner ceci:
         dire "Pour en savoir plus, il faut s’y rendre.";
       fin si
     fin si
+-- inventaire
+  sinonsi ceci est l’inventaire:
+    dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]";
 -- inconnu
   sinon
     dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.";
@@ -618,27 +624,31 @@ refuser prendre ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
   si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].";
+  -- on veut en prendre 0…
+  si quantitéCeci vaut 0, dire "Je n’en prends donc aucun.";
   -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
-  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant ! ([c quantitéCeci] / [p quantité ceci])".
+  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
 
 exécuter prendre ceci:
-  -- unique
+  -- unique => déplacement
   si ceci est unique:
     déplacer ceci vers joueur;
-  -- multiple limité
+  -- multiple limité => déplacement
   sinonsi ceci est multiple mais pas illimité:
     déplacer quantitéCeci ceci vers joueur;
-  -- multiple illimité
+  -- multiple illimité => copie
   sinon
     copier quantitéCeci ceci vers joueur;
   fin si.
 
 terminer prendre ceci:
-  si ceci est illimité et dénombrable:
-    dire "[Singulier ceci] a été ajouté[e ceci] à votre inventaire.";
-  sinon
-    dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.";
-  fin si.
+--  si ceci est illimité et dénombrable:
+--    dire "[Singulier ceci] a été ajouté[e ceci] à votre inventaire.";
+--  sinon
+--    dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.";
+--  fin si.
+  dire "[Intitulé quantitéCeci] [v être ipac quantitéCeci] ajouté[es quantitéCeci] à votre inventaire.".
+
 
 L'aide pour l'action prendre est "{*Prendre*}
   Permet de prendre un objet accessible pour le mettre dans votre inventaire.
@@ -694,13 +704,17 @@ refuser jeter ceci:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].";
   si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
-  si ceci est un vivant, dire "Je suis contre la violence.".
-  
+  si ceci est un vivant, dire "Je suis contre la violence.";
+  -- on veut en jeter 0…
+  si quantitéCeci vaut 0, dire "Je n’en jette donc aucun.";
+  -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
+
 exécuter jeter ceci:
-  déplacer ceci vers ici.
+  déplacer quantitéCeci ceci vers ici.
   
 terminer jeter ceci:
-  dire "Je [l' ceci]ai jeté[es ceci].".
+  dire "Je [l' quantitéCeci]ai jeté[es quantitéCeci].".
 
 L'aide pour l'action jeter est "{*Jeter*}
   Permet de jeter un objet que vous possédez sur le sol.
@@ -714,13 +728,19 @@ jeter ceci vers cela est une action qui concerne un objet visible prioritairemen
 refuser jeter ceci vers cela:
   si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
   si ceci est le joueur, dire "Je préfère ne pas me jeter. Drôle d'idée.";
-  si cela est un vivant, dire "Je suis contre la violence.".
-  
+  si cela est un vivant, dire "Je suis contre la violence.";
+  -- on veut en jeter 0…
+  si quantitéCeci vaut 0, dire "Je n’en jette donc aucun.";
+  -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
+
 exécuter jeter ceci vers cela:
+  -- jeter vers un support -> arrive sur le support
   si cela est un support :
-    déplacer ceci vers cela;
+    déplacer quantitéCeci ceci vers cela;
+  -- jeter vers autre chose -> arrive par terre
   sinon
-    déplacer ceci vers ici;
+    déplacer quantitéCeci ceci vers ici;
   fin si.
   
 terminer jeter ceci vers cela:
