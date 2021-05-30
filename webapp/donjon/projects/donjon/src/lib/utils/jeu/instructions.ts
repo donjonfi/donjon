@@ -115,15 +115,9 @@ export class Instructions {
         let contenu = complement.slice(1, complement.length - 1).trim();
         contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, ceci, cela, evenement);
         resultat.sortie += contenu;
-
-        console.warn("------ complement:", complement);
-        console.warn("------ contenu:", contenu);
-
-
-        // si la chaine se termine par un espace, ajouter un saut de ligne.
-        if (complement.endsWith(' "')) {
-          resultat.sortie += "\n";
-        }
+        // console.warn("--- complement:", complement);
+        // console.warn("------ contenu:", contenu);
+        // console.warn("------ resultat.sortie:", resultat.sortie);
         break;
       case 'changer':
         sousResultat = this.executerChanger(instruction, ceci, cela);
@@ -420,9 +414,9 @@ export class Instructions {
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    // if (this.verbeux) {
+    if (this.verbeux) {
     console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
-    // }
+    }
     let resultat = new Resultat(false, '', 1);
 
     if (preposition !== "vers" && preposition !== "dans" && preposition !== 'sur' && preposition != 'sous') {
@@ -433,9 +427,10 @@ export class Instructions {
     const objets = this.trouverObjetsDeplacementCopie(sujet, ceci, cela);
 
     // retrouver le nombre d’occurence (quantité) à déplacer
-    let quantiteSujet = MotUtils.getQuantite(sujet.determinant);
+    let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
-    console.log(">> quantiteSujet = ", quantiteSujet);
+    // console.log(">> sujet.determinant=", sujet.determinant);
+    // console.log(">> quantiteSujet=", quantiteSujet);
 
 
     // trouver la destination
@@ -443,17 +438,34 @@ export class Instructions {
 
     // si on a trouver le sujet et la distination, effectuer le déplacement.
     if (objets?.length == 1 && destination) {
-      resultat = this.exectuterDeplacerObjetVersDestination(objets[0], preposition, destination, quantiteSujet);
+      const curQuantite = Instructions.corrigerQuantite(objets[0], quantiteSujet);
+      resultat = this.exectuterDeplacerObjetVersDestination(objets[0], preposition, destination, curQuantite);
       // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
     } else if (objets?.length > 1 && destination) {
       resultat.succes = true;
       // objets contenus trouvés
       objets.forEach(el => {
-        resultat.succes = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, preposition, destination, quantiteSujet).succes);
+        const curQuantite = Instructions.corrigerQuantite(el, quantiteSujet);
+        resultat.succes = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, preposition, destination, curQuantite).succes);
       });
     }
 
     return resultat;
+  }
+
+  private static corrigerQuantite(objetSource: Objet, quantite: number): number {
+    // console.log(">> quantité demandée=", quantite);
+    // console.log(">> quantité disponible=", objetSource.quantite);
+    // corriger la quantité
+    // -1 => si nombre de copies pas précisé, on prend tous les exemplaires
+    if (quantite < 1) {
+      quantite = objetSource.quantite;
+      // si quantité demandée dépasse nombre d’exemplaires (et que le nombre d’exemplaire n’est pas infini), déplacer ce qu’il y a.
+    } else if (quantite > objetSource.quantite && objetSource.quantite !== -1) {
+      quantite = objetSource.quantite;
+    }
+    // console.log(">> quantité corrigée=", quantite);
+    return quantite;
   }
 
   /** Copier sujet (ceci) vers complément (cela, joueur, ici). */
@@ -472,7 +484,7 @@ export class Instructions {
     const objets = this.trouverObjetsDeplacementCopie(sujet, ceci, cela);
 
     // retrouver le nombre d’occurence (quantité) à copier
-    let quantiteSujet = MotUtils.getQuantite(sujet.determinant);
+    let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // trouver la destination
     const destination = this.trouverDestinationDeplacementCopie(complement, ceci, cela);
@@ -495,10 +507,10 @@ export class Instructions {
   /**
    * Déplacer un élément du jeu.
    */
-  private exectuterDeplacerObjetVersDestination(objet: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
-    let resultat = new Resultat(false, '', 1);
+  private exectuterDeplacerObjetVersDestination(objetSource: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
 
-    console.log(">> quantite = ", quantite);
+    let resultat = new Resultat(false, '', 1);
+    let objetDeplace: Objet = null;
 
     // interpréter "vers" comme "dans".
     if (preposition == 'vers') {
@@ -511,23 +523,6 @@ export class Instructions {
       }
     }
 
-    console.log(">> quantite= ", quantite);
-    console.log(">> objet.quantite= ", objet.quantite);
-
-
-
-    // corriger la quantité
-    // -1 => si nombre de copies pas précisé, on prend tous les exemplaires
-    if (quantite < 1) {
-      quantite = objet.quantite;
-      // si quantité demandée dépasse nombre d’exemplaires (et que le nombre d’exemplaire n’est pas infini), déplacer ce qu’il y a.
-    } else if (quantite > objet.quantite && objet.quantite !== -1) {
-      quantite = objet.quantite;
-    }
-
-    console.log(">> quantité corrigée= ", quantite);
-
-
     // TODO: vérifications
     const nouvellePosition = new PositionObjet(
       PrepositionSpatiale[preposition],
@@ -535,48 +530,64 @@ export class Instructions {
       destination.id
     );
 
-
     // regarder si un exemplaire de l’objet existe déjà à la destination
-    let exemplaireDejaContenu = this.eju.getExemplaireDejaContenu(objet, nouvellePosition.pre, destination);
+    let exemplaireDejaContenu = this.eju.getExemplaireDejaContenu(objetSource, nouvellePosition.pre, destination);
 
-    // si on copie tout et qu’il n’y a pas encore d’exemplaire
-    if (quantite === objet.quantite && !exemplaireDejaContenu) {
+
+    console.warn("?? quantite=", quantite);
+    console.warn("?? objetSource.quantite=", objetSource.quantite);
+    
+
+    // si on déplace tout et qu’il n’y a pas encore d’exemplaire
+    if (quantite === objetSource.quantite && !exemplaireDejaContenu) {
       console.log("exectuterDeplacerObjetVersDestination > cas 1");
       // déplacer simplement l’objet vers sa nouvelle destination
-      objet.position = nouvellePosition;
+      objetSource.position = nouvellePosition;
+      objetDeplace = objetSource;
+      // console.log("exectuterDeplacerObjetVersDestination > fin 1");
       // si on copie seulement une partie ou qu’on copie tout dans un endroit qui en contient déjà
     } else {
       // si l’objet n’est pas encore contenu dans la nouvelle distination, il faut le dupliquer
       if (!exemplaireDejaContenu) {
         console.log("exectuterDeplacerObjetVersDestination > cas 2");
-        let copie = this.eju.copierObjet(objet);
+        // copier l’objet
+        let copie = this.eju.copierObjet(objetSource);
+        // ajouter l’objet aux objets du jeu et lui définir un ID unique
         this.jeu.objets.push(copie);
         copie.id = this.jeu.nextID++; // définir l’ID de la copie
-        copie.quantite = quantite; // définir la quantité
+        // définir la quantité et le nombre de la copie
+        copie.quantite = quantite;
         copie.nombre = (quantite === 1) ? Nombre.s : Nombre.p; // quantité ne devrait jamais valoir 0 !
+        // définir la position de la copie
         copie.position = nouvellePosition;
+        objetDeplace = copie;
         // si l’objet est déjà présent à cet endroit, augmenter la quantité
       } else {
-        console.log("exectuterDeplacerObjetVersDestination > cas 3");
-
-        // si la quantité n’est pas encore infinie
+        // si la quantité de l’exemplaire de destination n’est pas encore infinie
         if (exemplaireDejaContenu.quantite !== -1) {
-          // si l’objet va devenir infini
-          if (quantite === -1) {
+          // si la quantité à copier est infinie
+          if (quantite === -1 && objetSource.quantite === -1) {
+            console.log("exectuterDeplacerObjetVersDestination > cas 3a");
             exemplaireDejaContenu.quantite = -1;
             exemplaireDejaContenu.nombre = Nombre.p;
             // si quantité augmente normalement => augmenter quantité de l’original
           } else {
+            console.log("exectuterDeplacerObjetVersDestination > cas 3b");
             exemplaireDejaContenu.quantite += quantite;
             exemplaireDejaContenu.nombre = Nombre.p;
           }
+        } else {
+          console.log("exectuterDeplacerObjetVersDestination > cas 3c");
         }
+        objetDeplace = exemplaireDejaContenu;
       }
 
-      // si on a déplacé tous les exemplaires de l’objet, l’effacer.
-      if (quantite === objet.quantite) {
+      // si on a déplacé tous les exemplaires de l’objetSource et que l’objet déplacé final n’est pas l’objetSource
+      // effacer l’objet source
+      if (objetDeplace !== objetSource && quantite === objetSource.quantite) {
+        console.log("exectuterDeplacerObjetVersDestination > fin 2");
         // effacer l’objet à déplacer (puisqu’on a augmenté la quantité à la place)
-        const indexObjet = this.jeu.objets.indexOf(objet);
+        const indexObjet = this.jeu.objets.indexOf(objetSource);
         if (indexObjet !== -1) {
           this.jeu.objets.splice(indexObjet, 1);
         } else {
@@ -584,13 +595,19 @@ export class Instructions {
         }
         // sinon diminuer la quantité
       } else {
-        objet.quantite -= quantite;
+        console.log("exectuterDeplacerObjetVersDestination > fin 3");
+        // diminuer quantité
+        objetSource.quantite -= quantite;
+        // vérifier le genre
+        if (objetSource.quantite === 1) {
+          objetSource.nombre = Nombre.s;
+        }
       }
 
     }
 
-    // si l'objet à déplacer est le joueur, modifier la visibilité des objets
-    if (objet.id === this.jeu.joueur.id) {
+    // si l'objet déplacé est le joueur, modifier la visibilité des objets
+    if (objetDeplace.id === this.jeu.joueur.id) {
 
       // la présence des objets a changé
       this.eju.majPresenceDesObjets();
@@ -598,52 +615,52 @@ export class Instructions {
       // l’adjacence des lieux a changé
       this.eju.majAdjacenceLieux();
 
-      // si l'objet à déplacer n'est pas le joueur
+      // si l'objet déplacé n'est pas le joueur
     } else {
       // si la destination est un lieu
-      if (objet.position.cibleType === EClasseRacine.lieu) {
+      if (objetDeplace.position.cibleType === EClasseRacine.lieu) {
         // l'objet n'est plus possédé ni porté
-        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
-        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, true);
         // l’objet n’est plus caché (car on n’est pas sensé examiner directement un lieu)
-        this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, true);
         // si la destination est le lieu actuel, l'objet est présent
-        if (objet.position.cibleId === this.eju.curLieu.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
+        if (objetDeplace.position.cibleId === this.eju.curLieu.id) {
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, true);
           // si c'est un autre lieu, l’objet n'est plus présent.
         } else {
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.present, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.present, true);
         }
         // l’élément est disponible puisque ni porté ni occupé par un autre vivant
-        this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.disponible, true);
+        this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, true);
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent, possédé et n’est plus caché.
         if (destination.id === this.jeu.joueur.id) {
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.present, true);
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.possede, true);
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.cache, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.possede, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, true);
 
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé ni porté
           // TODO: un objet dans un contenant possédé est-il possédé ?
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.possede, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, true);
           // TODO: un objet dans un contenant porté est-il porté ?
-          this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, true);
           // L’objet est disponible
           // TODO: statut « occupé » si le contenant est un être vivant.
-          this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.disponible, true);
-          this.eju.majPresenceObjet(objet);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, true);
+          this.eju.majPresenceObjet(objetDeplace);
         }
       }
 
       // si l’objet déplacé est un contenant ou un support, il faut màj les objets contenus
       let contenu: Objet[] = [];
-      if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) {
-        contenu = this.eju.obtenirContenu(objet, PrepositionSpatiale.sur);
-      } else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) {
-        contenu = this.eju.obtenirContenu(objet, PrepositionSpatiale.dans);
+      if (ClasseUtils.heriteDe(objetDeplace.classe, EClasseRacine.support)) {
+        contenu = this.eju.obtenirContenu(objetDeplace, PrepositionSpatiale.sur);
+      } else if (ClasseUtils.heriteDe(objetDeplace.classe, EClasseRacine.contenant)) {
+        contenu = this.eju.obtenirContenu(objetDeplace, PrepositionSpatiale.dans);
       }
       if (contenu?.length > 0) {
         contenu.forEach(curObj => {
@@ -653,9 +670,10 @@ export class Instructions {
 
     }
 
-
-    // l’objet a été déplacé
-    this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.deplace, true);
+    // l’objet source a été modifié
+    this.jeu.etats.ajouterEtatElement(objetSource, EEtatsBase.modifie, true);
+    // l’objet déplacé a été déplacé
+    this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.deplace, true);
     // la destination a été modifiée
     this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie, true);
 
