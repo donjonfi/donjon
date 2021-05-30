@@ -324,9 +324,16 @@ export class LecteurComponent implements OnInit, OnChanges {
       return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
     }
 
-    // effacer les espaces multiples et faire un trim sur la commande
-    // pour ne pas afficher une erreur en cas de faute de frappe…
-    const commandeNettoyee = commande?.replace(/\s\s+/g, ' ').trim();
+    // nettoyage commmande pour ne pas afficher une erreur en cas de faute de frappe…
+
+
+    const commandeNettoyee = commande
+      // 1) remplacer espaces insécables par espace simple.
+      ?.replace(/ /g, ' ')
+      // 2) effacer les espaces multiples
+      .replace(/\s\s+/g, ' ')
+      // 3) enlever espaces avant et après la commande
+      .trim();
 
     // GESTION HISTORIQUE
     // ajouter à l’historique (à condition que différent du précédent)
