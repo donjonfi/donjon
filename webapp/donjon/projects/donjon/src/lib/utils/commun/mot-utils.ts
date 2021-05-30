@@ -184,7 +184,7 @@ export class MotUtils {
     return retVal;
   }
 
-  public static getQuantite(determinant: string): number {
+  public static getQuantite(determinant: string, quantiteSiAucunDeterminant: number): number {
     let retVal = 0;
     if (determinant) {
       switch (determinant.trim().toLocaleLowerCase()) {
@@ -214,6 +214,15 @@ export class MotUtils {
           retVal = -1;
           break;
 
+        // infini
+        case "-1":
+          retVal = -1;
+          break;
+          
+        // aucun déterminant 
+        case "":
+          retVal = quantiteSiAucunDeterminant;
+
         default:
           // précédé d’un nombre > 1 ?
           if (MotUtils.xNombrePluriel.exec(determinant.trim()) !== null) {
@@ -225,7 +234,7 @@ export class MotUtils {
           break;
       }
     } else {
-      retVal = 1; // 1 par défaut
+      retVal = quantiteSiAucunDeterminant;
     }
     return retVal;
   }
