@@ -66,7 +66,7 @@ export class AnalyseurElementSimple {
       intituleClasse = ClasseUtils.getIntituleNormalise(result[5]);
       genre = MotUtils.getGenre(result[1], estFeminin);
       nombre = MotUtils.getNombre(result[1]);
-      quantite = MotUtils.getQuantite(result[1]);
+      quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
       attributs = PhraseUtils.separerListeIntitules(attributsString);
       position = null;
@@ -143,7 +143,7 @@ export class AnalyseurElementSimple {
           null,
           MotUtils.getGenre(result[1], estFeminin),
           MotUtils.getNombre(result[1]),
-          MotUtils.getQuantite(result[1]),
+          MotUtils.getQuantite(result[1], 1),
           (attributs ? attributs : new Array<string>()),
         );
 

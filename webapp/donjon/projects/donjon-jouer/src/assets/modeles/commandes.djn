@@ -451,10 +451,10 @@ terminer regarder ceci:
 -- objet
   si ceci est un objet:
 -- >> description de l’objet
-    dire "[description ceci] ";
+    dire "[description ceci]";
 -- >> statut de l’objet
     si ceci est une porte ou un contenant,
-      dire "{N}[statut ceci]";
+      dire "[statut ceci]";
 -- >> contenu de l’objet
     si ceci est un contenant et ouvert :
       dire "[décrire objets dans ceci]";
@@ -543,10 +543,10 @@ exécuter examiner ceci:
     si ceci est le joueur,
       dire "Étrange...{n}";
     -- > description de l’objet
-    dire "[description ceci] ";
+    dire "[description ceci]";
     -- > statut de l’objet
     si ceci est une porte ou un contenant,
-      dire "{N}[statut ceci]";
+      dire "[statut ceci]";
     -- > contenu de l’objet
     -- >> contenant ouvert
     si ceci est un contenant et ouvert :
@@ -671,14 +671,18 @@ donner ceci à cela est une action qui concerne un objet visible prioritairement
 refuser donner ceci à cela:
   si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
   si ceci est le joueur, dire "Ça ne va pas ?";
-  si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.".
+  si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.";
+  -- on veut en jeter 0…
+  si quantitéCeci vaut 0, dire "Je n’en donne donc aucun.";
+  -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+  si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
 
 exécuter donner ceci à cela:
-  déplacer ceci vers cela.
+  déplacer quantitéCeci ceci vers cela.
 
 terminer donner ceci à cela:
-  dire "[Pronom cela] [v avoir ipr cela] reçu [intitulé ceci].".
-  
+  dire "[Pronom cela] [v avoir ipr cela] reçu [intitulé quantitéCeci].".
+
 L'aide pour l'action donner est "{*Donner*}
   Permet de donner un objet que vous possédez à quelqu'un.
   {+exemples+} :
@@ -744,7 +748,7 @@ exécuter jeter ceci vers cela:
   fin si.
   
 terminer jeter ceci vers cela:
-  dire "Je [l' ceci]ai jeté[es ceci].".
+  dire "Je [l' quantitéCeci]ai jeté[es quantitéCeci].".
 
 L'aide pour l'action jeter est "{*Jeter*}
   Permet de jeter un objet que vous possédez sur le sol.
@@ -786,11 +790,11 @@ refuser mettre ceci dans cela:
 
 exécuter mettre ceci dans cela:
   si cela est un support:
-    déplacer ceci sur cela;
+    déplacer quantitéCeci ceci sur cela;
   sinonsi cela est un contenant:
-    déplacer ceci dans cela;
+    déplacer quantitéCeci ceci dans cela;
   sinonsi cela est un vivant mais pas le joueur:
-    déplacer ceci sur cela;
+    déplacer quantitéCeci ceci sur cela;
   sinonsi cela est le joueur:
     changer le joueur porte ceci;
   fin si.

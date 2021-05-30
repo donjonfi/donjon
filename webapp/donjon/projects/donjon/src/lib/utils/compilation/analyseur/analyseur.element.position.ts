@@ -75,7 +75,7 @@ export class AnalyseurElementPosition {
         new PositionSujetString(result[2].toLowerCase() + (result[3] ? (' ' + result[3].toLowerCase()) : ''), result[8].toLowerCase(), result[7]),
         MotUtils.getGenre(result[1], estFeminin),
         MotUtils.getNombre(result[1]),
-        MotUtils.getQuantite(result[1]),
+        MotUtils.getQuantite(result[1], 1),
         (result[6] ? new Array<string>(result[6]) : new Array<string>()),
       );
 
@@ -162,7 +162,7 @@ export class AnalyseurElementPosition {
           position,
           genre,
           nombre,
-          MotUtils.getQuantite(determinant),
+          MotUtils.getQuantite(determinant, 1),
           attributs,
         );
 
