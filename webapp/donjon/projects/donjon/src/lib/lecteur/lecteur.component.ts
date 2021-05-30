@@ -4,6 +4,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChi
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { CibleAction } from '../models/compilateur/cible-action';
+import { Classe } from '../models/commun/classe';
 import { ClasseUtils } from '../utils/commun/classe-utils';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandes } from '../utils/jeu/commandes';
@@ -19,6 +20,7 @@ import { Instructions } from '../utils/jeu/instructions';
 import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
 import { MotUtils } from '../utils/commun/mot-utils';
+import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
 import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
@@ -353,14 +355,15 @@ export class LecteurComponent implements OnInit, OnChanges {
 
       const isCeciV1 = els.sujet ? true : false;
       const ceciIntituleV1 = els.sujet;
-      const ceciQuantiteV1 = isCeciV1 ? (MotUtils.getQuantite(els.sujet.determinant)) : 0;
+
+      const ceciQuantiteV1 = isCeciV1 ? (MotUtils.getQuantite(els.sujet.determinant, (MotUtils.estFormePlurielle(els.sujet.nom) ? -1 : 1))) : 0;
       const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
       const ceciClasseV1 = null;
       const resultatCeci = isCeciV1 ? this.eju.trouverCorrespondance(ceciIntituleV1, true, true) : null;
 
       const isCelaV1 = els.sujetComplement1 ? true : false;
       const celaIntituleV1 = els.sujetComplement1;
-      const celaQuantiteV1 = isCelaV1 ? (MotUtils.getQuantite(els.sujetComplement1.determinant)) : 0;
+      const celaQuantiteV1 = isCelaV1 ? (MotUtils.getQuantite(els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(els.sujetComplement1.nom) ? -1 : 1))) : 0;
       const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
       const celaClasseV1 = null;
       const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
@@ -476,12 +479,21 @@ export class LecteurComponent implements OnInit, OnChanges {
             const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
 
             const isCeciV2 = actionCeciCela.ceci ? true : false;
-            const ceciQuantiteV2 = ceciQuantiteV1;
+            let ceciQuantiteV2 = ceciQuantiteV1;
+            // transformer « -1 » en la quantité de l’objet
+            if (ceciQuantiteV2 === -1 && actionCeciCela.ceci && ClasseUtils.heriteDe(actionCeciCela.ceci.classe, EClasseRacine.objet)) {
+              ceciQuantiteV2 = (actionCeciCela.ceci as Objet).quantite;
+            }
+
             const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
             const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
 
             const isCelaV2 = actionCeciCela.cela ? true : false;
-            const celaQuantiteV2 = celaQuantiteV1;
+            let celaQuantiteV2 = celaQuantiteV1;
+            // transformer « -1 » en la quantité de l’objet
+            if (celaQuantiteV2 === -1 && actionCeciCela.cela && ClasseUtils.heriteDe(actionCeciCela.cela.classe, EClasseRacine.objet)) {
+              celaQuantiteV2 = (actionCeciCela.cela as Objet).quantite;
+            }
             const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
             const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
 
@@ -494,6 +506,9 @@ export class LecteurComponent implements OnInit, OnChanges {
               // cela
               isCelaV2, els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2
             );
+
+            // console.error(">>>>>> evenement = ", evenement);F
+
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
             const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela, evenement);
