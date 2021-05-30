@@ -208,7 +208,7 @@ export class Generateur {
         let newObjet = new Objet(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
-        if (curEle.determinant.match(/^(un |une |des |\d+ )$/i)) {
+        if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
           newObjet.idOriginal = newObjet.classe.id;
         }
 
