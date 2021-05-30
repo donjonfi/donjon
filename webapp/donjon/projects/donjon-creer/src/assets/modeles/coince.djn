@@ -22,7 +22,8 @@ CHAPITRE "Le salon".
 --   LIEU 1 − LE SALON
 -- /////////////////////
 Le salon est un lieu.
-Sa description est "Vous êtes dans un petit salon dépouillé.{n}La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
+Sa description est "Vous êtes dans un petit salon dépouillé.
+    La lumière du jour provient d’une lucarne placée à plusieurs mètres de hauteur.".
 
 scène "les objets"
 -- ==========
@@ -128,7 +129,7 @@ l'aide pour l'action taper est "{*taper*}
 -- > DÉCROCHER TABLEAU
 Le joueur peut décrocher le tableau:
   si le tableau se trouve sur le mur:
-    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.{n}";
+    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.";
     changer le bouton n’est plus couvert;
     changer le tableau se trouve dans le salon;
   sinon
@@ -145,7 +146,7 @@ avant prendre le tableau, enlever le tableau ou jeter le tableau:
   si le tableau se trouve sur le mur:
     changer le bouton n’est plus couvert;
     changer le tableau se trouve dans le salon;
-    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.{n}";
+    dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.";
   sinon
     dire "Vous avez déjà enlevé le tableau du mur.";
   fin si
@@ -154,7 +155,7 @@ avant prendre le tableau, enlever le tableau ou jeter le tableau:
 après pousser le bouton:
   dire "Vous entendez un déclic.";
   si la porte secrète est fermée:
-    dire "{n}Une porte s'ouvre dans le mur nord de la pièce.";
+    dire "Une porte s'ouvre dans le mur nord de la pièce.";
     changer la porte secrète est ouverte;
     changer la porte secrète n'est plus invisible;
   fin si.
