@@ -72,29 +72,42 @@ export class BalisesHtml {
     // espace insécable {i}
     retVal = retVal.replace(/\{i\}/g, '&nbsp;');
 
-    // nouvelle ligne {n} ou \n
-    retVal = retVal.replace(/\{n\}/g, '<br>');
-    retVal = retVal.replace(/\n/g, '<br>');
 
-    // nouvelle ligne, si pas vide, {N}
-    // - si débute par {N}, ne pas en tenir compte
-    while (retVal.startsWith("{N}")) {
+    // nouvelle ligne, si pas vide ({N} et {U})
+    // - si débute par {N} ou {U}, ne pas en tenir compte
+    while (retVal.startsWith("{N}") || retVal.startsWith("{U}")) {
       retVal = retVal.slice(3);
     }
-    // si termine par {N}, ne pas en tenir compte
-    while (retVal.endsWith("{N}")) {
+    // si termine par {N} ou un {U}, ne pas en tenir compte
+    while (retVal.endsWith("{N}") || retVal.endsWith("{U}")) {
       retVal = retVal.slice(0, retVal.length - 3);
     }
-    // - remplacer les autres {N} par un \n
-    retVal = retVal.replace(/\{N\}/g, '<br>');
+    // - remplacer les {N} restants par un \n
+    retVal = retVal.replace(/\{N\}/g, '\n');
+    // - remplacer les {U} restants par un {u}
+    retVal = retVal.replace(/\{U\}/g, '{u}');
+
+    // nouvelle ligne {n}
+    retVal = retVal.replace(/\{n\}/g, '\n');
+
+    // nouvelle ligne unique {u}
+    // > \n{u} => \n
+    retVal = retVal.replace(/\n\{u\}/g, '\n');
+    // > {u}\n => \n
+    retVal = retVal.replace(/\{u\}\n/g, '\n');
+    // > {u}{u}… => \n
+    retVal = retVal.replace(/(\{u\})+/g, '\n');
+
+    // nouvelle ligne (\n) => <br>
+    retVal = retVal.replace(/\n/g, '<br>');
 
     // // remplacer les @F@ par un <br> (sauf celui qui termine le texte)
-  
+
     // console.log(">>>>> retVal=", retVal);
     // retVal = retVal.replace(/@F@$/g, '');
     // retVal = retVal.replace(/@F@/g, '@<br>');
     // console.log("<<<<< retVal=", retVal);
-    
+
     return retVal;
   }
 

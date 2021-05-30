@@ -305,7 +305,7 @@ export class InstructionDire {
                 const cibleString = decoupe[3];
 
                 let phraseSiVide = "";
-                let phraseSiQuelqueChose = "Vous voyez ";
+                let phraseSiQuelqueChose = "{U}Vous voyez ";
                 let afficherObjetsCaches = true;
 
                 const cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
@@ -594,7 +594,8 @@ export class InstructionDire {
             if (contenu.match(/\{\w\}$/)) {
                 // sinon ajouter retour à la ligne auto.
             } else {
-                contenu += "@{N}";
+                // contenu += "@{N}";
+                contenu += "{N}";
             }
         }
 
@@ -1030,11 +1031,11 @@ export class InstructionDire {
                 if (apercuCalcule) {
                     // (ignorer les objets dont l'aperçu vaut "-")
                     if (apercuCalcule !== '-') {
-                        resultat.sortie += "{n}" + apercuCalcule;
+                        resultat.sortie += "{U}" + apercuCalcule;
                         // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
                         if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
                             // ne pas afficher objets cachés du support, on ne l’examine pas directement
-                            const sousRes = this.executerDecrireContenu(obj, ("{n}Sur " + this.eju.calculerIntituleElement(obj, false, true) + " il y a "), "", false, false, PrepositionSpatiale.sur);
+                            const sousRes = this.executerDecrireContenu(obj, ("{U}Sur " + this.eju.calculerIntituleElement(obj, false, true) + " il y a "), "", false, false, PrepositionSpatiale.sur);
                             resultat.sortie += sousRes.sortie;
                         }
                     }
@@ -1048,7 +1049,7 @@ export class InstructionDire {
             // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
             supportsDecoratifs.forEach(support => {
                 // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-                const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, PrepositionSpatiale.sur);
+                const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, PrepositionSpatiale.sur);
                 resultat.sortie += sousRes.sortie;
             });
 
@@ -1072,7 +1073,7 @@ export class InstructionDire {
                 let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
                 supportsSansApercu.forEach(support => {
                     // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-                    const sousRes = this.executerDecrireContenu(support, ("{n}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{n}Il n’y a rien sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, PrepositionSpatiale.sur);
+                    const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n’y a rien sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, PrepositionSpatiale.sur);
                     resultat.sortie += sousRes.sortie;
                 });
 
@@ -1092,10 +1093,10 @@ export class InstructionDire {
                             if (curPorte.apercu) {
                                 if (curPorte.apercu != '-')
                                     // si aperçu, afficher l'aperçu.
-                                    resultat.sortie += "{n}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null, null);
+                                    resultat.sortie += "{U}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null, null);
                             } else {
                                 // par défaut, afficher le nom de la porte et ouvert/fermé.
-                                resultat.sortie += "{n}" + ElementsJeuUtils.calculerIntituleGenerique(curPorte, true) + " est ";
+                                resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorte, true) + " est ";
                                 if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID)) {
                                     resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.ouvertID)
                                 } else {
@@ -1112,6 +1113,9 @@ export class InstructionDire {
             // si on n’a encore rien affiché, afficher le texte spécifique
             if (!resultat.sortie) {
                 resultat.sortie = texteSiRien;
+            // enlever le 1er {N} du résultat
+            // } else if (resultat.sortie.startsWith("{N}")) {
+                // resultat.sortie = resultat.sortie.slice(3);
             }
         }
         return resultat;
@@ -1282,7 +1286,7 @@ export class InstructionDire {
                     cible.nombre = Nombre.p;
                     // => identique à l’original
                 } else if (cible.quantite == -1) {
-                    cible.nombre = (cela as Objet).nombre;
+                    cible.nombre = (ceci as Objet).nombre;
                     // => 0 ou 1
                 } else {
                     cible.nombre = Nombre.s;
