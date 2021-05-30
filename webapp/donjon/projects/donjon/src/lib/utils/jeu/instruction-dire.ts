@@ -2,6 +2,7 @@ import { ConditionDebutee, StatutCondition, xFois } from "../../models/jouer/sta
 import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
+import { Capacite } from "../../models/commun/capacite";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ConditionsUtils } from "./conditions-utils";
@@ -14,9 +15,11 @@ import { Genre } from "../../models/commun/genre.enum";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Lieu } from "../../models/jeu/lieu";
+import { MotUtils } from "../commun/mot-utils";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
+import { Propriete } from "../../models/commun/propriete";
 import { Resultat } from "../../models/jouer/resultat";
 
 export class InstructionDire {
@@ -35,10 +38,10 @@ export class InstructionDire {
         // A) 
 
         // ======================================================================================================
-        // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici]
+        // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
         // ======================================================================================================
 
-        const balisePropriete = "(description|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici)";
+        const balisePropriete = "(description|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici|quantitéCeci|quantitéCela)";
         const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
         const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -54,7 +57,7 @@ export class InstructionDire {
 
                 const proprieteString = decoupe[1];
                 const cibleString = decoupe[2];
-                const cible: ElementJeu = this.getCible(cibleString, ceci, cela);
+                const cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
 
                 let resultat: string = '';
 
@@ -305,7 +308,7 @@ export class InstructionDire {
                 let phraseSiQuelqueChose = "Vous voyez ";
                 let afficherObjetsCaches = true;
 
-                const cible: ElementJeu = this.getCible(cibleString, ceci, cela);
+                const cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
 
                 // cas particuliers
                 // > inventaire / joueur
@@ -431,7 +434,7 @@ export class InstructionDire {
                 const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
                 const proprieteString = decoupe[1];
                 const cibleString = decoupe[2];
-                let cible: ElementJeu = this.getCible(cibleString, ceci, cela);
+                let cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
                 let resultatCurBalise: string = null;
                 if (cible) {
                     switch (proprieteString) {
@@ -521,7 +524,7 @@ export class InstructionDire {
         // ===================================================
 
         // verbe(1) modeTemps(2) [negation(3)] sujet(4)
-        const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici)";
+        const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
         const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
         const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
 
@@ -542,7 +545,7 @@ export class InstructionDire {
                 const sujet = decoupe[4];
 
                 // retrouver le verbe conjugué
-                const verbeConjugue: string = InstructionDire.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, ceci, cela);
+                const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, ceci, cela, evenement);
 
                 // remplacer la balise par le verbe conjugué
                 const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujet}`;
@@ -758,23 +761,13 @@ export class InstructionDire {
     // CONJUGAISON
     // ===================================================
 
-    private static calculerConjugaison(verbe: string, modeTemps: string, negation: string, sujetStr: string, ici: Lieu, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): string {
+    private calculerConjugaison(verbe: string, modeTemps: string, negation: string, sujetStr: string, ici: Lieu, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement): string {
 
         // retrouver et contrôler le sujet
         let sujet: ElementJeu | Intitule = null;
-        switch (sujetStr) {
-            case 'ceci':
-                sujet = ceci;
-                break;
-            case 'cela':
-                sujet = cela;
-                break;
-            case 'ici':
-                sujet = ici;
-                break;
-            default:
-                break;
-        }
+
+        sujet = this.getCible(sujetStr, ceci, cela, evenement);
+
         if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
             console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
         }
@@ -1265,8 +1258,8 @@ export class InstructionDire {
         return retVal;
     }
 
-    /** Retrouver la cible sur base de son texte (ici, ceci, cela, inventaire, joueur) */
-    private getCible(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): ElementJeu {
+    /** Retrouver la cible sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
+    private getCible(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement): ElementJeu {
         let cible: ElementJeu = null;
         // retrouver la cible
         switch (cibleString) {
@@ -1280,6 +1273,36 @@ export class InstructionDire {
             case 'cela':
                 cible = cela as ElementJeu;
                 break;
+            case 'quantitéCeci':
+                cible = InstructionDire.copierElementTemp(ceci as Objet);
+                cible.quantite = evenement.quantiteCeci;
+                // nombre
+                //     => multiple
+                if (cible.quantite > 1) {
+                    cible.nombre = Nombre.p;
+                    // => identique à l’original
+                } else if (cible.quantite == -1) {
+                    cible.nombre = (cela as Objet).nombre;
+                    // => 0 ou 1
+                } else {
+                    cible.nombre = Nombre.s;
+                }
+                break;
+            case 'quantitéCela':
+                cible = InstructionDire.copierElementTemp(cela as Objet);
+                cible.quantite = evenement.quantiteCela;
+                // nombre
+                //     => multiple
+                if (cible.quantite > 1) {
+                    cible.nombre = Nombre.p;
+                    // => identique à l’original
+                } else if (cible.quantite == -1) {
+                    cible.nombre = (cela as Objet).nombre;
+                    // => 0 ou 1
+                } else {
+                    cible.nombre = Nombre.s;
+                }
+                break;
             case 'inventaire':
             case 'joueur':
                 cible = this.jeu.joueur;
@@ -1288,6 +1311,52 @@ export class InstructionDire {
                 break;
         }
         return cible;
+    }
+
+    /**
+     * Dupliquer l’élément du jeu pour utilisation temporaire (sans l’ajouter au jeu ni lui donner d’ID.)
+     * 
+     * Remarques:
+     *  - Sert uniquement à pouvoir modifier des propriétés sans endomager l’original.
+     * - Ne pas utiliser l’élément dans le jeu ensuite ! Pour cela utiliser copierObjet !
+     * 
+     * @param original élément à dupliquer.
+     * @returns copie de l’élément
+     */
+    private static copierElementTemp(original: ElementJeu) {
+        let copie = new ElementJeu(0, original.nom, original.intitule, original.classe); // 1, original.genre, Nombre.s);
+        copie.quantite = original.quantite;
+        copie.nombre = original.nombre;
+        copie.genre = original.genre;
+        copie.description = original.description;
+        copie.apercu = original.apercu;
+        copie.texte = original.texte;
+        copie.intituleS = original.intituleS;
+        copie.intituleP = original.intituleP;
+
+        // copier le nombre d’affichage de la description
+        copie.nbAffichageDescription = original.nbAffichageDescription;
+        copie.nbAffichageApercu = original.nbAffichageApercu;
+        copie.nbAffichageTexte = original.nbAffichageTexte;
+
+        // copier les états
+        original.etats.forEach(etat => {
+            copie.etats.push(etat);
+        });
+
+        // copier les capacités
+        original.capacites.forEach(cap => {
+            copie.capacites.push(new Capacite(cap.verbe, cap.complement));
+        });
+
+        // copier les propriétés
+        original.proprietes.forEach(prop => {
+            copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
+        });
+
+
+        // TODO: faut-il copier le contenu ?
+        return copie;
     }
 
 }
