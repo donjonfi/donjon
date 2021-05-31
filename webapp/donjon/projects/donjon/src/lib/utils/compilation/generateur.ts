@@ -4,7 +4,6 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 import { Action } from '../../models/compilateur/action';
 import { Aide } from '../../models/commun/aide';
 import { Auditeur } from '../../models/jouer/auditeur';
-import { ClassGetter } from '@angular/compiler/src/output/output_ast';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -125,8 +124,12 @@ export class Generateur {
           case 'intitulé':
             // TODO: gérer groupe nominal ?
             nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
+            if (nouvLieu.nombre == Nombre.p) {
+              nouvLieu.intituleP = nouvLieu.intitule;
+            } else {
+              nouvLieu.intituleS = nouvLieu.intitule;
+            }
             break;
-
 
           case 'aperçu':
           case 'apercu':
@@ -282,6 +285,11 @@ export class Generateur {
             case 'intitulé':
               // TODO: gérer groupe nominal ?
               newObjet.intitule = new GroupeNominal(null, pro.valeur);
+              if (newObjet.nombre == Nombre.p) {
+                newObjet.intituleP = newObjet.intitule;
+              } else {
+                newObjet.intituleS = newObjet.intitule;
+              }
               break;
 
             default:
