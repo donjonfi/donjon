@@ -538,7 +538,7 @@ export class Instructions {
 
     // si on déplace tout et qu’il n’y a pas encore d’exemplaire
     if (quantite === objetSource.quantite && !exemplaireDejaContenu) {
-      console.log("exectuterDeplacerObjetVersDestination > cas 1");
+      // console.log("exectuterDeplacerObjetVersDestination > cas 1");
       // déplacer simplement l’objet vers sa nouvelle destination
       objetSource.position = nouvellePosition;
       objetDeplace = objetSource;
@@ -547,7 +547,7 @@ export class Instructions {
     } else {
       // si l’objet n’est pas encore contenu dans la nouvelle distination, il faut le dupliquer
       if (!exemplaireDejaContenu) {
-        console.log("exectuterDeplacerObjetVersDestination > cas 2");
+        // console.log("exectuterDeplacerObjetVersDestination > cas 2");
         // copier l’objet
         let copie = this.eju.copierObjet(objetSource);
         // ajouter l’objet aux objets du jeu et lui définir un ID unique
@@ -565,17 +565,17 @@ export class Instructions {
         if (exemplaireDejaContenu.quantite !== -1) {
           // si la quantité à copier est infinie
           if (quantite === -1 && objetSource.quantite === -1) {
-            console.log("exectuterDeplacerObjetVersDestination > cas 3a");
+            // console.log("exectuterDeplacerObjetVersDestination > cas 3a");
             exemplaireDejaContenu.quantite = -1;
             exemplaireDejaContenu.nombre = Nombre.p;
             // si quantité augmente normalement => augmenter quantité de l’original
           } else {
-            console.log("exectuterDeplacerObjetVersDestination > cas 3b");
+            // console.log("exectuterDeplacerObjetVersDestination > cas 3b");
             exemplaireDejaContenu.quantite += quantite;
             exemplaireDejaContenu.nombre = Nombre.p;
           }
         } else {
-          console.log("exectuterDeplacerObjetVersDestination > cas 3c");
+          // console.log("exectuterDeplacerObjetVersDestination > cas 3c");
         }
         objetDeplace = exemplaireDejaContenu;
       }
@@ -583,7 +583,7 @@ export class Instructions {
       // si on a déplacé tous les exemplaires de l’objetSource et que l’objet déplacé final n’est pas l’objetSource
       // effacer l’objet source
       if (objetDeplace !== objetSource && quantite === objetSource.quantite) {
-        console.log("exectuterDeplacerObjetVersDestination > fin 2");
+        // console.log("exectuterDeplacerObjetVersDestination > fin 2");
         // effacer l’objet à déplacer (puisqu’on a augmenté la quantité à la place)
         const indexObjet = this.jeu.objets.indexOf(objetSource);
         if (indexObjet !== -1) {
@@ -593,7 +593,7 @@ export class Instructions {
         }
         // sinon diminuer la quantité
       } else {
-        console.log("exectuterDeplacerObjetVersDestination > fin 3");
+        // console.log("exectuterDeplacerObjetVersDestination > fin 3");
         // diminuer quantité
         objetSource.quantite -= quantite;
         // vérifier le genre
