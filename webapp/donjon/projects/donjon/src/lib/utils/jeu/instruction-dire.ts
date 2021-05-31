@@ -15,7 +15,6 @@ import { Genre } from "../../models/commun/genre.enum";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Lieu } from "../../models/jeu/lieu";
-import { MotUtils } from "../commun/mot-utils";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";

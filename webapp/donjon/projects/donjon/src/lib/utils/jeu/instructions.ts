@@ -533,10 +533,8 @@ export class Instructions {
     // regarder si un exemplaire de l’objet existe déjà à la destination
     let exemplaireDejaContenu = this.eju.getExemplaireDejaContenu(objetSource, nouvellePosition.pre, destination);
 
-
-    console.warn("?? quantite=", quantite);
-    console.warn("?? objetSource.quantite=", objetSource.quantite);
-    
+    // console.warn("?? quantite=", quantite);
+    // console.warn("?? objetSource.quantite=", objetSource.quantite);
 
     // si on déplace tout et qu’il n’y a pas encore d’exemplaire
     if (quantite === objetSource.quantite && !exemplaireDejaContenu) {
@@ -745,7 +743,7 @@ export class Instructions {
         copie.quantite = quantite; // définir la quantité
         copie.id = this.jeu.nextID++; // définir l’ID de la copie
         // remarque: on utilise la méthode déplacer afin de mettre à jour tous les attributs de l’objet et du contenant.
-        this.exectuterDeplacerObjetVersDestination(copie, preposition, destination, -1);
+        this.exectuterDeplacerObjetVersDestination(copie, preposition, destination, copie.quantite);
       }
     }
 
@@ -931,7 +929,7 @@ export class Instructions {
 
     // réaction à un sujet
     if (sujet) {
-      console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
+      // console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
 
       const nomMinuscules = sujet.intitule.nom.toLowerCase() ?? null;
       const epitheteMinuscules = sujet.intitule.epithete?.toLowerCase() ?? null;
@@ -947,7 +945,7 @@ export class Instructions {
     }
     // si pas de réaction à un sujet, prendre réaction par défaut (aucun sujet)
     if (!reaction) {
-      console.log("suiteExecuterReaction: réaction à aucun sujet");
+      // console.log("suiteExecuterReaction: réaction à aucun sujet");
       reaction = (personne as Objet).reactions
         .find(x => x.sujets && x.sujets.some(y => y.nom == "aucun" && y.epithete == "sujet"));
     }
@@ -1060,7 +1058,7 @@ export class Instructions {
           if (objets) {
             resultat.succes = true;
             objets.forEach(el => {
-              resultat = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur, -1));
+              resultat = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur, el.quantite));
             });
           }
         }
@@ -1077,7 +1075,7 @@ export class Instructions {
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
-            resultat = this.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, -1);
+            resultat = this.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, objet.quantite);
             // l'objet est porté
             this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
           }
