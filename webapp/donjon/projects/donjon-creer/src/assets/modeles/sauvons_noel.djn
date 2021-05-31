@@ -81,7 +81,8 @@ Un vêtement est un objet portable.
 -- Le hall
 Le hall est un lieu. "Vous êtes dans le hall.".
 Son titre est "Le hall de la maison du Père Noël".
-Les bottes (f) sont des vêtements dans le hall. "Ce sont vos bottes fourrées indispensables pour sortir.".
+La paire de bottes (f) est un vêtement dans le hall. "Ce sont vos bottes fourrées indispensables pour sortir.".
+interpréter botte et bottes comme la paire de bottes.
 
 -- La porte d'entrée
 La porte d'entrée est une porte à l'extérieur du hall.

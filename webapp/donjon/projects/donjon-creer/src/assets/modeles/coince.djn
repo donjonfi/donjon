@@ -53,7 +53,7 @@ Son texte est "Il est écrit << ne pas oublier: {+uaenna+} >>".
 Interpréter papier et feuille comme le bout de papier.
 
 -- coffre --
-Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmonté d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.)[fin si]".
+Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmonté d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.){U}[fin si]".
 Il est invisible, fermé, ouvrable et verrouillé.
 Interpréter le clavier comme le coffre.
 
