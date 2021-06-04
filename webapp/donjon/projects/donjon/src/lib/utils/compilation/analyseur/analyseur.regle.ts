@@ -1,3 +1,4 @@
+import { AnalyseurUtils } from "./analyseur.utils";
 import { Condition } from "../../../models/compilateur/condition";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ElementsPhrase } from "../../../models/commun/elements-phrase";
@@ -8,7 +9,6 @@ import { PhraseUtils } from "../../commun/phrase-utils";
 import { Regle } from "../../../models/compilateur/regle";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
-import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurRegle {
 

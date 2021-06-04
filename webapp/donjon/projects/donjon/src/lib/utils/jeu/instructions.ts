@@ -42,12 +42,12 @@ export class Instructions {
   }
 
   /** Exécuter une liste d’instructions */
-  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null): Resultat {
+  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number = null): Resultat {
 
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
-        const sousResultat = this.executerInstruction(ins, ceci, cela, evenement);
+        const sousResultat = this.executerInstruction(ins, ceci, cela, evenement, declenchements);
         resultat.nombre += sousResultat.nombre;
         resultat.succes = (resultat.succes && sousResultat.succes);
         resultat.sortie += sousResultat.sortie;
@@ -61,7 +61,7 @@ export class Instructions {
 
 
   /** Exécuter une instruction */
-  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null): Resultat {
+  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number = null): Resultat {
 
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
@@ -73,19 +73,19 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
-      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela, evenement);
+      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
       }
       if (estVrai) {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela, evenement);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela, evenement, declenchements);
       } else {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela, evenement);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela, evenement, declenchements);
       }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
-        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela, evenement);
+        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela, evenement, declenchements);
       } else {
         console.warn("executerInstruction : pas d'infinitif :", instruction);
       }
@@ -100,7 +100,7 @@ export class Instructions {
   }
 
 
-  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement): Resultat {
+  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement, declenchements: number): Resultat {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
@@ -113,7 +113,7 @@ export class Instructions {
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         const complement = instruction.complement1.trim();
         let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, ceci, cela, evenement);
+        contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, ceci, cela, evenement, declenchements);
         resultat.sortie += contenu;
         // console.warn("--- complement:", complement);
         // console.warn("------ contenu:", contenu);
@@ -415,7 +415,7 @@ export class Instructions {
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
     if (this.verbeux) {
-    console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+      console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
     }
     let resultat = new Resultat(false, '', 1);
 
@@ -951,8 +951,8 @@ export class Instructions {
     }
     // on a trouvé une réaction
     if (reaction) {
-      // TODO: faut-il fournir ceci et cela ?
-      resultat = this.executerInstructions(reaction.instructions, null, null, null);
+      // TODO: faut-il fournir ceci,cela, l’évènement et déclenchements ?
+      resultat = this.executerInstructions(reaction.instructions, null, null, null, null);
       // on n’a pas trouvé de réaction
     } else {
       // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.

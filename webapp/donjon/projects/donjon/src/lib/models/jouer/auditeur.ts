@@ -6,4 +6,6 @@ export class Auditeur {
   type: TypeRegle;
   evenements: Evenement[];
   instructions: Instruction[];
+  /** nombre de déclenchements de l’auditeur */
+  declenchements: number = 0;
 }

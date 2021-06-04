@@ -22,6 +22,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { MotUtils } from '../utils/commun/mot-utils';
 import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
+import { Resultat } from '../models/jouer/resultat';
 import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
 @Component({
@@ -108,7 +109,18 @@ export class LecteurComponent implements OnInit, OnChanges {
         let evCommencerJeu = new Evenement('commencer', true, null, 0, 'jeu', ClassesRacines.Special);
 
         // éxécuter les instructions AVANT le jeu commence
-        let resultatAvant = this.ins.executerInstructions(this.dec.avant(evCommencerJeu));
+        let resultatAvant = new Resultat(true, "", 0);
+        // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+        const declenchementsAvant = this.dec.avant(evCommencerJeu);
+        // éxécuter les règles déclenchées
+        declenchementsAvant.forEach(declenchement => {
+          const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions);
+          resultatAvant.sortie += sousResultatAvant.sortie;
+          resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
+          resultatAvant.nombre += sousResultatAvant.nombre;
+          resultatAvant.stopper = resultatAvant.stopper || sousResultatAvant.stopper;
+        });
+        // ajouter la sortie
         if (resultatAvant.sortie) {
           this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
         }
@@ -121,19 +133,34 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
         if (!resultatAvant.stopper) {
-          // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-          let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
-          if (resultatRemplacer.nombre === 0) {
-            // afficher où on est.
-            this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
-            this.jeu.commence = true;
-          }
+          // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
+          // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
+          // // if (resultatRemplacer.nombre === 0) {
+
+          // afficher où on est.
+          this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
+          this.jeu.commence = true;
+
+          // // }
 
           // éxécuter les instructions APRÈS le jeu commence
-          const resultatApres = this.ins.executerInstructions(this.dec.apres(evCommencerJeu));
+          let resultatApres = new Resultat(true, "", 0);
+          // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+          const declenchementsApres = this.dec.apres(evCommencerJeu);
+          // éxécuter les règles déclenchées
+          declenchementsApres.forEach(declenchement => {
+            const sousResultatApres = this.ins.executerInstructions(declenchement.instructions);
+            resultatApres.sortie += sousResultatApres.sortie;
+            resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+            resultatApres.nombre += sousResultatApres.nombre;
+            resultatApres.continuer = resultatApres.continuer || sousResultatApres.continuer;
+          });
+
           if (resultatApres.sortie) {
             this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
           }
+
+
         }
         //terminer le paragraphe sauf si on attends une touche pour continuer
         if (!this.resteDeLaSortie?.length && !this.sortieJoueur.endsWith("</p>")) {
@@ -222,7 +249,7 @@ export class LecteurComponent implements OnInit, OnChanges {
    * Appuis sur une touche par le joueur.
    */
   onKeyDown(event: Event) {
-    // éviter de déclancher appuis touche avant la fin de la commande en cours
+    // éviter de déclencher appuis touche avant la fin de la commande en cours
     if (!this.commandeEnCours) {
       // regarder s’il reste du texte à afficher
       if (this.resteDeLaSortie?.length) {
@@ -300,7 +327,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
         event.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
-        this.commandeEnCours = true; // éviter qu’il déclanche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
+        this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
@@ -368,14 +395,14 @@ export class LecteurComponent implements OnInit, OnChanges {
       const celaClasseV1 = null;
       const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
 
-      let evenement = new Evenement(
-        // verbe
-        els.infinitif,
-        // ceci
-        isCeciV1, els.preposition0, ceciQuantiteV1, ceciNomV1, ceciClasseV1,
-        // cela
-        isCelaV1, els.preposition1, celaQuantiteV1, celaNomV1, celaClasseV1
-      );
+      // let evenementV1 = new Evenement(
+      //   // verbe
+      //   els.infinitif,
+      //   // ceci
+      //   isCeciV1, els.preposition0, ceciQuantiteV1, ceciNomV1, ceciClasseV1,
+      //   // cela
+      //   isCelaV1, els.preposition1, celaQuantiteV1, celaNomV1, celaClasseV1
+      // );
 
       // si on a déjà une erreur, ne pas continuer.
       if (retVal.length > 0) {
@@ -498,7 +525,7 @@ export class LecteurComponent implements OnInit, OnChanges {
             const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
 
             // mettre à jour l'évènement avec les éléments trouvés
-            evenement = new Evenement(
+            const evenementV2 = new Evenement(
               // verbe
               actionCeciCela.action.infinitif,
               // ceci
@@ -511,8 +538,17 @@ export class LecteurComponent implements OnInit, OnChanges {
 
 
             // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
-            const resultatAvant = this.ins.executerInstructions(this.dec.avant(evenement), actionCeciCela.ceci, actionCeciCela.cela, evenement);
-            retVal += resultatAvant.sortie;
+            let resultatAvant = new Resultat(true, "", 0);
+            // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+            const declenchementsAvant = this.dec.avant(evenementV2);
+            // éxécuter les règles déclenchées
+            declenchementsAvant.forEach(declenchement => {
+              const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+              retVal += sousResultatAvant.sortie;
+              resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
+              resultatAvant.nombre += sousResultatAvant.nombre;
+              resultatAvant.stopper = resultatAvant.stopper || sousResultatAvant.stopper;
+            });
 
             // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
             if (resultatAvant.stopper !== true) {
@@ -523,9 +559,9 @@ export class LecteurComponent implements OnInit, OnChanges {
                 // parcourir les vérifications
                 actionCeciCela.action.verifications.forEach(verif => {
                   if (verif.conditions.length == 1) {
-                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenement)) {
+                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
                       // console.warn("> commande vérifie cela:", verif);
-                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenement);
+                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
                       retVal += resultatRefuser.sortie;
                       refus = true;
                     }
@@ -538,15 +574,25 @@ export class LecteurComponent implements OnInit, OnChanges {
               // exécuter l’action si pas refusée
               if (!refus) {
                 // PHASE EXÉCUTER l’action
-                const resultatExecuter = this.executerAction(actionCeciCela, evenement);
+                const resultatExecuter = this.executerAction(actionCeciCela, evenementV2);
                 retVal += resultatExecuter.sortie;
                 // ÉVÈNEMENT APRÈS la commande
-                const resultatApres = this.ins.executerInstructions(this.dec.apres(evenement), actionCeciCela.ceci, actionCeciCela.cela, evenement);
-                retVal += resultatApres.sortie;
+                let resultatApres = new Resultat(true, "", 0);
+                // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+                const declenchementsApres = this.dec.apres(evenementV2);
+                // éxécuter les règles déclenchées
+                declenchementsApres.forEach(declenchement => {
+                  const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+                  retVal += sousResultatApres.sortie;
+                  resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+                  resultatApres.nombre += sousResultatApres.nombre;
+                  resultatApres.continuer = resultatApres.continuer || sousResultatApres.continuer;
+                });
+
                 // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
                 if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
                   // terminer l’action
-                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenement);
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
                   retVal += resultatFinaliser.sortie;
                 }
               }
@@ -563,12 +609,12 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private executerAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela, evenement);
+    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela, evenement, null);
     return resultat;
   }
 
   private finaliserAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela, evenement);
+    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela, evenement, null);
     return resultat;
   }
 

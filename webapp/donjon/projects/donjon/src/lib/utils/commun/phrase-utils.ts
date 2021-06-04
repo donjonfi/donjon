@@ -251,7 +251,7 @@ export class PhraseUtils {
         const celaClasse = null;
         // const celaEstClasse = (isCela && (cela.determinant?.match(/un(e)? /i) ?? false));
 
-        const ev = new Evenement(
+        let ev = new Evenement(
           // verbe
           els.infinitif,
           // ceci

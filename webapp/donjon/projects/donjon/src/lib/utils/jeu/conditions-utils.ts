@@ -32,9 +32,9 @@ export class ConditionsUtils {
   /**
    * Vérifier la condition ainsi que les liens.
    */
-  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement) {
+  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
 
-    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela, evenement);
+    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela, evenement, declenchements);
     let resultConditionB: boolean = null;
     let resultConditionC: boolean = null;
     let resultConditionD: boolean = null;
@@ -46,13 +46,13 @@ export class ConditionsUtils {
         case LienCondition.et:
           // si c’est un ET et que la première condition est vraie, tester la 2e
           if (resultFinal === true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
             // si les 2 premières conditions sont vraies, tester la 3e
             if (condition.lien.lien && resultFinal === true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
               // si les 3 premières conditions sont vraies, tester la 4e
               if (condition.lien.lien.lien && resultFinal === true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
               }
             }
           }
@@ -61,13 +61,13 @@ export class ConditionsUtils {
         case LienCondition.ou:
           // si c’est un OU et que la premièr condition est fausse, tester la 2e
           if (resultConditionA !== true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
+            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
             // si les 2 premières conditions sont fausses, tester la 3e
             if (condition.lien.lien && resultFinal !== true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
+              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
               // si les 3 premières conditions sont fausses, tester la 4e
               if (condition.lien.lien.lien && resultFinal !== true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
+                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
               }
             }
           }
@@ -76,17 +76,17 @@ export class ConditionsUtils {
         case LienCondition.soit:
           let nbVraiSoit = resultConditionA ? 1 : 0;
           // si c’est un SOIT, tester la 2e
-          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement);
+          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
           nbVraiSoit += resultConditionB ? 1 : 0;
           // tester la 3e condition (si pas encore sûr que c’est faux)
           if (nbVraiSoit < 2 && condition.lien.lien) {
             // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement);
+            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
             nbVraiSoit += resultConditionC ? 1 : 0;
             // tester la 4e condition (si pas encore sûr que c’est faux)
             if (nbVraiSoit < 2 && condition.lien.lien.lien) {
               // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement);
+              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
               nbVraiSoit += resultConditionD ? 1 : 0;
             }
           }
@@ -105,7 +105,7 @@ export class ConditionsUtils {
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement) {
+  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, declenchements: number) {
     let retVal = false;
     if (condition == null) {
       condition = PhraseUtils.getCondition(conditionString);
@@ -141,35 +141,35 @@ export class ConditionsUtils {
             if (!ceci) {
               console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
             }
-          // cela
+            // cela
           } else if (condition.sujet.nom === 'cela') {
             sujet = cela;
             if (!cela) {
               console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
             }
-          // quantitéCeci
+            // quantitéCeci
           } else if (condition.sujet.nom === 'quantitéCeci') {
             const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
             sujet = cpt;
             if (!ceci) {
               console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
             }
-          // quantitéCela
+            // quantitéCela
           } else if (condition.sujet.nom === 'quantitéCela') {
             const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
             sujet = cpt;
             if (!cela) {
               console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
             }
-          // quantité de ceci
+            // quantité de ceci
           } else if (condition.sujet.nom === 'quantité de ceci') {
             if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
               console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
-            }else{
+            } else {
               const cpt = new Compteur("quantité de ceci", (ceci as ElementJeu).quantite);
               sujet = cpt;
             }
-          // quantité de cela
+            // quantité de cela
           } else if (condition.sujet.nom === 'quantité de cela') {
             if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
               console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
@@ -177,7 +177,16 @@ export class ConditionsUtils {
               const cpt = new Compteur("quantité de cela", (cela as ElementJeu).quantite);
               sujet = cpt;
             }
-          // sortie/porte vers ceci/cela
+            // règle
+          } else if (condition.sujet.nom === 'règle') {
+            if (!declenchements) {
+              console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
+            } else {
+              const cpt = new Compteur("déclenchements règle", declenchements);
+              sujet = cpt;
+            }
+
+            // sortie/porte vers ceci/cela
           } else if (condition.sujet.nom == "sortie vers" || condition.sujet.nom == "porte vers") {
             let locString: string = condition.sujet.epithete;
             if (condition.sujet.epithete == 'ceci') {
@@ -386,6 +395,16 @@ export class ConditionsUtils {
             case 'atteignent':
               // remarque: négation appliquée plus loin.
               retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement);
+              break;
+
+            case 'se déclenche':
+              if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
+                // remarque: négation appliquée plus loin.
+                retVal = (compteur.valeur === 1);
+                console.log("déclenche ? :", compteur.valeur, retVal);
+              } else {
+                console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
+              }
               break;
 
             default:

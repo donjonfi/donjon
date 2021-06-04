@@ -465,7 +465,7 @@ export class ListeEtats {
   /**
    * Savoir si l'élément est actuellement visible.
    * @todo utliser un cache pour ne pas re-calculer quand pas nécessaire.
-   * @todo déclancher re-calcul lorsqu'on change un élément qui influence visible.
+   * @todo déclencher re-calcul lorsqu'on change un élément qui influence visible.
    * @param element 
    */
   estVisible(objet: Objet, eju: ElementsJeuUtils) {
@@ -506,7 +506,7 @@ export class ListeEtats {
   /**
    * Savoir si l'élément est actuellement accessible.
    * @todo utliser un cache pour ne pas re-calculer quand pas nécessaire.
-   * @todo déclancher re-calcul lorsqu'on change un élément qui influence visible.
+   * @todo déclencher re-calcul lorsqu'on change un élément qui influence visible.
    * @param element 
    */
   estAccessible(objet: Objet, eju: ElementsJeuUtils) {

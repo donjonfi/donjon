@@ -26,5 +26,4 @@ export class Evenement {
     public classeCela: Classe = null,
   ) { }
 
-
 }

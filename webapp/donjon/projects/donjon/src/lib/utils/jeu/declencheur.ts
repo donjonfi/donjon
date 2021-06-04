@@ -1,13 +1,16 @@
 import { Auditeur } from '../../models/jouer/auditeur';
-import { Evenement } from '../../models/jouer/evenement';
-import { Instruction } from '../../models/compilateur/instruction';
-import { TypeRegle } from '../../models/compilateur/type-regle';
 import { ClasseUtils } from '../commun/classe-utils';
+import { Declenchement } from '../../models/jouer/declenchement';
+import { Evenement } from '../../models/jouer/evenement';
+import { TypeRegle } from '../../models/compilateur/type-regle';
 
 export class Declencheur {
 
+  /** Auditeurs pour les règles « avant » */
   private auditeursAvant: Auditeur[] = [];
+  /** Auditeurs pour les règles « après » */
   private auditeursApres: Auditeur[] = [];
+  /** Auditeurs pour les règles « remplacer » */
   private auditeursRemplacer: Auditeur[] = [];
 
   constructor(
@@ -32,11 +35,35 @@ export class Declencheur {
           console.error("Declencheur > type d’auditeur inconnu:", aud.type);
           break;
       }
+
     });
+
+
   }
 
-  private retrouverInstructions(auditeurs: Auditeur[], evenement: Evenement): Instruction[] {
-    let instructions = new Array<Instruction>();
+  private retrouverInstructions(evenement: Evenement, typeRegle: TypeRegle): Declenchement[] {
+
+    let auditeurs: Auditeur[] = null;
+
+    switch (typeRegle) {
+      case TypeRegle.avant:
+        auditeurs = this.auditeursAvant;
+        break;
+
+      case TypeRegle.apres:
+        auditeurs = this.auditeursApres;
+        break;
+
+      case TypeRegle.remplacer:
+        auditeurs = this.auditeursApres;
+        break;
+
+      default:
+        console.error("retrouverInstructions: type de règle pas connu: ", typeRegle);
+        break;
+    }
+
+    let declenchements = new Array<Declenchement>();
 
     let scoreAuditeursDeclanches: [Auditeur, number][] = [];
 
@@ -48,6 +75,8 @@ export class Declencheur {
     const scoreCorrespondanceSemiCeciCela: number = 125;
 
     let meilleurScore = 0;
+
+
 
     auditeurs.forEach(aud => {
       // si un des évènement de l’auditeur est valide, ne pas tester les suivants
@@ -88,7 +117,7 @@ export class Declencheur {
             }
             // C) CELA UNIQUEMENT => NE DEVRAIT JAMAIS SE PRODUIRE
           } else if (!evenement.isCeci && evenement.isCela) {
-            console.error("Déclancheur ne peut pas se faire sur « cela » uniquement. Seuls « (rien) », « ceci » et « ceci et cela » sont autorisés.");
+            console.error("Déclencheur ne peut pas se faire sur « cela » uniquement. Seuls « (rien) », « ceci » et « ceci et cela » sont autorisés.");
             // D) CECI ET CELA
           } else {
             // même type d’évènement ?
@@ -153,7 +182,7 @@ export class Declencheur {
         }
       });
 
-      // si l’auditeur a été délclanché
+      // si l’auditeur a été déclenché
       if (meilleurScorePourCetAuditeur) {
         // ajouter l’auditeur au tableau des scores
         scoreAuditeursDeclanches.push([aud, meilleurScorePourCetAuditeur]);
@@ -162,37 +191,37 @@ export class Declencheur {
       }
     });
 
-    // ajouter les instructions du ou des déclancheurs avec le score le plus élevé uniquement.
+    // ajouter les instructions du ou des déclencheurs avec le score le plus élevé uniquement.
     scoreAuditeursDeclanches.forEach(auditeurScore => {
+      // s’agit-il du meilleur score ?
       if (auditeurScore[1] === meilleurScore) {
-        auditeurScore[0].instructions.forEach(ins => {
-          instructions.push(ins);
-        });
+        // ajouter un déclenchement
+        declenchements.push(new Declenchement(auditeurScore[0].instructions, ++auditeurScore[0].declenchements));
       }
     });
 
-    return instructions;
+    return declenchements;
   }
 
-  avant(evenement: Evenement): Instruction[] {
+  avant(evenement: Evenement): Declenchement[] {
     if (this.verbeux) {
       //   console.log("Declencheur >>> AVANT", evenement);
     }
-    return this.retrouverInstructions(this.auditeursAvant, evenement);
+    return this.retrouverInstructions(evenement, TypeRegle.avant);
   }
 
-  apres(evenement: Evenement): Instruction[] {
+  apres(evenement: Evenement): Declenchement[] {
     if (this.verbeux) {
       // console.log("Declencheur >>> APRÈS", evenement);
     }
-    return this.retrouverInstructions(this.auditeursApres, evenement);
+    return this.retrouverInstructions(evenement, TypeRegle.apres);
   }
 
-  remplacer(evenement: Evenement): Instruction[] {
+  remplacer(evenement: Evenement): Declenchement[] {
     if (this.verbeux) {
       // console.log("Declencheur >>> REMPLACER", evenement);
     }
-    return this.retrouverInstructions(this.auditeursRemplacer, evenement);
+    return this.retrouverInstructions(evenement, TypeRegle.remplacer);
   }
 
 }

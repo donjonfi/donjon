@@ -56,7 +56,7 @@ export class Jeu {
   nextID: number = 1;
 
   /** Un auditeur écoute un évènement en particulier.
-   * Lorsque l'évènement se déclanche, on exécute les actions
+   * Lorsque l'évènement se déclenche, on exécute les actions
    * de l'auditeur.
    */
   auditeurs: Auditeur[] = [];
