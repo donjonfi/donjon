@@ -51,8 +51,9 @@ export class Instructions {
         resultat.nombre += sousResultat.nombre;
         resultat.succes = (resultat.succes && sousResultat.succes);
         resultat.sortie += sousResultat.sortie;
-        resultat.stopper = resultat.stopper || sousResultat.stopper;
-        resultat.continuer = resultat.continuer || sousResultat.continuer;
+        resultat.stopperApresRegle = resultat.stopperApresRegle || sousResultat.stopperApresRegle;
+        resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
+        resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
       });
     }
 
@@ -91,8 +92,9 @@ export class Instructions {
       }
     }
     resultat.sortie += sousResultat.sortie;
-    resultat.stopper = resultat.stopper || sousResultat.stopper;
-    resultat.continuer = resultat.continuer || sousResultat.continuer;
+    resultat.stopperApresRegle = resultat.stopperApresRegle || sousResultat.stopperApresRegle;
+    resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
+    resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
 
     // console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
 
@@ -104,9 +106,9 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
-    if (this.verbeux) {
-      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
-    }
+    // if (this.verbeux) {
+    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
+    // }
 
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
@@ -214,12 +216,6 @@ export class Instructions {
         }
         break;
 
-      case 'terminer':
-        if (instruction.sujet && instruction.sujet.nom === 'jeu') {
-          this.jeu.termine = true;
-        }
-        break;
-
       case 'sauver':
         // console.log("executerInfinitif >> sauver=", instruction.complement1);
         if (instruction.complement1) {
@@ -246,7 +242,7 @@ export class Instructions {
       case 'stopper':
         // Stopper l’action en cours (évènement AVANT spécial)
         if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
-          resultat.stopper = true;
+          resultat.stopperApresRegle = true;
           resultat.succes = true;
         } else {
           console.error("executerInfinitif >> stopper >> sujet autre que  « action » pas pris en charge. sujet=", instruction.sujet);
@@ -254,13 +250,26 @@ export class Instructions {
         }
         break;
 
+      case 'terminer':
       case 'continuer':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
-        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
-          resultat.continuer = true;
+        console.log("terminer:", instruction);
+
+        // jeu
+        if (instruction.sujet && instruction.sujet.nom === 'jeu') {
+          this.jeu.termine = true;
+        // action
+        } else if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
+          // terminer/continuer l’action avant
+          if (instruction?.sujet.epithete?.toLocaleLowerCase() === 'avant') {
+            resultat.terminerAvantRegle = true;
+            // terminer/continuer l’action {après} (par défaut)
+          } else {
+            resultat.terminerApresRegle = true;
+          }
           resultat.succes = true;
         } else {
-          console.error("executerInfinitif >> continuer >> sujet autre que  « action » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> terminer >> sujet autre que  « action » ou « jeu » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;

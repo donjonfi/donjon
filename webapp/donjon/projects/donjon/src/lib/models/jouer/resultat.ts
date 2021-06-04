@@ -6,7 +6,11 @@ export class Resultat {
     public nombre: number
   ) { };
 
-  public stopper: boolean = null;
-  public continuer: boolean = null;
+  /** il faut stopper l’exécution de l’action (après la règle) */
+  public stopperApresRegle: boolean = null;
+  /** il faut terminer l’action (avant la sortie de la règle) */
+  public terminerAvantRegle: boolean = null;
+  /** il faut terminer l’action (après la sortie de la règle) */
+  public terminerApresRegle: boolean = null;
 
 }

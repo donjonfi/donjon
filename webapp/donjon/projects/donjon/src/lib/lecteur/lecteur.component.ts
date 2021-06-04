@@ -118,7 +118,7 @@ export class LecteurComponent implements OnInit, OnChanges {
           resultatAvant.sortie += sousResultatAvant.sortie;
           resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
           resultatAvant.nombre += sousResultatAvant.nombre;
-          resultatAvant.stopper = resultatAvant.stopper || sousResultatAvant.stopper;
+          resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
         });
         // ajouter la sortie
         if (resultatAvant.sortie) {
@@ -132,7 +132,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.eju.majAdjacenceLieux();
 
         // continuer l’exécution de l’action si elle n’a pas été arrêtée
-        if (!resultatAvant.stopper) {
+        if (!resultatAvant.stopperApresRegle) {
           // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
           // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
           // // if (resultatRemplacer.nombre === 0) {
@@ -153,7 +153,8 @@ export class LecteurComponent implements OnInit, OnChanges {
             resultatApres.sortie += sousResultatApres.sortie;
             resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
             resultatApres.nombre += sousResultatApres.nombre;
-            resultatApres.continuer = resultatApres.continuer || sousResultatApres.continuer;
+            resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
+            resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
           });
 
           if (resultatApres.sortie) {
@@ -208,7 +209,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         }
         // attendre pour afficher la suite éventuelle
         if (sectionsContenu.length > 1) {
-          this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
+          this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…'
           this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
         }
       }
@@ -236,7 +237,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
     // s’il reste d’autres sections, attendre
     if (this.resteDeLaSortie.length) {
-      this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…</p>'
+      this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…'
     }
     // scroll
     setTimeout(() => {
@@ -547,11 +548,11 @@ export class LecteurComponent implements OnInit, OnChanges {
               retVal += sousResultatAvant.sortie;
               resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
               resultatAvant.nombre += sousResultatAvant.nombre;
-              resultatAvant.stopper = resultatAvant.stopper || sousResultatAvant.stopper;
+              resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
             });
 
             // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
-            if (resultatAvant.stopper !== true) {
+            if (resultatAvant.stopperApresRegle !== true) {
               // PHASE REFUSER (vérifier l'action)
               let refus = false;
               if (actionCeciCela.action.verifications) {
@@ -580,21 +581,45 @@ export class LecteurComponent implements OnInit, OnChanges {
                 let resultatApres = new Resultat(true, "", 0);
                 // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
                 const declenchementsApres = this.dec.apres(evenementV2);
-                // éxécuter les règles déclenchées
-                declenchementsApres.forEach(declenchement => {
-                  const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
-                  retVal += sousResultatApres.sortie;
-                  resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-                  resultatApres.nombre += sousResultatApres.nombre;
-                  resultatApres.continuer = resultatApres.continuer || sousResultatApres.continuer;
-                });
 
-                // PHASE TERMINER l'action (seulement s'il n'y avait pas de " après " ou bien si on a forcé avec « CONTINUER L’ACTION ».)
-                if (resultatApres.nombre === 0 || resultatApres.continuer === true) {
-                  // terminer l’action
+                if (declenchementsApres.length) {
+                  // éxécuter les règles déclenchées
+                  declenchementsApres.forEach(declenchement => {
+                    const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+                    resultatApres.sortie += sousResultatApres.sortie;
+                    resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+                    resultatApres.nombre += sousResultatApres.nombre;
+                    resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
+                    resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
+                  });
+
+                  // terminer avant sortie règle « après » ?
+                  if (resultatApres.terminerAvantRegle) {
+                    // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
+                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                    retVal += resultatFinaliser.sortie;
+                    // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
+                    if (resultatApres.terminerApresRegle) {
+                      resultatApres.terminerApresRegle = false;
+                    }
+                  }
+
+                  // sortie règle après
+                  retVal += resultatApres.sortie;
+
+                  // terminer après sortie règle « après » ?
+                  if (resultatApres.terminerApresRegle) {
+                    // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
+                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                    retVal += resultatFinaliser.sortie;
+                  }
+
+                } else {
+                  // PHASE TERMINER l'action (sans règle « après »)
                   const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
                   retVal += resultatFinaliser.sortie;
                 }
+                
               }
             }
 
