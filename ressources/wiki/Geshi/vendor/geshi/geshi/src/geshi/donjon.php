@@ -53,13 +53,13 @@ $language_data = array (
 			'peut', 'est', 'sont', 'pas', 'plus',
 			'possède', 'possèdent', 'contient', 'contiennent', 'réagit', 'réagissent',
 			'vaut', 'valent', 'augmente', 'augmentent', 'diminue', 'diminuent',
-			'atteint', 'atteignent', 'dépasse', 'dépassent',
+			'atteint', 'atteignent', 'dépasse', 'dépassent', 'se déclenche', 'se déclenchent',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
 			'initialement', 'puis', 'fin', 'finsi', 'choix', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
-            'joueur', 'historique', 'ceci', 'cela', 'ici',
+            'joueur', 'historique', 'ceci', 'cela', 'ici', 'règle',
 			'description','intitulé', 'texte', 'titre', 'réaction',
 			'nom', 'pronom', 'accord', 
             ),

@@ -15,7 +15,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var builtinFunctions = (
       "dire|changer|déplacer|copier|effacer|sauver|remplacer|par|"
       + "verrouiller|déverrouiller|ouvrir|fermer|"
-      + "stopper|continuer|attendre|"
+      + "stopper|continuer|terminer|attendre|"
       + "|maintenant"
     );
 
@@ -58,7 +58,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "(\\b(désactiver|quand|avant|après|si|sinon|sinonsi|fin si|finsi|refuser|exécuter|terminer|interpréter|comme)\\b)|" +
+          regex: "(\\b(désactiver|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|refuser|exécuter|terminer(?! (l’|l')?action)|interpréter|comme)\\b)|" +
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|prioritairement|puis|fin choix|finchoix)\\b)|" +
             "(\\b(et|ou|ni|soit|mais pas)\\b)|" +
             "(\\b(partie|chapitre|scène) )",
@@ -67,7 +67,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "constant.language",
           regex: "(au (sud|nord))|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
-            + "(\\b(ceci|cela|ici)\\b)|"
+            + "(\\b(ceci|cela|ici|règle)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|le nombre de)(?!\\w))|"
             
@@ -87,7 +87,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "se (trouve) |n(’|')est pas |n(’|')est plus |est |sont |vaut |diminue |augmente |atteint |dépasse |contient |possède |porte |réagit|réagissent|peut "
+          regex: "\\b((ne |n’|n')?(se |s’)?(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|contiennent|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
