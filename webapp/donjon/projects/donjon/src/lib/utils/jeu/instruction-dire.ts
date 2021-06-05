@@ -1265,7 +1265,7 @@ export class InstructionDire {
     private getCible(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement): ElementJeu {
         let cible: ElementJeu = null;
         // retrouver la cible
-        switch (cibleString) {
+        switch (cibleString.toLowerCase()) {
             case 'ici':
                 cible = this.eju.curLieu;
                 // afficherObjetsCaches = false;
@@ -1276,7 +1276,7 @@ export class InstructionDire {
             case 'cela':
                 cible = cela as ElementJeu;
                 break;
-            case 'quantitéCeci':
+            case 'quantitéceci':
                 cible = InstructionDire.copierElementTemp(ceci as Objet);
                 cible.quantite = evenement.quantiteCeci;
                 // nombre
@@ -1291,7 +1291,7 @@ export class InstructionDire {
                     cible.nombre = Nombre.s;
                 }
                 break;
-            case 'quantitéCela':
+            case 'quantitécela':
                 cible = InstructionDire.copierElementTemp(cela as Objet);
                 cible.quantite = evenement.quantiteCela;
                 // nombre
