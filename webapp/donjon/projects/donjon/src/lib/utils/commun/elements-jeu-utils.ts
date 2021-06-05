@@ -18,7 +18,6 @@ import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Propriete } from '../../models/commun/propriete';
 import { Voisin } from '../../models/jeu/voisin';
-import { stringify } from '@angular/compiler/src/util';
 
 export class ElementsJeuUtils {
 

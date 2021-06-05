@@ -1,29 +1,23 @@
-import { Action, ActionCeciCela, CandidatActionCeciCela } from '../models/compilateur/action';
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
+import { ActionCeciCela } from '../models/compilateur/action';
+import { ActionsUtils } from '../utils/jeu/actions-utils';
 import { BalisesHtml } from '../utils/jeu/balises-html';
-import { CibleAction } from '../models/compilateur/cible-action';
-import { Classe } from '../models/commun/classe';
 import { ClasseUtils } from '../utils/commun/classe-utils';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandes } from '../utils/jeu/commandes';
 import { ConditionsUtils } from '../utils/jeu/conditions-utils';
-import { Correspondance } from '../utils/jeu/correspondance';
 import { Declencheur } from '../utils/jeu/declencheur';
 import { EClasseRacine } from '../models/commun/constantes';
-import { ElementJeu } from '../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Evenement } from '../models/jouer/evenement';
 import { Instructions } from '../utils/jeu/instructions';
-import { Intitule } from '../models/jeu/intitule';
 import { Jeu } from '../models/jeu/jeu';
 import { MotUtils } from '../utils/commun/mot-utils';
 import { Objet } from '../models/jeu/objet';
 import { PhraseUtils } from '../utils/commun/phrase-utils';
 import { Resultat } from '../models/jouer/resultat';
-import { ResultatVerifierCandidat } from '../models/jeu/resultat-verifier-candidat';
 
 @Component({
   selector: 'djn-lecteur',
@@ -49,6 +43,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   private ins: Instructions;
   private eju: ElementsJeuUtils;
   private cond: ConditionsUtils;
+  private act: ActionsUtils;
 
   private dec: Declencheur;
 
@@ -73,6 +68,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
       this.com = new Commandes(this.jeu, this.ins, this.verbeux);
       this.cond = new ConditionsUtils(this.jeu, this.verbeux);
+      this.act = new ActionsUtils(this.jeu, this.verbeux);
       // afficher le titre et la version du jeu
       this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
       // afficher la version du jeu
@@ -385,15 +381,15 @@ export class LecteurComponent implements OnInit, OnChanges {
       const ceciIntituleV1 = els.sujet;
 
       const ceciQuantiteV1 = isCeciV1 ? (MotUtils.getQuantite(els.sujet.determinant, (MotUtils.estFormePlurielle(els.sujet.nom) ? -1 : 1))) : 0;
-      const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
-      const ceciClasseV1 = null;
+      // const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
+      // const ceciClasseV1 = null;
       const resultatCeci = isCeciV1 ? this.eju.trouverCorrespondance(ceciIntituleV1, true, true) : null;
 
       const isCelaV1 = els.sujetComplement1 ? true : false;
       const celaIntituleV1 = els.sujetComplement1;
       const celaQuantiteV1 = isCelaV1 ? (MotUtils.getQuantite(els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(els.sujetComplement1.nom) ? -1 : 1))) : 0;
-      const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
-      const celaClasseV1 = null;
+      // const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
+      // const celaClasseV1 = null;
       const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
 
       // let evenementV1 = new Evenement(
@@ -419,7 +415,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         // autres commandes
         default:
-          const actionsCeciCela = this.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
+          const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
 
           // =====================================================
           //  A. VERBE PAS CONNU
@@ -433,35 +429,37 @@ export class LecteurComponent implements OnInit, OnChanges {
             // =====================================================
           } else if (actionsCeciCela.length === 0) {
 
-            retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec les arguments ou la formulation de la commande.";
-            // vérifier si on a trouvé les éléments de la commande.
-            if (ceciIntituleV1) {
-              // ON N'A PAS TROUVÉ L'OBJET
-              if (resultatCeci.nbCor === 0) {
-                retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntituleV1) + " ».)+}";
-              } else {
-                // ON NE VOIT PAS L'OBJET
-                // vérifier si les objets de la commande sont visibles
-                if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
-                  if (!this.jeu.etats.estVisible(resultatCeci.objets[0], this.eju)) {
-                    retVal += "\n{+(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)+}";
-                  }
-                }
-              }
-            }
-            if (celaIntituleV1) {
-              // ON N'A PAS TROUVÉ L'OBJET
-              if (resultatCela.nbCor === 0) {
-                retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntituleV1) + " ».)+}";
-              } else {
-                // ON NE VOIT PAS L'OBJET
-                if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
-                  if (!this.jeu.etats.estVisible(resultatCela.objets[0], this.eju)) {
-                    retVal += "\n{+(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)+}";
-                  }
-                }
-              }
-            }
+            retVal = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
+
+            // retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec les arguments ou la formulation de la commande.";
+            // // vérifier si on a trouvé les éléments de la commande.
+            // if (ceciIntituleV1) {
+            //   // ON N'A PAS TROUVÉ L'OBJET
+            //   if (resultatCeci.nbCor === 0) {
+            //     retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntituleV1) + " ».)+}";
+            //   } else {
+            //     // ON NE VOIT PAS L'OBJET
+            //     // vérifier si les objets de la commande sont visibles
+            //     if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
+            //       if (!this.jeu.etats.estVisible(resultatCeci.objets[0], this.eju)) {
+            //         retVal += "\n{+(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)+}";
+            //       }
+            //     }
+            //   }
+            // }
+            // if (celaIntituleV1) {
+            //   // ON N'A PAS TROUVÉ L'OBJET
+            //   if (resultatCela.nbCor === 0) {
+            //     retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntituleV1) + " ».)+}";
+            //   } else {
+            //     // ON NE VOIT PAS L'OBJET
+            //     if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
+            //       if (!this.jeu.etats.estVisible(resultatCela.objets[0], this.eju)) {
+            //         retVal += "\n{+(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)+}";
+            //       }
+            //     }
+            //   }
+            // }
 
             // regarder si de l’aide existe pour cet infinitif
             const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
@@ -643,258 +641,6 @@ export class LecteurComponent implements OnInit, OnChanges {
     return resultat;
   }
 
-  private trouverActionPersonnalisee(els: ElementsPhrase, ceci: Correspondance, cela: Correspondance): CandidatActionCeciCela[] {
 
-    // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
-
-    let candidats: Action[] = [];
-    let matchCeci: ResultatVerifierCandidat = null;
-    let matchCela: ResultatVerifierCandidat = null;
-    let resultat: CandidatActionCeciCela[] = null;
-    let verbeConnu: boolean = false;
-
-    // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
-    this.jeu.actions.forEach(action => {
-      // vérifier infinitif
-      let infinitifOk = (els.infinitif === action.infinitif);
-      // vérifier également les synonymes
-      if (!infinitifOk && action.synonymes) {
-        action.synonymes.forEach(synonyme => {
-          if (!infinitifOk && els.infinitif === synonyme) {
-            infinitifOk = true;
-          }
-        });
-      }
-
-      if (infinitifOk) {
-        verbeConnu = true;
-        // vérifier sujet
-        if ((els.sujet && action.ceci) || (!els.sujet && !action.ceci)) {
-          // vérifier complément
-          if ((els.sujetComplement1 && action.cela) || (!els.sujetComplement1 && !action.cela)) {
-            candidats.push(action);
-          }
-        }
-      }
-
-    });
-
-    if (this.verbeux) {
-      console.warn("testerCommandePersonnalisee :", candidats.length, "candidat(s) p1 :", candidats);
-    }
-
-    if (verbeConnu) {
-      resultat = []; // verbe connu
-
-      // infinitif + sujet (+complément), vérifier que celui de la commande correspond
-      if (els.sujet) {
-
-        let meilleurScore = 0;
-
-        candidats.forEach(candidat => {
-          let candidatCorrespond = false;
-          matchCeci = null;
-          matchCela = null;
-
-          // 1) vérifier sujet (CECI)
-          if (candidat.cibleCeci) {
-            matchCeci = this.verifierCandidatCeciCela(ceci, candidat.cibleCeci);
-            // A. aucun candidat valide trouvé
-            if (matchCeci.elementsTrouves.length === 0) {
-              // console.log(">>> Pas de candidat valide trouvé pour ceci avec le candidat:", candidat, "ceci:", ceci);
-              // B. au moins un candidat se démarque
-            } else {
-              // 2) vérifier complément (CELA)
-              if (els.complement1) {
-                if (candidat.cibleCela) {
-                  matchCela = this.verifierCandidatCeciCela(cela, candidat.cibleCela);
-                  // A. aucun candidat valide trouvé
-                  if (matchCela.elementsTrouves.length === 0) {
-                    // console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
-                    // B. au moins un candidat se démarque
-                  } else {
-                    candidatCorrespond = true;
-                  }
-                }
-                // pas de cela
-              } else {
-                candidatCorrespond = true;
-              }
-            }
-          }
-
-          /*
-
-                 // B. plusieurs candidats se démarquent
-            } else if (matchCeci.elementsTrouves.length !== 1) {
-              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
-
-
-                 // B. plusieurs candidats se démarquent
-                  } else if (matchCela.elementsTrouves.length !== 1) {
-                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
-
-          */
-
-          if (candidatCorrespond) {
-
-            const score = matchCeci.meilleurScore + (matchCela?.meilleurScore ?? 0);
-
-            // meilleur score jusqu’à présent => remplace le précédent résultat
-            if (score > meilleurScore) {
-              meilleurScore = score;
-              resultat = [new CandidatActionCeciCela(candidat, matchCeci?.elementsTrouves, matchCela?.elementsTrouves)];
-              // plusieurs scores équivalents => on ajoute au résultat existant
-            } else if (score === meilleurScore) {
-              resultat.push(new CandidatActionCeciCela(candidat, matchCeci?.elementsTrouves, matchCela?.elementsTrouves));
-            }
-          }
-        });
-
-        // infinitif simple
-      } else {
-        // à priori on ne devrait avoir qu’un seul résultat vue que verbe simple…
-        candidats.forEach(candidat => {
-          resultat.push(new CandidatActionCeciCela(candidat, null, null));
-        });
-      }
-    }
-    return resultat;
-  }
-
-  /**
-   * Vérifier si on trouve l’élément rechercher parmis les correspondances.
-   * @param ceciCela  correspondances
-   * @param candidatCeciCela  élément recherché
-   * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.
-   */
-  private verifierCandidatCeciCela(ceciCela: Correspondance, candidatCeciCela: CibleAction): ResultatVerifierCandidat {
-    let retVal: Array<ElementJeu | Intitule> = [];
-
-    // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
-    let meilleurScore = 0;
-
-    // il s’agit d’un sujet précis
-    if (candidatCeciCela.determinant.match(/^(du|((de )?(le|la|l’|l'|les)))?( )?$/)) {
-
-      // Vérifier s’il s’agit du sujet précis
-      // PRIORITÉ 1 >> élément (objet ou lieu)
-      if (ceciCela.elements.length) {
-        // console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
-        // vérifier s’il s’agit du sujet précis
-        ceciCela.elements.forEach(ele => {
-          // console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
-          // console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-          // console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
-          if (ele.intitule.nom === candidatCeciCela.nom && ele.intitule.epithete === candidatCeciCela.epithete) {
-            let curScore = 1000;
-            // si priorité respectée, score augmente
-            if (candidatCeciCela.priorite) {
-              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.priorite, this.eju)) {
-                curScore += 500; // prioritaire
-              }
-            }
-            // meilleur score jusqu’à présent => remplace le précédent résultat
-            if (curScore > meilleurScore) {
-              meilleurScore = curScore;
-              retVal = [ele];
-              // 2 scores équivalents => on ajoute au résultat existant
-            } else if (curScore === meilleurScore) {
-              retVal.push(ele);
-            }
-          }
-        });
-        // PRIORITÉ 2 >> compteur
-      } else if (ceciCela.compteurs.length) {
-        // console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
-        // vérifier s’il s’agit du sujet précis
-        ceciCela.compteurs.forEach(cpt => {
-          // console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
-          // console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-          // console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
-
-          if (cpt.intitule.nom === candidatCeciCela.nom && cpt.intitule.epithete === candidatCeciCela.epithete) {
-            let curScore = 500;
-            if (curScore > meilleurScore) {
-              meilleurScore = curScore;
-              retVal = [cpt];
-            } else {
-              // déjà un match, on en a plusieurs
-              // (ici ils ont toujours la même valeur)
-              retVal.push(cpt);
-            }
-          }
-        });
-        // PRIORITÉ 3 >> intitulé
-      } else if (ceciCela.intitule) {
-        // console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
-
-        const intitule = ceciCela.intitule;
-
-        // vérifier s’il s’agit du sujet précis
-        // console.log("check for intitule=", intitule, "candidatCeciCela=", candidatCeciCela);
-        // console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
-        // console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
-
-        if (intitule.intitule.nom === candidatCeciCela.nom && intitule.intitule.epithete === candidatCeciCela.epithete) {
-          let curScore = 250;
-          if (curScore > meilleurScore) {
-            meilleurScore = curScore;
-            retVal = [intitule];
-          } else {
-            // déjà un match, on en a plusieurs
-            // (ici ils ont toujours la même valeur)
-            retVal.push(intitule);
-          }
-        }
-      }
-
-      // todo: vérifier début de nom si aucune correspondance exacte
-
-      // il s’agit d’un type
-    } else if (candidatCeciCela.determinant.match(/^(un|une|des|deux)( )?$/)) {
-      ceciCela.elements.forEach(ele => {
-        // vérifier si l’ojet est du bon type
-        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCela.nom))) {
-
-          // s’il n’y a pas d’état requis ou si l’état est respecté
-          if (!candidatCeciCela.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.epithete, this.eju)) {
-            let curScore = 125;
-            // si priorité respectée, score augmente
-            if (candidatCeciCela.priorite) {
-              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCela.priorite, this.eju)) {
-                curScore += 75; // prioritaire
-              }
-            }
-            // meilleur score jusqu’à présent => remplace le précédent résultat
-            if (curScore > meilleurScore) {
-              meilleurScore = curScore;
-              retVal = [ele];
-              // plusieurs scores équivalents => on ajoute au résultat existant
-            } else if (curScore === meilleurScore) {
-              retVal.push(ele);
-            }
-          }
-        }
-      });
-
-      // si ce n'est pas un élément du jeu,
-      //  - vérifier direction
-      if (meilleurScore === 0 && ceciCela.localisation && (ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.direction || ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule)) {
-        meilleurScore = 75;
-        retVal = [ceciCela.localisation];
-      }
-      //  - vérifier intitué
-      if (meilleurScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCela.nom) === EClasseRacine.intitule) {
-        meilleurScore = 50;
-        retVal = [ceciCela.intitule];
-      }
-
-    }
-    if (this.verbeux) {
-      console.log("VerifierCandidat >>> \nbestScore=", meilleurScore, "\ncandidatCeciCela=", candidatCeciCela, "\nceciCela=", ceciCela);
-    }
-    return new ResultatVerifierCandidat(retVal, meilleurScore);
-  }
 
 }
