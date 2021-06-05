@@ -22,9 +22,12 @@ export class AnalyseurAction {
     // A. Nouvelle action complète
     if (result !== null) {
       const verbe = result[1].toLocaleLowerCase();
+      const prepCeci = result[2];
       const ceci = result[3] === 'ceci';
+      const prepCela = result[4];
       const cela = result[5] === 'cela';
-      let action = new Action(verbe, ceci, cela);
+      let action = new Action(verbe, prepCeci, ceci, prepCela, cela);
+      
       // concerne un élément ?
       if (ceci) {
         action.cibleCeci = new CibleAction(result[6], result[7], result[8], result[9]);
@@ -94,8 +97,9 @@ export class AnalyseurAction {
         if (resultActionSimple) {
 
           const verbe = resultActionSimple[1].toLocaleLowerCase();
-          const ceci = resultActionSimple[3] !== undefined;
-          let complement = resultActionSimple[5];
+          const prepCeci = resultActionSimple[2];
+          const ceci = resultActionSimple[4] !== undefined;
+          let complement = resultActionSimple[6];
 
           // si phrase morcelée, rassembler les morceaux
           if (phrase.phrase.length > 1) {
@@ -104,9 +108,9 @@ export class AnalyseurAction {
             }
           }
 
-          let action = new Action(verbe, ceci, false);
+          let action = new Action(verbe, prepCeci, ceci, null, false);
           if (ceci) {
-            action.cibleCeci = new CibleAction(resultActionSimple[2], resultActionSimple[3], resultActionSimple[4]);
+            action.cibleCeci = new CibleAction(resultActionSimple[3], resultActionSimple[4], resultActionSimple[5]);
           }
 
           action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);

@@ -9,18 +9,20 @@ export class Action {
 
   constructor(
     public infinitif: string,
+    public prepositionCeci: string,
     public ceci: boolean,
+    public prepositionCela: string,
     public cela: boolean,
-    public cibleCeci: CibleAction = null,
-    public cibleCela: CibleAction = null,
-    public verificationsBrutes: string = null,
-    public verifications: Verification[] = [],
-    public instructionsBrutes: string = null,
-    public instructions: Instruction[] = [],
-    public instructionsFinalesBrutes: string = null,
-    public instructionsFinales: Instruction[] = []
   ) { }
 
+  public cibleCeci: CibleAction = null;
+  public cibleCela: CibleAction = null;
+  public verificationsBrutes: string = null;
+  public verifications: Verification[] = [];
+  public instructionsBrutes: string = null;
+  public instructions: Instruction[] = [];
+  public instructionsFinalesBrutes: string = null;
+  public instructionsFinales: Instruction[] = []
   public synonymes: string[] = [];
 
 }
