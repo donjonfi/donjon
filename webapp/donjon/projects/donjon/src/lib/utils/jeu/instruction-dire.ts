@@ -56,133 +56,159 @@ export class InstructionDire {
 
                 const proprieteString = decoupe[1];
                 const cibleString = decoupe[2];
-                const cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
+                const cibleIntitule: ElementJeu | Intitule = this.getCible(cibleString, ceci, cela, evenement);
 
                 let resultat: string = '';
 
-                switch (proprieteString) {
 
-                    case 'Quantité':
-                    case 'quantité':
-                    case 'quantite':
-                    case 'quantite':
-                        resultat = cible.quantite.toString();
-                        break;
+                if (cibleIntitule && ClasseUtils.heriteDe(cibleIntitule.classe, EClasseRacine.element)) {
 
-                    // > description
-                    case 'description':
-                    case 'Description':
-                        resultat = this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-                        break;
+                    const cibleElement: ElementJeu = cibleIntitule as ElementJeu;
 
-                    case 'intitulé':
-                    case 'intitule':
-                        resultat = this.eju.calculerIntituleElement(cible, false, true);
-                        break;
+                    switch (proprieteString) {
 
-                    case 'Intitulé':
-                    case 'Intitule':
-                        resultat = this.eju.calculerIntituleElement(cible, true, true);
-                        break;
+                        case 'Quantité':
+                        case 'quantité':
+                        case 'quantite':
+                        case 'quantite':
+                            resultat = cibleElement.quantite.toString();
+                            break;
 
-                    case 'Singulier':
-                        resultat = this.eju.calculerIntituleElement(cible, true, true, Nombre.s);
-                        break;
+                        // > description
+                        case 'description':
+                        case 'Description':
+                            resultat = this.calculerDescription(cibleElement.description, ++cibleElement.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cibleElement, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+                            break;
 
-                    case 'singulier':
-                        resultat = this.eju.calculerIntituleElement(cible, false, true, Nombre.s);
-                        break;
+                        case 'intitulé':
+                        case 'intitule':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, false, true);
+                            break;
 
-                    case 'Pluriel':
-                        resultat = this.eju.calculerIntituleElement(cible, true, true, Nombre.p);
-                        break;
+                        case 'Intitulé':
+                        case 'Intitule':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, true, true);
+                            break;
 
-                    case 'pluriel':
-                        resultat = this.eju.calculerIntituleElement(cible, false, true, Nombre.p);
-                        break;
+                        case 'Singulier':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, true, true, Nombre.s);
+                            break;
 
-                    // es ceci | accord ceci (féminin et pluriel)
-                    case 'accord':
-                    case 'es':
-                        resultat = (cible.genre === Genre.f ? "e" : "") + (cible.nombre === Nombre.p ? "s" : "");
-                        break;
+                        case 'singulier':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, false, true, Nombre.s);
+                            break;
 
-                    // s ceci (pluriel)
-                    case 's':
-                        resultat = (cible.nombre === Nombre.p ? "s" : "");
-                        break;
+                        case 'Pluriel':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, true, true, Nombre.p);
+                            break;
 
-                    // e ceci (féminin)
-                    case 'e':
-                        resultat = (cible.genre === Genre.f ? "e" : "");
-                        break;
+                        case 'pluriel':
+                            resultat = this.eju.calculerIntituleElement(cibleElement, false, true, Nombre.p);
+                            break;
 
-                    // pronom
-                    case 'pronom':
-                    case 'il':
-                        if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
-                            resultat = (cible.genre === Genre.f ? "elle" : "il") + (cible.nombre === Nombre.p ? "s" : "");
-                        } else {
-                            console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un élément.");
-                        }
-                        break;
+                        // es ceci | accord ceci (féminin et pluriel)
+                        case 'accord':
+                        case 'es':
+                            resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                            break;
 
-                    // pronom (majuscule)
-                    case 'Pronom':
-                    case 'Il':
-                        resultat = (cible.genre === Genre.f ? "Elle" : "Il") + (cible.nombre === Nombre.p ? "s" : "");
-                        break;
+                        // s ceci (pluriel)
+                        case 's':
+                            resultat = (cibleElement.nombre === Nombre.p ? "s" : "");
+                            break;
 
-                    // cod: l’ ou les
-                    case 'l’':
-                    case 'l\'':
-                        resultat = (cible.nombre === Nombre.p ? "les " : "l’");
-                        break;
+                        // e ceci (féminin)
+                        case 'e':
+                            resultat = (cibleElement.genre === Genre.f ? "e" : "");
+                            break;
 
-                    // cod: le, la ou les
-                    case 'le':
-                        // singulier
-                        if ((ceci as ElementJeu).nombre !== Nombre.p) {
-                            // masculin
-                            if ((ceci as ElementJeu).genre !== Genre.f) {
-                                resultat = "le";
-                                // féminin
+                        // pronom
+                        case 'pronom':
+                        case 'il':
+                            if (ClasseUtils.heriteDe(cibleElement.classe, EClasseRacine.element)) {
+                                resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p ? "s" : "");
                             } else {
-                                resultat = "la";
+                                console.error("interpreterContenuDire: pronom ceci: ceci n'est pas un élément.");
                             }
-                            // pluriel
-                        } else {
-                            resultat = "les";
-                        }
-                        break;
+                            break;
 
-                    // lui, elle, eux, elles
-                    case 'lui':
-                        // singulier
-                        if ((ceci as ElementJeu).nombre !== Nombre.p) {
-                            // masculin
-                            if ((ceci as ElementJeu).genre !== Genre.f) {
-                                resultat = "lui";
-                                // féminin
-                            } else {
-                                resultat = "elle";
-                            }
-                            // pluriel
-                        } else {
-                            // masculin
-                            if ((ceci as ElementJeu).genre !== Genre.f) {
-                                resultat = "eux";
-                                // féminin
-                            } else {
-                                resultat = "elles";
-                            }
-                        }
-                        break;
+                        // pronom (majuscule)
+                        case 'Pronom':
+                        case 'Il':
+                            resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                            break;
 
-                    // inconnu
-                    default:
-                        console.error("interpreterContenuDire: propriete pas prise en charge:", proprieteString);
-                        break;
+                        // cod: l’ ou les
+                        case 'l’':
+                        case 'l\'':
+                            resultat = (cibleElement.nombre === Nombre.p ? "les " : "l’");
+                            break;
+
+                        // cod: le, la ou les
+                        case 'le':
+                            // singulier
+                            if ((ceci as ElementJeu).nombre !== Nombre.p) {
+                                // masculin
+                                if ((ceci as ElementJeu).genre !== Genre.f) {
+                                    resultat = "le";
+                                    // féminin
+                                } else {
+                                    resultat = "la";
+                                }
+                                // pluriel
+                            } else {
+                                resultat = "les";
+                            }
+                            break;
+
+                        // lui, elle, eux, elles
+                        case 'lui':
+                            // singulier
+                            if ((ceci as ElementJeu).nombre !== Nombre.p) {
+                                // masculin
+                                if ((ceci as ElementJeu).genre !== Genre.f) {
+                                    resultat = "lui";
+                                    // féminin
+                                } else {
+                                    resultat = "elle";
+                                }
+                                // pluriel
+                            } else {
+                                // masculin
+                                if ((ceci as ElementJeu).genre !== Genre.f) {
+                                    resultat = "eux";
+                                    // féminin
+                                } else {
+                                    resultat = "elles";
+                                }
+                            }
+                            break;
+
+                        // inconnu
+                        default:
+                            console.error("interpreterContenuDire: propriete pas prise en charge (Element) :", proprieteString);
+                            break;
+                    }
+                } else if (cibleIntitule && ClasseUtils.heriteDe(cibleIntitule.classe, EClasseRacine.intitule)) {
+                    switch (proprieteString) {
+
+                        case 'intitulé':
+                        case 'intitule':
+                            resultat = ElementsJeuUtils.calculerIntituleGenerique(cibleIntitule, false);
+                            break;
+
+                        case 'Intitulé':
+                        case 'Intitule':
+                            resultat = ElementsJeuUtils.calculerIntituleGenerique(cibleIntitule, true);
+                            break;
+
+                        // inconnu
+                        default:
+                            console.error("interpreterContenuDire: propriete pas prise en charge (Intitulé) :", proprieteString);
+                            break;
+                    }
+                } else {
+                    contenu = "???"
                 }
 
                 // remplacer la balise par le résultat
@@ -523,7 +549,7 @@ export class InstructionDire {
         // ===================================================
 
         // verbe(1) modeTemps(2) [negation(3)] sujet(4)
-        const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
+        const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer|pouvoir) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
         const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
         const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
 

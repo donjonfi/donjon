@@ -22,6 +22,9 @@ export class Conjugaison {
       case "vivre":
         return Conjugaison.vivre;
 
+      case "pouvoir":
+        return Conjugaison.pouvoir;
+
       default:
         return null;
     }
@@ -416,6 +419,84 @@ export class Conjugaison {
     ['spqp 3ps', 'eût ouvert'],
     // -- pluriel
     ['spqp 3pp', 'eussent ouvert'],
+  ]);
+
+  private static pouvoir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'peut'],
+    // -- pluriel
+    ['ipr 3pp', 'peuvent'],
+    // - PASSÉ COMPOSÉ
+    // -- singulier
+    ['ipac 3ps', 'a pu'],
+    // -- pluriel
+    ['ipac 3pp', 'ont pu'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'pouvait'],
+    // -- pluriel
+    ['iimp 3pp', 'pouvaient'],
+    // - PLUS-QUE-PARFAIT
+    // -- singulier
+    ['ipqp 3ps', 'avait pu'],
+    // -- pluriel
+    ['ipqp 3pp', 'avaient pu'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'put'],
+    // -- pluriel
+    ['ipas 3pp', 'purent'],
+    // - PASSÉ ANTÉRIEUR
+    // -- singulier
+    ['ipaa 3ps', 'eut pu'],
+    // -- pluriel
+    ['ipaa 3pp', 'eurent pu'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'pourra'],
+    // -- pluriel
+    ['ifus 3pp', 'pourront'],
+    // - PASSÉ ANTÉRIEUR
+    // -- singulier
+    ['ifua 3ps', 'aura pu'],
+    // -- pluriel
+    ['ifua 3pp', 'auront pu'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'pourrait'],
+    // -- pluriel
+    ['cpr 3pp', 'pourraient'],
+    // - PASSÉ
+    // -- singulier
+    ['cpa 3ps', 'aurait pu'],
+    // -- pluriel
+    ['cpa 3pp', 'auraient pu'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'puisse'],
+    // -- pluriel
+    ['spr 3pp', 'puissent'],
+    // - PASSÉ
+    // -- singulier
+    ['spa 3ps', 'ait pu'],
+    // -- pluriel
+    ['spa 3pp', 'aient pu'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'pût'],
+    // -- pluriel
+    ['simp 3pp', 'pussent'],
+    // - PLUS-QUE-PARFAIT
+    // -- singulier
+    ['spqp 3ps', 'eût pu'],
+    // -- pluriel
+    ['spqp 3pp', 'eussent pu'],
   ]);
 
 }
