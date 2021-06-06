@@ -309,7 +309,7 @@ export class ExprReg {
    * - jeter l’épée
    * - => utiliser(1) la(2) clé(3) rouge(4) \[sur(6) la(7) porte(8) verte(9)](5)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (?:avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en))? (le |la |les |l'|l’|du |de (?:la |l'|l’)|des |un |une |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+?))?( (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en) (le |la |les |l'|l’|du |de la|des |un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+?))?)?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (?:avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en))? (le |la |les |l'|l’|du |de (?:la |l'|l’)|des |un |une |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+?))?( (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en) (le |la |les |l'|l’|du |de la |des |un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+?))?)?)?$/i;
 
   // -------------------------------------------
   //  PARLER, INTERROGER, MONTRER, DEMANDER , …
@@ -451,7 +451,7 @@ export class ExprReg {
   // /**
   //  * si (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela)(1) verbe(5) pas(6) complément(7) (:|,) conséquences(8)
   //  */
-  // static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la|des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
+  // static readonly xSiConditionConsequences = /^(?:si )((le |la |les |l'|l’|du |de la |des |un |une )(\S+)( \S+)?|ceci|cela) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|possède|contient|commence|réagit)(?: (pas|plus))?)(?: (.+))?(?: )?(?:,|:)(.+)$/i;
 
   /** 
    * si aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela|ici)(5)
