@@ -269,10 +269,10 @@ export class ExprReg {
    *     - prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé
    *     - Appuyer sur ceci avec cela est une action qui concerne deux objets accessibles prioritairement possédés.
    */
-  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un|une|deux|la|le) (\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un|une|la|le) (\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |la |le |l’|l')?(\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un |une |la |le |l’|l')(\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?$/i;
 
   /** Le joueur peut verbe(1) [[[ à/de/sur/…]\(2) déterminant(3) nom(4) epithete(5)]: instructions(6) */
-  static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du )(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?(?: )?:(.+)?$/i;
+  static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!un|une)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!d'|d’)\S+))?)?(?: )?:(.+)?$/i;
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
 
@@ -425,7 +425,6 @@ export class ExprReg {
    * - si la porte vers ceci n’est pas ouverte
    */
   static readonly xConditionLaSortieVers = /^(?:si )?(la )(sortie|porte) (vers) (ceci|cela|(?:(?:le |l’|l')?(ouest|est|nord|sud|haut|bas|dedans|dehors|intérieur|extérieur))) (?:n’|n')?(est) (?:(pas|plus) )?(\S+)$/i;
-
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]

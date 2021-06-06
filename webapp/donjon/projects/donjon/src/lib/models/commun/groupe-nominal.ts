@@ -28,7 +28,16 @@ export class GroupeNominal {
   ) { }
 
   toString() {
-    let retVal = (this.determinant ? this.determinant : "") + this.nom + (this.epithete ? (" " + this.epithete) : "");
+
+    let retVal: string
+    let determinantCorrige = this.determinant ?? '';
+    // if (this.determinant) {
+    //   // ajouter un espace (pour les actions)
+    //   if (determinantCorrige == 'un' || determinantCorrige == 'une' || determinantCorrige == "deux") {
+    //     determinantCorrige += ' ';
+    //   }
+    // }
+    retVal = determinantCorrige + this.nom + (this.epithete ? (" " + this.epithete) : "");
     return retVal;
   }
 

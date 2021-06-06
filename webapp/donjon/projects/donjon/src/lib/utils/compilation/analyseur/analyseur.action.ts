@@ -33,7 +33,7 @@ export class AnalyseurAction {
         action.cibleCeci = new CibleAction(result[6], result[7], result[8], result[9]);
         // concerne également un 2e élément ?
         if (cela) {
-          if (result[6] === 'deux') {
+          if (result[6] === 'deux ') {
             action.cibleCela = new CibleAction(result[6], result[7], result[8], result[9]);
           } else {
             action.cibleCela = new CibleAction(result[10], result[11], result[12], result[13]);

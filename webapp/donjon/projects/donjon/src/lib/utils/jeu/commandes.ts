@@ -85,7 +85,7 @@ export class Commandes {
         }
       }
     }
-    else{
+    else {
       retVal = "La commande n’est pas complète.";
     }
 

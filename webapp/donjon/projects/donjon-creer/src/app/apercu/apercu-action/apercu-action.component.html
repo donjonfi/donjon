@@ -28,13 +28,13 @@
   <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
 
     <ul>
-      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant != 'deux'">
+      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant != 'deux '">
         ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
       </li>
-      <li *ngIf="action.cibleCela && action.cibleCeci.determinant != 'deux'">
+      <li *ngIf="action.cibleCela && action.cibleCeci.determinant != 'deux '">
         cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
-      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant == 'deux'">
+      <li *ngIf="action.cibleCeci && action.cibleCeci.determinant == 'deux '">
         ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
       <li>Refus : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
