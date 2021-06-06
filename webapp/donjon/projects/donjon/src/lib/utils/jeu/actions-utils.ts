@@ -369,12 +369,14 @@ export class ActionsUtils {
           break;
 
         default:
-          retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
+          // retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
+          retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
           break;
       }
       // état requis pas trouvé
     } else {
-      retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+      // retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+      retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
     }
 
     return retVal;
