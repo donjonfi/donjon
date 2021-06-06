@@ -27,4 +27,14 @@ export class Intitule {
      */
     public classe: Classe,
   ) { }
+
+  toString() {
+    if (this.intitule) {
+      return this.intitule.toString();
+    } else {
+      return this.nom;
+    }
+  }
+
+
 }
