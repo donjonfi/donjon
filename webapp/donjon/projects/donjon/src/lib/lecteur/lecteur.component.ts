@@ -416,7 +416,6 @@ export class LecteurComponent implements OnInit, OnChanges {
         // autres commandes
         default:
           const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
-
           // =====================================================
           //  A. VERBE PAS CONNU
           // =====================================================
@@ -429,7 +428,49 @@ export class LecteurComponent implements OnInit, OnChanges {
             // =====================================================
           } else if (actionsCeciCela.length === 0) {
 
-            retVal = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
+            const explicationRefu = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
+
+            // correspondance CECI
+            let tempCeci = null;
+            if (resultatCeci) {
+              if (resultatCeci.nbCor) {
+                // élément
+                if (resultatCeci.elements.length) {
+                  tempCeci = resultatCeci.elements[0];
+                  // compteur
+                } else if (resultatCeci.compteurs.length) {
+                  tempCeci = resultatCeci.compteurs[0];
+                  // autre (direction)
+                } else {
+                  tempCeci = resultatCeci.localisation;
+                }
+                // non trouvé => intitulé
+              } else {
+                tempCeci = resultatCeci?.intitule ?? null;
+              }
+            }
+
+            // correspondance CELA
+            let tempCela = null;
+            if (resultatCela) {
+              if (resultatCela.nbCor) {
+                // élément
+                if (resultatCela.elements.length) {
+                  tempCela = resultatCela.elements[0];
+                  // compteur
+                } else if (resultatCela.compteurs.length) {
+                  tempCela = resultatCela.compteurs[0];
+                  // autre (direction)
+                } else {
+                  tempCela = resultatCela.localisation;
+                }
+                // non trouvé => intitulé
+              } else {
+                tempCela = resultatCela.intitule;
+              }
+            }
+
+            retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
 
             // retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec les arguments ou la formulation de la commande.";
             // // vérifier si on a trouvé les éléments de la commande.
@@ -464,10 +505,11 @@ export class LecteurComponent implements OnInit, OnChanges {
             // regarder si de l’aide existe pour cet infinitif
             const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
             if (aide) {
-              retVal += "\n{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher les informations concernant cette commande./}";
-            } else {
-              retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
+              retVal += "{u}{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher l’aide de la commande./}";
             }
+            //  else {
+            //   retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
+            // }
 
             // =============================================================================
             // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
@@ -617,7 +659,7 @@ export class LecteurComponent implements OnInit, OnChanges {
                   const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
                   retVal += resultatFinaliser.sortie;
                 }
-                
+
               }
             }
 

@@ -1,9 +1,9 @@
 import { Action, CandidatActionCeciCela } from "../../models/compilateur/action";
+import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
 
 import { CibleAction } from "../../models/compilateur/cible-action";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Correspondance } from "./correspondance";
-import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
@@ -50,67 +50,399 @@ export class ActionsUtils {
         // II) il reste des candidats en lice => le nombre d’arguments est accepté
       } else {
         // il s’agit forcément d’une action avec 1 ou 2 arguments, sinon elle ne serait pas refusée…
+        // remarque: il ne peut pas y avoir plusieurs fois la même commande avec le même nombre d’arguments
+        // sauf pour les commandes simplifiées.
 
-        
+        let ceciToujoursRefuse = false;
+        let celaToujoursRefuse = false;
+
+        let argumentUnique = true;
+        // il y a un cela => 2 arguments
+        if (celaCommande) {
+          argumentUnique = false;
+        }
+
+        // tester 1er argument (ceci):
+        let candidatsOkCeci: Action[] = [];
+        let candidatsKoCeci: Action[] = [];
+        resCherCand.candidatsEnLice.forEach(candidat => {
+          const resCurCeci = this.verifierCandidatCeciCela(ceciCommande, candidat.cibleCeci);
+          if (resCurCeci.elementsTrouves.length) {
+            candidatsOkCeci.push(candidat);
+          } else {
+            candidatsKoCeci.push(candidat);
+          }
+        });
+
+        if (candidatsOkCeci.length === 0) {
+          ceciToujoursRefuse = true;
+        }
+
+        // CECI + CELA
+        if (celaCommande) {
+          // tester le 2e argument (cela)
+          let candidatsOkCela: Action[] = [];
+          let candidatsKoCela: Action[] = [];
+          resCherCand.candidatsEnLice.forEach(candidat => {
+            const resCurCeci = this.verifierCandidatCeciCela(celaCommande, candidat.cibleCela);
+            if (resCurCeci.elementsTrouves.length) {
+              candidatsOkCela.push(candidat);
+            } else {
+              candidatsKoCela.push(candidat);
+            }
+          });
+          if (candidatsOkCela.length === 0) {
+            celaToujoursRefuse = true;
+          }
+        }
+
+        // CECI et/ou CELA sont KO
+        if (ceciToujoursRefuse || celaToujoursRefuse) {
+
+          // si plusieurs candidats, prendre l’action la plus générique.
+          if (resCherCand.candidatsEnLice.length > 1) {
+            resCherCand.candidatsEnLice = [this.garderActionCompleteSiPossible(resCherCand.candidatsEnLice)];
+          }
+
+          // // un seul candidat
+          // if (resCherCand.candidatsEnLice.length == 1) {
+          // détaillé commande trouvée
+          raisonRefu = "Je sais " + this.afficherCandidatAction(resCherCand.candidatsEnLice[0]);
+          // refu ceci
+          if (ceciToujoursRefuse) {
+            // expliquer refu CECI + CELA
+            if (celaToujoursRefuse) {
+              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique));
+              // expliquer refu CECI
+            } else {
+              if (argumentUnique) {
+                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              } else {
+                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              }
+            }
+            // expliquer refu CELA
+          } else if (celaToujoursRefuse) {
+            // expliquer refu cela
+            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique));
+          }
+          // }
+          //   // plusieurs candidats
+          // } else {
+          //   raisonRefu = "Je sais :";
+          //   resCherCand.candidatsEnLice.forEach(candidat => {
+          //     // détaillé commande trouvée
+          //     let curRaisonRefu = "{n}{t}- " + this.afficherCandidatAction(candidat);
+
+          //     // refu ceci
+          //     if (ceciToujoursRefuse) {
+          //       // expliquer refu CECI + CELA
+          //       if (celaToujoursRefuse) {
+          //         curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
+          //         curRaisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
+          //         // expliquer refu CECI
+          //       } else {
+          //         if (argumentUnique) {
+          //           curRaisonRefu = (this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
+          //         } else {
+          //           curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
+          //         }
+          //       }
+          //       // expliquer refu CELA
+          //     } else if (celaToujoursRefuse) {
+          //       // expliquer refu cela
+          //       curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
+          //     }
+
+          //     raisonRefu += "{n}{t}- " + curRaisonRefu;
+
+          //     // // refu ceci
+          //     // if (ceciToujoursRefuse) {
+          //     //   // expliquer refu ceci
+          //     //   raisonRefu += ("{n}{t}{t}" + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
+          //     // }
+          //     // // refu cela
+          //     // if (celaToujoursRefuse) {
+          //     //   // expliquer refu cela
+          //     //   raisonRefu += ("{n}{t}{t}" + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
+          //     // }
+
+
+
+
+          //   });
+          // }
+
+          // CECI et CELA sont OK à certains moments
+          // => combinaison refusée
+          // => il y a forcément plusieurs actions (sinon on n’arriverait pas ici)
+        } else {
+          raisonRefu = "Je sais :";
+          resCherCand.candidatsRefuses.forEach(candidat => {
+            // détaillé commande trouvée
+            raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat);
+          });
+          raisonRefu += "La combinaison de « " + ceciCommande.intitule + " » et « " + ceciCommande.intitule + " » ne convient pas.";
+        }
 
       }
     }
     return raisonRefu;
   }
 
+  /**
+   * On garde l’action complete parmis la liste d’actions.
+   * S’il n’y en a pas on prend la première.
+   * @param candidats 
+   */
+  private garderActionCompleteSiPossible(candidats: Action[]) {
+    let retVal: Action = null;
+    if (candidats.length) {
+      retVal = candidats.find(x => !x.simplifiee);
+      if (!retVal) {
+        retVal = candidats[0];
+      }
+    }
+    return retVal;
+  }
+
+  /**
+   * Expliquer pourquoi le ceci (ou cela) de l’action ne convient pas pour le ceci (ou cela) de l’action.
+   * @param actionCeci 
+   * @param commandeCeci 
+   */
+  private expliquerRefuClasseOuEtatArgument(actionCeci: CibleAction, commandeCeci: Correspondance, tokenCeciOuCela: 'ceci' | 'cela', argumentUnique: boolean) {
+
+    let retVal: string;
+
+    //     A. classe
+    if (this.estCibleUneClasse(actionCeci)) {
+      let classeCibleCeci = ClasseUtils.trouverClasse(this.jeu.classes, actionCeci.nom);
+      // classe trouvée
+      if (classeCibleCeci) {
+        if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.element)) {
+          // CECI devrait concerner un ÉLÉMENT mais on n’a pas trouvé d’élément.
+          if (commandeCeci.elements.length === 0) {
+            retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+          } else {
+            // s’il doit s’agir d’un OBJET
+            if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
+              // objet PAS TROUVÉ
+              if (commandeCeci.objets.length === 0) {
+                retVal = "Il ne s’agit pas d’un objet : « {/[intitulé " + tokenCeciOuCela + "]/} ».";
+                // objet TROUVÉ et CLASSE OK
+                //   TODO: gestion quand plusieurs objets ?
+              } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
+                // expliquer souci avec l’état de l’objet
+                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                // objet TROUVÉ et CLASSE KO
+              } else {
+                retVal = "Le type de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+              }
+              // s’il doit s’agir d’un LIEU
+            } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.lieu)) {
+              // lieu PAS TROUVÉ
+              if (commandeCeci.lieux.length === 0) {
+                retVal = "Il ne s’agit pas d’un lieu : {/[intitulé " + tokenCeciOuCela + "]/}.";
+                // lieu TROUVÉ et CLASSE OK
+                //   TODO: gestion quand plusieurs lieux ?
+              } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
+                // expliquer souci avec l’état de l’objet
+                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                // lieu TROUVÉ et CLASSE KO
+              } else {
+                retVal = "Le type du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+              }
+              // s’il doit s’agir d’un autre type d’ÉLÉMENT
+            } else {
+              if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
+                // expliquer souci avec l’état de l’objet
+                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                // lieu TROUVÉ et CLASSE KO
+              } else {
+                retVal = "Le type de de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+              }
+            }
+          }
+        } else {
+          // s’il doit s’agir d’un COMPTEUR
+          if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
+            // compteur trouvé
+            if (commandeCeci.compteurs.length) {
+              // TODO: check états
+              retVal = "L’état de du compteur {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              // pas de compteur trouvé
+            } else {
+              retVal = "Il ne s’agit pas d’un compteur : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+            }
+            // s’il doit s’agir d’un INTITULÉ
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
+            // intitulé trouvé
+            if (commandeCeci.intitule) {
+              // TODO: check états
+              retVal = "L’état de l’intitulé {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              // pas d’intitulé trouvé
+            } else {
+              // todo: afficher ceci ?
+              retVal = "L’argument n’est pas un intitulé valide.";
+            }
+          } else {
+            retVal = "Il ne s’agit pas de (la classe racine inconnue) : {/[Intitulé " + tokenCeciOuCela + "]/}.";// ???
+          }
+        }
+        // classe inconnue
+      } else {
+        retVal = "Il ne s’agit pas de (la classe inconnue) : {/[Intitulé " + tokenCeciOuCela + "]/}.";// ???
+      }
+      // B. sujet précis
+    } else {
+      if (commandeCeci.nbCor === 0) {
+        retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+      } else {
+        // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
+        retVal = "Cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+      }
+    }
+
+    return retVal;
+  }
+
+  /** Afficher la forme de l’action attendue. */
+  private afficherCandidatAction(candidat: Action) {
+    let explication: string;
+    if (candidat.ceci) {
+      // CECI + CELA
+      if (candidat.cela) {
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}";
+        // CECI
+      } else {
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/}";
+      }
+      // SEUL
+    } else {
+      explication = "{/" + candidat.infinitif + "/}"
+    }
+    return explication;
+  }
+
+  private expliquerRefuEtatElement(elementCommande: ElementJeu, tokenCeciOuCela: 'ceci' | 'cela', cibleAction: CibleAction, argumentUnique: boolean) {
+
+    let retVal: string;
+
+    // retrouvé l’état requis dans la liste des états
+    const etatAction = this.jeu.etats.trouverEtat(cibleAction.epithete);
+    // état requis trouvé
+    if (etatAction) {
+
+      switch (etatAction.nom) {
+        case EEtatsBase.visible:
+          if (argumentUnique) {
+            retVal = "Je ne [le " + tokenCeciOuCela + "] vois pas.";
+          } else {
+            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] visible[s " + tokenCeciOuCela + "].";
+          }
+          break;
+
+        case EEtatsBase.accessible:
+          if (argumentUnique) {
+            retVal = "{/Je n’y ai pas accès.";
+          } else {
+            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] accessible[s " + tokenCeciOuCela + "].";
+          }
+          break;
+
+        case EEtatsBase.disponible:
+          if (argumentUnique) {
+            retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
+          } else {
+            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
+          }
+          break;
+
+        case EEtatsBase.possede:
+          if (argumentUnique) {
+            retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
+          } else {
+            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}.";
+          }
+          break;
+
+        default:
+          retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
+          break;
+      }
+      // état requis pas trouvé
+    } else {
+      retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+    }
+
+    return retVal;
+  }
+
   private expliquerRefuTropOuTropPeuArguments(candidat: Action, commande: ElementsPhrase) {
     let explication: string;
     //     I.A.a) la seule action possible n’a pas d’argument
     if (!candidat.ceci) {
-      explication = "simplement {-" + candidat.infinitif + "-} (sans complément).";
+      explication = "{/" + candidat.infinitif + "/} (sans complément).";
       // I.A.b) la seule action possible fait 1 seul argument (ceci)
     } else if (!candidat.cela) {
       // I.A.b.1) l’utilisateur n’a pas spécifié l’argument
       if (!commande.sujet) {
-        explication = "{-" + candidat.infinitif + " {/" + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/}-}. Il manque le complément.";
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/} mais il manque le complément.";
         // I.A.b.2) l’utilisateur a spécifié un complément de trop.
       } else {
-        explication = "{-" + candidat.infinitif + " {/" + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/}-}. Il y a un complément de trop.";
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/} mais il y a un complément de trop.";
       }
       // I.A.c) la seule action possible fait 2 arguments (ceci et cela).
     } else {
       //     I.A.c.1) l’utilisateur n’a pas spécifié les arguments
       if (!commande.sujet) {
-        explication = "{-" + candidat.infinitif + " {/" + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}-}. Il manque les compléments.";
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/} mais il manque les compléments.";
         // I.A.c.2) l’utilisateur n’a spécifié qu’un seul argument (ceci)
       } else {
-        explication = "{-" + candidat.infinitif + " {/" + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}-}. Il manque un complément.";
+        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/} mais il manque un complément.";
       }
     }
     return explication;
   }
 
   /** Permet de ne pas divulgacher l’intrigue au joueur. */
-  private masquerNomPrecisDuComplement(cibleCeci: CibleAction) {
+  private masquerNomPrecisDuComplement(actionCeci: CibleAction) {
     let retVal: string;
     //     A. classe
-    if (this.estCibleUneClasse(cibleCeci)) {
-
-      let classeCibleCeci = ClasseUtils.trouverClasse(this.jeu.classes, cibleCeci.nom);
-
+    if (this.estCibleUneClasse(actionCeci)) {
+      let classeCibleCeci = ClasseUtils.trouverClasse(this.jeu.classes, actionCeci.nom);
       // classe trouvée
       if (classeCibleCeci) {
-        if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.personne)) {
-          retVal = "quelqu’un";
-        } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
-          retVal = "quelque chose";
-        } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
-          retVal = "un compteur";
-        } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
-          retVal = "un sujet";
+        // ÉLÉMENT
+        if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.element)) {
+          if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.personne)) {
+            // persone
+            retVal = "quelqu’un";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.vivant)) {
+            // vivant
+            retVal = "quelque chose de vivant";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
+            // objet
+            retVal = "quelque chose";
+          } else {
+            // élément
+            retVal = "quelque chose";
+          }
         } else {
-          retVal = "une classe racine inconnue"; // ???
+          if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
+            retVal = "un compteur";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
+            retVal = "un sujet";
+          } else {
+            retVal = "une classe racine inconnue"; // ???
+          }
         }
         // classe inconnue
       } else {
         retVal = "une classe inconnue"; // ???
       }
-
       // B. sujet précis
     } else {
       retVal = "un élément précis";
@@ -216,16 +548,16 @@ export class ActionsUtils {
           }
 
           /*
- 
+   
                  // B. plusieurs candidats se démarquent
             } else if (matchCeci.elementsTrouves.length !== 1) {
               console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
- 
- 
+   
+   
                  // B. plusieurs candidats se démarquent
                   } else if (matchCela.elementsTrouves.length !== 1) {
                     console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
- 
+   
           */
 
           if (candidatCorrespond) {
