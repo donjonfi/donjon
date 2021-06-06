@@ -77,7 +77,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|transportable|"
             + "porté|possédé|disponible|occupé|"
-            + "(in)?visible|(in)accessible|ajdacent"
+            + "(in)?visible|(in)?accessible|ajdacent"
             + ")(e)?(s)?(?!\\w))"
 
         }, {
