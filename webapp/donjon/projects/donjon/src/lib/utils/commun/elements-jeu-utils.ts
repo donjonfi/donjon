@@ -114,6 +114,12 @@ export class ElementsJeuUtils {
           determinant = 'des ';
           nom = ceci.intituleP.nom;
           epithete = ceci.intituleP.epithete ?? '';
+
+          // quantité pas définie 
+        } else if (ceci.quantite === undefined || ceci.quantite === null) {
+          determinant = ceci.intitule.determinant;
+          nom = ceci.intitule.nom;
+          epithete = ceci.intitule.epithete;
           // plusieurs exemplaires => nombre d’exemplaire
         } else {
           determinant = (ceci.quantite + ' ');
