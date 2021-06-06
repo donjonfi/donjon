@@ -70,6 +70,20 @@ export class ClasseUtils {
     return retVal;
   }
 
+  /** Trouver une classe sur base de sont intitulé. Si pas trouvé renvoie null. */
+  public static trouverClasse(classes: Classe[], intitule: string) {
+    // effectuer la recherche sur base de l’intitulé normalisé
+    const intituleNormalise = ClasseUtils.getIntituleNormalise(intitule);
+
+    let retVal = classes.find(x => x.nom === intituleNormalise);
+
+    if (!retVal) {
+      retVal = null;
+    }
+
+    return retVal;
+  }
+
   public static getHierarchieClasse(classe: Classe) {
     let retVal = "−";
     if (classe) {
