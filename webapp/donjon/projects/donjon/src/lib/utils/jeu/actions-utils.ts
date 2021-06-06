@@ -230,7 +230,7 @@ export class ActionsUtils {
             if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
               // objet PAS TROUVÉ
               if (commandeCeci.objets.length === 0) {
-                retVal = "Il ne s’agit pas d’un objet : « {/[intitulé " + tokenCeciOuCela + "]/} ».";
+                retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet.";
                 // objet TROUVÉ et CLASSE OK
                 //   TODO: gestion quand plusieurs objets ?
               } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
@@ -238,13 +238,13 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // objet TROUVÉ et CLASSE KO
               } else {
-                retVal = "Le type de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                retVal = "La classe de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
               }
               // s’il doit s’agir d’un LIEU
             } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.lieu)) {
               // lieu PAS TROUVÉ
               if (commandeCeci.lieux.length === 0) {
-                retVal = "Il ne s’agit pas d’un lieu : {/[intitulé " + tokenCeciOuCela + "]/}.";
+                retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un lieu.";
                 // lieu TROUVÉ et CLASSE OK
                 //   TODO: gestion quand plusieurs lieux ?
               } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
@@ -252,7 +252,7 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
-                retVal = "Le type du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                retVal = "Le classe du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
               }
               // s’il doit s’agir d’un autre type d’ÉLÉMENT
             } else {
@@ -261,7 +261,7 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
-                retVal = "Le type de de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                retVal = "La classe de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
               }
             }
           }
@@ -274,7 +274,7 @@ export class ActionsUtils {
               retVal = "L’état de du compteur {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
               // pas de compteur trouvé
             } else {
-              retVal = "Il ne s’agit pas d’un compteur : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+              retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un compteur.";
             }
             // s’il doit s’agir d’un INTITULÉ
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
@@ -288,12 +288,12 @@ export class ActionsUtils {
               retVal = "L’argument n’est pas un intitulé valide.";
             }
           } else {
-            retVal = "Il ne s’agit pas de (la classe racine inconnue) : {/[Intitulé " + tokenCeciOuCela + "]/}.";// ???
+            retVal = "La classe racine de l’argument « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
           }
         }
         // classe inconnue
       } else {
-        retVal = "Il ne s’agit pas de (la classe inconnue) : {/[Intitulé " + tokenCeciOuCela + "]/}.";// ???
+        retVal = "La classe de l’argument « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
       }
       // B. sujet précis
     } else {
