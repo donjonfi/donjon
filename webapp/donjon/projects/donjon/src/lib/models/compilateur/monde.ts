@@ -8,6 +8,7 @@ export class Monde {
 
     // ajouter les classes de base au monde
     this.classes.push(ClassesRacines.Compteur);
+    this.classes.push(ClassesRacines.Intitule);
     this.classes.push(ClassesRacines.Element);
     this.classes.push(ClassesRacines.Special);
     this.classes.push(ClassesRacines.Lieu);
