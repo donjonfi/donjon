@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Coincé".
 L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "1.6".
+La version du jeu est "1.9".
 Le titre de la licence est "Creative Commons Attribution 4.0 International License".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -152,7 +152,7 @@ avant prendre le tableau, enlever le tableau ou jeter le tableau:
   fin si
   stopper l’action.
 
-après pousser le bouton:
+après pousser le bouton ou utiliser le bouton:
   dire "Vous entendez un déclic.";
   si la porte secrète est fermée:
     dire "Une porte s'ouvre dans le mur nord de la pièce.";
