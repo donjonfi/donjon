@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-05-30-0026
+-- Version: 2021-06-06-0027
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -223,9 +223,6 @@ SCÈNE "parler".
 --   PARLER (discuter)
 -- ====================
 
--- a) parler
-le joueur peut parler:
-  dire "Je pourrais parler tout seul, c’est vrai.".
 -- b) parler à ceci
 parler à ceci est une action qui concerne un objet visible.
 
@@ -271,10 +268,6 @@ SCÈNE "interroger".
 --   INTERROGER (questionner)
 -- ===========================
 
--- a) interroger
-le joueur peut interroger:
-  dire "Je veux bien interroger quelqu’un mais il faut me dire qui et à quel sujet.".
-
 -- b) interroger ceci
 interroger ceci est une action qui concerne un objet visible.
 
@@ -316,10 +309,6 @@ SCÈNE "demander".
 -- ==============
 --   DEMANDER
 -- ==============
-
--- a) demander
-le joueur peut demander:
-  dire "Je sais demander mais il faut me dire quoi et à qui.".
 
 -- b) demander ceci
 demander ceci est une action qui concerne un objet visible.
@@ -523,10 +512,6 @@ SCÈNE "examiner".
 --   EXAMINER
 -- ============
 
--- a) examiner
-le joueur peut examiner:
-  dire "(Si vous souhaitez examiner quelque chose, il faut préciser quoi.)".
-
 -- b) examiner ceci
 examiner ceci est une action qui concerne un élément.
 
@@ -534,7 +519,6 @@ refuser examiner ceci:
   si ceci n’est ni visible ni l’inventaire ni adjacent, dire "Je ne [le ceci] vois pas actuellement.";
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.";
   si ceci est un élément et invisible, dire "Je ne [le ceci] vois pas actuellement.".
-
 
 exécuter examiner ceci:
 -- objet
@@ -607,14 +591,8 @@ SCÈNE "prendre".
 -- ===========
 --   PRENDRE
 -- ===========
-
--- a) prendre
-prendre est une action.
-
-exécuter prendre:
-  dire "Je sais prendre mais il faut me dire quoi.".
   
--- b) prendre ceci
+-- prendre ceci
 prendre ceci est une action qui concerne un objet visible prioritairement disponible.
 
 refuser prendre ceci:
@@ -661,10 +639,7 @@ SCÈNE "donner".
 -- ==========
 --   DONNER
 -- ==========
--- a) donner
-le joueur peut donner:
-  dire "Je sais donner mais il faut me dire quoi et à qui.".
-  
+
 -- c) donner ceci à cela
 donner ceci à cela est une action qui concerne un objet visible prioritairement possédé et un vivant visible.
 
@@ -696,10 +671,6 @@ SCÈNE "jeter".
 -- =========
 --   JETER
 -- =========
-
--- a) jeter
-le joueur peut jeter:
-  dire "Je sais jeter mais il faut me dire quoi.".
   
 -- b) jeter ceci
 jeter ceci est une action qui concerne un objet visible prioritairement possédé.
