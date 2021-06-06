@@ -25,6 +25,9 @@ export class Action {
   public instructionsFinales: Instruction[] = []
   public synonymes: string[] = [];
 
+  /** Les actions simplifiees (le joueur peut xxx) ne peuvent pas être modifiées ensuite */
+  public simplifiee: boolean = false;
+
 }
 
 export class ActionCeciCela {

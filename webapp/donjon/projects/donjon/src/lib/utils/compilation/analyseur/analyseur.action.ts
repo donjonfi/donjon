@@ -27,7 +27,7 @@ export class AnalyseurAction {
       const prepCela = result[4];
       const cela = result[5] === 'cela';
       let action = new Action(verbe, prepCeci, ceci, prepCela, cela);
-      
+
       // concerne un élément ?
       if (ceci) {
         action.cibleCeci = new CibleAction(result[6], result[7], result[8], result[9]);
@@ -59,8 +59,9 @@ export class AnalyseurAction {
           }
         }
         complement = complement.trim();
-        // retrouver l'action correspondante
-        let action = ctxAnalyse.actions.find(x => x.infinitif === verbe && x.ceci == ceci && x.cela == cela);
+        // retrouver l'action correspondante (une action simplifiée ne peut pas être modifiée)
+        let action = ctxAnalyse.actions
+          .find(x => x.simplifiee === false && x.infinitif == verbe && x.ceci == ceci && x.cela == cela);
         // déterminer les instructions pour 'refuser', 'exécuter' ou 'terminer'
         if (action) {
           switch (motCle) {
@@ -92,7 +93,7 @@ export class AnalyseurAction {
         return action;
         // C. Nouvelle Action Simple
       } else {
-        const resultActionSimple = ExprReg.xActionSimple.exec(phrase.phrase[0]);
+        const resultActionSimple = ExprReg.xActionSimplifiee.exec(phrase.phrase[0]);
         // Trouvé action simple
         if (resultActionSimple) {
 
@@ -114,7 +115,7 @@ export class AnalyseurAction {
           }
 
           action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
-
+          action.simplifiee = true;
           ctxAnalyse.actions.push(action);
           // Renvoyer la nouvelle action
           return action;
