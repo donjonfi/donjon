@@ -82,7 +82,7 @@ describe('Epressions régulières − Action', () => {
     expect(result[3]).toEqual("ceci"); // ceci
     expect(result[4]).toBeUndefined(); // adverbe cela
     expect(result[5]).toBeUndefined(); // cela
-    expect(result[6]).toEqual("un"); // un/une/deux
+    expect(result[6]).toEqual("un "); // un/une/deux
     expect(result[7]).toEqual("objet"); // classe A
     expect(result[8]).toEqual("possédé"); // attribut A
     expect(result[9]).toBeUndefined(); // attribut prioritaire A
@@ -100,7 +100,7 @@ describe('Epressions régulières − Action', () => {
     expect(result[3]).toEqual("ceci"); // ceci
     expect(result[4]).toBeUndefined(); // adverbe cela
     expect(result[5]).toBeUndefined(); // cela
-    expect(result[6]).toEqual("un"); // un/une/deux
+    expect(result[6]).toEqual("un "); // un/une/deux
     expect(result[7]).toEqual("objet"); // classe A
     expect(result[8]).toEqual("accessible"); // attribut A
     expect(result[9]).toEqual("disponible"); // attribut prioritaire A
@@ -118,11 +118,11 @@ describe('Epressions régulières − Action', () => {
     expect(result[3]).toEqual("ceci"); // ceci
     expect(result[4]).toEqual("avec"); // adverbe cela
     expect(result[5]).toEqual("cela"); // cela
-    expect(result[6]).toEqual("un"); // un/une/deux
+    expect(result[6]).toEqual("un "); // un/une/deux
     expect(result[7]).toEqual("objet"); // classe A
     expect(result[8]).toBeUndefined(); // attribut A
     expect(result[9]).toEqual("disponible"); // attribut prioritaire A
-    expect(result[10]).toEqual("un"); // un
+    expect(result[10]).toEqual("un "); // un
     expect(result[11]).toEqual("objet"); // classe B
     expect(result[12]).toEqual("visible"); // attribut B
     expect(result[13]).toEqual("possédé"); // attribut prioritaire B
@@ -137,7 +137,7 @@ describe('Epressions régulières − Action', () => {
     expect(result[3]).toEqual("ceci"); // ceci
     expect(result[4]).toEqual("et"); // adverbe cela
     expect(result[5]).toEqual("cela"); // cela
-    expect(result[6]).toEqual("deux"); // un/une/deux
+    expect(result[6]).toEqual("deux "); // un/une/deux
     expect(result[7]).toEqual("objets"); // classe A + B
     expect(result[8]).toEqual("accessibles"); // attribut A + B
     expect(result[9]).toEqual("possédés"); // attribut prioritaire A + B
