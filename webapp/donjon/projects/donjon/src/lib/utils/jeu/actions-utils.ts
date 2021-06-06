@@ -113,19 +113,19 @@ export class ActionsUtils {
             // expliquer refu CECI + CELA
             if (celaToujoursRefuse) {
               raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
-              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique));
+              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
               // expliquer refu CECI
             } else {
               if (argumentUnique) {
                 raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
               } else {
-                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
               }
             }
             // expliquer refu CELA
           } else if (celaToujoursRefuse) {
             // expliquer refu cela
-            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique));
+            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
           }
           // }
           //   // plusieurs candidats
@@ -224,13 +224,21 @@ export class ActionsUtils {
         if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.element)) {
           // CECI devrait concerner un ÉLÉMENT mais on n’a pas trouvé d’élément.
           if (commandeCeci.elements.length === 0) {
-            retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+            if (argumentUnique) {
+              retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+            } else {
+              retVal = "je n’ai pas trouvé « " + commandeCeci.intitule + " »";
+            }
           } else {
             // s’il doit s’agir d’un OBJET
             if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
               // objet PAS TROUVÉ
               if (commandeCeci.objets.length === 0) {
-                retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet.";
+                if (argumentUnique) {
+                  retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet.";
+                } else {
+                  retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet";
+                }
                 // objet TROUVÉ et CLASSE OK
                 //   TODO: gestion quand plusieurs objets ?
               } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
@@ -238,7 +246,29 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // objet TROUVÉ et CLASSE KO
               } else {
-                retVal = "La classe de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+
+                // devrait être une personne
+                if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.personne)) {
+                  if (argumentUnique) {
+                    retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] une personne.";
+                  } else {
+                    retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] une personne";
+                  }
+                  // devrait être un être vivant
+                } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.vivant)) {
+                  if (argumentUnique) {
+                    retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un être vivant.";
+                  } else {
+                    retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un être vivant";
+                  }
+                  // devrait être autre-chose
+                } else {
+                  if (argumentUnique) {
+                    retVal = "La classe de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                  } else {
+                    retVal = "la classe de l’objet « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande";
+                  }
+                }
               }
               // s’il doit s’agir d’un LIEU
             } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.lieu)) {
@@ -252,7 +282,11 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
-                retVal = "Le classe du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                if (argumentUnique) {
+                  retVal = "La classe du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                } else {
+                  retVal = "la classe du lieu « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande";
+                }
               }
               // s’il doit s’agir d’un autre type d’ÉLÉMENT
             } else {
@@ -261,7 +295,11 @@ export class ActionsUtils {
                 retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
-                retVal = "La classe de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                if (argumentUnique) {
+                  retVal = "La classe de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande.";
+                } else {
+                  retVal = "la classe de l’élément « {/[intitulé " + tokenCeciOuCela + "]/} » ne convient pas pour la commande";
+                }
               }
             }
           }
@@ -337,18 +375,29 @@ export class ActionsUtils {
 
       switch (etatAction.nom) {
         case EEtatsBase.visible:
-          if (argumentUnique) {
-            retVal = "Je ne [le " + tokenCeciOuCela + "] vois pas.";
+          // si ni visible, ni présent => dire qu’il n’est pas présent.
+          if (!this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
+            if (argumentUnique) {
+              retVal = "[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] présent[es " + tokenCeciOuCela + "].";
+            } else {
+              retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] présent[es " + tokenCeciOuCela + "]";
+            }
+            // si pas visible, mais présent => dire que pas visible
           } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] visible[s " + tokenCeciOuCela + "].";
+            if (argumentUnique) {
+              retVal = "Je ne [le " + tokenCeciOuCela + "] vois pas.";
+            } else {
+              retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] visible[s " + tokenCeciOuCela + "]";
+            }
           }
+
           break;
 
         case EEtatsBase.accessible:
           if (argumentUnique) {
             retVal = "{/Je n’y ai pas accès.";
           } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] accessible[s " + tokenCeciOuCela + "].";
+            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] accessible[s " + tokenCeciOuCela + "]";
           }
           break;
 
@@ -356,7 +405,7 @@ export class ActionsUtils {
           if (argumentUnique) {
             retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
           } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
+            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "]";
           }
           break;
 
@@ -364,19 +413,27 @@ export class ActionsUtils {
           if (argumentUnique) {
             retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
           } else {
-            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}.";
+            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
           }
           break;
 
         default:
           // retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
-          retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+          if (argumentUnique) {
+            retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+          } else {
+            retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+          }
           break;
       }
       // état requis pas trouvé
     } else {
       // retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
-      retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+      if (argumentUnique) {
+        retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+      } else {
+        retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+      }
     }
 
     return retVal;
@@ -424,7 +481,7 @@ export class ActionsUtils {
             retVal = "quelqu’un";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.vivant)) {
             // vivant
-            retVal = "quelque chose de vivant";
+            retVal = "un être vivant";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
             // objet
             retVal = "quelque chose";
