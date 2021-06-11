@@ -116,6 +116,14 @@ export class Abreviations {
       switch (premierMot) {
 
         // ======================
+        //           ?
+        // ======================
+
+        case '?':
+          retVal = "afficher aide";
+          break;
+
+        // ======================
         //           A
         // ======================
 
@@ -395,14 +403,6 @@ export class Abreviations {
         case 'ut':
         case 'uti':
           retVal = "utiliser ";
-          break;
-
-        // ======================
-        //           ?
-        // ======================
-
-        case '?':
-          retVal = "aide";
           break;
 
         default:
