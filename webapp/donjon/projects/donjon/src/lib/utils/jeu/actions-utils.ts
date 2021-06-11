@@ -32,7 +32,7 @@ export class ActionsUtils {
 
     // verbe inconnu
     if (!resCherCand.verbeConnu) {
-      raisonRefu = "Je ne connais pas le verbe « " + commande.infinitif + " »";
+      raisonRefu = "Désolé, je ne connais pas le verbe « " + commande.infinitif + " »";
       // verbe connu 
     } else {
       // I) plus aucun candidat en lice => problème ave le nombre d’arguments

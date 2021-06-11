@@ -327,11 +327,12 @@ export class LecteurComponent implements OnInit, OnChanges {
         this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span><br>';
-        const result = this.doCommande(commandeComplete.trim());
-        if (result) {
-          // console.log("resultat commande:", result);
-          this.ajouterSortieJoueur(BalisesHtml.doHtml(result));
+        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span>';
+        const sortieCommande = this.executerCommande(commandeComplete.trim());
+        if (sortieCommande) {
+          this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+        } else {
+          this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
         }
         this.sortieJoueur += "</p>";
         this.commande = "";
@@ -344,7 +345,8 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
-  doCommande(commande: string): string {
+  /** Exécuter la commande */
+  executerCommande(commande: string): string {
 
     if (this.jeu.termine) {
       return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
@@ -413,20 +415,15 @@ export class LecteurComponent implements OnInit, OnChanges {
           retVal = this.com.deboguer(els);
           break;
 
-        // autres commandes
+        // commandes chargées dynamiquement
         default:
           const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
-          // =====================================================
-          //  A. VERBE PAS CONNU
-          // =====================================================
-          if (actionsCeciCela === null) {
 
-            retVal = "Désolé, je n’ai pas compris le verbe « " + els.infinitif + " ».";
-
-            // =====================================================
-            // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
-            // =====================================================
-          } else if (actionsCeciCela.length === 0) {
+          // =====================================================
+          // A. VERBE PAS CONNU
+          // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
+          // =====================================================
+          if (actionsCeciCela === null || actionsCeciCela.length === 0) {
 
             const explicationRefu = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
 
@@ -470,46 +467,15 @@ export class LecteurComponent implements OnInit, OnChanges {
               }
             }
 
+            // Renvoyer l’explication du refu. 
             retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
-
-            // retVal = "Je comprends « " + els.infinitif + " » mais il y a un souci avec les arguments ou la formulation de la commande.";
-            // // vérifier si on a trouvé les éléments de la commande.
-            // if (ceciIntituleV1) {
-            //   // ON N'A PAS TROUVÉ L'OBJET
-            //   if (resultatCeci.nbCor === 0) {
-            //     retVal += "\n{+(Je ne trouve pas ceci : « " + this.com.outils.afficherIntitule(ceciIntituleV1) + " ».)+}";
-            //   } else {
-            //     // ON NE VOIT PAS L'OBJET
-            //     // vérifier si les objets de la commande sont visibles
-            //     if (resultatCeci && resultatCeci.nbCor === 1 && resultatCeci.objets.length === 1) {
-            //       if (!this.jeu.etats.estVisible(resultatCeci.objets[0], this.eju)) {
-            //         retVal += "\n{+(Actuellement, je ne vois pas ceci : « " + this.com.outils.afficherIntitule(resultatCeci.objets[0].intitule) + " ».)+}";
-            //       }
-            //     }
-            //   }
-            // }
-            // if (celaIntituleV1) {
-            //   // ON N'A PAS TROUVÉ L'OBJET
-            //   if (resultatCela.nbCor === 0) {
-            //     retVal += "\n{+(Je ne trouve pas cela : « " + this.com.outils.afficherIntitule(celaIntituleV1) + " ».)+}";
-            //   } else {
-            //     // ON NE VOIT PAS L'OBJET
-            //     if (resultatCela && resultatCela.nbCor === 1 && resultatCela.objets.length === 1) {
-            //       if (!this.jeu.etats.estVisible(resultatCela.objets[0], this.eju)) {
-            //         retVal += "\n{+(Actuellement, je ne vois pas cela : « " + this.com.outils.afficherIntitule(resultatCela.objets[0].intitule) + " ».)+}";
-            //       }
-            //     }
-            //   }
-            // }
 
             // regarder si de l’aide existe pour cet infinitif
             const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
             if (aide) {
+              // Spécifier qu’une page d’aide existe pour la commande.
               retVal += "{u}{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher l’aide de la commande./}";
             }
-            //  else {
-            //   retVal += "\n{/(Il n’y a pas de page d’aide concernant cette commande.)/}";
-            // }
 
             // =============================================================================
             // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
@@ -668,7 +634,15 @@ export class LecteurComponent implements OnInit, OnChanges {
           break;
       }
     } else {
-      retVal = "Désolé, je n'ai pas compris la commande « " + commandeNettoyee + " ».";
+      retVal = "Désolé, je n'ai pas compris la commande « " + commandeNettoyee + " ».\n";
+      retVal += "Voici des exemples de commandes que je comprend :\n";
+      retVal += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
+      retVal += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
+      retVal += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
+      retVal += "{t}- {-interroger magicienne concernant bague-}\n";
+      retVal += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
+      retVal += "{t}- {-effacer l’écran-} ou {-ef-}\n";
+      retVal += "{t}- {-aide montrer-} ou {-? montrer-}\n";
     }
     return retVal;
   }
