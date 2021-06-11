@@ -313,9 +313,9 @@ export class ElementsJeuUtils {
   getVoisinDirectionID(loc: Localisation | ELocalisation, type: EClasseRacine) {
     let voisin: Voisin = null;
     if (loc instanceof Localisation) {
-      voisin = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc.id);
+      voisin = this.curLieu?.voisins.find(x => x.type === type && x.localisation === loc.id);
     } else {
-      voisin = this.curLieu.voisins.find(x => x.type === type && x.localisation === loc);
+      voisin = this.curLieu?.voisins.find(x => x.type === type && x.localisation === loc);
     }
     return voisin ? voisin.id : -1;
   }
