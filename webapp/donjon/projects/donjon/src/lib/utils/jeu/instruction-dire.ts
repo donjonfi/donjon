@@ -12,6 +12,7 @@ import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { Genre } from "../../models/commun/genre.enum";
+import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Lieu } from "../../models/jeu/lieu";
@@ -56,7 +57,7 @@ export class InstructionDire {
 
                 const proprieteString = decoupe[1];
                 const cibleString = decoupe[2];
-                const cibleIntitule: ElementJeu | Intitule = this.getCible(cibleString, ceci, cela, evenement);
+                const cibleIntitule: ElementJeu | Intitule = InstructionsUtils.getCible(cibleString, ceci, cela, evenement, this.eju, this.jeu);
 
                 let resultat: string = '';
 
@@ -333,7 +334,7 @@ export class InstructionDire {
                 let phraseSiQuelqueChose = "{U}Vous voyez ";
                 let afficherObjetsCaches = true;
 
-                const cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
+                const cible: ElementJeu = InstructionsUtils.getCible(cibleString, ceci, cela, evenement, this.eju, this.jeu);
 
                 // cas particuliers
                 // > inventaire / joueur
@@ -427,7 +428,7 @@ export class InstructionDire {
 
         // titre
         if (contenu.includes("[titre ici]")) {
-            const titreIci = this.eju.curLieu.titre;
+            const titreIci = this.eju.curLieu?.titre ?? "(Je ne sais pas où je suis)";
             contenu = contenu.replace(/\[titre ici\]/g, titreIci);
         }
 
@@ -459,7 +460,7 @@ export class InstructionDire {
                 const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
                 const proprieteString = decoupe[1];
                 const cibleString = decoupe[2];
-                let cible: ElementJeu = this.getCible(cibleString, ceci, cela, evenement);
+                let cible: ElementJeu = InstructionsUtils.getCible(cibleString, ceci, cela, evenement, this.eju, this.jeu);
                 let resultatCurBalise: string = null;
                 if (cible) {
                     switch (proprieteString) {
@@ -792,7 +793,7 @@ export class InstructionDire {
         // retrouver et contrôler le sujet
         let sujet: ElementJeu | Intitule = null;
 
-        sujet = this.getCible(sujetStr, ceci, cela, evenement);
+        sujet = InstructionsUtils.getCible(sujetStr, ceci, cela, evenement, this.eju, this.jeu);
 
         if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
             console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
@@ -1202,26 +1203,30 @@ export class InstructionDire {
     afficherSorties(lieu: Lieu): string {
         let retVal: string;
 
-        if (this.jeu.parametres.activerAffichageSorties) {
-            // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
-            const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
+        if (lieu) {
+            if (this.jeu.parametres.activerAffichageSorties) {
+                // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
+                const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
 
-            if (lieuxVoisinsVisibles.length > 0) {
-                retVal = "Sorties :";
-                // afficher les voisins : directions + lieux
-                if (this.jeu.parametres.activerAffichageDirectionSorties) {
-                    lieuxVoisinsVisibles.forEach(voisin => {
-                        retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id));
-                    });
-                    // afficher les voisins: lieux
+                if (lieuxVoisinsVisibles.length > 0) {
+                    retVal = "Sorties :";
+                    // afficher les voisins : directions + lieux
+                    if (this.jeu.parametres.activerAffichageDirectionSorties) {
+                        lieuxVoisinsVisibles.forEach(voisin => {
+                            retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id));
+                        });
+                        // afficher les voisins: lieux
+                    } else {
+                        lieuxVoisinsVisibles.forEach(voisin => {
+                            retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisin.localisation, lieu.id, voisin.id));
+                        });
+                    }
+
                 } else {
-                    lieuxVoisinsVisibles.forEach(voisin => {
-                        retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisin.localisation, lieu.id, voisin.id));
-                    });
+                    retVal = "Il n’y a pas de sortie.";
                 }
-
             } else {
-                retVal = "Il n’y a pas de sortie.";
+                retVal = "";
             }
         } else {
             retVal = "";
@@ -1287,105 +1292,8 @@ export class InstructionDire {
         return retVal;
     }
 
-    /** Retrouver la cible sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
-    private getCible(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement): ElementJeu {
-        let cible: ElementJeu = null;
-        // retrouver la cible
-        switch (cibleString.toLowerCase()) {
-            case 'ici':
-                cible = this.eju.curLieu;
-                // afficherObjetsCaches = false;
-                break;
-            case 'ceci':
-                cible = ceci as ElementJeu;
-                break;
-            case 'cela':
-                cible = cela as ElementJeu;
-                break;
-            case 'quantitéceci':
-                cible = InstructionDire.copierElementTemp(ceci as Objet);
-                cible.quantite = evenement.quantiteCeci;
-                // nombre
-                //     => multiple
-                if (cible.quantite > 1) {
-                    cible.nombre = Nombre.p;
-                    // => identique à l’original
-                } else if (cible.quantite == -1) {
-                    cible.nombre = (ceci as Objet).nombre;
-                    // => 0 ou 1
-                } else {
-                    cible.nombre = Nombre.s;
-                }
-                break;
-            case 'quantitécela':
-                cible = InstructionDire.copierElementTemp(cela as Objet);
-                cible.quantite = evenement.quantiteCela;
-                // nombre
-                //     => multiple
-                if (cible.quantite > 1) {
-                    cible.nombre = Nombre.p;
-                    // => identique à l’original
-                } else if (cible.quantite == -1) {
-                    cible.nombre = (cela as Objet).nombre;
-                    // => 0 ou 1
-                } else {
-                    cible.nombre = Nombre.s;
-                }
-                break;
-            case 'inventaire':
-            case 'joueur':
-                cible = this.jeu.joueur;
-                // phraseSiVide = "";
-                // phraseSiQuelqueChose = "";
-                break;
-        }
-        return cible;
-    }
-
-    /**
-     * Dupliquer l’élément du jeu pour utilisation temporaire (sans l’ajouter au jeu ni lui donner d’ID.)
-     * 
-     * Remarques:
-     *  - Sert uniquement à pouvoir modifier des propriétés sans endomager l’original.
-     * - Ne pas utiliser l’élément dans le jeu ensuite ! Pour cela utiliser copierObjet !
-     * 
-     * @param original élément à dupliquer.
-     * @returns copie de l’élément
-     */
-    private static copierElementTemp(original: ElementJeu) {
-        let copie = new ElementJeu(0, original.nom, original.intitule, original.classe); // 1, original.genre, Nombre.s);
-        copie.quantite = original.quantite;
-        copie.nombre = original.nombre;
-        copie.genre = original.genre;
-        copie.description = original.description;
-        copie.apercu = original.apercu;
-        copie.texte = original.texte;
-        copie.intituleS = original.intituleS;
-        copie.intituleP = original.intituleP;
-
-        // copier le nombre d’affichage de la description
-        copie.nbAffichageDescription = original.nbAffichageDescription;
-        copie.nbAffichageApercu = original.nbAffichageApercu;
-        copie.nbAffichageTexte = original.nbAffichageTexte;
-
-        // copier les états
-        original.etats.forEach(etat => {
-            copie.etats.push(etat);
-        });
-
-        // copier les capacités
-        original.capacites.forEach(cap => {
-            copie.capacites.push(new Capacite(cap.verbe, cap.complement));
-        });
-
-        // copier les propriétés
-        original.proprietes.forEach(prop => {
-            copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
-        });
 
 
-        // TODO: faut-il copier le contenu ?
-        return copie;
-    }
+
 
 }
