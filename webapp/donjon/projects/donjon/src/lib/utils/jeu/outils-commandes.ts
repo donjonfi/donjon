@@ -139,7 +139,8 @@ export class OutilsCommandes {
 
   afficherCurLieu() {
     if (this.eju.curLieu) {
-      let instruction = new Instruction(new ElementsPhrase('dire', null, null, null, "\"{_{*[titre ici]*}_}{n}[description ici][décrire objets ici]{N}{N}[sorties ici]\""));
+      // let instruction = new Instruction(new ElementsPhrase('dire', null, null, null, "\"{_{*[titre ici]*}_}{n}[description ici][décrire objets ici]{N}{N}[sorties ici]\""));
+      let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
       return this.ins.executerInstruction(instruction, null, null, null).sortie;
     } else {
       console.warn("Pas trouvé de curLieu :(");

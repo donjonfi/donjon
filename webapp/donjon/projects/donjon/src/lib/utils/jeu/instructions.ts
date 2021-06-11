@@ -2,6 +2,7 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
+import { ActionsUtils } from './actions-utils';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
@@ -10,9 +11,11 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
+import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionDire } from './instruction-dire';
+import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { MotUtils } from '../commun/mot-utils';
@@ -27,6 +30,7 @@ export class Instructions {
 
   private cond: ConditionsUtils;
   private insDire: InstructionDire;
+  private act: ActionsUtils;
 
   constructor(
     private jeu: Jeu,
@@ -35,6 +39,7 @@ export class Instructions {
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
     this.insDire = new InstructionDire(this.jeu, this.eju, this.verbeux);
+    this.act = new ActionsUtils(this.jeu, this.verbeux);
   }
 
   get dire() {
@@ -227,14 +232,23 @@ export class Instructions {
         break;
 
       case 'exécuter':
+        // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
+
         // console.log("executerInfinitif >> exécuter=", instruction);
+        // EXÉCUTER RÉACTION
         if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
           // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
           sousResultat = this.executerReaction(instruction, ceci, cela);
           resultat.sortie = sousResultat.sortie;
           resultat.succes = sousResultat.succes;
+          // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
+        } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterAction)) {
+          resultat = this.executerAction(instruction, nbExecutions, ceci, cela, evenement, declenchements);
+          // EXÉCUTER COMMANDE
+        } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterCommande)) {
+          resultat = this.executerCommande(instruction);
         } else {
-          console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;
@@ -258,7 +272,7 @@ export class Instructions {
         // jeu
         if (instruction.sujet && instruction.sujet.nom === 'jeu') {
           this.jeu.termine = true;
-        // action
+          // action
         } else if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
           // terminer/continuer l’action avant
           if (instruction?.sujet.epithete?.toLocaleLowerCase() === 'avant') {
@@ -273,6 +287,8 @@ export class Instructions {
           resultat.succes = false;
         }
         break;
+
+
 
       case 'attendre':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
@@ -1238,6 +1254,62 @@ export class Instructions {
       console.warn("Instructions > trouverObjetCible > pas pu trouver :", brute);
     }
     return objetCible;
+  }
+
+  /** Exécuter l’instruction « Exécuter commande "xxxx…" */
+  public executerCommande(instruction: ElementsPhrase): Resultat {
+    let res = new Resultat(true, "Tadaaaa!", 1);
+    return res;
+  }
+
+  /** Exécuter l’instruction « Exécuter action xxxx… */
+  public executerAction(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement, declenchements: number): Resultat {
+
+    let res = new Resultat(true, "", 1);
+
+    // décomposer le complément
+    const tokens = ExprReg.xActionExecuterAction.exec(instruction.complement1);
+    if (tokens) {
+      const insInfinitif = tokens[1];
+      const insPrepCeci = tokens[2];
+      const insCeci = tokens[3];
+      const insPrepCela = tokens[4];
+      const insCela = tokens[5];
+
+      const actionCeci = InstructionsUtils.getCible(insCeci, ceci, cela, evenement, this.eju, this.jeu);
+      const actionCela = InstructionsUtils.getCible(insCela, ceci, cela, evenement, this.eju, this.jeu);
+
+      const resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false);
+
+      // action pas trouvée
+      if (!resChercherCandidats.verbeConnu) {
+        res.sortie = "{+[{_Exécuter Action_} : Action pas trouvée : " + insInfinitif + "]+}";
+        res.succes = false;
+      // aucun candidat valide trouvé
+      } else if (resChercherCandidats.candidatsEnLice.length === 0) {
+        res.sortie = "{+[{_Exécuter Action_} : Action pas compatible : " + insInfinitif + "]+}";
+        console.error("Exécuter l’action: Action pas compatible.");
+        res.succes = false;
+        // exactement une action trouvée
+      } else if (resChercherCandidats.candidatsEnLice.length === 1) {
+        let action = resChercherCandidats.candidatsEnLice[0];
+        const sousResExecuter = this.executerInstructions(action.instructions, actionCeci, actionCela, evenement, declenchements);
+        const sousResTerminer = this.executerInstructions(action.instructionsFinales, actionCeci, actionCela, evenement, declenchements);
+        res.sortie = res.sortie + sousResExecuter.sortie + sousResTerminer.sortie;
+        res.succes = sousResExecuter.succes && sousResTerminer.succes;
+        res.nombre = 1 + sousResExecuter.nombre + sousResTerminer.nombre;
+        // plusieurs actions trouvées
+      } else {
+        res.sortie = "{+Aïe: {_Exécuter Action_} : Plusieurs actions compatibles trouvées pour : " + insInfinitif + ".+}"
+        res.succes = false;
+      }
+
+    } else {
+      console.error("executerAction: format complément1 par reconnu:", instruction.complement1);
+      res.succes = false;
+    }
+
+    return res;
   }
 
 

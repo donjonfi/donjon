@@ -509,20 +509,18 @@ export class ActionsUtils {
     return retVal;
   }
 
-  private chercherCandidatsCommandeSansControle(commande: ElementsPhrase): ResultatChercherCandidats {
-
+  public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean) {
     let candidatsEnLice: Action[] = [];
     let candidatsRefuses: Action[] = [];
     let verbeConnu: boolean = false;
-
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
       // vérifier infinitif
-      let infinitifOk = (commande.infinitif === action.infinitif);
+      let infinitifOk = (infinitif === action.infinitif);
       // vérifier également les synonymes
       if (!infinitifOk && action.synonymes) {
         action.synonymes.forEach(synonyme => {
-          if (!infinitifOk && commande.infinitif === synonyme) {
+          if (!infinitifOk && infinitif === synonyme) {
             infinitifOk = true;
           }
         });
@@ -532,9 +530,9 @@ export class ActionsUtils {
         verbeConnu = true;
         let candidatValide = false;
         // vérifier sujet
-        if ((commande.sujet && action.ceci) || (!commande.sujet && !action.ceci)) {
+        if ((isCeci && action.ceci) || (!isCeci && !action.ceci)) {
           // vérifier complément
-          if ((commande.sujetComplement1 && action.cela) || (!commande.sujetComplement1 && !action.cela)) {
+          if ((isCela && action.cela) || (!isCela && !action.cela)) {
             candidatValide = true;
           }
         }
@@ -544,15 +542,18 @@ export class ActionsUtils {
           candidatsRefuses.push(action);
         }
       }
-
     });
-
     if (this.verbeux) {
       console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
     }
-
     return new ResultatChercherCandidats(verbeConnu, candidatsEnLice, candidatsRefuses);
+  }
 
+  private chercherCandidatsCommandeSansControle(commande: ElementsPhrase): ResultatChercherCandidats {
+    const infinitif = commande.infinitif;
+    const isCeci = commande.sujet ? true : false;
+    const isCela = commande.sujetComplement1 ? true : false;
+    return this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela);
   }
 
   /** Trouver l’action personnalisée correspondant le mieux la la commande de l’utilisateur */

@@ -9,13 +9,13 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var variableLanguage = (
       "joueur|inventaire|historique|"
       + "intitulé|description|titre|auteur|aperçu|texte|lien|capacité|accord|réaction|version|licence|jeu|"
-      + "aide|commande|contenu"
+      + "aide|commande|action|contenu"
     );
 
     var builtinFunctions = (
       "dire|changer|déplacer|copier|effacer|sauver|remplacer|par|"
       + "verrouiller|déverrouiller|ouvrir|fermer|"
-      + "stopper|continuer|terminer|attendre|"
+      + "stopper|continuer|terminer|exécuter|attendre|"
       + "|maintenant"
     );
 
@@ -58,7 +58,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "(\\b(désactiver|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|refuser|exécuter|terminer(?! (l’|l')?action)|interpréter|comme)\\b)|" +
+          regex: "(\\b(désactiver|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|refuser|(exécuter|terminer)(?! (l’|l'|la )?(action|commande))|interpréter|comme)\\b)|" +
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|prioritairement|puis|fin choix|finchoix)\\b)|" +
             "(\\b(et|ou|ni|soit|mais pas)\\b)|" +
             "(\\b(partie|chapitre|scène) )",
@@ -82,7 +82,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
         }, {
           token: "storage.type",
-          regex: "une (clé|porte|personne|action)|l('|’)action|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+          regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
             "des (clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
         }, {
           // token: "support.variable",
