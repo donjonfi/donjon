@@ -4,6 +4,7 @@ import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-ob
 
 import { ActionsUtils } from './actions-utils';
 import { ClasseUtils } from '../commun/classe-utils';
+import { Commandeur } from './commandeur';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
 import { ConditionsUtils } from './conditions-utils';
@@ -31,6 +32,7 @@ export class Instructions {
   private cond: ConditionsUtils;
   private insDire: InstructionDire;
   private act: ActionsUtils;
+  private com: Commandeur;
 
   constructor(
     private jeu: Jeu,
@@ -44,6 +46,11 @@ export class Instructions {
 
   get dire() {
     return this.insDire;
+  }
+
+  /** Commandeur pour l’instruction « exécuter commande ». */
+  set commandeur(commandeur: Commandeur) {
+    this.com = commandeur;
   }
 
   /** Exécuter une liste d’instructions */
@@ -1256,7 +1263,15 @@ export class Instructions {
 
   /** Exécuter l’instruction « Exécuter commande "xxxx…" */
   public executerCommande(instruction: ElementsPhrase): Resultat {
-    let res = new Resultat(true, "Tadaaaa!", 1);
+    let res = new Resultat(true, "", 1);
+    const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
+    if (tokens) {
+      const commande = Commandeur.nettoyerCommande(tokens[1]);
+      res.sortie = this.com.executerCommande(commande);
+    } else {
+      console.error("executerAction: format complément1 par reconnu:", instruction.complement1);
+      res.succes = false;
+    }
     return res;
   }
 
@@ -1283,7 +1298,7 @@ export class Instructions {
       if (!resChercherCandidats.verbeConnu) {
         res.sortie = "{+[{_Exécuter Action_} : Action pas trouvée : " + insInfinitif + "]+}";
         res.succes = false;
-      // aucun candidat valide trouvé
+        // aucun candidat valide trouvé
       } else if (resChercherCandidats.candidatsEnLice.length === 0) {
         res.sortie = "{+[{_Exécuter Action_} : Action pas compatible : " + insInfinitif + "]+}";
         console.error("Exécuter l’action: Action pas compatible.");

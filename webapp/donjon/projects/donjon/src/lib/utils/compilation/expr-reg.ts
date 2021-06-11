@@ -278,7 +278,8 @@ export class ExprReg {
 
   /** L’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
-  static readonly xActionExecuterCommande = /^(la commande) \"(.+)\"$/i;
+  /** La commande "commande(1)" */
+  static readonly xActionExecuterCommande = /^(?:la commande) \"(.+)\"$/i;
 
   /** condition -> si(1) {condition}(2), {conséquence}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;

@@ -66,6 +66,8 @@ export class LecteurComponent implements OnInit, OnChanges {
     this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
     this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
     this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
+    // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
+    this.ins.commandeur = this.com;
     // afficher le titre et la version du jeu
     this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
