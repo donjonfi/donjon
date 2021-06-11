@@ -66,13 +66,13 @@ export * from './lib/utils/compilation/generateur';
 
 export * from './lib/utils/jeu/abreviations';
 export * from './lib/utils/jeu/balises-html';
-export * from './lib/utils/jeu/commandes';
+export * from './lib/utils/jeu/commandeur';
 export * from './lib/utils/jeu/conditions-utils';
 export * from './lib/utils/jeu/correspondance';
 export * from './lib/utils/jeu/declencheur';
+export * from './lib/utils/jeu/debogueur';
 export * from './lib/utils/jeu/instructions';
 export * from './lib/utils/jeu/liste-etats';
-export * from './lib/utils/jeu/outils-commandes';
 
 
 

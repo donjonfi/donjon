@@ -61,10 +61,8 @@ export class Instructions {
         resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
       });
     }
-
     return resultat;
   }
-
 
   /** Exécuter une instruction */
   public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number = null): Resultat {

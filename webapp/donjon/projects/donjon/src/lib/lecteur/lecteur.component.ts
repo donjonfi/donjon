@@ -1,22 +1,16 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
-import { ActionCeciCela } from '../models/compilateur/action';
-import { ActionsUtils } from '../utils/jeu/actions-utils';
 import { BalisesHtml } from '../utils/jeu/balises-html';
-import { ClasseUtils } from '../utils/commun/classe-utils';
 import { ClassesRacines } from '../models/commun/classes-racines';
-import { Commandes } from '../utils/jeu/commandes';
-import { ConditionsUtils } from '../utils/jeu/conditions-utils';
+import { Commandeur } from '../utils/jeu/commandeur';
 import { Declencheur } from '../utils/jeu/declencheur';
-import { EClasseRacine } from '../models/commun/constantes';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
+import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Evenement } from '../models/jouer/evenement';
+import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
-import { MotUtils } from '../utils/commun/mot-utils';
-import { Objet } from '../models/jeu/objet';
-import { PhraseUtils } from '../utils/commun/phrase-utils';
 import { Resultat } from '../models/jouer/resultat';
 
 @Component({
@@ -39,12 +33,9 @@ export class LecteurComponent implements OnInit, OnChanges {
   historiqueCommandes = new Array<string>();
   curseurHistorique = -1;
 
-  private com: Commandes;
+  private com: Commandeur;
   private ins: Instructions;
   private eju: ElementsJeuUtils;
-  private cond: ConditionsUtils;
-  private act: ActionsUtils;
-
   private dec: Declencheur;
 
   @ViewChild('txCommande') commandeInputRef: ElementRef;
@@ -60,121 +51,133 @@ export class LecteurComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
-      this.sortieJoueur = "";
-      this.resteDeLaSortie = [];
-      this.commandeEnCours = false;
-      this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
-      this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
-      this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
-      this.com = new Commandes(this.jeu, this.ins, this.verbeux);
-      this.cond = new ConditionsUtils(this.jeu, this.verbeux);
-      this.act = new ActionsUtils(this.jeu, this.verbeux);
-      // afficher le titre et la version du jeu
-      this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
-      // afficher la version du jeu
-      if (this.jeu.version) {
-        this.sortieJoueur += ("<small> " + BalisesHtml.retirerBalisesHtml(this.jeu.version) + "</small>");
-      }
-      this.sortieJoueur += "</h5><p>Un jeu de ";
-
-      // afficher l’auteur du jeu
-      if (this.jeu.auteur) {
-        this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteur));
-      } else if (this.jeu.auteurs) {
-        this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteurs));
-      } else {
-        this.sortieJoueur += ("(anonyme)");
-      }
-
-      // afficher la licence du jeu
-      if (this.jeu.licenceTitre) {
-        if (this.jeu.licenceLien) {
-          this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
-        } else {
-          this.sortieJoueur += ("<br>Licence : " + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
-        }
-      }
-      this.sortieJoueur += "</p>";
-
-      // nouvelle partie
-      if (!this.jeu.commence) {
-
-        this.sortieJoueur += "<p>";
-
-        // évènement COMMENCER JEU
-        let evCommencerJeu = new Evenement('commencer', true, null, 0, 'jeu', ClassesRacines.Special);
-
-        // éxécuter les instructions AVANT le jeu commence
-        let resultatAvant = new Resultat(true, "", 0);
-        // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-        const declenchementsAvant = this.dec.avant(evCommencerJeu);
-        // éxécuter les règles déclenchées
-        declenchementsAvant.forEach(declenchement => {
-          const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions);
-          resultatAvant.sortie += sousResultatAvant.sortie;
-          resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
-          resultatAvant.nombre += sousResultatAvant.nombre;
-          resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
-        });
-        // ajouter la sortie
-        if (resultatAvant.sortie) {
-          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
-        }
-
-        // définir visibilité des objets initiale
-        this.eju.majPresenceDesObjets();
-
-        // définir adjacence des lieux initiale
-        this.eju.majAdjacenceLieux();
-
-        // continuer l’exécution de l’action si elle n’a pas été arrêtée
-        if (!resultatAvant.stopperApresRegle) {
-          // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-          // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
-          // // if (resultatRemplacer.nombre === 0) {
-
-          // afficher où on est.
-          this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
-          this.jeu.commence = true;
-
-          // // }
-
-          // éxécuter les instructions APRÈS le jeu commence
-          let resultatApres = new Resultat(true, "", 0);
-          // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-          const declenchementsApres = this.dec.apres(evCommencerJeu);
-          // éxécuter les règles déclenchées
-          declenchementsApres.forEach(declenchement => {
-            const sousResultatApres = this.ins.executerInstructions(declenchement.instructions);
-            resultatApres.sortie += sousResultatApres.sortie;
-            resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-            resultatApres.nombre += sousResultatApres.nombre;
-            resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
-            resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
-          });
-
-          if (resultatApres.sortie) {
-            this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
-          }
-
-
-        }
-        //terminer le paragraphe sauf si on attends une touche pour continuer
-        if (!this.resteDeLaSortie?.length && !this.sortieJoueur.endsWith("</p>")) {
-          this.sortieJoueur += "</p>";
-        }
-        // REPRISE D’UNE PARTIE
-      } else {
-        this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
-        // afficher où on est.
-        this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(this.com.ouSuisJe()) + "</p>");
-      }
-
-      this.focusCommande();
-
+      this.initialiserJeu();
     } else {
       console.log("Lecteur: Pas de jeu chargé.");
     }
+  }
+
+  /** Initialiser une nouvelle partie (ou reprendre une partie) */
+  private initialiserJeu() {
+    this.sortieJoueur = "";
+    this.resteDeLaSortie = [];
+    this.commandeEnCours = false;
+    this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
+    this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
+    this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
+    this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
+    // afficher le titre et la version du jeu
+    this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
+    // afficher la version du jeu
+    if (this.jeu.version) {
+      this.sortieJoueur += ("<small> " + BalisesHtml.retirerBalisesHtml(this.jeu.version) + "</small>");
+    }
+    this.sortieJoueur += "</h5><p>Un jeu de ";
+
+    // afficher l’auteur du jeu
+    if (this.jeu.auteur) {
+      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteur));
+    } else if (this.jeu.auteurs) {
+      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteurs));
+    } else {
+      this.sortieJoueur += ("(anonyme)");
+    }
+
+    // afficher la licence du jeu
+    if (this.jeu.licenceTitre) {
+      if (this.jeu.licenceLien) {
+        this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
+      } else {
+        this.sortieJoueur += ("<br>Licence : " + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
+      }
+    }
+    this.sortieJoueur += "</p>";
+
+    // ==================
+    // A. NOUVELLE PARTIE
+    // ==================
+    if (!this.jeu.commence) {
+
+      this.sortieJoueur += "<p>";
+
+      // évènement COMMENCER JEU
+      let evCommencerJeu = new Evenement('commencer', true, null, 0, 'jeu', ClassesRacines.Special);
+
+      // éxécuter les instructions AVANT le jeu commence
+      let resultatAvant = new Resultat(true, "", 0);
+      // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+      const declenchementsAvant = this.dec.avant(evCommencerJeu);
+      // éxécuter les règles déclenchées
+      declenchementsAvant.forEach(declenchement => {
+        const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions);
+        resultatAvant.sortie += sousResultatAvant.sortie;
+        resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
+        resultatAvant.nombre += sousResultatAvant.nombre;
+        resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
+      });
+      // ajouter la sortie
+      if (resultatAvant.sortie) {
+        this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
+      }
+
+      // définir visibilité des objets initiale
+      this.eju.majPresenceDesObjets();
+
+      // définir adjacence des lieux initiale
+      this.eju.majAdjacenceLieux();
+
+      // continuer l’exécution de l’action si elle n’a pas été arrêtée
+      if (!resultatAvant.stopperApresRegle) {
+        // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
+        // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
+        // // if (resultatRemplacer.nombre === 0) {
+
+        // regarder où on est.
+        let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
+        const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
+        this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+        this.jeu.commence = true;
+
+        // // }
+
+        // éxécuter les instructions APRÈS le jeu commence
+        let resultatApres = new Resultat(true, "", 0);
+        // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+        const declenchementsApres = this.dec.apres(evCommencerJeu);
+        // éxécuter les règles déclenchées
+        declenchementsApres.forEach(declenchement => {
+          const sousResultatApres = this.ins.executerInstructions(declenchement.instructions);
+          resultatApres.sortie += sousResultatApres.sortie;
+          resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+          resultatApres.nombre += sousResultatApres.nombre;
+          resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
+          resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
+        });
+
+        if (resultatApres.sortie) {
+          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
+        }
+
+
+      }
+      //terminer le paragraphe sauf si on attends une touche pour continuer
+      if (!this.resteDeLaSortie?.length && !this.sortieJoueur.endsWith("</p>")) {
+        this.sortieJoueur += "</p>";
+      }
+
+      // ========================
+      // B. REPRISE D’UNE PARTIE
+      // ========================
+    } else {
+      this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
+      // regarder où on est.
+      let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
+      const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
+      this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+    }
+
+    // donner le focus sur « entrez une commande » 
+    this.focusCommande();
   }
 
   /**
@@ -325,15 +328,37 @@ export class LecteurComponent implements OnInit, OnChanges {
       if (this.commande && this.commande.trim() !== "") {
         event.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
         this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
+
+        // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span>';
-        const sortieCommande = this.executerCommande(commandeComplete.trim());
+        // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
+        const commandeNettoyee = Commandeur.nettoyerCommande(commandeComplete);
+
+        // VÉREFIER FIN DE PARTIE
+        // vérifier si le jeu n’est pas déjà terminé
+        if (this.jeu.termine) {
+          return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
+        }
+
+        // GESTION HISTORIQUE
+        // ajouter à l’historique (à condition que différent du précédent)
+        if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
+          this.historiqueCommandes.push(commandeNettoyee);
+          if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
+            this.historiqueCommandes.shift();
+          }
+        }
+
+        // EXÉCUTION DE LA COMMANDE
+        const sortieCommande = this.com.executerCommande(commandeComplete.trim());
         if (sortieCommande) {
           this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
         } else {
           this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
         }
+
         this.sortieJoueur += "</p>";
         this.commande = "";
         setTimeout(() => {
@@ -343,318 +368,6 @@ export class LecteurComponent implements OnInit, OnChanges {
         }, 100);
       }
     }
-  }
-
-  /** Exécuter la commande */
-  executerCommande(commande: string): string {
-
-    if (this.jeu.termine) {
-      return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
-    }
-
-    // nettoyage commmande pour ne pas afficher une erreur en cas de faute de frappe…
-
-
-    const commandeNettoyee = commande
-      // 1) remplacer espaces insécables par espace simple.
-      ?.replace(/ /g, ' ')
-      // 2) effacer les espaces multiples
-      .replace(/\s\s+/g, ' ')
-      // 3) enlever espaces avant et après la commande
-      .trim();
-
-    // GESTION HISTORIQUE
-    // ajouter à l’historique (à condition que différent du précédent)
-    if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
-      this.historiqueCommandes.push(commandeNettoyee);
-      if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
-        this.historiqueCommandes.shift();
-      }
-    }
-
-    // COMPRENDRE LA COMMANDE
-    const els = PhraseUtils.decomposerCommande(commandeNettoyee);
-
-    let retVal = "";
-
-    if (els) {
-
-      const isCeciV1 = els.sujet ? true : false;
-      const ceciIntituleV1 = els.sujet;
-
-      const ceciQuantiteV1 = isCeciV1 ? (MotUtils.getQuantite(els.sujet.determinant, (MotUtils.estFormePlurielle(els.sujet.nom) ? -1 : 1))) : 0;
-      // const ceciNomV1 = isCeciV1 ? (ceciIntituleV1.nom + (ceciIntituleV1.epithete ? (" " + ceciIntituleV1.epithete) : "")) : null;
-      // const ceciClasseV1 = null;
-      const resultatCeci = isCeciV1 ? this.eju.trouverCorrespondance(ceciIntituleV1, true, true) : null;
-
-      const isCelaV1 = els.sujetComplement1 ? true : false;
-      const celaIntituleV1 = els.sujetComplement1;
-      const celaQuantiteV1 = isCelaV1 ? (MotUtils.getQuantite(els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(els.sujetComplement1.nom) ? -1 : 1))) : 0;
-      // const celaNomV1 = isCelaV1 ? (celaIntituleV1.nom + (celaIntituleV1.epithete ? (" " + celaIntituleV1.epithete) : "")) : null;
-      // const celaClasseV1 = null;
-      const resultatCela = isCelaV1 ? this.eju.trouverCorrespondance(celaIntituleV1, true, true) : null;
-
-      // let evenementV1 = new Evenement(
-      //   // verbe
-      //   els.infinitif,
-      //   // ceci
-      //   isCeciV1, els.preposition0, ceciQuantiteV1, ceciNomV1, ceciClasseV1,
-      //   // cela
-      //   isCelaV1, els.preposition1, celaQuantiteV1, celaNomV1, celaClasseV1
-      // );
-
-      // si on a déjà une erreur, ne pas continuer.
-      if (retVal.length > 0) {
-        return retVal;
-      }
-
-      switch (els.infinitif) {
-
-        // commande « en dur »
-        case "déboguer":
-          retVal = this.com.deboguer(els);
-          break;
-
-        // commandes chargées dynamiquement
-        default:
-          const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
-
-          // =====================================================
-          // A. VERBE PAS CONNU
-          // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
-          // =====================================================
-          if (actionsCeciCela === null || actionsCeciCela.length === 0) {
-
-            const explicationRefu = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
-
-            // correspondance CECI
-            let tempCeci = null;
-            if (resultatCeci) {
-              if (resultatCeci.nbCor) {
-                // élément
-                if (resultatCeci.elements.length) {
-                  tempCeci = resultatCeci.elements[0];
-                  // compteur
-                } else if (resultatCeci.compteurs.length) {
-                  tempCeci = resultatCeci.compteurs[0];
-                  // autre (direction)
-                } else {
-                  tempCeci = resultatCeci.localisation;
-                }
-                // non trouvé => intitulé
-              } else {
-                tempCeci = resultatCeci?.intitule ?? null;
-              }
-            }
-
-            // correspondance CELA
-            let tempCela = null;
-            if (resultatCela) {
-              if (resultatCela.nbCor) {
-                // élément
-                if (resultatCela.elements.length) {
-                  tempCela = resultatCela.elements[0];
-                  // compteur
-                } else if (resultatCela.compteurs.length) {
-                  tempCela = resultatCela.compteurs[0];
-                  // autre (direction)
-                } else {
-                  tempCela = resultatCela.localisation;
-                }
-                // non trouvé => intitulé
-              } else {
-                tempCela = resultatCela.intitule;
-              }
-            }
-
-            // Renvoyer l’explication du refu. 
-            retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
-
-            // regarder si de l’aide existe pour cet infinitif
-            const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
-            if (aide) {
-              // Spécifier qu’une page d’aide existe pour la commande.
-              retVal += "{u}{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher l’aide de la commande./}";
-            }
-
-            // =============================================================================
-            // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
-            // =============================================================================
-          } else if (actionsCeciCela.length > 1) {
-
-            retVal = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + els.infinitif + ").+}";
-
-            // =============================================================================
-            // D. UNE ACTION SE DÉMARQUE (ont a trouvé l’action)
-            // =============================================================================
-          } else {
-
-            // console.log("Une action se démarque !");
-
-            const candidatVainqueur = actionsCeciCela[0];
-
-            // il peut y avoir plusieurs correspondances avec le même score pour un objet.
-            // Ex: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
-            // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
-            let indexCeci = 0;
-            let indexCela = 0;
-
-            if (candidatVainqueur.ceci?.length > 1) {
-              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-              indexCeci = Math.floor(Math.random() * candidatVainqueur.ceci.length);
-              console.log("indexCeci=", indexCeci);
-            }
-            if (candidatVainqueur.cela?.length > 1) {
-              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-              indexCela = Math.floor(Math.random() * candidatVainqueur.cela.length);
-              console.log("indexCela=", indexCela);
-            }
-
-            const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
-
-            const isCeciV2 = actionCeciCela.ceci ? true : false;
-            let ceciQuantiteV2 = ceciQuantiteV1;
-            // transformer « -1 » en la quantité de l’objet
-            if (ceciQuantiteV2 === -1 && actionCeciCela.ceci && ClasseUtils.heriteDe(actionCeciCela.ceci.classe, EClasseRacine.objet)) {
-              ceciQuantiteV2 = (actionCeciCela.ceci as Objet).quantite;
-            }
-
-            const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
-            const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
-
-            const isCelaV2 = actionCeciCela.cela ? true : false;
-            let celaQuantiteV2 = celaQuantiteV1;
-            // transformer « -1 » en la quantité de l’objet
-            if (celaQuantiteV2 === -1 && actionCeciCela.cela && ClasseUtils.heriteDe(actionCeciCela.cela.classe, EClasseRacine.objet)) {
-              celaQuantiteV2 = (actionCeciCela.cela as Objet).quantite;
-            }
-            const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
-            const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
-
-            // mettre à jour l'évènement avec les éléments trouvés
-            const evenementV2 = new Evenement(
-              // verbe
-              actionCeciCela.action.infinitif,
-              // ceci
-              isCeciV2, els.preposition0, ceciQuantiteV2, ceciNomV2, ceciClasseV2,
-              // cela
-              isCelaV2, els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2
-            );
-
-            // console.error(">>>>>> evenement = ", evenement);F
-
-
-            // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
-            let resultatAvant = new Resultat(true, "", 0);
-            // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-            const declenchementsAvant = this.dec.avant(evenementV2);
-            // éxécuter les règles déclenchées
-            declenchementsAvant.forEach(declenchement => {
-              const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
-              retVal += sousResultatAvant.sortie;
-              resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
-              resultatAvant.nombre += sousResultatAvant.nombre;
-              resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
-            });
-
-            // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
-            if (resultatAvant.stopperApresRegle !== true) {
-              // PHASE REFUSER (vérifier l'action)
-              let refus = false;
-              if (actionCeciCela.action.verifications) {
-                // console.log("vérifications en cours pour la commande…");
-                // parcourir les vérifications
-                actionCeciCela.action.verifications.forEach(verif => {
-                  if (verif.conditions.length == 1) {
-                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
-                      // console.warn("> commande vérifie cela:", verif);
-                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
-                      retVal += resultatRefuser.sortie;
-                      refus = true;
-                    }
-                  } else {
-                    console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
-                  }
-                });
-              }
-
-              // exécuter l’action si pas refusée
-              if (!refus) {
-                // PHASE EXÉCUTER l’action
-                const resultatExecuter = this.executerAction(actionCeciCela, evenementV2);
-                retVal += resultatExecuter.sortie;
-                // ÉVÈNEMENT APRÈS la commande
-                let resultatApres = new Resultat(true, "", 0);
-                // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-                const declenchementsApres = this.dec.apres(evenementV2);
-
-                if (declenchementsApres.length) {
-                  // éxécuter les règles déclenchées
-                  declenchementsApres.forEach(declenchement => {
-                    const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
-                    resultatApres.sortie += sousResultatApres.sortie;
-                    resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-                    resultatApres.nombre += sousResultatApres.nombre;
-                    resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
-                    resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
-                  });
-
-                  // terminer avant sortie règle « après » ?
-                  if (resultatApres.terminerAvantRegle) {
-                    // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
-                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
-                    retVal += resultatFinaliser.sortie;
-                    // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
-                    if (resultatApres.terminerApresRegle) {
-                      resultatApres.terminerApresRegle = false;
-                    }
-                  }
-
-                  // sortie règle après
-                  retVal += resultatApres.sortie;
-
-                  // terminer après sortie règle « après » ?
-                  if (resultatApres.terminerApresRegle) {
-                    // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
-                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
-                    retVal += resultatFinaliser.sortie;
-                  }
-
-                } else {
-                  // PHASE TERMINER l'action (sans règle « après »)
-                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
-                  retVal += resultatFinaliser.sortie;
-                }
-
-              }
-            }
-
-          }
-
-          break;
-      }
-    } else {
-      retVal = "Désolé, je n'ai pas compris la commande « " + commandeNettoyee + " ».\n";
-      retVal += "Voici des exemples de commandes que je comprend :\n";
-      retVal += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
-      retVal += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
-      retVal += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
-      retVal += "{t}- {-interroger magicienne concernant bague-}\n";
-      retVal += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
-      retVal += "{t}- {-effacer l’écran-} ou {-ef-}\n";
-      retVal += "{t}- {-aide montrer-} ou {-? montrer-}\n";
-    }
-    return retVal;
-  }
-
-  private executerAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela, evenement, null);
-    return resultat;
-  }
-
-  private finaliserAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela, evenement, null);
-    return resultat;
   }
 
 

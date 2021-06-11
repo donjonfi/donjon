@@ -9,31 +9,26 @@ import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
-import { OutilsCommandes } from './outils-commandes';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
-export class Commandes {
+export class Debogueur {
+  
+  private eju: ElementsJeuUtils;
 
   constructor(
     public jeu: Jeu,
     public ins: Instructions,
     private verbeux: boolean,
   ) {
-    this.outils = new OutilsCommandes(this.jeu, this.ins, this.verbeux);
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
   }
 
-  outils: OutilsCommandes;
-  eju: ElementsJeuUtils;
-
-
   // =========================================
-  // COMMANDES QUI NE MODIFIENT PAS LE JEU
+  // COMMANDE QUI NE MODIFIE PAS LE JEU
   // =========================================
 
-  deboguer(els: ElementsPhrase) {
+  deboguer(els: ElementsPhrase): string {
     let retVal = "";
-
 
     if (els.sujet) {
       if (els.sujet.nom == 'ici') {
@@ -152,16 +147,6 @@ export class Commandes {
       "";
     return sortie;
   }
-
-  ouSuisJe() {
-    if (!this.jeu.joueur.position) {
-      return "Je ne sais pas où je suis";
-    } else {
-      // return "Votre position : " + (this.outils.curLieu.intitule ? (this.outils.curLieu.intitule) : (this.curLieu.determinant + this.outils.curLieu.nom)) + ".\n"
-      return this.outils.afficherCurLieu();
-    }
-  }
-
 
 
 }
