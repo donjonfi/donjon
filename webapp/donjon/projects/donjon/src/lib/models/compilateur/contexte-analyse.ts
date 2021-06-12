@@ -2,10 +2,10 @@ import { Action } from "./action";
 import { Aide } from "../commun/aide";
 import { Definition } from "./definition";
 import { ElementGenerique } from "./element-generique";
+import { Parametres } from "../commun/parametres";
 import { Propriete } from "../commun/propriete";
 import { Reaction } from "./reaction";
 import { Regle } from "./regle";
-import { Parametres } from "../commun/parametres";
 
 export class ContexteAnalyse {
   constructor(
@@ -22,5 +22,6 @@ export class ContexteAnalyse {
   public dernierePropriete: Propriete = null;
   public derniereReaction: Reaction = null;
   public dernierElementGenerique: ElementGenerique = null;
+  public dernierLieu: ElementGenerique = null;
 
 }

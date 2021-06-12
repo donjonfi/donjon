@@ -1,3 +1,4 @@
+import { AnalyseurUtils } from "./analyseur.utils";
 import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { EClasseRacine } from "../../../models/commun/constantes";
@@ -230,22 +231,44 @@ export class AnalyseurElementPosition {
    * @param phrase 
    */
   public static testerPronomPersonnelPosition(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
-    
+
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
-    
+
     const result = ExprReg.xPronomPersonnelPosition.exec(phrase.phrase[0]);
     if (result !== null) {
       // genre de l'élément précédent
       ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
       // attributs de l'élément précédent
-      ctxAnalyse.dernierElementGenerique.positionString = new PositionSujetString(
-        ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
-        result[2].toLowerCase(),
-        result[1]
-      );
-      elementTrouve = ResultatAnalysePhrase.pronomPersonnelPosition
+      // => position par rapport à un complément (ex: à l’intérieur de la cuisine ou dans le salon)
+      if (result[3]) {
+        const pos = result[1] ? result[1] : result[2];
+        const compl = result[3].toLowerCase();
+        ctxAnalyse.dernierElementGenerique.positionString = new PositionSujetString(
+          // sujet
+          ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
+          // complément
+          compl,
+          // position
+          pos
+        );
+        // => ici (dernier lieu défini)
+      } else {
+        if (ctxAnalyse.dernierLieu && ctxAnalyse.dernierLieu.nom !== ctxAnalyse.dernierElementGenerique.nom) {
+          ctxAnalyse.dernierElementGenerique.positionString = new PositionSujetString(
+            // sujet
+            ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
+            // complément
+            ctxAnalyse.dernierLieu.nom,
+            // position
+            "dans"
+          );
+        } else {
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+        }
+      }
+      elementTrouve = ResultatAnalysePhrase.pronomPersonnelPosition;
     }
-    
+
     return elementTrouve;
   }
 
