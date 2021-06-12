@@ -78,22 +78,20 @@ describe('Epressions régulières − Groupes nominaux', () => {
         expect(result[2]).toEqual("Bruxelles-Capitale"); // nom
         expect(result[3]).toBeUndefined(); // attribut
     });
-
     
     it('Élément générique simple: « 20 tomates » ', () => {
         const result = ExprReg.xGroupeNominal.exec("20 tomates");
         expect(result).toEqual(null);
-        // expect(result[1]).toEqual("20 "); // déterminant
-        // expect(result[2]).toEqual("tomates"); // nom
-        // expect(result[3]).toBeUndefined(); // attribut
     });
 
-    it('Élément générique simple: « une tomates » ', () => {
-        const result = ExprReg.xGroupeNominal.exec("une tomates");
+    it('Élément générique simple: « une tomate » ', () => {
+        const result = ExprReg.xGroupeNominal.exec("une tomate");
         expect(result).toEqual(null);
-        // expect(result[1]).toEqual("20 "); // déterminant
-        // expect(result[2]).toEqual("tomates"); // nom
-        // expect(result[3]).toBeUndefined(); // attribut
+    });
+    
+    it('Élément générique simple: « des pièces » ', () => {
+        const result = ExprReg.xGroupeNominal.exec("des pièces");
+        expect(result).toEqual(null);
     });
 
 });
@@ -113,6 +111,9 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[4]).toBeUndefined(); // féminin et autre forme
         expect(result[5]).toEqual("lieu"); // classe
         expect(result[6]).toBeUndefined(); // attribut
+        expect(result[7]).toBeUndefined(); // position
+        expect(result[8]).toBeUndefined(); // complément
+        expect(result[9]).toBeUndefined(); // ici
     });
 
     
@@ -131,6 +132,9 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[4]).toBeUndefined(); // féminin et autre forme
         expect(result[5]).toEqual("objet"); // classe
         expect(result[6]).toBeUndefined(); // attribut
+        expect(result[7]).toBeUndefined(); // position
+        expect(result[8]).toBeUndefined(); // complément
+        expect(result[9]).toBeUndefined(); // ici
     })
 
     it('Élément générique simple: « Le champignon des bois odorant (champignons des bois) est un légume mangeable »', () => {
@@ -142,6 +146,9 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[4]).toEqual("(champignons des bois)"); // féminin et autre forme
         expect(result[5]).toEqual("légume"); // classe
         expect(result[6]).toEqual("mangeable"); // attribut
+        expect(result[7]).toBeUndefined(); // position
+        expect(result[8]).toBeUndefined(); // complément
+        expect(result[9]).toBeUndefined(); // ici
     })
 
     it('Élément générique simple: « L\'apprentie sorcière (f) est une personne fatiguée »', () => {
@@ -160,6 +167,11 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result).toEqual(null);
     })
 
+    it('Élément générique simple: « Le bucheron est une personne ici » (💥)', () => {
+        const result = ExprReg.xDefinitionElementAvecType.exec("Le bucheron est une personne ici");
+        expect(result).toEqual(null);
+    })
+
     // ÉLÉMENT GÉNÉRIQUE POSITIONNÉ PAR RAPPORT À UN COMPLÉMENT
     // => determinant(1), nom(2), épithète(3) féminin et autre forme?(4), type(5), attributs(6), position(7), complément(8)
 
@@ -174,6 +186,8 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[6]).toEqual("maudits"); // attribut
         expect(result[7]).toEqual("dans le "); // position
         expect(result[8]).toEqual("jardin"); // complément
+        expect(result[9]).toBeUndefined(); // ici
+
     });
 
     it('Élément générique positionné: « La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée »', () => {
@@ -187,6 +201,8 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[6]).toEqual("pourri"); // attribut
         expect(result[7]).toEqual("dans la "); // position
         expect(result[8]).toEqual("grange encorcelée"); // complément
+        expect(result[9]).toBeUndefined(); // ici
+
     });
 
     it('Élément générique positionné: « L’allée principale (f) est un lieu au sud du départ »', () => {
@@ -200,6 +216,8 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[6]).toBeUndefined(); // attribut
         expect(result[7]).toEqual("au sud du "); // position
         expect(result[8]).toEqual("départ"); // complément
+        expect(result[9]).toBeUndefined(); // ici
+
     });
 
     it('Élément générique positionné: « La gare est un lieu dans Lisbonne »', () => {
@@ -213,6 +231,22 @@ describe('Epressions régulières − Définition des éléments', () => {
         expect(result[6]).toBeUndefined(); // attribut
         expect(result[7]).toEqual("dans "); // position
         expect(result[8]).toEqual("Lisbonne"); // complément
+        expect(result[9]).toBeUndefined(); // ici
+
+    });
+
+    it('Élément générique positionné: « Le bucheron est une personne ici »', () => {
+        const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le bucheron est une personne ici");
+        expect(result).not.toEqual(null);
+        expect(result[1]).toEqual("Le "); // déterminant
+        expect(result[2]).toEqual("bucheron"); // nom
+        expect(result[3]).toBeUndefined(); // épithète
+        expect(result[4]).toBeUndefined(); // féminin et autre forme
+        expect(result[5]).toEqual("personne"); // classe
+        expect(result[6]).toBeUndefined(); // attribut
+        expect(result[7]).toBeUndefined(); // position
+        expect(result[8]).toBeUndefined(); // complément
+        expect(result[9]).toEqual("ici"); // ici
     });
 
 });
