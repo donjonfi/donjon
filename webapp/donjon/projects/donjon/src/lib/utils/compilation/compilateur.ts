@@ -55,7 +55,7 @@ export class Compilateur {
     }
 
     // rem: le point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
-    const regleInfoDonjon = "\n.après afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; continuer l’action.";
+    const regleInfoDonjon = "\n.après afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; terminer l’action avant.";
 
     // B. Interpréter le scénario
     Compilateur.analyserCode((scenario + regleInfoDonjon), ctxAnalyse);

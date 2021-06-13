@@ -1,6 +1,6 @@
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
-import { Phrase } from "../../../models/compilateur/phrase";
 import { ExprReg } from "../expr-reg";
+import { Phrase } from "../../../models/compilateur/phrase";
 
 export class AnalyseurUtils {
 
@@ -24,11 +24,13 @@ export class AnalyseurUtils {
 
     /** Ajouter une nouvelle erreur. */
     public static ajouterErreur(ctx: ContexteAnalyse, ligne: number, erreur: string) {
+        let index: number;
         if (ligne) {
-            ctx.erreurs.push(("0000" + ligne).slice(-5) + " : " + erreur);
+            index = ctx.erreurs.push(("0000" + ligne).slice(-5) + " : " + erreur);
         } else {
-            ctx.erreurs.push(erreur);
+            index = ctx.erreurs.push(erreur);
         }
+        console.error(ctx.erreurs[index-1]);
     }
 
 }
