@@ -85,10 +85,10 @@ export class Abreviations {
         }
 
         // commande aide : ajouter « pour » avant le sujet
-        if (premierMotComplet.trim() === 'afficher aide' && (mots[1])) {
+        if (premierMotComplet.trim() === 'afficher l’aide' && (mots[1])) {
           premierMotComplet += " pour ";
-        } else if (mots[1] === 'afficher' && mots[2] === 'aide' && mots[3]) {
-          mots[2] += " pour ";
+        } else if (mots[0] === 'afficher' && (mots[1] === 'aide' || mots[1] === 'l’aide' || mots[1] === 'l\'aide') && mots[2]) {
+          deuxiemeMotComplet = "l’aide pour "
         }
 
       }
@@ -120,7 +120,7 @@ export class Abreviations {
         // ======================
 
         case '?':
-          retVal = "afficher aide";
+          retVal = "afficher l’aide";
           break;
 
         // ======================
@@ -128,7 +128,7 @@ export class Abreviations {
         // ======================
 
         case 'aide':
-          retVal = "afficher aide";
+          retVal = "afficher l’aide";
           break;
 
         case 'af':
