@@ -22,7 +22,7 @@ export class AnalyseurElementSimple {
     let determinant: string;
     let nom: string;
     let epithete: string;
-    let intituleClasse: string;
+    let intituleClasseNormalise: string;
     let genre: Genre;
     let attributsString: string;
     let attributs: string[];
@@ -63,7 +63,7 @@ export class AnalyseurElementSimple {
       determinant = result[1] ? result[1].toLowerCase() : null;
       nom = result[2];
       epithete = result[3];
-      intituleClasse = ClasseUtils.getIntituleNormalise(result[5]);
+      intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
       genre = MotUtils.getGenre(result[1], estFeminin);
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1], 1);
@@ -78,7 +78,7 @@ export class AnalyseurElementSimple {
         determinant,
         nom,
         epithete,
-        intituleClasse,
+        intituleClasseNormalise,
         null,
         position,
         genre,

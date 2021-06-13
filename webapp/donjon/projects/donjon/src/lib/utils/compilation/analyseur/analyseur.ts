@@ -7,12 +7,13 @@ import { AnalyseurElementSimple } from './analyseur.element.simple';
 import { AnalyseurPropriete } from './analyseur.propriete';
 import { AnalyseurRegle } from './analyseur.regle';
 import { AnalyseurSynonymes } from './analyseur.synonymes';
+import { AnalyseurType } from './analyseur.type';
+import { AnalyseurUtils } from './analyseur.utils';
 import { ContexteAnalyse } from '../../../models/compilateur/contexte-analyse';
+import { EClasseRacine } from '../../../models/commun/constantes';
 import { ExprReg } from '../expr-reg';
 import { Phrase } from '../../../models/compilateur/phrase';
 import { ResultatAnalysePhrase } from '../../../models/compilateur/resultat-analyse-phrase';
-import { AnalyseurUtils } from './analyseur.utils';
-import { AnalyseurType } from './analyseur.type';
 
 export class Analyseur {
 
@@ -144,6 +145,10 @@ export class Analyseur {
         const elementConcerne = AnalyseurElementPosition.testerElementAvecPosition(phrase, ctx);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
+          // si l’élément concernée est un lieu, il s’agit du dernier lieu
+          if (elementConcerne.classeIntitule == EClasseRacine.lieu) {
+            ctx.dernierLieu = elementConcerne;
+          }
           AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementAvecPosition;
           if (ctx.verbeux) {
@@ -159,6 +164,10 @@ export class Analyseur {
         const elementConcerne = AnalyseurElementSimple.testerElementSansPosition(phrase, ctx);
         if (elementConcerne) {
           ctx.dernierElementGenerique = elementConcerne;
+          // si l’élément concernée est un lieu, il s’agit du dernier lieu
+          if (elementConcerne.classeIntitule == EClasseRacine.lieu) {
+            ctx.dernierLieu = elementConcerne;
+          }
           AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementSansPosition;
           if (ctx.verbeux) {
@@ -177,6 +186,10 @@ export class Analyseur {
           AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           if (ctx.verbeux) {
             console.log("=> trouvé type dernier élément (+ attributs) (pronom démonstratif) :", ctx.dernierElementGenerique);
+          }
+          // si l’élément concernée est un lieu, il s’agit du dernier lieu
+          if (ctx.dernierElementGenerique.classeIntitule == EClasseRacine.lieu) {
+            ctx.dernierLieu = ctx.dernierElementGenerique;
           }
         }
       }

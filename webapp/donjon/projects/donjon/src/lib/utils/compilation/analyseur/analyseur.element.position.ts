@@ -25,8 +25,8 @@ export class AnalyseurElementPosition {
     let determinant: string;
     let nom: string;
     let epithete: string;
-    let intituleClasse: string;
-    let type: string;
+    let intituleClasseNonNormalise: string;
+    let intituleClasseNormalise: string;
     let genre: Genre;
     let attributsString: string;
     let genreSingPlur: string;
@@ -67,17 +67,54 @@ export class AnalyseurElementPosition {
           }
         }
       }
+
+      determinant = result[1] ? result[1].toLowerCase() : null;
+      nom = result[2];
+      epithete = result[3],
+        intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
+      attributs = (result[6] ? new Array<string>(result[6]) : new Array<string>());
+      position = null;
+
+      // => ici (dernier lieu défini)
+      if (result[9]) {
+        if (ctx.dernierLieu && ctx.dernierLieu.nom !== nom) {
+          position = new PositionSujetString(
+            // sujet
+            nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+            // complément
+            ctx.dernierLieu.nom,
+            // position
+            "dans"
+          );
+        } else {
+          AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+        }
+        // Position relative classique
+      } else {
+        position = new PositionSujetString(
+          // sujet
+          nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+          // complément
+          result[8].toLowerCase(),
+          // position
+          result[7]
+        );
+      }
+
       newElementGenerique = new ElementGenerique(
-        result[1] ? result[1].toLowerCase() : null,
-        result[2],
-        result[3],
-        ClasseUtils.getIntituleNormalise(result[5]),
-        null,
-        new PositionSujetString(result[2].toLowerCase() + (result[3] ? (' ' + result[3].toLowerCase()) : ''), result[8].toLowerCase(), result[7]),
-        MotUtils.getGenre(result[1], estFeminin),
-        MotUtils.getNombre(result[1]),
-        MotUtils.getQuantite(result[1], 1),
-        (result[6] ? new Array<string>(result[6]) : new Array<string>()),
+        determinant,
+        nom,
+        epithete,
+        intituleClasseNormalise,
+        null, // classe
+        position,
+        // genre
+        MotUtils.getGenre(determinant, estFeminin),
+        // nombre
+        MotUtils.getNombre(determinant),
+        // quantité
+        MotUtils.getQuantite(determinant, 1),
+        attributs,
       );
 
       if (autreForme) {
@@ -116,8 +153,8 @@ export class AnalyseurElementPosition {
         nom = result[2 + offset];
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
-        intituleClasse = nom;
-        type = ClasseUtils.getIntituleNormalise(intituleClasse);
+        intituleClasseNonNormalise = nom;
+        intituleClasseNormalise = ClasseUtils.getIntituleNormalise(intituleClasseNonNormalise);
         attributsString = epithete;
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
@@ -158,8 +195,8 @@ export class AnalyseurElementPosition {
           determinant,
           nom,
           epithete,
-          intituleClasse,
-          null,
+          intituleClasseNormalise,
+          null, // classe
           position,
           genre,
           nombre,
@@ -180,8 +217,6 @@ export class AnalyseurElementPosition {
     }
     // s'il y a un résultat, l'ajouter
     if (newElementGenerique) {
-
-
       // normalement l’élément concerné est le nouveau
       elementConcerne = newElementGenerique;
       // avant d'ajouter l'élément vérifier s'il existe déjà
@@ -219,7 +254,6 @@ export class AnalyseurElementPosition {
         // ajouter le nouvel élément
         ctx.elementsGeneriques.push(newElementGenerique);
       }
-
     }
     return elementConcerne;
   }

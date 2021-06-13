@@ -107,6 +107,7 @@ export class ExprReg {
   /** élément générique positionné par rapport à complément
    * - Découpage :
    *     - determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), position(7), complément(8)
+   *     - determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), ici(9)
    * - Exemples :
    *     - La (1) {pomme de terre}(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) {dans le}(7) jardin(8).
    *     - Les(1) {torches en bois}(2) enflamées(3) (f)(4) sont des objets(5) maudits(6) {dans le}(7) jardin(8).
