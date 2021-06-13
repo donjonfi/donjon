@@ -9,7 +9,9 @@ import { MotUtils } from "../../commun/mot-utils";
 import { Nombre } from "../../../models/commun/nombre.enum";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
+import { PositionObjet } from "../../../models/jeu/position-objet";
 import { PositionSujetString } from "../../../models/compilateur/position-sujet";
+import { PositionsUtils } from "../../commun/positions-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 
 export class AnalyseurElementPosition {
@@ -75,19 +77,46 @@ export class AnalyseurElementPosition {
       attributs = (result[6] ? new Array<string>(result[6]) : new Array<string>());
       position = null;
 
-      // => ici (dernier lieu défini)
-      if (result[9]) {
-        if (ctx.dernierLieu && ctx.dernierLieu.nom !== nom) {
-          position = new PositionSujetString(
-            // sujet
-            nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
-            // complément
-            ctx.dernierLieu.nom,
-            // position
-            "dans"
-          );
-        } else {
-          AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+      // => ici (dernier lieu défini) ou dessus/dedans/dessous (dernier objet défini)
+      const iciDedansDessusDessous = result[9];
+      if (iciDedansDessusDessous) {
+        switch (iciDedansDessusDessous) {
+          // ICI
+          case 'ici':
+            if (ctx.dernierLieu && ctx.dernierLieu.nom !== nom) {
+              position = new PositionSujetString(
+                // sujet
+                nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                // complément
+                ctx.dernierLieu.nom,
+                // position
+                "dans"
+              );
+            } else {
+              AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+            }
+            break;
+
+          case 'dedans':
+          case 'dessus':
+          case 'dessous':
+            if (ctx.dernierElementGenerique && ctx.dernierElementGenerique.nom !== nom) {
+              position = new PositionSujetString(
+                // sujet
+                nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                // complément
+                ctx.dernierElementGenerique.nom,
+                // position
+                PositionSujetString.getPosition(iciDedansDessusDessous)
+              );
+            } else {
+              AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « élément » doit avoir été défini précédemment.")
+            }
+            break;
+
+          default:
+            AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[9]);
+            break;
         }
         // Position relative classique
       } else {

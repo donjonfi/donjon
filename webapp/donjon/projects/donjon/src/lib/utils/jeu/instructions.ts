@@ -116,9 +116,9 @@ export class Instructions {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
-    // if (this.verbeux) {
-    console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
-    // }
+    if (this.verbeux) {
+      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
+    }
 
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':

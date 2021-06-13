@@ -310,11 +310,11 @@ export class Generateur {
         }
 
         // POSITION de l’élément
-        // -- PORTE
+        // --   A. PORTE
         if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.porte)) {
           Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
         } else {
-          // -- AUTRE TYPE D'OBJET
+          // -- B. AUTRE TYPE D'OBJET
           if (curEle.positionString) {
             //console.error("@@ curEle.positionString=", curEle.positionString);
 
