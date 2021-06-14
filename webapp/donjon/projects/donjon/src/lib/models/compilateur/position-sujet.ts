@@ -25,10 +25,12 @@ export class PositionSujetString {
         case 'au-dessous':
         case 'sous':
           retVal = 'sous';
-
+          break;
+          
         case 'dedans':
         case 'dans':
           retVal = 'dans';
+          break;
 
         default:
           retVal = "??";
