@@ -811,37 +811,40 @@ export class Instructions {
   }
 
   /** Changer quelque chose dans le jeu */
-  private executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  private executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
     if (instruction.sujet) {
       switch (instruction.sujet.nom.toLowerCase()) {
+        // joueur
         case 'joueur':
           resultat = this.executerJoueur(instruction, ceci, cela);
           break;
-
+        // historique
         case 'historique':
           resultat = this.executerHistorique(instruction);
           break;
 
-        // case 'inventaire':
-        //   resultat = this.executerInventaire(instruction);
-        //   break;
-
+        // élément du jeu ou compteur (ceci)
         case 'ceci':
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-            resultat = this.executerElementJeu(ceci as Objet, instruction);
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+            resultat = this.executerElementJeu(ceci as ElementJeu, instruction);
+          } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.compteur)) {
+            resultat = this.executerCompteur(ceci as Compteur, instruction);
           } else {
-            console.error("executer changer ceci: ceci n'est pas un objet.");
+            console.error("executer changer ceci: ceci n'est pas un élément du jeu ou un compteur.");
           }
           break;
 
+        // élément du jeu ou compteur (cela)
         case 'cela':
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-            resultat = this.executerElementJeu(cela as Objet, instruction);
+          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+            resultat = this.executerElementJeu(cela as ElementJeu, instruction);
+          } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.compteur)) {
+            resultat = this.executerCompteur(cela as Compteur, instruction);
           } else {
-            console.error("executer changer cela: cela n'est pas un objet.");
+            console.error("executer changer cela: cela n'est pas un élément du jeu ou un compteur.");
           }
           break;
 
@@ -849,7 +852,7 @@ export class Instructions {
           let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false, false);
 
           // PAS OBJET, PAS LIEU et PAS COMPTEUR
-          if (correspondance.objets.length === 0 && correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {
+          if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0) {
             console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
             // OBJET(S) SEULEMENT
           } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {

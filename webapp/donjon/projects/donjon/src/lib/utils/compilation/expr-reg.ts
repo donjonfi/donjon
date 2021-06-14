@@ -426,9 +426,86 @@ export class ExprReg {
 
 
   /**
-   * [si] (le|la|les|...(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
+   * [si] (le|la|les|…(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
   static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|dépasse|atteint|possède|porte|contient|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
+
+  /**
+   * La valeur de ceci vaut 3
+   * - L’intitulé de ceci est "Super ceci"
+   * - La description du croque-mort du bois maudit est "Super description !"
+   * - Le nombre de cheveux de Super Lutin est "inconnu"
+   * - Le nombre d’objets rouges maudits sous le lit du comte vert vaut 5
+   * - La valeur du portefeuille ne vaut pas 3
+   * - Le nombre de crottes du troll n’atteint pas 2
+   * - Le texte du livre ne vaut pas "NRST"
+   * - La valeur de ceci atteint la quantité de cela
+   * - Le nombre d’objets dans l’armoir dépasse 0
+   * - Le nombre d’objets sous le lit ne vaut pas 10
+   * - Le nombre de maisons maudites du vendeur du chemin tournoyant ne dépasse pas 3
+   * - Le nombre d’objets ensorcelés sur la table basse ne vaut pas 37
+   * - Le nombre de pièces rouges possédées ne dépasse pas 100
+   * - Le nombre de vêtements portés ne dépasse pas 3
+   * - Le nombre d’objets possédés atteint 10
+   * - Le nombre de lampes allumées n’atteint pas 2
+   * - Le nombre de macarons empilés ne dépasse pas la charge de la table 
+   * - Le nombre de pièces possédées n’atteint pas le prix de cela
+   * - Le nombre de livres possédés dépasse la taille de la bibliothèque
+   * - La valeur du portefeuille augmente du prix de l’aubergine 💥
+   * - La taille de la pomme rouge diminue de 10 💥
+   */
+  static readonly xConditionPropriete = /^(?:si )?(.+?) (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))? (.+)$/i;
+
+  /**
+   * - La valeur de ceci vaut 3
+   * - L’intitulé de ceci est "Super ceci"
+   * - La description du croque-mort du bois maudit est "Super description !"
+   * - La taille de la pomme rouge diminue de 10
+   * - Le nombre de cheveux de Super Lutin est "inconnu"
+   * - Le nombre d’objets rouges maudits sous le lit du comte vert vaut 5
+   * - La valeur du portefeuille augmente du prix de l’aubergine
+   * - La valeur du portefeuille ne vaut pas 3 💥
+   */
+  static readonly xChangerPropriete = /^(.+?) (est|sont|vaut|valent|(?:(?:augmente(?:nt)?|diminue(?:nt)?) (?:de(?: (?:la|l’|l'))?|du|des|d’|d'))) (?!pas|plus)(.+)$/i;
+
+  /**
+   * [si] le nombre de|d’|d' propriété(1) épithète(2) attribut(3) de|du|des|…|((dans|sur|sous)(la|le|les|…))(4) xxxx(4) yyy(5) verbe(7) [pas|plus(8)] complément(9))
+   * 
+   * - La valeur de ceci vaut 3
+   * - La valeur de ceci atteint la quantité de cela
+   * - L’intitulé de ceci est "Super ceci"
+   * - La description du croque-mort du bois maudit est "Super description !"
+   * - La taille de la pomme rouge diminue de 10
+   * - Le texte du livre ne vaut pas "NRST"
+   */
+  static readonly xConditionOuChangerPropriete = /^(?:si )?(le |la |les |l'|l’)(\S+?) (du |de la |de |d'|d’|(?:(?:dans |sur |sous )(?:la |le |les |l’|l')?))(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))? (?:(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+) )?(?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))?(?: (.+))?$/i;
+
+  /**
+   * [si] le nombre de|d’|d' propriété(1) épithète(2) attribut(3) de|du|des|…|((dans|sur|sous)(la|le|les|…))(4) xxxx(4) yyy(5) verbe(7) [pas|plus(8)] complément(9))
+   * 
+   * - Le nombre de cheveux de Super Lutin est "inconnu"
+   * - Le nombre d’objets dans l’armoir dépasse 0
+   * - Le nombre d’objets sous le lit ne vaut pas 10
+   * - Le nombre d’objets rouges maudits sous le lit du comte vert vaut 5
+   * - Le nombre de crottes du troll n’atteint pas 2
+   * - Le nombre de maisons maudites du vendeur du chemin tournoyant ne dépasse pas 3
+   * - Le nombre d’objets ensorcelés sur la table basse ne vaut pas 37
+   */
+  static readonly xConditionOuChangerNombrePropriete = /^(?:si )?(le nombre) (de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))? (du |de la |de |d'|d’|(?:(?:dans |sur |sous )(?:la |le |les |l’|l')?))(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))? (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))?(?: (.+))?$/i;
+
+  /**
+   * [si] le nombre de|d’|d' objet/classe(1) épithète(2) attribut(3) verbe(4) [pas|plus(5)] complément(6))
+   * 
+   * - Le nombre de pièces rouges possédées ne dépasse pas 100
+   * - Le nombre de vêtements portés ne dépasse pas 3
+   * - Le nombre d’objets possédés atteint 10
+   * - Le nombre de lampes allumées n’atteint pas 2
+   * - Le nombre de macarons empilés ne dépasse pas la charge de la table
+   * - Le nombre de pièces possédées n’atteint pas le prix de cela
+   */
+  static readonly xConditionNombreObjets = /^(?:si )?(le nombre) (de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))? (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))?(?: (.+))?$/i;
+
+
 
   /**
    * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)

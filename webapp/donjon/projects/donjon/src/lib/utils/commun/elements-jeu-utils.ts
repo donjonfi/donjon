@@ -549,6 +549,7 @@ export class ElementsJeuUtils {
     const sujetNom = sujet.nom.toLowerCase();
     const sujetEpithete = sujet.epithete?.toLowerCase();
 
+    // Rechercher dans les compteurs
     this.jeu.compteurs.forEach(
       cpt => {
         if (cpt.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === cpt.intitule.epithete?.toLowerCase())) {
@@ -556,6 +557,26 @@ export class ElementsJeuUtils {
         }
       }
     );
+
+    return compteursTrouves;
+  }
+
+  /**
+ * Retrouver un compteur parmis tous les compteurs sur base de son intitulé.
+ * Remarque: Il peut y avoir plus d’une correspondance.
+ */
+  trouverPropriete(sujet: GroupeNominal): Propriete[] {
+    let compteursTrouves: Propriete[] = [];
+    // const sujetNom = sujet.nom.toLowerCase();
+
+    // // Rechercher dans les compteurs
+    // this.jeu.objets.forEach(
+    //   obj => {
+    //     if (obj.nom === sujetNom) {
+    //       compteursTrouves.push(obj);
+    //     }
+    //   }
+    // );
 
     return compteursTrouves;
   }
