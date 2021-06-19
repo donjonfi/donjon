@@ -1,4 +1,5 @@
 import { GroupeNominal } from './groupe-nominal';
+import { ProprieteJeu } from '../jeu/propriete-jeu';
 
 export class ElementsPhrase {
 
@@ -7,6 +8,9 @@ export class ElementsPhrase {
   static readonly xPronomsPersonnels = /(il |elle |ils |elles )/i;
   static readonly xPronomsDemonstratif = /(ce |c’|c')/i;
   static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l’|un |une |des |du |de la |son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c’|c')/i;
+
+  public proprieteSujet: ProprieteJeu;
+  public proprieteComplement1: ProprieteJeu;
 
   public sujetComplement1: GroupeNominal;
   public sujetComplement2: GroupeNominal;

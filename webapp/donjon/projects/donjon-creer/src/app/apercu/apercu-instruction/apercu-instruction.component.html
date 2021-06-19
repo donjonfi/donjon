@@ -4,6 +4,9 @@
     <li *ngIf="ins.instruction.sujet">
       <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
     </li>
+    <li *ngIf="ins.instruction.proprieteSujet">
+      <app-apercu-propriete-jeu [pro]="ins.instruction.proprieteSujet"></app-apercu-propriete-jeu>
+    </li>
     <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
     <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
     <li *ngIf="ins.instruction.preposition1">Préposition : {{ins.instruction.preposition1}}</li>

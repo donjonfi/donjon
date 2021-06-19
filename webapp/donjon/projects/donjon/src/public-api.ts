@@ -29,7 +29,7 @@ export * from './lib/models/compilateur/instruction';
 export * from './lib/models/compilateur/monde';
 export * from './lib/models/compilateur/phrase';
 export * from './lib/models/compilateur/position-sujet';
-export * from './lib/models/commun/propriete';
+export * from './lib/models/commun/propriete-element';
 export * from './lib/models/compilateur/reaction';
 export * from './lib/models/compilateur/regle';
 export * from './lib/models/compilateur/resultat-compilation';
@@ -47,6 +47,7 @@ export * from './lib/models/jeu/localisation';
 export * from './lib/models/jeu/objet';
 export * from './lib/models/jeu/position-objet';
 export * from './lib/models/jeu/voisin';
+export * from './lib/models/jeu/propriete-jeu';
 
 export * from './lib/models/jouer/auditeur';
 export * from './lib/models/jouer/evenement';

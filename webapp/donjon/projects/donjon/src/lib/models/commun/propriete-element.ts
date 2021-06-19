@@ -1,6 +1,6 @@
 import { TypeValeur } from '../compilateur/type-valeur';
 
-export class Propriete {
+export class ProprieteElement {
 
     constructor(
         public nom: string,

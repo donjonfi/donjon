@@ -577,7 +577,7 @@ export class ExprReg {
   // ================================================================================================
 
   /**
-   * derterminant propriété(1) de nom(2) épithète(3)
+   * derterminant déterminant(1) propriété(2) préposition(3) nom(4) épithète(5)
    * 
    * - La valeur de ceci
    * - L’intitulé de ceci
@@ -588,29 +588,29 @@ export class ExprReg {
    static readonly xProprieteElement = /^(le |la |les |l'|l’)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
 
    /**
-    * [si] le nombre de|d’|d' propriété(1) épithète(2) attribut(3) de|du|des|…|((dans|sur|sous)(la|le|les|…))(4) xxxx(4) yyy(5) verbe(7) [pas|plus(8)] complément(9))
+    * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
     * 
-    * - Le nombre d’objets dans l’armoir
-    * - Le nombre d’objets ensorcelés sur la table basse
-    * - Le nombre d’objets sous le lit
-    * - Le nombre d’objets rouges maudits sous le lit du comte vert
     * - Le nombre de cheveux de Super Lutin
-    * - Le nombre de crottes du troll
-    * - Le nombre de maisons maudites du vendeur du chemin tournoyant
+    * - Le nombre de malédictions des jumeaux
+    * - Le nombre de pattes du mille-pattes grincheux
+    * - Le nombre d’arbres du bois de la colline enchantée
     */
-   static readonly xNombreDePropriete = /^le nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))? (du |de la |de |d'|d’|(?:(?:dans |sur |sous )(?:la |le |les |l’|l')?))(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+   static readonly xNombreDeProprieteElement = /^le nombre (?:de |d’|d')(\S+) (du |de la |de |d'|d’|des )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
  
    /**
-    * [si] le nombre de|d’|d' objet/classe(1) épithète(2) attribut(3) verbe(4) [pas|plus(5)] complément(6))
+    * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
     * 
-    * - Le nombre de pièces possédées
-    * - Le nombre de pièces rouges possédées
-    * - Le nombre de vêtements portés
-    * - Le nombre d’objets couverts
-    * - Le nombre de lampes allumées
+    * - Le nombre d’objets dans l’armoir
+    * - Le nombre d'objets ensorcelés sur la table basse
+    * - Le nombre de jouets sous le lit
+    * - Le nombre d’objets rouges et maudits sous le lit du comte vert
+    * - Le nombre d’armes magiques possédées
+    * - Le nombre d’animaux
     * - Le nombre de macarons empilés
+    * - Le nombre de lampes allumées
+    * - Le nombre de pièces possédées
     */
-   static readonly xNombreDeClasseEtat = /^(?:si )?(le nombre) (de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))? (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))?(?: (.+))?$/i;
+   static readonly xNombreDeClasseEtatPosition = /^le nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
  
 
   // ================================================================================================

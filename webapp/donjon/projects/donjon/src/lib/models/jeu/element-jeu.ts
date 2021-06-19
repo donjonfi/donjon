@@ -4,7 +4,7 @@ import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Intitule } from './intitule';
 import { Nombre } from '../commun/nombre.enum';
-import { Propriete } from '../commun/propriete';
+import { ProprieteElement } from '../commun/propriete-element';
 
 export class ElementJeu extends Intitule {
 
@@ -76,7 +76,7 @@ export class ElementJeu extends Intitule {
   public texte: string = null;
 
   /** Propriétés de l’élément */
-  public proprietes: Propriete[] = [];
+  public proprietes: ProprieteElement[] = [];
 
   /**
    * États actuels de l’élément

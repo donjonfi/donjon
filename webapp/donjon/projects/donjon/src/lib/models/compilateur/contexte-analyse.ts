@@ -3,7 +3,7 @@ import { Aide } from "../commun/aide";
 import { Definition } from "./definition";
 import { ElementGenerique } from "./element-generique";
 import { Parametres } from "../commun/parametres";
-import { Propriete } from "../commun/propriete";
+import { ProprieteElement } from "../commun/propriete-element";
 import { Reaction } from "./reaction";
 import { Regle } from "./regle";
 
@@ -19,7 +19,7 @@ export class ContexteAnalyse {
     public parametres = new Parametres(),
   ) { }
 
-  public dernierePropriete: Propriete = null;
+  public dernierePropriete: ProprieteElement = null;
   public derniereReaction: Reaction = null;
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;

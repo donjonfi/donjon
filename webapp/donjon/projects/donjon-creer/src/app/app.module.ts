@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { ApercuProprieteJeuComponent } from './apercu/apercu-propriete-jeu/apercu-propriete-jeu.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -35,7 +36,8 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     ApercuReactionComponent,
     ApercuRegleComponent,
     ApercuSujetComponent,
-    EditeurComponent
+    EditeurComponent,
+    ApercuProprieteJeuComponent
   ],
   imports: [
     CommonModule,

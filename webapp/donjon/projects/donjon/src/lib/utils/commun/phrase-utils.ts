@@ -1,14 +1,13 @@
 import { Condition, LienCondition } from '../../models/compilateur/condition';
+import { ProprieteJeu, TypeProprieteJeu } from '../../models/jeu/propriete-jeu';
 
-import { ClasseUtils } from './classe-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { PositionObjet } from '../../models/jeu/position-objet';
 
 export class PhraseUtils {
-
-
 
   private static decomposerCondition(condition: string) {
 
@@ -410,10 +409,14 @@ export class PhraseUtils {
     let retVal = determinant?.trim();
     if (retVal) {
       switch (retVal) {
+
+        // la
         case 'la':
         case 'à la':
         case 'avec la':
         case 'sur la':
+        case 'sous la':
+        case 'dans la':
         case 'concernant la':
         case 'de la':
         case 'd\'une':
@@ -423,9 +426,13 @@ export class PhraseUtils {
           retVal = 'la ';
           break;
 
+        // le
         case 'le':
         case 'au':
         case 'avec le':
+        case 'sur le':
+        case 'sous le':
+        case 'dans le':
         case 'du':
         case 'd\'un':
         case 'd’un':
@@ -434,29 +441,45 @@ export class PhraseUtils {
           retVal = 'le ';
           break;
 
+        // les
         case 'les':
         case 'aux':
         case 'avec les':
+        case 'sur les':
+        case 'sous les':
+        case 'dans les':
         case 'des':
         case 'mes':
         case 'ses':
           retVal = 'les ';
           break;
 
+        // l'
         case 'l\'':
+        case 'à l’':
+        case 'avec l’':
+        case 'sur l’':
+        case 'sous l’':
+        case 'dans l’':
+        case 'de l’':
+        // l’
         case 'l’':
         case 'à l\'':
-        case 'à l’':
         case 'avec l\'':
-        case 'avec l’':
+        case 'sur l\'':
+        case 'sous l\'':
+        case 'dans l\'':
         case 'de l\'':
-        case 'de l’':
           retVal = 'l’';
           break;
 
         case 'à':
         case 'de':
         case 'se':
+        case 'avec':
+        case 'sur':
+        case 'sous':
+        case 'dans':
           retVal = null;
           break;
 
@@ -490,22 +513,32 @@ export class PhraseUtils {
         // Ne PAS essayer de décomposer le complément s’il commence par « " » ou s’il s’agit de l’instruction exécuter.)
         if (!els.complement1.startsWith('"') && els.infinitif !== 'exécuter') {
 
+          // tester si le sujet est une propriéter à changer
           const restChangerPropriete = ExprReg.xChangerPropriete.exec(els.complement1);
           if (restChangerPropriete) {
-            const valeur1 = restChangerPropriete[1];
+            const propriete = restChangerPropriete[1];
             const verbe = restChangerPropriete[2];
-            const valeur2 = restChangerPropriete[3];
+            const nouvelleValeur = restChangerPropriete[3];
 
-            // vérifer si valeur1 est bien une valeur
-            const valeur1estUnePropriete = ExprReg.xProprieteElement.exec(valeur1);
-            const valeur1estUnNombreDePropriete = ExprReg.xNombreDePropriete.exec(valeur1);
-            const valeur1estUnNombreDeClasseEtat = ExprReg.xNombreDeClasseEtat.exec(valeur1);
+            // trouver la propriété correspondante à la valeur1
+            const proprieteValeur1 = PhraseUtils.trouverPropriete(propriete);
 
-            const valeur2estUnePropriete = ExprReg.xProprieteElement.exec(valeur2);
-            const valeur2estUnNombreDePropriete = ExprReg.xNombreDePropriete.exec(valeur2);
-            const valeur2estUnNombreDeClasseEtat = ExprReg.xNombreDeClasseEtat.exec(valeur2);
+            // si la valeur1 est bien une propriété
+            if (proprieteValeur1) {
+              // propriété à changer
+              els.proprieteSujet = proprieteValeur1;
+              // verbe
+              els.verbe = verbe;
+              // complément (nouvelle valeur)
+              els.complement1 = nouvelleValeur;
+              // trouver la propriété correspondante à la valeur2
+              const proprieteValeur2 = PhraseUtils.trouverPropriete(nouvelleValeur);
+              els.proprieteComplement1 = proprieteValeur2;
+            }
+          }
 
-          } else {
+          // si le sujet n’est pas une propriété à changer
+          if (!restChangerPropriete || !els.proprieteSujet) {
 
             // tester si le complément est une phrase simple
             // ex: le joueur ne se trouve plus dans la piscine.
@@ -558,6 +591,84 @@ export class PhraseUtils {
     }
 
     return els;
+  }
+
+  /** Retrouver une propriété valide */
+  public static trouverPropriete(intitule: string): ProprieteJeu {
+
+    let retVal: ProprieteJeu = null;
+
+    // A) vérifier si la propriété correspond au type « nombre de propriété d’un élément » :
+    const intituleEstUnNombreDePropriete = ExprReg.xNombreDeProprieteElement.exec(intitule);
+    if (intituleEstUnNombreDePropriete) {
+      retVal = new ProprieteJeu(TypeProprieteJeu.nombreDeProprieteElement);
+      // propriété
+      const propriete = intituleEstUnNombreDePropriete[1];
+      retVal.intituleProprieteElement = new GroupeNominal(null, propriete);
+      // élément
+      const prepositionElement = intituleEstUnNombreDePropriete[2] ?? null;
+      const determinantElement = PhraseUtils.trouverDeterminant(prepositionElement);
+      const nomElement = intituleEstUnNombreDePropriete[3] ?? null;
+      const epitheteElement = intituleEstUnNombreDePropriete[4] ?? null;
+      retVal.intituleElement = new GroupeNominal(determinantElement, nomElement, epitheteElement);
+
+      // B) vérifier si la propriété correspond au type « propriété d’un élément » :
+    } else {
+      retVal = new ProprieteJeu(TypeProprieteJeu.proprieteElement);
+      const intituleEstUnePropriete = ExprReg.xProprieteElement.exec(intitule);
+      if (intituleEstUnePropriete) {
+        // propriété
+        const determinantPropriete = intituleEstUnePropriete[1] ?? null;
+        const nomPropriete = intituleEstUnePropriete[2];
+        retVal.intituleProprieteElement = new GroupeNominal(determinantPropriete, nomPropriete, null);
+        // élément
+        const prepositionElement = intituleEstUnePropriete[3];
+        const determinantElement = PhraseUtils.trouverDeterminant(prepositionElement);
+        const nomElement = intituleEstUnePropriete[4];
+        const epitheteElement = intituleEstUnePropriete[5];
+        retVal.intituleElement = new GroupeNominal(determinantElement, nomElement, epitheteElement);
+
+        // C) vérifier si la propriété correspond au type « nombre de classe » ou « nombre de classe position »:
+      } else {
+        retVal = new ProprieteJeu(TypeProprieteJeu.nombreDeClasseAttributs);
+
+        const intituleEstUnNombreDeClasse = ExprReg.xNombreDeClasseEtatPosition.exec(intitule);
+
+        if (intituleEstUnNombreDeClasse) {
+          // classe
+          const nomClasse = intituleEstUnNombreDeClasse[1];
+          retVal.intituleClasse = nomClasse;
+          // attributs (facultatif)
+          const attribut1Classe = intituleEstUnNombreDeClasse[2] ?? null;
+          const attribut2Classe = intituleEstUnNombreDeClasse[3] ?? null;
+          retVal.nomsEtats = [];
+          if (attribut1Classe) {
+            retVal.nomsEtats.push(attribut1Classe);
+            if (attribut2Classe) {
+              retVal.nomsEtats.push(attribut2Classe);
+            }
+          }
+          // position relative à un élément (facultatif)
+          const prepositionElement = intituleEstUnNombreDeClasse[4] ?? null;
+          if (prepositionElement) {
+            retVal.type = TypeProprieteJeu.nombreDeClasseAttributsPosition;
+            // position
+            const prepositionSpatiale = PositionObjet.getPrepositionSpatiale(prepositionElement);
+            retVal.prepositionSpatiale = prepositionSpatiale;
+            // élément
+            const determinantElement = PhraseUtils.trouverDeterminant(prepositionElement);
+            const nomElement = intituleEstUnNombreDeClasse[5];
+            const epitheteElement = intituleEstUnNombreDeClasse[6];
+            retVal.intituleElement = new GroupeNominal(determinantElement, nomElement, epitheteElement);
+
+          }
+        }
+
+      }
+
+    }
+
+    return retVal;
   }
 
 }

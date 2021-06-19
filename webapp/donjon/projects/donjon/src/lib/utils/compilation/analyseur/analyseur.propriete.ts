@@ -1,14 +1,14 @@
+import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { Propriete } from "../../../models/commun/propriete";
+import { ProprieteElement } from "../../../models/commun/propriete-element";
 import { Reaction } from "../../../models/compilateur/reaction";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { TypeValeur } from "../../../models/compilateur/type-valeur";
-import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurPropriete {
 
@@ -73,7 +73,7 @@ export class AnalyseurPropriete {
 
           // B) PROPRIÉTÉ
         } else {
-          ctxAnalyse.dernierePropriete = new Propriete(nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
+          ctxAnalyse.dernierePropriete = new ProprieteElement(nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
           // ajouter la propriété au dernier élément
           elementCible.proprietes.push(ctxAnalyse.dernierePropriete);
 

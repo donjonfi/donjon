@@ -6,7 +6,7 @@ import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
-import { Propriete } from "../../models/commun/propriete";
+import { ProprieteElement } from "../../models/commun/propriete-element";
 
 export class InstructionsUtils {
 
@@ -105,7 +105,7 @@ export class InstructionsUtils {
 
     // copier les propriétés
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
+      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur));
     });
 
 

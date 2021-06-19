@@ -30,14 +30,9 @@ export class GroupeNominal {
   toString() {
 
     let retVal: string
-    let determinantCorrige = this.determinant ?? '';
-    // if (this.determinant) {
-    //   // ajouter un espace (pour les actions)
-    //   if (determinantCorrige == 'un' || determinantCorrige == 'une' || determinantCorrige == "deux") {
-    //     determinantCorrige += ' ';
-    //   }
-    // }
-    retVal = determinantCorrige + this.nom + (this.epithete ? (" " + this.epithete) : "");
+    let determinant = this.determinant ?? '';
+    let epithete = (this.epithete ? (" " + this.epithete) : "");
+    retVal = determinant + this.nom + epithete;
     return retVal;
   }
 

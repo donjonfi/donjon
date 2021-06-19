@@ -16,7 +16,7 @@ import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
-import { Propriete } from '../../models/commun/propriete';
+import { ProprieteElement } from '../../models/commun/propriete-element';
 import { Voisin } from '../../models/jeu/voisin';
 
 export class ElementsJeuUtils {
@@ -565,8 +565,8 @@ export class ElementsJeuUtils {
  * Retrouver un compteur parmis tous les compteurs sur base de son intitulé.
  * Remarque: Il peut y avoir plus d’une correspondance.
  */
-  trouverPropriete(sujet: GroupeNominal): Propriete[] {
-    let compteursTrouves: Propriete[] = [];
+  trouverPropriete(sujet: GroupeNominal): ProprieteElement[] {
+    let compteursTrouves: ProprieteElement[] = [];
     // const sujetNom = sujet.nom.toLowerCase();
 
     // // Rechercher dans les compteurs
@@ -802,7 +802,7 @@ export class ElementsJeuUtils {
 
     // copier les propriétés
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new Propriete(prop.nom, prop.type, prop.valeur));
+      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur));
     });
 
 

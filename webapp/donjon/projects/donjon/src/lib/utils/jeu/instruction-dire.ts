@@ -19,7 +19,7 @@ import { Lieu } from "../../models/jeu/lieu";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
-import { Propriete } from "../../models/commun/propriete";
+import { ProprieteElement } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
 
 export class InstructionDire {
