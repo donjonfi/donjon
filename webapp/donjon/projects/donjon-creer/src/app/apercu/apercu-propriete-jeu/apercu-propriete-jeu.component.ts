@@ -16,11 +16,19 @@ export class ApercuProprieteJeuComponent implements OnInit {
   @Input() pro: ProprieteJeu;
 
   ngOnInit(): void {
-    
+
   }
 
-  getPrepositionSpatiale(prep: PrepositionSpatiale){
+  getPrepositionSpatiale(prep: PrepositionSpatiale) {
     return PositionObjet.prepositionSpacialeToString(prep);
+  }
+
+  getDe(nom:string) {
+    let retVal = "de ";
+    if (nom?.match(/^(a|e|i|o|u|y)/i)) {
+      retVal = "d’";
+    }
+    return retVal;
   }
 
 }
