@@ -614,9 +614,9 @@ export class PhraseUtils {
 
       // B) vérifier si la propriété correspond au type « propriété d’un élément » :
     } else {
-      retVal = new ProprieteJeu(TypeProprieteJeu.proprieteElement);
       const intituleEstUnePropriete = ExprReg.xProprieteElement.exec(intitule);
       if (intituleEstUnePropriete) {
+        retVal = new ProprieteJeu(TypeProprieteJeu.proprieteElement);
         // propriété
         const determinantPropriete = intituleEstUnePropriete[1] ?? null;
         const nomPropriete = intituleEstUnePropriete[2];
@@ -630,11 +630,9 @@ export class PhraseUtils {
 
         // C) vérifier si la propriété correspond au type « nombre de classe » ou « nombre de classe position »:
       } else {
-        retVal = new ProprieteJeu(TypeProprieteJeu.nombreDeClasseAttributs);
-
         const intituleEstUnNombreDeClasse = ExprReg.xNombreDeClasseEtatPosition.exec(intitule);
-
         if (intituleEstUnNombreDeClasse) {
+          retVal = new ProprieteJeu(TypeProprieteJeu.nombreDeClasseAttributs);
           // classe
           const nomClasse = intituleEstUnNombreDeClasse[1];
           retVal.intituleClasse = nomClasse;
@@ -666,6 +664,10 @@ export class PhraseUtils {
 
       }
 
+    }
+
+    if (retVal) {
+      console.warn("PROPRIÉTÉ: \n> intitulé=", intitule, "\n> retval=", retVal);
     }
 
     return retVal;
