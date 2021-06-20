@@ -1,6 +1,7 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
+import { ProprieteJeu, TypeProprieteJeu } from '../../models/jeu/propriete-jeu';
 
 import { ActionsUtils } from './actions-utils';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -133,6 +134,7 @@ export class Instructions {
         break;
       case 'changer':
         sousResultat = this.executerChanger(instruction, ceci, cela);
+        resultat.sortie += sousResultat.sortie;
         resultat.succes = sousResultat.succes;
         break;
 
@@ -815,6 +817,7 @@ export class Instructions {
 
     let resultat = new Resultat(false, '', 1);
 
+    // on veut changer un élément
     if (instruction.sujet) {
       switch (instruction.sujet.nom.toLowerCase()) {
         // joueur
@@ -880,10 +883,34 @@ export class Instructions {
           }
           break;
       }
-    } else {
-      console.error("executerChanger : pas de sujet, instruction:", instruction);
-    }
+      // on veut changer une propriété
+    } else if (instruction.proprieteSujet) {
 
+      switch (instruction.proprieteSujet.type) {
+        // on ne peut pas changer une propriété calculée
+        case TypeProprieteJeu.nombreDeClasseAttributs:
+        case TypeProprieteJeu.nombreDeClasseAttributsPosition:
+          resultat.succes = false;
+          resultat.sortie = "{+[Je ne peut pas modifier directement ce type de propriété (nombre de {/classe/}).]+}";
+          break;
+
+        // propriété d’un élément
+        case TypeProprieteJeu.nombreDeProprieteElement:
+        case TypeProprieteJeu.proprieteElement:
+          resultat.succes = true;
+          resultat.sortie = "Je vai changer cette propriété dès que je saurai !";
+          const propSujetTrouvee = this.trouverProprieteCible(instruction.proprieteSujet, ceci, cela);
+          break;
+
+        default:
+          console.error("executerChanger > Type de propriété non pris en charge:", instruction.proprieteSujet.type);
+          break;
+      }
+
+      // ni élément ni propriété
+    } else {
+      console.error("executerChanger : pas de sujet ni de propriété, instruction:", instruction);
+    }
     return resultat;
   }
 
@@ -1219,14 +1246,8 @@ export class Instructions {
 
 
 
-
-
-
-
-
-
   /**
-   * Retrouver l’objet cible de la condition.
+   * Retrouver l’objet cible de l’instruction.
    * @param brute « ceci » et « cela » sont gérés.
    * @param intitule un objet à retrouver
    * @param ceci pour le cas où brute vaut « ceci ».
@@ -1262,6 +1283,18 @@ export class Instructions {
       console.warn("Instructions > trouverObjetCible > pas pu trouver :", brute);
     }
     return objetCible;
+  }
+
+  /**
+   * Retrouver la propriété cible de l’instruction.
+   * @param propriete à retrouver
+   * @param ceci pour le cas où brute vaut « ceci ».
+   * @param cela pour le cas où brute vaut « cela ».
+   */
+  private trouverProprieteCible(propriete: ProprieteJeu, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): ProprieteJeu {
+    let proprieteCible: ProprieteJeu = null;
+
+    return proprieteCible;
   }
 
   /** Exécuter l’instruction « Exécuter commande "xxxx…" */
