@@ -912,7 +912,7 @@ exécuter boire ceci:
   effacer ceci.
   
 terminer boire ceci:
-  dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.";
+  dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
 
 CHAPITRE "frapper, tuer, assommer".
 
