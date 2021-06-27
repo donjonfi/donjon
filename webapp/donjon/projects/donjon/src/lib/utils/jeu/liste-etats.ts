@@ -367,10 +367,25 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeEtatIdElement(element: ElementJeu, etatID: number) {
+  possedeEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils = null) {
     let retVal = false;
     if (element) {
-      retVal = element.etats.includes(etatID);
+      // A. VISIBLE
+      if (etatID === this.visibleID) {
+        // lieu
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return element.id == eju.curLieu.id;
+          // objet
+        } else {
+          return this.estVisible((element as Objet), eju);
+        }
+        // B. ACCESSIBLE
+      } else if (etatID === this.accessibleID) {
+        return this.estAccessible((element as Objet), eju);
+        // C. DIVERS
+      } else {
+        retVal = element.etats.includes(etatID);
+      }
     } else {
       console.warn("possedeEtatIdElement >> element null.");
     }
@@ -558,7 +573,7 @@ export class ListeEtats {
       if (parent) {
 
         if (parent.id === objet.id) {
-         throw new Error("estObjetDansUnContenantFermeEtOpaque >>> l’objet est positionné sur lui même !\n" + JSON.stringify(objet));
+          throw new Error("estObjetDansUnContenantFermeEtOpaque >>> l’objet est positionné sur lui même !\n" + JSON.stringify(objet));
         } else {
           // si l'objet est dans un contenant
           if (ClasseUtils.heriteDe(parent.classe, EClasseRacine.contenant)) {
