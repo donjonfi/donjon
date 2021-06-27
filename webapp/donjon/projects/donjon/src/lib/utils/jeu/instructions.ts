@@ -1,9 +1,7 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
-import { ProprieteJeu, TypeProprieteJeu } from '../../models/jeu/propriete-jeu';
 
-import { ActionsUtils } from './actions-utils';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Commandeur } from './commandeur';
 import { Compteur } from '../../models/compilateur/compteur';
@@ -17,6 +15,7 @@ import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionDire } from './instruction-dire';
+import { InstructionExecuter } from './instruction-executer';
 import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
@@ -25,15 +24,15 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionsUtils } from '../commun/positions-utils';
-import { Reaction } from '../../models/compilateur/reaction';
+import { ProprieteElement } from '../../models/commun/propriete-element';
 import { Resultat } from '../../models/jouer/resultat';
+import { TypeProprieteJeu } from '../../models/jeu/propriete-jeu';
 
 export class Instructions {
 
   private cond: ConditionsUtils;
   private insDire: InstructionDire;
-  private act: ActionsUtils;
-  private com: Commandeur;
+  private insExecuter: InstructionExecuter;
 
   constructor(
     private jeu: Jeu,
@@ -42,7 +41,8 @@ export class Instructions {
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
     this.insDire = new InstructionDire(this.jeu, this.eju, this.verbeux);
-    this.act = new ActionsUtils(this.jeu, this.verbeux);
+    this.insExecuter = new InstructionExecuter(this.jeu, this.eju, this.verbeux);
+    this.insExecuter.instructions = this;
   }
 
   get dire() {
@@ -51,7 +51,7 @@ export class Instructions {
 
   /** Commandeur pour l’instruction « exécuter commande ». */
   set commandeur(commandeur: Commandeur) {
-    this.com = commandeur;
+    this.insExecuter.commandeur = commandeur;
   }
 
   /** Exécuter une liste d’instructions */
@@ -217,7 +217,7 @@ export class Instructions {
         if (instruction.sujet.nom == 'écran') {
           resultat.sortie = "@@effacer écran@@";
         } else {
-          const cible = this.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela);
+          const cible = InstructionsUtils.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela, this.eju, this.jeu);
           if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
             sousResultat = this.executerEffacer(cible as Objet);
             resultat.succes = sousResultat.succes;
@@ -245,15 +245,15 @@ export class Instructions {
         // EXÉCUTER RÉACTION
         if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
           // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
-          sousResultat = this.executerReaction(instruction, ceci, cela);
+          sousResultat = this.insExecuter.executerReaction(instruction, ceci, cela);
           resultat.sortie = sousResultat.sortie;
           resultat.succes = sousResultat.succes;
           // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterAction)) {
-          resultat = this.executerAction(instruction, nbExecutions, ceci, cela, evenement, declenchements);
+          resultat = this.insExecuter.executerAction(instruction, nbExecutions, ceci, cela, evenement, declenchements);
           // EXÉCUTER COMMANDE
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterCommande)) {
-          resultat = this.executerCommande(instruction);
+          resultat = this.insExecuter.executerCommande(instruction);
         } else {
           console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
@@ -392,57 +392,6 @@ export class Instructions {
     return objets;
   }
 
-  /**
-   * Trouver la destination pour un déplacement ou une copie.
-   */
-  private trouverDestinationDeplacementCopie(complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
-
-    let destination: ElementJeu = null;
-
-    switch (complement.nom) {
-
-      case 'ceci':
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          destination = ceci as ElementJeu;
-        } else {
-          console.error("trouverDestinationDeplacementCopie >> Déplacer vers ceci: ceci n'est pas un élément du jeu.");
-        }
-        break;
-
-      case 'cela':
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          destination = cela as ElementJeu;
-        } else {
-          console.error("trouverDestinationDeplacementCopie >> Déplacer vers cela: cela n'est pas un élément du jeu.");
-        }
-        break;
-
-      case 'joueur':
-        destination = this.jeu.joueur;
-        break;
-
-      case 'ici':
-        destination = this.eju.curLieu;
-        break;
-
-      default:
-        let correspondanceCompl = this.eju.trouverCorrespondance(complement, false, false);
-        // un élément trouvé
-        if (correspondanceCompl.elements.length === 1) {
-          destination = correspondanceCompl.elements[0];
-          // aucun élément trouvé
-        } else if (correspondanceCompl.elements.length === 0) {
-          console.error("trouverDestinationDeplacementCopie >>> je n’ai pas trouvé la destination:", complement);
-          // plusieurs éléments trouvés
-        } else {
-          console.error("trouverDestinationDeplacementCopie >>> j’ai trouvé plusieurs correspondances pour la destination:", complement, correspondanceCompl);
-        }
-        break;
-    }
-
-    return destination;
-  }
-
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
   private executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
@@ -466,7 +415,7 @@ export class Instructions {
 
 
     // trouver la destination
-    const destination = this.trouverDestinationDeplacementCopie(complement, ceci, cela);
+    const destination = InstructionsUtils.trouverElementCible(complement, ceci, cela, this.eju, this.jeu);
 
     // si on a trouver le sujet et la distination, effectuer le déplacement.
     if (objets?.length == 1 && destination) {
@@ -519,7 +468,7 @@ export class Instructions {
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // trouver la destination
-    const destination = this.trouverDestinationDeplacementCopie(complement, ceci, cela);
+    const destination = InstructionsUtils.trouverElementCible(complement, ceci, cela, this.eju, this.jeu);
 
     // si on a trouvé le sujet et la distination, effectuer la copie.
     if (objets?.length == 1 && destination) {
@@ -822,19 +771,19 @@ export class Instructions {
       switch (instruction.sujet.nom.toLowerCase()) {
         // joueur
         case 'joueur':
-          resultat = this.executerJoueur(instruction, ceci, cela);
+          resultat = this.changerJoueur(instruction, ceci, cela);
           break;
         // historique
         case 'historique':
-          resultat = this.executerHistorique(instruction);
+          resultat = this.changerHistorique(instruction);
           break;
 
         // élément du jeu ou compteur (ceci)
         case 'ceci':
           if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-            resultat = this.executerElementJeu(ceci as ElementJeu, instruction);
+            resultat = this.changerElementJeu(ceci as ElementJeu, instruction);
           } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.compteur)) {
-            resultat = this.executerCompteur(ceci as Compteur, instruction);
+            resultat = this.changerCompteur(ceci as Compteur, instruction);
           } else {
             console.error("executer changer ceci: ceci n'est pas un élément du jeu ou un compteur.");
           }
@@ -843,9 +792,9 @@ export class Instructions {
         // élément du jeu ou compteur (cela)
         case 'cela':
           if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-            resultat = this.executerElementJeu(cela as ElementJeu, instruction);
+            resultat = this.changerElementJeu(cela as ElementJeu, instruction);
           } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.compteur)) {
-            resultat = this.executerCompteur(cela as Compteur, instruction);
+            resultat = this.changerCompteur(cela as Compteur, instruction);
           } else {
             console.error("executer changer cela: cela n'est pas un élément du jeu ou un compteur.");
           }
@@ -860,21 +809,21 @@ export class Instructions {
             // OBJET(S) SEULEMENT
           } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {
             if (correspondance.objets.length === 1) {
-              resultat = this.executerElementJeu(correspondance.objets[0], instruction);
+              resultat = this.changerElementJeu(correspondance.objets[0], instruction);
             } else {
               console.error("executerChanger: plusieurs objets trouvés:", correspondance);
             }
             // LIEU(X) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.compteurs.length === 0) {
             if (correspondance.lieux.length === 1) {
-              resultat = this.executerElementJeu(correspondance.lieux[0], instruction);
+              resultat = this.changerElementJeu(correspondance.lieux[0], instruction);
             } else {
               console.error("executerChanger: plusieurs lieux trouvés:", correspondance);
             }
             // COMPTEUR(S) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {
             if (correspondance.compteurs.length === 1) {
-              resultat = this.executerCompteur(correspondance.compteurs[0], instruction);
+              resultat = this.changerCompteur(correspondance.compteurs[0], instruction);
             } else {
               console.error("executerChanger: plusieurs compteurs trouvés:", correspondance);
             }
@@ -897,9 +846,14 @@ export class Instructions {
         // propriété d’un élément
         case TypeProprieteJeu.nombreDeProprieteElement:
         case TypeProprieteJeu.proprieteElement:
-          resultat.succes = true;
-          resultat.sortie = "Je vai changer cette propriété dès que je saurai !";
-          const propSujetTrouvee = this.trouverProprieteCible(instruction.proprieteSujet, ceci, cela);
+          const propSujetTrouvee = InstructionsUtils.trouverProprieteCible(instruction.proprieteSujet, ceci, cela, this.eju, this.jeu) as ProprieteElement;
+          if (propSujetTrouvee) {
+            resultat.succes = true;
+            resultat.sortie = "Je vai changer cette propriété dès que je saurai !";
+            console.log("propriété trouvée:", propSujetTrouvee);
+          } else {
+            console.error("executerChanger: propriété pas trouvée:", instruction.proprieteSujet);
+          }
           break;
 
         default:
@@ -914,116 +868,12 @@ export class Instructions {
     return resultat;
   }
 
-  /**
-   * Exécuter une instruction de type "réaction".
-   * @param instruction 
-   * @param ceci 
-   * @param cela 
-   */
-  private executerReaction(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
 
-    let resultat = new Resultat(false, '', 1);
 
-    if (instruction.complement1) {
-      switch (instruction.complement1.toLocaleLowerCase()) {
-        case 'réaction de ceci':
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(ceci as Objet, null);
-          } else {
-            console.error("Exécuter réaction de ceci: ceci n'est pas un objet");
-          }
-          break;
-        case 'réaction de cela':
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(cela as Objet, null);
-          } else {
-            console.error("Exécuter réaction de cela: cela n'est pas un objet");
-          }
-          break;
-        case 'réaction de ceci concernant cela':
-        case 'réaction de ceci à cela':
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(ceci as Objet, cela);
-          } else {
-            console.error("Exécuter réaction de ceci à cela: ceci n'est pas un objet");
-          }
-          break;
-        case 'réaction de cela concernant ceci':
-        case 'réaction de cela à ceci':
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(cela as Objet, ceci);
-          } else {
-            console.error("Exécuter réaction de cela à ceci: cela n'est pas un objet");
-          }
-          break;
 
-        default:
-          console.error("executerReaction : sujet autre que « réaction de ceci », « réaction de cela », « réaction de ceci à cela » pas pris en charge, instruction:", instruction);
-      }
-    } else {
-      console.error("executerReaction : pas de sujet, instruction:", instruction);
-    }
-
-    return resultat;
-  }
-
-  /**
-   * Exécuter la réaction d'une personne à un sujet (ou non).
-   */
-  private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule) {
-
-    let resultat = new Resultat(false, '', 1);
-    let reaction: Reaction = null;
-
-    // vérifier que la personne est bien un objet
-    if (!personne) {
-      console.error("suiteExecuterReaction: la personne est null");
-    }
-    if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.personne)) {
-      if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.objet)) {
-        console.error("suiteExecuterReaction: la personne qui doit réagir n’est ni une personne, ni un objet:", personne);
-      } else {
-        console.warn("suiteExecuterReaction: la personne qui doit réagir n’est pas une personne:", personne);
-      }
-    }
-
-    // réaction à un sujet
-    if (sujet) {
-      // console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
-
-      const nomMinuscules = sujet.intitule.nom.toLowerCase() ?? null;
-      const epitheteMinuscules = sujet.intitule.epithete?.toLowerCase() ?? null;
-
-      // rechercher s’il y a une des réaction qui comprend ce sujet
-      reaction = (personne as Objet).reactions
-        .find(x => x.sujets && x.sujets.some(y => y.nom == nomMinuscules && y.epithete == epitheteMinuscules));
-      // si on n’a pas de résultat, rechercher le sujet « sujet inconnu »:
-      if (!reaction) {
-        reaction = (personne as Objet).reactions
-          .find(x => x.sujets && x.sujets.some(y => y.nom == "sujet" && y.epithete == "inconnu"));
-      }
-    }
-    // si pas de réaction à un sujet, prendre réaction par défaut (aucun sujet)
-    if (!reaction) {
-      // console.log("suiteExecuterReaction: réaction à aucun sujet");
-      reaction = (personne as Objet).reactions
-        .find(x => x.sujets && x.sujets.some(y => y.nom == "aucun" && y.epithete == "sujet"));
-    }
-    // on a trouvé une réaction
-    if (reaction) {
-      // TODO: faut-il fournir ceci,cela, l’évènement et déclenchements ?
-      resultat = this.executerInstructions(reaction.instructions, null, null, null, null);
-      // on n’a pas trouvé de réaction
-    } else {
-      // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.
-      console.error("suiteExecuterReaction : cette personne n’a pas de réaction par défaut:", personne);
-    }
-
-    return resultat;
-  }
 
   /** Exécuter une instruction qui cible l'historique. */
-  private executerHistorique(instruction: ElementsPhrase) {
+  private changerHistorique(instruction: ElementsPhrase) {
     let resultat = new Resultat(false, '', 1);
     if (instruction.verbe.toLocaleLowerCase() === 'contient') {
       let valeur = instruction.complement1.trim().toLocaleLowerCase();
@@ -1050,7 +900,7 @@ export class Instructions {
   }
 
   /** Exécuter une instruction qui cible le joueur */
-  private executerJoueur(instruction: ElementsPhrase, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): Resultat {
+  private changerJoueur(instruction: ElementsPhrase, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): Resultat {
     let resultat = new Resultat(false, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
@@ -1126,7 +976,7 @@ export class Instructions {
 
       // PORTER UN OBJET (s'habiller avec)
       case 'porte':
-        let objet: Objet = this.trouverObjetCible(instruction.complement1, instruction.sujetComplement1, ceci, cela);
+        let objet: Objet = InstructionsUtils.trouverObjetCible(instruction.complement1, instruction.sujetComplement1, ceci, cela, this.eju, this.jeu);
         if (objet) {
           // NE porte PAS
           if (instruction.negation) {
@@ -1171,7 +1021,7 @@ export class Instructions {
     return resultat;
   }
 
-  private executerCompteur(compteur: Compteur, instruction: ElementsPhrase): Resultat {
+  private changerCompteur(compteur: Compteur, instruction: ElementsPhrase): Resultat {
     let resultat = new Resultat(true, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
@@ -1200,9 +1050,7 @@ export class Instructions {
 
   }
 
-
-
-  private executerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
+  private changerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
 
     let resultat = new Resultat(true, '', 1);
 
@@ -1246,120 +1094,6 @@ export class Instructions {
 
 
 
-  /**
-   * Retrouver l’objet cible de l’instruction.
-   * @param brute « ceci » et « cela » sont gérés.
-   * @param intitule un objet à retrouver
-   * @param ceci pour le cas où brute vaut « ceci ».
-   * @param cela pour le cas où brute vaut « cela ».
-   */
-  private trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): Objet {
-    let objetCible: Objet = null;
-    // retrouver OBJET SPÉCIAL
-    if (brute === 'ceci') {
-      if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
-        objetCible = ceci as Objet;
-      } else {
-        console.error("Instructions > trouverObjetCible > ceci n’est pas un objet.");
-      }
-    } else if (brute === 'cela') {
-      if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
-        objetCible = cela as Objet;
-      } else {
-        console.error("Instructions > trouverObjetCible > cela n’est pas un objet.");
-      }
-      // retrouver OBJET CLASSIQUE
-    } else if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule, false);
-      if (objetsTrouves.length == 1) {
-        objetCible = objetsTrouves[0];
-      } else {
-        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
-      }
-    } else {
-      console.error("Instructions > trouverObjetCible > objet spécial pas pris en change :", brute);
-    }
-    if (!objetCible) {
-      console.warn("Instructions > trouverObjetCible > pas pu trouver :", brute);
-    }
-    return objetCible;
-  }
-
-  /**
-   * Retrouver la propriété cible de l’instruction.
-   * @param propriete à retrouver
-   * @param ceci pour le cas où brute vaut « ceci ».
-   * @param cela pour le cas où brute vaut « cela ».
-   */
-  private trouverProprieteCible(propriete: ProprieteJeu, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): ProprieteJeu {
-    let proprieteCible: ProprieteJeu = null;
-
-    return proprieteCible;
-  }
-
-  /** Exécuter l’instruction « Exécuter commande "xxxx…" */
-  public executerCommande(instruction: ElementsPhrase): Resultat {
-    let res = new Resultat(true, "", 1);
-    const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
-    if (tokens) {
-      const commande = Commandeur.nettoyerCommande(tokens[1]);
-      res.sortie = this.com.executerCommande(commande);
-    } else {
-      console.error("executerAction: format complément1 par reconnu:", instruction.complement1);
-      res.succes = false;
-    }
-    return res;
-  }
-
-  /** Exécuter l’instruction « Exécuter action xxxx… */
-  public executerAction(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement, declenchements: number): Resultat {
-
-    let res = new Resultat(true, "", 1);
-
-    // décomposer le complément
-    const tokens = ExprReg.xActionExecuterAction.exec(instruction.complement1);
-    if (tokens) {
-      const insInfinitif = tokens[1];
-      const insPrepCeci = tokens[2];
-      const insCeci = tokens[3];
-      const insPrepCela = tokens[4];
-      const insCela = tokens[5];
-
-      const actionCeci = InstructionsUtils.getCible(insCeci, ceci, cela, evenement, this.eju, this.jeu);
-      const actionCela = InstructionsUtils.getCible(insCela, ceci, cela, evenement, this.eju, this.jeu);
-
-      const resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false);
-
-      // action pas trouvée
-      if (!resChercherCandidats.verbeConnu) {
-        res.sortie = "{+[{_Exécuter Action_} : Action pas trouvée : " + insInfinitif + "]+}";
-        res.succes = false;
-        // aucun candidat valide trouvé
-      } else if (resChercherCandidats.candidatsEnLice.length === 0) {
-        res.sortie = "{+[{_Exécuter Action_} : Action pas compatible : " + insInfinitif + "]+}";
-        console.error("Exécuter l’action: Action pas compatible.");
-        res.succes = false;
-        // exactement une action trouvée
-      } else if (resChercherCandidats.candidatsEnLice.length === 1) {
-        let action = resChercherCandidats.candidatsEnLice[0];
-        const sousResExecuter = this.executerInstructions(action.instructions, actionCeci, actionCela, evenement, declenchements);
-        const sousResTerminer = this.executerInstructions(action.instructionsFinales, actionCeci, actionCela, evenement, declenchements);
-        res.sortie = res.sortie + sousResExecuter.sortie + sousResTerminer.sortie;
-        res.succes = sousResExecuter.succes && sousResTerminer.succes;
-        res.nombre = 1 + sousResExecuter.nombre + sousResTerminer.nombre;
-        // plusieurs actions trouvées
-      } else {
-        res.sortie = "{+Aïe: {_Exécuter Action_} : Plusieurs actions compatibles trouvées pour : " + insInfinitif + ".+}"
-        res.succes = false;
-      }
-
-    } else {
-      console.error("executerAction: format complément1 par reconnu:", instruction.complement1);
-      res.succes = false;
-    }
-
-    return res;
-  }
 
 
 }

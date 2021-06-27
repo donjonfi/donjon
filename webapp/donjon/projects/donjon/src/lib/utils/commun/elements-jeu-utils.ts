@@ -675,7 +675,13 @@ export class ElementsJeuUtils {
  * @param inclureObjetsCachesDeCeci 
  * @param preposition (dans, sur, sous)
  */
-  public trouverContenu(ceci: ElementJeu, inclureObjetsCachesDeCeci: boolean, inclureObjetsNonVisibles: boolean, preposition: PrepositionSpatiale) {
+  public trouverContenu(
+    ceci: ElementJeu,
+    inclureObjetsCachesDeCeci: boolean,
+    inclureObjetsNonVisibles: boolean,
+    inclureObjetsDansSurSous: boolean,
+    preposition: PrepositionSpatiale
+  ) {
     let objets: Objet[] = null;
     if (ceci) {
       // objet
@@ -710,6 +716,29 @@ export class ElementsJeuUtils {
         console.error("executerAfficherContenu: classe racine pas pris en charge:", ceci.classe);
       }
     }
+
+    // si on doit afficher les objets dans, sur, sous les objets trouvés
+    if (inclureObjetsDansSurSous) {
+      let objetsDansSurSous: Objet[] =[];
+      objets.forEach(obj => {
+        // ajouter les objets sur
+        const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.dans);
+        if(objetsDans.length){
+          objetsDansSurSous.push(...objetsDans);
+        }
+        // ajouter les objets dans
+        const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sur);
+        if(objetsSur.length){
+          objetsDansSurSous.push(...objetsSur);
+        }
+        // ajouter les objets sous
+        const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sous);
+        if(objetsSous.length){
+          objetsDansSurSous.push(...objetsSous);
+        }
+      });
+    }
+
     return objets;
   }
 

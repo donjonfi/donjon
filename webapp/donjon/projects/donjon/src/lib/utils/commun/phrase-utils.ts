@@ -604,7 +604,7 @@ export class PhraseUtils {
       retVal = new ProprieteJeu(TypeProprieteJeu.nombreDeProprieteElement);
       // propriété
       const propriete = intituleEstUnNombreDePropriete[1];
-      retVal.intituleProprieteElement = new GroupeNominal(null, propriete);
+      retVal.intituleProprieteElement = new GroupeNominal(null, propriete, null);
       // élément
       const prepositionElement = intituleEstUnNombreDePropriete[2] ?? null;
       const determinantElement = PhraseUtils.trouverDeterminant(prepositionElement);

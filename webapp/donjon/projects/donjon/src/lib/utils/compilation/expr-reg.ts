@@ -577,7 +577,7 @@ export class ExprReg {
   // ================================================================================================
 
   /**
-   * derterminant déterminant(1) propriété(2) préposition(3) nom(4) épithète(5)
+   * déterminant(1) propriété(2) préposition(3) nom(4) épithète(5)
    * 
    * - La valeur de ceci
    * - L’intitulé de ceci
@@ -585,7 +585,7 @@ export class ExprReg {
    * - La taille de la pomme rouge
    * - Le texte du livre
    */
-   static readonly xProprieteElement = /^(le |la |les |l'|l’)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+   static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
 
    /**
     * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
