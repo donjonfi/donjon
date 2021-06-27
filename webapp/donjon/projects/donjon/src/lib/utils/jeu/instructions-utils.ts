@@ -155,8 +155,9 @@ export class InstructionsUtils {
       if (!recherche.element) {
         console.error("trouverProprieteCible > élément pas trouvé:", recherche.intituleElement);
       }
-      // retrouver la classe
-    } else if (recherche.intituleClasse) {
+    }
+    // retrouver la classe
+    if (recherche.intituleClasse) {
       recherche.classe = ClasseUtils.trouverClasse(jeu.classes, recherche.intituleClasse)
       if (!recherche.classe) {
         console.error("trouverProprieteCible > classe pas trouvée:", recherche.intituleClasse);
