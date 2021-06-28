@@ -288,9 +288,9 @@ export class InstructionsUtils {
     copie.quantite = original.quantite;
     copie.nombre = original.nombre;
     copie.genre = original.genre;
-    copie.description = original.description;
-    copie.apercu = original.apercu;
-    copie.texte = original.texte;
+    // copie.description = original.description;
+    // copie.apercu = original.apercu;
+    // copie.texte = original.texte;
     copie.intituleS = original.intituleS;
     copie.intituleP = original.intituleP;
 

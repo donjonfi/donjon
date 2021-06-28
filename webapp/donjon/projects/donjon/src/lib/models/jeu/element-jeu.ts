@@ -5,6 +5,7 @@ import { GroupeNominal } from '../commun/groupe-nominal';
 import { Intitule } from './intitule';
 import { Nombre } from '../commun/nombre.enum';
 import { ProprieteElement } from '../commun/propriete-element';
+import { TypeValeur } from '../compilateur/type-valeur';
 
 export class ElementJeu extends Intitule {
 
@@ -53,7 +54,7 @@ export class ElementJeu extends Intitule {
    * - Indéfini
    */
   public nombre: Nombre = null;
-  
+
   /**
    * Quantité disponible de l’élément.
    * > -1: illimité.
@@ -65,15 +66,73 @@ export class ElementJeu extends Intitule {
   /** Intitulé (pluriel) */
   public intituleP: GroupeNominal = null;
 
+  // /** Titre (lieux) */
+  // public titre: string = null;
+
+  // /** Description du lieu (regarder) ou de l’objet (examiner) */
+  // public description: string = null;
+  // /** Texte s’affichant lorsqu’on peut apercevoir l’objet dans un lieu. */
+  // public apercu: string = null;
+  // /** Texte s’affichant lorsqu’on lit l’objet. */
+  // public texte: string = null;
+
   /** Titre (lieux) */
-  public titre: string = null;
+  get titre(): string {
+    return this.proprietes.find(x => x.nom == 'titre')?.valeur;
+  }
+  /** Titre (lieux) */
+  set titre(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'titre');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteElement('titre', TypeValeur.mots, valeur));
+    }
+  }
 
   /** Description du lieu (regarder) ou de l’objet (examiner) */
-  public description: string = null;
+  get description(): string {
+    return this.proprietes.find(x => x.nom == 'description')?.valeur;
+  }
+  /** Description du lieu (regarder) ou de l’objet (examiner) */
+  set description(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'description');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteElement('description', TypeValeur.mots, valeur));
+    }
+  }
+
   /** Texte s’affichant lorsqu’on peut apercevoir l’objet dans un lieu. */
-  public apercu: string = null;
+  get apercu(): string {
+    return this.proprietes.find(x => x.nom == 'aperçu')?.valeur;
+  }
+  /** Texte s’affichant lorsqu’on peut apercevoir l’objet dans un lieu. */
+  set apercu(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'aperçu');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteElement('aperçu', TypeValeur.mots, valeur));
+    }
+  }
+
   /** Texte s’affichant lorsqu’on lit l’objet. */
-  public texte: string = null;
+  get texte(): string {
+    return this.proprietes.find(x => x.nom == 'texte')?.valeur;
+  }
+
+  /** Texte s’affichant lorsqu’on lit l’objet. */
+  set texte(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'texte');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteElement('texte', TypeValeur.mots, valeur));
+    }
+  }
+
 
   /** Propriétés de l’élément */
   public proprietes: ProprieteElement[] = [];

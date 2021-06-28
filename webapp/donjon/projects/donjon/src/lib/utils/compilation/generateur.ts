@@ -22,6 +22,7 @@ import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { Parametres } from '../../models/commun/parametres';
+import { ProprieteElement } from '../../models/commun/propriete-element';
 import { Regle } from '../../models/compilateur/regle';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
@@ -87,7 +88,6 @@ export class Generateur {
       let titreSansAutoMaj = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
       // mettre majuscule en début d’intitulé (début de Phrase)
       let titre = titreSansAutoMaj[0].toUpperCase() + titreSansAutoMaj.slice(1);
-
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
 
       let nouvLieu = new Lieu(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, titre);
@@ -107,45 +107,37 @@ export class Generateur {
       }
 
       // parcourir les propriétés du lieu
+      let nouvellesProp: ProprieteElement[] = []
       curEle.proprietes.forEach(pro => {
-        switch (pro.nom) {
-          case 'description':
-            nouvLieu.description = pro.valeur;
-            break;
-
-          case 'titre':
-            nouvLieu.titre = pro.valeur;
-            break;
-
-          case 'texte':
-            nouvLieu.texte = pro.valeur;
-            break;
-
-          case 'intitulé':
-            // TODO: gérer groupe nominal ?
-            nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
-            if (nouvLieu.nombre == Nombre.p) {
-              nouvLieu.intituleP = nouvLieu.intitule;
-            } else {
-              nouvLieu.intituleS = nouvLieu.intitule;
-            }
-            break;
-
-          case 'aperçu':
-          case 'apercu':
-            nouvLieu.apercu = pro.valeur;
-            break;
-
-          default:
-            break;
+        // spécial: intitulé
+        if (pro.nom == 'intitulé') {
+          // TODO: gérer groupe nominal ?
+          nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
+          if (nouvLieu.nombre == Nombre.p) {
+            nouvLieu.intituleP = nouvLieu.intitule;
+          } else {
+            nouvLieu.intituleS = nouvLieu.intitule;
+          }
+        // autres propriétés
+        } else {
+          // fix ç de aperçu
+          if (pro.nom == 'apercu') {
+            pro.nom = 'aperçu';
+          }
+          // ajouter ou mettre à jour
+          const proExistantDeja = nouvLieu.proprietes.find(x => x.nom == pro.nom);
+          if (proExistantDeja) {
+            proExistantDeja.valeur = pro.valeur;
+          } else {
+            nouvellesProp.push(pro);
+          }
         }
       });
-      nouvLieu.proprietes = curEle.proprietes;
-
+      nouvLieu.proprietes.push(...nouvellesProp);
+      
       if (nouvLieu.description === null) {
         nouvLieu.description = "Vous êtes dans " + titreSansAutoMaj + ".";
       }
-
       jeu.lieux.push(nouvLieu);
     });
 
@@ -161,7 +153,6 @@ export class Generateur {
     let joueur = new Objet(jeu.nextID++, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
-    joueur.description = "(C’est vous)";
     joueur.synonymes = [
       new GroupeNominal("", "moi", null)
     ];
@@ -179,27 +170,61 @@ export class Generateur {
           joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
         }
       }
-      // parcourir les propriétés du joueur
-      joueurDansMonde.proprietes.forEach(pro => {
-        switch (pro.nom) {
-          case 'description':
-            joueurDansMonde.description = pro.valeur;
-            break;
 
-          default:
-            break;
+      // parcourir les propriétés du joueur
+      let nouvellesProp: ProprieteElement[] = []
+      joueurDansMonde.proprietes.forEach(pro => {
+        // spécial: intitulé
+        if (pro.nom == 'intitulé') {
+          // TODO: gérer groupe nominal ?
+          joueur.intitule = new GroupeNominal(null, pro.valeur);
+          if (joueur.nombre == Nombre.p) {
+            joueur.intituleP = joueur.intitule;
+          } else {
+            joueur.intituleS = joueur.intitule;
+          }
+        // autres propriétés
+        } else {
+          // fix ç de aperçu
+          if (pro.nom == 'apercu') {
+            pro.nom = 'aperçu';
+          }
+          // ajouter ou mettre à jour
+          const proExistantDeja = joueur.proprietes.find(x => x.nom == pro.nom);
+          if (proExistantDeja) {
+            proExistantDeja.valeur = pro.valeur;
+          } else {
+            nouvellesProp.push(pro);
+          }
         }
       });
-      // ajouter description du joueur
-      if (joueurDansMonde.description) {
-        joueur.description = joueurDansMonde.description;
-      }
+      joueur.proprietes.push(...nouvellesProp);
+
+      // // parcourir les propriétés du joueur
+      // joueurDansMonde.proprietes.forEach(pro => {
+      //   switch (pro.nom) {
+      //     case 'description':
+      //       joueurDansMonde.description = pro.valeur;
+      //       break;
+
+      //     default:
+      //       break;
+      //   }
+      // });
+      // // ajouter description du joueur
+      // if (joueurDansMonde.description) {
+      //   joueur.description = joueurDansMonde.description;
+      // }
+
       // ajouter attributs du joueur
       if (joueurDansMonde.attributs) {
         joueurDansMonde.attributs.forEach(attribut => {
           jeu.etats.ajouterEtatElement(joueur, attribut);
         });
       }
+    }
+    if (!joueurDansMonde.description) {
+      joueur.description = "(C’est vous)";
     }
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
@@ -214,11 +239,6 @@ export class Generateur {
         if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
           newObjet.idOriginal = newObjet.classe.id;
         }
-
-        newObjet.description = curEle.description;
-        // newObjet.apercu = curEle.apercu;
-        // newObjet.texte = curEle.texte;
-        // newObjet.etats = curEle.attributs ?? [];
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
         newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
@@ -269,35 +289,39 @@ export class Generateur {
           }
         }
 
-        // parcourir les propriétés de l’élément
-        curEle.proprietes.forEach(pro => {
-          switch (pro.nom) {
-            case 'description':
-              newObjet.description = pro.valeur;
-              break;
-            case 'aperçu':
-            case 'apercu':
-              newObjet.apercu = pro.valeur;
-              break;
-            case 'texte':
-              newObjet.texte = pro.valeur;
-              break;
-            case 'intitulé':
-              // TODO: gérer groupe nominal ?
-              newObjet.intitule = new GroupeNominal(null, pro.valeur);
-              if (newObjet.nombre == Nombre.p) {
-                newObjet.intituleP = newObjet.intitule;
-              } else {
-                newObjet.intituleS = newObjet.intitule;
-              }
-              break;
-
-            default:
-              break;
+      // parcourir les propriétés de l’objet
+      let nouvellesProp: ProprieteElement[] = []
+      curEle.proprietes.forEach(pro => {
+        // spécial: intitulé
+        if (pro.nom == 'intitulé') {
+          // TODO: gérer groupe nominal ?
+          newObjet.intitule = new GroupeNominal(null, pro.valeur);
+          if (newObjet.nombre == Nombre.p) {
+            newObjet.intituleP = newObjet.intitule;
+          } else {
+            newObjet.intituleS = newObjet.intitule;
           }
-        });
-        newObjet.proprietes = curEle.proprietes;
-
+        // autres propriétés
+        } else {
+          // fix ç de aperçu
+          if (pro.nom == 'apercu') {
+            pro.nom = 'aperçu';
+          }
+          // ajouter ou mettre à jour
+          const proExistantDeja = newObjet.proprietes.find(x => x.nom == pro.nom);
+          if (proExistantDeja) {
+            proExistantDeja.valeur = pro.valeur;
+          } else {
+            nouvellesProp.push(pro);
+          }
+        }
+      });
+      newObjet.proprietes.push(...nouvellesProp);
+        
+        // écraser description
+        if (curEle.description) {
+          newObjet.description = curEle.description;
+        }
 
         if (newObjet.description === null) {
           // mettre un déterminant indéfini, sauf si intitulé sans déterminant.
