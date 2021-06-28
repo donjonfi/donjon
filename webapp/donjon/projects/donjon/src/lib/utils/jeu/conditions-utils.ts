@@ -380,21 +380,21 @@ export class ConditionsUtils {
             case 'valent':
             case 'vaut':
               // remarque: négation appliquée plus loin.
-              retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement);
+              retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
               break;
 
             // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
             case 'dépasse':
             case 'dépassent':
               // remarque: négation appliquée plus loin.
-              retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement);
+              retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
               break;
 
             // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
             case 'atteint':
             case 'atteignent':
               // remarque: négation appliquée plus loin.
-              retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement);
+              retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
               break;
 
             case 'se déclenche':
