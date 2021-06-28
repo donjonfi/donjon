@@ -318,8 +318,20 @@ export class InstructionsUtils {
     return copie;
   }
 
-
-
+  public static corrigerQuantite(objetSource: Objet, quantite: number): number {
+    // console.log(">> quantité demandée=", quantite);
+    // console.log(">> quantité disponible=", objetSource.quantite);
+    // corriger la quantité
+    // -1 => si nombre de copies pas précisé, on prend tous les exemplaires
+    if (quantite < 1) {
+      quantite = objetSource.quantite;
+      // si quantité demandée dépasse nombre d’exemplaires (et que le nombre d’exemplaire n’est pas infini), déplacer ce qu’il y a.
+    } else if (quantite > objetSource.quantite && objetSource.quantite !== -1) {
+      quantite = objetSource.quantite;
+    }
+    // console.log(">> quantité corrigée=", quantite);
+    return quantite;
+  }
 
 
 }
