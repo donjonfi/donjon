@@ -42,7 +42,7 @@ export class InstructionDire {
     // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
     // ======================================================================================================
 
-    const balisePropriete = "(description|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici|quantitéCeci|quantitéCela)";
+    const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici|quantitéCeci|quantitéCela)";
     const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
     const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -74,12 +74,6 @@ export class InstructionDire {
             case 'Quantite':
             case 'quantite':
               resultat = cibleElement.quantite.toString();
-              break;
-
-            // > description
-            case 'description':
-            case 'Description':
-              resultat = this.calculerDescription(cibleElement.description, ++cibleElement.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cibleElement, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
               break;
 
             case 'intitulé':
@@ -264,27 +258,6 @@ export class InstructionDire {
       }
     }
 
-    // Texte (d’un objet)
-    if (contenu.includes("[texte")) {
-      if (contenu.includes("[texte ceci]")) {
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const objCeci = ceci as Objet;
-          const texteCeci = this.calculerDescription(objCeci.texte, ++objCeci.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(objCeci, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-          contenu = contenu.replace(/\[texte ceci\]/g, texteCeci);
-        } else {
-          console.error("interpreterContenuDire: texte de ceci: ceci n'est pas un objet");
-        }
-      }
-      if (contenu.includes("[texte cela]")) {
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const objCela = cela as Objet;
-          const texteCela = this.calculerDescription(objCela.texte, ++objCela.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(objCela, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-          contenu = contenu.replace(/\[texte cela\]/g, texteCela);
-        } else {
-          console.error("interpreterContenuDire: texte de cela: cela n'est pas un objet");
-        }
-      }
-    }
 
     // ================================================================================
     // STATUT
@@ -597,7 +570,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeProprieteMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
     }
 
     // Le nombre de classe état1 état2 position
@@ -606,16 +579,25 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeClasseEtatPossitionMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
     }
 
     // La propriété de élément
-    const xBaliseProprieteElementMulti = /\[(le (?!nombre)|la |les |l'|l’)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+    const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!nombre)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+    if (xBaliseProprieteDeElementMulti.test(contenu)) {
+      // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
+      const allBalises = contenu.match(xBaliseProprieteDeElementMulti);
+      // remplacer les balises par leur valeur
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
+    }
+
+    // propriété élément
+    const xBaliseProprieteElementMulti = /\[(?!:le |la |les |l'|l’)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
     if (xBaliseProprieteElementMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteElementMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, true, ceci, cela);
     }
 
     // ===================================================
@@ -670,10 +652,11 @@ export class InstructionDire {
    * Traiter les propriétés trouvés dans contenu et remplacer les balises par la valeur.
    * @param contenu 
    * @param allBalises 
+   * @param sansDe Le de après le premier mot est manquant (ex: description table => description de table)
    * @param ceci 
    * @param cela 
    */
-  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): string {
+  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, sansDe: boolean, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): string {
     // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
     const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
     // parcourir chaque balise trouvée
@@ -681,10 +664,18 @@ export class InstructionDire {
       let valeur = "???";
       // enlever les []
       const curProprieteIntitule = curBalise.slice(1, (curBalise.length - 1));
-      // ajouter « le » devant « nombre de »
-      const curProprieteIntituleCorrigee = curProprieteIntitule.startsWith("nombre d") ? ("le " + curProprieteIntitule) : curProprieteIntitule;
+      // ajouter le « de » s’il est asbent de l’expression (ex: description table => description de table)
+      let curProprieteIntituleCorrige = curProprieteIntitule;
+      if (sansDe) {
+        curProprieteIntituleCorrige = curProprieteIntituleCorrige.replace(" ", " de "); // rem: seul premier espace est remplacé.
+      }
+      // ajouter déterminant « le » devant la propriété si pas déjà présent (ex: titre de la table => le titre de la table)
+      if (!curProprieteIntituleCorrige.match(/^(le |la |les |l'|l’)/i)) {
+        curProprieteIntituleCorrige = ("le " + curProprieteIntituleCorrige);
+      }
+
       // informations de la propriété
-      const curPropriete = PhraseUtils.trouverPropriete(curProprieteIntituleCorrigee);
+      const curPropriete = PhraseUtils.trouverPropriete(curProprieteIntituleCorrige);
       if (curPropriete) {
         // retrouver la propriété dans l’objet cible                  
         const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, ceci, cela, this.eju, this.jeu);
@@ -697,10 +688,6 @@ export class InstructionDire {
           }
         }
       }
-
-      console.log("curProprieteIntitule:", curProprieteIntitule);
-      console.log("valeur:", valeur);
-      console.log("contenu:", contenu);
 
 
       // remplacer la balise par la valeur
