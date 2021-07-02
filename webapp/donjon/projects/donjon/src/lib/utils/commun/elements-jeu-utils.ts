@@ -719,21 +719,21 @@ export class ElementsJeuUtils {
 
     // si on doit afficher les objets dans, sur, sous les objets trouvés
     if (inclureObjetsDansSurSous) {
-      let objetsDansSurSous: Objet[] =[];
+      let objetsDansSurSous: Objet[] = [];
       objets.forEach(obj => {
         // ajouter les objets sur
         const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.dans);
-        if(objetsDans.length){
+        if (objetsDans.length) {
           objetsDansSurSous.push(...objetsDans);
         }
         // ajouter les objets dans
         const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sur);
-        if(objetsSur.length){
+        if (objetsSur.length) {
           objetsDansSurSous.push(...objetsSur);
         }
         // ajouter les objets sous
         const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sous);
-        if(objetsSous.length){
+        if (objetsSous.length) {
           objetsDansSurSous.push(...objetsSous);
         }
       });

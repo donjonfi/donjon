@@ -71,7 +71,7 @@ export class InstructionDire {
 
             case 'Quantité':
             case 'quantité':
-            case 'quantite':
+            case 'Quantite':
             case 'quantite':
               resultat = cibleElement.quantite.toString();
               break;
@@ -465,34 +465,37 @@ export class InstructionDire {
         let resultatCurBalise: string = null;
         if (cible) {
           switch (proprieteString) {
+            // nom
             case 'nom':
               resultatCurBalise = cible.nom;
               break;
-            case 'titre':
-              resultatCurBalise = cible.titre;
-              break;
-            case 'quantité':
-            case 'quantite':
-              resultatCurBalise = cible.quantite.toString();
-              break;
-            case 'description':
-              resultatCurBalise = this.calculerDescription(cible.description, ++cible.nbAffichageDescription, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-              break;
+            // intitulé (connu forcé)
             case 'intitulé':
             case 'intitule':
               resultatCurBalise = this.eju.calculerIntituleElement(cible, false, true);
               break;
+            // Intitulé (maj forcée, connu forcé)
             case 'Intitulé':
             case 'Intitule':
               resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
               break;
-            case 'texte':
-              resultatCurBalise = this.calculerDescription(cible.texte, ++cible.nbAffichageTexte, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+            // quantité
+            case 'quantité':
+            case 'quantite':
+              resultatCurBalise = cible.quantite.toString();
               break;
+
+            // Propriété
             default:
               const propriete = cible.proprietes.find(x => x.nom == proprieteString);
               if (propriete) {
-                resultatCurBalise = propriete.valeur;
+                // texte
+                if (propriete.type == TypeValeur.mots) {
+                  resultatCurBalise = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+                  // nombre
+                } else {
+                  resultatCurBalise = propriete.valeur;
+                }
               } else {
                 resultatCurBalise = "(propriété « " + proprieteString + " » pas trouvée)";
               }
@@ -512,7 +515,7 @@ export class InstructionDire {
     // COMPTEURS [c nomCompteur]
     // ===================================================
     if (contenu.includes("[c ")) {
-      // retrouver toutes les balises de propriété [p xxx ceci]
+      // retrouver toutes les balises de compteurs [c xxx]
       const xBaliseGenerique = /\[c (\S+)\]/gi;
       const allBalises = contenu.match(xBaliseGenerique);
       // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
@@ -698,11 +701,11 @@ export class InstructionDire {
       console.log("curProprieteIntitule:", curProprieteIntitule);
       console.log("valeur:", valeur);
       console.log("contenu:", contenu);
-      
+
 
       // remplacer la balise par la valeur
       const regExp = new RegExp("\\[" + curProprieteIntitule + "\\]", "g");
-      contenu = contenu.replace(regExp, valeur);    
+      contenu = contenu.replace(regExp, valeur);
     });
     return contenu;
   }
