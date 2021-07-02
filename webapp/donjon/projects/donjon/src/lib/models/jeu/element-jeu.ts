@@ -67,9 +67,11 @@ export class ElementJeu extends Intitule {
   public intituleP: GroupeNominal = null;
 
 
+  // RACCOURCIS: TITRE
+
   /** Titre (lieux) */
   get titre(): string {
-    return this.proprietes.find(x => x.nom == 'titre')?.valeur;
+    return this.proprietes.find(x => x.nom == 'titre')?.valeur ?? null;
   }
   /** Titre (lieux) */
   set titre(valeur: string) {
@@ -81,9 +83,11 @@ export class ElementJeu extends Intitule {
     }
   }
 
+  // RACCOURCIS: DESCRIPTION
+
   /** Description du lieu (regarder) ou de l’objet (examiner) */
   get description(): string {
-    return this.proprietes.find(x => x.nom == 'description')?.valeur;
+    return this.proprietes.find(x => x.nom == 'description')?.valeur ?? null;
   }
   /** Description du lieu (regarder) ou de l’objet (examiner) */
   set description(valeur: string) {
@@ -97,16 +101,18 @@ export class ElementJeu extends Intitule {
 
   /** Nombre d'affichages de la description de l’objet. */
   get nbAffichageDescription(): number {
-    return this.proprietes.find(x => x.nom == 'description')?.nbAffichage;
+    return this.proprietes.find(x => x.nom == 'description').nbAffichage;
   }
   /** Nombre d'affichages de la description de l’objet. */
   set nbAffichageDescription(valeur: number) {
     this.proprietes.find(x => x.nom == 'description').nbAffichage = valeur;
   }
 
+  // RACCOURCIS: APERÇU
+
   /** Texte s’affichant lorsqu’on peut apercevoir l’objet dans un lieu. */
   get apercu(): string {
-    return this.proprietes.find(x => x.nom == 'aperçu')?.valeur;
+    return this.proprietes.find(x => x.nom == 'aperçu')?.valeur ?? null;
   }
 
   /** Texte s’affichant lorsqu’on peut apercevoir l’objet dans un lieu. */
@@ -128,9 +134,11 @@ export class ElementJeu extends Intitule {
     this.proprietes.find(x => x.nom == 'aperçu').nbAffichage = valeur;
   }
 
+  // RACCOURCIS: TEXTE 
+
   /** Texte s’affichant lorsqu’on lit l’objet. */
   get texte(): string {
-    return this.proprietes.find(x => x.nom == 'texte')?.valeur;
+    return this.proprietes.find(x => x.nom == 'texte')?.valeur ?? null;
   }
 
   /** Texte s’affichant lorsqu’on lit l’objet. */
