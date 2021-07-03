@@ -341,27 +341,28 @@ export class LecteurComponent implements OnInit, OnChanges {
         // VÉREFIER FIN DE PARTIE
         // vérifier si le jeu n’est pas déjà terminé
         if (this.jeu.termine) {
-          return "Le jeu est terminé.{n}Pour débuter une nouvelle partie veuillez actualiser la page web.";
-        }
-
-        // GESTION HISTORIQUE
-        // ajouter à l’historique (à condition que différent du précédent)
-        if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
-          this.historiqueCommandes.push(commandeNettoyee);
-          if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
-            this.historiqueCommandes.shift();
-          }
-        }
-
-        // EXÉCUTION DE LA COMMANDE
-        const sortieCommande = this.com.executerCommande(commandeComplete.trim());
-        if (sortieCommande) {
-          this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+          this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
         } else {
-          this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
-        }
+          // GESTION HISTORIQUE
+          // ajouter à l’historique (à condition que différent du précédent)
+          if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
+            this.historiqueCommandes.push(commandeNettoyee);
+            if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
+              this.historiqueCommandes.shift();
+            }
+          }
 
-        this.sortieJoueur += "</p>";
+          // EXÉCUTION DE LA COMMANDE
+          const sortieCommande = this.com.executerCommande(commandeComplete.trim());
+          if (sortieCommande) {
+            this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+          } else {
+            this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
+          }
+
+          this.sortieJoueur += "</p>";
+        }
+        // nettoyer l’entrée commande et scroll du texte
         this.commande = "";
         setTimeout(() => {
           this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
