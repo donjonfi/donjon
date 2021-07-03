@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.7".
+La version du jeu est "1.8".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -259,6 +259,14 @@ après prendre clé:
   changer l'historique contient "clé trouvée";
   dire "Vous trouvez une clé dorée dont la tête est en forme de Bretzel.".
 interpréter chose brillante et objet brillant comme la clé.
+
+avant manger clé:
+  dire "Vous vous goinffrez avec la clé la boite aux lettres.
+        Malheureusement vous n’avez pas pu sauver noël.
+        
+        Vous avez perdu.";
+  terminer le jeu;
+  stopper l’action.
 
 --> La locomotive
 La locomotive est un objet caché dans l'atelier. "L'objet brillant est en fait une clé.".
