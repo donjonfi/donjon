@@ -205,7 +205,7 @@ export class Generateur {
       joueur.proprietes.push(...nouvellesProp);
 
       // description du joueur par défaut
-      if (!joueurDansMonde.description) {
+      if (joueur.description === null) {
         joueur.description = "(C’est vous)";
       }
 
