@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Coincé".
 L’auteur du jeu est "Jonathan Claes".
-La version du jeu est "1.9".
+La version du jeu est "1.10".
 Le titre de la licence est "Creative Commons Attribution 4.0 International License".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -60,10 +60,17 @@ Interpréter le clavier comme le coffre.
 -- anneau
 L'anneau est un objet dans le coffre. "C'est un anneau doré. Il est probablement magique.".
   Il est portable.
+  
+après mettre anneau:
+  si la règle se déclenche pour la première fois:
+    dire "Vous sentez une force puissante vous envahir!";
+  fin si
+  terminer l’action avant.
 
 -- porte
 La porte secrète est une porte au nord du salon.
 Elle est fermée, verrouillée et invisible.
+Interpréter porte comme la porte secrète.
 
 -- mur
 Le mur est un support décoratif dans le salon. "Les murs de la pièce sont peints en vert.".
