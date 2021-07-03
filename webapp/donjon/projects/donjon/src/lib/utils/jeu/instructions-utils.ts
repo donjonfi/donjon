@@ -288,16 +288,8 @@ export class InstructionsUtils {
     copie.quantite = original.quantite;
     copie.nombre = original.nombre;
     copie.genre = original.genre;
-    // copie.description = original.description;
-    // copie.apercu = original.apercu;
-    // copie.texte = original.texte;
     copie.intituleS = original.intituleS;
     copie.intituleP = original.intituleP;
-
-    // copier le nombre d’affichage de la description
-    copie.nbAffichageDescription = original.nbAffichageDescription;
-    copie.nbAffichageApercu = original.nbAffichageApercu;
-    copie.nbAffichageTexte = original.nbAffichageTexte;
 
     // copier les états
     original.etats.forEach(etat => {
@@ -311,7 +303,7 @@ export class InstructionsUtils {
 
     // copier les propriétés
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur));
+      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
     });
 
     // TODO: faut-il copier le contenu (support/contenant/…) ?

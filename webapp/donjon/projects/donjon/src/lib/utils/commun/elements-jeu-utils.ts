@@ -804,18 +804,11 @@ export class ElementsJeuUtils {
    */
   copierObjet(original: Objet) {
     let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, Nombre.s);
-    // copie.description = original.description;
-    // copie.apercu = original.apercu;
-    // copie.texte = original.texte;
+
     copie.intituleS = original.intituleS;
     copie.intituleP = original.intituleP;
     // retrouver id de l’objet original
     copie.idOriginal = original.idOriginal ? original.idOriginal : original.id;
-
-    // copier le nombre d’affichage de la description
-    copie.nbAffichageDescription = original.nbAffichageDescription;
-    copie.nbAffichageApercu = original.nbAffichageApercu;
-    copie.nbAffichageTexte = original.nbAffichageTexte;
 
     // copier les états
     original.etats.forEach(etat => {
@@ -830,10 +823,10 @@ export class ElementsJeuUtils {
     });
 
     // copier les propriétés
+    // TODO: faut-il copier le nombre d’affichage ?
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur));
+      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
     });
-
 
     // TODO: faut-il copier le contenu ?
     return copie;
