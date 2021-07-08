@@ -706,11 +706,7 @@ export class ConditionsUtils {
           retVal = !this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
         }
       }
-    }
-    // B) PROPRIÉTÉ
-    // desrciption
-    else if (condition.complement === 'description') {
-      retVal = (sujet as ElementJeu).description ? true : false;
+      // B) PROPRIÉTÉ
       // aperçu
     } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
       // => aperçu dans une direction
@@ -727,9 +723,6 @@ export class ConditionsUtils {
       } else {
         retVal = (sujet as ElementJeu).apercu ? true : false;
       }
-      // texte
-    } else if (condition.complement === 'texte') {
-      retVal = (sujet as ElementJeu).texte ? true : false;
       // autre
     } else {
       // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false

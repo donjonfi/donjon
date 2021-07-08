@@ -55,17 +55,39 @@ export class ElementJeu extends Intitule {
    */
   public nombre: Nombre = null;
 
-  /**
-   * Quantité disponible de l’élément.
-   * > -1: illimité.
-   */
-  public quantite: number = null;
-
   /** Intitulé (singulier) */
   public intituleS: GroupeNominal = null;
   /** Intitulé (pluriel) */
   public intituleP: GroupeNominal = null;
 
+
+  // RACCOURCIS: QUANTITÉ
+
+  /**
+   * Quantité disponible de l’élément.
+   * > -1: illimité.
+   */
+  get quantite(): number {
+    const existant = this.proprietes.find(x => x.nom == 'quantité');
+    if (existant) {
+      return parseInt(existant.valeur);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Quantité disponible de l’élément.
+   * > -1: illimité.
+   */
+  set quantite(valeur: number) {
+    let existant = this.proprietes.find(x => x.nom == 'quantité');
+    if (existant) {
+      existant.valeur = valeur.toString();
+    } else {
+      this.proprietes.push(new ProprieteElement('quantité', TypeValeur.nombre, valeur.toString()));
+    }
+  }
 
   // RACCOURCIS: TITRE
 

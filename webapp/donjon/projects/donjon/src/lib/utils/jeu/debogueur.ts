@@ -136,7 +136,6 @@ export class Debogueur {
       "{* • " + this.eju.calculerIntituleElement(objet, false, true) + "*} (" + objet.genre + ", " + objet.nombre + ")" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(objet.classe) +
       "{n}{e}{_ID_}{n}" + objet.id + (objet.idOriginal ? (' (copie de ' + objet.idOriginal + ')') : '') +
-      "{n}{e}{_quantité_}{n}" + objet.quantite +
       "{n}{e}{_synonymes_}{n}" + (objet.synonymes?.length ? objet.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
       "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
       "{n}{e}{_états_}{n}" + etats +
