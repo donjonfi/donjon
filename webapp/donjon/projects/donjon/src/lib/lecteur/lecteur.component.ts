@@ -134,10 +134,13 @@ export class LecteurComponent implements OnInit, OnChanges {
         // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
         // // if (resultatRemplacer.nombre === 0) {
 
-        // regarder où on est.
-        let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
-        const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
-        this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+        // regarder où on est (sauf si l’action n’existe pas)
+        if (this.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
+          let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
+          const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
+          this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+        }
+
         this.jeu.commence = true;
 
         // // }
