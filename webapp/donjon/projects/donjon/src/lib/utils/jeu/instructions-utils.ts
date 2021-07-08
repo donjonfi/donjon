@@ -36,14 +36,24 @@ export class InstructionsUtils {
           break;
         case 'quantitéceci':
           cible = InstructionsUtils.copierElementTemp(ceci as Objet);
-          cible.quantite = evenement.quantiteCeci;
+          // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
+          if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
+            cible.quantite = 1;
+            // sinon on prend la quantité demandée
+          } else {
+            cible.quantite = evenement.quantiteCeci;
+          }
           // nombre
           //     => multiple
           if (cible.quantite > 1) {
             cible.nombre = Nombre.p;
-            // => identique à l’original
+            // => identique à l’original (sauf si original est illimité)
           } else if (cible.quantite == -1) {
-            cible.nombre = (ceci as Objet).nombre;
+            if ((ceci as Objet).quantite == -1) {
+              cible.nombre = Nombre.s; // TODO: indénombrables
+            } else {
+              cible.nombre = (ceci as Objet).nombre;
+            }
             // => 0 ou 1
           } else {
             cible.nombre = Nombre.s;
@@ -51,14 +61,24 @@ export class InstructionsUtils {
           break;
         case 'quantitécela':
           cible = InstructionsUtils.copierElementTemp(cela as Objet);
-          cible.quantite = evenement.quantiteCela;
+          // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
+          if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
+            cible.quantite = 1;
+            // sinon on prend la quantité demandée
+          } else {
+            cible.quantite = evenement.quantiteCela;
+          }
           // nombre
           //     => multiple
           if (cible.quantite > 1) {
             cible.nombre = Nombre.p;
-            // => identique à l’original
+            // => identique à l’original (sauf si original est illimité)
           } else if (cible.quantite == -1) {
-            cible.nombre = (cela as Objet).nombre;
+            if ((cela as Objet).quantite == -1) {
+              cible.nombre = Nombre.s; // TODO: indénombrables
+            } else {
+              cible.nombre = (cela as Objet).nombre;
+            }
             // => 0 ou 1
           } else {
             cible.nombre = Nombre.s;
@@ -284,8 +304,7 @@ export class InstructionsUtils {
    * @returns copie de l’élément
    */
   private static copierElementTemp(original: ElementJeu) {
-    let copie = new ElementJeu(0, original.nom, original.intitule, original.classe); // 1, original.genre, Nombre.s);
-    copie.quantite = original.quantite;
+    let copie = new ElementJeu(0, original.nom, original.intitule, original.classe);
     copie.nombre = original.nombre;
     copie.genre = original.genre;
     copie.intituleS = original.intituleS;
@@ -314,9 +333,14 @@ export class InstructionsUtils {
     // console.log(">> quantité demandée=", quantite);
     // console.log(">> quantité disponible=", objetSource.quantite);
     // corriger la quantité
-    // -1 => si nombre de copies pas précisé, on prend tous les exemplaires
+    // -1 => si nombre de copies pas précisé, on prend tous les exemplaires, sauf si illimité.
     if (quantite < 1) {
-      quantite = objetSource.quantite;
+      if (objetSource.quantite != -1) {
+        quantite = objetSource.quantite;
+      } else {
+        quantite = 1;
+      }
+
       // si quantité demandée dépasse nombre d’exemplaires (et que le nombre d’exemplaire n’est pas infini), déplacer ce qu’il y a.
     } else if (quantite > objetSource.quantite && objetSource.quantite !== -1) {
       quantite = objetSource.quantite;
