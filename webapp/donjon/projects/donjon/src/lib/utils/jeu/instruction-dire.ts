@@ -570,7 +570,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeProprieteMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
     }
 
     // Le nombre de classe état1 état2 position
@@ -579,7 +579,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeClasseEtatPossitionMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
     }
 
     // La propriété de élément
@@ -588,7 +588,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteDeElementMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
     }
 
     // propriété élément
@@ -597,7 +597,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteElementMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, true, ceci, cela);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, true, ceci, cela, evenement, declenchements);
     }
 
     // ===================================================
@@ -656,7 +656,7 @@ export class InstructionDire {
    * @param ceci 
    * @param cela 
    */
-  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, sansDe: boolean, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): string {
+  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, sansDe: boolean, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number): string {
     // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
     const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
     // parcourir chaque balise trouvée

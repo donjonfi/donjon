@@ -131,7 +131,7 @@ export class Instructions {
         // console.warn("------ resultat.sortie:", resultat.sortie);
         break;
       case 'changer':
-        sousResultat = this.insChanger.executerChanger(instruction, ceci, cela);
+        sousResultat = this.insChanger.executerChanger(instruction, ceci, cela, evenement, declenchements);
         resultat.sortie += sousResultat.sortie;
         resultat.succes = sousResultat.succes;
         break;
@@ -221,6 +221,7 @@ export class Instructions {
             resultat.succes = sousResultat.succes;
           } else {
             console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
+            resultat.sortie = "{+[Seuls les objets ou l’écran peuvent être effacés]+}";
             resultat.succes = false;
           }
         }

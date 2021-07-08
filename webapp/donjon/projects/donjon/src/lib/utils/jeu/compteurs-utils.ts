@@ -15,7 +15,7 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class CompteursUtils {
 
   /** Changer la valeur d’un compteur */
-  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu) {
+  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number) {
 
     if (compteurOuPropriete) {
 
@@ -24,7 +24,7 @@ export class CompteursUtils {
 
       // A) compteur
       if (compteurOuPropriete instanceof Compteur) {
-        let opperationNum: number = this.intituleValeurVersNombre(valeurStr, null, null, null, eju, jeu);
+        let opperationNum: number = this.intituleValeurVersNombre(valeurStr, ceci, cela, evenement, eju, jeu);
         if (opperationNum !== null) {
           switch (verbe) {
             case 'vaut':
@@ -49,7 +49,7 @@ export class CompteursUtils {
       } else {
         // > nombre
         if (compteurOuPropriete.type == TypeValeur.nombre) {
-          let opperationNum: number = this.intituleValeurVersNombre(valeurStr, null, null, null, eju, jeu);
+          let opperationNum: number = this.intituleValeurVersNombre(valeurStr, ceci, cela, evenement, eju, jeu);
           if (opperationNum !== null) {
             switch (verbe) {
               case 'vaut':
@@ -57,11 +57,44 @@ export class CompteursUtils {
                 break;
 
               case 'diminue':
-                compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) - opperationNum).toString();
+                // cas spécifique : quantité d’objet
+                if (compteurOuPropriete.nom == 'quantité') {
+                  console.log("dim quantité");
+                  
+                  let valQuantite = parseInt(compteurOuPropriete.valeur);
+                  // on ne peut diminuer la quantité que si elle n’est pas infinie
+                  if (valQuantite != -1) {
+                    valQuantite -= opperationNum;
+                    // la quantité ne peut pas être négative
+                    if (valQuantite < 0) {
+                      valQuantite = 0;
+                    }
+                    // attribuer nouvelle valeur
+                    compteurOuPropriete.valeur = valQuantite.toString();
+                  }
+                } else {
+                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) - opperationNum).toString();
+                }
                 break;
 
               case 'augmente':
-                compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) + opperationNum).toString();
+                // cas spécifique : quantité d’objet
+                if (compteurOuPropriete.nom == 'quantité') {
+                  console.log("aug quantité");
+                  let valQuantite = parseInt(compteurOuPropriete.valeur);
+                  // on ne peut diminuer la quantité que si elle n’est pas infinie
+                  if (valQuantite != -1) {
+                    valQuantite += opperationNum;
+                    // la quantité ne peut pas être négative
+                    if (valQuantite < 0) {
+                      valQuantite = 0;
+                    }
+                    // attribuer nouvelle valeur
+                    compteurOuPropriete.valeur = valQuantite.toString();
+                  }
+                } else {
+                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) + opperationNum).toString();
+                }
                 break;
 
               default:
@@ -74,7 +107,7 @@ export class CompteursUtils {
           switch (verbe) {
             case 'vaut':
             case 'est':
-              compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, null, null, null, eju, jeu);
+              compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, ceci, cela, evenement, eju, jeu);
               break;
 
             case 'diminue':

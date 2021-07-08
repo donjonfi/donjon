@@ -6,6 +6,7 @@ import { CompteursUtils } from "./compteurs-utils";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
+import { Evenement } from "../../models/jouer/evenement";
 import { InstructionDeplacerCopier } from "./instruction-deplacer-copier";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
@@ -34,7 +35,7 @@ export class InstructionChanger {
   }
 
   /** Changer quelque chose dans le jeu */
-  public executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null): Resultat {
+  public executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
@@ -55,7 +56,7 @@ export class InstructionChanger {
           if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(ceci as ElementJeu, instruction);
           } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.compteur)) {
-            resultat = this.changerCompteur(ceci as Compteur, instruction);
+            resultat = this.changerCompteur(ceci as Compteur, instruction, ceci, cela, evenement, declenchements);
           } else {
             console.error("executer changer ceci: ceci n'est pas un élément du jeu ou un compteur.");
           }
@@ -66,7 +67,7 @@ export class InstructionChanger {
           if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(cela as ElementJeu, instruction);
           } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.compteur)) {
-            resultat = this.changerCompteur(cela as Compteur, instruction);
+            resultat = this.changerCompteur(cela as Compteur, instruction, ceci, cela, evenement, declenchements);
           } else {
             console.error("executer changer cela: cela n'est pas un élément du jeu ou un compteur.");
           }
@@ -95,7 +96,7 @@ export class InstructionChanger {
             // COMPTEUR(S) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {
             if (correspondance.compteurs.length === 1) {
-              resultat = this.changerCompteur(correspondance.compteurs[0], instruction);
+              resultat = this.changerCompteur(correspondance.compteurs[0], instruction, ceci, cela, evenement, declenchements);
             } else {
               console.error("executerChanger: plusieurs compteurs trouvés:", correspondance);
             }
@@ -124,30 +125,42 @@ export class InstructionChanger {
             switch (instruction.verbe.toLowerCase()) {
               case 'augmente':
               case 'augmentent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
                 break;
 
               case 'diminue':
               case 'diminuent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
                 break;
 
               case 'vaut':
               case 'valent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
                 break;
 
               case 'est':
               case 'sont':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
                 break;
 
               default:
                 resultat.succes = false;
                 console.error("changer propriété: pas compris le verbe:", instruction.verbe, instruction, this.eju, this.jeu);
                 break;
-
             }
+
+            // si suite à la modification de la quantité d’un objet, la quantité atteint 0, effacer l’objet.
+            if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement && propSujetTrouvee.nom === 'quantité') {
+              if (ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet) && instruction.proprieteSujet.element.quantite === 0) {
+                const indexObjet = this.jeu.objets.indexOf((instruction.proprieteSujet.element as Objet));
+                if (indexObjet !== -1) {
+                  this.jeu.objets.splice(indexObjet, 1);
+                } else {
+                  console.error("executerChanger >> pas pu retrouver l’objet à supprimer (quantité à atteint 0).");
+                }
+              }
+            }
+
             resultat.succes = true;
             console.log("propriété trouvée:", propSujetTrouvee);
           } else {
@@ -316,23 +329,23 @@ export class InstructionChanger {
     return resultat;
   }
 
-  private changerCompteur(compteur: Compteur, instruction: ElementsPhrase): Resultat {
+  private changerCompteur(compteur: Compteur, instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
     let resultat = new Resultat(true, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
       case 'augmente':
       case 'augmentent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
         break;
 
       case 'diminue':
       case 'diminuent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
         break;
 
       case 'vaut':
       case 'valent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, ceci, cela, evenement, declenchements)
         break;
 
       default:

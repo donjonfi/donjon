@@ -825,7 +825,10 @@ export class ElementsJeuUtils {
     // copier les propriétés
     // TODO: faut-il copier le nombre d’affichage ?
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+      // ne pas copier la propriété « quantité »
+      if (prop.nom != 'quantité') {
+        copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+      }
     });
 
     // TODO: faut-il copier le contenu ?
