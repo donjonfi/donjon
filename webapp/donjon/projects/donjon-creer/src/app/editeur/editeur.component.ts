@@ -111,7 +111,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Afficher les préférences ou non */
   afficherPreferences = false;
   /** Afficher les sections ou non */
-  afficherSections = true;
+  afficherSections = false;
 
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
