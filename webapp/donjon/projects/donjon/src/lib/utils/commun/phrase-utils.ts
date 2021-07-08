@@ -517,7 +517,8 @@ export class PhraseUtils {
           const restChangerPropriete = ExprReg.xChangerPropriete.exec(els.complement1);
           if (restChangerPropriete) {
             const propriete = restChangerPropriete[1];
-            const verbe = restChangerPropriete[2];
+            // ne garder que le premier mot de verbe (retirer du/de la/…)
+            const verbe = restChangerPropriete[2].split(" ")[0];
             const nouvelleValeur = restChangerPropriete[3];
 
             // trouver la propriété correspondante à la valeur1
