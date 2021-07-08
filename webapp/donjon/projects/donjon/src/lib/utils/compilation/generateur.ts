@@ -360,6 +360,10 @@ export class Generateur {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
                 }
 
+                // si le contenant est le joueur, l’objet est possédé
+                if(contenantSupport === jeu.joueur){
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, true);
+                }
 
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
                 // >> pas trouvé de contenant
