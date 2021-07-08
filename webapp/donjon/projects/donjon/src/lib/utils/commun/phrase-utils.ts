@@ -667,9 +667,9 @@ export class PhraseUtils {
 
     }
 
-    if (retVal) {
-      console.warn("PROPRIÉTÉ: \n> intitulé=", intitule, "\n> retval=", retVal);
-    }
+    // if (retVal) {
+    //   console.warn("PROPRIÉTÉ: \n> intitulé=", intitule, "\n> retval=", retVal);
+    // }
 
     return retVal;
   }
