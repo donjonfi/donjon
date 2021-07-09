@@ -784,7 +784,7 @@ exécuter pousser ceci:
   changer ceci est déplacé.
   
 terminer pousser ceci:
-  dire "Ça n’a rien donné.".
+  dire "Je [l’ ceci]ai poussé[es ceci] mais ça n’a servi à rien.".
 
 interpréter appuyer et enfoncer comme pousser.
 
