@@ -10,7 +10,11 @@ export class ProprieteElement {
     public type: TypeValeur,
     /** Valeur de la propriété */
     public valeur: string,
-      /** Nombre d’affichages de la propriété. */
+    /** Nombre d’affichages de la propriété. */
     public nbAffichage: number = 0
   ) { }
+
+  public toString() {
+    return this.nom;
+  }
 }

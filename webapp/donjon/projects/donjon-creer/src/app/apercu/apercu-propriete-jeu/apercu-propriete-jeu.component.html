@@ -1,6 +1,6 @@
 <!-- (Nombre de) Propriété élément -->
 <ng-container *ngIf="pro.type == TypeProprieteJeu.proprieteElement || pro.type == TypeProprieteJeu.nombreDeProprieteElement">
-  Propriété : <span *ngIf="pro.type == TypeProprieteJeu.nombreDeProprieteElement">nombre {{getDe(pro.intituleProprieteElement.toString())}}</span>{{pro.intituleProprieteElement}} → {{pro.intituleElement}}
+  Propriété : <span *ngIf="pro.type == TypeProprieteJeu.nombreDeProprieteElement">nombre {{getDe(pro.intituleProprieteElement.nom)}}</span>{{pro.intituleProprieteElement}} → {{pro.intituleElement}}
 </ng-container>
 
 <!-- nombre de Classe (position) -->
