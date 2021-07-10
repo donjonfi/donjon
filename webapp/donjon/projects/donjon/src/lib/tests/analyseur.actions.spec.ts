@@ -148,3 +148,42 @@ describe('Epressions régulières − Action', () => {
   });
   
 });
+
+describe('Epressions régulières − Action simplifiée', () => {
+
+  // - 
+  
+  it('Action :  « Le joueur peut sauter : dire "Je saute !" »', () => {
+    const result = ExprReg.xActionSimplifiee.exec('Le joueur peut sauter : dire "Je saute !"');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual('sauter'); // verbe
+    expect(result[2]).toBeUndefined(); // préposition
+    expect(result[3]).toBeUndefined(); // déterminant
+    expect(result[4]).toBeUndefined(); // nom
+    expect(result[5]).toBeUndefined(); // épithète
+    expect(result[6]).toEqual('dire "Je saute !"'); // instructions
+  });
+  
+  it('Action :  « Le joueur peut sauter sur la barrière : changer la barrière n’est plus intacte; dire "C’est fait!" »', () => {
+    const result = ExprReg.xActionSimplifiee.exec('Le joueur peut sauter sur la barrière : changer la barrière n’est plus intacte; dire "C’est fait!"');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual('sauter'); // verbe
+    expect(result[2]).toEqual('sur'); // préposition
+    expect(result[3]).toEqual('la '); // déterminant
+    expect(result[4]).toEqual('barrière'); // nom
+    expect(result[5]).toBeUndefined(); // épithète
+    expect(result[6]).toEqual('changer la barrière n’est plus intacte; dire "C’est fait!"'); // instructions
+  });
+
+  it('Action :  « Le joueur peut se currer le nez pointu: dire "Ça n’est pas hygiénique!" »', () => {
+    const result = ExprReg.xActionSimplifiee.exec('Le joueur peut se currer le nez pointu: dire "Ça n’est pas hygiénique!"');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual('se currer'); // verbe
+    expect(result[2]).toBeUndefined(); // préposition
+    expect(result[3]).toEqual('le '); // déterminant
+    expect(result[4]).toEqual('nez'); // nom
+    expect(result[5]).toEqual('pointu'); // épithète
+    expect(result[6]).toEqual('dire "Ça n’est pas hygiénique!"'); // instructions
+  });
+
+});
