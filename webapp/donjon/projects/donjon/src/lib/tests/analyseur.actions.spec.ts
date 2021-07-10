@@ -110,19 +110,19 @@ describe('Epressions régulières − Action', () => {
     expect(result[13]).toBeUndefined(); // attribut prioritaire B
   });
 
-  it('Action :  « prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé »', () => {
-    const result = ExprReg.xAction.exec("prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé");
+  it('Action :  « prendre ceci avec cela est une action qui concerne 1 objet prioritairement disponible et un objet visible prioritairement possédé »', () => {
+    const result = ExprReg.xAction.exec("prendre ceci avec cela est une action qui concerne 1 objet prioritairement disponible et un objet visible prioritairement possédé");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("prendre"); // verbe
     expect(result[2]).toBeUndefined(); // adverbe ceci
     expect(result[3]).toEqual("ceci"); // ceci
     expect(result[4]).toEqual("avec"); // adverbe cela
     expect(result[5]).toEqual("cela"); // cela
-    expect(result[6]).toEqual("un "); // un/une/deux
+    expect(result[6]).toEqual("1 "); // un/une/deux/1/2
     expect(result[7]).toEqual("objet"); // classe A
     expect(result[8]).toBeUndefined(); // attribut A
     expect(result[9]).toEqual("disponible"); // attribut prioritaire A
-    expect(result[10]).toEqual("un "); // un
+    expect(result[10]).toEqual("un "); // un/1
     expect(result[11]).toEqual("objet"); // classe B
     expect(result[12]).toEqual("visible"); // attribut B
     expect(result[13]).toEqual("possédé"); // attribut prioritaire B

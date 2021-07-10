@@ -276,12 +276,12 @@ export class Instructions {
         console.log("terminer:", instruction);
 
         // jeu
-        if (instruction.sujet && instruction.sujet.nom === 'jeu') {
+        if (instruction.sujet?.nom === 'jeu') {
           this.jeu.termine = true;
           // action
-        } else if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
+        } else if (instruction.sujet?.nom?.toLocaleLowerCase() === 'action') {
           // terminer/continuer l’action avant
-          if (instruction?.sujet.epithete?.toLocaleLowerCase() === 'avant') {
+          if (instruction.sujet.epithete?.toLocaleLowerCase() === 'avant') {
             resultat.terminerAvantRegle = true;
             // terminer/continuer l’action {après} (par défaut)
           } else {
