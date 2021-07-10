@@ -417,6 +417,15 @@ export class ActionsUtils {
           }
           break;
 
+
+        case EEtatsBase.present:
+          if (argumentUnique) {
+            retVal = "[Intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici.";
+          } else {
+            retVal = "{/[intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici/}";
+          }
+          break;
+
         default:
           // retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
           if (argumentUnique) {
@@ -648,7 +657,7 @@ export class ActionsUtils {
 
   /** Est-ce que la cible (ceci ou cela) de l’action est une classe ? */
   private estCibleUneClasse(cibleCeci: CibleAction) {
-    return cibleCeci.determinant?.match(/^(un|une|des|deux)( )?$/) ?? false;
+    return cibleCeci.determinant?.match(/^(un|une|des|deux|1|2)( )?$/) ?? false;
   }
 
   /**
