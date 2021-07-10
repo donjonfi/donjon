@@ -79,12 +79,14 @@ export class InstructionChanger {
           // PAS OBJET, PAS LIEU et PAS COMPTEUR
           if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0) {
             console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
+            resultat.sortie = "{+[Instruction « changer » : le sujet « " + instruction.sujet + " » n’a pas été trouvé.]+}";
             // OBJET(S) SEULEMENT
           } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {
             if (correspondance.objets.length === 1) {
               resultat = this.changerElementJeu(correspondance.objets[0], instruction);
             } else {
               console.error("executerChanger: plusieurs objets trouvés:", correspondance);
+              resultat.sortie = "{n}{+[Instruction « changer » : plusieurs objets trouvés pour « " + instruction.sujet + " ».]+}";
             }
             // LIEU(X) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.compteurs.length === 0) {
@@ -92,6 +94,7 @@ export class InstructionChanger {
               resultat = this.changerElementJeu(correspondance.lieux[0], instruction);
             } else {
               console.error("executerChanger: plusieurs lieux trouvés:", correspondance);
+              resultat.sortie = "{n}{+[Instruction « changer » : plusieurs lieux trouvés pour « " + instruction.sujet + " ».]+}";
             }
             // COMPTEUR(S) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {
@@ -99,9 +102,11 @@ export class InstructionChanger {
               resultat = this.changerCompteur(correspondance.compteurs[0], instruction, ceci, cela, evenement, declenchements);
             } else {
               console.error("executerChanger: plusieurs compteurs trouvés:", correspondance);
+              resultat.sortie = "{n}{+[Instruction « changer » : plusieurs compteurs trouvés pour « " + instruction.sujet + " ».]+}";
             }
           } else {
             console.error("executerChanger: trouvé lieu(x) ET objet(s):", correspondance);
+            resultat.sortie = "{n}{+[Instruction « changer » : plusieurs éléments (lieux ET objets) trouvés pour « " + instruction.sujet + " ».]+}";
           }
           break;
       }
@@ -146,6 +151,7 @@ export class InstructionChanger {
               default:
                 resultat.succes = false;
                 console.error("changer propriété: pas compris le verbe:", instruction.verbe, instruction, this.eju, this.jeu);
+                resultat.sortie = "{n}{+[Instruction « changer » : propriété « " + instruction.proprieteSujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
                 break;
             }
 
@@ -165,6 +171,7 @@ export class InstructionChanger {
             console.log("propriété trouvée:", propSujetTrouvee);
           } else {
             console.error("executerChanger: propriété pas trouvée:", instruction.proprieteSujet);
+            resultat.sortie = "{n}{+[Instruction « changer » : propriété pas trouvée : « " + instruction.proprieteSujet + " ».]+}";
           }
           break;
 
@@ -203,6 +210,8 @@ export class InstructionChanger {
           resultat.succes = true;
         }
       }
+    } else {
+      resultat.sortie = "{n}{+[Instruction « changer » : historique : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
     }
     return resultat;
   }
@@ -324,6 +333,7 @@ export class InstructionChanger {
 
       default:
         console.error("executerJoueur : pas compris verbe", instruction.verbe, instruction);
+        resultat.sortie = "{n}{+[Instruction « changer » : joueur : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
         break;
     }
     return resultat;
@@ -351,6 +361,7 @@ export class InstructionChanger {
       default:
         resultat.succes = false;
         console.error("executerCompteur: pas compris le verbe:", instruction.verbe, instruction);
+        resultat.sortie = "{n}{+[Instruction « changer » : compteur « " + instruction.sujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
         break;
     }
 
@@ -395,6 +406,7 @@ export class InstructionChanger {
       default:
         resultat.succes = false;
         console.error("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
+        resultat.sortie = "{n}{+[Instruction « changer » : élément « " + instruction.sujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
         break;
     }
     return resultat;
