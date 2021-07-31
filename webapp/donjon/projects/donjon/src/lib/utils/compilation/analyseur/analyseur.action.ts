@@ -1,4 +1,5 @@
 import { Action } from "../../../models/compilateur/action";
+import { AnalyseurCondition } from "./analyseur.condition";
 import { AnalyseurConsequences } from "./analyseur.consequences";
 import { AnalyseurUtils } from "./analyseur.utils";
 import { CibleAction } from "../../../models/compilateur/cible-action";
@@ -136,7 +137,7 @@ export class AnalyseurAction {
       let result = ExprReg.rRefuser.exec(cond.trim());
       if (result) {
         const typeRefuser = result[1]; // si uniquement pour l'instant
-        const condition = PhraseUtils.getCondition(result[2]);
+        const condition = AnalyseurCondition.getCondition(result[2]);
         if (!condition) {
           AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
         }

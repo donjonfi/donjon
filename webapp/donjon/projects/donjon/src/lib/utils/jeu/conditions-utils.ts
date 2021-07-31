@@ -1,19 +1,20 @@
-import { Condition, LienCondition } from '../../models/compilateur/condition';
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
+import { AnalyseurCondition } from '../compilation/analyseur/analyseur.condition';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
+import { Condition } from '../../models/compilateur/condition';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { LienCondition } from '../../models/compilateur/lien-condition';
 import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
-import { PhraseUtils } from '../commun/phrase-utils';
 
 export class ConditionsUtils {
 
@@ -108,7 +109,7 @@ export class ConditionsUtils {
   public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, declenchements: number) {
     let retVal = false;
     if (condition == null) {
-      condition = PhraseUtils.getCondition(conditionString);
+      condition = AnalyseurCondition.getCondition(conditionString);
     }
     if (condition) {
       // condition spéciale: « historique contient "xxxxx"»

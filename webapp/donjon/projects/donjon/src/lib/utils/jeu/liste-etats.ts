@@ -5,7 +5,7 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
-import { LienCondition } from '../../models/compilateur/condition';
+import { LienCondition } from '../../models/compilateur/lien-condition';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';

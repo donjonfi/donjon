@@ -2,6 +2,7 @@ import { ConditionDebutee, StatutCondition, xFois } from "../../models/jouer/sta
 import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
+import { AnalyseurCondition } from "../compilation/analyseur/analyseur.condition";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ConditionsUtils } from "./conditions-utils";
@@ -734,7 +735,7 @@ export class InstructionDire {
       // SI
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
-      const condition = PhraseUtils.getCondition(conditionLC);
+      const condition = AnalyseurCondition.getCondition(conditionLC);
       statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela, evenement, declenchements);
       retVal = statut.siVrai;
       // SUITES
@@ -752,7 +753,7 @@ export class InstructionDire {
             // (on retire le « sinon » qui précède le si)
             conditionLC = conditionLC.substr('sinon'.length).trim()
             // tester le si
-            const condition = PhraseUtils.getCondition(conditionLC);
+            const condition = AnalyseurCondition.getCondition(conditionLC);
             statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela, evenement, declenchements);
             retVal = statut.siVrai;
           }

@@ -1,3 +1,4 @@
+import { AnalyseurCondition } from "./analyseur.condition";
 import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
@@ -100,7 +101,7 @@ export class AnalyseurConsequences {
           // CAS B.1 >> SI
           if (resultSiCondCons) {
             const conditionStr = resultSiCondCons[1];
-            const condition = PhraseUtils.getCondition(conditionStr);
+            const condition = AnalyseurCondition.getCondition(conditionStr);
 
             if (!condition) {
               AnalyseurUtils.ajouterErreur(ctxAnalyse, ligne, "condition : " + conditionStr);
