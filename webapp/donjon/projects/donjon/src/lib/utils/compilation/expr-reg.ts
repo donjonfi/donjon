@@ -506,6 +506,32 @@ export class ExprReg {
   static readonly xSeparerSinonConsequences = /^(sinonsi|sinon)(?: )?(?::|,)?(?: )?(.+)$/i;
 
   // ================================================================================================
+  //  CONDITIONS (V3)
+  // ================================================================================================
+
+  /**
+   * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7)
+   * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
+   */
+   static readonly xDebutConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(.+?)$/i;
+
+  /**
+   * (ni|soit)(1) complément1(2)
+   * - ni la poule
+   * - soit le duc de Brabant
+   */
+   static readonly xSuiteConditionNiSoit = /^(?:ni|soit) (.+?)$/i;
+
+   
+  /**
+   * mais (pas|ni|bien)(1) complément1(2)
+   * - mais pas blanc
+   * - mais ni cabossé
+   * - mais bien possédé
+   */
+   static readonly xSuiteConditionMais = /^mais (?:pas|ni|bien) (.+?)$/i;
+
+  // ================================================================================================
   //  INSTRUCTIONS
   // ================================================================================================
 
