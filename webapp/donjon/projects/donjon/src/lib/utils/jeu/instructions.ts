@@ -83,7 +83,7 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
-      const estVrai = this.cond.siEstVraiAvecLiens(null, instruction.condition, ceci, cela, evenement, declenchements);
+      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
       }

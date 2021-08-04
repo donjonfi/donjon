@@ -1,4 +1,6 @@
 import { AnalyseurCondition } from "../utils/compilation/analyseur/analyseur.condition";
+import { ConditionMulti } from "../models/compilateur/condition-multi";
+import { ConditionSolo } from "../models/compilateur/condition-solo";
 import { LienCondition } from "../models/compilateur/lien-condition";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -167,12 +169,12 @@ describe('Conditions − Décomposer conditions', () => {
 
   });
 
-  describe('Conditions − Obtenir condition multi', () => {
+  describe('Conditions − Générer condition multi', () => {
 
-    it('Obtenir condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
+    it('Générer condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
 
       const resultDec = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
-      const result = AnalyseurCondition.obtenirConditionMulti(resultDec);
+      const result = AnalyseurCondition.genererConditionMulti(resultDec);
       expect(result).not.toBeNull();
       expect(result.condition).toBeNull();
       expect(result.lienFrereAine).toEqual(LienCondition.aucun);
@@ -281,11 +283,152 @@ describe('Conditions − Décomposer conditions', () => {
 
       console.warn(result);
 
+    });
 
+  });
+
+  describe('Conditions − Get condition multi', () => {
+
+    it('Get condition: « a dépasse soit b soit c »', () => {
+      const result = AnalyseurCondition.getConditionMulti("a dépasse soit b soit c");
+
+      console.warn("xxxxx: ", result);
+
+
+      expect(result).toBeInstanceOf(ConditionMulti);
+      expect(result.condition).toBeNull();
+      expect(result.sousConditions).not.toBeNull();
+      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    });
+
+
+    it('Get condition: « x est a ou b mais pas c »', () => {
+
+      // x est a ou b mais pas c <=> ((x est a) ou (x est b)) et (x n’est pas c)
+      const result = AnalyseurCondition.getConditionMulti("x est a ou b mais pas c");
+      expect(result).toBeInstanceOf(ConditionMulti);
+      expect(result.condition).toBeNull();
+      expect(result.sousConditions).not.toBeNull();
+      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+
+      // => (x est a) ou (x est b)
+      expect(result.sousConditions[0].condition).toBeNull();
+      expect(result.sousConditions[0].sousConditions).not.toBeNull();
+      expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+
+      //  ==> (x est a)
+      expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
+      expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+      //  ==> ou (x est b)
+      expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.ou);
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
+      expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+      // => et (x n’est pas c)
+      expect(result.sousConditions[1].condition).not.toBeNull();
+      expect(result.sousConditions[1].sousConditions).toBeNull();
+      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+      expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[1].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[1].condition.negation).toEqual('pas')
+      expect(result.sousConditions[1].condition.complement).toEqual('c');
+      expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
+      expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+      console.warn("cond simpl: ", result);
+    });
+
+    it('Get condition: « x possède a et b mais ni c ni d »', () => {
+
+      // x possède a et b mais ni c ni d <=> ((x possède a) et (x possède b)) et (x ne possède ni c ni d)
+      const result = AnalyseurCondition.getConditionMulti("x possède a et b mais ni c ni d");
+      expect(result).toBeInstanceOf(ConditionMulti);
+      expect(result.condition).toBeNull();
+      expect(result.sousConditions).not.toBeNull();
+      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+
+      // => (x possède a) et (x possède b)
+      expect(result.sousConditions[0].condition).toBeNull();
+      expect(result.sousConditions[0].sousConditions).not.toBeNull();
+      expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+
+      //  ==> (x possède a)
+      expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[0].sousConditions[0].condition.verbe).toEqual('possède');
+      expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
+      expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
+      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+      //  ==> et (x possède b)
+      expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[0].sousConditions[1].condition.verbe).toEqual('possède');
+      expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
+      expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
+      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+      // => et (x ne possède ni c ni d)
+      expect(result.sousConditions[1].condition).toBeNull();
+      expect(result.sousConditions[1].sousConditions).not.toBeNull();
+      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+
+      //  ==> (x ne possède pas c)
+      expect(result.sousConditions[1].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+      expect(result.sousConditions[1].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[1].sousConditions[0].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[1].sousConditions[0].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[1].sousConditions[0].condition.verbe).toEqual('possède');
+      expect(result.sousConditions[1].sousConditions[0].condition.negation).toEqual('pas');
+      expect(result.sousConditions[1].sousConditions[0].condition.complement).toEqual('c');
+      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.nom).toEqual('c');
+      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+      //  ==> et (x ne possède pas d)
+      expect(result.sousConditions[1].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+      expect(result.sousConditions[1].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[1].sousConditions[1].condition.sujet.nom).toEqual('x');
+      expect(result.sousConditions[1].sousConditions[1].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[1].sousConditions[1].condition.verbe).toEqual('possède');
+      expect(result.sousConditions[1].sousConditions[1].condition.negation).toEqual('pas');
+      expect(result.sousConditions[1].sousConditions[1].condition.complement).toEqual('d');
+      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.nom).toEqual('d');
+      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+      console.warn("cond simpl: ", result);
     });
 
 
   });
+
 
 
 });

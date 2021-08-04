@@ -235,7 +235,7 @@ export class Commandeur {
                 // parcourir les vérifications
                 actionCeciCela.action.verifications.forEach(verif => {
                   if (verif.conditions.length == 1) {
-                    if (!refus && this.cond.siEstVraiAvecLiens(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
+                    if (!refus && this.cond.siEstVrai(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
                       // console.warn("> commande vérifie cela:", verif);
                       const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
                       retVal += resultatRefuser.sortie;

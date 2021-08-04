@@ -1,12 +1,10 @@
-import { Condition } from './condition';
+import { ConditionMulti } from './condition-multi';
 import { ElementsPhrase } from '../commun/elements-phrase';
-import { Lieu } from '../jeu/lieu';
-import { Objet } from '../jeu/objet';
 
 export class Instruction {
   constructor(
     public instruction: ElementsPhrase,
-    public condition: Condition = null,
+    public condition: ConditionMulti = null,
     public instructionsSiConditionVerifiee: Instruction[] = null,
     public instructionsSiConditionPasVerifiee: Instruction[] = null,
 

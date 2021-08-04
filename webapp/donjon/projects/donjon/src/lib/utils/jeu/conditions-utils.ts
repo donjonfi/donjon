@@ -6,6 +6,8 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
 import { Condition } from '../../models/compilateur/condition';
+import { ConditionMulti } from '../../models/compilateur/condition-multi';
+import { ConditionSolo } from '../../models/compilateur/condition-solo';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
@@ -29,88 +31,151 @@ export class ConditionsUtils {
   private eju: ElementsJeuUtils;
 
 
+  /** Vérifier la condition (multi) */
+  siEstVrai(conditionBrute: string, conditionMulti: ConditionMulti, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number): boolean {
 
-  /**
-   * Vérifier la condition ainsi que les liens.
-   */
-  siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
+    let resultatFinal: boolean = null;
 
-    const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela, evenement, declenchements);
-    let resultConditionB: boolean = null;
-    let resultConditionC: boolean = null;
-    let resultConditionD: boolean = null;
-    let resultFinal = resultConditionA;
-    // une 2e condition est liée
-    if (condition.lien) {
-      switch (condition.lien.typeLien) {
-        // ET
+    // si condition toujours brute, récupérer la condition multi correspondante.
+    if (conditionMulti == null) {
+      conditionMulti = AnalyseurCondition.getConditionMulti(conditionBrute);
+    }
+    // s’il s’agit d’une condition simple
+    if (conditionMulti.condition) {
+      resultatFinal = this.siEstVraiSansLien(null, conditionMulti.condition, ceci, cela, evenement, declenchements);
+      // sinon il s’agit d’une condition composée
+    } else {
+      switch (conditionMulti.typeLienSousConditions) {
+        // A) ET
         case LienCondition.et:
-          // si c’est un ET et que la première condition est vraie, tester la 2e
-          if (resultFinal === true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
-            // si les 2 premières conditions sont vraies, tester la 3e
-            if (condition.lien.lien && resultFinal === true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
-              // si les 3 premières conditions sont vraies, tester la 4e
-              if (condition.lien.lien.lien && resultFinal === true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
-              }
+          let toutVrai = true;
+          for (let indexEt = 0; indexEt < conditionMulti.sousConditions.length; indexEt++) {
+            if (!this.siEstVrai(null, conditionMulti.sousConditions[indexEt], ceci, cela, evenement, declenchements)) {
+              toutVrai = false;
+              break;
             }
           }
+          resultatFinal = toutVrai;
           break;
-        // OU
+
+        // B) OU (ou inclusif)
         case LienCondition.ou:
-          // si c’est un OU et que la premièr condition est fausse, tester la 2e
-          if (resultConditionA !== true) {
-            resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
-            // si les 2 premières conditions sont fausses, tester la 3e
-            if (condition.lien.lien && resultFinal !== true) {
-              resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
-              // si les 3 premières conditions sont fausses, tester la 4e
-              if (condition.lien.lien.lien && resultFinal !== true) {
-                resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
+          let unVrai = false;
+          for (let indexOu = 0; indexOu < conditionMulti.sousConditions.length; indexOu++) {
+            if (this.siEstVrai(null, conditionMulti.sousConditions[indexOu], ceci, cela, evenement, declenchements)) {
+              unVrai = true;
+              break;
+            }
+          }
+          resultatFinal = unVrai;
+          break;
+
+        // C) SOIT (ou exclusif)
+        case LienCondition.soit:
+          let nbVrai = 0;
+          for (let indexSoit = 0; indexSoit < conditionMulti.sousConditions.length; indexSoit++) {
+            if (this.siEstVrai(null, conditionMulti.sousConditions[indexSoit], ceci, cela, evenement, declenchements)) {
+              nbVrai += 1;
+              if (nbVrai > 1) {
+                break;
               }
             }
           }
-          break;
-        // SOIT
-        case LienCondition.soit:
-          let nbVraiSoit = resultConditionA ? 1 : 0;
-          // si c’est un SOIT, tester la 2e
-          resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
-          nbVraiSoit += resultConditionB ? 1 : 0;
-          // tester la 3e condition (si pas encore sûr que c’est faux)
-          if (nbVraiSoit < 2 && condition.lien.lien) {
-            // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-            resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
-            nbVraiSoit += resultConditionC ? 1 : 0;
-            // tester la 4e condition (si pas encore sûr que c’est faux)
-            if (nbVraiSoit < 2 && condition.lien.lien.lien) {
-              // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
-              resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
-              nbVraiSoit += resultConditionD ? 1 : 0;
-            }
-          }
-          resultFinal = nbVraiSoit === 1;
+          resultatFinal = (nbVrai === 1);
           break;
 
         default:
+          console.error("siEstVrai > typeLien pas pris en charge (et|ou|soit sont pris en charge) > ", conditionMulti.typeLienSousConditions);
           break;
       }
     }
-    return resultFinal;
 
+    return resultatFinal;
   }
+
+  // /**
+  //  * Vérifier la condition ainsi que les liens.
+  //  */
+  // siEstVraiAvecLiens(conditionString: string, condition: Condition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
+
+  //   const resultConditionA = this.siEstVraiSansLien(conditionString, condition, ceci, cela, evenement, declenchements);
+  //   let resultConditionB: boolean = null;
+  //   let resultConditionC: boolean = null;
+  //   let resultConditionD: boolean = null;
+  //   let resultFinal = resultConditionA;
+  //   // une 2e condition est liée
+  //   if (condition.lien) {
+  //     switch (condition.lien.typeLien) {
+  //       // ET
+  //       case LienCondition.et:
+  //         // si c’est un ET et que la première condition est vraie, tester la 2e
+  //         if (resultFinal === true) {
+  //           resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
+  //           // si les 2 premières conditions sont vraies, tester la 3e
+  //           if (condition.lien.lien && resultFinal === true) {
+  //             resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
+  //             // si les 3 premières conditions sont vraies, tester la 4e
+  //             if (condition.lien.lien.lien && resultFinal === true) {
+  //               resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
+  //             }
+  //           }
+  //         }
+  //         break;
+  //       // OU
+  //       case LienCondition.ou:
+  //         // si c’est un OU et que la premièr condition est fausse, tester la 2e
+  //         if (resultConditionA !== true) {
+  //           resultFinal = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
+  //           // si les 2 premières conditions sont fausses, tester la 3e
+  //           if (condition.lien.lien && resultFinal !== true) {
+  //             resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
+  //             // si les 3 premières conditions sont fausses, tester la 4e
+  //             if (condition.lien.lien.lien && resultFinal !== true) {
+  //               resultFinal = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
+  //             }
+  //           }
+  //         }
+  //         break;
+  //       // SOIT
+  //       case LienCondition.soit:
+  //         let nbVraiSoit = resultConditionA ? 1 : 0;
+  //         // si c’est un SOIT, tester la 2e
+  //         resultConditionB = this.siEstVraiSansLien(conditionString, condition.lien, ceci, cela, evenement, declenchements);
+  //         nbVraiSoit += resultConditionB ? 1 : 0;
+  //         // tester la 3e condition (si pas encore sûr que c’est faux)
+  //         if (nbVraiSoit < 2 && condition.lien.lien) {
+  //           // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
+  //           resultConditionC = this.siEstVraiSansLien(conditionString, condition.lien.lien, ceci, cela, evenement, declenchements);
+  //           nbVraiSoit += resultConditionC ? 1 : 0;
+  //           // tester la 4e condition (si pas encore sûr que c’est faux)
+  //           if (nbVraiSoit < 2 && condition.lien.lien.lien) {
+  //             // le résultat final est vrai si la 3e condition est différente du résultat des 2 premières.
+  //             resultConditionD = this.siEstVraiSansLien(conditionString, condition.lien.lien.lien, ceci, cela, evenement, declenchements);
+  //             nbVraiSoit += resultConditionD ? 1 : 0;
+  //           }
+  //         }
+  //         resultFinal = nbVraiSoit === 1;
+  //         break;
+
+  //       default:
+  //         break;
+  //     }
+  //   }
+  //   return resultFinal;
+
+  // }
 
   /**
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: Condition, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, declenchements: number) {
+  public siEstVraiSansLien(conditionString: string, condition: ConditionSolo, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, declenchements: number) {
     let retVal = false;
+    // si condition toujours brute, récupérer la condition correspondante.
     if (condition == null) {
-      condition = AnalyseurCondition.getCondition(conditionString);
+      condition = AnalyseurCondition.getConditionMulti(conditionString)?.condition;
     }
+
     if (condition) {
       // condition spéciale: « historique contient "xxxxx"»
       if (condition.sujet.nom === 'historique' && condition.verbe === "contient") {
@@ -571,7 +636,7 @@ export class ConditionsUtils {
  * Vérifier une condition de type "est", c'est à dire vérifer l'état ou la classe.
  * /!\ La négation n'est pas appliquée ici, il faut le faire ensuite.
  */
-  private verifierConditionEst(condition: Condition, sujet: ElementJeu | Intitule) {
+  private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Intitule) {
     let resultCondition: boolean = null;
 
     // console.warn("@@@   cond:", cond);
@@ -628,7 +693,7 @@ export class ConditionsUtils {
 
   }
 
-  private verifierConditionExiste(condition: Condition, sujet: ElementJeu | Intitule, ceci: ElementJeu | Intitule) {
+  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, ceci: ElementJeu | Intitule) {
 
     let retVal = false;
 

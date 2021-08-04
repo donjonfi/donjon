@@ -137,7 +137,7 @@ export class AnalyseurAction {
       let result = ExprReg.rRefuser.exec(cond.trim());
       if (result) {
         const typeRefuser = result[1]; // si uniquement pour l'instant
-        const condition = AnalyseurCondition.getCondition(result[2]);
+        const condition = AnalyseurCondition.getConditionMulti(result[2]);
         if (!condition) {
           AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
         }

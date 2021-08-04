@@ -300,3 +300,4 @@ __pycache__/
 /saves/*.sav
 /builds/donjon-creer.appimage
 /webapp/donjon/projects/MEMO.TXT
+/ressources/*.odt#

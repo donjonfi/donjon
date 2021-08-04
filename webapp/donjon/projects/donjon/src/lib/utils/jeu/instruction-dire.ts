@@ -735,8 +735,8 @@ export class InstructionDire {
       // SI
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
-      const condition = AnalyseurCondition.getCondition(conditionLC);
-      statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela, evenement, declenchements);
+      const condition = AnalyseurCondition.getConditionMulti(conditionLC);
+      statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
       retVal = statut.siVrai;
       // SUITES
     } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
@@ -753,8 +753,8 @@ export class InstructionDire {
             // (on retire le « sinon » qui précède le si)
             conditionLC = conditionLC.substr('sinon'.length).trim()
             // tester le si
-            const condition = AnalyseurCondition.getCondition(conditionLC);
-            statut.siVrai = this.cond.siEstVraiAvecLiens(null, condition, ceci, cela, evenement, declenchements);
+            const condition = AnalyseurCondition.getConditionMulti(conditionLC);
+            statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
             retVal = statut.siVrai;
           }
         } else {

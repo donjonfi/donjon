@@ -13,6 +13,8 @@ export enum LienCondition {
   ainsiQue = "ainsi que",
   /** lien « mais pas » (et non) (p5) */
   maisPas = "mais pas",
+  /** lien « mais plus » (et non) (p5) */
+  maisPlus = "mais plus",
   /** lien « mais bien » (et) (p5) */
   maisBien = "mais bien",
   /** lien « mais ni » (et non) (p5) */

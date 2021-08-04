@@ -561,25 +561,6 @@ export class ElementsJeuUtils {
     return compteursTrouves;
   }
 
-  /**
- * Retrouver un compteur parmis tous les compteurs sur base de son intitulé.
- * Remarque: Il peut y avoir plus d’une correspondance.
- */
-  trouverPropriete(sujet: GroupeNominal): ProprieteElement[] {
-    let compteursTrouves: ProprieteElement[] = [];
-    // const sujetNom = sujet.nom.toLowerCase();
-
-    // // Rechercher dans les compteurs
-    // this.jeu.objets.forEach(
-    //   obj => {
-    //     if (obj.nom === sujetNom) {
-    //       compteursTrouves.push(obj);
-    //     }
-    //   }
-    // );
-
-    return compteursTrouves;
-  }
 
   /**
    * Retrouver un lieu parmis tous les lieux sur base de son intitulé.

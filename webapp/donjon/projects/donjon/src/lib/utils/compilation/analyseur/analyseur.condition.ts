@@ -30,84 +30,198 @@ export class AnalyseurCondition {
     return (total == 0);
   }
 
-  /**
-   * Retrouver la condition correspondant à la phrase.
-   * @param condition 
-   * @returns 
+  /** Générer la condition correspondant à la phrase spécifiée. */
+  public static getConditionMulti(conditionBrute: string): ConditionMulti {
+
+    // A. DÉCOMPOSER LA CONDITION
+    const conditionDecomposee = AnalyseurCondition.decomposerConditionBrute(conditionBrute);
+
+    // B. GÉNÉRER LA CONDITION
+    const conditionMulti = AnalyseurCondition.genererConditionMulti(conditionDecomposee);
+
+    // C. SIMPLIFIER LA CONDITION
+    const conditionSimplifiee = AnalyseurCondition.simplifierConditionMulti(conditionMulti)
+
+    return conditionSimplifiee;
+
+  }
+
+  // /**
+  //  * Retrouver la condition correspondant à la phrase.
+  //  * @param condition 
+  //  * @returns 
+  //  */
+  // public static getCondition(condition: string) {
+
+  //   // TODO: regarder les ET et les OU
+  //   // TODO: regarder les ()
+  //   // TODO: priorité des opérateurs
+  //   const els = AnalyseurCondition.decomposerCondition(condition);
+  //   if (els) {
+  //     let retVal = new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement1, els.sujetComplement1);
+
+  //     // s’il s’agit d’une condition composée (ni ni, mais pas, et, ou, …)
+  //     if (els.conjonction) {
+  //       // ajouter la (les) condition(s) supplémentaire(s)
+  //       switch (els.conjonction) {
+  //         case 'et':
+  //         case 'ni':
+  //           retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+  //           // 3e élément éventuel
+  //           if (els.complement3) {
+  //             retVal.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+  //             // 4e élément éventuel
+  //             if (els.complement4) {
+  //               retVal.lien.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+  //             }
+  //           }
+  //           break;
+  //         case 'ou':
+  //           retVal.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+  //           // 3e élément éventuel
+  //           if (els.complement3) {
+  //             retVal.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+  //             // 4e élément éventuel
+  //             if (els.complement4) {
+  //               retVal.lien.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+  //             }
+  //           }
+  //           break;
+  //         case 'soit':
+  //           retVal.negation = ""; // correction: soit n’est pas une négation
+  //           retVal.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
+  //           // 3e élément éventuel
+  //           if (els.complement3) {
+  //             retVal.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
+  //             // 4e élément éventuel
+  //             if (els.complement4) {
+  //               retVal.lien.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
+  //             }
+  //           }
+  //           break;
+  //         case 'mais pas':
+  //           retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
+  //           break;
+  //         case 'mais bien':
+  //           retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, null, els.complement2, els.sujetComplement2);
+  //           break;
+
+  //         default:
+  //           console.error("getCondition >> conjonction non supportée:", els.conjonction, els);
+  //           break;
+  //       }
+  //     }
+  //     return retVal;
+
+  //   } else {
+  //     console.warn("decomposerCondition: pas pu décomposer:", condition);
+  //     return null;
+  //   }
+  // }
+
+  public static simplifierConditionMulti(conditionMulti: ConditionMulti): ConditionMulti {
+
+    let dernierDebutCondition: ConditionSolo = null;
+    let parentImpliqueNegationEnfant = false;
+    AnalyseurCondition.simplifierMorceauConditionMulti(conditionMulti, dernierDebutCondition, parentImpliqueNegationEnfant);
+    return conditionMulti;
+  }
+
+  /** 
+   * Simplifier la conditions multi:
+   *   - convertir les liens en et/ou/soit uniquement.
+   *   - remettre le début à chaque condition qui n’en a pas encore.
+   * @returns dernier début de condition trouvé.
    */
-  public static getCondition(condition: string) {
+  private static simplifierMorceauConditionMulti(conditionMulti: ConditionMulti, dernierDebutCondition: ConditionSolo, forcerNegation: boolean): ConditionSolo {
 
-    // TODO: regarder les ET et les OU
-    // TODO: regarder les ()
-    // TODO: priorité des opérateurs
-    const els = AnalyseurCondition.decomposerCondition(condition);
-    if (els) {
-      let retVal = new Condition(LienCondition.aucun, els.sujet, els.verbe, els.negation, els.complement1, els.sujetComplement1);
+    let parentImpliqueNegationEnfant = false;
 
-      // s’il s’agit d’une condition composée (ni ni, mais pas, et, ou, …)
-      if (els.conjonction) {
-        // ajouter la (les) condition(s) supplémentaire(s)
-        switch (els.conjonction) {
-          case 'et':
-          case 'ni':
-            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
-            // 3e élément éventuel
-            if (els.complement3) {
-              retVal.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
-              // 4e élément éventuel
-              if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(LienCondition.et, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
-              }
-            }
-            break;
-          case 'ou':
-            retVal.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
-            // 3e élément éventuel
-            if (els.complement3) {
-              retVal.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
-              // 4e élément éventuel
-              if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(LienCondition.ou, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
-              }
-            }
-            break;
-          case 'soit':
-            retVal.negation = ""; // correction: soit n’est pas une négation
-            retVal.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement2, els.sujetComplement2);
-            // 3e élément éventuel
-            if (els.complement3) {
-              retVal.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement3, els.sujetComplement3);
-              // 4e élément éventuel
-              if (els.complement4) {
-                retVal.lien.lien.lien = new Condition(LienCondition.soit, els.sujet, els.verbe, els.negation, els.complement4, els.sujetComplement4);
-              }
-            }
-            break;
-          case 'mais pas':
-            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, "pas", els.complement2, els.sujetComplement2);
-            break;
-          case 'mais bien':
-            retVal.lien = new Condition(LienCondition.et, els.sujet, els.verbe, null, els.complement2, els.sujetComplement2);
-            break;
+    // A) ADAPTER LE LIEN VERS ET/OU/SOIT LE CAS ÉCHÉANT
+    switch (conditionMulti.lienFrereAine) {
+      // OU simple (ou, ou si)
+      case LienCondition.ou:
+      case LienCondition.ouSi:
+        // ou
+        conditionMulti.lienFrereAine = LienCondition.ou;
+        break;
+      // ET simple (et, et si, ainsi que, mais bien)
+      case LienCondition.et:
+      case LienCondition.etSi:
+      case LienCondition.ainsiQue:
+      case LienCondition.maisBien:
+        // et
+        conditionMulti.lienFrereAine = LienCondition.et;
+        break;
 
-          default:
-            console.error("getCondition >> conjonction non supportée:", els.conjonction, els);
-            break;
+      // ET PAS (ni, mais ni, mais pas, mais plus)
+      case LienCondition.ni:
+      case LienCondition.maisNi:
+      case LienCondition.maisPas:
+      case LienCondition.maisPlus:
+        // et
+        conditionMulti.lienFrereAine = LienCondition.et;
+        // pas
+        if (conditionMulti.condition) {
+          conditionMulti.condition.negation = 'pas';
+        } else {
+          parentImpliqueNegationEnfant = true;
+        }
+        break;
+
+      // SOIT simple
+      case LienCondition.soit:
+        // soit
+        conditionMulti.lienFrereAine = LienCondition.soit;
+        break;
+
+      // AUCUN
+      case LienCondition.aucun:
+        break;
+
+      default:
+        console.error("simplifierMorceauConditionMulti > lien pas supporté ici: ", conditionMulti.lienFrereAine);
+        break;
+    }
+
+    // B) DÉBUT DE LA CONDITION, VÉRIFIER NÉGATION IMPLIQUÉE PAR LIEN PARENT
+
+    // s’il s’agit d’une condition simple
+    if (conditionMulti.condition) {
+      // DÉBUT
+      // si la condition possède un début, c’est le dernier début trouvé
+      if (conditionMulti.condition.sujet && conditionMulti.condition.verbe) {
+        dernierDebutCondition = conditionMulti.condition;
+        // sinon, définir le début de la condition
+      } else {
+        if (!dernierDebutCondition) {
+          console.error("simplifierMorceauConditionMulti: dernierDebutCondition manquant.");
+        } else {
+          conditionMulti.condition.sujet = dernierDebutCondition.sujet;
+          conditionMulti.condition.verbe = dernierDebutCondition.verbe;
         }
       }
-      return retVal;
+      // NÉGATION
+      if (forcerNegation) {
+        conditionMulti.condition.negation = "pas";
+      }
 
+      // SOUS-CONDITIONS
     } else {
-      console.warn("decomposerCondition: pas pu décomposer:", condition);
-      return null;
+      // parcourir les sous-conditions
+      conditionMulti.sousConditions.forEach(curSousCondition => {
+        // simplifier la sousCondition
+        dernierDebutCondition = AnalyseurCondition.simplifierMorceauConditionMulti(curSousCondition, dernierDebutCondition, parentImpliqueNegationEnfant);
+      });
     }
+    return dernierDebutCondition;
   }
 
   /**
    * Créer une condition multi à partir d'une condition décomposéee.
    * @param conditionDecomposee 
    */
-  public static obtenirConditionMulti(conditionDecomposee: ConditionDecomposee): ConditionMulti {
+  public static genererConditionMulti(conditionDecomposee: ConditionDecomposee): ConditionMulti {
 
     let retVal = new ConditionMulti();
 
@@ -119,7 +233,7 @@ export class AnalyseurCondition {
       retVal.sousConditions = [];
       retVal.typeLienSousConditions = conditionDecomposee.typeLienSousConditions;
       conditionDecomposee.sousConditions.forEach(sousCondDec => {
-        retVal.sousConditions.push(this.obtenirConditionMulti(sousCondDec));
+        retVal.sousConditions.push(this.genererConditionMulti(sousCondDec));
       });
       // s'il s'agit d'une simple condition
     } else {
@@ -282,7 +396,10 @@ export class AnalyseurCondition {
     // vérifier si parenthèses de la condition sont valides
     if (conditionBrute && AnalyseurCondition.parenthesesValides(conditionBrute)) {
       conditionDecomposee = this.decomposerMorceauConditionBrute(conditionBrute, estSuiteCondition, estFrereCadet, LienCondition.aucun, LienCondition.aucun, []);
+    } else {
+      console.error("decomposerConditionBrute > parenthèses pas valides > ", conditionBrute);
     }
+
     console.warn("conditionDecomposee:", conditionDecomposee);
 
     return conditionDecomposee;
@@ -371,13 +488,13 @@ export class AnalyseurCondition {
 
       // opérateurs par priorité
       const prioriteOperateurs = [
-        ' (et) ',
-        ' (ou) ',
-        ' (ni) ',
-        ' (soit) ',
-        ' (ainsi que|mais pas|mais bien|mais ni) ',
-        ' (et si) ',
-        ' (ou si) '
+        'et',
+        'ou',
+        'ni',
+        'soit',
+        'ainsi que|mais pas|mais bien|mais ni',
+        'et si',
+        'ou si'
       ];
 
       morceauxConditionPrincipale = [conditionPrincipale];
@@ -386,7 +503,7 @@ export class AnalyseurCondition {
       // décomposer la condition principale avec l’opérateur à la priorité la plus basse trouvée
       while (morceauxConditionPrincipale.length == 1 && prioIndex > 0) {
         operateur = prioriteOperateurs[--prioIndex];
-        morceauxConditionPrincipale = conditionPrincipale.split(new RegExp(operateur, 'gi'));
+        morceauxConditionPrincipale = conditionPrincipale.split(new RegExp(" (" + operateur + ") ", 'gi'));
       }
 
 
@@ -396,9 +513,35 @@ export class AnalyseurCondition {
         let prochainLien = LienCondition.aucun; // pas de lien pour la première sous-condition
         let prochainLienEstNouvelleCondition = false; // le prochain lien est-il de type nouvelle condition (et si, ou si) ?
         retVal.typeLienSousConditions = AnalyseurCondition.getTypeLien(morceauxConditionPrincipale[1]); // déterminer type de lien des enfants (et|ou|soit) sur base du premier lien
+
         for (let indexMorceau = 0; indexMorceau < morceauxConditionPrincipale.length; indexMorceau++) {
           const morceauEstFrereCadet = (indexMorceau === morceauxConditionPrincipale.length - 1);
-          const newSousCondition = this.decomposerMorceauConditionBrute(morceauxConditionPrincipale[indexMorceau], estSuiteCondition || (indexMorceau > 0 && !prochainLienEstNouvelleCondition), morceauEstFrereCadet, (indexMorceau == 0 ? LienCondition.aucun : retVal.typeLienSousConditions), prochainLien, sousConditionsBrutes);
+          let sousConditionBrute: string = morceauxConditionPrincipale[indexMorceau];
+          let estDebutSoitNi = false;
+          // cas particuliers
+          if (indexMorceau == 0) {
+            // soit… soit… : ne pas découper la condition sur le premier « soit » !
+            // ex: si le chat est soit gris soit noir => (1) si le chat est gris, (2) si le chat est noir
+            if (morceauxConditionPrincipale[1] == LienCondition.soit) {
+              indexMorceau = 2;
+              sousConditionBrute += " " + morceauxConditionPrincipale[2];
+              estDebutSoitNi = true;
+              if (!estSuiteCondition) {
+                prochainLienEstNouvelleCondition = true; // on est à l’index 2 mais c’est bien le début de la condition
+              }
+              // ni… ni… : ne pas découper la condition sur le premier « ni » et ajouter négation (pas)
+              // ex: si a ne dépasse ni 2 ni 3 => (1) si a ne dépasse pas 2, (2) si a ne dépasse pas 3
+            } else if (morceauxConditionPrincipale[1] == LienCondition.ni && lien !== LienCondition.maisNi) {
+              indexMorceau = 2;
+              sousConditionBrute += " pas " + morceauxConditionPrincipale[2];
+              estDebutSoitNi = true;
+              if (!estSuiteCondition) {
+                prochainLienEstNouvelleCondition = true; // on est à l’index 2 mais c’est bien le début de la condition
+              }
+            }
+          }
+
+          const newSousCondition = this.decomposerMorceauConditionBrute(sousConditionBrute, estSuiteCondition || (indexMorceau > 0 && !prochainLienEstNouvelleCondition), morceauEstFrereCadet, ((indexMorceau == 0 || estDebutSoitNi) ? LienCondition.aucun : retVal.typeLienSousConditions), prochainLien, sousConditionsBrutes);
           if (!newSousCondition) {
             console.error("Sous condition pas pu être décomposée:", morceauxConditionPrincipale[indexMorceau]);
           } else {
@@ -408,6 +551,7 @@ export class AnalyseurCondition {
             prochainLien = AnalyseurCondition.getLien(morceauxConditionPrincipale[++indexMorceau]);
             prochainLienEstNouvelleCondition = AnalyseurCondition.estLienNouvelleCondition(prochainLien);
           }
+
         }
         // pas de sous-condition
       } else {
@@ -444,6 +588,9 @@ export class AnalyseurCondition {
         case 'mais pas':
           return LienCondition.maisPas;
 
+        case 'mais plus':
+          return LienCondition.maisPlus;
+
         case 'mais ni':
           return LienCondition.maisNi;
 
@@ -475,6 +622,7 @@ export class AnalyseurCondition {
         case 'ainsi que':
         case 'mais bien':
         case 'mais pas':
+        case 'mais plus':
         case 'mais ni':
         case 'ni':
           return LienCondition.et;
@@ -508,147 +656,147 @@ export class AnalyseurCondition {
   }
 
 
-  /**
-   * 
-   * @param condition 
-   * @returns 
-   */
-  private static decomposerCondition(condition: string) {
+  // /**
+  //  * 
+  //  * @param condition 
+  //  * @returns 
+  //  */
+  // private static decomposerCondition(condition: string) {
 
-    let els: ElementsPhrase = null;
+  //   let els: ElementsPhrase = null;
 
-    let resCond: RegExpExecArray = null;
-    let resCondNiSoit: RegExpExecArray = null;
-    let resCondEtOu: RegExpExecArray = null;
-    let resCondMaisPasEtOu: RegExpExecArray = null;
-    let resCondSimple: RegExpExecArray = null;
-    let resConditionAucunPourVers: RegExpExecArray = null;
-    let resConditionLaSortieVers: RegExpExecArray = null;
+  //   let resCond: RegExpExecArray = null;
+  //   let resCondNiSoit: RegExpExecArray = null;
+  //   let resCondEtOu: RegExpExecArray = null;
+  //   let resCondMaisPasEtOu: RegExpExecArray = null;
+  //   let resCondSimple: RegExpExecArray = null;
+  //   let resConditionAucunPourVers: RegExpExecArray = null;
+  //   let resConditionLaSortieVers: RegExpExecArray = null;
 
-    // console.log("condition:", condition);
-
-
-    // A. tester la formulation  [ni ni | soit soit]
-    resCondNiSoit = ExprReg.xConditionNiSoit.exec(condition);
-    resCond = resCondNiSoit;
-
-    // console.log(">> resCondNiSoit:", resCondNiSoit);
+  //   // console.log("condition:", condition);
 
 
-    if (!resCondNiSoit) {
-      resCondEtOu = ExprReg.xConditionOuEt.exec(condition);
-      resCond = resCondEtOu;
-    }
-    // console.log(">> resCondEtOu:", resCondEtOu);
+  //   // A. tester la formulation  [ni ni | soit soit]
+  //   resCondNiSoit = ExprReg.xConditionNiSoit.exec(condition);
+  //   resCond = resCondNiSoit;
 
-    if (!resCondNiSoit && !resCondEtOu) {
-      // B. tester la formulation [mais pas | mais bien | et | ou]
-      resCondMaisPasEtOu = ExprReg.xConditionMaisPasEtOu.exec(condition);
-      resCond = resCondMaisPasEtOu;
-      if (!resCondMaisPasEtOu) {
-        // C. tester la formulation [la porte|sortie vers xxx est]
-        // TODO: gérer les conjonctions (mais pas, ou, et, …)
-        resConditionLaSortieVers = ExprReg.xConditionLaSortieVers.exec(condition);
-        if (!resConditionLaSortieVers) {
-          // D. tester la formulation [aucun pour]
-          resConditionAucunPourVers = ExprReg.xConditionExistePourVers.exec(condition);
-          if (!resConditionAucunPourVers) {
-            // E. tester la formulation simple
-            resCondSimple = ExprReg.xCondition.exec(condition);
-            resCond = resCondSimple;
-          }
-        }
-      }
-    }
-
-    // si une des formulations autre que AucunPour
-    if (resCond) {
-      const sujet = resCond[3] ? (new GroupeNominal(resCond[2], resCond[3], resCond[4] ? resCond[4] : null)) : (resCond[1] ? new GroupeNominal(null, resCond[1], null) : null);
-      const verbe = resCond[5];
-      const negation = (resCond[6]?.trim() && resCond[6] !== 'soit') ? resCond[6] : null;
-      const compl1 = resCond[7];
-      // éventuellement un 2e complément
-      const compl2 = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[9] : null;
-      // éventuellement un 3e complément
-      const compl3 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
-      // éventuellement un 4e complément
-      const compl4 = (resCondNiSoit || resCondEtOu) ? resCond[11] : null;
-
-      els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
-      els.complement2 = compl2;
-      els.complement3 = compl3;
-      els.complement4 = compl4;
-      els.conjonction = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[8] : null;
-
-      // décomposer les compléments si possible
-      // complément1
-      if (els.complement1) {
-        const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
-        if (resCompl) {
-          els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-          els.preposition1 = resCompl[1] ? resCompl[1] : null;
-        }
-        // complément2
-        if (els.complement2) {
-          const resCompl2 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement2);
-          if (resCompl2) {
-            els.sujetComplement2 = new GroupeNominal(resCompl2[2], resCompl2[3], (resCompl2[4] ? resCompl2[4] : null));
-          }
-          // complément3
-          if (els.complement3) {
-            const resCompl3 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement3);
-            if (resCompl3) {
-              els.sujetComplement3 = new GroupeNominal(resCompl3[2], resCompl3[3], (resCompl3[4] ? resCompl3[4] : null));
-            }
-            // complément4
-            if (els.complement4) {
-              const resCompl4 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement4);
-              if (resCompl4) {
-                els.sujetComplement4 = new GroupeNominal(resCompl4[2], resCompl4[3], (resCompl4[4] ? resCompl4[4] : null));
-              }
-            }
-          }
-        }
-      }
-    } else if (resConditionAucunPourVers) {
-      // ex1: aucun(1) complément(2) attribut(3) {n’existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
-      // ex2: un(1) complément(2) attribut(3) {existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
-      // ex sujet: ceci, cela, la/pomme/enchantée
-      const sujet = resConditionAucunPourVers[7] ? (new GroupeNominal(resConditionAucunPourVers[6], resConditionAucunPourVers[7], resConditionAucunPourVers[8] ? resConditionAucunPourVers[8] : null)) : (resConditionAucunPourVers[5] ? new GroupeNominal(null, resConditionAucunPourVers[5], null) : null);
-      const verbe = "existe";
-      // ex compl1: description, aperçu, sortie, sortie accessible, porte, ...
-      const compl = resConditionAucunPourVers[2] + (resConditionAucunPourVers[3] ? (" " + resConditionAucunPourVers[3]) : "");
-      const negation = resConditionAucunPourVers[1].match(/^aucun|aucune$/i) ? resConditionAucunPourVers[1].toLowerCase() : null;
-      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
-
-      // console.warn("$$$$ els=", els);
+  //   // console.log(">> resCondNiSoit:", resCondNiSoit);
 
 
-      if (els.complement1) {
-        const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
-        // console.warn("$$$$ resCompl=", resCompl);
-        if (resCompl) {
-          els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-          // els.preposition1 = resCompl[1] ? resCompl[1] : null;
-        }
-      }
-      // prép: pour, vers
-      els.preposition1 = resConditionAucunPourVers[4];
-    } else if (resConditionLaSortieVers) {
-      // ex: [si] la(1) porte(2) vers(3) (ceci|cela|[le] nord(5))(4) [n’]est(6) pas(7) ouverte(8)
-      // ex sujets: la/porte vers/ceci, la/sortie vers/nord
-      const sujet = (new GroupeNominal(resConditionLaSortieVers[1], resConditionLaSortieVers[2] + " vers", (resConditionLaSortieVers[5] ? resConditionLaSortieVers[5] : resConditionLaSortieVers[4])));
-      // ex verbe: est
-      const verbe = resConditionLaSortieVers[6]
-      // ex compl: ouverte, innaccessible, verrouillée, …
-      const compl = resConditionLaSortieVers[8];
-      // ex pas, plus
-      const negation = (resConditionLaSortieVers[7] ? resConditionLaSortieVers[7] : null);
-      els = new ElementsPhrase(null, sujet, verbe, negation, compl);
-    }
+  //   if (!resCondNiSoit) {
+  //     resCondEtOu = ExprReg.xConditionOuEt.exec(condition);
+  //     resCond = resCondEtOu;
+  //   }
+  //   // console.log(">> resCondEtOu:", resCondEtOu);
 
-    return els;
-  }
+  //   if (!resCondNiSoit && !resCondEtOu) {
+  //     // B. tester la formulation [mais pas | mais bien | et | ou]
+  //     resCondMaisPasEtOu = ExprReg.xConditionMaisPasEtOu.exec(condition);
+  //     resCond = resCondMaisPasEtOu;
+  //     if (!resCondMaisPasEtOu) {
+  //       // C. tester la formulation [la porte|sortie vers xxx est]
+  //       // TODO: gérer les conjonctions (mais pas, ou, et, …)
+  //       resConditionLaSortieVers = ExprReg.xConditionLaSortieVers.exec(condition);
+  //       if (!resConditionLaSortieVers) {
+  //         // D. tester la formulation [aucun pour]
+  //         resConditionAucunPourVers = ExprReg.xConditionExistePourVers.exec(condition);
+  //         if (!resConditionAucunPourVers) {
+  //           // E. tester la formulation simple
+  //           resCondSimple = ExprReg.xCondition.exec(condition);
+  //           resCond = resCondSimple;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // si une des formulations autre que AucunPour
+  //   if (resCond) {
+  //     const sujet = resCond[3] ? (new GroupeNominal(resCond[2], resCond[3], resCond[4] ? resCond[4] : null)) : (resCond[1] ? new GroupeNominal(null, resCond[1], null) : null);
+  //     const verbe = resCond[5];
+  //     const negation = (resCond[6]?.trim() && resCond[6] !== 'soit') ? resCond[6] : null;
+  //     const compl1 = resCond[7];
+  //     // éventuellement un 2e complément
+  //     const compl2 = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[9] : null;
+  //     // éventuellement un 3e complément
+  //     const compl3 = (resCondNiSoit || resCondEtOu) ? resCond[10] : null;
+  //     // éventuellement un 4e complément
+  //     const compl4 = (resCondNiSoit || resCondEtOu) ? resCond[11] : null;
+
+  //     els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
+  //     els.complement2 = compl2;
+  //     els.complement3 = compl3;
+  //     els.complement4 = compl4;
+  //     els.conjonction = (resCondMaisPasEtOu || resCondNiSoit || resCondEtOu) ? resCond[8] : null;
+
+  //     // décomposer les compléments si possible
+  //     // complément1
+  //     if (els.complement1) {
+  //       const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
+  //       if (resCompl) {
+  //         els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+  //         els.preposition1 = resCompl[1] ? resCompl[1] : null;
+  //       }
+  //       // complément2
+  //       if (els.complement2) {
+  //         const resCompl2 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement2);
+  //         if (resCompl2) {
+  //           els.sujetComplement2 = new GroupeNominal(resCompl2[2], resCompl2[3], (resCompl2[4] ? resCompl2[4] : null));
+  //         }
+  //         // complément3
+  //         if (els.complement3) {
+  //           const resCompl3 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement3);
+  //           if (resCompl3) {
+  //             els.sujetComplement3 = new GroupeNominal(resCompl3[2], resCompl3[3], (resCompl3[4] ? resCompl3[4] : null));
+  //           }
+  //           // complément4
+  //           if (els.complement4) {
+  //             const resCompl4 = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement4);
+  //             if (resCompl4) {
+  //               els.sujetComplement4 = new GroupeNominal(resCompl4[2], resCompl4[3], (resCompl4[4] ? resCompl4[4] : null));
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   } else if (resConditionAucunPourVers) {
+  //     // ex1: aucun(1) complément(2) attribut(3) {n’existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
+  //     // ex2: un(1) complément(2) attribut(3) {existe} (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela)(5)
+  //     // ex sujet: ceci, cela, la/pomme/enchantée
+  //     const sujet = resConditionAucunPourVers[7] ? (new GroupeNominal(resConditionAucunPourVers[6], resConditionAucunPourVers[7], resConditionAucunPourVers[8] ? resConditionAucunPourVers[8] : null)) : (resConditionAucunPourVers[5] ? new GroupeNominal(null, resConditionAucunPourVers[5], null) : null);
+  //     const verbe = "existe";
+  //     // ex compl1: description, aperçu, sortie, sortie accessible, porte, ...
+  //     const compl = resConditionAucunPourVers[2] + (resConditionAucunPourVers[3] ? (" " + resConditionAucunPourVers[3]) : "");
+  //     const negation = resConditionAucunPourVers[1].match(/^aucun|aucune$/i) ? resConditionAucunPourVers[1].toLowerCase() : null;
+  //     els = new ElementsPhrase(null, sujet, verbe, negation, compl);
+
+  //     // console.warn("$$$$ els=", els);
+
+
+  //     if (els.complement1) {
+  //       const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
+  //       // console.warn("$$$$ resCompl=", resCompl);
+  //       if (resCompl) {
+  //         els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+  //         // els.preposition1 = resCompl[1] ? resCompl[1] : null;
+  //       }
+  //     }
+  //     // prép: pour, vers
+  //     els.preposition1 = resConditionAucunPourVers[4];
+  //   } else if (resConditionLaSortieVers) {
+  //     // ex: [si] la(1) porte(2) vers(3) (ceci|cela|[le] nord(5))(4) [n’]est(6) pas(7) ouverte(8)
+  //     // ex sujets: la/porte vers/ceci, la/sortie vers/nord
+  //     const sujet = (new GroupeNominal(resConditionLaSortieVers[1], resConditionLaSortieVers[2] + " vers", (resConditionLaSortieVers[5] ? resConditionLaSortieVers[5] : resConditionLaSortieVers[4])));
+  //     // ex verbe: est
+  //     const verbe = resConditionLaSortieVers[6]
+  //     // ex compl: ouverte, innaccessible, verrouillée, …
+  //     const compl = resConditionLaSortieVers[8];
+  //     // ex pas, plus
+  //     const negation = (resConditionLaSortieVers[7] ? resConditionLaSortieVers[7] : null);
+  //     els = new ElementsPhrase(null, sujet, verbe, negation, compl);
+  //   }
+
+  //   return els;
+  // }
 
 
 

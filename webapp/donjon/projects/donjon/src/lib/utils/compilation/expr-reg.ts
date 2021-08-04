@@ -524,12 +524,12 @@ export class ExprReg {
 
    
   /**
-   * mais (pas|ni|bien)(1) complément1(2)
+   * mais (pas|plus|ni|bien)(1) complément1(2)
    * - mais pas blanc
    * - mais ni cabossé
    * - mais bien possédé
    */
-   static readonly xSuiteConditionMais = /^mais (?:pas|ni|bien) (.+?)$/i;
+   static readonly xSuiteConditionMais = /^mais (?:pas|plus|ni|bien) (.+?)$/i;
 
   // ================================================================================================
   //  INSTRUCTIONS

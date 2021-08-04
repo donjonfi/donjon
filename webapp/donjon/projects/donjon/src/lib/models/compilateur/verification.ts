@@ -1,12 +1,11 @@
-import { Condition } from './condition';
-import { ElementsPhrase } from '../commun/elements-phrase';
+import { ConditionMulti } from './condition-multi';
 import { Instruction } from './instruction';
 
 export class Verification {
 
   constructor(
 
-    public conditions: Condition[],
+    public conditions: ConditionMulti[],
     public resultats: Instruction[]
   ) { }
 

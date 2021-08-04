@@ -3,12 +3,15 @@ import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
+import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
+import { MotUtils } from "../commun/mot-utils";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { ProprieteElement } from "../../models/commun/propriete-element";
+import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 
@@ -60,7 +63,7 @@ export class CompteursUtils {
                 // cas spécifique : quantité d’objet
                 if (compteurOuPropriete.nom == 'quantité') {
                   console.log("dim quantité");
-                  
+
                   let valQuantite = parseInt(compteurOuPropriete.valeur);
                   // on ne peut diminuer la quantité que si elle n’est pas infinie
                   if (valQuantite != -1) {
@@ -170,7 +173,19 @@ export class CompteursUtils {
         }
         // trouver compteur éventuel
       } else {
-        console.log("intituleValeurVersNombre: TODO: valeur d’un compteur");
+        const resultatGN = ExprReg.xGroupeNominal.exec(valeurString);
+        if (resultatGN) {
+          let gn = new GroupeNominal(resultatGN[1] ?? null, resultatGN[2], resultatGN[3] ?? null);
+          const curCompteur = eju.trouverCompteur(gn);
+          if (curCompteur && curCompteur.length) {
+            if (curCompteur.length == 1) {
+              valeurNum = curCompteur[0].valeur;
+            } else {
+              console.error("intituleValeurVersNombre: plusieurs compteurs trouvés pour ", valeurString);
+            }
+          }
+        }
+
       }
     }
     return valeurNum;
@@ -194,7 +209,6 @@ export class CompteursUtils {
         }
       }
     }
-
     return retVal;
   }
 
