@@ -593,7 +593,7 @@ export class InstructionDire {
     }
 
     // propriété élément
-    const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l’|si|sinon|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s'|si|sinon|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
+    const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l’|si|sinon|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s'|si|sinon|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
     if (xBaliseProprieteElementMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteElementMulti);

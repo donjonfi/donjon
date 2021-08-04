@@ -364,24 +364,6 @@ export class AnalyseurCondition {
       retVal = new ConditionSolo(null, null, null, complementBrut, sujetComplement1);
     }
 
-    // let resCond: RegExpExecArray = null;
-
-    // switch (lien) {
-    //   case LienCondition.ni:
-    //   case LienCondition.soit:
-    //     resCond = ExprReg.xSuiteConditionNiSoit.exec(conditionBrute);
-    //     break;
-
-    //   case LienCondition.maisPas:
-    //   case LienCondition.maisNi:
-    //   case LienCondition.maisBien:
-    //     resCond = ExprReg.xSuiteConditionMais.exec(conditionBrute);
-    //     break;
-
-    //   default:
-    //     break;
-    // }
-
     return retVal;
   }
 
@@ -400,7 +382,7 @@ export class AnalyseurCondition {
       console.error("decomposerConditionBrute > parenthèses pas valides > ", conditionBrute);
     }
 
-    console.warn("conditionDecomposee:", conditionDecomposee);
+    // console.warn("conditionDecomposee:", conditionDecomposee);
 
     return conditionDecomposee;
   }

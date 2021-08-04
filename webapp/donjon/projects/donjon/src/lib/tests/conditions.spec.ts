@@ -1,6 +1,10 @@
 import { AnalyseurCondition } from "../utils/compilation/analyseur/analyseur.condition";
+import { Compilateur } from "../../public-api";
+import { Compteur } from "../models/compilateur/compteur";
 import { ConditionMulti } from "../models/compilateur/condition-multi";
 import { ConditionSolo } from "../models/compilateur/condition-solo";
+import { ConditionsUtils } from "../utils/jeu/conditions-utils";
+import { Jeu } from "../models/jeu/jeu";
 import { LienCondition } from "../models/compilateur/lien-condition";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -292,13 +296,38 @@ describe('Conditions − Décomposer conditions', () => {
     it('Get condition: « a dépasse soit b soit c »', () => {
       const result = AnalyseurCondition.getConditionMulti("a dépasse soit b soit c");
 
-      console.warn("xxxxx: ", result);
-
-
       expect(result).toBeInstanceOf(ConditionMulti);
       expect(result.condition).toBeNull();
       expect(result.sousConditions).not.toBeNull();
       expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+      expect(result.typeLienSousConditions).toEqual(LienCondition.soit);
+
+      // => (a dépasse b)
+      expect(result.sousConditions[0].condition).not.toBeNull();
+      expect(result.sousConditions[0].sousConditions).toBeNull();
+      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+      expect(result.sousConditions[0].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[0].condition.sujet.nom).toEqual('a');
+      expect(result.sousConditions[0].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[0].condition.verbe).toEqual('dépasse');
+      expect(result.sousConditions[0].condition.complement).toEqual('b');
+      expect(result.sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[0].condition.sujetComplement.nom).toEqual('b');
+      expect(result.sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+      // => soit (a dépasse c)
+      expect(result.sousConditions[1].condition).not.toBeNull();
+      expect(result.sousConditions[1].sousConditions).toBeNull();
+      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.soit);
+      expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
+      expect(result.sousConditions[1].condition.sujet.nom).toEqual('a');
+      expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
+      expect(result.sousConditions[1].condition.verbe).toEqual('dépasse');
+      expect(result.sousConditions[1].condition.complement).toEqual('c');
+      expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+      expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
+      expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
     });
 
 
@@ -429,6 +458,329 @@ describe('Conditions − Décomposer conditions', () => {
 
   });
 
+
+});
+
+describe('Conditions − Vérifier résultat sur des compteurs', () => {
+
+  // définir un jeu avec 4 compteurs
+  let jeu: Jeu = new Jeu();
+  jeu.compteurs = [];
+  let cptA = new Compteur('a', 0);
+  let cptB = new Compteur('b', 0);
+  let cptC = new Compteur('c', 0);
+  let cptD = new Compteur('d', 0);
+  jeu.compteurs.push(cptA);
+  jeu.compteurs.push(cptB);
+  jeu.compteurs.push(cptC);
+  jeu.compteurs.push(cptD);
+  const condUtils = new ConditionsUtils(jeu, false);
+
+  it('vérifier résultat condition: « si a dépasse b et si c vaut d »', () => {
+    cptA.valeur = 2;
+    cptB.valeur = 1;
+    cptC.valeur = 3;
+    cptD.valeur = 3;
+    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = 2;
+    cptC.valeur = 2;
+    cptD.valeur = 2;
+    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 1
+    cptB.valeur = 0;
+    cptC.valeur = 1;
+    cptD.valeur = 0
+    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeFalse();
+  });
+
+  it('vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
+
+    // (A=1 et B=2) ou (C=3 et d=4)
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 3;
+    cptD.valeur = 3;
+    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  
+  it('vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4 »', () => {
+
+    // A=1 et (B=2 ou C=3) et D=4
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 2;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « si a ne vaut pas b mais bien c »', () => {
+
+    // A != B mais A = C
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 2;
+    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeFalse();
+
+
+  });
+
+  it('vérifier résultat condition: « a dépasse b ainsi que c ou d »', () => {
+
+    // (A > B) et (A > C ou D)
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = 2;
+    cptC.valeur = 5;
+    cptD.valeur = 200;
+    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = 2;
+    cptC.valeur = 200;
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
+    
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeFalse();
+    
+    cptA.valeur = 1;
+    cptB.valeur = 10;
+    cptC.valeur = 10;
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a vaut soit b soit c mais pas d »', () => {
+
+    // A vaut (soit B soit C) mais pas D
+
+    cptA.valeur = 5;
+    cptB.valeur = 5;
+    cptC.valeur = 0;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 5;
+    cptB.valeur = 5;
+    cptC.valeur = 5;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 5;
+    cptB.valeur = 5;
+    cptC.valeur = 2;
+    cptD.valeur = 5;
+    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 5;
+    cptB.valeur = 2;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a ne vaut ni b ni c »', () => {
+
+    // A != B et A != C
+
+    cptA.valeur = 2;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = 10;
+    cptC.valeur = 2;
+    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a vaut 2 mais ni b ni c »', () => {
+
+    // A vaut 2 mais ni B ni C
+
+    cptA.valeur = 2;
+    cptB.valeur = 0;
+    cptC.valeur = 10;
+    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = -2;
+    cptC.valeur = -10;
+    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = 2;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 2;
+    cptB.valeur = 2;
+    cptC.valeur = 2;
+    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = -2;
+    cptB.valeur = 2;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a vaut 1 ou 2 ou 3 »', () => {
+
+    // A vaut 1 ou 2 ou 3
+
+    cptA.valeur = 1;
+    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 3;
+    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 10;
+    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = -2;
+    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+
+  it('vérifier résultat condition: « A vaut 1 ou si B dépasse 1 ou si c atteint 1 »', () => {
+
+    // A vaut 1 ou B dépasse 1 ou C atteint 1
+
+    cptA.valeur = 1;
+    cptB.valeur = 10;
+    cptC.valeur = 10;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 50;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 10;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeFalse();
+
+
+  });
+
+  it('vérifier résultat condition: « a vaut 1 et si b vaut 1 et si c vaut 1 »', () => {
+
+    // A, B et C valent 1
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeFalse();
+
+  });
 
 
 });
