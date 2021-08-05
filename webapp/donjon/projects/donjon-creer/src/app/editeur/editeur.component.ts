@@ -365,16 +365,33 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // fichier choisi par l’utilisateur
       const file = files[0];
       if (file) {
-        this.viderSectionsCodeSource("partie");
-        this.sectionCodeSourceVisible = "";
-        this.chargementFichierEnCours = true;
-        const fileReader = new FileReader();
-        // quand lu, l’attribuer au code source
-        fileReader.onloadend = (progressEvent) => {
-          this.initCodeSource(fileReader.result as string);
-        };
-        // lire le fichier
-        fileReader.readAsText(file);
+
+        console.warn("chargement de ", file.name);
+
+        // A. CHARGEMENT SCÉNARIO
+        if (file.name.endsWith(".djn") || file.name.endsWith(".txt")) {
+          this.viderSectionsCodeSource("partie");
+          this.sectionCodeSourceVisible = "";
+          this.chargementFichierEnCours = true;
+          const fileReader = new FileReader();
+          // quand lu, l’attribuer au code source
+          fileReader.onloadend = (progressEvent) => {
+            this.initCodeSource(fileReader.result as string);
+          };
+          // lire le fichier
+          fileReader.readAsText(file);
+          
+          // B. CHARGEMENT FICHIER AUTO COMMANDES
+        } else if (file.name.endsWith(".auto")) {
+          const fileReader = new FileReader();
+          // quand lu, définir les auto commandes
+          fileReader.onloadend = (progressEvent) => {
+            ((this.lecteurRef as any) as LecteurComponent).setAutoCommandes(fileReader.result as string);
+          };
+          // lire le fichier
+          fileReader.readAsText(file);
+        }
+
       }
     }
   }

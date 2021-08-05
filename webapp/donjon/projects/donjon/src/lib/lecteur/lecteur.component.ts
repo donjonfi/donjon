@@ -26,12 +26,36 @@ export class LecteurComponent implements OnInit, OnChanges {
   @Input() verbeux = false;
   @Input() debogueur = false;
 
-  readonly TAILLE_DERNIERES_COMMANDES: number = 10;
+  readonly TAILLE_DERNIERES_COMMANDES: number = 20;
 
   sortieJoueur: string = null;
+  /** Commande tapée par le joueur. */
   commande = "";
-  historiqueCommandes = new Array<string>();
+  /** Historique des commandes tapées par le joueur. */
+  historiqueCommandes: string[] = [];
+  /** Curseur dans l’historique des commandes */
   curseurHistorique = -1;
+  /** Historique de toutes les commandes utilisées pour la partie en cours. */
+  historiqueCommandesPartie: string[] = null;
+
+  /** 
+   * pour remplir automatiquement les commandes joueur
+   * afin de tester plus rapidement le jeu.
+   */
+  private autoCommandes: string[] = null;
+
+  /**
+   * Le système « auto triche » est-il en cours d’exécution ?
+   */
+  private autoTricheActif = false;
+
+  /**
+   * Le système « triche » est-il actif ?
+   */
+  private tricheActif = false;
+
+  /** Index de la commande dans le système « triche » */
+  private indexTriche: number = 0;
 
   private com: Commandeur;
   private ins: Instructions;
@@ -61,6 +85,7 @@ export class LecteurComponent implements OnInit, OnChanges {
   private initialiserJeu() {
     this.sortieJoueur = "";
     this.resteDeLaSortie = [];
+    this.historiqueCommandesPartie = [];
     this.commandeEnCours = false;
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
@@ -191,6 +216,13 @@ export class LecteurComponent implements OnInit, OnChanges {
    */
   private ajouterSortieJoueur(contenu: string) {
     if (contenu) {
+
+      // en mode auto-triche, on n’attend pas !
+      if (this.autoTricheActif) {
+        // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
+        contenu = contenu.replace(/@@attendre touche@@/g, '<p class="text-primary font-italic">Appuyez sur une touche…</p>')
+      }
+
       // découper en fonction des pauses
       const sectionsContenu = contenu.split("@@attendre touche@@");
       // s'il y a du texte en attente, ajouter au texte en attente
@@ -242,6 +274,14 @@ export class LecteurComponent implements OnInit, OnChanges {
     // s’il reste d’autres sections, attendre
     if (this.resteDeLaSortie.length) {
       this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…'
+    } else {
+      // mode triche : afficher commande suivante
+      if (this.tricheActif) {
+        this.indexTriche += 1;
+        if (this.indexTriche < this.autoCommandes.length) {
+          this.commande = this.autoCommandes[this.indexTriche];
+        }
+      }
     }
     // scroll
     setTimeout(() => {
@@ -296,11 +336,58 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
+  /** Définir le focus sur l’entrée commande utilisateur. */
   public focusCommande() {
     setTimeout(() => {
       this.commandeInputRef.nativeElement.focus();
       this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande?.length ?? 0;
     }, 100);
+  }
+
+  /** Définir la liste des auto commandes (pour tester un jeu plus rapidement avec triche et auto-triche) */
+  public setAutoCommandes(autoCommandes: string) {
+    this.autoCommandes = autoCommandes.split(/(?:\r\n|\r|\n|@;@)/);
+    // retirer dernière entrée si vide
+    if (!this.autoCommandes[this.autoCommandes.length]) {
+      this.autoCommandes.pop();
+    }
+    console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
+    this.sortieJoueur += '<p>' + BalisesHtml.doHtml('{/Fichier .auto chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>');
+
+  }
+
+  private lancerAutoTriche() {
+    console.log("lancerAutoTriche…");
+    if (this.autoCommandes && this.autoCommandes.length) {
+      this.autoTricheActif = true;
+      this.autoCommandes.forEach(async curCom => {
+        this.commande = curCom;
+        this.onKeyDownEnter(null);
+      });
+      this.autoTricheActif = false;
+    } else {
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier *.auto chargé./}"));
+    }
+  }
+
+  private lancerTriche() {
+    console.log("lancerTriche…");
+    if (this.autoCommandes && this.autoCommandes.length) {
+      this.tricheActif = true;
+      this.indexTriche = 0;
+      this.commande = this.autoCommandes[this.indexTriche];
+    } else {
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier *.auto chargé./}"));
+    }
+  }
+
+  private lancerSauverCommandes() {
+    console.log("lancerSauverCommandes…");
+    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>*.auto</b> afin de pouvoir l’utiliser avec le mode <b>triche</b>.</i></p>';
+    // enlever la dernière commande, qui est « sauver commandes »
+    this.historiqueCommandesPartie.pop();
+    // afficher l’historique des commandes
+    this.sortieJoueur += '<code>' + this.historiqueCommandesPartie.join("<br>") + '</code>';
   }
 
   /** Tabulation: continuer le mot */
@@ -331,7 +418,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     if (!this.resteDeLaSortie?.length) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
-        event.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
+        event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
         this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
 
         // COMPLÉTER ET NETTOYER LA COMMANDE
@@ -346,8 +433,9 @@ export class LecteurComponent implements OnInit, OnChanges {
         if (this.jeu.termine) {
           this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
         } else {
-          // GESTION HISTORIQUE
+          // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
           // ajouter à l’historique (à condition que différent du précédent)
+          // (commande nettoyée)
           if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
             this.historiqueCommandes.push(commandeNettoyee);
             if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
@@ -355,10 +443,33 @@ export class LecteurComponent implements OnInit, OnChanges {
             }
           }
 
+          // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
+          // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+          this.historiqueCommandesPartie.push(this.commande);
+
           // EXÉCUTION DE LA COMMANDE
           const sortieCommande = this.com.executerCommande(commandeComplete.trim());
           if (sortieCommande) {
-            this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+            // sortie spéciale: auto-triche
+            if (sortieCommande == "@auto-triche@") {
+              setTimeout(() => {
+                this.lancerAutoTriche();
+              }, 100);
+              // sortie spéciale: triche
+            } else if (sortieCommande == "@triche@") {
+              setTimeout(() => {
+                this.lancerTriche();
+              }, 100);
+              // sortie spéciale: sauver-commandes
+            } else if (sortieCommande == "@sauver-commandes@") {
+              // setTimeout(() => {
+              this.lancerSauverCommandes();
+              // }, 100);
+              // sortie normale
+            } else {
+              this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+            }
+            // aucune sortie
           } else {
             this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
           }
@@ -367,6 +478,15 @@ export class LecteurComponent implements OnInit, OnChanges {
         }
         // nettoyer l’entrée commande et scroll du texte
         this.commande = "";
+
+        // mode triche: afficher commande suivante
+        if (this.tricheActif && !this.resteDeLaSortie?.length) {
+          this.indexTriche += 1;
+          if (this.indexTriche < this.autoCommandes.length) {
+            this.commande = this.autoCommandes[this.indexTriche];
+          }
+        }
+
         setTimeout(() => {
           this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
           this.commandeInputRef.nativeElement.focus();

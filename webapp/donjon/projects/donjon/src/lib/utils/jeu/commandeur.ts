@@ -77,17 +77,26 @@ export class Commandeur {
         return retVal;
       }
 
-      switch (els.infinitif) {
-
-        // unique commande « en dur » : déboguer
-        case "déboguer":
+      //   A) commande spéciale : déboguer
+      if (els.infinitif == "déboguer") {
+        // triche (avec fichier auto-commandes)
+        if (els.sujet?.nom == "triche") {
+          if (els.sujet.epithete == "auto") {
+            retVal = "@auto-triche@";
+          } else {
+            retVal = "@triche@";
+          }
+          // déboguer un élément du jeu
+        } else {
           retVal = this.deb.deboguer(els);
-          break;
 
-        // commandes chargées dynamiquement
-        default:
+        }
+        // B) commande spéciale : sauver les commandes dans un fichier
+      } else if (els.infinitif == "sauver" && els.sujet?.nom == "commandes") {
+        retVal = "@sauver-commandes@";
+        // C) commandes chargées dynamiquement
+      } else {
           const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
-
           // =====================================================
           // A. VERBE PAS CONNU
           // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
@@ -298,9 +307,8 @@ export class Commandeur {
             }
 
           }
-
-          break;
       }
+
       // la commande n’a pas pu être décomposée
     } else {
       retVal = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";

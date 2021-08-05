@@ -146,6 +146,10 @@ export class Abreviations {
           retVal = "attaquer ";
           break;
 
+        case 'triche':
+          retVal = "déboguer triche ";
+          break;
+
         // ======================
         //           C
         // ======================
