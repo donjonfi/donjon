@@ -352,7 +352,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.autoCommandes.pop();
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-    this.sortieJoueur += '<p>' + BalisesHtml.doHtml('{/Fichier .auto chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>');
+    this.sortieJoueur += '<p>' + BalisesHtml.doHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>');
 
   }
 
@@ -366,7 +366,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       });
       this.autoTricheActif = false;
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier *.auto chargé./}"));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier solution (.sol) chargé./}"));
     }
   }
 
@@ -377,13 +377,13 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.indexTriche = 0;
       this.commande = this.autoCommandes[this.indexTriche];
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier *.auto chargé./}"));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier solution (.sol) chargé./}"));
     }
   }
 
   private lancerSauverCommandes() {
     console.log("lancerSauverCommandes…");
-    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>*.auto</b> afin de pouvoir l’utiliser avec le mode <b>triche</b>.</i></p>';
+    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir l’utiliser votre solution avec le mode <b>triche</b>.</i></p>';
     // enlever la dernière commande, qui est « sauver commandes »
     this.historiqueCommandesPartie.pop();
     // afficher l’historique des commandes

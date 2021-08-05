@@ -381,8 +381,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
           // lire le fichier
           fileReader.readAsText(file);
           
-          // B. CHARGEMENT FICHIER AUTO COMMANDES
-        } else if (file.name.endsWith(".auto")) {
+          // B. CHARGEMENT FICHIER SOLUTION
+        } else if (file.name.endsWith(".sol")) {
           const fileReader = new FileReader();
           // quand lu, définir les auto commandes
           fileReader.onloadend = (progressEvent) => {
