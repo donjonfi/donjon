@@ -9,7 +9,7 @@
         <label class="btn btn-primary btn-file mr-2" tooltip="Charger nouveau jeu ou partie sauvegardée"
           container="body" placement="bottom" title="Charger un nouveau jeu ou une partie sauvegardée">
           <i class="fas fa-folder-open"></i><input type="file" accept=".djn,.sav,.txt" style="display: none;"
-            name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target.files)">
+            name="choixFichierNouveau"  (change)="onChargerFichierLocal($event.target.files)" onclick="this.value=null">
         </label>
 
         <button *ngIf="jeu" class="btn btn-sm btn-danger mr-2" tooltip="Sauvergarder partie" container="body"
@@ -36,7 +36,7 @@
         <br>
         <label class="btn btn-secondary btn-file mr-2 mt-2" title="Charger un nouveau jeu ou une partie sauvegardée">
           <i class="fas fa-folder-open mr-2"></i>Charger<input type="file" accept=".djn,.sav,.txt"
-            style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target.files)">
+            style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target.files)" onclick="this.value=null">
         </label>
       </p>
 
