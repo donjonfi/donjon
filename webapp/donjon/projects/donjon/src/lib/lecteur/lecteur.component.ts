@@ -357,7 +357,6 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private lancerAutoTriche() {
-    console.log("lancerAutoTriche…");
     if (this.autoCommandes && this.autoCommandes.length) {
       this.autoTricheActif = true;
       this.autoCommandes.forEach(async curCom => {
@@ -371,7 +370,6 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private lancerTriche() {
-    console.log("lancerTriche…");
     if (this.autoCommandes && this.autoCommandes.length) {
       this.tricheActif = true;
       this.indexTriche = 0;
@@ -382,12 +380,15 @@ export class LecteurComponent implements OnInit, OnChanges {
   }
 
   private lancerSauverCommandes() {
-    console.log("lancerSauverCommandes…");
-    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir l’utiliser votre solution avec le mode <b>triche</b>.</i></p>';
+    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir utiliser votre solution avec le mode <b>triche</b>.</i></p>';
     // enlever la dernière commande, qui est « sauver commandes »
     this.historiqueCommandesPartie.pop();
     // afficher l’historique des commandes
-    this.sortieJoueur += '<code>' + this.historiqueCommandesPartie.join("<br>") + '</code>';
+    if (this.historiqueCommandesPartie.length > 0) {
+      this.sortieJoueur += '<code>' + this.historiqueCommandesPartie.join("<br>") + '</code>';
+    } else {
+      this.ajouterSortieJoueur("<br>(Aucune commande à afficher.)");
+    }
   }
 
   /** Tabulation: continuer le mot */
@@ -430,7 +431,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         // VÉREFIER FIN DE PARTIE
         // vérifier si le jeu n’est pas déjà terminé
-        if (this.jeu.termine) {
+        if (this.jeu.termine && !commandeComplete.match(/^(déboguer|sauver|effacer) /i)) {
           this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
         } else {
           // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
