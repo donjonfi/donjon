@@ -19,6 +19,8 @@ export enum LienCondition {
   maisBien = "mais bien",
   /** lien « mais ni » (et non) (p5) */
   maisNi = "mais ni",
+  /** lien « mais soit » (et soit) (p5) */
+  maisSoit = "mais soit",
   /** lien « et si » (et) (p6) */
   etSi = "et si",
   /** lien « ou si » (ou inclusif) (p7) */

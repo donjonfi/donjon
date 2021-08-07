@@ -566,7 +566,7 @@ export class InstructionDire {
     // Le nombre de propriété de élément
     // const baliseNombreDePropriete = "(le )?nombre (de |d’|d')(\\S+) (du |de la |de |d'|d’|des )(\\S+?|(\\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\\S+?))( (?!\\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\\b)(\\S+?))?";
     // const xBaliseNombreDeProprieteMulti = new RegExp("\\[" + baliseNombreDePropriete + "\\]", "gi");
-    const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+    const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
     if (xBaliseNombreDeProprieteMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeProprieteMulti);
@@ -575,7 +575,7 @@ export class InstructionDire {
     }
 
     // Le nombre de classe état1 état2 position
-    const xBaliseNombreDeClasseEtatPossitionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\b)(\S+?))?)?\]/gi;
+    const xBaliseNombreDeClasseEtatPossitionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?\]/gi;
     if (xBaliseNombreDeClasseEtatPossitionMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeClasseEtatPossitionMulti);
@@ -736,8 +736,13 @@ export class InstructionDire {
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
       const condition = AnalyseurCondition.getConditionMulti(conditionLC);
-      statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
-      retVal = statut.siVrai;
+      if (condition.nbErreurs) {
+        retVal = false;
+        console.error("Condition pas comprise: ", conditionLC);
+      } else {
+        statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
+        retVal = statut.siVrai;
+      }
       // SUITES
     } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
 
@@ -754,8 +759,14 @@ export class InstructionDire {
             conditionLC = conditionLC.substr('sinon'.length).trim()
             // tester le si
             const condition = AnalyseurCondition.getConditionMulti(conditionLC);
-            statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
-            retVal = statut.siVrai;
+            
+            if (condition.nbErreurs) {
+              retVal = false;
+              console.error("Condition pas comprise: ", conditionLC);
+            } else {
+              statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
+              retVal = statut.siVrai;  
+            }
           }
         } else {
           console.warn("[sinonsi …] sans 'si'.");

@@ -9,9 +9,28 @@ import { LienCondition } from "../../../models/compilateur/lien-condition";
 
 export class AnalyseurCondition {
 
+
+  /** Générer la condition correspondant à la phrase spécifiée. */
+  public static getConditionMulti(conditionBrute: string): ConditionMulti {
+
+    let retVal: ConditionMulti = null;
+
+    // A. DÉCOMPOSER LA CONDITION
+    const conditionDecomposee = AnalyseurCondition.decomposerConditionBrute(conditionBrute);
+    // B. GÉNÉRER LA CONDITION
+    if (conditionDecomposee) {
+      retVal = AnalyseurCondition.genererConditionMulti(conditionDecomposee);
+      // C. SIMPLIFIER LA CONDITION
+      if (retVal.nbErreurs == 0) {
+        retVal = AnalyseurCondition.simplifierConditionMulti(retVal)
+      }
+    }
+    return retVal
+  }
+
   /**
-   * Vérifier si les couples de parenthèses de la conditions sont valides.
-   */
+    * Vérifier si les couples de parenthèses de la conditions sont valides.
+    */
   public static parenthesesValides(condition: string): boolean {
     let total = 0;
     if (condition) {
@@ -28,22 +47,6 @@ export class AnalyseurCondition {
       }
     }
     return (total == 0);
-  }
-
-  /** Générer la condition correspondant à la phrase spécifiée. */
-  public static getConditionMulti(conditionBrute: string): ConditionMulti {
-
-    // A. DÉCOMPOSER LA CONDITION
-    const conditionDecomposee = AnalyseurCondition.decomposerConditionBrute(conditionBrute);
-
-    // B. GÉNÉRER LA CONDITION
-    const conditionMulti = AnalyseurCondition.genererConditionMulti(conditionDecomposee);
-
-    // C. SIMPLIFIER LA CONDITION
-    const conditionSimplifiee = AnalyseurCondition.simplifierConditionMulti(conditionMulti)
-
-    return conditionSimplifiee;
-
   }
 
   // /**
@@ -120,10 +123,11 @@ export class AnalyseurCondition {
   // }
 
   public static simplifierConditionMulti(conditionMulti: ConditionMulti): ConditionMulti {
-
+    // console.log("simplifierConditionMulti");
     let dernierDebutCondition: ConditionSolo = null;
-    let parentImpliqueNegationEnfant = false;
-    AnalyseurCondition.simplifierMorceauConditionMulti(conditionMulti, dernierDebutCondition, parentImpliqueNegationEnfant);
+    let parentImpliqueAjoutNegationEnfant = false;
+    let parentImpliqueRetraitNegationEnfant = false;
+    AnalyseurCondition.simplifierMorceauConditionMulti(conditionMulti, dernierDebutCondition, parentImpliqueAjoutNegationEnfant, parentImpliqueRetraitNegationEnfant);
     return conditionMulti;
   }
 
@@ -133,9 +137,10 @@ export class AnalyseurCondition {
    *   - remettre le début à chaque condition qui n’en a pas encore.
    * @returns dernier début de condition trouvé.
    */
-  private static simplifierMorceauConditionMulti(conditionMulti: ConditionMulti, dernierDebutCondition: ConditionSolo, forcerNegation: boolean): ConditionSolo {
+  private static simplifierMorceauConditionMulti(conditionMulti: ConditionMulti, dernierDebutCondition: ConditionSolo, forcerAjoutNegation: boolean, forcerRetraitNegation: boolean): ConditionSolo {
 
-    let parentImpliqueNegationEnfant = false;
+    let parentImpliqueAjoutNegationEnfant = false;
+    let parentImpliqueRetraitNegationEnfant = false;
 
     // A) ADAPTER LE LIEN VERS ET/OU/SOIT LE CAS ÉCHÉANT
     switch (conditionMulti.lienFrereAine) {
@@ -149,9 +154,20 @@ export class AnalyseurCondition {
       case LienCondition.et:
       case LienCondition.etSi:
       case LienCondition.ainsiQue:
+        // et
+        conditionMulti.lienFrereAine = LienCondition.et;
+        break;
+
+      // ET BIEN (mais bien)
       case LienCondition.maisBien:
         // et
         conditionMulti.lienFrereAine = LienCondition.et;
+        // bien
+        if (conditionMulti.condition) {
+          forcerRetraitNegation = true;
+        } else {
+          parentImpliqueRetraitNegationEnfant = true;
+        }
         break;
 
       // ET PAS (ni, mais ni, mais pas, mais plus)
@@ -159,13 +175,30 @@ export class AnalyseurCondition {
       case LienCondition.maisNi:
       case LienCondition.maisPas:
       case LienCondition.maisPlus:
-        // et
-        conditionMulti.lienFrereAine = LienCondition.et;
         // pas
         if (conditionMulti.condition) {
-          conditionMulti.condition.negation = 'pas';
+          forcerAjoutNegation = true;
+          if (conditionMulti.lienFrereAine === LienCondition.maisNi) {
+            console.error("« mais ni » doit être forcément être suivi d’au moins 1 « ni » supplémentaire.");
+            conditionMulti.nbErreurs += 1;
+          }
         } else {
-          parentImpliqueNegationEnfant = true;
+          parentImpliqueAjoutNegationEnfant = true;
+        }
+        // et
+        conditionMulti.lienFrereAine = LienCondition.et;
+        break;
+
+      // ET SOIT (mais soit)
+      case LienCondition.maisSoit:
+        // et
+        conditionMulti.lienFrereAine = LienCondition.et;
+        // bien
+        if (conditionMulti.condition) {
+          console.error("« mais soit » doit être forcément être suivi d’au moins 1 « soit » supplémentaire.");
+          conditionMulti.nbErreurs += 1;
+        } else {
+          parentImpliqueRetraitNegationEnfant = true;
         }
         break;
 
@@ -181,6 +214,8 @@ export class AnalyseurCondition {
 
       default:
         console.error("simplifierMorceauConditionMulti > lien pas supporté ici: ", conditionMulti.lienFrereAine);
+        conditionMulti.nbErreurs += 1;
+        conditionMulti.erreurs.push("simplification condition multi: lien pas supporté ici: " + conditionMulti.lienFrereAine);
         break;
     }
 
@@ -199,20 +234,34 @@ export class AnalyseurCondition {
         } else {
           conditionMulti.condition.sujet = dernierDebutCondition.sujet;
           conditionMulti.condition.verbe = dernierDebutCondition.verbe;
+          conditionMulti.condition.negation = dernierDebutCondition.negation;
         }
       }
       // NÉGATION
-      if (forcerNegation) {
+      if (forcerAjoutNegation) {
+        // console.log("forcerAjoutNegation");
         conditionMulti.condition.negation = "pas";
+      } else if (forcerRetraitNegation) {
+        // console.log("forcerRetraitNegation");
+        conditionMulti.condition.negation = null;
       }
 
       // SOUS-CONDITIONS
-    } else {
+    } else if (conditionMulti.sousConditions?.length) {
       // parcourir les sous-conditions
       conditionMulti.sousConditions.forEach(curSousCondition => {
         // simplifier la sousCondition
-        dernierDebutCondition = AnalyseurCondition.simplifierMorceauConditionMulti(curSousCondition, dernierDebutCondition, parentImpliqueNegationEnfant);
+        dernierDebutCondition = AnalyseurCondition.simplifierMorceauConditionMulti(curSousCondition, dernierDebutCondition, parentImpliqueAjoutNegationEnfant, parentImpliqueRetraitNegationEnfant);
+        if (curSousCondition.nbErreurs) {
+          conditionMulti.nbErreurs += 1;
+          conditionMulti.erreurs.push("simplification condition multi: erreur dans une des sous-conditions");
+        }
       });
+      // PAS DE CONDITION NI DE SOUS-CONDITIONS
+    } else {
+      console.error("simplifierMorceauConditionMulti: pas de condition ni de sous condition !");
+      conditionMulti.nbErreurs += 1;
+      conditionMulti.erreurs.push("simplification condition multi: pas de condition ni de sous condition");
     }
     return dernierDebutCondition;
   }
@@ -223,25 +272,47 @@ export class AnalyseurCondition {
    */
   public static genererConditionMulti(conditionDecomposee: ConditionDecomposee): ConditionMulti {
 
-    let retVal = new ConditionMulti();
+    let retVal: ConditionMulti = null;
 
-    retVal.lienFrereAine = conditionDecomposee.lien;
+    if (conditionDecomposee) {
 
-    // s'il y a des sous-conditions
-    if (conditionDecomposee.sousConditions) {
-      retVal.condition = null;
-      retVal.sousConditions = [];
-      retVal.typeLienSousConditions = conditionDecomposee.typeLienSousConditions;
-      conditionDecomposee.sousConditions.forEach(sousCondDec => {
-        retVal.sousConditions.push(this.genererConditionMulti(sousCondDec));
-      });
-      // s'il s'agit d'une simple condition
-    } else {
-      retVal.sousConditions = null;
-      if (conditionDecomposee.estDebutCondition) {
-        retVal.condition = AnalyseurCondition.obetenirConditionSoloDebut(conditionDecomposee.conditionBrute);
+      retVal = new ConditionMulti();
+
+      retVal.lienFrereAine = conditionDecomposee.lien;
+
+      // s'il y a des sous-conditions
+      if (conditionDecomposee.sousConditions) {
+        retVal.condition = null;
+        retVal.sousConditions = [];
+        retVal.typeLienSousConditions = conditionDecomposee.typeLienSousConditions;
+        conditionDecomposee.sousConditions.forEach(sousCondDec => {
+          const sousCond = this.genererConditionMulti(sousCondDec);
+          retVal.sousConditions.push(sousCond);
+          // propager l’erreur
+          if (sousCond.nbErreurs != 0) {
+            retVal.nbErreurs += 1;
+          }
+        });
+        // s'il s'agit d'une simple condition
       } else {
-        retVal.condition = AnalyseurCondition.obetenirConditionSoloSuite(conditionDecomposee.conditionBrute);
+        retVal.sousConditions = null;
+        if (conditionDecomposee.estDebutCondition) {
+          retVal.condition = AnalyseurCondition.obetenirConditionSoloDebut(conditionDecomposee.conditionBrute);
+          // si condition pas trouvée
+          if (!retVal.condition) {
+            console.error("Condition solo (début) pas trouvée pour", conditionDecomposee.conditionBrute);
+            retVal.erreurs.push("Début de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            retVal.nbErreurs += 1;
+          }
+        } else {
+          retVal.condition = AnalyseurCondition.obetenirConditionSoloSuite(conditionDecomposee.conditionBrute);
+          // si simple condition pas trouvée
+          if (!retVal.condition) {
+            console.error("Condition solo (suite) pas trouvée pour", conditionDecomposee.conditionBrute);
+            retVal.erreurs.push("Fin de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            retVal.nbErreurs += 1;
+          }
+        }
       }
     }
 
@@ -381,9 +452,6 @@ export class AnalyseurCondition {
     } else {
       console.error("decomposerConditionBrute > parenthèses pas valides > ", conditionBrute);
     }
-
-    // console.warn("conditionDecomposee:", conditionDecomposee);
-
     return conditionDecomposee;
   }
 
@@ -392,8 +460,16 @@ export class AnalyseurCondition {
    * @param conditionSource 
    */
   private static decomposerMorceauConditionBrute(morceauConditionBrute: string, estSuiteCondition: boolean, estFrereCadet: boolean, typeLien: LienCondition, lien: LienCondition, sousConditionsBrutes: string[]): ConditionDecomposee {
-
     let retVal = new ConditionDecomposee();
+
+    // enlever les espaces avant et après
+    morceauConditionBrute = morceauConditionBrute.trim();
+
+    // enlever éventuellement le « si » qui commence la condition
+    if (morceauConditionBrute.match(/^si /i)) {
+      morceauConditionBrute = morceauConditionBrute.slice(3);
+    }
+
     retVal.conditionBrute = morceauConditionBrute;
     retVal.lien = lien;
     retVal.estDebutCondition = !estSuiteCondition;
@@ -402,6 +478,7 @@ export class AnalyseurCondition {
     // vérifier si le type de lien est valide
     if (AnalyseurCondition.getTypeLien(lien) !== typeLien) {
       console.error("decomposerMorceauConditionBrute: le type de lien ne correspond pas au lien.");
+      retVal.nbErreurs += 1;
     }
 
     // on traitera plus tard tout ce qui n’est pas dans le niveau de parenthèses 0
@@ -417,12 +494,6 @@ export class AnalyseurCondition {
     // s’agit-il uniquement d’une référence vers une sous-condition ?
     if (resultatRefSousCond) {
       const indexSousCond = Number.parseInt(resultatRefSousCond[1]);
-      // console.warn(
-      //   "resultatRefSousCond=", resultatRefSousCond,
-      //   "\nindexSousCond=", indexSousCond,
-      //   "\nsousConditionsBrutes=", sousConditionsBrutes,
-      //   "\nsousConditionsBrutes[indexSousCond]=", sousConditionsBrutes[indexSousCond],
-      // );
       retVal = this.decomposerMorceauConditionBrute(sousConditionsBrutes[indexSousCond], estSuiteCondition, estFrereCadet, typeLien, lien, sousConditionsBrutes);
       // CONDITION À DÉCOMPOSER
     } else {
@@ -474,7 +545,7 @@ export class AnalyseurCondition {
         'ou',
         'ni',
         'soit',
-        'ainsi que|mais pas|mais bien|mais ni',
+        'ainsi que|mais pas|mais bien|mais ni|mais soit',
         'et si',
         'ou si'
       ];
@@ -485,7 +556,7 @@ export class AnalyseurCondition {
       // décomposer la condition principale avec l’opérateur à la priorité la plus basse trouvée
       while (morceauxConditionPrincipale.length == 1 && prioIndex > 0) {
         operateur = prioriteOperateurs[--prioIndex];
-        morceauxConditionPrincipale = conditionPrincipale.split(new RegExp(" (" + operateur + ") ", 'gi'));
+        morceauxConditionPrincipale = conditionPrincipale.split(new RegExp("(?: )?\\b(" + operateur + ")\\b ", 'gi'));
       }
 
 
@@ -504,7 +575,7 @@ export class AnalyseurCondition {
           if (indexMorceau == 0) {
             // soit… soit… : ne pas découper la condition sur le premier « soit » !
             // ex: si le chat est soit gris soit noir => (1) si le chat est gris, (2) si le chat est noir
-            if (morceauxConditionPrincipale[1] == LienCondition.soit) {
+            if (morceauxConditionPrincipale[1] == LienCondition.soit && lien != LienCondition.maisSoit) {
               indexMorceau = 2;
               sousConditionBrute += " " + morceauxConditionPrincipale[2];
               estDebutSoitNi = true;
@@ -535,9 +606,17 @@ export class AnalyseurCondition {
           }
 
         }
-        // pas de sous-condition
+        // 1 seul morceau
       } else {
+        // pas de sous-conditions
         retVal.sousConditions = null;
+        // vérifier si on a pas uniquement une parenthèse inutile, c’est un dire exactement une ref vers une sous condition
+        const resultatRefSousCond = xRefSousCond.exec(morceauxConditionPrincipale[0]);
+        // s’agit-il uniquement d’une référence vers une sous-condition ?
+        if (resultatRefSousCond) {
+          const indexSousCond = Number.parseInt(resultatRefSousCond[1]);
+          retVal = this.decomposerMorceauConditionBrute(sousConditionsBrutes[indexSousCond], estSuiteCondition, estFrereCadet, typeLien, lien, sousConditionsBrutes);
+        }
       }
     }
 
@@ -576,6 +655,9 @@ export class AnalyseurCondition {
         case 'mais ni':
           return LienCondition.maisNi;
 
+        case 'mais soit':
+          return LienCondition.maisSoit;
+
         case 'soit':
           return LienCondition.soit;
 
@@ -606,6 +688,7 @@ export class AnalyseurCondition {
         case 'mais pas':
         case 'mais plus':
         case 'mais ni':
+        case 'mais soit':
         case 'ni':
           return LienCondition.et;
 

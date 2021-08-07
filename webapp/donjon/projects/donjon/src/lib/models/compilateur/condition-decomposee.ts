@@ -15,4 +15,6 @@ export class ConditionDecomposee {
   public typeLienSousConditions: LienCondition = null;
   /** Sous conditions */
   public sousConditions: ConditionDecomposee[];
+  /** Erreurs */
+  public nbErreurs: number = 0;
 }

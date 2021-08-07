@@ -5,7 +5,6 @@ import { AnalyseurCondition } from '../compilation/analyseur/analyseur.condition
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
-import { Condition } from '../../models/compilateur/condition';
 import { ConditionMulti } from '../../models/compilateur/condition-multi';
 import { ConditionSolo } from '../../models/compilateur/condition-solo';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -40,11 +39,15 @@ export class ConditionsUtils {
     if (conditionMulti == null) {
       conditionMulti = AnalyseurCondition.getConditionMulti(conditionBrute);
     }
+
+    // console.warn("conditionBrute: ", conditionBrute, "\nconditionMulti:", conditionMulti);
+    
+
     // s’il s’agit d’une condition simple
     if (conditionMulti.condition) {
       resultatFinal = this.siEstVraiSansLien(null, conditionMulti.condition, ceci, cela, evenement, declenchements);
       // sinon il s’agit d’une condition composée
-    } else {
+    } else if (conditionMulti.sousConditions?.length) {
       switch (conditionMulti.typeLienSousConditions) {
         // A) ET
         case LienCondition.et:
@@ -88,6 +91,8 @@ export class ConditionsUtils {
           console.error("siEstVrai > typeLien pas pris en charge (et|ou|soit sont pris en charge) > ", conditionMulti.typeLienSousConditions);
           break;
       }
+    } else {
+      console.error("siEstVrai > condition et/ou sous-conditions non trouvées");
     }
 
     return resultatFinal;

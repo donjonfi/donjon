@@ -103,7 +103,7 @@ export class AnalyseurConsequences {
             const conditionStr = resultSiCondCons[1];
             const condition = AnalyseurCondition.getConditionMulti(conditionStr);
 
-            if (!condition) {
+            if (!condition || condition.nbErreurs) {
               AnalyseurUtils.ajouterErreur(ctxAnalyse, ligne, "condition : " + conditionStr);
             }
 

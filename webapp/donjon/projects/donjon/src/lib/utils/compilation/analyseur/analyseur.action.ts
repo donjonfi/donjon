@@ -138,7 +138,7 @@ export class AnalyseurAction {
       if (result) {
         const typeRefuser = result[1]; // si uniquement pour l'instant
         const condition = AnalyseurCondition.getConditionMulti(result[2]);
-        if (!condition) {
+        if (!condition || condition.nbErreurs) {
           AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
         }
         const consequences = AnalyseurConsequences.separerConsequences(result[3], ctxAnalyse, phrase.ligne);

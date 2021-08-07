@@ -1,8 +1,6 @@
 import { AnalyseurCondition } from "../utils/compilation/analyseur/analyseur.condition";
-import { Compilateur } from "../../public-api";
 import { Compteur } from "../models/compilateur/compteur";
 import { ConditionMulti } from "../models/compilateur/condition-multi";
-import { ConditionSolo } from "../models/compilateur/condition-solo";
 import { ConditionsUtils } from "../utils/jeu/conditions-utils";
 import { Jeu } from "../models/jeu/jeu";
 import { LienCondition } from "../models/compilateur/lien-condition";
@@ -20,6 +18,12 @@ describe('Conditions − Vérifier parenthèses', () => {
 
   it('Parenthèses :  « (si a ou (b et c)) »', () => {
     const result = AnalyseurCondition.parenthesesValides('(si a ou (b et c))');
+    expect(result).toEqual(true);
+  });
+
+
+  it('Parenthèses :  « si (a ou (b et c)) »', () => {
+    const result = AnalyseurCondition.parenthesesValides('si (a ou (b et c))');
     expect(result).toEqual(true);
   });
 
@@ -42,7 +46,7 @@ describe('Conditions − Vérifier parenthèses', () => {
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ——————————————————————————————————————————————————————————————————————————————————————————————————————————
-//    [2/2] VÉRIFICACTIONS DÉCOUPAGE
+//    [2/3] VÉRIFICACTIONS DÉCOUPAGE
 // ———————————————————————————————————————————————————————————————————————————————————————————————————————————
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
@@ -51,9 +55,23 @@ describe('Conditions − Décomposer conditions', () => {
 
   // DÉCOUPER CONDITIONS
 
+  // (cette condition est fausse (car il manque le verbe et le complément après le a) mais on ne le sait pas encore à ce niveau…)
+  it('Décomposer :  « si (a ou (b et c)) »', () => {
+    const result = AnalyseurCondition.decomposerConditionBrute('si (a ou (b et c))');
+    expect(result).not.toBeNull();
+    expect(result.nbErreurs).toEqual(0);
+  });
+
+  // (problème de parenthèses)
+  it('Décomposer :  « si (a ou b et c)) (💥)»', () => {
+    const result = AnalyseurCondition.decomposerConditionBrute('si (a ou b et c))');
+    expect(result).toBeNull();
+  });
+
   it('Décomposer : « (a ou (b et c)) et d ou (e et f ou (d et c)) »', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('(a ou (b et c)) et d ou (e et f ou (d et c)) ou g et f');
     expect(result).not.toBeNull();
+    expect(result.sousConditions).not.toBeNull();
     expect(result.sousConditions.length).toEqual(3); // 3 sous-conditions
     expect(result.estDebutCondition).toBeTrue();
     expect(result.estFrereCadet).toBeFalse();
@@ -173,293 +191,334 @@ describe('Conditions − Décomposer conditions', () => {
 
   });
 
-  describe('Conditions − Générer condition multi', () => {
 
-    it('Générer condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
-
-      const resultDec = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
-      const result = AnalyseurCondition.genererConditionMulti(resultDec);
-      expect(result).not.toBeNull();
-      expect(result.condition).toBeNull();
-      expect(result.lienFrereAine).toEqual(LienCondition.aucun);
-      expect(result.sousConditions).not.toBeNull();
-      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
-      expect(result.typeLienSousConditions).toEqual(LienCondition.et) // et si => et
-
-      // => le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu
-      expect(result.sousConditions[0]).not.toBeNull();
-      expect(result.sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
-      expect(result.sousConditions[0].condition).toBeNull();
-      expect(result.sousConditions[0].sousConditions).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions.length).toEqual(3); // 3 sous conditions
-      expect(result.sousConditions[0].typeLienSousConditions).toEqual(LienCondition.et) // ainsi que, mais pas => et
-
-
-      //  ==> le ruban est rouge ou vert
-      expect(result.sousConditions[0].sousConditions[0]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
-      expect(result.sousConditions[0].sousConditions[0].condition).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions.length).toEqual(2); // 2 sous conditions
-      expect(result.sousConditions[0].sousConditions[0].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
-      //   ===> le ruban est rouge
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].sousConditions).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.determinant).toEqual("le ")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual("ruban")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.verbe).toEqual("est")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.complement).toEqual("rouge")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual("rouge")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-      //   ===> ou vert
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].lienFrereAine).toEqual(LienCondition.ou);
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujet).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.verbe).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.complement).toEqual("vert")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual("vert")
-      expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      //  ==> ainsi que porté
-      expect(result.sousConditions[0].sousConditions[1]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toEqual(LienCondition.ainsiQue);
-      expect(result.sousConditions[0].sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.verbe).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual("porté")
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual("porté")
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      //  ==> mais pas usé ou décousu
-      expect(result.sousConditions[0].sousConditions[2]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].lienFrereAine).toEqual(LienCondition.maisPas);
-      expect(result.sousConditions[0].sousConditions[2].condition).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions.length).toEqual(2); // 2 sous conditions
-      expect(result.sousConditions[0].sousConditions[2].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
-
-      //   ===> usé
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].sousConditions).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujet).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.verbe).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.complement).toEqual("usé")
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.nom).toEqual("usé")
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-
-      //   ===> ou décousu
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1]).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].lienFrereAine).toEqual(LienCondition.ou);
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujet).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.verbe).toBeNull();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.complement).toEqual("décousu")
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.nom).toEqual("décousu")
-      expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-
-      // => le joueur est ici
-      expect(result.sousConditions[1]).not.toBeNull();
-      expect(result.sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[1].lienFrereAine).toEqual(LienCondition.etSi);
-      expect(result.sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[1].condition.sujet.determinant).toEqual("le ");
-      expect(result.sousConditions[1].condition.sujet.nom).toEqual("joueur");
-      expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[1].condition.verbe).toEqual("est");
-      expect(result.sousConditions[1].condition.complement).toEqual("ici");
-      expect(result.sousConditions[1].condition.sujetComplement).not.toBeNull();
-      expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual("ici");
-
-      console.warn(result);
-
-    });
-
-  });
-
-  describe('Conditions − Get condition multi', () => {
-
-    it('Get condition: « a dépasse soit b soit c »', () => {
-      const result = AnalyseurCondition.getConditionMulti("a dépasse soit b soit c");
-
-      expect(result).toBeInstanceOf(ConditionMulti);
-      expect(result.condition).toBeNull();
-      expect(result.sousConditions).not.toBeNull();
-      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
-      expect(result.typeLienSousConditions).toEqual(LienCondition.soit);
-
-      // => (a dépasse b)
-      expect(result.sousConditions[0].condition).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions).toBeNull();
-      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-      expect(result.sousConditions[0].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[0].condition.sujet.nom).toEqual('a');
-      expect(result.sousConditions[0].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].condition.verbe).toEqual('dépasse');
-      expect(result.sousConditions[0].condition.complement).toEqual('b');
-      expect(result.sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].condition.sujetComplement.nom).toEqual('b');
-      expect(result.sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-
-      // => soit (a dépasse c)
-      expect(result.sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.soit);
-      expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[1].condition.sujet.nom).toEqual('a');
-      expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[1].condition.verbe).toEqual('dépasse');
-      expect(result.sousConditions[1].condition.complement).toEqual('c');
-      expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
-      expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-    });
-
-
-    it('Get condition: « x est a ou b mais pas c »', () => {
-
-      // x est a ou b mais pas c <=> ((x est a) ou (x est b)) et (x n’est pas c)
-      const result = AnalyseurCondition.getConditionMulti("x est a ou b mais pas c");
-      expect(result).toBeInstanceOf(ConditionMulti);
-      expect(result.condition).toBeNull();
-      expect(result.sousConditions).not.toBeNull();
-      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
-
-      // => (x est a) ou (x est b)
-      expect(result.sousConditions[0].condition).toBeNull();
-      expect(result.sousConditions[0].sousConditions).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
-      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-
-      //  ==> (x est a)
-      expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-
-      //  ==> ou (x est b)
-      expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.ou);
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      // => et (x n’est pas c)
-      expect(result.sousConditions[1].condition).not.toBeNull();
-      expect(result.sousConditions[1].sousConditions).toBeNull();
-      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
-      expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[1].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[1].condition.negation).toEqual('pas')
-      expect(result.sousConditions[1].condition.complement).toEqual('c');
-      expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
-      expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      console.warn("cond simpl: ", result);
-    });
-
-    it('Get condition: « x possède a et b mais ni c ni d »', () => {
-
-      // x possède a et b mais ni c ni d <=> ((x possède a) et (x possède b)) et (x ne possède ni c ni d)
-      const result = AnalyseurCondition.getConditionMulti("x possède a et b mais ni c ni d");
-      expect(result).toBeInstanceOf(ConditionMulti);
-      expect(result.condition).toBeNull();
-      expect(result.sousConditions).not.toBeNull();
-      expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
-
-      // => (x possède a) et (x possède b)
-      expect(result.sousConditions[0].condition).toBeNull();
-      expect(result.sousConditions[0].sousConditions).not.toBeNull();
-      expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
-      expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-
-      //  ==> (x possède a)
-      expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].condition.verbe).toEqual('possède');
-      expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
-      expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
-      expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-
-      //  ==> et (x possède b)
-      expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.verbe).toEqual('possède');
-      expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
-      expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
-      expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      // => et (x ne possède ni c ni d)
-      expect(result.sousConditions[1].condition).toBeNull();
-      expect(result.sousConditions[1].sousConditions).not.toBeNull();
-      expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
-
-      //  ==> (x ne possède pas c)
-      expect(result.sousConditions[1].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
-      expect(result.sousConditions[1].sousConditions[0].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[1].sousConditions[0].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[1].sousConditions[0].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[1].sousConditions[0].condition.verbe).toEqual('possède');
-      expect(result.sousConditions[1].sousConditions[0].condition.negation).toEqual('pas');
-      expect(result.sousConditions[1].sousConditions[0].condition.complement).toEqual('c');
-      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.nom).toEqual('c');
-      expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
-
-      //  ==> et (x ne possède pas d)
-      expect(result.sousConditions[1].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
-      expect(result.sousConditions[1].sousConditions[1].condition.sujet.determinant).toBeUndefined();
-      expect(result.sousConditions[1].sousConditions[1].condition.sujet.nom).toEqual('x');
-      expect(result.sousConditions[1].sousConditions[1].condition.sujet.epithete).toBeNull();
-      expect(result.sousConditions[1].sousConditions[1].condition.verbe).toEqual('possède');
-      expect(result.sousConditions[1].sousConditions[1].condition.negation).toEqual('pas');
-      expect(result.sousConditions[1].sousConditions[1].condition.complement).toEqual('d');
-      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
-      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.nom).toEqual('d');
-      expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
-
-      console.warn("cond simpl: ", result);
-    });
-
-
-  });
 
 
 });
+
+describe('Conditions − Générer condition multi', () => {
+
+  it('Générer condition: « si ) a ( ou b ou c » (💥)', () => {
+    const resultDec = AnalyseurCondition.decomposerConditionBrute('si ) a ( ou b ou c');
+    const result = AnalyseurCondition.genererConditionMulti(resultDec);
+    expect(result).toBeNull();
+  });
+
+  it('Générer condition: « si a ou (b ou c) » (💥)', () => {
+    const resultDec = AnalyseurCondition.decomposerConditionBrute('si a ou (b ou c)');
+    const result = AnalyseurCondition.genererConditionMulti(resultDec);
+    expect(result).not.toBeNull();
+    expect(result.nbErreurs).toBeGreaterThan(0);
+  });
+
+  it('Générer condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
+
+    const resultDec = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
+    const result = AnalyseurCondition.genererConditionMulti(resultDec);
+    expect(result).not.toBeNull();
+    expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.condition).toBeNull();
+    expect(result.lienFrereAine).toEqual(LienCondition.aucun);
+    expect(result.sousConditions).not.toBeNull();
+    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.typeLienSousConditions).toEqual(LienCondition.et) // et si => et
+
+    // => le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu
+    expect(result.sousConditions[0]).not.toBeNull();
+    expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
+    expect(result.sousConditions[0].condition).toBeNull();
+    expect(result.sousConditions[0].sousConditions).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions.length).toEqual(3); // 3 sous conditions
+    expect(result.sousConditions[0].typeLienSousConditions).toEqual(LienCondition.et) // ainsi que, mais pas => et
+
+
+    //  ==> le ruban est rouge ou vert
+    expect(result.sousConditions[0].sousConditions[0]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
+    expect(result.sousConditions[0].sousConditions[0].condition).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions.length).toEqual(2); // 2 sous conditions
+    expect(result.sousConditions[0].sousConditions[0].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
+    //   ===> le ruban est rouge
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].sousConditions).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.determinant).toEqual("le ")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual("ruban")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.verbe).toEqual("est")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.complement).toEqual("rouge")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual("rouge")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+    //   ===> ou vert
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].lienFrereAine).toEqual(LienCondition.ou);
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujet).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.verbe).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.complement).toEqual("vert")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual("vert")
+    expect(result.sousConditions[0].sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+    //  ==> ainsi que porté
+    expect(result.sousConditions[0].sousConditions[1]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toEqual(LienCondition.ainsiQue);
+    expect(result.sousConditions[0].sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.verbe).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual("porté")
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual("porté")
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+    //  ==> mais pas usé ou décousu
+    expect(result.sousConditions[0].sousConditions[2]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[2].lienFrereAine).toEqual(LienCondition.maisPas);
+    expect(result.sousConditions[0].sousConditions[2].condition).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions.length).toEqual(2); // 2 sous conditions
+    expect(result.sousConditions[0].sousConditions[2].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
+
+    //   ===> usé
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].sousConditions).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujet).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.verbe).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.complement).toEqual("usé")
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.nom).toEqual("usé")
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+    //   ===> ou décousu
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1]).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].lienFrereAine).toEqual(LienCondition.ou);
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujet).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.verbe).toBeNull();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.complement).toEqual("décousu")
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.nom).toEqual("décousu")
+    expect(result.sousConditions[0].sousConditions[2].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+
+    // => le joueur est ici
+    expect(result.sousConditions[1]).not.toBeNull();
+    expect(result.sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[1].lienFrereAine).toEqual(LienCondition.etSi);
+    expect(result.sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[1].condition.sujet.determinant).toEqual("le ");
+    expect(result.sousConditions[1].condition.sujet.nom).toEqual("joueur");
+    expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[1].condition.verbe).toEqual("est");
+    expect(result.sousConditions[1].condition.complement).toEqual("ici");
+    expect(result.sousConditions[1].condition.sujetComplement).not.toBeNull();
+    expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual("ici");
+
+  });
+
+});
+
+describe('Conditions − Get condition multi', () => {
+
+  it('Get condition: « a dépasse soit b soit c »', () => {
+    const result = AnalyseurCondition.getConditionMulti("a dépasse soit b soit c");
+
+    expect(result).toBeInstanceOf(ConditionMulti);
+    expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.condition).toBeNull();
+    expect(result.sousConditions).not.toBeNull();
+    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.typeLienSousConditions).toEqual(LienCondition.soit);
+
+    // => (a dépasse b)
+    expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].condition).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions).toBeNull();
+    expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+    expect(result.sousConditions[0].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[0].condition.sujet.nom).toEqual('a');
+    expect(result.sousConditions[0].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].condition.verbe).toEqual('dépasse');
+    expect(result.sousConditions[0].condition.complement).toEqual('b');
+    expect(result.sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].condition.sujetComplement.nom).toEqual('b');
+    expect(result.sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+    // => soit (a dépasse c)
+    expect(result.sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.soit);
+    expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[1].condition.sujet.nom).toEqual('a');
+    expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[1].condition.verbe).toEqual('dépasse');
+    expect(result.sousConditions[1].condition.complement).toEqual('c');
+    expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
+    expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+  });
+
+
+  it('Get condition: « x est a ou b mais pas c »', () => {
+
+    // x est a ou b mais pas c <=> ((x est a) ou (x est b)) et (x n’est pas c)
+    const result = AnalyseurCondition.getConditionMulti("x est a ou b mais pas c");
+    expect(result).toBeInstanceOf(ConditionMulti);
+    expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.condition).toBeNull();
+    expect(result.sousConditions).not.toBeNull();
+    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+
+    // => (x est a) ou (x est b)
+    expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].condition).toBeNull();
+    expect(result.sousConditions[0].sousConditions).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+
+    //  ==> (x est a)
+    expect(result.sousConditions[0].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+    //  ==> ou (x est b)
+    expect(result.sousConditions[0].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.ou);
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+    // => et (x n’est pas c)
+    expect(result.sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].condition).not.toBeNull();
+    expect(result.sousConditions[1].sousConditions).toBeNull();
+    expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+    expect(result.sousConditions[1].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[1].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[1].condition.negation).toEqual('pas')
+    expect(result.sousConditions[1].condition.complement).toEqual('c');
+    expect(result.sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[1].condition.sujetComplement.nom).toEqual('c');
+    expect(result.sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+  });
+
+  it('Get condition: « x possède a et b mais ni c ni d »', () => {
+
+    // x possède a et b mais ni c ni d <=> ((x possède a) et (x possède b)) et (x ne possède ni c ni d)
+    const result = AnalyseurCondition.getConditionMulti("x possède a et b mais ni c ni d");
+    expect(result).toBeInstanceOf(ConditionMulti);
+    expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.condition).toBeNull();
+    expect(result.sousConditions).not.toBeNull();
+    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+
+    // => (x possède a) et (x possède b)
+    expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].condition).toBeNull();
+    expect(result.sousConditions[0].sousConditions).not.toBeNull();
+    expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+
+    //  ==> (x possède a)
+    expect(result.sousConditions[0].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].condition.verbe).toEqual('possède');
+    expect(result.sousConditions[0].sousConditions[0].condition.negation).toBeNull();
+    expect(result.sousConditions[0].sousConditions[0].condition.complement).toEqual('a');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.nom).toEqual('a');
+    expect(result.sousConditions[0].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+    //  ==> et (x possède b)
+    expect(result.sousConditions[0].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[0].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.verbe).toEqual('possède');
+    expect(result.sousConditions[0].sousConditions[1].condition.negation).toBeNull();
+    expect(result.sousConditions[0].sousConditions[1].condition.complement).toEqual('b');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.nom).toEqual('b');
+    expect(result.sousConditions[0].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+    // => et (x ne possède ni c ni d)
+    expect(result.sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].condition).toBeNull();
+    expect(result.sousConditions[1].sousConditions).not.toBeNull();
+    expect(result.sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+
+    //  ==> (x ne possède pas c)
+    expect(result.sousConditions[1].sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
+    expect(result.sousConditions[1].sousConditions[0].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[1].sousConditions[0].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[1].sousConditions[0].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[1].sousConditions[0].condition.verbe).toEqual('possède');
+    expect(result.sousConditions[1].sousConditions[0].condition.negation).toEqual('pas');
+    expect(result.sousConditions[1].sousConditions[0].condition.complement).toEqual('c');
+    expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.nom).toEqual('c');
+    expect(result.sousConditions[1].sousConditions[0].condition.sujetComplement.epithete).toBeNull();
+
+    //  ==> et (x ne possède pas d)
+    expect(result.sousConditions[1].sousConditions[1].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
+    expect(result.sousConditions[1].sousConditions[1].lienFrereAine).toBe(LienCondition.et);
+    expect(result.sousConditions[1].sousConditions[1].condition.sujet.determinant).toBeUndefined();
+    expect(result.sousConditions[1].sousConditions[1].condition.sujet.nom).toEqual('x');
+    expect(result.sousConditions[1].sousConditions[1].condition.sujet.epithete).toBeNull();
+    expect(result.sousConditions[1].sousConditions[1].condition.verbe).toEqual('possède');
+    expect(result.sousConditions[1].sousConditions[1].condition.negation).toEqual('pas');
+    expect(result.sousConditions[1].sousConditions[1].condition.complement).toEqual('d');
+    expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.determinant).toBeUndefined();
+    expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.nom).toEqual('d');
+    expect(result.sousConditions[1].sousConditions[1].condition.sujetComplement.epithete).toBeNull();
+
+  });
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [3/3] VÉRIFICACTIONS RÉSULTAT
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
 
 describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
@@ -476,245 +535,384 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   jeu.compteurs.push(cptD);
   const condUtils = new ConditionsUtils(jeu, false);
 
+  it('vérifier résultat condition: « si a vaut b mais pas c »', () => {
+
+    // (A = B) et (A ≠ C)
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = -100;
+    cptC.valeur = 100;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « si a vaut b mais pas c ou d »', () => {
+
+    // (A = B) et (A ≠ (C ou D))
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    cptD.valeur = 2;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 10;
+    cptB.valeur = 10;
+    cptC.valeur = 10;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -2;
+    cptB.valeur = -2;
+    cptC.valeur = 2;
+    cptD.valeur = -2;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a ne vaut pas b ou c ou d »', () => {
+    // A != (B ou C ou D)
+    cptA.valeur = 0;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 4;
+    cptB.valeur = 4;
+    cptC.valeur = 100;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -1;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 13;
+    cptB.valeur = 13;
+    cptC.valeur = 13;
+    cptD.valeur = 13;
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeFalse();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeFalse();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeFalse();
+
+  });
+
   it('vérifier résultat condition: « si a dépasse b et si c vaut d »', () => {
+
+    // (A > B) ET (C = D)
+    const condition = AnalyseurCondition.getConditionMulti('si a dépasse b et si c vaut d');
+
     cptA.valeur = 2;
     cptB.valeur = 1;
     cptC.valeur = 3;
     cptD.valeur = 3;
-    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 2;
     cptD.valeur = 2;
-    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 1
     cptB.valeur = 0;
     cptC.valeur = 1;
     cptD.valeur = 0
-    expect(condUtils.siEstVrai('si a dépasse b et si c vaut d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
   });
 
   it('vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
 
     // (A=1 et B=2) ou (C=3 et d=4)
+    const condition = AnalyseurCondition.getConditionMulti('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4');
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 3;
     cptD.valeur = 3;
-    expect(condUtils.siEstVrai('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
-  
-  it('vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4 »', () => {
+
+  it('vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4 »', () => {
 
     // A=1 et (B=2 ou C=3) et D=4
+    const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4');
 
     cptA.valeur = 1;
     cptB.valeur = 2;
-    cptC.valeur = 3;
-    cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
-    cptC.valeur = 3;
-    cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeTrue();
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3.3;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 2;
-    cptC.valeur = 3;
-    cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut 1 et si (b vaut 2 ou si c vaut 3) et si d vaut 4', null, null, null, null, 0)).toBeFalse();
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
-  it('vérifier résultat condition: « si a ne vaut pas b mais bien c »', () => {
+  it('vérifier résultat condition: « si a ne vaut pas b mais bien c et d »', () => {
 
     // A != B mais A = C
+    const condition = AnalyseurCondition.getConditionMulti('si a ne vaut pas b mais bien c et d');
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeTrue();
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
-    cptA.valeur = 1;
+    cptA.valeur = -10;
+    cptB.valeur = 10;
+    cptC.valeur = -10;
+    cptD.valeur = -10;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 3.8;
+    cptB.valeur = 3.2;
+    cptC.valeur = 3.8;
+    cptD.valeur = 3.8;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 50;
+    cptB.valeur = 25;
+    cptC.valeur = 50;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 8.5;
+    cptB.valeur = 8.5;
+    cptC.valeur = 8.5;
+    cptD.valeur = 8.5;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 0;
     cptB.valeur = 1;
-    cptC.valeur = 1;
-    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeFalse();
-
-    cptA.valeur = 1;
-    cptB.valeur = 2;
     cptC.valeur = 2;
-    expect(condUtils.siEstVrai('si a ne vaut pas b mais bien c', null, null, null, null, 0)).toBeFalse();
-
+    cptD.valeur = 3;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
   it('vérifier résultat condition: « a dépasse b ainsi que c ou d »', () => {
 
     // (A > B) et (A > C ou D)
+    const condition = AnalyseurCondition.getConditionMulti('a dépasse b ainsi que c ou d');
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptC.valeur = 5;
     cptD.valeur = 200;
-    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptC.valeur = 200;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeTrue();
-    
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeFalse();
-    
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
     cptA.valeur = 1;
     cptB.valeur = 10;
     cptC.valeur = 10;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai('a dépasse b ainsi que c ou d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
   it('vérifier résultat condition: « a vaut soit b soit c mais pas d »', () => {
 
     // A vaut (soit B soit C) mais pas D
+    const condition = AnalyseurCondition.getConditionMulti('a vaut soit b soit c mais pas d');
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 0;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 5;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 2;
     cptD.valeur = 5;
-    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 2;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a vaut soit b soit c mais pas d', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
   it('vérifier résultat condition: « a ne vaut ni b ni c »', () => {
 
     // A != B et A != C
+    const condition = AnalyseurCondition.getConditionMulti('a ne vaut ni b ni c');
 
     cptA.valeur = 2;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 10;
     cptC.valeur = 2;
-    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('a ne vaut ni b ni c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
   it('vérifier résultat condition: « a vaut 2 mais ni b ni c »', () => {
 
     // A vaut 2 mais ni B ni C
+    const condition = AnalyseurCondition.getConditionMulti('a vaut 2 mais ni b ni c');
 
     cptA.valeur = 2;
     cptB.valeur = 0;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = -2;
     cptC.valeur = -10;
-    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 2;
-    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = -2;
     cptB.valeur = 2;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('a vaut 2 mais ni b ni c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
   it('vérifier résultat condition: « a vaut 1 ou 2 ou 3 »', () => {
 
     // A vaut 1 ou 2 ou 3
+    const condition = AnalyseurCondition.getConditionMulti('a vaut 1 ou 2 ou 3');
 
     cptA.valeur = 1;
-    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 3;
-    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 10;
-    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 0;
-    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = -2;
-    expect(condUtils.siEstVrai('a vaut 1 ou 2 ou 3', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
@@ -722,41 +920,42 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   it('vérifier résultat condition: « A vaut 1 ou si B dépasse 1 ou si c atteint 1 »', () => {
 
     // A vaut 1 ou B dépasse 1 ou C atteint 1
+    const condition = AnalyseurCondition.getConditionMulti('A vaut 1 ou si B dépasse 1 ou si c atteint 1');
 
     cptA.valeur = 1;
     cptB.valeur = 10;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 50;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
-
-    cptA.valeur = 0;
-    cptB.valeur = 1;
-    cptC.valeur = 0;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 2;
     cptB.valeur = 1;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('A vaut 1 ou si B dépasse 1 ou si c atteint 1', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
 
   });
@@ -764,23 +963,204 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   it('vérifier résultat condition: « a vaut 1 et si b vaut 1 et si c vaut 1 »', () => {
 
     // A, B et C valent 1
+    const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et si b vaut 1 et si c vaut 1');
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('a vaut 1 et si b vaut 1 et si c vaut 1', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
 
   });
 
+
+  it('vérifier résultat condition: « a vaut -2 ou (soit b soit c) »', () => {
+
+    // A = -2 OU (soit B soit C)
+    const condition = AnalyseurCondition.getConditionMulti('a vaut -2 ou (soit b soit c)');
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 51;
+    cptB.valeur = -8;
+    cptC.valeur = 51;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -2;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -2;
+    cptB.valeur = -2;
+    cptC.valeur = -2;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 5;
+    cptB.valeur = 5;
+    cptC.valeur = 5;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « si a vaut soit b soit c soit d »', () => {
+
+    // A = -2 OU (soit B soit C)
+    const condition = AnalyseurCondition.getConditionMulti('si a vaut soit b soit c soit d');
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -20;
+    cptB.valeur = 0;
+    cptC.valeur = 0;
+    cptD.valeur = -20;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 1;
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si B vaut 2 ou 4 ou 6 ou si d dépasse 1000 »', () => {
+
+    // (A ≠ (1, 5 et 100) ET B = (2, 4 ou 6)) OU D > 1000
+    const condition = AnalyseurCondition.getConditionMulti('si a ne vaut ni 1 ni 5 ni 100 et si B vaut 2 ou 4 ou 6 ou si d dépasse 1000');
+
+    cptA.valeur = 0;
+    cptB.valeur = 2;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = 6;
+    cptD.valeur = 1001;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 2000;
+    cptD.valeur = 1001;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 101;
+    cptB.valeur = 6;
+    cptD.valeur = 10000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = -2;
+    cptD.valeur = 2000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = 2;
+    cptD.valeur = 1000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 5;
+    cptB.valeur = 4;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 100;
+    cptB.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si (B vaut 2 ou 4 ou 6 ou si d dépasse 1000) »', () => {
+
+    // (A ≠ (1, 5 et 100) ET (B = (2, 4 ou 6)) OU D > 1000)
+    const condition = AnalyseurCondition.getConditionMulti('si a ne vaut ni 1 ni 5 ni 100 et si (B vaut 2 ou 4 ou 6 ou si d dépasse 1000)');
+
+    cptA.valeur = 0;
+    cptB.valeur = 2;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 2000;
+    cptD.valeur = 1001;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 101;
+    cptB.valeur = 6;
+    cptD.valeur = 10000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = 100;
+    cptB.valeur = 6;
+    cptD.valeur = 1001;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 100;
+    cptB.valeur = -2;
+    cptD.valeur = 2000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 100;
+    cptB.valeur = 2;
+    cptD.valeur = 1000;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 5;
+    cptB.valeur = 4;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+    cptA.valeur = 100;
+    cptB.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « A ne dépasse pas B mais soit C soit D »', () => {
+
+    // (A <= B) ET (A > (C ou D))
+    const condition = AnalyseurCondition.getConditionMulti('A ne dépasse pas B mais soit C soit D');
+
+    console.warn(">>>>>>>>>>> cond=", condition);
+
+
+    cptA.valeur = 5;
+    cptB.valeur = 10;
+    cptC.valeur = 100;
+    cptD.valeur = 1;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+    cptA.valeur = -10;
+    cptB.valeur = -5;
+    cptC.valeur = -100;
+    cptD.valeur = 10;
+    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+
+
+  });
 
 });
