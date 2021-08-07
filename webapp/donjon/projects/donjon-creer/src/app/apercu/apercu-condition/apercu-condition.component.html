@@ -1,17 +1,19 @@
 <ng-container>
-  <ul>
+  <ul *ngIf="condition.condition">
     <li>
-      <app-apercu-sujet [sujet]="condition.sujet"></app-apercu-sujet>
+      <app-apercu-sujet [sujet]="condition.condition.sujet"></app-apercu-sujet>
     </li>
-    <li>Verbe : {{condition.verbe}}</li>
-    <li *ngIf="condition.negation">Négation : {{condition.negation}}</li>
-    <li *ngIf="condition.complement && !condition.sujetComplement">Complément : {{condition.complement}}</li>
-    <li *ngIf="condition.sujetComplement">
-      <app-apercu-sujet [sujet]="condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+    <li>Verbe : {{condition.condition.verbe}}</li>
+    <li *ngIf="condition.condition.negation">Négation : {{condition.condition.negation}}</li>
+    <li *ngIf="condition.condition.complement && !condition.condition.sujetComplement">Complément : {{condition.condition.complement}}</li>
+    <li *ngIf="condition.condition.sujetComplement">
+      <app-apercu-sujet [sujet]="condition.condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
     </li>
   </ul>
-  <ng-container *ngIf="condition.lien">
-    <b>{{condition.lien.typeLien}}</b>
-    <app-apercu-condition [condition]="condition.lien"></app-apercu-condition>
-  </ng-container>
+  <ul *ngIf="condition.sousConditions">
+    <li *ngFor="let sousCond of condition.sousConditions">
+        <b>{{sousCond.lienFrereAine}}</b>
+        <app-apercu-condition [condition]="sousCond"></app-apercu-condition>
+    </li>
+  </ul>
 </ng-container>

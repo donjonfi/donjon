@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Condition } from '@donjon/core';
+import { ConditionMulti } from '@donjon/core';
 
 @Component({
   selector: 'app-apercu-condition',
@@ -11,7 +11,7 @@ export class ApercuConditionComponent implements OnInit {
 
   constructor() { }
 
-  @Input() condition: Condition;
+  @Input() condition: ConditionMulti;
 
   ngOnInit(): void {
   }

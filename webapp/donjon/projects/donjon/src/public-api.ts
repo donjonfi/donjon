@@ -21,6 +21,8 @@ export * from './lib/models/compilateur/action';
 export * from './lib/models/commun/capacite';
 export * from './lib/models/compilateur/compteur';
 export * from './lib/models/compilateur/condition';
+export * from './lib/models/compilateur/condition-multi';
+export * from './lib/models/compilateur/condition-solo';
 export * from './lib/models/compilateur/consequence';
 export * from './lib/models/compilateur/definition';
 export * from './lib/models/compilateur/element-donjon';
