@@ -67,7 +67,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "constant.language",
           regex: "(au (sud|nord))|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
-            + "(\\b(ceci|cela|ici|règle)\\b)|"
+            + "(\\b(ceci|cela|ici|(la )?règle|(l’)?action|(la )?commande)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
             
@@ -82,7 +82,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
         }, {
           token: "storage.type",
-          regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+          // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
+          regex: "une (clé|porte|personne|action)|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
             "des (clés|portes|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
         }, {
           // token: "support.variable",
