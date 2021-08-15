@@ -113,10 +113,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Afficher les sections ou non */
   afficherSections = false;
 
+  /** Faut-il automatiquement corriger « sinon si » en « sinonsi » ? */
+  corrigerSinonSi = true;
+
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
 
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
+  focusOutEnCours = false;
   compilationEnCours = false;
   compilationTerminee = false;
 
@@ -148,8 +152,18 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
     // RÉCUPÉRER LES PRÉFÉRENCES DE L’UTILISATEUR
 
+    // - correction sinonSi
+    let retVal = localStorage.getItem('CorrigerSinonSi');
+    if (retVal) {
+      if (retVal == '0') {
+        this.corrigerSinonSi = false;
+      } else {
+        this.corrigerSinonSi = true;
+      }
+    }
+
     // - taille texte
-    let retVal = localStorage.getItem('EditeurTailleTexte');
+    retVal = localStorage.getItem('EditeurTailleTexte');
     if (retVal) {
       this.tailleTexte = +retVal;
     }
@@ -228,6 +242,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.onMajSections();
 
     if (this.codeSource && this.codeSource.trim() !== '') {
+
+      // corriger automatiquement les « sinon si » en « sinonsi »
+      if (this.corrigerSinonSi) {
+        this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/sinon si/ig, 'sinonsi');
+        this.codeSource = this.codeSource.replace(/sinon si/ig, 'sinonsi');
+      }
+
       // interpréter le code
       Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resultat => {
         this.monde = resultat.monde;
@@ -356,7 +377,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   onCodeFocusOut() {
-    this.onMajSections();
+    setTimeout(() => {
+      if (!this.compilationEnCours) {
+        this.focusOutEnCours = true;
+        this.onMajSections();
+        this.focusOutEnCours = false;
+      }
+    }, 10);
   }
 
   onChargerFichierLocal(files: FileList): void {
@@ -380,7 +407,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
           };
           // lire le fichier
           fileReader.readAsText(file);
-          
+
           // B. CHARGEMENT FICHIER SOLUTION
         } else if (file.name.endsWith(".sol")) {
           const fileReader = new FileReader();
@@ -857,6 +884,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
   //  GESTION DES PRÉFÉRENCES
   // =============================================
+
+  /** Changer correction auto de « sinon si » en « sinonsi ». */
+  onChangerCorrectionSinonSi(): void {
+    localStorage.setItem('CorrigerSinonSi', (this.corrigerSinonSi ? '1' : '0'));
+  }
 
   /** Changer le thème de mise en surbrillance du code source. */
   onChangerTheme(): void {

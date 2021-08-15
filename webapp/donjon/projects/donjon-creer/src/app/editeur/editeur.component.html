@@ -103,44 +103,54 @@
           <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
             <div class="grid-scenario">
               <div class="rs1">
-                <div *ngIf="afficherPreferences" class="row mb-2">
-                  <div class="col-auto">
-                    <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
-                      <option disabled>*** Thèmes clairs ***</option>
-                      <option [ngValue]="'chrome'">chrome</option>
-                      <option [ngValue]="'crimson_editor'">crimson_editor</option>
-                      <option [ngValue]="'katzenmilch'">katzenmilch</option>
-                      <option [ngValue]="'solarized_light'">solarized_light</option>
-                      <option [ngValue]="'tomorrow'">tomorrow</option>
-                      <option disabled>*** Thèmes foncés ***</option>
-                      <option [ngValue]="'ambiance'">ambiance</option>
-                      <option [ngValue]="'dracula'">dracula</option>
-                      <option [ngValue]="'monokai'">monokai</option>
-                      <option [ngValue]="'solarized_dark'">solarized_dark</option>
-                      <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+                <ng-container *ngIf="afficherPreferences">
+                  <div class="row mb-2">
+                    <div class="col-auto">
+                      <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
+                        <option disabled>*** Thèmes clairs ***</option>
+                        <option [ngValue]="'chrome'">chrome</option>
+                        <option [ngValue]="'crimson_editor'">crimson_editor</option>
+                        <option [ngValue]="'katzenmilch'">katzenmilch</option>
+                        <option [ngValue]="'solarized_light'">solarized_light</option>
+                        <option [ngValue]="'tomorrow'">tomorrow</option>
+                        <option disabled>*** Thèmes foncés ***</option>
+                        <option [ngValue]="'ambiance'">ambiance</option>
+                        <option [ngValue]="'dracula'">dracula</option>
+                        <option [ngValue]="'monokai'">monokai</option>
+                        <option [ngValue]="'solarized_dark'">solarized_dark</option>
+                        <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
 
-                    </select>
+                      </select>
+                    </div>
+                    <div class="col-auto">
+                      <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
+                        name="choixNbLignesCodes">
+                        <option [ngValue]="13">police 13</option>
+                        <option [ngValue]="14">police 14</option>
+                        <option [ngValue]="15">police 15</option>
+                        <option [ngValue]="16">police 16</option>
+                        <option [ngValue]="17">police 17</option>
+                        <option [ngValue]="18">police 18</option>
+                        <option [ngValue]="19">police 19</option>
+                        <option [ngValue]="20">police 20</option>
+                        <option [ngValue]="21">police 21</option>
+                        <option [ngValue]="22">police 22</option>
+                        <option [ngValue]="23">police 23</option>
+                        <option [ngValue]="24">police 24</option>
+                        <option [ngValue]="25">police 25</option>
+                      </select>
+                    </div>
                   </div>
+                  <div class="row mb-2">
+                    <div class="col-12">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" [(ngModel)]="corrigerSinonSi" (change)="onChangerCorrectionSinonSi()" id="ckCorrigerSinonSi">
+                        <label class="custom-control-label" for="ckCorrigerSinonSi">Corriger automatiquement « sinon si » en « sinonsi ».</label>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
 
-                  <div class="col-auto">
-                    <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
-                      name="choixNbLignesCodes">
-                      <option [ngValue]="13">police 13</option>
-                      <option [ngValue]="14">police 14</option>
-                      <option [ngValue]="15">police 15</option>
-                      <option [ngValue]="16">police 16</option>
-                      <option [ngValue]="17">police 17</option>
-                      <option [ngValue]="18">police 18</option>
-                      <option [ngValue]="19">police 19</option>
-                      <option [ngValue]="20">police 20</option>
-                      <option [ngValue]="21">police 21</option>
-                      <option [ngValue]="22">police 22</option>
-                      <option [ngValue]="23">police 23</option>
-                      <option [ngValue]="24">police 24</option>
-                      <option [ngValue]="25">police 25</option>
-                    </select>
-                  </div>
-                </div>
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
                 <div *ngIf="afficherSections" class="row mb-2">
                   <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
@@ -198,8 +208,8 @@
               <!-- <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'"> -->
               <div class="rs2 max">
                 <div class="card max" style="height: 100%;">
-                  <ace #codeEditor spellcheck="true" contenteditable [config]="config" [(value)]="sectionCodeSourceVisible" [theme]="theme"
-                    (focusout)="onCodeFocusOut()"></ace>
+                  <ace #codeEditor spellcheck="true" contenteditable [config]="config"
+                    [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
                 </div>
               </div>
             </div>
@@ -218,7 +228,8 @@
           <div *ngIf="tab === 'apercu'" class="card">
             <div class="card-body">
               <div *ngIf="compilationTerminee">
-                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs"></app-apercu-monde>
+                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs">
+                </app-apercu-monde>
               </div>
             </div>
           </div>
