@@ -41,7 +41,7 @@ export class ConditionsUtils {
     }
 
     // console.warn("conditionBrute: ", conditionBrute, "\nconditionMulti:", conditionMulti);
-    
+
 
     // s’il s’agit d’une condition simple
     if (conditionMulti.condition) {
@@ -469,10 +469,13 @@ export class ConditionsUtils {
               break;
 
             case 'se déclenche':
-              if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
                 // remarque: négation appliquée plus loin.
+              if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
                 retVal = (compteur.valeur === 1);
-                console.log("déclenche ? :", compteur.valeur, retVal);
+              } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la deuxième fois') {
+                retVal = (compteur.valeur === 2);
+              } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la troisième fois') {
+                retVal = (compteur.valeur === 3);
               } else {
                 console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
               }
