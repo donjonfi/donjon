@@ -115,6 +115,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Faut-il automatiquement corriger « sinon si » en « sinonsi » ? */
   corrigerSinonSi = true;
+  /** Faut-il essayer de corriger « . » et « ; » manquants ? */
+  corrigerPoint = true;
 
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
@@ -159,6 +161,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.corrigerSinonSi = false;
       } else {
         this.corrigerSinonSi = true;
+      }
+    }
+
+    // - correction points
+    retVal = localStorage.getItem('CorrigerPoint');
+    if (retVal) {
+      if (retVal == '0') {
+        this.corrigerPoint = false;
+      } else {
+        this.corrigerPoint = true;
       }
     }
 
@@ -245,8 +257,17 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
       // corriger automatiquement les « sinon si » en « sinonsi »
       if (this.corrigerSinonSi) {
-        this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/sinon si/ig, 'sinonsi');
         this.codeSource = this.codeSource.replace(/sinon si/ig, 'sinonsi');
+        if (this.sectionMode == 'tout') {
+          this.sectionCodeSourceVisible = this.codeSource;
+        } else {
+          this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/sinon si/ig, 'sinonsi');
+        }
+      }
+
+      // essayer de corriger les « . » et « ; » manquants
+      if (this.corrigerPoint) {
+        // TODO
       }
 
       // interpréter le code
@@ -888,6 +909,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Changer correction auto de « sinon si » en « sinonsi ». */
   onChangerCorrectionSinonSi(): void {
     localStorage.setItem('CorrigerSinonSi', (this.corrigerSinonSi ? '1' : '0'));
+  }
+
+  /** Changer correction des « . » et « ; » manquants. */
+  onChangerCorrectionPoint(): void {
+    localStorage.setItem('CorrigerPoint', (this.corrigerPoint ? '1' : '0'));
   }
 
   /** Changer le thème de mise en surbrillance du code source. */

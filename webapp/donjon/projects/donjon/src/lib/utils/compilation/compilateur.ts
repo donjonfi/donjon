@@ -207,12 +207,6 @@ export class Compilateur {
    */
   public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
 
-    // // gestion des commentaires de ligne (--)
-    // // => si une ligne commence par «--» on ajoute automatiquement un «.» (fin d’instruction)
-    // // à la fin de la ligne pour éviter que l’utilisateur ne soit obligé de terminer ses
-    // // terminer les commentaires par un «.».
-    // let CommentairesCorriges = source.replace(/^--(.+)?$/mg, "--$1.");
-
     // terminer par un « . » les parties, chapitre et scènes.
     const sectionsAvecPoint = scenario.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
 
@@ -225,7 +219,8 @@ export class Compilateur {
     // retirer les espaces avant et après le bloc de texte.
     const scenarioNettoye = sansCommentaires
       .replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne)
-      .replace(/( +)/g, " ").trim();
+      .replace(/( +)/g, " ")
+      .trim();
 
     // séparer les chaines de caractères (entre " ") du code
     const blocsInstructionEtTexte = scenarioNettoye.split('"');

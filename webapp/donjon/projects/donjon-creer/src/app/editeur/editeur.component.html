@@ -149,6 +149,14 @@
                       </div>
                     </div>
                   </div>
+                  <div *ngIf="false" class="row mb-2">
+                    <div class="col-12">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" [(ngModel)]="corrigerPoint" (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
+                        <label class="custom-control-label" for="ckCorrigerPoint">Essayer de corriger les « . » et « ; » manquants.</label>
+                      </div>
+                    </div>
+                  </div>
                 </ng-container>
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
