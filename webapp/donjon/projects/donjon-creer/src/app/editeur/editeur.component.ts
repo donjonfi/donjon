@@ -31,7 +31,15 @@ import { TabsetComponent } from 'ngx-bootstrap/tabs';
 })
 export class EditeurComponent implements OnInit, OnDestroy {
 
-  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  // @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+
+  private codeEditorElmRef: ElementRef;
+  @ViewChild('codeEditor', { static: false }) set content(content: ElementRef) {
+    if (content) { // initially setter gets called with undefined
+      this.codeEditorElmRef = content;
+    }
+  }
+
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
 
@@ -117,6 +125,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
   corrigerSinonSi = true;
   /** Faut-il essayer de corriger « . » et « ; » manquants ? */
   corrigerPoint = true;
+  /** Faut-il désactiver la mise en forme dans l'éditeur de texte (pour lecteur d'écran) ? */
+  sansMiseEnForme = false;
 
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
@@ -174,12 +184,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
       }
     }
 
+    // - désactive la mise en forme (désactive ace) pour lecteur écran
+    retVal = localStorage.getItem('SansMiseEnForme');
+    if (retVal) {
+      if (retVal == '1') {
+        this.sansMiseEnForme = true;
+      } else {
+        this.sansMiseEnForme = false;
+      }
+    }
+
     // - taille texte
     retVal = localStorage.getItem('EditeurTailleTexte');
     if (retVal) {
       this.tailleTexte = +retVal;
     }
-    this.majTailleAce();
+    if (!this.sansMiseEnForme) {
+      this.majTailleAce();
+    }
     // - thème
     retVal = localStorage.getItem('EditeurTheme');
     if (retVal) {
@@ -191,8 +213,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
     // =========================================
     const sub = this.route.params.subscribe(params => {
       const fichier = params['fichier'];
+      // raccourci mode noir et blanc
+      if (fichier && fichier == 'nb') {
+        this.sansMiseEnForme = true;
+        this.onChangerSansMiseEnForme();
+      }
       // si on a renseigné un fichier
-      if (fichier) {
+      if (fichier && fichier != 'nb') {
         this.nomExemple = fichier;
         this.onChargerFichierCloud();
         // =====================================
@@ -916,6 +943,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
     localStorage.setItem('CorrigerPoint', (this.corrigerPoint ? '1' : '0'));
   }
 
+  /** Désactiver la mise en forme de l'éditeur de scénario (pour lecteur d'écran) */
+  onChangerSansMiseEnForme(): void {
+    localStorage.setItem('SansMiseEnForme', (this.sansMiseEnForme ? '1' : '0'));
+  }
+
   /** Changer le thème de mise en surbrillance du code source. */
   onChangerTheme(): void {
     localStorage.setItem('EditeurTheme', this.theme);
@@ -924,26 +956,34 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Changer la taille de la police de caractères. */
   onChangerTailleFont(): void {
     localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
-    this.majTailleAce();
+    if (!this.sansMiseEnForme) {
+      this.majTailleAce();
+    }
   }
 
   /** Changer la taille du composant affichant le code source. */
   majTailleAce(): void {
     setTimeout(() => {
-      this.codeEditorElmRef["directiveRef"].ace().resize();
-      // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
-      this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
-      this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
-      // en fonction du navigateur cette valeur est variable !
-      this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
-    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
+      if (this.codeEditorElmRef) {
+        this.codeEditorElmRef["directiveRef"].ace().resize();
+        // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
+        this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
+        this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+        // en fonction du navigateur cette valeur est variable !
+        this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
+      }
+    }, (this.codeEditorElmRef && this.codeEditorElmRef["directiveRef"]?.ace()) ? 0 : 200);
   }
 
   /** changer le premier numéro de ligne de l’éditeur */
   setPremierNumeroLigne(debut: number): void {
-    setTimeout(() => {
-      this.codeEditorElmRef["directiveRef"].ace().setOption("firstLineNumber", debut);
-    }, this.codeEditorElmRef["directiveRef"].ace() ? 0 : 200);
+    if (!this.sansMiseEnForme) {
+      setTimeout(() => {
+        if (this.codeEditorElmRef) {
+          this.codeEditorElmRef["directiveRef"].ace().setOption("firstLineNumber", debut);
+        }
+      }, (this.codeEditorElmRef && this.codeEditorElmRef["directiveRef"]?.ace()) ? 0 : 200);
+    }
   }
 
 }

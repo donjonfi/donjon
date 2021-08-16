@@ -157,6 +157,15 @@
                       </div>
                     </div>
                   </div>
+
+                  <div class="row mb-2">
+                    <div class="col-12">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" [(ngModel)]="sansMiseEnForme" (change)="onChangerSansMiseEnForme()" id="ckSansMiseEnForme">
+                        <label class="custom-control-label" for="ckSansMiseEnForme">Éditeur de scénario sans mise en forme (pour lecteur d'écran).</label>
+                      </div>
+                    </div>
+                  </div>
                 </ng-container>
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
@@ -176,8 +185,7 @@
                   <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
                     <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
                       class="form-control" name="choixChapitre">
-                      <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le
-                        scénario)')}}
+                      <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}
                       </option>
                       <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
                         <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
@@ -191,8 +199,7 @@
                     <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
                       name="choixScene">
                       <option [ngValue]="null">
-                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
-                        partie)':'(tout le scénario)'))}}
+                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
                       </option>
                       <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                         <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
@@ -210,29 +217,31 @@
                 </div>
               </div>
 
-
-
               <!-- CODE SOURCE (Scénario) -->
-              <!-- <div class="card mb-2" [style.height]="(2 + ((hauteurLigneCode) * nbLignesCode)) + 'px'"> -->
-              <div class="rs2 max">
-                <div class="card max" style="height: 100%;">
-                  <ace #codeEditor spellcheck="true" contenteditable [config]="config"
-                    [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
+                <div *ngIf="!sansMiseEnForme" class="rs2 max">
+                  <div class="card max" style="height: 100%;">
+                    <ace #codeEditor spellcheck="true" contenteditable [config]="config"
+                      [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
+                  </div>
                 </div>
-              </div>
+              <ng-container *ngIf="sansMiseEnForme">
+                <div class="rs2 max">
+                  <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true" [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
+                  </textarea>
+                </div>
+              </ng-container>
+
             </div>
           </div>
 
 
           <!-- TAB: TESTER LE JEU -->
-          <!-- <div *ngIf="tab === 'jeu'" style="height: 100%;" class="max"> -->
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
             <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false" [debogueur]="true"></djn-lecteur>
           </div>
           <!-- </div> -->
 
           <!-- TAB: APERÇU ÉLÉMENTS -->
-          <!-- <div [style.display]="(tab === 'apercu' ? 'block' : 'none' )" class="card"> -->
           <div *ngIf="tab === 'apercu'" class="card">
             <div class="card-body">
               <div *ngIf="compilationTerminee">
@@ -280,10 +289,10 @@
                 </ng-container>
 
                 <code class="text-danger">
-                                    <span *ngFor="let err of erreurs">
-                                        {{err}}<br>
-                                    </span>
-                                  </code>
+                  <span *ngFor="let err of erreurs">
+                      {{err}}<br>
+                  </span>
+                </code>
               </div>
             </div>
           </div>
