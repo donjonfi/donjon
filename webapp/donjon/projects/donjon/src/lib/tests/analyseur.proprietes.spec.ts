@@ -77,4 +77,16 @@ describe('Epressions régulières − Propriétes/Réactions d’un élément je
         expect(result[7]).toEqual('"Bonjour !"'); // valeur
     });
 
+    
+    it('Prop. élé : « Les auteurs du jeu sont "Albert et Ludivine" » ', () => {
+      const result = ExprReg.xProprieteReaction.exec('Les auteurs du jeu sont "Albert et Ludivine"');
+      console.log("result=", result);
+      
+      expect(result).not.toEqual(null);
+      expect(result[3]).toBe('jeu') // élément jeu
+      expect(result[2]).toEqual('auteurs'); // propriété
+      expect(result[6]).toEqual('sont'); // est/vaut/sont
+      expect(result[7]).toEqual('"Albert et Ludivine"'); // valeur
+  });
+
 });

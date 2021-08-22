@@ -68,7 +68,7 @@ export class AnalyseurElementSimple {
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
-      attributs = PhraseUtils.separerListeIntitules(attributsString);
+      attributs = PhraseUtils.separerListeIntitulesEt(attributsString);
       position = null;
 
       // Pourquoi ajouter un nouveau type ici ?
@@ -131,7 +131,7 @@ export class AnalyseurElementSimple {
         attributs = null;
         if (result[5] && result[5].trim() !== '') {
           // découper les attributs qui sont séparés par des ', ' ou ' et '
-          attributs = PhraseUtils.separerListeIntitules(result[5]);
+          attributs = PhraseUtils.separerListeIntitulesEt(result[5]);
         }
 
         nouvelElementGenerique = new ElementGenerique(

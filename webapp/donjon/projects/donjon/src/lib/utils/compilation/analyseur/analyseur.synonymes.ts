@@ -1,10 +1,10 @@
+import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
-import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurSynonymes {
 
@@ -19,7 +19,7 @@ export class AnalyseurSynonymes {
     if (result !== null) {
 
       const synonymesBruts = result[1];
-      const listeSynonymesBruts = PhraseUtils.separerListeIntitules(synonymesBruts);
+      const listeSynonymesBruts = PhraseUtils.separerListeIntitulesEtOu(synonymesBruts);
       const originalBrut = result[2];
 
       // tester si l’original est un VERBE

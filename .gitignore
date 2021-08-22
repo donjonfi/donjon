@@ -301,3 +301,4 @@ __pycache__/
 /builds/donjon-creer.appimage
 /webapp/donjon/projects/MEMO.TXT
 /ressources/*.odt#
+/webapp/donjon/projects/donjon-jouer/src/assets/jeux/soir-de-bal.djn

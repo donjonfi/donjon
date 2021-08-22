@@ -1,13 +1,13 @@
-import { EClasseRacine } from "../../../models/commun/constantes";
+import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { Definition } from "../../../models/compilateur/definition";
-import { Phrase } from "../../../models/compilateur/phrase";
-import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
-import { MotUtils } from "../../commun/mot-utils";
-import { PhraseUtils } from "../../commun/phrase-utils";
-import { StringUtils } from "../../commun/string.utils";
+import { EClasseRacine } from "../../../models/commun/constantes";
 import { ExprReg } from "../expr-reg";
-import { AnalyseurUtils } from "./analyseur.utils";
+import { MotUtils } from "../../commun/mot-utils";
+import { Phrase } from "../../../models/compilateur/phrase";
+import { PhraseUtils } from "../../commun/phrase-utils";
+import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { StringUtils } from "../../commun/string.utils";
 
 export class AnalyseurType {
 
@@ -35,7 +35,7 @@ export class AnalyseurType {
             let nouveauxAttributs: string[] = null;
             if (attributsBruts?.trim() !== '') {
                 // découper les attributs
-                nouveauxAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
+                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
             }
 
             // vérifier si le type parent est déjà défini
@@ -99,7 +99,7 @@ export class AnalyseurType {
             let nouveauxAttributs: string[] = null;
             if (attributsBruts?.trim() !== '') {
                 // découper les attributs
-                nouveauxAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
+                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
             }
 
             // si le type est déjà défini

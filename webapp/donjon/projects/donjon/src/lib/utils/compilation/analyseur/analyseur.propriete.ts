@@ -100,7 +100,7 @@ export class AnalyseurPropriete {
 
   /** Retrouver les sujets (pour les réactions) */
   private static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
-    const listeSujetsBruts = PhraseUtils.separerListeIntitules(sujets);
+    const listeSujetsBruts = PhraseUtils.separerListeIntitulesEtOu(sujets);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
       const resultGn = ExprReg.xGroupeNominal.exec(sujetBrut);

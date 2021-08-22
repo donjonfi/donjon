@@ -4,6 +4,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { MotUtils } from './mot-utils';
 import { PositionObjet } from '../../models/jeu/position-objet';
 
 export class PhraseUtils {
@@ -21,10 +22,10 @@ export class PhraseUtils {
 
   public static getEvenementsRegle(evenementsBruts: string) {
     // découper les attributs, les séparateurs possibles sont «, », et « ou ».
-    const evenementsSepares = PhraseUtils.separerListeIntitules(evenementsBruts);
+    const evenementsSepares = PhraseUtils.separerListeIntitulesOu(evenementsBruts);
     let retVal: Evenement[] = [];
     evenementsSepares.forEach(evenementBrut => {
-      // soit c’est une commande
+      // A) TESTER S’IL S’AGIT D’UNE COMMANDE
       let els = PhraseUtils.decomposerCommande(evenementBrut.trim());
       // si on a trouvé une formulation correcte
       if (els) {
@@ -32,37 +33,93 @@ export class PhraseUtils {
         const ceci = els.sujet;
         const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
         const ceciClasse = null;
-        // const ceciEstClasse = (isCeci && (ceci?.match(/un(e)? /i) ?? false));
+        const prepCeci = els.preposition0;
+        const quantiteCeci = 0;
 
         const isCela = els.sujetComplement1 ? true : false;
         const cela = els.sujetComplement1;
         const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
         const celaClasse = null;
-        // const celaEstClasse = (isCela && (cela.determinant?.match(/un(e)? /i) ?? false));
+        const prepCela = els.preposition1;
+        const quantiteCela = 0;
 
         let ev = new Evenement(
           // verbe
           els.infinitif,
           // ceci
-          isCeci, els.preposition0, 0, ceciNom, ceciClasse,
+          isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
           // cela
-          isCela, els.preposition1, 0, celaNom, celaClasse
+          isCela, prepCela, quantiteCela, celaNom, celaClasse
         );
 
         retVal.push(ev);
 
+        // B) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE
       } else {
-        console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+        // règle générique pour « une action impliquant X [et Y] »
+        const ai = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
+
+        if (ai) {
+          const ceci = PhraseUtils.getGroupeNominal(ai[1], false);
+          const isCeci = true;
+          const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
+          const ceciClasse = null;
+          const prepCeci = null;
+          const quantiteCeci = 0;
+
+          const cela = PhraseUtils.getGroupeNominal(ai[2], false);
+          const isCela = cela ? true : false;
+          const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
+          const celaClasse = null;
+          const prepCela = null;
+          const quantiteCela = 0;
+
+          let ev = new Evenement(
+            // verbe
+            null,
+            // ceci
+            isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
+            // cela
+            isCela, prepCela, quantiteCela, celaNom, celaClasse
+          );
+
+          retVal.push(ev);
+
+
+          // C) FORMULATION INCONNUE
+        } else {
+          console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+        }
       }
     });
     return retVal;
   }
 
   /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"/"ou" */
-  public static separerListeIntitules(attributsString: string): string[] {
+  public static separerListeIntitulesEtOu(attributsString: string): string[] {
     if (attributsString && attributsString.trim() !== '') {
       // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
       return attributsString.trim().split(/(?:, | et | ou )+/);
+    } else {
+      return new Array<string>();
+    }
+  }
+
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
+  public static separerListeIntitulesEt(attributsString: string): string[] {
+    if (attributsString && attributsString.trim() !== '') {
+      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+      return attributsString.trim().split(/(?:, | et )+/);
+    } else {
+      return new Array<string>();
+    }
+  }
+
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "ou" */
+  public static separerListeIntitulesOu(attributsString: string): string[] {
+    if (attributsString && attributsString.trim() !== '') {
+      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+      return attributsString.trim().split(/(?:, | ou )+/);
     } else {
       return new Array<string>();
     }
@@ -179,10 +236,11 @@ export class PhraseUtils {
       } else {
         res = ExprReg.xCommandeInfinitif.exec(commande);
         if (res) {
-          const sujet = res[3] ? new GroupeNominal(res[2], res[3], res[4] ? res[4] : null) : null;
-          els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
-          els.preposition1 = res[6] ? res[6] : null;
-          els.sujetComplement1 = res[8] ? new GroupeNominal(res[7], res[8], res[9] ? res[9] : null) : null;
+          const sujet = res[4] ? new GroupeNominal(res[3], res[4], res[5] ? res[6] : null) : null;
+          els = new ElementsPhrase(res[1], sujet, null, null, (res[6] ? res[6] : null));
+          els.preposition0 = res[2] ? res[2] : null;
+          els.preposition1 = res[7] ? res[7] : null;
+          els.sujetComplement1 = res[9] ? new GroupeNominal(res[8], res[9], res[10] ? res[10] : null) : null;
         }
       }
     }
@@ -464,4 +522,29 @@ export class PhraseUtils {
     return retVal;
   }
 
+  /**
+   * Décomposer l’intitulé brut en un groupe nominal.
+   */
+  public static getGroupeNominal(intituleBrut: string, forcerMinuscules: boolean) {
+    let determinant: string = null;
+    let nom: string = null;
+    let epithete: string = null;
+    let retVal: GroupeNominal = null;
+    const resultatGn = ExprReg.xGroupeNominal.exec(intituleBrut);
+    if (resultatGn) {
+      // forcer minuscules
+      if (forcerMinuscules) {
+        determinant = resultatGn[1]?.toLowerCase() ?? null;
+        nom = resultatGn[2].toLowerCase();
+        epithete = resultatGn[3]?.toLowerCase() ?? null;
+        // garder casse originale
+      } else {
+        determinant = resultatGn[1] ?? null;
+        nom = resultatGn[2];
+        epithete = resultatGn[3] ?? null;
+      }
+      retVal = new GroupeNominal(determinant, nom, epithete);
+    }
+    return retVal;
+  }
 }

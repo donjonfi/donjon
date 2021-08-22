@@ -31,8 +31,14 @@ export class InstructionsUtils {
         case 'ceci':
           cible = ceci as ElementJeu;
           break;
+        case 'ceci?':
+          cible = ceci ? ceci as ElementJeu : null;
+          break;
         case 'cela':
           cible = cela as ElementJeu;
+          break;
+        case 'cela?':
+          cible = cela ? cela as ElementJeu : null;
           break;
         case 'quantitéceci':
           cible = InstructionsUtils.copierElementTemp(ceci as Objet);

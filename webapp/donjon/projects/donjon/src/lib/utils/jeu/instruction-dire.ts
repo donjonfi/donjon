@@ -43,7 +43,7 @@ export class InstructionDire {
     // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
     // ======================================================================================================
 
-    const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui) (ceci|cela|ici|quantitéCeci|quantitéCela)";
+    const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|quantitéCeci|quantitéCela)";
     const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
     const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -58,15 +58,13 @@ export class InstructionDire {
         const decoupe = xBaliseProprieteSolo.exec(curBalise);
 
         const proprieteString = decoupe[1];
-        const cibleString = decoupe[2];
-        const cibleIntitule: ElementJeu | Intitule = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
+        let cibleString = decoupe[2];
+        const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
 
         let resultat: string = '';
 
-
-        if (cibleIntitule && ClasseUtils.heriteDe(cibleIntitule.classe, EClasseRacine.element)) {
-
-          const cibleElement: ElementJeu = cibleIntitule as ElementJeu;
+        if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
+          const cibleElement: ElementJeu = cible as ElementJeu;
 
           switch (proprieteString) {
 
@@ -181,22 +179,34 @@ export class InstructionDire {
               }
               break;
 
+            // préposition (ceci/cela)
+            case 'préposition':
+            case 'preposition':
+              if (cibleString == 'ceci' || cibleString == 'ceci?') {
+                resultat = evenement?.prepositionCeci ?? '';
+              } else if (cibleString == 'cela' || cibleString == 'cela?') {
+                resultat = evenement?.prepositionCela ?? '';
+              } else {
+                resultat = "?!";
+              }
+              break;
+
             // inconnu
             default:
               console.error("interpreterContenuDire: propriete pas prise en charge (Element) :", proprieteString);
               break;
           }
-        } else if (cibleIntitule && ClasseUtils.heriteDe(cibleIntitule.classe, EClasseRacine.intitule)) {
+        } else if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.intitule)) {
           switch (proprieteString) {
 
             case 'intitulé':
             case 'intitule':
-              resultat = ElementsJeuUtils.calculerIntituleGenerique(cibleIntitule, false);
+              resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, false);
               break;
 
             case 'Intitulé':
             case 'Intitule':
-              resultat = ElementsJeuUtils.calculerIntituleGenerique(cibleIntitule, true);
+              resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, true);
               break;
 
             // inconnu
@@ -204,8 +214,17 @@ export class InstructionDire {
               console.error("interpreterContenuDire: propriete pas prise en charge (Intitulé) :", proprieteString);
               break;
           }
+          // ne rien metre si on cible ceci? ou cela? (car argument factultatif)
+        } else if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          resultat = "";
+          // cible non trouvée
         } else {
-          contenu = "???"
+          resultat = "???"
+        }
+
+        // echaper le ? à la fin de ceci? cela?
+        if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          cibleString = cibleString.replace("?", "\\?");
         }
 
         // remplacer la balise par le résultat
@@ -560,6 +579,14 @@ export class InstructionDire {
     }
 
     // ===================================================
+    // DIVERS
+    // ===================================================
+
+    if (contenu.includes("[infinitif action]")) {
+      contenu = contenu.replace(/\[infinitif action\]/g, evenement.infinitif ?? '?!');
+    }
+
+    // ===================================================
     // PROPRIÉTÉS
     // ===================================================
 
@@ -759,13 +786,13 @@ export class InstructionDire {
             conditionLC = conditionLC.substr('sinon'.length).trim()
             // tester le si
             const condition = AnalyseurCondition.getConditionMulti(conditionLC);
-            
+
             if (condition.nbErreurs) {
               retVal = false;
               console.error("Condition pas comprise: ", conditionLC);
             } else {
               statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
-              retVal = statut.siVrai;  
+              retVal = statut.siVrai;
             }
           }
         } else {

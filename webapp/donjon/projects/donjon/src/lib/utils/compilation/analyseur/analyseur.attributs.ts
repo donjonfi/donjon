@@ -32,7 +32,7 @@ export class AnalyseurAttributs {
       // attributs de l'élément précédent
       if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
-        const nouveauAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
+        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
         // ajouter les attributs
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
@@ -63,7 +63,7 @@ export class AnalyseurAttributs {
       // attributs de l'élément précédent
       if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
-        const nouveauAttributs = PhraseUtils.separerListeIntitules(attributsBruts);
+        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
         // ajouter les attributs
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }

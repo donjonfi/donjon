@@ -3,6 +3,7 @@ import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { AnalyseurCondition } from '../compilation/analyseur/analyseur.condition';
 import { ClasseUtils } from '../commun/classe-utils';
+import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
 import { ConditionMulti } from '../../models/compilateur/condition-multi';
@@ -256,6 +257,9 @@ export class ConditionsUtils {
               const cpt = new Compteur("déclenchements règle", declenchements);
               sujet = cpt;
             }
+            // action (c’est à dire l’action liée à l’événement)
+          } else if (condition.sujet.nom.match(/infinitif (?:de l(?:'|’))?action/i)) {
+            sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
 
             // sortie/porte vers ceci/cela
           } else if (condition.sujet.nom == "sortie vers" || condition.sujet.nom == "porte vers") {
@@ -469,7 +473,7 @@ export class ConditionsUtils {
               break;
 
             case 'se déclenche':
-                // remarque: négation appliquée plus loin.
+              // remarque: négation appliquée plus loin.
               if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
                 retVal = (compteur.valeur === 1);
               } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la deuxième fois') {
@@ -654,7 +658,11 @@ export class ConditionsUtils {
       // vérifier la liste des états (si c’est un élémentJeu)
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
         resultCondition = this.jeu.etats.possedeEtatElement((sujet as ElementJeu), condition.complement, this.eju);
+        // sinon comparer l’intitulé du sujet avec le complément
+      } else if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
+        resultCondition = (sujet.intitule.toString() == condition.complement);
       } else {
+        console.error("verbe « est » utilisé sur un type non supporté.");
         resultCondition = false;
       }
     } else {
