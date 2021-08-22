@@ -8,7 +8,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|historique|"
-      + "intitulé|description|titre|auteur|aperçu|texte|lien|capacité|accord|réaction|version|licence|jeu|"
+      + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu"
     );
 
