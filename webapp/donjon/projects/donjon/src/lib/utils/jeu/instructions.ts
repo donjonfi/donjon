@@ -273,8 +273,6 @@ export class Instructions {
       case 'terminer':
       case 'continuer':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
-        console.log("terminer:", instruction);
-
         // jeu
         if (instruction.sujet?.nom === 'jeu') {
           this.jeu.termine = true;

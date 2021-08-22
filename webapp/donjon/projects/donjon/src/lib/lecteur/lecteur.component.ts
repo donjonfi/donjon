@@ -97,9 +97,9 @@ export class LecteurComponent implements OnInit, OnChanges {
     this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
     if (this.jeu.version) {
-      this.sortieJoueur += ("<small> " + BalisesHtml.retirerBalisesHtml(this.jeu.version) + "</small>");
+      this.sortieJoueur += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.jeu.version) + '</small>');
     }
-    this.sortieJoueur += "</h5><p>Un jeu de ";
+    this.sortieJoueur += '</h5><p>Un jeu de ';
 
     // afficher l’auteur du jeu
     if (this.jeu.auteur) {
@@ -110,15 +110,35 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.sortieJoueur += ("(anonyme)");
     }
 
-    // afficher la licence du jeu
-    if (this.jeu.licenceTitre) {
-      if (this.jeu.licenceLien) {
-        this.sortieJoueur += ('<br>Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
-      } else {
-        this.sortieJoueur += ("<br>Licence : " + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
+    this.sortieJoueur += '</p>';
+
+    if (this.jeu.siteWebLien || this.jeu.licenceTitre) {
+
+      this.sortieJoueur += '<p>';
+      // site web du jeu
+      if (this.jeu.siteWebLien) {
+        if (this.jeu.siteWebTitre) {
+          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebTitre) + "</a>");
+        } else {
+          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + "</a>");
+        }
       }
+
+      // afficher la licence du jeu
+      if (this.jeu.licenceTitre) {
+        if (this.jeu.siteWebLien) {
+          this.sortieJoueur += '<br>';
+        }
+        if (this.jeu.licenceLien) {
+          this.sortieJoueur += ('Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
+        } else {
+          this.sortieJoueur += ('Licence : ' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
+        }
+      }
+      this.sortieJoueur += '</p>';
     }
-    this.sortieJoueur += "</p>";
+
+
 
     // ==================
     // A. NOUVELLE PARTIE

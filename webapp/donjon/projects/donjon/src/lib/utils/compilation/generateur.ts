@@ -65,6 +65,13 @@ export class Generateur {
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === "auteurs")?.valeur;
       jeu.version = jeuDansMonde.proprietes.find(x => x.nom === "version")?.valeur;
     }
+
+    const siteWebDansMonde = monde.speciaux.find(x => x.nom === 'site' && x.epithete === 'web');
+    if (siteWebDansMonde) {
+      jeu.siteWebTitre = siteWebDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
+      jeu.siteWebLien = siteWebDansMonde.proprietes.find(x => x.nom === 'lien')?.valeur;
+    }
+
     const licenceDansMonde = monde.speciaux.find(x => x.nom === 'licence');
     if (licenceDansMonde) {
       jeu.licenceTitre = licenceDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
@@ -95,7 +102,7 @@ export class Generateur {
       nouvLieu.nombre = curEle.nombre;
       nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
       // ajouter description éventuelle du lieu
-      if(curEle.description){
+      if (curEle.description) {
         nouvLieu.description = curEle.description;
       }
       // ajouter les états par défaut de la classe du lieu
@@ -361,7 +368,7 @@ export class Generateur {
                 }
 
                 // si le contenant est le joueur, l’objet est possédé
-                if(contenantSupport === jeu.joueur){
+                if (contenantSupport === jeu.joueur) {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, true);
                 }
 
@@ -594,7 +601,7 @@ export class Generateur {
 
   static getOpposePosition(localisation: ELocalisation) {
     switch (localisation) {
-      
+
       case ELocalisation.bas:
         return ELocalisation.haut;
 

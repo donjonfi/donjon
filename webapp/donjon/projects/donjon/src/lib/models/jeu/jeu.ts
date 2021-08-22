@@ -24,6 +24,12 @@ export class Jeu {
   /** Auteurs du jeu. */
   auteurs: string;
 
+  /** Titre du site web. */
+  siteWebTitre: string;
+
+  /** Lien du site web. */
+  siteWebLien: string;
+
   /** Version du jeu. */
   version: string;
 

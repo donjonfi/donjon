@@ -36,6 +36,7 @@ export class Compilateur {
     // ajouter le jeu et la licence au monde
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "site", "web", EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
 
     // inclure les commandes de base, sauf si on les a désactivées.
     if (!(scenario.includes('Désactiver les commandes de base.') || scenario.includes('désactiver les commandes de base.'))) {
