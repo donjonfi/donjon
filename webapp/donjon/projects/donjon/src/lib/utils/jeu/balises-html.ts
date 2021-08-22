@@ -67,6 +67,15 @@ export class BalisesHtml {
     // retrait {r} ou {t} (tabulation)
     retVal = retVal.replace(/\{r\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
     retVal = retVal.replace(/\{t\}/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+
+    // suppression espaces avant {<}
+    // // (on a préalablement remplacé {<} par {«})
+    retVal = retVal.replace(/((?: )*\{<\})/g, '');
+
+    // suppression espaces après {>}
+    // // (on a préalablement remplacé {>} par {»})
+    retVal = retVal.replace(/(\{>\}(?: )*)/g, '');
+
     // espace {e}
     retVal = retVal.replace(/\{e\}/g, ' ');
     // espace insécable {i}
