@@ -581,7 +581,7 @@ SCÈNE "donner".
 donner ceci à cela est une action qui concerne un objet visible prioritairement possédé et un vivant visible.
 
 refuser donner ceci à cela:
-  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci]";
+  si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci].";
   si ceci est le joueur, dire "Ça ne va pas ?";
   si cela n'est pas une personne, dire "Je préfère donner ça à quelqu'un.";
   -- on veut en jeter 0…
