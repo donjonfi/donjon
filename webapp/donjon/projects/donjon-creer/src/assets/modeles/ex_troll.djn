@@ -1,0 +1,25 @@
+Le titre du jeu est "Super Troll".
+--L’auteur du jeu est "Alpha".
+Les auteurs du jeu sont "Alpha et Beta".
+Le titre du site web est "donjon.fi".
+Le lien du site web est "https://donjon.fi/".
+Le titre de la licence est "MIT".
+Le lien de la licence est "https://opensource.org/licenses/MIT".
+
+La caverne est un lieu.
+Le troll est une personne muette ici.
+Le gourdin est un objet ici.
+Le caillou est un objet ici.
+
+-- règle de priorité plus élevée car l’action est précisée.
+avant parler au troll ou parler de ceci au troll:
+  dire "{/(Vous tenez vraiment à essayer de lui parler ?)/}{N}".
+
+-- règle de priorité plus basse car l’action n’est pas précisée.
+avant une action impliquant le troll ou une action impliquant le troll et cela:
+  si l’infinitif de l’action n’est ni regarder ni donner et si le joueur ne possède pas le gourdin:
+    dire "Avant que vous ayez pu [infinitif action] [préposition ceci] [intitulé ceci] [préposition cela?] [intitulé cela?]{<}, le troll vous assomme avec son gourdin.";
+    dire "Vous avez perdu !";
+    stopper l’action;
+    terminer le jeu;
+  fin si.
