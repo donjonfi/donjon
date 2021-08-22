@@ -236,7 +236,7 @@ export class PhraseUtils {
       } else {
         res = ExprReg.xCommandeInfinitif.exec(commande);
         if (res) {
-          const sujet = res[4] ? new GroupeNominal(res[3], res[4], res[5] ? res[6] : null) : null;
+          const sujet = res[4] ? new GroupeNominal(res[3], res[4], res[5] ? res[5] : null) : null;
           els = new ElementsPhrase(res[1], sujet, null, null, (res[6] ? res[6] : null));
           els.preposition0 = res[2] ? res[2] : null;
           els.preposition1 = res[7] ? res[7] : null;
