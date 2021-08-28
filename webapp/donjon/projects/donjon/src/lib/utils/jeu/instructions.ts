@@ -324,6 +324,19 @@ export class Instructions {
         const indexObjet = this.jeu.objets.indexOf((ceci as Objet));
         if (indexObjet !== -1) {
           this.jeu.objets.splice(indexObjet, 1);
+
+          // s’il s’agit d’une porte, l’enlever des voisins des lieux
+          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.porte)) {
+            this.jeu.lieux.forEach(curLieu => {
+              curLieu.voisins = curLieu.voisins.filter(x => x.type !== EClasseRacine.porte || x.id !== ceci.id);
+            });
+            // s’il s’agit d’un obstacle, l’enlever des voisins des lieux
+          } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.obstacle)) {
+            this.jeu.lieux.forEach(curLieu => {
+              curLieu.voisins = curLieu.voisins.filter(x => x.type !== EClasseRacine.obstacle || x.id !== ceci.id);
+            });
+          }
+
           resultat.succes = true;
         }
         // lieu
@@ -331,6 +344,12 @@ export class Instructions {
         const indexLieu = this.jeu.objets.indexOf((ceci as Objet));
         if (indexLieu !== -1) {
           this.jeu.lieux.splice(indexLieu, 1);
+
+          // l’enlever des voisins des lieux
+          this.jeu.lieux.forEach(curLieu => {
+            curLieu.voisins = curLieu.voisins.filter(x => x.type !== EClasseRacine.lieu || x.id !== ceci.id);
+          });
+
           resultat.succes = true;
         }
       } else {
