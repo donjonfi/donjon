@@ -133,6 +133,24 @@ export class CompteursUtils {
 
   }
 
+  /**
+   * Donner le nombre correspondant au nombre spécifié sous forme de chaîne de caractères.
+   * @param valeurString 
+   * @returns Le nombre trouvé ou 0 si aucun nombre trouvé.
+   */
+  public static intituleNombreVersNombre(valeurString: string): number {
+    let valeurNum = 0;
+    // A) nombre entier
+    if (valeurString.match(ExprReg.xNombreEntier)) {
+      valeurNum = Number.parseInt(valeurString);
+      // B) nombre décimal
+    } else if (valeurString.match(ExprReg.xNombreDecimal)) {
+      valeurString = valeurString.replace(',', '.');
+      valeurNum = Number.parseFloat(valeurString);
+    }
+    return valeurNum;
+  }
+
   public static intituleValeurVersNombre(valeurString: string, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): number {
     let valeurNum: number = null;
 

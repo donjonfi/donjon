@@ -8,10 +8,12 @@ import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
+import { CompteursUtils } from '../jeu/compteurs-utils';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
@@ -418,6 +420,17 @@ export class Generateur {
     // *********************
     compteurs.forEach(cpt => {
       const curCompteur = new Compteur(cpt.nom, 0, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
+
+      // vérifier les attributs du compteur
+      cpt.attributs.forEach(curAttribut => {
+        // valeur initialisation
+        const initialisation = ExprReg.xInitialiseA.exec(curAttribut)
+        if (initialisation) {
+          // vérifier s’il s’agit d’un nombre
+          curCompteur.valeur = CompteursUtils.intituleNombreVersNombre(initialisation[1]);
+        }
+      });
+
       jeu.compteurs.push(curCompteur);
     });
 
