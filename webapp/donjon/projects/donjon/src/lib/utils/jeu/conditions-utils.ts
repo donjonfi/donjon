@@ -249,6 +249,13 @@ export class ConditionsUtils {
               const cpt = new Compteur("quantité de cela", (cela as ElementJeu).quantite);
               sujet = cpt;
             }
+            // préposition ceci
+          } else if (condition.sujet.nom.match(/préposition (?:de )?ceci/i)) {
+            sujet = new Intitule(evenement.prepositionCeci, new GroupeNominal(null, evenement.prepositionCeci, null), ClassesRacines.Intitule);
+            // préposition cela
+          } else if (condition.sujet.nom.match(/préposition (?:de )?cela/i)) {
+            sujet = new Intitule(evenement.prepositionCela, new GroupeNominal(null, evenement.prepositionCela, null), ClassesRacines.Intitule);
+
             // règle
           } else if (condition.sujet.nom === 'règle') {
             if (!declenchements) {
@@ -258,6 +265,7 @@ export class ConditionsUtils {
               sujet = cpt;
             }
             // action (c’est à dire l’action liée à l’événement)
+            // => infinitif
           } else if (condition.sujet.nom.match(/infinitif (?:de l(?:'|’))?action/i)) {
             sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
 
