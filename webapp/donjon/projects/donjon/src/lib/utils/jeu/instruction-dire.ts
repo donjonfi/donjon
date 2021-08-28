@@ -961,7 +961,7 @@ export class InstructionDire {
       // ajouter la négation (sans se)
       if (negation) {
         let ne: string = null;
-        if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+        if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.*)/)) {
           ne = "n’";
         } else {
           ne = "ne ";
