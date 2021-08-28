@@ -603,8 +603,10 @@ export class ExprReg {
    * - Le nombre d’objets rouges maudits sous le lit du comte vert vaut 5
    * - La valeur du portefeuille augmente du prix de l’aubergine
    * - La valeur du portefeuille ne vaut pas 3 💥
+   * 
+   * Remarque: le verbe « être »  DOIT être suivi de guillemets, sinon ce n’est pas une propriété qui précède le verbe être.
    */
-  static readonly xChangerPropriete = /^(.+?) (est|sont|vaut|valent|(?:(?:augmente(?:nt)?|diminue(?:nt)?) (?:de(?: (?:la|l’|l'))?|du|des|d’|d'))) (?!pas|plus)(.+)$/i;
+  static readonly xChangerPropriete = /^(.+?) (est(?= ")|sont(?= ")|vaut|valent|(?:(?:augmente(?:nt)?|diminue(?:nt)?) (?:de(?: (?:la|l’|l'))?|du|des|d’|d'))) (?!pas|plus)(.+)$/i;
 
   // ================================================================================================
   //  PROPRIÉTÉS
