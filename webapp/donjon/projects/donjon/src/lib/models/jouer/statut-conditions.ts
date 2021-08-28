@@ -18,7 +18,8 @@ export class StatutCondition {
   public dernIndexChoix = -1;
   public plusGrandChoix = -1;
   public nbChoix = -1;
-  public siVrai = false;
+  public siVrai = false; // est-ce que le vrai qui précède le sinon était validé ?
+  public siFois = false; // est-ce qu’un des Xe fois qui précèdent le sinon était validé ?
 
   constructor(
     public nbAffichage: number,

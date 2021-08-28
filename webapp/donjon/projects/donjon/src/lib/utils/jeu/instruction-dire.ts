@@ -738,6 +738,7 @@ export class InstructionDire {
       const nbFois = Number.parseInt(resultFois[1], 10);
       statut.nbChoix = InstructionDire.calculerNbChoix(statut);
       retVal = (statut.nbAffichage === nbFois);
+      statut.siFois = (statut.siFois || retVal); // est-ce que au moins 1 des Xe fois est validé ?
       // AU HASARD
     } else if (conditionLC === "au hasard") {
       statut.conditionDebutee = ConditionDebutee.hasard;
@@ -826,12 +827,17 @@ export class InstructionDire {
               console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
             }
             break;
+
           // SINON
           case 'sinon':
             if (statut.conditionDebutee === ConditionDebutee.si) {
               retVal = !statut.siVrai;
+            } else if (statut.conditionDebutee === ConditionDebutee.fois) {
+              console.log("j’ai débuté un fois et là je suis dans le sinon !");
+              
+              retVal = !statut.siFois;
             } else {
-              console.warn("[sinon] sans 'si'.");
+              console.warn("[sinon] sans 'si' ou 'fois'.");
               retVal = false;
             }
             break;
