@@ -1,10 +1,10 @@
 import { Aide } from "../../../models/commun/aide";
+import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { StringUtils } from "../../commun/string.utils";
-import { AnalyseurUtils } from "./analyseur.utils";
 
 export class AnalyseurDivers {
 
@@ -84,6 +84,10 @@ export class AnalyseurDivers {
 
         case 'affichage des directions des sorties':
           ctxAnalyse.parametres.activerAffichageDirectionSorties = isActiver;
+          break;
+
+        case 'affichage des lieux inconnus':
+          ctxAnalyse.parametres.activerAffichageLieuxInconnus = isActiver;
           break;
 
         default:

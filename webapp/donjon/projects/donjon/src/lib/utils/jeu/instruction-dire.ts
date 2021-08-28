@@ -834,7 +834,7 @@ export class InstructionDire {
               retVal = !statut.siVrai;
             } else if (statut.conditionDebutee === ConditionDebutee.fois) {
               console.log("j’ai débuté un fois et là je suis dans le sinon !");
-              
+
               retVal = !statut.siFois;
             } else {
               console.warn("[sinon] sans 'si' ou 'fois'.");
@@ -1324,7 +1324,7 @@ export class InstructionDire {
           // afficher les voisins : directions + lieux
           if (this.jeu.parametres.activerAffichageDirectionSorties) {
             lieuxVoisinsVisibles.forEach(voisin => {
-              retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id));
+              retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id, this.jeu.parametres.activerAffichageLieuxInconnus));
             });
             // afficher les voisins: lieux
           } else {
@@ -1358,7 +1358,7 @@ export class InstructionDire {
     return retVal;
   }
 
-  private afficherLieuVoisinEtLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
+  private afficherLieuVoisinEtLocalisation(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number, afficherLieuxInconnus: boolean) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;
@@ -1372,16 +1372,16 @@ export class InstructionDire {
 
     switch (localisation) {
       case ELocalisation.nord:
-        retVal = "nord" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
+        retVal = "nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.sud:
-        retVal = "sud" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.est:
-        retVal = "est" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
+        retVal = "est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.ouest:
-        retVal = "ouest" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
+        retVal = "ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.bas:
         retVal = "descendre" + obstacle + " − " + titreLieu;
@@ -1390,7 +1390,7 @@ export class InstructionDire {
         retVal = "monter" + obstacle + " − " + titreLieu;
         break;
       case ELocalisation.exterieur:
-        retVal = "sortir" + obstacle + (lieuDejaVisite ? (" − " + titreLieu) : ' − ?');
+        retVal = "sortir" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.interieur:
         retVal = "entrer" + obstacle + " − " + titreLieu;
