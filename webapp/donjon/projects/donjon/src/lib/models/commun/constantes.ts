@@ -1,6 +1,6 @@
 
-export const version = "0.127"
-export const versionNum = 127;
+export const version = "0.128"
+export const versionNum = 128;
 
 export enum EClasseRacine {
   compteur = 'compteur',
