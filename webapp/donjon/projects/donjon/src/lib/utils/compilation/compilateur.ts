@@ -104,8 +104,8 @@ export class Compilateur {
       if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
         monde.objets.push(el);
         // listes d’objets filtrés
-        if (ClasseUtils.heriteDe(el.classe, EClasseRacine.porte)) {
-          monde.portes.push(el);
+        if (ClasseUtils.heriteDe(el.classe, EClasseRacine.obstacle)) {
+          monde.portesEtObstacles.push(el);
         } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.joueur)) {
           monde.speciaux.push(el);
         } else {

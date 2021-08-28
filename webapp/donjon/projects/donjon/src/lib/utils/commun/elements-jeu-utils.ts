@@ -253,8 +253,8 @@ export class ElementsJeuUtils {
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
-    } else if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
-      // les portes adjacentes au lieu actuel sont présentes
+    } else if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.obstacle)) {
+      // les obstacles adjacents au lieu actuel sont présents
       if (this.curLieu.voisins.some(x => x.id === obj.id)) {
         this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
       } else {
@@ -312,11 +312,10 @@ export class ElementsJeuUtils {
    */
   getVoisinDirectionID(loc: Localisation | ELocalisation, type: EClasseRacine) {
     let voisin: Voisin = null;
-    if (loc instanceof Localisation) {
-      voisin = this.curLieu?.voisins.find(x => x.type === type && x.localisation === loc.id);
-    } else {
-      voisin = this.curLieu?.voisins.find(x => x.type === type && x.localisation === loc);
-    }
+    let localisation = (loc instanceof Localisation) ? loc.id : loc;
+
+    voisin = this.curLieu?.voisins.find(x => x.type === type && x.localisation === localisation);
+
     return voisin ? voisin.id : -1;
   }
 
@@ -332,18 +331,39 @@ export class ElementsJeuUtils {
 
     // s’il y a des voisins
     if (allLieuxVoisins.length != 0) {
-      // pour chaque voisin vérifier s’il y a une porte dans sa direction
+      // pour chaque voisin vérifier s’il y a un obstacle qui empèche de voir qu’il y a une sortie
       allLieuxVoisins.forEach(voisin => {
-        const curVoisinPorte = lieu.voisins.find(x => x.type == EClasseRacine.porte && x.localisation == voisin.localisation);
-        // il y a une porte
-        if (curVoisinPorte) {
-          // retrouver la porte
-          const curPorte = this.getObjet(curVoisinPorte.id);
-          // si la porte est ouverte ou visible, on voit le voisin
-          if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID) || this.jeu.etats.estVisible(curPorte, this)) {
+        // A) PORTES
+        const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle) && x.localisation == voisin.localisation);
+        // il y a au moins un obstacle
+        if (curVoisinObstacles.length) {
+
+          let voisinCache = false;
+
+          curVoisinObstacles.forEach(obstacle => {
+            // retrouver l’obstacle
+            const curObstacle = this.getObjet(obstacle.id);
+            // A) Porte
+            if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
+              // si la porte est n’est ni visible ni ouverte, le voisin ne doit pas être ajouté à la liste (il est caché).
+              if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.fermeID) && !this.jeu.etats.estVisible(curObstacle, this)) {
+                voisinCache = true;
+              }
+              // B) Autre type d’obstacle
+            } else {
+              // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).
+              if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.couvrantID)) {
+                voisinCache = true;
+              }
+            }
+          });
+
+          if (!voisinCache) {
             voisinsVisibles.push(voisin);
           }
-          // il n’y a pas de porte
+
+
+          // PAS D’OBSTACLE
         } else {
           voisinsVisibles.push(voisin);
         }
@@ -351,6 +371,41 @@ export class ElementsJeuUtils {
     }
 
     return voisinsVisibles;
+  }
+
+  estLieuAccessible(lieu: Lieu) {
+    let retVal = false;
+    // lieu actuel
+    if (this.curLieu.id == lieu.id) {
+      retVal = true;
+      // sinon tester voisins du lieu
+    } else {
+      const voisinTrouve = this.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == lieu.id);
+      // voisin trouvé
+      if (voisinTrouve) {
+        // c’est oui sauf s’il y a une porte fermée et/ou un obstacle
+        retVal = true;
+        // vérifier si porte fermée dans le chemin
+        const voisinPorte = this.curLieu.voisins.find(x => x.type == EClasseRacine.porte && x.localisation == voisinTrouve.localisation);
+        if (voisinPorte) {
+          const porte = this.getObjet(voisinPorte.id);
+          // vérifier si la porte est ouverte
+          if (!this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID)) {
+            retVal = false;
+          }
+        }
+        // si on n’est pas déjà bloqué par une porte fermée, tester obstacle
+        if (retVal) {
+          // vérifier si obstacle dans le chemin
+          const voisinObstacle = this.curLieu.voisins.find(x => x.type == EClasseRacine.obstacle && x.localisation == voisinTrouve.localisation);
+          // s’il y a un obstacle, c’est non !
+          if (voisinObstacle) {
+            retVal = false;
+          }
+        }
+      }
+    }
+    return retVal;
   }
 
   getObjet(id: number) {

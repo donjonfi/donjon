@@ -10,10 +10,10 @@
     </li>
   </ul>
 
-  <h4>Portes</h4>
-  <p *ngIf="monde.portes && monde.portes.length == 0">Aucune porte trouvée.</p>
+  <h4>Portes et obstacles</h4>
+  <p *ngIf="monde.portesEtObstacles && monde.portesEtObstacles.length == 0">Aucun obstacle trouvé.</p>
   <ul>
-    <li *ngFor="let el of monde.portes">
+    <li *ngFor="let el of monde.portesEtObstacles">
       <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
     </li>
   </ul>

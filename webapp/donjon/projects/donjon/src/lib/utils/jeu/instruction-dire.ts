@@ -1216,32 +1216,40 @@ export class InstructionDire {
 
       }
 
-      // D. AFFICHER LES PORTES SI C'EST UN LIEU
+      // D. AFFICHER LES PORTES ET LES OBSTACLES SI C'EST UN LIEU
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
 
         const curLieu: Lieu = ceci as Lieu;
         curLieu.voisins.forEach(voisin => {
-          if (voisin.type == EClasseRacine.porte) {
-            // vérifier si la porte est visible
-            const curPorte = this.eju.getObjet(voisin.id);
-            if (this.jeu.etats.estVisible(curPorte, this.eju)) {
-              // if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.visibleID)) {
-              // décrire la porte
-              if (curPorte.apercu) {
-                if (curPorte.apercu != '-')
-                  // si aperçu, afficher l'aperçu.
-                  resultat.sortie += "{U}" + this.calculerDescription(curPorte.apercu, curPorte.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.intactID), null, null, null, null);
-              } else {
-                // par défaut, afficher le nom de la porte et ouvert/fermé.
-                resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorte, true) + " est ";
-                if (this.jeu.etats.possedeEtatIdElement(curPorte, this.jeu.etats.ouvertID)) {
-                  resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.ouvertID)
-                } else {
-                  resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorte, this.jeu.etats.fermeID)
+          if (voisin.type == EClasseRacine.porte || voisin.type == EClasseRacine.obstacle) {
+            // vérifier si l’obstacle/porte est visible
+            const curPorteObstacle = this.eju.getObjet(voisin.id);
+            if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
+              // décrire l’obstacle
+              // si aperçu défini
+              if (curPorteObstacle.apercu) {
+                // afficher l'aperçu.
+                if (curPorteObstacle.apercu != '-') {
+                  resultat.sortie += "{U}" + this.calculerDescription(curPorteObstacle.apercu, curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), null, null, null, null);
                 }
-                resultat.sortie += ".";
+                // si pas d’aperçu défini
+              } else {
+                // porte
+                if (ClasseUtils.heriteDe(curPorteObstacle.classe, EClasseRacine.porte)) {
+                  // par défaut, afficher le nom de la porte et ouvert/fermé.
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " sont " : " est ");
+                  if (this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.ouvertID)) {
+                    resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorteObstacle, this.jeu.etats.ouvertID)
+                  } else {
+                    resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorteObstacle, this.jeu.etats.fermeID)
+                  }
+                  resultat.sortie += ".";
+                  // obstacle
+                } else {
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " bloquent" : " bloque") + " la sortie (" + voisin.localisation + ").";
+                }
+
               }
-              //resultat.sortie += this.afficherStatut(curPorte);
             }
           }
         });
@@ -1259,7 +1267,7 @@ export class InstructionDire {
   }
 
   /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
-  afficherObstacle(direction: Lieu | ELocalisation, texteSiAucunObstacle = "(aucun obstacle)") {
+  public afficherObstacle(direction: Lieu | ELocalisation, texteSiAucunObstacle = "(aucun obstacle)") {
     let retVal: string = texteSiAucunObstacle;
 
     let loc: Localisation | ELocalisation = null;
@@ -1281,30 +1289,45 @@ export class InstructionDire {
         // cas normal
       }
     }
+    
 
-    // trouver la porte qui est dans le chemin
-    const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
-    if (porteID !== -1) {
-      const porte = this.eju.getObjet(porteID);
-      const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
-      // const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
-      // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
-      if (porte.genre == Genre.f) {
-        if (ouvert) {
-          // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
-          retVal = texteSiAucunObstacle;
-        } else {
-          retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermée.";
-        }
+    // trouver l’obstacle (autre que porte) qui est dans le chemin
+    const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
+    if (obstacleID !== -1) {
+      const obstacle = this.eju.getObjet(obstacleID);
+      // si aperçu dispo pour l’obstacle, on l’affiche.
+      if (obstacle.apercu) {
+        retVal = this.calculerDescription(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), null, null, null, null);
+        // sinon on affiche texte auto.
       } else {
-        if (ouvert) {
-          // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
-          retVal = texteSiAucunObstacle;
+        retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";
+      }
+    } else {
+      // trouver la porte qui est dans le chemin
+      const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
+      if (porteID !== -1) {
+        const porte = this.eju.getObjet(porteID);
+        const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
+        // const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
+        // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
+        if (porte.genre == Genre.f) {
+          if (ouvert) {
+            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
+            retVal = texteSiAucunObstacle;
+          } else {
+            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermée.";
+          }
         } else {
-          retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermé.";
+          if (ouvert) {
+            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
+            retVal = texteSiAucunObstacle;
+          } else {
+            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermé.";
+          }
         }
       }
     }
+
     return retVal;
   }
 

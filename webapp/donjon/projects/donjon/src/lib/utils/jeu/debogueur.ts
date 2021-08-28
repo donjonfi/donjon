@@ -150,7 +150,7 @@ export class Debogueur {
       "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
-      "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + infoContenant) +
+      "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucun') + infoContenant) +
       (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, false, PrepositionSpatiale.dans).sortie)) : '') +
       (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, false, PrepositionSpatiale.sur).sortie)) : '') +
       "";

@@ -5,7 +5,9 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
+import { InstructionDire } from './instruction-dire';
 import { LienCondition } from '../../models/compilateur/lien-condition';
+import { Lieu } from '../../models/jeu/lieu';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -19,6 +21,7 @@ export class ListeEtats {
   public deplaceID = -1;
   public modifieID = -1;
   public cacheID = -1;
+  public couvrantID = -1;
   public couvertID = -1;
   public visibleID = -1;
   public invisibleID = -1;
@@ -65,9 +68,10 @@ export class ListeEtats {
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.modifie);
     // décoratif (objet)
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
-    // caché, couvert, invisible (objet)
+    // caché, couvert, couvrant, invisible (objet)
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
+    this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
     this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
     // accessible, inaccessible (objet)
@@ -409,8 +413,22 @@ export class ListeEtats {
           return this.estVisible((element as Objet), eju);
         }
 
-      } else if (nomEtat === 'accessible' || nomEtat === 'accessibles') {
-        return this.estAccessible((element as Objet), eju);
+      } else if (nomEtat.match(/^accessible(s)?$/)) {
+        // lieu
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return eju.estLieuAccessible(element as Lieu);
+          // objet
+        } else {
+          return this.estAccessible((element as Objet), eju);
+        }
+      } else if (nomEtat.match(/^obstrué(e)?(s)?$/)) {
+        // lieu
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return !eju.estLieuAccessible(element as Lieu);
+          // objet
+        } else {
+          return !this.estAccessible((element as Objet), eju);
+        }
       } else {
         let etat = this.trouverEtat(nomEtat);
         if (etat) {
@@ -497,10 +515,10 @@ export class ListeEtats {
       return false;
     }
 
-    // s’il s’agit d’une PORTE, elle est visible (car jamais dans un contentant et présente, visible, non couverte)
-    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
+    // s’il s’agit d’un OBSTACLE (dont portes), il est visible (car jamais dans un contenant et présente, visible, non couverte)
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.obstacle)) {
       return true;
-      // s’il ne s’agit PAS d’une porte
+      // s’il ne s’agit PAS d’un obstacle
     } else {
       // on objet non positionné n’est pas visible
       if (!objet.position) {
@@ -542,10 +560,10 @@ export class ListeEtats {
       return false;
     }
 
-    // s’il s’agit d’une PORTE, elle est accessible (car jamais dans un contenant et présente, visible, non couverte)
-    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.porte)) {
+    // s’il s’agit d’un OBSTACLE (dont portes), il est accessible (car jamais dans un contenant et présente, visible, non couverte)
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.obstacle)) {
       return true;
-      // s’il ne s’agit PAS d’une porte
+      // s’il ne s’agit PAS d’un obstacle
     } else {
       // on objet non positionné n’est pas accessible
       if (!objet.position) {

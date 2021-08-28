@@ -1,6 +1,6 @@
 
-export const version = "0.128"
-export const versionNum = 128;
+export const version = "0.129"
+export const versionNum = 129;
 
 export enum EClasseRacine {
   compteur = 'compteur',
@@ -14,6 +14,7 @@ export enum EClasseRacine {
   animal = 'animal',
   personne = 'personne',
   porte = 'porte',
+  obstacle = 'obstacle',
   contenant = 'contenant',
   support = 'support',
   // types spéciaux
@@ -38,6 +39,8 @@ export enum EEtatsBase {
   cache = 'caché',
   /** couvert */
   couvert = 'couvert',
+  /** couvrant */
+  couvrant = 'couvrant',
   /** visible (calculé) */
   visible = 'visible',
   /** invisible */

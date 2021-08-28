@@ -39,9 +39,13 @@ export class ClassesRacines {
   public static Personne = new Classe(EClasseRacine.personne, "personne", ClassesRacines.Vivant, 4,
     [EEtatsBase.parlant]);
 
+  /** Il s’agit d’un obstacle */
+  public static Obstacle = new Classe(EClasseRacine.obstacle, "obstacle", ClassesRacines.Objet, 3,
+    [EEtatsBase.fixe]);
+
   /** Il s’agit d’une porte */
-  public static Porte = new Classe(EClasseRacine.porte, "porte", ClassesRacines.Objet, 3,
-    [EEtatsBase.ouvert, EEtatsBase.ouvrable, EEtatsBase.deverrouille, EEtatsBase.fixe]);
+  public static Porte = new Classe(EClasseRacine.porte, "porte", ClassesRacines.Obstacle, 4,
+    [EEtatsBase.ouvert, EEtatsBase.ouvrable, EEtatsBase.deverrouille]);
 
   /** Il s’agit d’un contenant */
   public static Contenant = new Classe(EClasseRacine.contenant, "contenant", ClassesRacines.Objet, 3,

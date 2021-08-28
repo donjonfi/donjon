@@ -269,8 +269,8 @@ export class ConditionsUtils {
           } else if (condition.sujet.nom.match(/infinitif (?:de l(?:'|’))?action/i)) {
             sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
 
-            // sortie/porte vers ceci/cela
-          } else if (condition.sujet.nom == "sortie vers" || condition.sujet.nom == "porte vers") {
+            // sortie/obstacle/porte vers ceci/cela
+          } else if (condition.sujet.nom.match(/(sortie|obstacle|porte) vers/i)) {
             let locString: string = condition.sujet.epithete;
             if (condition.sujet.epithete == 'ceci') {
               locString = ceci.intitule.nom;
@@ -283,20 +283,26 @@ export class ConditionsUtils {
               console.error("siEstVraiSansLien: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
               // regarder s'il y a une sortie dans la direction indiquée
             } else {
-              if (condition.sujet.nom == "sortie vers") {
+              // sortie vers
+              if (condition.sujet.nom.startsWith("sortie")) {
                 const voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
                 if (voisinID !== -1) {
                   sujet = this.eju.getLieu(voisinID);
                 }
-              } else {
+                // porte vers
+              } else if (condition.sujet.nom.startsWith("porte")) {
                 const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
                 if (porteID !== -1) {
                   sujet = this.eju.getObjet(porteID);
                 }
+                // obstacle vers
+              } else {
+                const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
+                if (obstacleID !== -1) {
+                  sujet = this.eju.getObjet(obstacleID);
+                }
               }
             }
-          } else if (condition.sujet.nom == "porte vers") {
-            retVal = false;
           } else {
             const correspondances = this.eju.trouverCorrespondance(condition.sujet, false, false);
             if (correspondances.elements.length == 1) {
@@ -722,7 +728,7 @@ export class ConditionsUtils {
     let retVal = false;
 
     // remarque: négation appliquée plus loin.
-    // A) SORTIE, PORTE
+    // A) SORTIE
     if (condition.sujetComplement.nom === 'sortie') {
       // console.warn("Test des sorties", condition, sujet);
       // trouver direction
@@ -756,7 +762,7 @@ export class ConditionsUtils {
           retVal = false;
           // voisin existe
         } else {
-          // trouver si porte séparre voisin
+          // trouver si porte sépare voisin
           const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
           // aucune porte => sortie existe et est accessible
           if (porteID == -1) {
@@ -776,8 +782,29 @@ export class ConditionsUtils {
               retVal = false; // => pas de sortie
             }
           }
+          
+          // s’il y a une sortie, vérifier qu’elle n’est pas obstruée par un obstacle
+          if (retVal == true) {
+            // trouver si obstacle (autre que porte) sépare voisin
+            const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
+            if (obstacleID !== -1) {
+              const obstacle = this.eju.getObjet(obstacleID);
+              // si on teste « existe sortie » tout court, il y a une sortie (sauf si obstacle couvrant.)
+              if (!condition.sujetComplement.epithete) {
+                retVal = !this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.couvrantID, this.eju);
+                // si on test « existe sortie accessible », c’est forcément faut puisqu’il y a un obstacle.
+              } else if (condition.sujetComplement.epithete == 'accessible') {
+                retVal = false; // => pas de sortie accessible
+                // attribut pas pris en charge
+              } else {
+                console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
+                retVal = false; // => pas de sortie
+              }
+            }
+          }
         }
       }
+      // B) PORTE
     } else if (condition.sujetComplement.nom === 'porte') {
       console.warn("Test des portes", condition, sujet);
       // trouver direction
@@ -796,8 +823,27 @@ export class ConditionsUtils {
           retVal = !this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
         }
       }
-      // B) PROPRIÉTÉ
-      // aperçu
+      // C) OBSTACLE (AUTRE QUE PORTE)
+    } else if (condition.sujetComplement.nom === 'obstacle') {
+      console.warn("Test des obstacles", condition, sujet);
+      // trouver direction
+      const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
+      if (loc != null) {
+        console.error("siEstVraiSansLien: obstacle vers '", sujet.intitule.nom, "' : direction inconnue.");
+        // regarder s'il y a une porte dans la direction indiquée
+      } else {
+        const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
+        // aucun obstacle
+        if (obstacleID == -1) {
+          retVal = false;
+          // l’obstacle est invisible => aucun obstacle
+        } else {
+          const obstacle = this.eju.getObjet(obstacleID);
+          retVal = !this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.invisibleID);
+        }
+      }
+      // D) PROPRIÉTÉ
+      // d.1 aperçu
     } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
       // => aperçu dans une direction
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
@@ -813,7 +859,7 @@ export class ConditionsUtils {
       } else {
         retVal = (sujet as ElementJeu).apercu ? true : false;
       }
-      // autre
+      // d.2 autre
     } else {
       // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false
       retVal = false;

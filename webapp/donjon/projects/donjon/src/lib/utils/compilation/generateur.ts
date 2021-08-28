@@ -335,8 +335,8 @@ export class Generateur {
         }
 
         // POSITION de l’élément
-        // --   A. PORTE
-        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.porte)) {
+        // --   A. OBSTACLE (PORTE ou autre)
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.obstacle)) {
           Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
         } else {
           // -- B. AUTRE TYPE D'OBJET
@@ -452,21 +452,39 @@ export class Generateur {
       if (localisation === ELocalisation.inconnu || lieuTrouveID === -1) {
         console.log("positionString pas trouvé:", elVoisin.positionString);
       } else {
+
+        // on met la classe racine lieu, porte ou obstacle:
+        let classeRacine: string;
+        // lieu
+        if (ClasseUtils.heriteDe(elVoisin.classe, EClasseRacine.lieu)) {
+          classeRacine = EClasseRacine.lieu;
+          // porte
+        } else if (ClasseUtils.heriteDe(elVoisin.classe, EClasseRacine.porte)) {
+          classeRacine = EClasseRacine.porte;
+          // autre type d’obstacle
+        } else {
+          classeRacine = EClasseRacine.obstacle;
+        }
+
         // ajouter au lieu trouvé, le voisin elVoisin
-        const opposeVoisin = new Voisin(idElVoisin, elVoisin.classe.nom, localisation);
+        const opposeVoisin = new Voisin(idElVoisin, classeRacine, localisation);
         const lieu = lieux.find(x => x.id == lieuTrouveID);
         lieu.voisins.push(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
-        if (elVoisin.classe.nom == EClasseRacine.lieu) {
+        if (classeRacine == EClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
-          const newVoisin = new Voisin(lieuTrouveID, elVoisin.classe.nom, this.getOpposePosition(localisation));
+          const newVoisin = new Voisin(lieuTrouveID, classeRacine, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
           lieuTrouve.voisins.push(newVoisin);
+        // la porte trouvée, est également visible depuis le lieu voisin à priori…
+        } else if (classeRacine == EClasseRacine.porte) {
+          // todo: rendre la porte visible chez le voisin également
         }
+
       }
     } else {
-
+      // ???
     }
   }
 
