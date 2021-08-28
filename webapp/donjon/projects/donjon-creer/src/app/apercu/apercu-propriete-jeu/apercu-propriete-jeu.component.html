@@ -5,7 +5,7 @@
 
 <!-- nombre de Classe (position) -->
 <ng-container *ngIf="(pro.type == TypeProprieteJeu.nombreDeClasseAttributs || pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition)">
-  Propriété : nombre {{getDe(pro.intituleClasse) + pro.intituleClasse}} <i *ngIf="pro.nomsEtats?.length > 0"> {{pro.nomsEtats[0]}}<span *ngIf="pro.etats.length > 1"> et {{pro.nomsEtats[1]}}</span></i>
+  Propriété : nombre {{getDe(pro.intituleClasse) + pro.intituleClasse}} <i *ngIf="pro.nomsEtats?.length > 0"> {{pro.nomsEtats[0]}}<span *ngIf="pro.nomsEtats.length > 1"> et {{pro.nomsEtats[1]}}</span></i>
   <span *ngIf="pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition">
     {{getPrepositionSpatiale(pro.prepositionSpatiale)}} {{pro.intituleElement}}
   </span>
