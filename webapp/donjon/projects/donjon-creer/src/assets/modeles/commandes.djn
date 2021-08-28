@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-08-07-0031
+-- Version: 2021-08-28-0032
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -98,7 +98,7 @@ terminer effacer ceci:
 
 L'aide pour l'action effacer est "{*Effacer*}
   Permet d’effacer l’écran
-  {+exemples+} :
+  {+exemples+} :l
   > {-effacer-}
   > {-effacer {/l’écran/}-}
   {+raccourci+} : {-ef-}".
@@ -467,7 +467,11 @@ exécuter examiner ceci:
       dire "[décrire objets dans ceci]";
     -- >> support
     sinonsi ceci est un support :
-      dire "[décrire objets sur ceci]";
+      si la préposition de ceci est sous:
+        dire "[décrire objets sous ceci]";
+      sinon
+        dire "[décrire objets sur ceci]";
+      fin si;
     fin si;
     -- >> ojbet inaccessible
     si ceci n'est ni accessible ni l’inventaire, 
