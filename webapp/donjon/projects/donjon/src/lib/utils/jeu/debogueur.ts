@@ -91,16 +91,13 @@ export class Debogueur {
   private afficherDetailObjet(objet: Objet) {
     // retrouver les états de l’élément
     const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(objet);
-    let visible: boolean = null;
-    let accessible: boolean = null;
-    let emplacement: ElementJeu = null;
     let contenant: Objet = null;
     let contenantPreposition = "";
     const estContenant = ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant);
     const estSupport = ClasseUtils.heriteDe(objet.classe, EClasseRacine.support);
-    visible = this.jeu.etats.estVisible(objet, this.eju);
-    accessible = this.jeu.etats.estAccessible(objet, this.eju);
-    emplacement = this.eju.getLieu(this.eju.getLieuObjet(objet));
+    const visible = this.jeu.etats.estVisible(objet, this.eju);
+    const accessible = this.jeu.etats.estAccessible(objet, this.eju);
+    const emplacement = this.eju.getLieu(this.eju.getLieuObjet(objet));
     contenant = (objet.position?.cibleType === EClasseRacine.objet ? this.eju.getObjet(objet.position.cibleId) : null)
     // retrouver la préposition de la position de l’objet par rapport à sont contenant/support
     if (contenant) {
@@ -123,6 +120,19 @@ export class Debogueur {
       }
     }
 
+    let infoContenant: string;
+
+    if (contenant === this.jeu.joueur) {
+      const porte = this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.porteID, this.eju);
+      if (porte) {
+        infoContenant = " (porté par joueur)";
+      } else {
+        infoContenant = " (dans inventaire joueur)";
+      }
+    } else {
+      infoContenant = (contenant ? (' (' + contenantPreposition + contenant.nom + ')') : '')
+    }
+
     let proprietes = (objet.proprietes.length > 0 ? "" : "(néant)");
     objet.proprietes.forEach(prop => {
       if (prop.type == TypeValeur.mots) {
@@ -140,7 +150,7 @@ export class Debogueur {
       "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
-      "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + (contenant ? (' (' + contenantPreposition + contenant.nom + ')') : '')) +
+      "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucune') + infoContenant) +
       (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, false, PrepositionSpatiale.dans).sortie)) : '') +
       (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, false, PrepositionSpatiale.sur).sortie)) : '') +
       "";
