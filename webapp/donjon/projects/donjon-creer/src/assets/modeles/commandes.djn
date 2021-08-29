@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-08-28-0032
+-- Version: 2021-08-29-0033
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -19,6 +19,11 @@ CHAPITRE "utiliser".
 utiliser ceci est une action qui concerne un objet visible.
 
 terminer utiliser ceci:
+  dire "Ça n’a rien donné.".
+  
+utiliser ceci sur cela est une action qui concerne deux objets visibles.
+
+terminer utiliser ceci sur cela:
   dire "Ça n’a rien donné.".
 
 CHAPITRE "aide, effacer".
