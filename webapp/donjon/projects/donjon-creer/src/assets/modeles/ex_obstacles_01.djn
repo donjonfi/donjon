@@ -1,0 +1,51 @@
+Le titre du jeu est "Ex − Obstacles 01".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+
+Chapitre "DESCRIPTION DU MONDE".
+
+La grotte est un lieu.
+  Le joueur est dans la grotte.
+  Le bâton de dynamite est dans la grotte.
+  Interpréter dynamite, baton et bâton comme le bâton de dynamite.
+  
+La forêt est un lieu à l’extérieur de la grotte.
+
+-- le rocher est un obstacle qui empêche le joueur de quitter la grotte
+Le gros rocher est un obstacle à l’extérieur de la grotte.
+  Interpréter rocher comme le gros rocher.
+
+Chapitre "RÈGLES SPÉCIALES".
+
+-- informer le joueur de sa mission
+avant commencer le jeu:
+  dire "Votre mission : sortir de la grotte.".
+  
+-- lorsque le joueur utilise la dynamite sur le rocher
+avant utiliser bâton de dynamite ou utiliser bâton de dynamite sur le gros rocher:
+  exécuter la commande "dynamiter le rocher";
+  stopper l’action.
+  
+-- après un déplacement du joueur
+après aller vers ceci:
+  -- le joueur à réussi à aller dans la forêt
+  si le joueur se trouve dans la forêt:
+    -- laisser la description du lieu s’afficher avant
+    continuer l’action avant;
+    -- informer le joueur qu’il a gagné
+    dire "{n}{n}{/Bravo ! Vous avez gagné la partie !/}";
+    terminer le jeu;
+  fin si.
+
+le joueur peut dynamiter le gros rocher:
+  dire "Badaboum ! Le rocher vole en éclats.
+        La sortie est à présent dégagée.";
+  -- le rocher et la dynamite n’existent plus à présent
+  effacer le gros rocher;
+  effacer le bâton de dynamite.
+  
+Chapitre "PRÉFÉRENCES".
+
+activer l’affichage des lieux inconnus.
