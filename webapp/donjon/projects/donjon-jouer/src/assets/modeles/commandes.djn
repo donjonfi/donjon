@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-08-29-0033
+-- Version: 2021-08-31-0034
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -223,8 +223,7 @@ SCÈNE "parler".
 parler à ceci est une action qui concerne un objet visible.
 
 refuser parler avec ceci:
-  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
-  si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
+  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Vous entamez un monologue.".
 
 exécuter parler avec ceci:
@@ -237,8 +236,7 @@ terminer parler avec ceci:
 parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
 
 refuser parler avec ceci concernant cela:
-  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
-  si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
+  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Je connais déjà la réponse.".
 
 exécuter parler avec ceci concernant cela:
@@ -268,7 +266,7 @@ SCÈNE "interroger".
 interroger ceci est une action qui concerne un objet visible.
 
 refuser interroger ceci:
-  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.";
+  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
   si ceci est le joueur, dire "Je connais déjà la réponse.".
   
 exécuter interroger ceci:
@@ -281,8 +279,8 @@ terminer interroger ceci:
 interroger ceci concernant cela est une action qui concerne un objet visible et un intitulé.
 
 refuser interroger ceci concernant cela:
-  si ceci n'est pas une personne, dire "[Intitulé ceci] ne parle pas.".
-
+  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.".
+  
 exécuter interroger ceci concernant cela:
   si ceci réagit, exécuter réaction de ceci concernant cela.
 
@@ -316,7 +314,7 @@ exécuter demander ceci:
 demander ceci à cela est une action qui concerne un intitulé et un objet visible.
 
 refuser demander ceci à cela:
-  si cela n'est pas une personne, dire "[Intitulé cela] ne parle pas.".
+  si cela n'est ni une personne ni parlant ou si cela est muet, dire "[Intitulé ceci] ne parle pas.".
 
 exécuter demander ceci à cela:
   si cela réagit, exécuter réaction de cela concernant ceci.

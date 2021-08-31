@@ -1,0 +1,11 @@
+La cave est un lieu.
+Le joueur est ici.
+Le téléphone est un objet parlant ici.
+
+La réaction du téléphone est "bip bip !".
+
+La réaction du téléphone concernant un sujet inconnu est :
+  "[Au hasard]Je ne peux pas vous aider à ce sujet[ou]Aucune idée[ou]Pardon ?[fin choix]".
+  
+La réaction du téléphone concernant l'horoscope est:
+  "Votre journée se déroulera merveilleusement bien aujourd'hui !".
