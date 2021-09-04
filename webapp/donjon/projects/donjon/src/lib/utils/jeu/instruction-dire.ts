@@ -913,8 +913,9 @@ export class InstructionDire {
     }
 
     // retrouver le verbe
-    let conjugaison = Conjugaison.getVerbe(verbe);
+    let conjugaison = Conjugaison.getVerbeIrregulier(verbe);
     let verbeConjugue: string = null;
+    let verbePronominal = /(se |s’|s')(.+)/.test(verbe);
     // verbe trouvé
     if (conjugaison) {
       // retrouver la forme demandée
@@ -936,9 +937,9 @@ export class InstructionDire {
     let verbeDecoupe = verbeConjugue.split(" ", 2);
 
     // tenir compte du se/s’
-    if (verbe.match(/(se |s’|s')(.+)/)) {
+    if (verbePronominal) {
       let se: string = null;
-      if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+      if (/^(a|e|é|è|ê|i|o|u|y)(.+)/.test(verbeConjugue)) {
         se = "s’";
       } else {
         se = "se ";
