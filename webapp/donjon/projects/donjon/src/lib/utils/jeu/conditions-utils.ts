@@ -12,11 +12,14 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { LienCondition } from '../../models/compilateur/lien-condition';
 import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
+import { PhraseUtils } from '../commun/phrase-utils';
+import { TypeValeur } from '../../models/compilateur/type-valeur';
 
 export class ConditionsUtils {
 
@@ -240,7 +243,22 @@ export class ConditionsUtils {
             } else if (correspondances.compteurs.length === 1) {
               sujet = correspondances.compteurs[0];
             } else {
-              console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              // checher dans les propriétés
+              const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
+              if (proprieteJeu) {
+                const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, ceci, cela, this.eju, this.jeu);
+                if (proprieteCible instanceof Compteur) {
+                  sujet = proprieteCible;
+                } else {
+                  if (proprieteCible.type == TypeValeur.nombre) {
+                    sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
+                  } else {
+                    sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
+                  }
+                }
+              } else {
+                console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              }
             }
           }
         }
@@ -710,7 +728,7 @@ export class ConditionsUtils {
               retVal = false; // => pas de sortie
             }
           }
-          
+
           // s’il y a une sortie, vérifier qu’elle n’est pas obstruée par un obstacle
           if (retVal == true) {
             // trouver si obstacle (autre que porte) sépare voisin
