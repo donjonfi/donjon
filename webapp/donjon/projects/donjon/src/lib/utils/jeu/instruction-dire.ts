@@ -550,10 +550,7 @@ export class InstructionDire {
     const baliseVerbe = "v ((?:se |s’|s')?\\S+(?:ir|er|re)) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
     const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
     const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
-
-    console.log("will balise verbe");
     
-
     if (xBaliseVerbeMulti.test(contenu)) {
 
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
@@ -594,9 +591,9 @@ export class InstructionDire {
     // ===================================================
 
     // Le nombre de propriété de élément
-    // const baliseNombreDePropriete = "(le )?nombre (de |d’|d')(\\S+) (du |de la |de |d'|d’|des )(\\S+?|(\\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\\S+?))( (?!\\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\\b)(\\S+?))?";
+    // const baliseNombreDePropriete = "(le )?nombre (de |d’|d')(\\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\\S+?|(\\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\\S+?))( (?!\\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\\b)(\\S+?))?";
     // const xBaliseNombreDeProprieteMulti = new RegExp("\\[" + baliseNombreDePropriete + "\\]", "gi");
-    const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+    const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
     if (xBaliseNombreDeProprieteMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeProprieteMulti);
@@ -614,7 +611,7 @@ export class InstructionDire {
     }
 
     // La propriété de élément
-    const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!nombre)(\S+?) (du |de la |de |d'|d’|des )(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+    const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!nombre)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
     if (xBaliseProprieteDeElementMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteDeElementMulti);
