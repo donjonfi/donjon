@@ -23,7 +23,7 @@ export class CompteursUtils {
     if (compteurOuPropriete) {
 
       // enlever le de qui débute la nouvelle valeur
-      const valeurStr = opperationStr.replace(/^(de |d’|d')/i, "");
+      const valeurStr = opperationStr.replace(/^(de |d’|d'|du |des )/i, "");
 
       // A) compteur
       if (compteurOuPropriete instanceof Compteur) {
@@ -228,6 +228,20 @@ export class CompteursUtils {
       }
     }
     return retVal;
+  }
+
+  /**
+   * Retourne un compteur contenant la valeur de la propriété à condition que la
+   * propriété soit de type « nombre ».
+   * @param propriete 
+   * @returns 
+   */
+  public static proprieteElementVersCompteur(propriete: ProprieteElement) {
+    if (propriete.type == TypeValeur.nombre) {
+      return new Compteur(propriete.nom, parseFloat(propriete.valeur));
+    } else {
+      return null;
+    }
   }
 
 }
