@@ -616,7 +616,7 @@ export class ExprReg {
    * - La taille de la pomme rouge
    * - Le texte du livre
    */
-   static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+   static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)?(?!le | la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
 
    /**
     * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
@@ -626,7 +626,7 @@ export class ExprReg {
     * - Le nombre de pattes du mille-pattes grincheux
     * - Le nombre d’arbres du bois de la colline enchantée
     */
-   static readonly xNombreDeProprieteElement = /^le nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+   static readonly xNombreDeProprieteElement = /^(?:le)? nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
  
    /**
     * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
@@ -641,7 +641,7 @@ export class ExprReg {
     * - Le nombre de lampes allumées
     * - Le nombre de pièces possédées
     */
-   static readonly xNombreDeClasseEtatPosition = /^le nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
+   static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
  
 
   // ================================================================================================
