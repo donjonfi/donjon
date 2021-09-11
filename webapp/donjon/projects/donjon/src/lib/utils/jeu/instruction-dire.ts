@@ -547,9 +547,12 @@ export class InstructionDire {
     // ===================================================
 
     // verbe(1) modeTemps(2) [negation(3)] sujet(4)
-    const baliseVerbe = "v ((?:s’|s')?être|avoir|vivre|(?:s’|s')?ouvrir|(?:se )?fermer|pouvoir) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
+    const baliseVerbe = "v ((?:se |s’|s')?\\S+(?:ir|er|re)) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
     const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
     const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
+
+    console.log("will balise verbe");
+    
 
     if (xBaliseVerbeMulti.test(contenu)) {
 
@@ -905,34 +908,40 @@ export class InstructionDire {
 
     // retrouver et contrôler le sujet
     let sujet: ElementJeu | Intitule = null;
-
+    let verbeConjugue: string = null;
+    let verbePronominal = /(se |s’|s')(.+)/.test(verbe);
+    let infinitifSansLeSe = verbePronominal ? verbe.replace(/^(se |s’|s')/i, "") : verbe;
     sujet = InstructionsUtils.trouverCibleSpeciale(sujetStr, ceci, cela, evenement, this.eju, this.jeu);
-
     if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
       console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
     }
+    const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
 
-    // retrouver le verbe
-    let conjugaison = Conjugaison.getVerbeIrregulier(verbe);
-    let verbeConjugue: string = null;
-    let verbePronominal = /(se |s’|s')(.+)/.test(verbe);
-    // verbe trouvé
-    if (conjugaison) {
-      // retrouver la forme demandée
-      const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
-      const cle = modeTemps + " " + personne;
-      // forme trouvée
-      if (conjugaison.has(cle)) {
-        verbeConjugue = conjugaison.get(cle);
-        // forme pas trouvée
-      } else {
-        verbeConjugue = "(forme pas prise en charge : " + verbe + ": " + cle + ")";
-      }
-      // verbe pas trouvé
+    // si temps avec auxiliaire c’est facile on doit juste conjuguer être/avoir puis ajouter le PP.
+    // => on peut le traiter comme n’importe quel verbe régulier
+    if (Conjugaison.tempsAvecAuxiliaire(modeTemps)) {
+      verbeConjugue = Conjugaison.getConjugaigonVerbeRegulier(infinitifSansLeSe, modeTemps, personne, verbePronominal);
+      // sinon il faut vraiment savoir conjuguer le verbe
     } else {
-      console.error("calculerConjugaison > verbe pas pris en charge:", verbe);
-      verbeConjugue = "(verbe pas pris en charge : " + verbe + ")";
+      // retrouver le verbe parmis les verbes irréguliers pris en charge
+      let conjugaisonVerbeIrregulier = Conjugaison.getVerbeIrregulier(infinitifSansLeSe);
+      // verbe trouvé parmis les irréguliers
+      if (conjugaisonVerbeIrregulier) {
+        // retrouver la forme demandée
+        const cle = modeTemps + " " + personne;
+        // forme trouvée
+        if (conjugaisonVerbeIrregulier.has(cle)) {
+          verbeConjugue = conjugaisonVerbeIrregulier.get(cle);
+          // forme pas trouvée
+        } else {
+          verbeConjugue = "(forme pas prise en charge : " + verbe + ": " + cle + ")";
+        }
+        // verbe pas trouvé => verbe régulier
+      } else {
+        verbeConjugue = Conjugaison.getConjugaigonVerbeRegulier(infinitifSansLeSe, modeTemps, personne, verbePronominal);
+      }
     }
+
 
     let verbeDecoupe = verbeConjugue.split(" ", 2);
 
@@ -1290,7 +1299,7 @@ export class InstructionDire {
         // cas normal
       }
     }
-    
+
 
     // trouver l’obstacle (autre que porte) qui est dans le chemin
     const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);

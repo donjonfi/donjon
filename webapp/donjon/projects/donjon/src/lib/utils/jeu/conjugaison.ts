@@ -1,35 +1,5 @@
 export class Conjugaison {
 
-  public static getVerbeIrregulier(verbe: string): Map<string, string> {
-    switch (verbe) {
-      case "être":
-      case "s’être":
-      case "s'être":
-        return Conjugaison.etre;
-
-      case "avoir":
-        return Conjugaison.avoir;
-
-      case "ouvrir":
-      case "s’ouvrir":
-      case "s'ouvrir":
-        return Conjugaison.ouvrir;
-
-      case "fermer":
-      case "se fermer":
-        return Conjugaison.fermer;
-
-      case "vivre":
-        return Conjugaison.vivre;
-
-      case "pouvoir":
-        return Conjugaison.pouvoir;
-
-      default:
-        return null;
-    }
-  }
-
   private static auxEtre = new Map<string, string>([
     // INDICATIF
     // - PASSÉ COMPOSÉ
@@ -114,280 +84,6 @@ export class Conjugaison {
     ['spqp 3ps', 'eût'],
     // -- pluriel
     ['spqp 3pp', 'eussent'],
-  ]);
-
-  private static etre = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'est'],
-    // -- pluriel
-    ['ipr 3pp', 'sont'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'était'],
-    // -- pluriel
-    ['iimp 3pp', 'étaient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'fut'],
-    // -- pluriel
-    ['ipas 3pp', 'furent'],
-
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'sera'],
-    // -- pluriel
-    ['ifus 3pp', 'seront'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'serait'],
-    // -- pluriel
-    ['cpr 3pp', 'seraient'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'soit'],
-    // -- pluriel
-    ['spr 3pp', 'soient'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'fût'],
-    // -- pluriel
-    ['simp 3pp', 'fussent'],
-  ]);
-
-  private static avoir = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'a'],
-    // -- pluriel
-    ['ipr 3pp', 'ont'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'avait'],
-    // -- pluriel
-    ['iimp 3pp', 'avaient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'eut'],
-    // -- pluriel
-    ['ipas 3pp', 'eurent'],
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'aura'],
-    // -- pluriel
-    ['ifus 3pp', 'auront'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'aurait'],
-    // -- pluriel
-    ['cpr 3pp', 'auraient'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'ait'],
-    // -- pluriel
-    ['spr 3pp', 'aient'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'eût'],
-    // -- pluriel
-    ['simp 3pp', 'eussent'],
-  ]);
-
-  private static vivre = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'vit'],
-    // -- pluriel
-    ['ipr 3pp', 'vivent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'vivait'],
-    // -- pluriel
-    ['iimp 3pp', 'vivaient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'vécut'],
-    // -- pluriel
-    ['ipas 3pp', 'vécurent'],
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'vivra'],
-    // -- pluriel
-    ['ifus 3pp', 'vivront'],
-    // - PASSÉ ANTÉRIEUR
-    // -- singulier
-    ['ifua 3ps', 'aura vécu'],
-    // -- pluriel
-    ['ifua 3pp', 'auront vécu'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'vivrait'],
-    // -- pluriel
-    ['cpr 3pp', 'vivraient'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'vive'],
-    // -- pluriel
-    ['spr 3pp', 'vivent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'vécût'],
-    // -- pluriel
-    ['simp 3pp', 'vécussent'],
-  ]);
-
-  private static ouvrir = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'ouvre'],
-    // -- pluriel
-    ['ipr 3pp', 'ouvrent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'ouvrait'],
-    // -- pluriel
-    ['iimp 3pp', 'ouvraient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'ouvrit'],
-    // -- pluriel
-    ['ipas 3pp', 'ouvrirent'],
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'ouvrira'],
-    // -- pluriel
-    ['ifus 3pp', 'ouvriront'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'ouvrirait'],
-    // -- pluriel
-    ['cpr 3pp', 'ouvriraient'],
-    // - PASSÉ
-    // -- singulier
-    ['cpa 3ps', 'aurait eu'],
-    // -- pluriel
-    ['cpa 3pp', 'auraient eu'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'ouvre'],
-    // -- pluriel
-    ['spr 3pp', 'ouvrent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'ouvrît'],
-    // -- pluriel
-    ['simp 3pp', 'ouvrissent'],
-  ]);
-
-  private static fermer = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'ferme'],
-    // -- pluriel
-    ['ipr 3pp', 'ferment'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'fermait'],
-    // -- pluriel
-    ['iimp 3pp', 'fermaient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'ferma'],
-    // -- pluriel
-    ['ipas 3pp', 'fermèrent'],
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'fermera'],
-    // -- pluriel
-    ['ifus 3pp', 'fermeront'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'fermerait'],
-    // -- pluriel
-    ['cpr 3pp', 'fermeraient'],
-    // - PASSÉ
-    // -- singulier
-    ['cpa 3ps', 'aurait eu'],
-    // -- pluriel
-    ['cpa 3pp', 'auraient eu'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'ferme'],
-    // -- pluriel
-    ['spr 3pp', 'ferment'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'fermât'],
-    // -- pluriel
-    ['simp 3pp', 'fermassent'],
-  ]);
-
-  private static pouvoir = new Map<string, string>([
-    // INDICATIF
-    // - PRÉSENT
-    // -- singulier
-    ['ipr 3ps', 'peut'],
-    // -- pluriel
-    ['ipr 3pp', 'peuvent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['iimp 3ps', 'pouvait'],
-    // -- pluriel
-    ['iimp 3pp', 'pouvaient'],
-    // - PASSÉ SIMPLE
-    // -- singulier
-    ['ipas 3ps', 'put'],
-    // -- pluriel
-    ['ipas 3pp', 'purent'],
-    // - FUTUR SIMPLE
-    // -- singulier
-    ['ifus 3ps', 'pourra'],
-    // -- pluriel
-    ['ifus 3pp', 'pourront'],
-
-    // CONDITIONNEL
-    // - PRÉSENT
-    // -- singulier
-    ['cpr 3ps', 'pourrait'],
-    // -- pluriel
-    ['cpr 3pp', 'pourraient'],
-
-    // SUBJONCTIF
-    // - PRÉSENT
-    // -- singulier
-    ['spr 3ps', 'puisse'],
-    // -- pluriel
-    ['spr 3pp', 'puissent'],
-    // - IMPARFAIT
-    // -- singulier
-    ['simp 3ps', 'pût'],
-    // -- pluriel
-    ['simp 3pp', 'pussent'],
   ]);
 
   private static er = new Map<string, string>([
@@ -591,27 +287,27 @@ export class Conjugaison {
   /**
    * Récupérer la conjugaison d’un verbe régulier
    */
-  getConjugaigonVerbeRegulier(infinitif: string, temps: string, forme: string, verbePronominal: boolean): string {
+  public static getConjugaigonVerbeRegulier(infinitifSansSe: string, temps: string, forme: string, verbePronominal: boolean): string {
 
     let verbeConjugue: string;
 
     // TEMPS AVEC AUXILIAIRE
     if (Conjugaison.tempsAvecAuxiliaire(temps)) {
 
-      const auxiliaireEtre = Conjugaison.verbeAvecAuxiliaireEtre(infinitif, verbePronominal);
+      const auxiliaireEtre = Conjugaison.verbeAvecAuxiliaireEtre(infinitifSansSe, verbePronominal);
       // récupérer l’auxiliaire conjugué
       const auxiliaireConjugue = Conjugaison.getAuxiliaireConjugue(auxiliaireEtre, temps, forme);
 
-      verbeConjugue = auxiliaireConjugue + " " + Conjugaison.getParticipePasse(infinitif);
+      verbeConjugue = auxiliaireConjugue + " " + Conjugaison.getParticipePasse(infinitifSansSe);
 
       // TEMPS SANS AUXILIAIRE
     } else {
-      const groupe = Conjugaison.getGroupe(infinitif);
-      const radical = Conjugaison.getRadical(infinitif, groupe, temps, forme);
+      const groupe = Conjugaison.getGroupe(infinitifSansSe);
+      const radical = Conjugaison.getRadical(infinitifSansSe, groupe, temps, forme);
       if (radical) {
         verbeConjugue = radical + Conjugaison.getTerminaisonVerbe2eGroupe(temps, forme);
       } else {
-        verbeConjugue = "(forme pas prise en charge : verbe " + infinitif + " : " + temps + " " + forme + ")";
+        verbeConjugue = "(forme pas prise en charge : verbe " + infinitifSansSe + " : " + temps + " " + forme + ")";
       }
     }
 
@@ -629,7 +325,7 @@ export class Conjugaison {
     }
   }
 
-  private static tempsAvecAuxiliaire(temps): boolean {
+  public static tempsAvecAuxiliaire(temps): boolean {
     return /^(ipac|ipqp|ipaa|ifua|cpa|spa|spqp)$/.test(temps);
   }
 
@@ -656,11 +352,15 @@ export class Conjugaison {
   }
 
   public static verbeAvecAuxiliaireEtre(infinitif: string, verbePronominal: boolean) {
-    if (verbePronominal || infinitif.match(/^(se |s’|s')(.+)$/)) {
+    // voix pronominale et pronominaux
+    if (verbePronominal || /^(se |s’|s')(.+)$/.test(infinitif)) {
       return true;
+      // autres
     } else {
-      // DR & MRS P. VANDERTRAMP
-      return /^(devenir|revenir|mourir|retourner|sortir|partir|venir|aller|naître|descendre|entrer|rentrer|tomber|rester|arriver|monter|passer)$/.test(infinitif);
+      return ( // DR & MRS P. VANDERTRAMP
+        /^(devenir|revenir|mourir|retourner|sortir|partir|venir|aller|naître|descendre|entrer|rentrer|tomber|rester|arriver|monter|passer)$/.test(infinitif)
+        || /^(décéder|échoir|repartir|retomber|advenir|intervenir|parvenir|provenir|survenir|ressortir|)$/.test(infinitif)
+      );
     }
   }
 
@@ -677,11 +377,11 @@ export class Conjugaison {
     return terminaison;
   }
 
-  public static getParticipePasse(infinitif: string) {
+  public static getParticipePasse(infinitifSansSe: string) {
 
     let participePasse: string;
-    const groupe = Conjugaison.getGroupe(infinitif);
-    const radical = Conjugaison.getRadical(infinitif, groupe, "pp", "1ps")
+    const groupe = Conjugaison.getGroupe(infinitifSansSe);
+    const radical = Conjugaison.getRadical(infinitifSansSe, groupe, "pp", "1ps")
 
     switch (groupe) {
       // Groupe 1 (ER sauf aller)
@@ -696,19 +396,20 @@ export class Conjugaison {
       // Groupe 3 : irréguliers
       case 3:
         // irréguliers connus
-        if (Conjugaison.pp.has(infinitif)) {
-          participePasse = Conjugaison.pp.get(infinitif);
+        if (Conjugaison.pp.has(infinitifSansSe)) {
+          participePasse = Conjugaison.pp.get(infinitifSansSe);
           // irréguliers non connus => on se base sur les règles de base
         } else {
           // ir => i
-        } if (infinitif.endsWith('ir')) {
-          participePasse = radical;
-          // re => u
-        } else if (infinitif.endsWith('re')) {
-          participePasse = radical + 'u';
-          // er => é
-        } else if (infinitif.endsWith('er')) {
-          participePasse = radical + 'é';
+          if (infinitifSansSe.endsWith('ir')) {
+            participePasse = radical;
+            // re => u
+          } else if (infinitifSansSe.endsWith('re')) {
+            participePasse = radical + 'u';
+            // er => é
+          } else if (infinitifSansSe.endsWith('er')) {
+            participePasse = radical + 'é';
+          }
         }
     }
 
@@ -716,17 +417,17 @@ export class Conjugaison {
 
   }
 
-  public static getGroupe(infinitif) {
-    if (infinitif.endsWith('er') && infinitif != 'aller') {
+  public static getGroupe(infinitifSansSe: string) {
+    if (infinitifSansSe.endsWith('er') && infinitifSansSe != 'aller') {
       return 1;
-    } else if (infinitif.endsWith('ir') && Conjugaison.verbeDans2eGroupe(infinitif)) {
+    } else if (infinitifSansSe.endsWith('ir') && Conjugaison.verbeDans2eGroupe(infinitifSansSe)) {
       return 2;
     } else {
       return 3;
     }
   }
 
-  public static getRadical(infinitif: string, groupe: number, temps: string, forme: string): string {
+  public static getRadical(infinitifSansSe: string, groupe: number, temps: string, forme: string): string {
 
     let radical: string;
 
@@ -734,32 +435,32 @@ export class Conjugaison {
       case 1:
         /** VERBES DU PREMIER GROUPE (ER) */
         /** verbe en GER */
-        if (infinitif.endsWith("ger")) {
-          radical = infinitif.slice(0, infinitif.length - 2);
+        if (infinitifSansSe.endsWith("ger")) {
+          radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
           if (forme == '1pp') {
             radical += "e";
           }
           /** verbe en YER */
-        } else if (infinitif.endsWith("yer")) {
-          radical = infinitif.slice(0, infinitif.length - 3);
+        } else if (infinitifSansSe.endsWith("yer")) {
+          radical = infinitifSansSe.slice(0, infinitifSansSe.length - 3);
           if (forme == '1pp' || forme == '2pp') {
             radical += "y";
           } else {
             radical += "i";
           }
           /** verbe en CER */
-        } else if (infinitif.endsWith("cer")) {
-          radical = infinitif.slice(0, infinitif.length - 3);
+        } else if (infinitifSansSe.endsWith("cer")) {
+          radical = infinitifSansSe.slice(0, infinitifSansSe.length - 3);
           if (forme == '1pp') {
             radical += "ç";
           } else {
             radical += "c";
           }
           /** verbe en ELER */
-        } else if (infinitif.endsWith("eler")) {
+        } else if (infinitifSansSe.endsWith("eler")) {
           // verbes irrégulier => èl
-          if (infinitif.match('^(agneler|(re)?(dé)?celer|ciseler|démanteler|écarteler|encasteler|(dé)?(con)?(sur)?geler|marteler|modeler|peler)$')) {
-            radical = infinitif.slice(0, infinitif.length - 4);
+          if (/^(agneler|(re)?(dé)?celer|ciseler|démanteler|écarteler|encasteler|(dé)?(con)?(sur)?geler|marteler|modeler|peler)$/.test(infinitifSansSe)) {
+            radical = infinitifSansSe.slice(0, infinitifSansSe.length - 4);
             if (forme != '1pp' && forme != '2pp') {
               radical += "èl";
             } else {
@@ -767,16 +468,16 @@ export class Conjugaison {
             }
             // verbes réguliers => ell
           } else {
-            radical = infinitif.slice(0, infinitif.length - 2);
+            radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
             if (forme != '1pp' && forme != '2pp') {
               radical += "l";
             }
           }
           /** verbe en ETER */
-        } else if (infinitif.endsWith("eter")) {
+        } else if (infinitifSansSe.endsWith("eter")) {
           // verbes irrégulier => èt
-          if (infinitif.match('/^(acheter|racheter|bégueter|corseter|crocheter|fileter|fureter|haleter)$')) {
-            radical = infinitif.slice(0, infinitif.length - 4);
+          if (/^(acheter|racheter|bégueter|corseter|crocheter|fileter|fureter|haleter)$/.test(infinitifSansSe)) {
+            radical = infinitifSansSe.slice(0, infinitifSansSe.length - 4);
             if (forme != '1pp' && forme != '2pp') {
               radical += "èt";
             } else {
@@ -784,14 +485,14 @@ export class Conjugaison {
             }
             // verbes réguliers => ett
           } else {
-            radical = infinitif.slice(0, infinitif.length - 2);
+            radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
             if (forme != '1pp' && forme != '2pp') {
               radical += "t";
             }
           }
           /** autre verbe en ER */
         } else {
-          radical = infinitif.slice(0, infinitif.length - 2);
+          radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
         }
         break;
 
@@ -799,11 +500,21 @@ export class Conjugaison {
       case 2:
         // subjonctif imparfait 3e pers du sing.
         if (temps == 'simp' && forme == '3ps') {
-          radical = infinitif.slice(0, Notification.length - 2) + 'î';
+          radical = infinitifSansSe.slice(0, Notification.length - 2) + 'î';
           // autres
         } else {
-          radical = infinitif.slice(0, Notification.length - 1);
+          radical = infinitifSansSe.slice(0, Notification.length - 1);
         }
+        break;
+
+      case 3:
+        // if (Conjugaison.rad.has(infinitif)) {
+        //   radical = Conjugaison.rad.get(infinitif);
+        //   // irréguliers non connus => on se base sur les règles de base
+        // } else {
+        // on retire la terminaison au cas où ça passe...
+        radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
+        // }
         break;
 
       default:
@@ -813,5 +524,479 @@ export class Conjugaison {
 
     return radical;
   }
+
+  public static getVerbeIrregulier(verbe: string): Map<string, string> {
+    switch (verbe) {
+      case "avoir":
+        return Conjugaison.avoir;
+      case "être":
+      case "s’être":
+      case "s'être":
+        return Conjugaison.etre;
+      case "aller":
+        return Conjugaison.aller;
+      case "attendre":
+      case "s’attendre":
+      case "s'attendre":
+        return Conjugaison.attendre;
+      case "se contenir":
+      case "contenir":
+        return Conjugaison.contenir;
+      case "couvrir":
+      case "se couvrir":
+        return Conjugaison.couvrir;
+      case "disparaitre":
+      case "disparaître":
+        return Conjugaison.disparaitre;
+      case "ouvrir":
+      case "s’ouvrir":
+      case "s'ouvrir":
+        return Conjugaison.ouvrir;
+      case "pouvoir":
+        return Conjugaison.pouvoir;
+      case "vivre":
+        return Conjugaison.vivre;
+
+      default:
+        return null;
+    }
+  }
+
+
+  private static avoir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'a'],
+    // -- pluriel
+    ['ipr 3pp', 'ont'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'avait'],
+    // -- pluriel
+    ['iimp 3pp', 'avaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'eut'],
+    // -- pluriel
+    ['ipas 3pp', 'eurent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'aura'],
+    // -- pluriel
+    ['ifus 3pp', 'auront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'aurait'],
+    // -- pluriel
+    ['cpr 3pp', 'auraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'ait'],
+    // -- pluriel
+    ['spr 3pp', 'aient'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'eût'],
+    // -- pluriel
+    ['simp 3pp', 'eussent'],
+  ]);
+
+  private static etre = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'est'],
+    // -- pluriel
+    ['ipr 3pp', 'sont'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'était'],
+    // -- pluriel
+    ['iimp 3pp', 'étaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'fut'],
+    // -- pluriel
+    ['ipas 3pp', 'furent'],
+
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'sera'],
+    // -- pluriel
+    ['ifus 3pp', 'seront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'serait'],
+    // -- pluriel
+    ['cpr 3pp', 'seraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'soit'],
+    // -- pluriel
+    ['spr 3pp', 'soient'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'fût'],
+    // -- pluriel
+    ['simp 3pp', 'fussent'],
+  ]);
+
+  private static aller = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'va'],
+    // -- pluriel
+    ['ipr 3pp', 'vont'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'allait'],
+    // -- pluriel
+    ['iimp 3pp', 'allaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'alla'],
+    // -- pluriel
+    ['ipas 3pp', 'allèrent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'ira'],
+    // -- pluriel
+    ['ifus 3pp', 'iront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'irait'],
+    // -- pluriel
+    ['cpr 3pp', 'iraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'aille'],
+    // -- pluriel
+    ['spr 3pp', 'aillent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'allât'],
+    // -- pluriel
+    ['simp 3pp', 'allassent'],
+  ]);
+
+
+  private static attendre = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'attend'],
+    // -- pluriel
+    ['ipr 3pp', 'attendent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'attendait'],
+    // -- pluriel
+    ['iimp 3pp', 'attendaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'attendit'],
+    // -- pluriel
+    ['ipas 3pp', 'attendirent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'attendra'],
+    // -- pluriel
+    ['ifus 3pp', 'attendront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'attendrait'],
+    // -- pluriel
+    ['cpr 3pp', 'attendraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'attende'],
+    // -- pluriel
+    ['spr 3pp', 'attendent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'attendît'],
+    // -- pluriel
+    ['simp 3pp', 'attendissent'],
+  ]);
+
+  private static contenir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'contient'],
+    // -- pluriel
+    ['ipr 3pp', 'contiennent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'contenait'],
+    // -- pluriel
+    ['iimp 3pp', 'contenaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'contint'],
+    // -- pluriel
+    ['ipas 3pp', 'continrent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'contiendra'],
+    // -- pluriel
+    ['ifus 3pp', 'contiendront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'contiendrait'],
+    // -- pluriel
+    ['cpr 3pp', 'contiendraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'contienne'],
+    // -- pluriel
+    ['spr 3pp', 'contiennent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'contînt'],
+    // -- pluriel
+    ['simp 3pp', 'continssent'],
+  ]);
+
+
+  private static couvrir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'couvre'],
+    // -- pluriel
+    ['ipr 3pp', 'couvrent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'couvrait'],
+    // -- pluriel
+    ['iimp 3pp', 'couvraient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'couvrit'],
+    // -- pluriel
+    ['ipas 3pp', 'couvrirent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'couvrira'],
+    // -- pluriel
+    ['ifus 3pp', 'couvriront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'couvrirait'],
+    // -- pluriel
+    ['cpr 3pp', 'couvriraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'couvre'],
+    // -- pluriel
+    ['spr 3pp', 'couvrent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'couvrît'],
+    // -- pluriel
+    ['simp 3pp', 'couvrissent'],
+  ]);
+
+  private static disparaitre = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'disparaît'],
+    // -- pluriel
+    ['ipr 3pp', 'disparaissent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'disparaissait'],
+    // -- pluriel
+    ['iimp 3pp', 'disparaissaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'disparut'],
+    // -- pluriel
+    ['ipas 3pp', 'disparurent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'disparaîtra'],
+    // -- pluriel
+    ['ifus 3pp', 'disparaîtront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'disparaîtrait'],
+    // -- pluriel
+    ['cpr 3pp', 'disparaîtraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'disparaisse'],
+    // -- pluriel
+    ['spr 3pp', 'disparaissent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'disparût'],
+    // -- pluriel
+    ['simp 3pp', 'disparussent'],
+  ]);
+
+  private static ouvrir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'ouvre'],
+    // -- pluriel
+    ['ipr 3pp', 'ouvrent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'ouvrait'],
+    // -- pluriel
+    ['iimp 3pp', 'ouvraient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'ouvrit'],
+    // -- pluriel
+    ['ipas 3pp', 'ouvrirent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'ouvrira'],
+    // -- pluriel
+    ['ifus 3pp', 'ouvriront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'ouvrirait'],
+    // -- pluriel
+    ['cpr 3pp', 'ouvriraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'ouvre'],
+    // -- pluriel
+    ['spr 3pp', 'ouvrent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'ouvrît'],
+    // -- pluriel
+    ['simp 3pp', 'ouvrissent'],
+  ]);
+
+  private static pouvoir = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'peut'],
+    // -- pluriel
+    ['ipr 3pp', 'peuvent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'pouvait'],
+    // -- pluriel
+    ['iimp 3pp', 'pouvaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'put'],
+    // -- pluriel
+    ['ipas 3pp', 'purent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'pourra'],
+    // -- pluriel
+    ['ifus 3pp', 'pourront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'pourrait'],
+    // -- pluriel
+    ['cpr 3pp', 'pourraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'puisse'],
+    // -- pluriel
+    ['spr 3pp', 'puissent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'pût'],
+    // -- pluriel
+    ['simp 3pp', 'pussent'],
+  ]);
+
+
+  private static vivre = new Map<string, string>([
+    // INDICATIF
+    // - PRÉSENT
+    // -- singulier
+    ['ipr 3ps', 'vit'],
+    // -- pluriel
+    ['ipr 3pp', 'vivent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['iimp 3ps', 'vivait'],
+    // -- pluriel
+    ['iimp 3pp', 'vivaient'],
+    // - PASSÉ SIMPLE
+    // -- singulier
+    ['ipas 3ps', 'vécut'],
+    // -- pluriel
+    ['ipas 3pp', 'vécurent'],
+    // - FUTUR SIMPLE
+    // -- singulier
+    ['ifus 3ps', 'vivra'],
+    // -- pluriel
+    ['ifus 3pp', 'vivront'],
+
+    // CONDITIONNEL
+    // - PRÉSENT
+    // -- singulier
+    ['cpr 3ps', 'vivrait'],
+    // -- pluriel
+    ['cpr 3pp', 'vivraient'],
+
+    // SUBJONCTIF
+    // - PRÉSENT
+    // -- singulier
+    ['spr 3ps', 'vive'],
+    // -- pluriel
+    ['spr 3pp', 'vivent'],
+    // - IMPARFAIT
+    // -- singulier
+    ['simp 3ps', 'vécût'],
+    // -- pluriel
+    ['simp 3pp', 'vécussent'],
+  ]);
+
+
 
 }
