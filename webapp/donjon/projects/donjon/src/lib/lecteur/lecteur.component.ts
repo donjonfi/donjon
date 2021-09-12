@@ -12,6 +12,7 @@ import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Resultat } from '../models/jouer/resultat';
+import { TypeEvenement } from '../models/jouer/type-evenement';
 
 @Component({
   selector: 'djn-lecteur',
@@ -148,7 +149,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.sortieJoueur += "<p>";
 
       // évènement COMMENCER JEU
-      let evCommencerJeu = new Evenement('commencer', true, null, 0, 'jeu', ClassesRacines.Special);
+      let evCommencerJeu = new Evenement(TypeEvenement.jeu, 'commencer', true, null, 0, 'jeu', ClassesRacines.Special);
 
       // éxécuter les instructions AVANT le jeu commence
       let resultatAvant = new Resultat(true, "", 0);
@@ -181,7 +182,7 @@ export class LecteurComponent implements OnInit, OnChanges {
 
         // regarder où on est (sauf si l’action n’existe pas)
         if (this.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
-          let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
+          let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
           const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
           this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
         }
@@ -221,7 +222,7 @@ export class LecteurComponent implements OnInit, OnChanges {
     } else {
       this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
       // regarder où on est.
-      let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, "l’action regarder"));
+      let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
       const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
       this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
     }
