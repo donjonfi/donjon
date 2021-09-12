@@ -13,7 +13,7 @@
         <span *ngFor="let curEv of regle.evenements; index as i; first as first; last as last">
           <!-- <span *ngIf="!first && !last">, </span> -->
           <b *ngIf="!first"> ou </b>
-          <span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : 'action impliquant')}}</span>
+          <span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</span>
           <span class="objet"> {{curEv.ceci}}</span>
           <span class="preposition"> {{(curEv.preposition ? curEv.preposition : (curEv.cela ? 'et':''))}}</span>
           <span class="objet"> {{curEv.cela}}</span>
@@ -55,7 +55,7 @@
           <li *ngFor="let curEv of regle.evenements; index as i;">
             Événement {{(i+1)}} :
             <ul>
-              <li>Infinitif : {{(curEv.infinitif ? curEv.infinitif : 'action impliquant')}}</li>
+              <li>Infinitif : {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</li>
               <li *ngIf="curEv.ceci">
                 Ceci : {{curEv.ceci}} <i>{{(curEv.classeCeci ? '(classe)' : '')}}</i></li>
               <li *ngIf="curEv.preposition">Preposition : {{(curEv.preposition ? curEv.preposition : (curEv.cela ? 'et':''))}}</li>
