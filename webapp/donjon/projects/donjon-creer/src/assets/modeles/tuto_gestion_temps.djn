@@ -1,0 +1,84 @@
+Le titre du jeu est "Ex. << Tuto gestion du temps >>".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+-- le puits où se déroule le jeu
+Le puits est un lieu.
+-- les objets présents dans le puits
+Le chocolat est un objet mangeable ici.
+Le bonbon est un objet mangeable ici.
+Le biscuit est un objet mangeable ici.
+La bouée est un objet portable ici.
+
+-- changer le retour de la commande manger.
+après manger un objet: 
+  dire "Miam ! C’était bien bon !".
+
+-- indiquer que les objets restants flottent
+après regarder:
+  -- vérifier nombres d’objets encore disponibles (en dehors du joueur et son inventaire)
+  si le nombre d’objets disponibles vaut 1:
+    dire "[si la bouée est disponible]Elle[sinon]Il[fin si] flotte dans l’eau.";
+  sinonsi le nombre d’objets disponibles dépassent 1:
+    dire "Ils flottent dans l’eau.";
+  fin si
+  continuer l’action après.
+
+----------------------------------
+-- GESTION DU REMPLISSAGE DU PUITS
+----------------------------------
+
+-- le compteur de tours restants (avant que le joueur soit noyé)
+Les tours restants est un compteur initialisé à 3.
+
+-- après chaque action, faire monter l’eau dans le puits.
+après une action quelconque:
+  -- laisser la sortie normale de l’action
+  terminer l’action avant;
+  -- on a utilisé un tour de jeu supplémentaire
+  -- (on ne compte pas les commandes effacer, regarder et afficher)
+  si l’infinitif de l’action n’est ni effacer ni regarder ni afficher:
+    changer les tours restants diminuent de 1;
+  fin si
+  -- si le joueur porte la bouée : il flotte
+  si le joueur porte la bouée :
+    dire "{U}{/L’eau monte, vous flottez./}";
+  -- sinon, l’eau monte sans lui
+  sinon
+    si les tours restants valent 3:
+      dire "{U}{/L’eau vous arrive aux mollets./}";
+    sinonsi les tours restants valent 2:
+      dire "{U}{/L’eau vous arrive à la taille./}";
+    sinonsi les tours restants valent 1:
+      dire "{U}{/L’eau vous arrive à la nuque./}";
+    sinonsi les tours restants valent 0:
+      dire "{U}{/Vous êtes immergé./}";
+    fin si
+  fin si.
+  
+-- avant chaque action, vérifier que le joueur n’est pas déjà noyé
+avant une action quelconque:
+  si l’infinitif de l’action n’est ni effacer ni regarder:
+    si les tours restants valent 0:
+      si le joueur porte la bouée :
+        dire "Grâce à la bouée, vous montez en même temps que l’eau.
+              Vous arrivez finalement à sortir du puits !
+              {/Bravo ! Vous avez gagné !/}";
+      sinon
+        dire "Trop tard : vous vous êtes noyé !
+              {/Le jeu est terminé./}";
+      fin si
+      stopper l’action;
+      terminer le jeu;
+    fin si;
+  fin si.
+
+-- gestion de la bouée
+après mettre bouée:
+  si les tours restants valent 3 ou 2 :
+    dire "Vous enfilez la bouée autours de votre taille.";
+  sinonsi les tours restants valent 1 :
+    dire "Vous réalisez une acrobatie impressionnante et vous parvenez à enfiler la bouée.";
+  fin si.
+

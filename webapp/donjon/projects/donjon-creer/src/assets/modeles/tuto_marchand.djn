@@ -1,0 +1,64 @@
+Le titre du jeu est "Ex. << Tuto acheter >>".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+L’échoppe (f) est un lieu.
+  Le vendeur est une personne ici.
+  Le joueur est ici.
+  La table est un support ici.
+  L’épée (f) est une marchandise dessus.
+  Son prix vaut 100.
+  Le bouclier est une marchandise sur la table.
+  Son prix vaut 50.
+  Le ruban est un objet sur la table.
+
+La bourse est un compteur initialisé à 100.
+
+
+La réaction du vendeur est "<< Bonjour ! Que puis-je pour vous ? >>".
+La réaction du vendeur concernant un sujet inconnu est "<< Tout ce qui est sur la table est à vendre. >>".
+La réaction du vendeur concernant l’épée est :
+  dire "Pour 100 pièces elle est à vous !".
+La réaction du vendeur concernant le ruban est :
+  dire "Si vous le voulez je vous le donne.";
+  changer le joueur possède le ruban;
+  dire "{/Le ruban a été ajouté à votre inventaire./}".
+
+après afficher inventaire:
+  dire "{U}Contenu de votre bourse : [c bourse] pièce[si bourse dépasse 1]s[fin si].".
+
+avant prendre une marchandise:
+  dire "Le vendeur vous attrape la main. << Pas si vite ! [Il ceci] est à vendre. >>";
+  stopper l’action.
+
+avant examiner la table ou regarder la table:
+  si la préposition de ceci est sous et si l’historique ne contient pas "pièces sous table trouvées":
+    dire "Vous découvrez 50 pièces sous la table !";
+    changer la bourse augmente de 50;
+    dire "Les pièces ont été ajoutées à votre bourse.";
+    changer l’historique contient "pièces sous table trouvées";
+    stopper l’action;
+  fin si.
+  
+après examiner marchandise:
+  continuer l’action avant;
+  si un prix existe pour ceci, dire "Son prix: [prix ceci] pièces.".
+  
+  
+acheter ceci est une action qui concerne un objet.
+
+refuser acheter ceci:
+  si la bourse vaut 0, dire "Votre bourse est vide !";
+  si ceci n’est pas une marchandise, dire "[Il ceci] [v s’acheter ipr pas ceci].";
+  si ceci est possédé, dire "Vous [l’ ceci]avez déjà acheté[es ceci]";
+  si aucun prix pour ceci, dire "[Il ceci] [v avoir ipr pas ceci] de prix.";
+  si le prix de ceci dépasse la bourse, dire "Vous n’avez pas assez d’argent.".
+  
+exécuter acheter ceci:
+  changer le joueur possède ceci;
+  changer la bourse diminue du prix de ceci.
+  
+terminer acheter ceci:
+  dire "Vous avez acheté [intitulé ceci] pour [prix de ceci] pièces.".
+
