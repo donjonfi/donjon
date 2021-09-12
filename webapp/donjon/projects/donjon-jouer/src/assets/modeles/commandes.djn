@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-08-31-0034
+-- Version: 2021-09-12-0035
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -419,9 +419,11 @@ regarder est une action.
 
 exécuter regarder:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire objets ici]";
-  dire "{N}[sorties ici]".
+  dire "{n}[description ici][décrire objets ici]".
   
+terminer regarder:
+  dire "{N}[sorties ici]".
+
 -- b) regarder ceci
 regarder ceci est une action qui concerne un intitulé.
 
