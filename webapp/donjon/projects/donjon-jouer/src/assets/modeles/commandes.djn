@@ -83,11 +83,14 @@ SCÈNE "effacer".
 --   EFFACER (écran)
 -- ==================
 
--- a) effacer
+-- a) effacer (l’écran)
 effacer est une action.
 
 exécuter effacer:
-  exécuter la commande "effacer l’écran".
+  effacer l’écran.
+
+terminer effacer:
+  exécuter l’action regarder.
 
 -- b) effacer l’écran
 effacer ceci est une action qui concerne un intitulé.
