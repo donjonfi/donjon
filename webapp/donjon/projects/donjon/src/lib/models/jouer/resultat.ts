@@ -12,5 +12,10 @@ export class Resultat {
   public terminerAvantRegle: boolean = null;
   /** il faut terminer l’action (après la sortie de la règle) */
   public terminerApresRegle: boolean = null;
+  /** il faut terminer l’action (avant la sortie de la règle générique) */
+  public terminerAvantRegleGenerique: boolean = null;
+  /** il faut terminer l’action (après la sortie de la règle générique) */
+  public terminerApresRegleGenerique: boolean = null;
+
 
 }

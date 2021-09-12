@@ -8,4 +8,5 @@ export class Auditeur {
   instructions: Instruction[];
   /** nombre de déclenchements de l’auditeur */
   declenchements: number = 0;
+  estRegleActionQuelconque: boolean = false;
 }

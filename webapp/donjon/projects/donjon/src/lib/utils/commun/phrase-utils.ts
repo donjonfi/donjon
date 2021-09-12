@@ -4,8 +4,8 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
-import { MotUtils } from './mot-utils';
 import { PositionObjet } from '../../models/jeu/position-objet';
+import { TypeEvenement } from '../../models/jouer/type-evenement';
 
 export class PhraseUtils {
 
@@ -44,6 +44,7 @@ export class PhraseUtils {
         const quantiteCela = 0;
 
         let ev = new Evenement(
+          TypeEvenement.action,
           // verbe
           els.infinitif,
           // ceci
@@ -54,20 +55,20 @@ export class PhraseUtils {
 
         retVal.push(ev);
 
-        // B) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE
+        // B) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (IMPLIQUANT UN ÉLÉMENT PARTICULIER)
       } else {
         // règle générique pour « une action impliquant X [et Y] »
-        const ai = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
+        const actImp = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
 
-        if (ai) {
-          const ceci = PhraseUtils.getGroupeNominal(ai[1], false);
+        if (actImp) {
+          const ceci = PhraseUtils.getGroupeNominal(actImp[1], false);
           const isCeci = true;
           const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
           const ceciClasse = null;
           const prepCeci = null;
           const quantiteCeci = 0;
 
-          const cela = PhraseUtils.getGroupeNominal(ai[2], false);
+          const cela = PhraseUtils.getGroupeNominal(actImp[2], false);
           const isCela = cela ? true : false;
           const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
           const celaClasse = null;
@@ -75,6 +76,7 @@ export class PhraseUtils {
           const quantiteCela = 0;
 
           let ev = new Evenement(
+            TypeEvenement.action,
             // verbe
             null,
             // ceci
@@ -85,10 +87,16 @@ export class PhraseUtils {
 
           retVal.push(ev);
 
-
-          // C) FORMULATION INCONNUE
+          // C) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (ACTION QUELCONQUE)
         } else {
-          console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+          // règle générique pour « une action quelconque »
+          if (ExprReg.rActionQuelconque.test(evenementBrut.trim())) {
+            let ev = new Evenement(TypeEvenement.action, null);
+            retVal.push(ev);
+            // D) FORMULATION INCONNUE
+          } else {
+            console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+          }
         }
       }
     });

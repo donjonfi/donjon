@@ -21,7 +21,18 @@ export class Regle {
     let retVal = "(aucune règle)";
     if (regle) {
       let ev = regle.evenements[0];
-      retVal = regle.typeRegle + " " + ev.infinitif;
+      retVal = regle.typeRegle + " ";
+
+      if (ev.infinitif) {
+        retVal += ev.infinitif;
+      } else {
+        if (ev.isCeci || ev.isCela) {
+          retVal += "une action impliquant"
+        } else {
+          retVal += "une action quelconque"
+        }
+      }
+
       // 1er complément (ceci)
       if (ev.ceci) {
         // préposition ceci

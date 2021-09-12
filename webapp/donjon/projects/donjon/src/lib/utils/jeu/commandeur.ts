@@ -13,6 +13,7 @@ import { MotUtils } from '../commun/mot-utils';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { Resultat } from '../../models/jouer/resultat';
+import { TypeEvenement } from '../../models/jouer/type-evenement';
 
 export class Commandeur {
 
@@ -96,217 +97,230 @@ export class Commandeur {
         retVal = "@sauver-commandes@";
         // C) commandes chargées dynamiquement
       } else {
-          const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
-          // =====================================================
-          // A. VERBE PAS CONNU
-          // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
-          // =====================================================
-          if (actionsCeciCela === null || actionsCeciCela.length === 0) {
+        const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
+        // =====================================================
+        // A. VERBE PAS CONNU
+        // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS
+        // =====================================================
+        if (actionsCeciCela === null || actionsCeciCela.length === 0) {
 
-            const explicationRefu = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
+          const explicationRefu = this.act.obtenirRaisonRefuCommande(els, resultatCeci, resultatCela);
 
-            // correspondance CECI
-            let tempCeci = null;
-            if (resultatCeci) {
-              if (resultatCeci.nbCor) {
-                // élément
-                if (resultatCeci.elements.length) {
-                  tempCeci = resultatCeci.elements[0];
-                  // compteur
-                } else if (resultatCeci.compteurs.length) {
-                  tempCeci = resultatCeci.compteurs[0];
-                  // autre (direction)
-                } else {
-                  tempCeci = resultatCeci.localisation;
-                }
-                // non trouvé => intitulé
+          // correspondance CECI
+          let tempCeci = null;
+          if (resultatCeci) {
+            if (resultatCeci.nbCor) {
+              // élément
+              if (resultatCeci.elements.length) {
+                tempCeci = resultatCeci.elements[0];
+                // compteur
+              } else if (resultatCeci.compteurs.length) {
+                tempCeci = resultatCeci.compteurs[0];
+                // autre (direction)
               } else {
-                tempCeci = resultatCeci?.intitule ?? null;
+                tempCeci = resultatCeci.localisation;
               }
+              // non trouvé => intitulé
+            } else {
+              tempCeci = resultatCeci?.intitule ?? null;
             }
+          }
 
-            // correspondance CELA
-            let tempCela = null;
-            if (resultatCela) {
-              if (resultatCela.nbCor) {
-                // élément
-                if (resultatCela.elements.length) {
-                  tempCela = resultatCela.elements[0];
-                  // compteur
-                } else if (resultatCela.compteurs.length) {
-                  tempCela = resultatCela.compteurs[0];
-                  // autre (direction)
-                } else {
-                  tempCela = resultatCela.localisation;
-                }
-                // non trouvé => intitulé
+          // correspondance CELA
+          let tempCela = null;
+          if (resultatCela) {
+            if (resultatCela.nbCor) {
+              // élément
+              if (resultatCela.elements.length) {
+                tempCela = resultatCela.elements[0];
+                // compteur
+              } else if (resultatCela.compteurs.length) {
+                tempCela = resultatCela.compteurs[0];
+                // autre (direction)
               } else {
-                tempCela = resultatCela.intitule;
+                tempCela = resultatCela.localisation;
               }
+              // non trouvé => intitulé
+            } else {
+              tempCela = resultatCela.intitule;
             }
+          }
 
-            // Renvoyer l’explication du refu. 
-            retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
+          // Renvoyer l’explication du refu. 
+          retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
 
-            // regarder si de l’aide existe pour cet infinitif
-            const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
-            if (aide) {
-              // Spécifier qu’une page d’aide existe pour la commande.
-              retVal += "{u}{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher l’aide de la commande./}";
+          // regarder si de l’aide existe pour cet infinitif
+          const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
+          if (aide) {
+            // Spécifier qu’une page d’aide existe pour la commande.
+            retVal += "{u}{/Vous pouvez entrer « {-aide " + els.infinitif + "-} » pour afficher l’aide de la commande./}";
+          }
+
+          // =============================================================================
+          // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
+          // =============================================================================
+        } else if (actionsCeciCela.length > 1) {
+
+          retVal = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + els.infinitif + ").+}";
+
+          // =============================================================================
+          // D. UNE ACTION SE DÉMARQUE (ont a trouvé l’action)
+          // =============================================================================
+        } else {
+
+          // console.log("Une action se démarque !");
+
+          const candidatVainqueur = actionsCeciCela[0];
+
+          // il peut y avoir plusieurs correspondances avec le même score pour un objet.
+          // Ex: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
+          // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
+          let indexCeci = 0;
+          let indexCela = 0;
+
+          if (candidatVainqueur.ceci?.length > 1) {
+            retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
+            indexCeci = Math.floor(Math.random() * candidatVainqueur.ceci.length);
+            console.log("indexCeci=", indexCeci);
+          }
+          if (candidatVainqueur.cela?.length > 1) {
+            retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
+            indexCela = Math.floor(Math.random() * candidatVainqueur.cela.length);
+            console.log("indexCela=", indexCela);
+          }
+
+          const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
+
+          const isCeciV2 = actionCeciCela.ceci ? true : false;
+          let ceciQuantiteV2 = ceciQuantiteV1;
+          // transformer « -1 » en la quantité de l’objet
+          if (ceciQuantiteV2 === -1 && actionCeciCela.ceci && ClasseUtils.heriteDe(actionCeciCela.ceci.classe, EClasseRacine.objet)) {
+            ceciQuantiteV2 = (actionCeciCela.ceci as Objet).quantite;
+          }
+
+          const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
+          const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
+
+          const isCelaV2 = actionCeciCela.cela ? true : false;
+          let celaQuantiteV2 = celaQuantiteV1;
+          // transformer « -1 » en la quantité de l’objet
+          if (celaQuantiteV2 === -1 && actionCeciCela.cela && ClasseUtils.heriteDe(actionCeciCela.cela.classe, EClasseRacine.objet)) {
+            celaQuantiteV2 = (actionCeciCela.cela as Objet).quantite;
+          }
+          const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
+          const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
+
+          // mettre à jour l'évènement avec les éléments trouvés
+          const evenementV2 = new Evenement(
+            TypeEvenement.action,
+            // verbe
+            actionCeciCela.action.infinitif,
+            // ceci
+            isCeciV2, els.preposition0, ceciQuantiteV2, ceciNomV2, ceciClasseV2,
+            // cela
+            isCelaV2, els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2
+          );
+
+          // console.error(">>>>>> evenement = ", evenement);F
+
+
+          // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
+          let resultatAvant = new Resultat(true, "", 0);
+          // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score ou si règle générique
+          const declenchementsAvant = this.dec.avant(evenementV2);
+
+          // éxécuter les règles déclenchées
+          for (let index = 0; index < declenchementsAvant.length; index++) {
+            const declenchement = declenchementsAvant[index];
+            const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+            retVal += sousResultatAvant.sortie;
+            resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
+            resultatAvant.nombre += sousResultatAvant.nombre;
+            resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
+            if (resultatAvant.stopperApresRegle) {
+              break;
             }
+          }
 
-            // =============================================================================
-            // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
-            // =============================================================================
-          } else if (actionsCeciCela.length > 1) {
-
-            retVal = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + els.infinitif + ").+}";
-
-            // =============================================================================
-            // D. UNE ACTION SE DÉMARQUE (ont a trouvé l’action)
-            // =============================================================================
-          } else {
-
-            // console.log("Une action se démarque !");
-
-            const candidatVainqueur = actionsCeciCela[0];
-
-            // il peut y avoir plusieurs correspondances avec le même score pour un objet.
-            // Ex: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
-            // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
-            let indexCeci = 0;
-            let indexCela = 0;
-
-            if (candidatVainqueur.ceci?.length > 1) {
-              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-              indexCeci = Math.floor(Math.random() * candidatVainqueur.ceci.length);
-              console.log("indexCeci=", indexCeci);
-            }
-            if (candidatVainqueur.cela?.length > 1) {
-              retVal += "{+{/Il y a plusieurs résultats équivalents pour « " + celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-              indexCela = Math.floor(Math.random() * candidatVainqueur.cela.length);
-              console.log("indexCela=", indexCela);
-            }
-
-            const actionCeciCela = new ActionCeciCela(candidatVainqueur.action, (candidatVainqueur.ceci ? candidatVainqueur.ceci[indexCeci] : null), (candidatVainqueur.cela ? candidatVainqueur.cela[indexCela] : null));
-
-            const isCeciV2 = actionCeciCela.ceci ? true : false;
-            let ceciQuantiteV2 = ceciQuantiteV1;
-            // transformer « -1 » en la quantité de l’objet
-            if (ceciQuantiteV2 === -1 && actionCeciCela.ceci && ClasseUtils.heriteDe(actionCeciCela.ceci.classe, EClasseRacine.objet)) {
-              ceciQuantiteV2 = (actionCeciCela.ceci as Objet).quantite;
-            }
-
-            const ceciNomV2 = isCeciV2 ? actionCeciCela.ceci.nom : null;
-            const ceciClasseV2 = (isCeciV2 ? actionCeciCela.ceci.classe : null)
-
-            const isCelaV2 = actionCeciCela.cela ? true : false;
-            let celaQuantiteV2 = celaQuantiteV1;
-            // transformer « -1 » en la quantité de l’objet
-            if (celaQuantiteV2 === -1 && actionCeciCela.cela && ClasseUtils.heriteDe(actionCeciCela.cela.classe, EClasseRacine.objet)) {
-              celaQuantiteV2 = (actionCeciCela.cela as Objet).quantite;
-            }
-            const celaNomV2 = isCelaV2 ? actionCeciCela.cela.nom : null;
-            const celaClasseV2 = (isCelaV2 ? actionCeciCela.cela.classe : null)
-
-            // mettre à jour l'évènement avec les éléments trouvés
-            const evenementV2 = new Evenement(
-              // verbe
-              actionCeciCela.action.infinitif,
-              // ceci
-              isCeciV2, els.preposition0, ceciQuantiteV2, ceciNomV2, ceciClasseV2,
-              // cela
-              isCelaV2, els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2
-            );
-
-            // console.error(">>>>>> evenement = ", evenement);F
-
-
-            // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
-            let resultatAvant = new Resultat(true, "", 0);
-            // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-            const declenchementsAvant = this.dec.avant(evenementV2);
-            // éxécuter les règles déclenchées
-            declenchementsAvant.forEach(declenchement => {
-              const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
-              retVal += sousResultatAvant.sortie;
-              resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
-              resultatAvant.nombre += sousResultatAvant.nombre;
-              resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
-            });
-
-            // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
-            if (resultatAvant.stopperApresRegle !== true) {
-              // PHASE REFUSER (vérifier l'action)
-              let refus = false;
-              if (actionCeciCela.action.verifications) {
-                // console.log("vérifications en cours pour la commande…");
-                // parcourir les vérifications
-                actionCeciCela.action.verifications.forEach(verif => {
-                  if (verif.conditions.length == 1) {
-                    if (!refus && this.cond.siEstVrai(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
-                      // console.warn("> commande vérifie cela:", verif);
-                      const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
-                      retVal += resultatRefuser.sortie;
-                      refus = true;
-                    }
-                  } else {
-                    console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
+          // Continuer l’action (sauf si on a fait appel à l’instruction « STOPPER L’ACTION ».)
+          if (resultatAvant.stopperApresRegle !== true) {
+            // PHASE REFUSER (vérifier l'action)
+            let refus = false;
+            if (actionCeciCela.action.verifications) {
+              // console.log("vérifications en cours pour la commande…");
+              // parcourir les vérifications
+              actionCeciCela.action.verifications.forEach(verif => {
+                if (verif.conditions.length == 1) {
+                  if (!refus && this.cond.siEstVrai(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
+                    // console.warn("> commande vérifie cela:", verif);
+                    const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
+                    retVal += resultatRefuser.sortie;
+                    refus = true;
                   }
-                });
-              }
-
-              // exécuter l’action si pas refusée
-              if (!refus) {
-                // PHASE EXÉCUTER l’action
-                const resultatExecuter = this.executerAction(actionCeciCela, evenementV2);
-                retVal += resultatExecuter.sortie;
-                // ÉVÈNEMENT APRÈS la commande
-                let resultatApres = new Resultat(true, "", 0);
-                // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-                const declenchementsApres = this.dec.apres(evenementV2);
-                if (declenchementsApres.length) {
-                  // éxécuter les règles déclenchées
-                  declenchementsApres.forEach(declenchement => {
-                    const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
-                    resultatApres.sortie += sousResultatApres.sortie;
-                    resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-                    resultatApres.nombre += sousResultatApres.nombre;
-                    resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
-                    resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
-                  });
-
-                  // terminer avant sortie règle « après » ?
-                  if (resultatApres.terminerAvantRegle) {
-                    // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
-                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
-                    retVal += resultatFinaliser.sortie;
-                    // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
-                    if (resultatApres.terminerApresRegle) {
-                      resultatApres.terminerApresRegle = false;
-                    }
-                  }
-
-                  // sortie règle après
-                  retVal += resultatApres.sortie;
-
-                  // terminer après sortie règle « après » ?
-                  if (resultatApres.terminerApresRegle) {
-                    // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
-                    const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
-                    retVal += resultatFinaliser.sortie;
-                  }
-
                 } else {
-                  // PHASE TERMINER l'action (sans règle « après »)
+                  console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
+                }
+              });
+            }
+
+            // exécuter l’action si pas refusée
+            if (!refus) {
+              // PHASE EXÉCUTER l’action
+              const resultatExecuter = this.executerAction(actionCeciCela, evenementV2);
+              retVal += resultatExecuter.sortie;
+              // ÉVÈNEMENT APRÈS la commande
+              let resultatApres = new Resultat(true, "", 0);
+              // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
+              const declenchementsApres = this.dec.apres(evenementV2);
+              if (declenchementsApres.length) {
+                // éxécuter les règles déclenchées
+                for (let index = 0; index < declenchementsApres.length; index++) {
+                  const declenchement = declenchementsApres[index];
+                  const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+                  resultatApres.sortie += sousResultatApres.sortie;
+                  resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+                  resultatApres.nombre += sousResultatApres.nombre;
+                  resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || (sousResultatApres.terminerAvantRegle && !declenchement.estRegleActionQuelconque);
+                  resultatApres.terminerAvantRegleGenerique = resultatApres.terminerAvantRegleGenerique || (sousResultatApres.terminerAvantRegle && declenchement.estRegleActionQuelconque);
+                  resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || (sousResultatApres.terminerApresRegle && !declenchement.estRegleActionQuelconque);
+                  resultatApres.terminerApresRegleGenerique = resultatApres.terminerApresRegleGenerique || (sousResultatApres.terminerApresRegle && declenchement.estRegleActionQuelconque);
+                }
+
+                // terminer avant sortie règle « après » ?
+                // rem: si aucune sortie pour la règle après, on termine d’office.
+                // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
+                if (resultatApres.terminerAvantRegle || !resultatApres.sortie || (resultatApres.terminerAvantRegleGenerique && declenchementsApres.length == 1)) {
+                  // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                  retVal += resultatFinaliser.sortie;
+                  // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
+                  if (resultatApres.terminerApresRegle || resultatApres.terminerApresRegleGenerique) {
+                    resultatApres.terminerApresRegle = false;
+                    resultatApres.terminerApresRegleGenerique = false;
+                  }
+                }
+
+                // sortie règle après
+                retVal += resultatApres.sortie;
+
+                // terminer après sortie règle « après » ?
+                // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
+                if (resultatApres.terminerApresRegle || (resultatApres.terminerApresRegleGenerique && declenchementsApres.length == 1)) {
+                  // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
                   const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
                   retVal += resultatFinaliser.sortie;
                 }
 
+              } else {
+                // PHASE TERMINER l'action (sans règle « après »)
+                const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                retVal += resultatFinaliser.sortie;
               }
-            }
 
+            }
           }
+
+        }
       }
 
       // la commande n’a pas pu être décomposée

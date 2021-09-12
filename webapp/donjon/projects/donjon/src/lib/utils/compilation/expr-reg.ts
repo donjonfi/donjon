@@ -181,7 +181,7 @@ export class ExprReg {
    *     - La réaction de la cavalière hantée au sujet des bois, de la prairie ou des fleurs est dire "C’est naturel"; dire "Quoi d’autre ?"
    *     - Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !"
    */
-  static readonly xProprieteReaction = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |les |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:des |du |de la |de l(?:’|')|la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:des |du |de la |de l(?:’|')|la |le |les |l’|l'|un |une |).+?)*) )?(est|vaut|sont)(?:(?: )?\:(?: )?)?(?: (.+))?$/i;
+  static readonly xProprieteReaction = /^(?:(?:(?:son|sa|leur) (\S+?))|(?:(?:la |le |les |l(?:’|'))(\S+?) (?:du |de (?:la |l’|l')|des )(.+?))) (?:(à propos|au sujet|concernant) (?:des |du |de la |de l(?:’|')|la |le |les |l’|l'|un |une |)((?:.+?)(?:(?:,|ou) (?:des |du |de la |de l(?:’|')|la |le |les |l’|l'|un |une |).+?)*) )?(est|sont|vaut|valent)(?:(?: )?\:(?: )?)?(?: (.+))?$/i;
 
   /** capacité -> verbe(1) complément(2) */
   static readonly xCapacite = /^(?:(?:(?:il|elle) permet)|(?:(?:ils|elles) permettent)) (?:de |d(?:’|'))(se \S+|\S+)( .+|)/i;
@@ -310,6 +310,11 @@ export class ExprReg {
    */
   static readonly rActionImpliquant = /^(?:une )?action impliquant (.+?)(?: et (.+?))?$/i;
 
+  /**
+   * une action quelconque
+   */
+  static readonly rActionQuelconque = /^(?:une )?action quelconque$/i;
+
   // ================================================================================================
   //  COMMANDES
   // ================================================================================================
@@ -435,7 +440,7 @@ export class ExprReg {
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|vaut|dépasse|atteint|possède|porte|contient|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contient|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * - La valeur de ceci vaut 3

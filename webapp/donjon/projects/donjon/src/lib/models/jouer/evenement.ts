@@ -1,7 +1,9 @@
 import { Classe } from '../commun/classe';
+import { TypeEvenement } from './type-evenement';
 
 export class Evenement {
   constructor(
+    public type: TypeEvenement,
     /** Action */
     public infinitif: string,
     /** Y a-t-il un ceci avec l’action (1er complément) */
