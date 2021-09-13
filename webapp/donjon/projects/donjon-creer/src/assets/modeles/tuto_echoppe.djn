@@ -1,0 +1,118 @@
+Le titre du jeu est "Ex. << Tuto échoppe >>".
+L’auteur du jeu est "Wiki Donjon FI".
+Le titre de la licence est "CC BY 4.0".
+Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
+
+-----------------------------
+-- paramètres
+-----------------------------
+-- il n'y a pas de sorties donc on ne les affiche pas.
+désactiver l'affichage des sorties.
+
+-----------------------------
+-- description de l'échoppe
+------------------------------
+L’échoppe (f) est un lieu.
+  Sa description est "Vous voici devant l'échoppe du célèbre Toto.".
+  -- la table contient les objets à acheter
+  La table est un support ici.
+  -- ajout d'un objet qui n'est pas une marchandise
+  Le ruban est un objet sur dessus.
+  -- ajout des marchandises (portable signifie que le joueur peut la porter sur lui)
+  L’épée (f) est une marchandise portable sur la table.
+  Son prix vaut 100.
+  Le bouclier est une marchandise portable sur la table.
+  Son prix vaut 50.
+  -- placement des personnages
+  L'armurier est une personne ici.
+  Son aperçu est "L'armurier se tient devant vous.".
+  Interpréter Toto, le marchand et le vendeur comme l'armurier.
+  Le joueur est devant l'échoppe.
+
+-------------------------------------------------------
+-- Initialisation et affichage du contenu de la bourse
+-------------------------------------------------------
+-- Argent que possède le joueur en début de partie
+La bourse est un compteur initialisé à 100.
+-- afficher le contenu de la bourse lorsque le joueur consulte sont inventaire
+après afficher inventaire:
+  dire "{U}Contenu de votre bourse : [c bourse] pièce[si bourse dépasse 1]s[fin si].".
+
+-------------------------------------------------------
+-- Règles spéciales
+-------------------------------------------------------
+
+-- On ne peut pas prendre une marchandise sans payer
+avant prendre une marchandise:
+  dire "L'armurier vous attrape la main. << Pas si vite ! [Il ceci] [v être ipr ceci] à vendre. >>";
+  stopper l’action.
+
+-- Lorsqu'on examine une marchandise, on affiche son prix.
+après examiner marchandise:
+  continuer l’action avant;
+  si un prix existe pour ceci, dire "Son prix: [prix ceci] pièces.".
+  
+-- Il y a 50 pièces cachées sous la table
+avant examiner la table ou regarder la table:
+  si la préposition de ceci est sous et si l’historique ne contient pas "pièces sous table trouvées":
+    dire "Vous découvrez 50 pièces sous la table !";
+    changer la bourse augmente de 50;
+    dire "Les pièces ont été ajoutées à votre bourse.";
+    changer l’historique contient "pièces sous table trouvées";
+    stopper l’action;
+  fin si.
+
+-------------------------------------------------------
+-- Action acheter
+-------------------------------------------------------
+
+-- si plusieurs objets correspondent à ce que le joueur essaie d'acheter,
+-- en choisi en priorité celui qui est encore disponible c'est à dire 
+-- qu'il n'est pas encore dans l'inventaire du joueur.
+acheter ceci est une action qui concerne un objet prioritairement disponible.
+
+refuser acheter ceci:
+  -- le joueur n'a plus d'argent
+  si la bourse vaut 0, dire "Votre bourse est vide !";
+  -- l'objet n'est ps une marchandise
+  si ceci n’est pas une marchandise, dire "[Il ceci] [v s’acheter ipr pas ceci].";
+  -- l'objet appartient déjà au joueur
+  si ceci est possédé, dire "Vous [l’ ceci]avez déjà acheté[es ceci]";
+  -- si la propriété « prix » n'est pas définie pour cet objet
+  si aucun prix pour ceci, dire "[Il ceci] [v avoir ipr pas ceci] de prix.";
+  -- si le joueur n'a plus assez d'argent pour acheter l'objet
+  si le prix de ceci dépasse la bourse, dire "Vous n’avez pas assez d’argent.".
+  
+exécuter acheter ceci:
+  -- placer l'objet dans l'inventaire du joueur.
+  changer le joueur possède ceci;
+  -- retirer l'argent correspondant au prix de l'objet de la bourse du joueur.
+  changer la bourse diminue du prix de ceci.
+  
+terminer acheter ceci:
+  -- informer le joueur de la transaction.
+  dire "Vous avez acheté [intitulé ceci] pour [prix de ceci] pièces.".
+  
+-- aide pour l'action acheter
+L'aide pour l'action acheter est "{*Acheter*}
+  Permet d’acheter des objets à un vendeur.
+  {+exemples+} :
+  > {-acheter {/armure/}-}
+  > {-acheter {/la potion de soin/}-}".
+
+--------------------------
+-- Dialogues de l'armurier
+--------------------------
+La réaction de l'armurier est "<< Bonjour ! Que puis-je pour vous ? >>".
+La réaction de l'armurier concernant un sujet inconnu est "<< Tout ce qui est sur la table est à vendre. >>".
+La réaction de l'armurier concernant l’épée est :
+  dire "<< Pour [prix de l'épée] pièces elle est à vous ! >>".
+La réaction de l'armurier concernant le ruban est :
+  si le joueur possède le ruban :
+    dire "<< Content qu'il vous plaise. >>";
+  sinon
+    dire "<< Si vous le voulez je vous le donne. >>";
+    changer le joueur possède le ruban;
+    dire "{/Le ruban a été ajouté à votre inventaire./}";
+  fin si.
+
