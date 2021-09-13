@@ -62,8 +62,9 @@ export class ExprReg {
    *     - s'éveiller
    *     - 💥 oiseau
    *     - 💥 un boucher
+   *     - 💥 l’armurier
    */
-  static readonly xVerbeInfinitif = /^((?:se |s’|s')?\S+(?:ir|er|re))$/i;
+  static readonly xVerbeInfinitif = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))$/i;
 
   /**
    * Groupe nominal.
@@ -464,7 +465,7 @@ export class ExprReg {
    * - La valeur du portefeuille augmente du prix de l’aubergine 💥
    * - La taille de la pomme rouge diminue de 10 💥
    */
-   static readonly xConditionPropriete = /^(?:si )?(.+?) (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))? (.+)$/i;
+  static readonly xConditionPropriete = /^(?:si )?(.+?) (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))? (.+)$/i;
 
   /**
    * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)
@@ -520,16 +521,16 @@ export class ExprReg {
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7)
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
-   static readonly xDebutConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(.+?)$/i;
+  static readonly xDebutConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(.+?)$/i;
 
   /**
    * (ni|soit)(1) complément1(2)
    * - ni la poule
    * - soit le duc de Brabant
    */
-   static readonly xSuiteConditionNiSoit = /^(?:ni|soit) (.+?)$/i;
+  static readonly xSuiteConditionNiSoit = /^(?:ni|soit) (.+?)$/i;
 
-   
+
   /**
    * mais (pas|plus|ni|bien)(1) complément1(2)
    * - mais pas blanc
@@ -537,7 +538,7 @@ export class ExprReg {
    * - mais soit b
    * - mais bien possédé
    */
-   static readonly xSuiteConditionMais = /^mais (?:pas|plus|ni|soit|bien) (.+?)$/i;
+  static readonly xSuiteConditionMais = /^mais (?:pas|plus|ni|soit|bien) (.+?)$/i;
 
   // ================================================================================================
   //  INSTRUCTIONS
@@ -621,33 +622,33 @@ export class ExprReg {
    * - La taille de la pomme rouge
    * - Le texte du livre
    */
-   static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)?(?!le | la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+  static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)?(?!le | la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
 
-   /**
-    * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
-    * 
-    * - Le nombre de cheveux de Super Lutin
-    * - Le nombre de malédictions des jumeaux
-    * - Le nombre de pattes du mille-pattes grincheux
-    * - Le nombre d’arbres du bois de la colline enchantée
-    */
-   static readonly xNombreDeProprieteElement = /^(?:le)? nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
- 
-   /**
-    * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
-    * 
-    * - Le nombre d’objets dans l’armoir
-    * - Le nombre d'objets ensorcelés sur la table basse
-    * - Le nombre de jouets sous le lit
-    * - Le nombre d’objets rouges et maudits sous le lit du comte vert
-    * - Le nombre d’armes magiques possédées
-    * - Le nombre d’animaux
-    * - Le nombre de macarons empilés
-    * - Le nombre de lampes allumées
-    * - Le nombre de pièces possédées
-    */
-   static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
- 
+  /**
+   * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
+   * 
+   * - Le nombre de cheveux de Super Lutin
+   * - Le nombre de malédictions des jumeaux
+   * - Le nombre de pattes du mille-pattes grincheux
+   * - Le nombre d’arbres du bois de la colline enchantée
+   */
+  static readonly xNombreDeProprieteElement = /^(?:le)? nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+
+  /**
+   * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
+   * 
+   * - Le nombre d’objets dans l’armoir
+   * - Le nombre d'objets ensorcelés sur la table basse
+   * - Le nombre de jouets sous le lit
+   * - Le nombre d’objets rouges et maudits sous le lit du comte vert
+   * - Le nombre d’armes magiques possédées
+   * - Le nombre d’animaux
+   * - Le nombre de macarons empilés
+   * - Le nombre de lampes allumées
+   * - Le nombre de pièces possédées
+   */
+  static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
+
 
   // ================================================================================================
   //  DIVERS

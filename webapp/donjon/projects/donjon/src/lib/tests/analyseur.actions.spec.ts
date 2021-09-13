@@ -64,6 +64,10 @@ describe('Epressions régulières − Verbes', () => {
     expect(result).toEqual(null);
   });
 
+  it('Verbe infinitif : « l’armurier » (💥)', () => {
+    const result = ExprReg.xVerbeInfinitif.exec("l’armurier");
+    expect(result).toEqual(null);
+  });
 
 });
 
