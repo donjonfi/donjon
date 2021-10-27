@@ -276,8 +276,8 @@ export class InstructionDeplacerCopier {
   }
 
   /**
- * Copier un élément du jeu.
- */
+   * Copier un élément du jeu.
+   */
   private exectuterCopierObjetVersDestination(original: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
     let resultat = new Resultat(false, '', 1);
 

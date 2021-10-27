@@ -138,8 +138,6 @@ export class Instructions {
 
       case 'déplacer':
 
-        // console.warn("$$$$ Déplacer", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
-
         // retrouver quantité à déplacer
         let sujetDeplacement = instruction.sujet;
         if (instruction.sujet.determinant == 'quantitéCeci ') {

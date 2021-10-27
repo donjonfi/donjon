@@ -110,9 +110,8 @@ export class InstructionDire {
     // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|ceci|cela|inventaire]
     // ================================================================================
     if (contenu.includes("[lister objets ") || contenu.includes("[décrire objets ")) {
-
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
-      const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/gi;
+      const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)(?: (sauf cachés))?\]/gi;
       const allBalises = contenu.match(xBaliseContenu);
       // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
       const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
@@ -120,16 +119,17 @@ export class InstructionDire {
       // parcourir chaque balise trouvée
       balisesUniques.forEach(curBalise => {
         // retrouver la préposition et la cible
-        const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)\]/i.exec(curBalise);
+        const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)(?: (sauf cachés))?\]/i.exec(curBalise);
 
         const ListerDecrireString = decoupe[1];
         let isLister = ListerDecrireString.toLowerCase() == 'lister';
         const prepositionString = decoupe[2]; // dans par défaut
         const cibleString = decoupe[3];
+        const exclureCaches = decoupe[4] && decoupe[4] == 'sauf cachés';
 
         let phraseSiVide = "";
         let phraseSiQuelqueChose = "{U}Vous voyez ";
-        let afficherObjetsCaches = true;
+        let afficherObjetsCaches = !exclureCaches;
 
         const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
 
@@ -139,7 +139,7 @@ export class InstructionDire {
           phraseSiQuelqueChose = "";
           // > ici
         } else if (cible == this.eju.curLieu) {
-          afficherObjetsCaches = false;
+          //afficherObjetsCaches = false;
         }
 
         // retrouver la préposition (dans par défaut)
@@ -171,7 +171,7 @@ export class InstructionDire {
         }
 
         // remplacer la balise par le résultat
-        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString + "\\]", "g");
+        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString + (exclureCaches ? " sauf cachés" : "") + "\\]", "g");
         contenu = contenu.replace(xCurBalise, resultatCurBalise);
 
       });
@@ -1227,7 +1227,7 @@ export class InstructionDire {
         let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n’y a rien sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, PrepositionSpatiale.sur);
+          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, PrepositionSpatiale.sur);
           resultat.sortie += sousRes.sortie;
         });
 
