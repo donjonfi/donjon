@@ -211,7 +211,14 @@ export class CompteursUtils {
 
   public static intituleValeurVersString(valeurString: string, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): string {
 
-    let retVal = valeurString;
+    let retVal: string;
+
+    // retirer les guillements ("") autours du texte
+    if (valeurString.startsWith('"') && valeurString.endsWith('"')) {
+      retVal = valeurString.slice(1, valeurString.length - 1);
+    } else {
+      retVal = valeurString;
+    }
 
     // retrouver une propriété éventuelle
     const curPropriete = PhraseUtils.trouverPropriete(valeurString);
