@@ -52,6 +52,7 @@ export * from './lib/models/jeu/propriete-jeu';
 
 export * from './lib/models/jouer/auditeur';
 export * from './lib/models/jouer/evenement';
+export * from './lib/models/jouer/type-evenement';
 export * from './lib/models/jouer/resultat';
 export * from './lib/models/jouer/statut-conditions';
 

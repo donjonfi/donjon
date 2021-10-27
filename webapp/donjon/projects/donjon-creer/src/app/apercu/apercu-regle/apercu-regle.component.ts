@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-
-import { Regle } from '@donjon/core';
+import { Regle, TypeEvenement } from '@donjon/core';
 
 @Component({
   selector: 'app-apercu-regle',
@@ -11,6 +10,8 @@ export class ApercuRegleComponent implements OnInit {
 
   @Input() regle: Regle;
   replie = true;
+
+  TypeEvenement = TypeEvenement;
 
   constructor() { }
 

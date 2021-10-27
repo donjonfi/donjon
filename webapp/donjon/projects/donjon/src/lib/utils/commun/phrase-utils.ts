@@ -93,9 +93,21 @@ export class PhraseUtils {
           if (ExprReg.rActionQuelconque.test(evenementBrut.trim())) {
             let ev = new Evenement(TypeEvenement.action, null);
             retVal.push(ev);
-            // D) FORMULATION INCONNUE
+            // D) DÉPLACEMENT VERS X
           } else {
-            console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+            const deplacement = ExprReg.rDelpacementVers.exec(evenementBrut.trim());
+            if (deplacement) {
+              let ev = new Evenement(
+                TypeEvenement.deplacement,
+                // verbe => direction ou lieu
+                deplacement[1]
+              );
+
+              retVal.push(ev);
+              // E) FORMULATION INCONNUE
+            } else {
+              console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
+            }
           }
         }
       }

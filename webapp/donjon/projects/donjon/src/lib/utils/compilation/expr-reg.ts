@@ -312,6 +312,11 @@ export class ExprReg {
   static readonly rActionImpliquant = /^(?:une )?action impliquant (.+?)(?: et (.+?))?$/i;
 
   /**
+  * un déplacement vers {élément1}(1)[ ou {élément2}(2)]
+  */
+  static readonly rDelpacementVers = /^(?:un )?déplacement vers (.+?)?$/i;
+
+  /**
    * une action quelconque
    */
   static readonly rActionQuelconque = /^(?:une )?action quelconque$/i;
