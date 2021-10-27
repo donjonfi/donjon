@@ -385,7 +385,7 @@ L'aide pour l'action montrer est "{*Montrer*}
   Permet de montrer un objet à une personne.
   {+exemples+} :
   > {-montrer {/la baguette/} à {/la fée/}-}
-  > {-montrer {/chausette/} au {/lutin/}-}
+  > {-montrer {/chaussette/} au {/lutin/}-}
   {+Voir également+} : {-parler-}, {-questionner-}, {-demander-} et {-donner-}.
   {+raccourci+} : {-mon-}".
 
@@ -579,7 +579,7 @@ refuser prendre ceci:
   si ceci est possédé, dire "Vous [l’ ceci]avez déjà.";
   si ceci est le joueur, dire "Pardon ?";
   si ceci est une personne ou un animal, dire "Ça ne me parait pas très prudent.";
-  si ceci n'est pas accessible, dire "[Pronom ceci] [v être ipr pas ceci] accessible[s ceci].";
+  si ceci n'est pas accessible, dire "Je n’y ai pas accès.";
   si ceci est un décor ou décoratif, dire "Je préfère ne pas m’encombrer avec ça.";
   si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].";
   -- on veut en prendre 0…
