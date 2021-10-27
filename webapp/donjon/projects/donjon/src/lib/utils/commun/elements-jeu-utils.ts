@@ -329,12 +329,14 @@ export class ElementsJeuUtils {
     let voisin: Voisin = null;
     const allLieuxVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.lieu);
 
+    console.log("mlkjmlkj");
+
     // s’il y a des voisins
     if (allLieuxVoisins.length != 0) {
       // pour chaque voisin vérifier s’il y a un obstacle qui empèche de voir qu’il y a une sortie
       allLieuxVoisins.forEach(voisin => {
         // A) PORTES
-        const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle) && x.localisation == voisin.localisation);
+        const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte) && x.localisation == voisin.localisation);
         // il y a au moins un obstacle
         if (curVoisinObstacles.length) {
 
@@ -774,6 +776,9 @@ export class ElementsJeuUtils {
         }
       });
     }
+    
+    // ne jamais lister le joueur
+    objets = objets.filter(x => x.id !== this.jeu.joueur.id);
 
     return objets;
   }
