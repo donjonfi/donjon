@@ -453,7 +453,11 @@ regarder est une action.
 
 exécuter regarder:
   dire "{_{*[titre ici]*}_}";
-  dire "{n}[description ici][décrire objets ici]".
+  si l'infinitif de l'action est examiner:
+    dire "{n}[description ici][décrire objets ici]";
+  sinon
+    dire "{n}[description ici][décrire objets ici sauf cachés]";
+  fin si.
   
 terminer regarder:
   dire "{N}[sorties ici]".
