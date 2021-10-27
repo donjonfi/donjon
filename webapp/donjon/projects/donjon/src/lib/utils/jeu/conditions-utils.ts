@@ -296,7 +296,7 @@ export class ConditionsUtils {
             // Ex: aucune sortie n’existe vers le nord.
             // Ex: un aperçu existe pour cela.
             case 'existe':
-              retVal = this.verifierConditionExiste(condition, sujet, ceci);
+              retVal = this.verifierConditionExiste(condition, sujet, ceci, cela, evenement, declenchements);
               break;
 
             // ÉLÉMENT POSSÉDÉ (PAR LE JOUEUR)
@@ -474,7 +474,7 @@ export class ConditionsUtils {
             // Ex: aucune sortie n’existe vers le nord.
             // Ex: un aperçu existe pour cela.
             case 'existe':
-              retVal = this.verifierConditionExiste(condition, sujet, ceci);
+              retVal = this.verifierConditionExiste(condition, sujet, ceci, cela, evenement, declenchements);
               break;
 
             // comparaison : égalité
@@ -519,6 +519,25 @@ export class ConditionsUtils {
                 retVal = true;
               }
               break;
+
+            case 'existe':
+              if (condition.complement = 'préposition') {
+                if (condition.sujet.nom == 'ceci') {
+                  // remarque: négation appliquée plus loin.
+                  if (evenement.prepositionCeci) {
+                    retVal = true;
+                  }
+                } else if (condition.sujet.nom == 'cela') {
+                  // remarque: négation appliquée plus loin.
+                  if (evenement.prepositionCela) {
+                    retVal = true;
+                  }
+                } else {
+                  console.error("Seul ceci/cela sont pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
+                }
+              } else {
+                console.error("Seul « préposition » pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
+              }
 
             default:
               console.error(
@@ -669,7 +688,7 @@ export class ConditionsUtils {
 
   }
 
-  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, ceci: ElementJeu | Intitule) {
+  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
 
     let retVal = false;
 
@@ -788,8 +807,23 @@ export class ConditionsUtils {
           retVal = !this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.invisibleID);
         }
       }
-      // D) PROPRIÉTÉ
-      // d.1 aperçu
+      // D) PRÉPOSITION
+    } else if (condition.complement === 'préposition') {
+      if (condition.sujet.nom == 'ceci') {
+        // remarque: négation appliquée plus loin.
+        if (evenement.prepositionCeci) {
+          retVal = true;
+        }
+      } else if (condition.sujet.nom == 'cela') {
+        // remarque: négation appliquée plus loin.
+        if (evenement.prepositionCela) {
+          retVal = true;
+        }
+      } else {
+        console.error("Seul ceci/cela sont pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
+      }
+      // E) PROPRIÉTÉ
+      // e.1 aperçu
     } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
       // => aperçu dans une direction
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
@@ -805,7 +839,7 @@ export class ConditionsUtils {
       } else {
         retVal = (sujet as ElementJeu).apercu ? true : false;
       }
-      // d.2 autre
+      // e.2 autre
     } else {
       // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false
       retVal = false;
