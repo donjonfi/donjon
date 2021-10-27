@@ -169,7 +169,7 @@ export class Generateur {
     joueur.synonymes = [
       new GroupeNominal("", "moi", null)
     ];
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.invisible);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
