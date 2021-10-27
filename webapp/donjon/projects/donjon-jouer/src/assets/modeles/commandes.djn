@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2021-09-12-0035
+-- Version: 2021-10-27-0036
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -222,18 +222,49 @@ SCÈNE "parler".
 --   PARLER (discuter)
 -- ====================
 
--- b) parler à ceci
-parler à ceci est une action qui concerne un objet visible.
+-- b) parler avec ceci / parler de ceci
+parler avec ceci est une action qui concerne un intitulé.
 
 refuser parler avec ceci:
-  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
-  si ceci est le joueur, dire "Vous entamez un monologue.".
+  si (aucune préposition n’existe pour ceci et si ceci n’est pas un élément), dire "<< [Intitulé ceci] >> n’est pas un élément du jeu.
+    Veuillez utiliser une des formulations suivantes:
+    {t}{-parler avec {/personne/}-}
+    {t}{-parler avec {/personne/} concernant {/sujet/}-}
+    {t}{-parler de {/sujet/}-}* => avec la seule personne présente ici ou le précédent interlocuteur
+    *{/(en développement)/}";
+    
+  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est ni une personne ni parlant ou si ceci est muet), dire "[Intitulé ceci] ne parle pas.";
+  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est pas visible), dire "[Intitulé ceci] ne parle pas.";
+  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
 
 exécuter parler avec ceci:
-  si ceci réagit, exécuter réaction de ceci.
+  -- parler avec/à une personne spécifée
+  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
+    si ceci réagit : 
+      exécuter réaction de ceci;
+    fin si
+  -- parler d’un sujet (à la seule personne présente ici)
+  sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
+    si le nombre de personnes présentes vaut 1:
+      dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
+            Néammoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+    sinonsi le nombre de personnes présentes dépasse 1:
+      dire "Il y a plusieurs personnes présentes.
+            Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+    sinon
+      dire "Je n'ai trouvé personne à qui parler.";
+    fin si
+  sinon
+    dire "Connait pas cette préposition : [préposition ceci].";
+  fin si.
 
 terminer parler avec ceci:
-  si ceci ne réagit pas, dire "(Et ils eurent une conversation peu intéressante.)".
+  si aucune préposition n’existe pour ceci, dire "Pas de préposition trouvée.";
+  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
+    si ceci ne réagit pas:
+      dire "(Et ils eurent une conversation peu intéressante.)";
+    fin si
+  fin si.
   
 -- c) parler à ceci de cela
 parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
@@ -1165,3 +1196,11 @@ raconter ceci à cela est une action qui concerne un intitulé et un objet.
 terminer raconter ceci à cela:
   dire "{/Voici une blague :/}";
   dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
+
+
+--La cuisine est un lieu.
+--Le salon est un lieu au nord de la cuisine.
+--Jean est une personne ici.
+--La chambre est un lieu au sud de la cuisine.
+--Julie est une personne ici.
+--Julien est une personne ici.

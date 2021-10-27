@@ -15,8 +15,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     var builtinFunctions = (
       "dire|changer|déplacer|copier|effacer|sauver|remplacer|par|"
       + "verrouiller|déverrouiller|ouvrir|fermer|"
-      + "stopper|continuer|terminer|exécuter|attendre|"
-      + "|maintenant"
+      + "stopper|continuer|terminer|exécuter|attendre"
     );
 
     var keywordMapper = this.createKeywordMapper({
