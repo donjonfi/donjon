@@ -329,8 +329,6 @@ export class ElementsJeuUtils {
     let voisin: Voisin = null;
     const allLieuxVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.lieu);
 
-    console.log("mlkjmlkj");
-
     // s’il y a des voisins
     if (allLieuxVoisins.length != 0) {
       // pour chaque voisin vérifier s’il y a un obstacle qui empèche de voir qu’il y a une sortie

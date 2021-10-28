@@ -242,7 +242,7 @@ export class InstructionDire {
     }
 
     // ======================================================================================================
-    // PROPRIÉTÉS [description|intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
+    // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
     // ======================================================================================================
 
     const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|quantitéCeci|quantitéCela)";
@@ -721,8 +721,17 @@ export class InstructionDire {
           // récupérer la valeur
           if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
             valeur = (curProprieteCible as Compteur).valeur.toString();
-          } else {
+          } else if (curPropriete.type === TypeProprieteJeu.nombreDeProprieteElement) {
             valeur = (curProprieteCible as ProprieteElement).valeur;
+          } else if (curPropriete.type === TypeProprieteJeu.proprieteElement) {
+            const propriete = (curProprieteCible as ProprieteElement);
+            // texte
+            if (propriete.type == TypeValeur.mots) {
+              valeur = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(curPropriete.element, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+              // nombre
+            } else {
+              valeur = (curProprieteCible as ProprieteElement).valeur;
+            }
           }
         }
       }
