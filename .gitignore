@@ -302,3 +302,5 @@ __pycache__/
 /webapp/donjon/projects/MEMO.TXT
 /ressources/*.odt#
 /webapp/donjon/projects/donjon-jouer/src/assets/jeux/soir-de-bal.djn
+/webapp/donjon/projects/donjon-jouer/src/assets/jeux/capitaine_hissemanne.djn
+/webapp/donjon/projects/donjon-creer/src/assets/modeles/capitaine_hissemanne.djn
