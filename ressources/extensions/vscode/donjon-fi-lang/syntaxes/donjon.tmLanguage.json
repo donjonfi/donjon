@@ -1,0 +1,68 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Donjon",
+	"patterns": [
+    {
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+    {
+			"include": "#support"
+		},
+    {
+			"include": "#storage"
+		},
+    {
+			"include": "#variables"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+    "comments": {
+			"patterns": [{
+				"name": "comment.line",
+				"match": "^(\\s*)--(.*)$"
+			}]
+		},
+		"support": {
+			"patterns": [{
+				"name": "support.function",
+				"match": "\\b(dire|changer|effacer|déplacer|stopper|terminer|exécuter|attendre)\\b"
+			}]
+		},
+    "storage": {
+			"patterns": [{
+				"name": "storage.type",
+				"match": "(un|une|des) \\b(élément|objet|obstacle|porte|vivant|personne|homme|femme)\\b"
+			}]
+		},
+    "variables": {
+			"patterns": [{
+				"name": "variable.language",
+				"match": "\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci)\\b"
+			}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.donjon",
+				"match": "\\b(si|sinon|sinonsi|avant|après|fin|refuser|exécuter|terminer(?!: le| la)|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.donjon",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.donjon",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.djn"
+}

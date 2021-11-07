@@ -1,0 +1,25 @@
+{
+    "name": "donjon-fi-lang",
+    "displayName": "Donjon FI Lang",
+    "description": "Syntax highligthing for Donjon FI lang",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.62.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "donjon",
+            "aliases": ["Donjon", "donjon"],
+            "extensions": [".djn"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "donjon",
+            "scopeName": "source.djn",
+            "path": "./syntaxes/donjon.tmLanguage.json"
+        }]
+    }
+}
