@@ -7,10 +7,12 @@
 //  - ajouter dans le fichier « conf/usersstyle.css » le contenu suivant :
 //	    /* donjon overrides */
 //		.code.donjon .br0 { color: #000000; }
-//		.code.donjon .co1 { color: #668899;font-style: normal; }/* bleu */
-//		.code.donjon .co2 { color: #668899;font-style: normal; }/* bleu */
+//		.code.donjon .co1 { color: #61806f;font-style: italic; }/* vert gris */
+//		.code.donjon .co2 { color: #61806f;font-style: italic; }/* vert gris */
 //		.code.donjon .co3 { color: #668899;font-style: normal;}/* bleu */
 //		.code.donjon .co4 { color: #668899;font-style: normal;}/* bleu */
+//		.code.donjon .co5 { color: #668899;font-style: normal;}/* bleu */
+//		.code.donjon .co6 { color: #668899;font-style: normal;}/* bleu */
 //		.code.donjon .coMULTI { color: #ff0000; font-style: italic; }
 //		.code.donjon .es0 { color: #ff0000; font-weight: bold; } 
 //		.code.donjon .kw1 { color: #000000; font-weight: bold; } /* noir */
@@ -30,10 +32,12 @@ $language_data = array (
     'COMMENT_SINGLE' => array(1 => "-- ", 2=> "REM"),
 	// 'COMMENT_MULTI' => array('"' => '[', ']' => '[', ']' => '"'),
     'COMMENT_REGEXP' => array(
-		1 => '/(?:"([^\]"]*?)\[)/',
-		2 => '/(?:\]([^\["]*?)")/',
-		3 => '/(?:\]([^"]*?)\[)/',
-		4 => '/(?:"([^\]\["]*?)")/',
+	    1 => '/(?:nowaynoway)/',
+		2 => '/(?:nowaynoway)/',
+		3 => '/(?:"([^\]"]*?)\[)/',
+		4 => '/(?:\]([^\["]*?)")/',
+		5=> '/(?:\]([^"]*?)\[)/',
+		6 => '/(?:"([^\]\["]*?)")/',
         ),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array('@'),
@@ -41,32 +45,47 @@ $language_data = array (
     'KEYWORDS' => array(
     /* Statements */
         1 => array(
-			'dire', 'déplacer', 'effacer', 'changer', 'sauver'
+			'attendre', 'changer', 'chercher', 'continuer(?!\:)', 'dire', 'déplacer',
+			'effacer', 'stopper', 'terminer',
+			'activer', 'désactiver', 'exécuter'
             ),
         2 => array(
-            'action', 'objet', 'lieu', 'support', 'contenant', 'porte', 'vivant', 'élément',
-			'décor', 'animal', 'personne'
+			'objet',    'objets',    'lieu',      'lieux', 
+			'élément',  'éléments',  'décor',     'décors', 
+			'support',  'supports',  'contenant', 'contenants', 
+			'obstacle', 'obstacles', 'porte',     'portes', 
+			'vivant',   'vivants',   'animal',    'animaux', 
+			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
+            '\daction',   '\dactions',   'question',  'questions'
+			
             ),
         3 => array(
-            'si', 'sinon', 'sinonsi', 'remplacer', 'exécuter', 'refuser', 'terminer', 
+            'si', 'sinon', 'sinonsi', 'remplacer', 'exécuter(?! la)', 'refuser', 'terminer', 
 			'avant', 'après',
+			'définition', 'définitions',
 			'peut', 'est', 'sont', 'pas', 'plus',
 			'possède', 'possèdent', 'contient', 'contiennent', 'réagit', 'réagissent',
 			'vaut', 'valent', 'augmente', 'augmentent', 'diminue', 'diminuent',
 			'atteint', 'atteignent', 'dépasse', 'dépassent', 'se déclenche', 'se déclenchent',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
-			'initialement', 'puis', 'fin', 'finsi', 'choix', 'boucle', 'hasard', 'fois'
+			'initialement', 'puis', 'fin', 'finsi',
+			'choix', 'choisir', 'aucun', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
-            'joueur', 'historique', 'ceci', 'cela', 'ici', 'règle',
+            'joueur', 'historique', 'ceci', 'cela', 
+			'celle-ci', 'celle-là', 'celui-ci', 'ceux-ci',
+			'ici', 'règle', 
 			'description','intitulé', 'texte', 'titre', 'réaction',
-			'nom', 'pronom', 'accord', 
+			'aperçu',
+			'nom', 'pronom', 'accord', 'auteur', 'lien', 'licence', 'jeu'
             ),
 		5 => array(
-			'au', 'en', 'sur', 'dans', 'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
-			'possédé', 'visible', 'mangeable', 'buvable', 'porté',
-			'initialisé'
+			'vers', 'au', 'en', 'sur', 'dans', 
+			'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
+			'possédé(e)', 'visible', 'mangeable', 'buvable', 'porté(e)?', 'portable', 'disponible',
+			'fermé', 'fermée', 'ouvert', 'ouverte', 'verrouillé', 'verrouillée',
+			'initialisé', 'initialisée'
 			)
         ),
     'SYMBOLS' => array(
@@ -74,7 +93,7 @@ $language_data = array (
             '>','=','<','+','-','*','/','^','\\'
             ),
         1 => array(
-            '?'
+            '@'
             )
         ),
     'CASE_SENSITIVE' => array(
