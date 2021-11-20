@@ -42,6 +42,10 @@
   // symbols that can be used to surround a selection
   "surroundingPairs": [
     [
+      "avant",
+      "."
+    ],
+    [
       "{",
       "}"
     ],
@@ -64,6 +68,13 @@
   ],
   "indentationRules": {
     "increaseIndentPattern": "^.*(\\:|sinon)\\s*$",
-    "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*fin si|sinon|sinonsi$"
+    "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*(fin si|sinon|sinonsi)$"
   }
+  // ,
+  // "folding": {
+  //   "markers": {
+  //     "start": "^\\s*//\\s*#?region\\b",
+  //     "end": "^\\s*//\\s*#?endregion\\b"
+  //   }
+  // }
 }
