@@ -222,49 +222,62 @@ SCÈNE "parler".
 --   PARLER (discuter)
 -- ====================
 
--- b) parler avec ceci / parler de ceci
-parler avec ceci est une action qui concerne un intitulé.
+-- b) parler à ceci
+parler à ceci est une action qui concerne un objet visible.
 
 refuser parler avec ceci:
-  si (aucune préposition n’existe pour ceci et si ceci n’est pas un élément), dire "<< [Intitulé ceci] >> n’est pas un élément du jeu.
-    Veuillez utiliser une des formulations suivantes:
-    {t}{-parler avec {/personne/}-}
-    {t}{-parler avec {/personne/} concernant {/sujet/}-}
-    {t}{-parler de {/sujet/}-}* => avec la seule personne présente ici ou le précédent interlocuteur
-    *{/(en développement)/}";
-    
-  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est ni une personne ni parlant ou si ceci est muet), dire "[Intitulé ceci] ne parle pas.";
-  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est pas visible), dire "[Intitulé ceci] ne parle pas.";
-  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
+  si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
+  si ceci est le joueur, dire "Vous entamez un monologue.".
 
 exécuter parler avec ceci:
-  -- parler avec/à une personne spécifée
-  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
-    si ceci réagit : 
-      exécuter réaction de ceci;
-    fin si
-  -- parler d’un sujet (à la seule personne présente ici)
-  sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
-    si le nombre de personnes présentes vaut 1:
-      dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
-            Néammoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
-    sinonsi le nombre de personnes présentes dépasse 1:
-      dire "Il y a plusieurs personnes présentes.
-            Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
-    sinon
-      dire "Je n'ai trouvé personne à qui parler.";
-    fin si
-  sinon
-    dire "Connait pas cette préposition : [préposition ceci].";
-  fin si.
+  si ceci réagit, exécuter réaction de ceci.
 
 terminer parler avec ceci:
-  si aucune préposition n’existe pour ceci, dire "Pas de préposition trouvée.";
-  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
-    si ceci ne réagit pas:
-      dire "(Et ils eurent une conversation peu intéressante.)";
-    fin si
-  fin si.
+  si ceci ne réagit pas, dire "(Et ils eurent une conversation peu intéressante.)".
+
+
+---- b) parler avec ceci / parler de ceci
+--parler avec ceci est une action qui concerne un intitulé.
+--
+--refuser parler avec ceci:
+--  si (aucune préposition n’existe pour ceci et si ceci n’est pas un élément), dire "<< [Intitulé ceci] >> n’est pas un élément du jeu.
+--    Veuillez utiliser une des formulations suivantes:
+--    {t}{-parler avec {/personne/}-}
+--    {t}{-parler avec {/personne/} concernant {/sujet/}-}
+--    {t}{-parler de {/sujet/}-}* => avec la seule personne présente ici ou le précédent interlocuteur
+--    *{/(en développement)/}";
+--    
+--  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est ni une personne ni parlant ou si ceci est muet), dire "[Intitulé ceci] ne parle pas.";
+--  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est pas visible), dire "[Intitulé ceci] ne parle pas.";
+--  si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
+--
+-- exécuter parler avec ceci:
+--  -- parler avec/à une personne spécifiée
+--  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à ou au ou aux):
+--    si ceci réagit : 
+--      exécuter réaction de ceci;
+--    fin si
+--  -- parler d’un sujet (à la seule personne présente ici)
+--  sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
+--    si le nombre de personnes présentes vaut 1:
+--      dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
+--            Néanmoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+--    sinonsi le nombre de personnes présentes dépasse 1:
+--      dire "Il y a plusieurs personnes présentes.
+--            Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+--    sinon
+--      dire "Je n'ai trouvé personne à qui parler.";
+--    fin si
+--  sinon
+--    dire "Je ne connais pas cette préposition : [préposition ceci].";
+--  fin si.
+--
+--terminer parler avec ceci:
+--  si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à ou au ou aux):
+--    si ceci ne réagit pas:
+--      dire "(Et ils eurent une conversation peu intéressante.)";
+--    fin si
+--  fin si.
   
 -- c) parler à ceci de cela
 parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
@@ -466,7 +479,7 @@ terminer regarder:
 regarder ceci est une action qui concerne un intitulé.
 
 refuser regarder ceci:
-  si ceci n’est ni un element ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.";
+  si ceci n’est ni un élément ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.";
   si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.".
   
 exécuter regarder ceci:
@@ -489,7 +502,7 @@ SCÈNE "examiner".
 examiner ceci est une action qui concerne un intitulé.
 
 refuser examiner ceci:
-  si ceci n’est ni un element ni une direction, dire "Je ne comprend pas ce que vous voulez examiner.";
+  si ceci n’est ni un élément ni une direction, dire "Je ne comprend pas ce que vous voulez examiner.";
   si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.";
   si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
@@ -860,7 +873,7 @@ toucher ceci est une action qui concerne un objet visible.
 
 refuser toucher ceci:
   si ceci est inaccessible, dire "Je n’y ai pas accès.";
-  si ceci est le joueur, dire "Non vous ne revez pas.";
+  si ceci est le joueur, dire "Non vous ne rêvez pas.";
   si ceci est un vivant, dire "Vous lui avez demandé son avis ?".
 
 exécuter toucher ceci:
