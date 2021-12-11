@@ -34,7 +34,27 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller)\\b"
+          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller)\\b"
+        },
+        {
+          "name": "support.constant",
+          "match": "(au (sud|nord))|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous"
+        },
+        {
+          "name": "storage.type",
+          "match": "(une \\b(clé|porte|personne|action|direction)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|compteurs)\\b|(deux \\b(objets)\\b)"
+        },
+        {
+          "name": "entity.name.function",
+          "match": "\\b((i|I)ntitulé|(p|P)ronom|description|quantité|infinitif|préposition|titre|auteur|auteurs|aperçu|texte|lien|capacité|accord|réaction|version|site|web|aide|commande|action|contenu|obstacle|sortie(s)?)\\b"
+        },
+        {
+          "name": "keyword.operator",
+          "match": "\\b((ne |n’|n')?(se |s’)?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
+        },
+        {
+          "name": "constant.language",
+          "match":  "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|dénombrable|indénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|transportable|porté|possédé|disponible|occupé|(in)?visible|(in)?accessible|adjacent|multiple|unique|illimité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -42,7 +62,7 @@
       "patterns": [
         {
           "name": "storage.type",
-          "match": "(une \\b(clé|porte|personne|action)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|nombre)\\b)| des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)\\b"
+          "match": "nowaynowamy"
         }
       ]
     },
@@ -50,7 +70,11 @@
       "patterns": [
         {
           "name": "variable.language",
-          "match": "\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci)\\b"
+          "match": "\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)\\b"
+        },
+        {
+          "name": "variable.parameter",
+          "match": "\\b(joueur|inventaire|historique|jeu|licence)\\b"
         }
       ]
     },
@@ -58,18 +82,18 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "\\b(si|sinon|sinonsi|avant|après|fin|refuser|exécuter|terminer(?!: le| la)|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b"
+          "match": "\\b(si|fin si|sinon|sinonsi|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|refuser|(exécuter|terminer)(?= (\\w)+(er|re|ir))|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|prioritairement|puis|fin choix|finchoix|mais pas|mais bien|mais ni|mais soit|mais plus|ainsi que|et|ou|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b"
         }
       ]
     },
     "strings": {
-      "name": "string.quoted.double.donjon",
-      "begin": "\"",
-      "end": "\"",
+      "name": "string.interpolated.donjon",
+      "begin": "\"|\\]",
+      "end": "\\[|\"",
       "patterns": [
         {
           "name": "constant.character.escape.donjon",
-          "match": "\\\\."
+          "match": "\\{.\\}|\\{.|.\\}"
         }
       ]
     }

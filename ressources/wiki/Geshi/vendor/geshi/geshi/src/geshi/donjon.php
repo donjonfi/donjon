@@ -33,7 +33,7 @@ $language_data = array (
 	// 'COMMENT_MULTI' => array('"' => '[', ']' => '[', ']' => '"'),
     'COMMENT_REGEXP' => array(
 	    1 => '/(?:nowaynoway)/',
-		2 => '/(?:nowaynoway)/',
+		2 => '/(?:nowainoway)/',
 		3 => '/(?:"([^\]"]*?)\[)/',
 		4 => '/(?:\]([^\["]*?)")/',
 		5=> '/(?:\]([^"]*?)\[)/',
@@ -56,7 +56,8 @@ $language_data = array (
 			'obstacle', 'obstacles', 'porte',     'portes', 
 			'vivant',   'vivants',   'animal',    'animaux', 
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
-            '\daction',   '\dactions',   'question',  'questions'
+      'compteur', 'compteurs'
+      '\daction',   '\dactions',   'question',  'questions'
 			
             ),
         3 => array(
