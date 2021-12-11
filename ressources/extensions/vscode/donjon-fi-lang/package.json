@@ -1,8 +1,17 @@
 {
-    "name": "donjon-fi-lang",
-    "displayName": "Donjon FI Lang",
+    "name": "donjon-fi-language",
+    "displayName": "Donjon FI Language",
+    "author": {
+        "name": "Jonathan Claes",
+        "url": "https://donjon.fi"
+    },
+    "publisher": "donjon-fi",
+    "license": "MIT",
+    "homepage": "https://donjon.fi",
     "description": "Syntax highligthing for Donjon FI lang",
-    "version": "0.0.1",
+    "version": "0.5.1",
+    "icon": "donjon128.png",
+    "preview": true,
     "engines": {
         "vscode": "^1.62.0"
     },
@@ -10,16 +19,25 @@
         "Programming Languages"
     ],
     "contributes": {
-        "languages": [{
-            "id": "donjon",
-            "aliases": ["Donjon", "donjon"],
-            "extensions": [".djn"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "donjon",
-            "scopeName": "source.djn",
-            "path": "./syntaxes/donjon.tmLanguage.json"
-        }]
+        "languages": [
+            {
+                "id": "donjon",
+                "aliases": [
+                    "Donjon",
+                    "donjon"
+                ],
+                "extensions": [
+                    ".djn"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "donjon",
+                "scopeName": "source.djn",
+                "path": "./syntaxes/donjon.tmLanguage.json"
+            }
+        ]
     }
 }
