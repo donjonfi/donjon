@@ -1,11 +1,15 @@
 {
   "name": "@donjon/core",
-  "version": "0.116.0",
+  "version": "0.200.0",
+  "author": {
+    "name": "zigotteau"
+  },
+  "description": "Donjon FI Core Lib",
   "peerDependencies": {
-    "@angular/common": "^11.0.1",
-    "@angular/core": "^11.0.1"
+    "@angular/common": "^13.1.0",
+    "@angular/core": "^13.1.0"
   },
   "dependencies": {
-    "tslib": "^2.0.0"
+    "tslib": "^2.3.0"
   }
 }

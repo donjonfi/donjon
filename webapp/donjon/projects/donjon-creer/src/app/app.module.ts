@@ -6,6 +6,7 @@ import { ApercuConditionComponent } from './apercu/apercu-condition/apercu-condi
 import { ApercuElementGeneriqueComponent } from './apercu/apercu-element-generique/apercu-element-generique.component';
 import { ApercuInstructionComponent } from './apercu/apercu-instruction/apercu-instruction.component';
 import { ApercuMondeComponent } from './apercu/apercu-monde/apercu-monde.component';
+import { ApercuProprieteJeuComponent } from './apercu/apercu-propriete-jeu/apercu-propriete-jeu.component';
 import { ApercuReactionComponent } from './apercu/apercu-reaction/apercu-reaction.component';
 import { ApercuRegleComponent } from './apercu/apercu-regle/apercu-regle.component';
 import { ApercuSujetComponent } from './apercu/apercu-sujet/apercu-sujet.component';
@@ -19,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { ApercuProprieteJeuComponent } from './apercu/apercu-propriete-jeu/apercu-propriete-jeu.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2

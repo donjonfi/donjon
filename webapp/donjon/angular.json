@@ -3,33 +3,45 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "donjon": {
+      "projectType": "library",
+      "root": "projects/donjon",
+      "sourceRoot": "projects/donjon/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/donjon/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/donjon/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/donjon/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/donjon/src/test.ts",
+            "tsConfig": "projects/donjon/tsconfig.spec.json",
+            "karmaConfig": "projects/donjon/karma.conf.js"
+          }
+        }
+      }
+    },
     "donjon-creer": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss",
-          "skipTests": true
+          "style": "scss"
         },
-        "@schematics/angular:class": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:module": {
-          "skipTests": true
-        },
-        "@schematics/angular:pipe": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
+        "@schematics/angular:application": {
+          "strict": true
         }
       },
       "root": "projects/donjon-creer",
@@ -44,9 +56,8 @@
             "main": "projects/donjon-creer/src/main.ts",
             "polyfills": "projects/donjon-creer/src/polyfills.ts",
             "tsConfig": "projects/donjon-creer/tsconfig.app.json",
-            "aot": true,
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/donjon-creer/src/favicon.ico",
               "projects/donjon-creer/src/assets",
               "projects/donjon-creer/src/mode-donjon.js"
             ],
@@ -57,45 +68,49 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "projects/donjon-creer/src/environments/environment.ts",
                   "with": "projects/donjon-creer/src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "donjon-creer:build",
-            "port": 4200
-          },
           "configurations": {
             "production": {
               "browserTarget": "donjon-creer:build:production"
+            },
+            "development": {
+              "browserTarget": "donjon-creer:build:development",
+              "port": 4200
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -110,39 +125,14 @@
             "polyfills": "projects/donjon-creer/src/polyfills.ts",
             "tsConfig": "projects/donjon-creer/tsconfig.spec.json",
             "karmaConfig": "projects/donjon-creer/karma.conf.js",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/donjon-creer/src/favicon.ico",
               "projects/donjon-creer/src/assets"
             ],
             "styles": [
               "projects/donjon-creer/src/styles.scss"
             ],
             "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/donjon-creer/tsconfig.app.json",
-              "projects/donjon-creer/tsconfig.spec.json",
-              "projects/donjon-creer/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "projects/donjon-creer/e2e/protractor.conf.js",
-            "devServerTarget": "donjon-creer:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "donjon-creer:serve:production"
-            }
           }
         }
       }
@@ -151,29 +141,10 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss",
-          "skipTests": true
+          "style": "scss"
         },
-        "@schematics/angular:class": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:module": {
-          "skipTests": true
-        },
-        "@schematics/angular:pipe": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
+        "@schematics/angular:application": {
+          "strict": true
         }
       },
       "root": "projects/donjon-jouer",
@@ -188,9 +159,8 @@
             "main": "projects/donjon-jouer/src/main.ts",
             "polyfills": "projects/donjon-jouer/src/polyfills.ts",
             "tsConfig": "projects/donjon-jouer/tsconfig.app.json",
-            "aot": true,
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/donjon-jouer/src/favicon.ico",
               "projects/donjon-jouer/src/assets"
             ],
             "styles": [
@@ -200,45 +170,49 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "projects/donjon-jouer/src/environments/environment.ts",
                   "with": "projects/donjon-jouer/src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "donjon-jouer:build",
-            "port": 4201
-          },
           "configurations": {
             "production": {
               "browserTarget": "donjon-jouer:build:production"
+            },
+            "development": {
+              "browserTarget": "donjon-jouer:build:development",
+              "port": 4201
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -253,79 +227,14 @@
             "polyfills": "projects/donjon-jouer/src/polyfills.ts",
             "tsConfig": "projects/donjon-jouer/tsconfig.spec.json",
             "karmaConfig": "projects/donjon-jouer/karma.conf.js",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/donjon-jouer/src/favicon.ico",
               "projects/donjon-jouer/src/assets"
             ],
             "styles": [
               "projects/donjon-jouer/src/styles.scss"
             ],
             "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/donjon-jouer/tsconfig.app.json",
-              "projects/donjon-jouer/tsconfig.spec.json",
-              "projects/donjon-jouer/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "projects/donjon-jouer/e2e/protractor.conf.js",
-            "devServerTarget": "donjon-jouer:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "donjon-jouer:serve:production"
-            }
-          }
-        }
-      }
-    },
-    "donjon": {
-      "projectType": "library",
-      "root": "projects/donjon",
-      "sourceRoot": "projects/donjon/src",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "tsConfig": "projects/donjon/tsconfig.lib.json",
-            "project": "projects/donjon/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/donjon/tsconfig.lib.prod.json"
-            }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/donjon/src/test.ts",
-            "tsConfig": "projects/donjon/tsconfig.spec.json",
-            "karmaConfig": "projects/donjon/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/donjon/tsconfig.lib.json",
-              "projects/donjon/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
           }
         }
       }

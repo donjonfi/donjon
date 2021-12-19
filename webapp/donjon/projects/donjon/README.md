@@ -1,6 +1,6 @@
 # Donjon
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.1.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.0.
 
 ## Code scaffolding
 

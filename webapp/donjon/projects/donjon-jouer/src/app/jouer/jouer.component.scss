@@ -1,28 +1,28 @@
 .subgrid {
-    display: grid;
-    height: 100%;
-    max-height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    // background-color: yellow;
+  display: grid;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  // background-color: yellow;
 }
 
 .rr1 {
-    grid-row: 1;
-    // background-color: orangered;
-    // padding: 5px;
+  grid-row: 1;
+  // background-color: orangered;
+  // padding: 5px;
 }
 
 .rr2 {
-    grid-row: 2;
-    // background-color: orange;
-    // padding: 5px;
+  grid-row: 2;
+  // background-color: orange;
+  // padding: 5px;
 }
 
 .max{
-    max-height: 100%;
-    overflow: auto;
+  max-height: 100%;
+  overflow: auto;
 }

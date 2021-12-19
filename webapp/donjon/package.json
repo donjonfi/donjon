@@ -1,86 +1,52 @@
 {
   "name": "donjon",
-  "version": "0.133.0",
-  "author": {
-    "name": "zigotteau"
-  },
+  "version": "0.200.0",
   "description": "Donjon FI",
-  "main": "desktop/electron.js",
+  "author": {
+    "name": "zigotteau",
+    "url": "https://github.com/zigotteau/donjon"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
-    "electron-dev": "concurrently \"cross-env BROWSER=none ng build donjon && ng serve donjon-creer\" \"wait-on http://localhost:4200 && electron .\"",
-    "postinstall": "electron-builder install-app-deps",
-    "preelectron-pack": "ng build donjon && ng build donjon-creer --prod --base-href=./",
-    "electron-pack-mac": "electron-builder build -m",
-    "electron-pack-linux": "electron-builder build -l",
-    "electron-pack-win": "electron-builder build -w"
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~11.2.4",
-    "@angular/common": "~11.2.4",
-    "@angular/compiler": "~11.2.4",
-    "@angular/core": "~11.2.4",
-    "@angular/forms": "~11.2.4",
-    "@angular/platform-browser": "~11.2.4",
-    "@angular/platform-browser-dynamic": "~11.2.4",
-    "@angular/router": "~11.2.4",
+    "@angular/animations": "~13.1.0",
+    "@angular/common": "~13.1.0",
+    "@angular/compiler": "~13.1.0",
+    "@angular/core": "~13.1.0",
+    "@angular/forms": "~13.1.0",
+    "@angular/platform-browser": "~13.1.0",
+    "@angular/platform-browser-dynamic": "~13.1.0",
+    "@angular/router": "~13.1.0",
     "@donjon/core": "file:dist/donjon",
-    "@fortawesome/fontawesome-free": "^5.15.2",
-    "bootstrap": "^4.6.0",
-    "electron-is-dev": "^1.2.0",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "bootstrap": "^5.1.3",
     "file-saver": "^2.0.5",
-    "ngx-ace-wrapper": "^11.0.0",
+    "ngx-ace-wrapper": "^11.0.1",
     "ngx-bootstrap": "^6.2.0",
-    "rxjs": "~6.6.0",
-    "tslib": "^2.1.0",
-    "zone.js": "~0.10.2"
+    "rxjs": "~7.4.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.1102.3",
-    "@angular/cli": "~11.2.3",
-    "@angular/compiler-cli": "~11.2.4",
-    "@types/jasmine": "~3.6.0",
+    "@angular-devkit/build-angular": "~13.1.2",
+    "@angular/cli": "~13.1.2",
+    "@angular/compiler-cli": "~13.1.0",
+    "@types/file-saver": "^2.0.4",
+    "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
-    "codelyzer": "^6.0.0",
-    "concurrently": "^6.0.0",
-    "cross-env": "^7.0.3",
-    "electron": "^12.0.0",
-    "electron-builder": "^22.10.5",
-    "electron-devtools-installer": "^3.1.1",
-    "jasmine-core": "~3.6.0",
-    "jasmine-spec-reporter": "~5.0.0",
-    "karma": "~6.1.1",
+    "jasmine-core": "~3.10.0",
+    "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "~2.0.3",
+    "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
-    "karma-jasmine-html-reporter": "^1.5.0",
-    "ng-packagr": "^11.0.0",
-    "protractor": "~7.0.0",
-    "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
-    "typescript": "~4.0.2",
-    "wait-on": "^5.2.1"
-  },
-  "build": {
-    "appId": "com.donjon.creer",
-    "productName": "DonjonCreer",
-    "copyright": "Copyright © 2021",
-    "mac": {
-      "category": "public.app-category.utilities"
-    },
-    "files": [
-      "dist/donjon-creer/**/*",
-      "desktop/**/*"
-    ],
-    "directories": {
-      "buildResources": "assets",
-      "output": "desktop-dist"
-    }
+    "karma-jasmine-html-reporter": "~1.7.0",
+    "ng-packagr": "^13.0.0",
+    "typescript": "~4.5.2"
   }
 }
