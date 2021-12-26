@@ -11,7 +11,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "tauri": "tauri"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +38,7 @@
     "@angular-devkit/build-angular": "~13.1.2",
     "@angular/cli": "~13.1.2",
     "@angular/compiler-cli": "~13.1.0",
+    "@tauri-apps/cli": "^1.0.0-beta.10",
     "@types/file-saver": "^2.0.4",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
