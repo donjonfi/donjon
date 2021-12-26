@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
 Le titre du jeu est "Sauvons Noël !".
 L’auteur du jeu est "JG".
-La version du jeu est "1.8".
+La version du jeu est "1.9".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -112,14 +112,14 @@ avant dormir, dormir dans le lit ou mettre le joueur dans le lit :
 L'édredon est un objet décoratif sur le lit. "Ce patchwork est avant tout un souvenir sentimental. C'est votre préféré, malgré son état."
 interpréter le patchwork comme l'édredon.
 -- > Le bonnet
-Le bonnet est un vêtement sur le lit. "Votre bonnet rouge est indispensable pour sortir de chez vous.".
+Le bonnet est un vêtement sous le lit. "Votre bonnet rouge est indispensable pour sortir de chez vous.".
 Son aperçu est "[initialement]Votre bonnet est sous votre lit.[puis]Il y a votre bonnet par terre.[fin choix]".
 Il est caché.
 interpréter chapeau et couvre-chef comme bonnet.
 -- > Le pantalon
 Le pantalon est un vêtement dans la chambre. "C'est votre pantalon en velours rouge. Il protège votre intimité.".
 -- > La porte de la chambre
-La porte de la chambre est une porte à l'est de la chambre. "Votre lutin a troué votre porte en tentant de vous réveiller. Á présent vous pouvez voir le hall à travers le trou.".
+La porte de la chambre est une porte à l'est de la chambre. "Votre lutin a troué votre porte en tentant de vous réveiller. À présent vous pouvez voir le hall à travers le trou.".
 Elle est fermée et ouvrable.
 interpréter la porte comme la porte de la chambre.
 
@@ -334,4 +334,3 @@ après enlever bottes:
     {n}Vous avez perdu.";
     terminer le jeu;
   fin si.
-
