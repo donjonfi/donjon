@@ -1,6 +1,6 @@
 <div>
   <div class="row">
-    <div class="col-auto pr-1">
+    <div class="col-auto pe-1">
       <button class="btn btn-sm my-1 py-0 text-monospace"
         [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}" (click)="replie = !replie">
         {{(replie ? 'montrer' : 'masquer' )}}
@@ -14,8 +14,9 @@
           <!-- <span *ngIf="!first && !last">, </span> -->
           <b *ngIf="!first"> ou </b>
           {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}<span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</span>
+          <span class="preposition"> {{(curEv.prepositionCeci ? curEv.prepositionCeci :'')}}</span>          
           <span class="objet"> {{curEv.ceci}}</span>
-          <span class="preposition"> {{(curEv.preposition ? curEv.preposition : (curEv.cela ? 'et':''))}}</span>
+          <span class="preposition"> {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.cela ? 'et':''))}}</span>
           <span class="objet"> {{curEv.cela}}</span>
         </span>
       </span>
@@ -56,9 +57,10 @@
             Événement {{(i+1)}} :
             <ul>
               <li>Infinitif : {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}{{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</li>
+              <li *ngIf="curEv.prepositionCeci">Preposition ceci : {{curEv.prepositionCeci}}</li>
               <li *ngIf="curEv.ceci">
                 Ceci : {{curEv.ceci}} <i>{{(curEv.classeCeci ? '(classe)' : '')}}</i></li>
-              <li *ngIf="curEv.preposition">Preposition : {{(curEv.preposition ? curEv.preposition : (curEv.cela ? 'et':''))}}</li>
+              <li>Preposition cela : {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.cela ? 'et':''))}}</li>
               <li *ngIf="curEv.cela">Cela : {{curEv.cela}} <i>{{(curEv.classeCela ? '(classe)' : '')}}</i></li>
             </ul>
           </li>

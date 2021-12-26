@@ -10,9 +10,9 @@
       <!-- charger fichier local -->
 
       <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
-        <i class="fas fa-folder-open"></i><span class="ml-2 d-none d-lg-inline"
+        <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
           title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.txt"
-          style="display: none;" (change)="onChargerFichierLocal($event.target.files)" onclick="this.value=null">
+          style="display: none;" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
       </label>
     </nav>
   </div>
@@ -23,7 +23,7 @@
       <div class="row max" style="height: 100%">
 
         <!-- COL 1 : LISTE DES ONGLETS -->
-        <div class="col-auto pl-2 pr-0">
+        <div class="col-auto ps-2 pe-0">
           <div class="btn-group-vertical">
             <button class="btn btn-primary" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
               title="Scénario" tooltip="Scénario" placement="right">
@@ -74,7 +74,7 @@
             <!-- wiki -->
             <br>
             <a class="btn btn-primary mt-4" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
-              placement="right">
+              placement="right" container="body">
               <i class="fas fa-fw fa-question fa-lg"></i>
             </a>
 
@@ -98,7 +98,7 @@
         </div>
 
         <!-- COL 2 : CONTENU ONGLET -->
-        <div class="col" style="height: 100%;">
+        <div class="col pe-2" style="height: 100%;">
           <!-- TAB : Scénario (code source) -->
           <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
             <div class="grid-scenario">
@@ -106,7 +106,7 @@
                 <ng-container *ngIf="afficherPreferences">
                   <div class="row mb-2">
                     <div class="col-auto">
-                      <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-control" name="choixTheme">
+                      <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-select" name="choixTheme">
                         <option disabled>*** Thèmes clairs ***</option>
                         <option [ngValue]="'chrome'">chrome</option>
                         <option [ngValue]="'crimson_editor'">crimson_editor</option>
@@ -123,7 +123,7 @@
                       </select>
                     </div>
                     <div class="col-auto">
-                      <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-control"
+                      <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-select"
                         name="choixNbLignesCodes">
                         <option [ngValue]="13">police 13</option>
                         <option [ngValue]="14">police 14</option>
@@ -141,28 +141,34 @@
                       </select>
                     </div>
                   </div>
-                  <div class="row mb-2">
+                  <div class="row mb-1">
                     <div class="col-12">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" [(ngModel)]="corrigerSinonSi" (change)="onChangerCorrectionSinonSi()" id="ckCorrigerSinonSi">
-                        <label class="custom-control-label" for="ckCorrigerSinonSi">Corriger automatiquement « sinon si » en « sinonsi ».</label>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerSinonSi"
+                          (change)="onChangerCorrectionSinonSi()" id="ckCorrigerSinonSi">
+                        <label class="form-check-label" for="ckCorrigerSinonSi">Corriger automatiquement « sinon si » en
+                          « sinonsi ».</label>
                       </div>
                     </div>
                   </div>
-                  <div *ngIf="false" class="row mb-2">
+                  <div *ngIf="false" class="row mb-1">
                     <div class="col-12">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" [(ngModel)]="corrigerPoint" (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
-                        <label class="custom-control-label" for="ckCorrigerPoint">Essayer de corriger les « . » et « ; » manquants.</label>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint"
+                          (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
+                        <label class="form-check-label" for="ckCorrigerPoint">Essayer de corriger les « . » et « ; »
+                          manquants.</label>
                       </div>
                     </div>
                   </div>
 
                   <div class="row mb-2">
                     <div class="col-12">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" [(ngModel)]="sansMiseEnForme" (change)="onChangerSansMiseEnForme()" id="ckSansMiseEnForme">
-                        <label class="custom-control-label" for="ckSansMiseEnForme">Éditeur de scénario sans mise en forme (pour lecteur d'écran).</label>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="sansMiseEnForme"
+                          (change)="onChangerSansMiseEnForme()" id="ckSansMiseEnForme">
+                        <label class="form-check-label" for="ckSansMiseEnForme">Éditeur de scénario sans mise en forme
+                          (pour lecteur d'écran).</label>
                       </div>
                     </div>
                   </div>
@@ -170,8 +176,8 @@
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
                 <div *ngIf="afficherSections" class="row mb-2">
-                  <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pr-md-1 py-1">
-                    <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-control"
+                  <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pe-md-1 py-1">
+                    <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-select"
                       name="choixPartie">
                       <option [ngValue]="null">(tout le scénario)</option>
                       <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
@@ -184,7 +190,7 @@
 
                   <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
                     <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
-                      class="form-control" name="choixChapitre">
+                      class="form-select" name="choixChapitre">
                       <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}
                       </option>
                       <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
@@ -195,11 +201,12 @@
                     </select>
                   </div>
 
-                  <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 pl-md-1 py-1">
-                    <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-control"
+                  <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 ps-md-1 py-1">
+                    <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-select"
                       name="choixScene">
                       <option [ngValue]="null">
-                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
+                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
+                        partie)':'(tout le scénario)'))}}
                       </option>
                       <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                         <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
@@ -210,7 +217,7 @@
                   </div>
 
                   <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length"
-                    class="font-italic ml-4">
+                    class="font-italic ms-4">
                     (Votre scénario n’est pas découpé en sections)
                   </p>
 
@@ -218,15 +225,16 @@
               </div>
 
               <!-- CODE SOURCE (Scénario) -->
-                <div *ngIf="!sansMiseEnForme" class="rs2 max">
-                  <div class="card max" style="height: 100%;">
-                    <ace #codeEditor spellcheck="true" contenteditable [config]="config"
-                      [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
-                  </div>
+              <div *ngIf="!sansMiseEnForme" class="rs2 max">
+                <div class="card max" style="height: 100%;">
+                  <ace #codeEditor spellcheck="true" contenteditable [config]="config"
+                    [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
                 </div>
+              </div>
               <ng-container *ngIf="sansMiseEnForme">
                 <div class="rs2 max">
-                  <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true" [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
+                  <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true"
+                    [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
                   </textarea>
                 </div>
               </ng-container>

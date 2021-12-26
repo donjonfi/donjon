@@ -14,13 +14,13 @@ export class ElementJeu extends Intitule {
     public id: number,
 
     /** Nom de l’élément */
-    public nom: string,
+    nom: string,
 
     /**
      * Intitulé de l’élément pour le joueur.
      * Il remplace le déterminant/nom à l’affichage
      */
-    public intitule: GroupeNominal,
+    intitule: GroupeNominal,
 
     /**
      * Type de l’élément
@@ -33,7 +33,7 @@ export class ElementJeu extends Intitule {
      * - Support
      * - …
      */
-    public classe: Classe,
+    classe: Classe,
 
   ) {
     super(nom, intitule, classe);

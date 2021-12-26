@@ -222,6 +222,7 @@ export class MotUtils {
         // aucun déterminant 
         case "":
           retVal = quantiteSiAucunDeterminant;
+          break;
 
         default:
           // précédé d’un nombre > 1 ?

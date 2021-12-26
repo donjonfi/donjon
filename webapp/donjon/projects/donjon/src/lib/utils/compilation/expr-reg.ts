@@ -668,7 +668,7 @@ export class ExprReg {
    * - ex: Partie "Description du donjon".
    * - ex: Scène "Dans la cuisine".
    */
-  static readonly xSection = /^( *)(partie|chapitre|scène)( ?)$/i;
+  static readonly xSection = /^(?:\s*)(partie|chapitre|scène)( ?)$/i;
 
 
   /** L'aide pour l'action manger(1) est  */

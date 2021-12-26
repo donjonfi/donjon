@@ -538,6 +538,7 @@ export class ConditionsUtils {
               } else {
                 console.error("Seul « préposition » pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
               }
+              break;
 
             default:
               console.error(

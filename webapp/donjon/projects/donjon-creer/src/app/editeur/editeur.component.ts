@@ -434,11 +434,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }, 10);
   }
 
-  onChargerFichierLocal(files: FileList): void {
+  onChargerFichierLocal(et: EventTarget): void {
 
-    if (files.length > 0) {
+    const hie = et as HTMLInputElement;
+
+    if (hie?.files?.length) {
       // fichier choisi par l’utilisateur
-      const file = files[0];
+      const file = hie.files[0];
       if (file) {
 
         console.warn("chargement de ", file.name);

@@ -203,6 +203,7 @@ export class ElementsJeuUtils {
       return retVal;
     } else {
       console.error("portePossedeCapaciteAction >> ElementJeu pas défini.");
+      return false;
     }
   }
 

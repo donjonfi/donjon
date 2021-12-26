@@ -155,7 +155,7 @@ export class InstructionDire {
 
             case PrepositionSpatiale.sous:
               phraseSiVide = "Il n’y a rien dessous.";
-
+              break;
             case PrepositionSpatiale.dans:
             default:
               phraseSiVide = "[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";

@@ -46,8 +46,8 @@ export class AnalyseurDivers {
   public static testerSection(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
-    const section = ExprReg.xSection.exec(phrase.phrase[0]);
-    if (section) {
+    const sectionTrouvee = ExprReg.xSection.test(phrase.phrase[0]);
+    if (sectionTrouvee) {
       elementTrouve = ResultatAnalysePhrase.section;
     }
     return elementTrouve;

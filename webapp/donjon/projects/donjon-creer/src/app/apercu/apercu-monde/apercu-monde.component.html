@@ -42,8 +42,8 @@
 
 <p *ngIf="compteurs && compteurs.length == 0">Aucun compteur trouvé.</p>
 <ul>
-  <li *ngFor="let comnpteur of compteurs">
-    <app-apercu-element-generique [el]="comnpteur"></app-apercu-element-generique>
+  <li *ngFor="let compteur of compteurs">
+    <app-apercu-element-generique [el]="compteur"></app-apercu-element-generique>
   </li>
 </ul>
 

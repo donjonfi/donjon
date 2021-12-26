@@ -254,6 +254,7 @@ export class InstructionsUtils {
         } else {
           resultat = recherche.proprieteElement;
         }
+        break;
 
       case TypeProprieteJeu.proprieteElement:
         // trouver la propriete

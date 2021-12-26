@@ -18,7 +18,7 @@ import { StringUtils } from '../commun/string.utils';
 
 export class Compilateur {
 
-  private static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2021 Jonathan Claes − see MIT License";
+  private static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2022 Jonathan Claes − see MIT License";
 
   /**
    * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
@@ -209,7 +209,7 @@ export class Compilateur {
   public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
 
     // terminer par un « . » les parties, chapitre et scènes.
-    const sectionsAvecPoint = scenario.replace(/^((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
+    const sectionsAvecPoint = scenario.replace(/^(?:\s*)((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
 
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
