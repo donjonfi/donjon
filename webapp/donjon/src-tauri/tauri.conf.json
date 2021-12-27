@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "Donjon",
+    "productName": "donjon-creer",
     "version": "0.200.0"
   },
   "build": {
@@ -13,19 +13,20 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "fi.donjon.creer",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
+        "icons/icon.png",
         "icons/icon.icns",
         "icons/icon.ico"
       ],
       "resources": [],
       "externalBin": [],
-      "copyright": "",
+      "copyright": "©2018-2022 Jonathan.claes − donjon.fi",
       "category": "DeveloperTool",
-      "shortDescription": "",
+      "shortDescription": "Donjon vous permet de créer vos fictions interactives et d’y jouer.",
       "longDescription": "",
       "deb": {
         "depends": [],
@@ -46,14 +47,18 @@
       }
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://donjon.fi/update/donjon-creer.json"
+      ],
+      "dialog": true
     },
     "allowlist": {
       "all": true
     },
     "windows": [
       {
-        "title": "Donjon - Cr�er",
+        "title": "Donjon - Créer",
         "width": 1280,
         "height": 720,
         "resizable": true,
