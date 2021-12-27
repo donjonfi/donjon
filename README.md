@@ -13,12 +13,6 @@ Vous pouvez utiliser Donjon FI directement sur le site [donjon.fi](https://donjo
 <a href="https://vimeo.com/channels/1676422" target="_blank">Chaîne vidéo</a>  avec tutoriels\
 <a href="https://donjon.fi/wiki" target="_blank">Wiki</a> avec documentation complète
 
-## Publier votre jeu
-
-Actuellement il vous faut soit compiler Donjon IDE et le publier sur votre site web soit proposer votre jeu sur [donjon.xax.be](https://donjon.xax.be) .
-
-Une version pré-compilée de Donjon FI sera proposée prochainement.
-
 ## Compilation de Donjon FI
 
 Donjon IDE est développé avec *Angular*.\
@@ -79,13 +73,13 @@ Voir
 Compiler l’éditeur :
 ```shell
 ng build donjon
-ng build donjon-creer --prod
+ng build donjon-creer
 ```
 
 Compiler le lecteur :
 ```shell
 ng build donjon
-ng build donjon-jouer --prod
+ng build donjon-jouer
 ```
 
 Publier ensuie le contenu du dossier `dist` à la racine du site web.
