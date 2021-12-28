@@ -47,7 +47,8 @@ $language_data = array (
         1 => array(
 			'attendre', 'changer', 'chercher', 'continuer(?!\:)', 'dire', 'déplacer',
 			'effacer', 'stopper', 'terminer',
-			'activer', 'désactiver', 'exécuter'
+			'activer', 'désactiver', 'exécuter',
+			'affecter'
             ),
         2 => array(
 			'objet',    'objets',    'lieu',      'lieux', 
@@ -56,8 +57,9 @@ $language_data = array (
 			'obstacle', 'obstacles', 'porte',     'portes', 
 			'vivant',   'vivants',   'animal',    'animaux', 
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
-      'compteur', 'compteurs'
-      '\daction',   '\dactions',   'question',  'questions'
+			'compteur', 'compteurs',
+			'\daction',   '\dactions',   'question',  'questions',
+			'liste', 'listes'
 			
             ),
         3 => array(
@@ -71,11 +73,11 @@ $language_data = array (
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
 			'initialement', 'puis', 'fin', 'finsi',
-			'choix', 'choisir', 'aucun', 'boucle', 'hasard', 'fois'
+			'choix', 'choisir', 'aucun', 'autre', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
             'joueur', 'historique', 'ceci', 'cela', 
-			'celle-ci', 'celle-là', 'celui-ci', 'ceux-ci',
+			'celle-ci', 'celles-ci', 'celle-là', 'celles-là', 'celui-ci', 'ceux-ci', 'celui-là', 'ceux-là',
 			'ici', 'règle', 
 			'description','intitulé', 'texte', 'titre', 'réaction',
 			'aperçu',

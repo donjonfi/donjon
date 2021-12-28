@@ -300,6 +300,7 @@ __pycache__/
 /saves/*.sav
 /builds/donjon-creer.appimage
 /webapp/donjon/projects/MEMO.TXT
+webapp/donjon/projects/MOMO_TAURI.TXT
 /ressources/*.odt#
 /webapp/donjon/projects/donjon-jouer/src/assets/jeux/soir-de-bal.djn
 /webapp/donjon/projects/donjon-jouer/src/assets/jeux/capitaine_hissemanne.djn
