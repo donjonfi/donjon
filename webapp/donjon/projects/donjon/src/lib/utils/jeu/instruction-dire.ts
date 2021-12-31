@@ -1095,7 +1095,7 @@ export class InstructionDire {
     const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDansSurSous, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
-    if (objets !== null) {
+    if (objets !== undefined) {
       resultat.succes = true;
 
       // AFFICHER LES ÉLÉMENTS DIRECTS
@@ -1174,7 +1174,7 @@ export class InstructionDire {
     // console.log("@@@ executerDecrireContenu > \nceci:", ceci, "\nprepositionSpatiale:", prepositionSpatiale, "\nobjets:", objets);
 
     // si la recherche n’a pas retourné d’erreur
-    if (objets !== null) {
+    if (objets !== undefined) {
       resultat.succes = true;
 
       // - objets avec aperçu (ne pas lister les objets décoratifs):

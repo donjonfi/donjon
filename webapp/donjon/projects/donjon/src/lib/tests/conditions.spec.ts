@@ -1144,10 +1144,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
     // (A <= B) ET (A > (C ou D))
     const condition = AnalyseurCondition.getConditionMulti('A ne dépasse pas B mais soit C soit D');
-
-    console.warn(">>>>>>>>>>> cond=", condition);
-
-
+    
     cptA.valeur = 5;
     cptB.valeur = 10;
     cptC.valeur = 100;

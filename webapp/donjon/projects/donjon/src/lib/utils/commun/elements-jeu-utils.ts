@@ -718,8 +718,8 @@ export class ElementsJeuUtils {
     inclureObjetsNonVisibles: boolean,
     inclureObjetsDansSurSous: boolean,
     preposition: PrepositionSpatiale
-  ) {
-    let objets: Objet[] = null;
+  ): Objet[] | undefined {
+    let objets: Objet[] | undefined;
     if (ceci) {
       // objet
       if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
@@ -775,9 +775,9 @@ export class ElementsJeuUtils {
         }
       });
     }
-    
+
     // ne jamais lister le joueur
-    objets = objets.filter(x => x.id !== this.jeu.joueur.id);
+    objets = objets?.filter(x => x.id !== this.jeu.joueur.id);
 
     return objets;
   }

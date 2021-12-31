@@ -4,6 +4,7 @@ import { AnalyseurCapacite } from './analyseur.capacite';
 import { AnalyseurDivers } from './analyseur.divers';
 import { AnalyseurElementPosition } from './analyseur.element.position';
 import { AnalyseurElementSimple } from './analyseur.element.simple';
+import { AnalyseurListe } from './analyseur.liste';
 import { AnalyseurPropriete } from './analyseur.propriete';
 import { AnalyseurRegle } from './analyseur.regle';
 import { AnalyseurSynonymes } from './analyseur.synonymes';
@@ -11,7 +12,6 @@ import { AnalyseurType } from './analyseur.type';
 import { AnalyseurUtils } from './analyseur.utils';
 import { ContexteAnalyse } from '../../../models/compilateur/contexte-analyse';
 import { EClasseRacine } from '../../../models/commun/constantes';
-import { ExprReg } from '../expr-reg';
 import { Phrase } from '../../../models/compilateur/phrase';
 import { ResultatAnalysePhrase } from '../../../models/compilateur/resultat-analyse-phrase';
 
@@ -237,15 +237,27 @@ export class Analyseur {
           }
         }
       }
-    }
 
-    // ==========================================================================================================
-    // MONDE 7 - CAPACITÉ SE RAPPORTANT À UN ÉLÉMENT EXISTANT
-    // ==========================================================================================================
-    if (elementTrouve === ResultatAnalysePhrase.aucun) {
-      elementTrouve = AnalyseurCapacite.testerPourCapacite(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.capacite) {
-        console.log("=> trouvé capacité :", ctx.dernierElementGenerique);
+      // ==========================================================================================================
+      // MONDE 7 - CONTENU SE RAPPORTANT À UNE LISTE EXISTANTE
+      // ==========================================================================================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurListe.testerContenuListe(phrase, ctx);
+        if (elementTrouve === ResultatAnalysePhrase.pronomPersonnelContenuListe) {
+          if (ctx.verbeux) {
+            console.log("=> trouvé contenu liste (pronom personnel) :", ctx.dernierElementGenerique);
+          }
+        }
+      }
+
+      // ==========================================================================================================
+      // MONDE 8 - CAPACITÉ SE RAPPORTANT À UN ÉLÉMENT EXISTANT
+      // ==========================================================================================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurCapacite.testerPourCapacite(phrase, ctx);
+        if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.capacite) {
+          console.log("=> trouvé capacité :", ctx.dernierElementGenerique);
+        }
       }
     }
 

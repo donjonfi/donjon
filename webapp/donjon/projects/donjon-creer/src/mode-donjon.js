@@ -58,8 +58,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "(\\b(désactiver|activer|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|interpréter|comme)\\b)|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|prioritairement|puis|fin choix|finchoix)\\b)|" +
+          regex: "(\\b(désactiver|activer|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|choix|choisir|refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|interpréter|comme)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?e fois|[1-9][0-9]?ème fois|[1-9][0-9]?eme fois|initialement|prioritairement|puis|fin choix|fin choisir|finchoisir|finchoix)\\b)|" +
             "(\\b(mais pas|mais bien|mais ni|mais soit|mais plus|ainsi que|et|ou|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )",
           caseInsensitive: true
@@ -83,8 +83,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action)|un (obstacle|lieu|objet|animal|décor|contenant|support|nombre)|" +
-            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|nombres)"
+          regex: "une (clé|porte|personne|action|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
+            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|liste|compteurs)"
         }, {
           // token: "support.variable",
           token: "variable.parameter",

@@ -4,6 +4,7 @@ import { Auditeur } from '../jouer/auditeur';
 import { Classe } from '../commun/classe';
 import { Compteur } from '../compilateur/compteur';
 import { Lieu } from './lieu';
+import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
@@ -72,6 +73,9 @@ export class Jeu {
 
   /** Compteurs ajoutés au jeu */
   compteurs: Compteur[] = [];
+
+  /** Listes ajoutées au jeu */
+  listes: Liste[] = [];
 
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];

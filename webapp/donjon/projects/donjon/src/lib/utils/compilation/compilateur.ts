@@ -97,6 +97,7 @@ export class Compilateur {
 
     // ÉLÉMENTS
     let compteurs: ElementGenerique[] = [];
+    let listes: ElementGenerique[] = [];
     // définir la classe des éléments génériques et les trier.
     ctxAnalyse.elementsGeneriques.forEach(el => {
       el.classe = ClasseUtils.trouverOuCreerClasse(monde.classes, el.classeIntitule);
@@ -119,6 +120,8 @@ export class Compilateur {
         monde.speciaux.push(el);
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.compteur)) {
         compteurs.push(el);
+      } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.liste)) {
+        listes.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe, el);
       }
@@ -164,6 +167,7 @@ export class Compilateur {
     console.log("règles:", ctxAnalyse.regles);
     console.log("actions:", ctxAnalyse.actions);
     console.log("compteurs:", compteurs);
+    console.log("listes:", listes);
     console.log("aides:", ctxAnalyse.aides);
     console.log("typesUtilisateur:", ctxAnalyse.typesUtilisateur);
     console.log("==================\n");
@@ -174,6 +178,7 @@ export class Compilateur {
     resultat.regles = ctxAnalyse.regles;
     resultat.actions = ctxAnalyse.actions;
     resultat.compteurs = compteurs;
+    resultat.listes = listes;
     resultat.erreurs = ctxAnalyse.erreurs;
     resultat.aides = ctxAnalyse.aides;
     resultat.parametres = ctxAnalyse.parametres;

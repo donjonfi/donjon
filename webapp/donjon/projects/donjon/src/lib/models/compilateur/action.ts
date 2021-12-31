@@ -1,5 +1,4 @@
 import { CibleAction } from './cible-action';
-import { Compteur } from './compteur';
 import { ElementJeu } from '../jeu/element-jeu';
 import { Instruction } from './instruction';
 import { Intitule } from '../jeu/intitule';
@@ -34,8 +33,8 @@ export class ActionCeciCela {
 
   constructor(
     public action: Action,
-    public ceci: ElementJeu | Compteur | Intitule,
-    public cela: ElementJeu | Compteur | Intitule
+    public ceci: ElementJeu | Intitule,
+    public cela: ElementJeu | Intitule
   ) { }
 }
 
@@ -43,7 +42,7 @@ export class CandidatActionCeciCela {
 
   constructor(
     public action: Action,
-    public ceci: Array<ElementJeu | Compteur | Intitule>,
-    public cela: Array<ElementJeu | Compteur | Intitule>,
+    public ceci: Array<ElementJeu | Intitule>,
+    public cela: Array<ElementJeu | Intitule>,
   ) { }
 }

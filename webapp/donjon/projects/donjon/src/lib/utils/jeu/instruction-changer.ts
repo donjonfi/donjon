@@ -17,7 +17,6 @@ import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { ProprieteElement } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
-import { TypeValeur } from "../../models/compilateur/type-valeur";
 
 export class InstructionChanger {
 
@@ -35,7 +34,7 @@ export class InstructionChanger {
   }
 
   /** Changer quelque chose dans le jeu */
-  public executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
+  public executerChanger(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
@@ -339,7 +338,7 @@ export class InstructionChanger {
     return resultat;
   }
 
-  private changerCompteur(compteur: Compteur, instruction: ElementsPhrase, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
+  private changerCompteur(compteur: Compteur, instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
     let resultat = new Resultat(true, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {

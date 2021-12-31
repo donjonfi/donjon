@@ -5,10 +5,18 @@ import { Classe } from './classe';
 export class ClassesRacines {
 
   /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
-  public static Compteur = new Classe(EClasseRacine.compteur, "compteur", null, 0, []);
-
-  /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
   public static Intitule = new Classe(EClasseRacine.intitule, "intitulé", null, 0, []);
+
+  /** Il s’agit d’un nombre ayant un intitulé */
+  public static Compteur = new Classe(EClasseRacine.compteur, "compteur", ClassesRacines.Intitule, 1, []);
+
+  /** Il s’agit d’une liste d’éléments (textes, nombres, intitulés, mixte, …)  */
+  public static Liste = new Classe(EClasseRacine.liste, "liste", ClassesRacines.Intitule, 1, []);
+  public static ListeVide = new Classe(EClasseRacine.listeVide, "liste vide", ClassesRacines.Liste, 2, []);
+  public static ListeTexte = new Classe(EClasseRacine.listeTexte, "liste texte", ClassesRacines.Liste, 2, []);
+  public static ListeNombre = new Classe(EClasseRacine.listeNombre, "liste nombre", ClassesRacines.Liste, 2, []);
+  public static ListeIntitule = new Classe(EClasseRacine.listeIntitule, "liste intitulé", ClassesRacines.Liste, 2, []);
+  public static ListeMixte = new Classe(EClasseRacine.listeMixte, "liste mixte", ClassesRacines.Liste, 2, []);
 
   /** Il s’agit d’une direction (nord, sud, est, ouest, haut, bas, intérieur, extérieur) */
   public static Direction = new Classe(EClasseRacine.direction, "direction", ClassesRacines.Intitule, 1, []);

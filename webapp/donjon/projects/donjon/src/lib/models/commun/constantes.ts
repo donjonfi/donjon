@@ -3,8 +3,14 @@ export const version = "0.200"
 export const versionNum = 200;
 
 export enum EClasseRacine {
-  compteur = 'compteur',
   intitule = 'intitule',
+  compteur = 'compteur',
+  liste = 'liste',
+  listeVide = 'listevide',
+  listeNombre = 'listenombre',
+  listeTexte = 'listetexte',
+  listeIntitule = 'listeintitule',
+  listeMixte = 'listemixte',
   direction = 'direction',
   element = 'element',
   special = 'special',

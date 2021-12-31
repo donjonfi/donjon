@@ -18,7 +18,7 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class CompteursUtils {
 
   /** Changer la valeur d’un compteur */
-  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, ceci: ElementJeu | Compteur | Intitule = null, cela: ElementJeu | Compteur | Intitule = null, evenement: Evenement = null, declenchements: number) {
+  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number) {
 
     if (compteurOuPropriete) {
 
@@ -151,7 +151,7 @@ export class CompteursUtils {
     return valeurNum;
   }
 
-  public static intituleValeurVersNombre(valeurString: string, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): number {
+  public static intituleValeurVersNombre(valeurString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): number {
     let valeurNum: number = null;
 
     // calculer la nouvelle valeur
@@ -209,7 +209,7 @@ export class CompteursUtils {
     return valeurNum;
   }
 
-  public static intituleValeurVersString(valeurString: string, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): string {
+  public static intituleValeurVersString(valeurString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): string {
 
     let retVal: string;
 

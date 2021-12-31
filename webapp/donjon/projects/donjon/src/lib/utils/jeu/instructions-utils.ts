@@ -180,6 +180,8 @@ export class InstructionsUtils {
       recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu);
       if (!recherche.element) {
         console.error("trouverProprieteCible > élément pas trouvé:", recherche.intituleElement);
+        throw new Error("trouverProprieteCible > élément pas trouvé: " + recherche.intituleElement);
+        
       }
     }
     // retrouver la classe
@@ -244,7 +246,7 @@ export class InstructionsUtils {
       // C. (NOMBRE DE) PROPRIÉTÉ ÉLÉMENT
       case TypeProprieteJeu.nombreDeProprieteElement:
         // trouver la propriete
-        recherche.proprieteElement = recherche.element.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
+        recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
         if (!recherche.proprieteElement) {
           console.error("trouverProprieteCible > nombreDeProprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element.nom);
           // vérifier s’il s’agit bien d’un nombre
@@ -258,9 +260,9 @@ export class InstructionsUtils {
 
       case TypeProprieteJeu.proprieteElement:
         // trouver la propriete
-        recherche.proprieteElement = recherche.element.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
+        recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
         if (!recherche.proprieteElement) {
-          console.error("trouverProprieteCible > proprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element.nom);
+          console.error("trouverProprieteCible > proprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element?.nom ?? '?');
         } else {
           // trouvé propriété
           resultat = recherche.proprieteElement;

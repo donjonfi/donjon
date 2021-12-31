@@ -153,12 +153,29 @@ export class ExprReg {
   */
   static readonly xPronomDemonstratifTypeAttributs = /^((?:c(?:’|')est (?:un|une))|(?:ce sont des)) (\S+)( .+)?/i;
 
-  /** pronom personnel
+  /** pronom personnel + attribut
    * - attributs(1)
    * - Ex: Il est faché, grand et fort.
    * - Ex: Celui-ci grand.
    */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+
+  /**  
+   * Pronom personnel + contenu
+   * - Découpage :
+   *     - (elementA[[, elementsBCD] et elementE])(1)
+   * - Exemples :
+   *     - Elle contient 7, 21 et 9.
+   *     - Elle contient la cuisine et le salon.
+   *     - Ils contiennent "Alice", "Bob", "Carole" et "David".
+   * - Tests unitaires :
+   *     - Elle contient 200
+   *     - Elle contient 7, 21 et 9
+   *     - Elle contient la cuisine et le salon
+   *     - Ils contiennent "Alice", "Bob", "Carole" et "David"
+   *     - 💥 Bob contient 200
+   */
+  static readonly xPronomPersonnelContenu = /^(?:(?:(?:il|elle|celui-ci|celle-ci) contient)|(?:(?:ils|elles|celles-ci|ceux-ci) contiennent))(?: ((?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,]))))/i;
 
   /** Propriété
    * - Découpage :

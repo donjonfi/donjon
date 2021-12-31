@@ -106,7 +106,7 @@ export class ConditionsUtils {
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: ConditionSolo, ceci: ElementJeu | Compteur | Intitule, cela: ElementJeu | Compteur | Intitule, evenement: Evenement, declenchements: number) {
+  public siEstVraiSansLien(conditionString: string, condition: ConditionSolo, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
     let retVal = false;
     // si condition toujours brute, récupérer la condition correspondante.
     if (condition == null) {
@@ -131,7 +131,7 @@ export class ConditionsUtils {
       } else {
         // 1 - Trouver le sujet
         // ++++++++++++++++++++
-        let sujet: ElementJeu | Compteur | Intitule = null;
+        let sujet: ElementJeu | Intitule = null;
 
         if (condition.sujet) {
           // ici

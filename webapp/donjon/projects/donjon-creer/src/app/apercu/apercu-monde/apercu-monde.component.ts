@@ -13,6 +13,7 @@ export class ApercuMondeComponent implements OnInit {
   @Input() monde: Monde;
   @Input() regles: Regle[];
   @Input() compteurs: ElementGenerique[];
+  @Input() listes: ElementGenerique[];
   @Input() actions: Action[];
 
   constructor() { }

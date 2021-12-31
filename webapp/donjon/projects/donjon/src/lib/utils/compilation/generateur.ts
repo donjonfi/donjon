@@ -18,6 +18,7 @@ import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { Liste } from '../../models/jeu/liste';
 import { ListeEtats } from '../jeu/liste-etats';
 import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
@@ -31,7 +32,7 @@ import { Voisin } from '../../models/jeu/voisin';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
+  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], listes: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
 
     let jeu = new Jeu();
 
@@ -434,6 +435,25 @@ export class Generateur {
       jeu.compteurs.push(curCompteur);
     });
 
+
+    // GÉNÉRER LES LISTES
+    // *********************
+    listes.forEach(lst => {
+      const curListe = new Liste(lst.nom, 0, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
+
+      // vérifier les attributs du compteur
+      lst.attributs.forEach(curAttribut => {
+        // // valeur initialisation
+        // const initialisation = ExprReg.xInitialiseA.exec(curAttribut)
+        // if (initialisation) {
+        //   // vérifier s’il s’agit d’un nombre
+        //   curListe.valeur = CompteursUtils.intituleNombreVersNombre(initialisation[1]);
+        // }
+      });
+
+      jeu.listes.push(curListe);
+    });
+
     return jeu;
 
   }
@@ -477,7 +497,7 @@ export class Generateur {
           const newVoisin = new Voisin(lieuTrouveID, classeRacine, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
           lieuTrouve.voisins.push(newVoisin);
-        // la porte trouvée, est également visible depuis le lieu voisin à priori…
+          // la porte trouvée, est également visible depuis le lieu voisin à priori…
         } else if (classeRacine == EClasseRacine.porte) {
           // todo: rendre la porte visible chez le voisin également
         }

@@ -47,6 +47,16 @@
   </li>
 </ul>
 
+<h3>Listes</h3>
+<p *ngIf="!listes">Veuillez commencer par interpréter le code.</p>
+
+<p *ngIf="listes && listes.length == 0">Aucune liste trouvée.</p>
+<ul>
+  <li *ngFor="let liste of listes">
+    <app-apercu-element-generique [el]="liste"></app-apercu-element-generique>
+  </li>
+</ul>
+
 <h3>Règles</h3>
 <p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
 

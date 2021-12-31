@@ -7,6 +7,7 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { Liste } from '../../models/jeu/liste';
 import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
@@ -64,7 +65,19 @@ export class Debogueur {
               retVal += (" 1 compteur trouvé :");
             }
             cor.compteurs.forEach(cpt => {
-              retVal += "\n\n" + this.afficherDetailCompteur((cpt as Compteur));
+              retVal += "\n\n" + this.afficherDetailCompteur(cpt);
+            });
+          }
+
+          // listes
+          if (cor.listes.length) {
+            if (cor.listes.length > 1) {
+              retVal += (cor.listes.length + " listes trouvées :");
+            } else {
+              retVal += (" 1 liste trouvée :");
+            }
+            cor.listes.forEach(lst => {
+              retVal += "\n\n" + this.afficherDetailListe(lst);
             });
           }
 
@@ -177,6 +190,15 @@ export class Debogueur {
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(compteur, false) + "*}" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(compteur.classe) +
       "{n}{e}{_valeur_}{n}" + compteur.valeur?.toString() ?? '?' +
+      "";
+    return sortie;
+  }
+
+  private afficherDetailListe(liste: Liste) {
+    const sortie =
+      "{* • " + ElementsJeuUtils.calculerIntituleGenerique(liste, false) + "*}" +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(liste.classe) +
+      "{n}{e}{_contenu_}{n}" + liste.valeurs?.toString() ?? '?' +
       "";
     return sortie;
   }

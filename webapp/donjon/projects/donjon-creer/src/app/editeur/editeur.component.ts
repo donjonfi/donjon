@@ -72,6 +72,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   regles: Regle[] = null;
   actions: Action[] = null;
   compteurs: ElementGenerique[] = null;
+  listes: ElementGenerique[] = null;
   aides: Aide[] = null;
   erreurs: string[] = null;
   jeu: Jeu = null;
@@ -302,13 +303,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.monde = resultat.monde;
         this.regles = resultat.regles;
         this.compteurs = resultat.compteurs;
+        this.listes = resultat.listes;
         this.actions = resultat.actions.sort((a, b) => (
           (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
         ));
         this.aides = resultat.aides;
         this.erreurs = resultat.erreurs;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs, this.aides, resultat.parametres);
+        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs, this.listes, this.aides, resultat.parametres);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -325,6 +327,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.actions = null;
       this.aides = null;
       this.compteurs = null;
+      this.listes = null;
       this.erreurs = [];
       this.compilationEnCours = false;
       this.compilationTerminee = true;
