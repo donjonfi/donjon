@@ -170,12 +170,12 @@ export class ExprReg {
    *     - Ils contiennent "Alice", "Bob", "Carole" et "David".
    * - Tests unitaires :
    *     - Elle contient 200
-   *     - Elle contient 7, 21 et 9
+   *     - Elle inclut 7, 21 et 9
    *     - Elle contient la cuisine et le salon
    *     - Ils contiennent "Alice", "Bob", "Carole" et "David"
    *     - 💥 Bob contient 200
    */
-  static readonly xPronomPersonnelContenu = /^(?:(?:(?:il|elle|celui-ci|celle-ci) contient)|(?:(?:ils|elles|celles-ci|ceux-ci) contiennent))(?: ((?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,]))))/i;
+  static readonly xPronomPersonnelContenu = /^(?:(?:(?:il|elle|celui-ci|celle-ci) (?:contient|inclut))|(?:(?:ils|elles|celles-ci|ceux-ci) (?:contiennent|incluent)))(?: ((?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,]))))?/i;
 
   /** Propriété
    * - Découpage :

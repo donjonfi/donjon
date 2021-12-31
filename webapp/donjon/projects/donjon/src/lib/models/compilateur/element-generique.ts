@@ -22,6 +22,9 @@ export class ElementGenerique implements ElementDonjon {
   public epitheteP: string = null;
 
   public synonymes: GroupeNominal[] = [];
+  public valeursTexte: string[] = [];
+  public valeursNombre: number[] = [];
+  public valeursIntitule: GroupeNominal[] = [];
 
   constructor(
     public determinant: string,

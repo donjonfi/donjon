@@ -8,6 +8,7 @@ import { PhraseUtils } from "../../commun/phrase-utils";
 import { ProprieteElement } from "../../../models/commun/propriete-element";
 import { Reaction } from "../../../models/compilateur/reaction";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { TexteUtils } from "../../commun/texte-utils";
 import { TypeValeur } from "../../../models/compilateur/type-valeur";
 
 export class AnalyseurPropriete {
@@ -80,12 +81,7 @@ export class AnalyseurPropriete {
           // si phrase en plusieurs morceaux, ajouter valeur (texte) de la propriété
           if (phrase.phrase.length > 1) {
             // ajouter la valeur en enlevant les caractères spéciaux
-            ctxAnalyse.dernierePropriete.valeur = phrase.phrase[1]
-              .replace(ExprReg.xCaractereDebutCommentaire, '')
-              .replace(ExprReg.xCaractereFinCommentaire, '')
-              .replace(ExprReg.xCaractereRetourLigne, '\n')
-              .replace(ExprReg.xCaracterePointVirgule, ';')
-              .replace(ExprReg.xCaractereVirgule, ',');
+            ctxAnalyse.dernierePropriete.valeur = TexteUtils.retrouverTexteOriginal(phrase.phrase[1]);
           }
         }
 

@@ -1,4 +1,5 @@
 import { ClasseUtils } from '../commun/classe-utils';
+import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -39,7 +40,7 @@ export class Debogueur {
         console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
       } else {
         const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
-        if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.localisation !== null) {
+        if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.listes.length !== 0 || cor.localisation !== null) {
           // éléments
           if (cor.elements.length) {
             if (cor.elements.length > 1) {
@@ -195,11 +196,29 @@ export class Debogueur {
   }
 
   private afficherDetailListe(liste: Liste) {
-    const sortie =
+
+    let sortie =
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(liste, false) + "*}" +
-      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(liste.classe) +
-      "{n}{e}{_contenu_}{n}" + liste.valeurs?.toString() ?? '?' +
-      "";
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(liste.classe) + "{n}{e}{_contenu_}{n}";
+
+    switch (liste.classe) {
+      case ClassesRacines.ListeVide:
+        sortie += "(vide)";
+        break;
+
+      case ClassesRacines.ListeNombre:
+        sortie += liste.valeursNombre.toString();
+        break;
+
+      case ClassesRacines.ListeTexte:
+        sortie += liste.valeursTexte.toString();
+        break;
+
+      default:
+        sortie += "(type de liste pas encore pris en charge ici)";
+        break;
+    }
+
     return sortie;
   }
 

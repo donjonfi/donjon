@@ -63,7 +63,7 @@ describe('Epressions régulières − Contenu d’une liste', () => {
     expect(result[1]).toEqual("200") // élément jeu
   });
 
-  it('Cont. liste : « Elle contient 7, 21 et 9 »', () => {
+  it('Cont. liste : « Elle inclut 7, 21 et 9 »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Elle contient 7, 21 et 9');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("7, 21 et 9") // élément jeu

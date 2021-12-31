@@ -439,7 +439,28 @@ export class Generateur {
     // GÉNÉRER LES LISTES
     // *********************
     listes.forEach(lst => {
-      const curListe = new Liste(lst.nom, 0, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
+      const curListe = new Liste(lst.nom, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
+
+      console.log("lst.attributs=", lst.attributs);
+
+      if (lst.valeursNombre.length) {
+        curListe.ajouterNombres(lst.valeursNombre);
+      }
+      if (lst.valeursTexte.length) {
+        curListe.ajouterTextes(lst.valeursTexte);
+      }
+      if (lst.valeursIntitule.length) {
+        const eju = new ElementsJeuUtils(jeu, true);
+        lst.valeursIntitule.forEach(valeurIntitule => {
+          const cor = eju.trouverCorrespondance(valeurIntitule, false, false);
+          if (cor.nbCor == 1) {
+            curListe.valeursIntitule.push(cor.unique);
+          } else {
+            curListe.valeursIntitule.push(cor.intitule);
+          }
+        });
+      }
+
 
       // vérifier les attributs du compteur
       lst.attributs.forEach(curAttribut => {

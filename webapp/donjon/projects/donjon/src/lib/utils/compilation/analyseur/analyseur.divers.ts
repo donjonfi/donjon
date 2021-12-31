@@ -3,8 +3,10 @@ import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
+import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { StringUtils } from "../../commun/string.utils";
+import { TexteUtils } from "../../commun/texte-utils";
 
 export class AnalyseurDivers {
 
@@ -22,14 +24,7 @@ export class AnalyseurDivers {
     const aide = ExprReg.xAide.exec(phrase.phrase[0]);
     if (aide) {
       ctxAnalyse.aides.push(
-        new Aide(aide[1],
-          phrase.phrase[1]
-            .replace(ExprReg.xCaractereDebutCommentaire, '')
-            .replace(ExprReg.xCaractereFinCommentaire, '')
-            .replace(ExprReg.xCaractereRetourLigne, '\n')
-            .replace(ExprReg.xCaracterePointVirgule, ';')
-            .replace(ExprReg.xCaractereVirgule, ',')
-        )
+        new Aide(aide[1], TexteUtils.retrouverTexteOriginal(phrase.phrase[1]))
       );
       elementTrouve = ResultatAnalysePhrase.aide;
     }

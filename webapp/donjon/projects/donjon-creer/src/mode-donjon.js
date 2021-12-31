@@ -88,7 +88,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "\\b((ne |n’|n')?(se |s’)?(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
+          regex: "\\b((ne |n’|n')?(se |s’)?(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

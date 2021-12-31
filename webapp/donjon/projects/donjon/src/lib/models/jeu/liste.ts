@@ -10,13 +10,10 @@ export class Liste extends Intitule {
   private _valeursNombre: number[] | undefined = undefined;
   private _valeursIntitule: Intitule[] | undefined = undefined;
   private _valeursMixtes: (string | number | Intitule)[] | undefined = undefined;
-
   public constructor(
-    /** Nom du compteur */
+    /** Nom de la liste */
     nom: string,
-    /** Valeur du compteur */
-    public valeur: number = 0,
-    /** Intitulé du compteur */
+    /** Intitulé de la liste */
     intitule: GroupeNominal | undefined = undefined,
     /** Classe : liste */
     classe: Classe = ClassesRacines.Liste,
@@ -27,6 +24,11 @@ export class Liste extends Intitule {
   /** La liste est-elle vide ? */
   public get vide(): boolean {
     return this.classe == ClassesRacines.ListeVide;
+  }
+
+  /** Le nombre d’éléments de la liste */
+  public get taille(): number {
+    return this.valeurs.length;
   }
 
   /** Vider la liste */
@@ -265,7 +267,7 @@ export class Liste extends Intitule {
   /** Récupérer les valeurs de la liste (nombre) */
   public get valeursNombre(): number[] {
     if (this.classe == ClassesRacines.ListeNombre) {
-      return this.valeursNombre;
+      return this._valeursNombre;
     } else {
       console.error("Liste > GetValeursNombre : il ne s’agit pas d’une liste nombre.");
       return [];
@@ -275,7 +277,7 @@ export class Liste extends Intitule {
   /** Récupérer les valeurs de la liste (intitulé) */
   public get valeursIntitule(): Intitule[] {
     if (this.classe == ClassesRacines.ListeIntitule) {
-      return this.valeursIntitule;
+      return this._valeursIntitule;
     } else {
       console.error("Liste > GetValeursIntitule : il ne s’agit pas d’une liste intitulé.");
       return [];

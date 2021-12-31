@@ -12,6 +12,7 @@ import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
+import { Liste } from '../../models/jeu/liste';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
@@ -216,7 +217,7 @@ export class ElementsJeuUtils {
       // le lieu a été visité par le joueur
       this.jeu.etats.ajouterEtatElement(retVal, EEtatsBase.visite, true);
     } else {
-      console.warn("Pas trouvé la curLieu:", lieuID);
+      console.warn("Pas trouvé le curLieu:", lieuID);
     }
     return retVal;
   }
@@ -454,9 +455,12 @@ export class ElementsJeuUtils {
           cor.elements = cor.elements.concat(cor.objets);
           cor.nbCor += cor.objets.length;
         }
-        // 4. Chercher parmais les compteurs
+        // 4. Chercher parmis les compteurs
         cor.compteurs = this.trouverCompteur(sujet);
         cor.nbCor += cor.compteurs.length;
+        // 5. Chercher parmis les listes
+        cor.listes = this.trouverListe(sujet);
+        cor.nbCor += cor.listes.length;
       }
       if (this.verbeux) {
         console.log(" >>>> éléments trouvés:", cor.elements);
@@ -465,6 +469,19 @@ export class ElementsJeuUtils {
       // console.log(" >>>> objets trouvés:", cor.objets);
       // console.log(" >>>> lieux trouvés:", cor.lieux);
       // console.log(" >>>> intitulé:", cor.intitule);
+    }
+
+    // sélectionner le résultat unique (s’il n’y en a qu’un seul)
+    if (cor.nbCor == 1) {
+      if (cor.elements) {
+        cor.unique = cor.elements[0];
+      } else if (cor.compteurs) {
+        cor.unique = cor.compteurs[0];
+      } else if (cor.listes) {
+        cor.unique = cor.listes[0];
+      } else if (cor.localisation) {
+        cor.unique = cor.localisation;
+      }
     }
 
     return cor;
@@ -615,6 +632,30 @@ export class ElementsJeuUtils {
     );
 
     return compteursTrouves;
+  }
+
+  /**
+ * Retrouver une liste parmis toutes les listes sur base de son intitulé.
+ * Remarque: Il peut y avoir plus d’une correspondance.
+ */
+  trouverListe(sujet: GroupeNominal): Liste[] {
+
+    let listesTrouvees: Liste[] = [];
+    const sujetNom = sujet.nom.toLowerCase();
+    const sujetEpithete = sujet.epithete?.toLowerCase();
+
+
+
+    // Rechercher dans les compteurs
+    this.jeu.listes.forEach(
+      lst => {
+        if (lst.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === lst.intitule.epithete?.toLowerCase())) {
+          listesTrouvees.push(lst);
+        }
+      }
+    );
+
+    return listesTrouvees;
   }
 
 

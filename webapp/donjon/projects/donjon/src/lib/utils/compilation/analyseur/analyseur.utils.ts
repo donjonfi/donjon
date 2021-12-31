@@ -1,6 +1,7 @@
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
+import { TexteUtils } from "../../commun/texte-utils";
 
 export class AnalyseurUtils {
 
@@ -13,12 +14,7 @@ export class AnalyseurUtils {
         // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
         if (phrase.phrase.length > 1) {
             // ajouter la description en enlevant les caractères spéciaux
-            ctx.dernierElementGenerique.description = phrase.phrase[1]
-                .replace(ExprReg.xCaractereDebutCommentaire, '')
-                .replace(ExprReg.xCaractereFinCommentaire, '')
-                .replace(ExprReg.xCaractereRetourLigne, '\n')
-                .replace(ExprReg.xCaracterePointVirgule, ';')
-                .replace(ExprReg.xCaractereVirgule, ',');
+            ctx.dernierElementGenerique.description = TexteUtils.retrouverTexteOriginal(phrase.phrase[1]);
         }
     }
 
