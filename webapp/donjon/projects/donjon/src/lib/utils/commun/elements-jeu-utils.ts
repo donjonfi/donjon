@@ -464,11 +464,11 @@ export class ElementsJeuUtils {
       }
       if (this.verbeux) {
         console.log(" >>>> éléments trouvés:", cor.elements);
+        // console.log(" >>>> objets trouvés:", cor.objets);
+        // console.log(" >>>> lieux trouvés:", cor.lieux);
+        // console.log(" >>>> intitulé:", cor.intitule);
       }
 
-      // console.log(" >>>> objets trouvés:", cor.objets);
-      // console.log(" >>>> lieux trouvés:", cor.lieux);
-      // console.log(" >>>> intitulé:", cor.intitule);
     }
 
     // sélectionner le résultat unique (s’il n’y en a qu’un seul)

@@ -16,8 +16,6 @@ export class AnalyseurListe {
    */
   public static testerContenuListe(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 
-    console.log("Tadada");
-
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom personnel + contenu
@@ -39,7 +37,6 @@ export class AnalyseurListe {
 
         // s’il s’agit de textes, il faut les récupérer
         if (contenuBrut === undefined) {
-          console.log("ContenuBrut: textes", phrase);
           if (phrase.phrase.length > 0) {
             for (let index = 0; index < phrase.phrase.length; index++) {
               const morceau = phrase.phrase[index];
@@ -60,9 +57,7 @@ export class AnalyseurListe {
 
           // sinon il faut juste les découper
         } else {
-          console.log("ContenuBrut:", contenuBrut);
           let morceaux = PhraseUtils.separerListeIntitulesEt(contenuBrut);
-          console.log("morceaux=", morceaux);
 
           morceaux.forEach(morceau => {
             if (morceau.match(ExprReg.xNombreEntier)) {

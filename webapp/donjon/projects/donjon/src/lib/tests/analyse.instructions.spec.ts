@@ -41,6 +41,13 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
         expect(result[2]).toEqual("le score augmente de 1"); // complément
     });
 
+    it('Phrase: « changer la liste des suspects contient "Alice" »', () => {
+      const result = ExprReg.xInstruction.exec('changer la liste des suspects contient "Alice"');
+      expect(result).not.toBeNull();
+      expect(result[1]).toEqual('changer'); // verbe
+      expect(result[2]).toEqual('la liste des suspects contient "Alice"'); // complément
+  });
+
     it('Phrase:  « la pomme est verte » (💥)', () => {
         const result = ExprReg.xInstruction.exec("la pomme est verte");
         expect(result).toBeNull();
@@ -195,4 +202,17 @@ describe('PhrasesUtils − decomposerInstruction', () => {
         expect(result.sujetComplement3).toBeUndefined();
         expect(result.sujetComplement4).toBeUndefined();
     });
+
+    it('Instruction :  « changer la liste des suspects contient "Alice" »', () => {
+      const result = PhraseUtils.decomposerInstruction('changer la liste des suspects contient "Alice"');
+      expect(result).not.toBeNull();
+      expect(result.infinitif).toEqual("changer");
+      expect(result.sujet).toEqual(new GroupeNominal('la ', 'liste des suspects'));
+      expect(result.verbe).toEqual('contient');
+      expect(result.complement1).toBe('"Alice"');
+      expect(result.sujetComplement1).toBeUndefined();
+      expect(result.sujetComplement2).toBeUndefined();
+      expect(result.sujetComplement3).toBeUndefined();
+      expect(result.sujetComplement4).toBeUndefined();
+  });
 });

@@ -94,6 +94,12 @@ describe('Epressions régulières − Groupes nominaux', () => {
         expect(result).toEqual(null);
     });
 
+    it('Groupe Nominal :  « "texte" »  (💥)', () => {
+      const result = ExprReg.xGroupeNominal.exec('"texte"');
+      expect(result).toEqual(null);
+  });
+  
+
 });
 
 describe('Epressions régulières − Définition des éléments', () => {

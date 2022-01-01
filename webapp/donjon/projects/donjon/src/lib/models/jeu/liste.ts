@@ -2,7 +2,6 @@ import { Classe } from "../commun/classe";
 import { ClassesRacines } from "../commun/classes-racines";
 import { GroupeNominal } from "../commun/groupe-nominal";
 import { Intitule } from "./intitule";
-import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 
 export class Liste extends Intitule {
 
@@ -109,6 +108,59 @@ export class Liste extends Intitule {
 
       default:
         throw new Error("Not implemented");
+    }
+  }
+
+  /** Retirer un élément de type « nombre » de la liste. */
+  public retirerNombre(valeur: number) {
+    if (this.contientNombre(valeur)) {
+      // liste de nombres
+      if (this.classe == ClassesRacines.ListeNombre) {
+        this._valeursNombre.splice(this._valeursNombre.findIndex(x => x == valeur), 1);
+        // liste vide ?
+        if (this._valeursNombre.length == 0) {
+          this.classe == ClassesRacines.ListeVide;
+        }
+        // liste mixte
+      } else {
+        console.warn("liste > retirerNombre > liste mixte pas encore implémentée");
+      }
+    }
+  }
+
+  /** Retirer un élément de type « texte » de la liste. */
+  public retirerTexte(valeur: string) {
+    if (this.contientTexte(valeur)) {
+      // liste de textes
+      if (this.classe == ClassesRacines.ListeTexte) {
+        this._valeursTexte.splice(this._valeursTexte.findIndex(x => x == valeur), 1);
+        // liste vide ?
+        if (this._valeursTexte.length == 0) {
+          this.classe == ClassesRacines.ListeVide;
+        }
+        // liste mixte
+      } else {
+        console.warn("liste > retirerTexte > liste mixte pas encore implémentée");
+      }
+    }
+  }
+
+  /** Retirer un élément de type « Intitulé » de la liste. 
+   *  ATTENTION: la comparaison se fait en tenant compte uniquement de l’intitulé de l’objet.
+   */
+  public retirerIntitule(valeur: Intitule) {
+    if (this.contientIntitule(valeur)) {
+      // liste de textes
+      if (this.classe == ClassesRacines.ListeIntitule) {
+        this._valeursIntitule.splice(this._valeursIntitule.findIndex(x => x.intitule == valeur.intitule), 1);
+        // liste vide ?
+        if (this._valeursIntitule.length == 0) {
+          this.classe == ClassesRacines.ListeVide;
+        }
+        // liste mixte
+      } else {
+        console.warn("liste > retirerIntitule > liste mixte pas encore implémentée");
+      }
     }
   }
 
@@ -310,6 +362,89 @@ export class Liste extends Intitule {
       default:
         throw new Error("Not implemented");
     }
+  }
+
+  /** Est-ce que la liste contient le nombre spécifié ? */
+  public contientNombre(valeur: number): boolean {
+    let nombreTrouve: boolean;
+    if (this.classe == ClassesRacines.ListeNombre) {
+      nombreTrouve = this._valeursNombre.includes(valeur);
+    } else if (this.classe == ClassesRacines.ListeMixte) {
+      console.error("Liste > contientNombre > liste mixte pas encore prise en charge.");
+    }
+    return nombreTrouve;
+  }
+
+  /** Est-ce que la liste contient le texte spécifié ? */
+  public contientTexte(valeur: string): boolean {
+    let texteTrouve: boolean;
+    if (this.classe == ClassesRacines.ListeTexte) {
+      texteTrouve = this._valeursTexte.includes(valeur);
+    } else if (this.classe == ClassesRacines.ListeMixte) {
+      console.error("Liste > contientTexte > liste mixte pas encore prise en charge.");
+    }
+    return texteTrouve;
+  }
+
+  /** 
+   * Est-ce que la liste contient l’intitulé spécifié ? 
+   * ATTENTION: la comparaison se fait en tenant compte uniquement de l’intitulé de l’objet.
+   */
+  public contientIntitule(valeur: Intitule): boolean {
+    let intituleTrouve: boolean;
+    if (this.classe == ClassesRacines.ListeIntitule) {
+      intituleTrouve = this._valeursIntitule.some(x => x.intitule == valeur.intitule);
+    } else if (this.classe == ClassesRacines.ListeMixte) {
+      console.error("Liste > contientIntitule > liste mixte pas encore prise en charge.");
+    }
+    return intituleTrouve;
+  }
+
+  /** Lister les valeurs de la liste. */
+  public lister(): string {
+    let retVal: string;
+    if (this.vide) {
+      retVal = "(vide)";
+    } else {
+      let premier = true;
+      retVal = "";
+      this.valeurs.forEach(valeur => {
+        if (premier) {
+          premier = false;
+          retVal += "{e}•{e}" + valeur.toString()
+        } else {
+          retVal += "{n}{e}•{e}" + valeur.toString()
+        }
+      });
+    }
+    return retVal;
+  }
+
+  /** Décrire les valeurs de la liste. */
+  public decrire(): string {
+    let retVal: string;
+    const nbElements = this.taille;
+    if (nbElements) {
+      retVal = "";
+      for (let index = 0; index < nbElements; index++) {
+        retVal += this.valeurs[index];
+        if (index == nbElements - 2) {
+          retVal += " et ";
+        } else if (index == nbElements - 1) {
+          retVal += "."
+        } else {
+          retVal += ", "
+        }
+      }
+    } else {
+      retVal = "(vide)";
+    }
+    return retVal;
+  }
+
+  /** Décrire la liste. */
+  public override toString(): string {
+    return this.decrire();
   }
 
 }

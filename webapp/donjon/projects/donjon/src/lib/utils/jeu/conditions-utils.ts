@@ -11,12 +11,14 @@ import { ConditionSolo } from '../../models/compilateur/condition-solo';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
+import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { LienCondition } from '../../models/compilateur/lien-condition';
 import { Lieu } from '../../models/jeu/lieu';
+import { Liste } from '../../models/jeu/liste';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
@@ -242,6 +244,8 @@ export class ConditionsUtils {
               console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
             } else if (correspondances.compteurs.length === 1) {
               sujet = correspondances.compteurs[0];
+            } else if (correspondances.listes.length === 1) {
+              sujet = correspondances.listes[0];
             } else {
               // checher dans les propriétés
               const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
@@ -449,6 +453,102 @@ export class ConditionsUtils {
               console.error(
                 "Condition compteur: verbe pas connu (" + condition.verbe + ").\n",
                 "Les verbes connus sont : valoir, déppasser et atteindre.\n",
+                condition);
+              break;
+
+          }
+          // *********************************************
+          //  C. LISTE
+          // *********************************************
+        } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.liste)) {
+
+          const liste = sujet as Liste;
+
+          // 2 - Trouver le verbe
+          // ++++++++++++++++++++
+          switch (condition.verbe) {
+
+            case 'est':
+            case 'sont':
+              // remarque: négation appliquée plus loin.
+              if (condition.complement == 'vide' || condition.complement == 'vides') {
+                retVal = liste.vide;
+              } else {
+                console.error("Condition liste: est: supporté seulement pour « vide »");
+              }
+              break;
+
+            case 'contient':
+            case 'contiennent':
+            case 'inclut':
+            case 'incluent':
+              // remarque: négation appliquée plus loin.
+              // A. NOMBRE
+              if (condition.complement.match(ExprReg.xNombreEntier)) {
+                retVal = liste.contientNombre(Number.parseInt(condition.complement));
+              } else if (condition.complement.match(ExprReg.xNombreDecimal)) {
+                retVal = liste.contientNombre(Number.parseFloat(condition.complement));
+                // B. INTITULÉ
+              } else if (condition.sujetComplement) {
+                let intitule: Intitule;
+                // i) rechercher parmi les cibles spéciales (ceci, cela, …)
+                const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, ceci, cela, evenement, this.eju, this.jeu);
+                if (cibleSpeciale) {
+                  intitule = cibleSpeciale;
+                  // ii) rechercher parmis tous les éléments du jeu
+                } else {
+                  const cor = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
+                  if (cor.nbCor == 1) {
+                    intitule = cor.unique;
+                  } else {
+                    intitule = cor.intitule;
+                  }
+                }
+                retVal = liste.contientIntitule(intitule);
+                // C. TEXTE
+              } else {
+                retVal = liste.contientTexte(condition.complement);
+              }
+              break;
+
+            // // comparaison : égal (vaut) − différent (ne vaut pas)
+            // case 'valent':
+            // case 'vaut':
+            //   // remarque: négation appliquée plus loin.
+            //   retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            //   break;
+
+            // // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
+            // case 'dépasse':
+            // case 'dépassent':
+            //   // remarque: négation appliquée plus loin.
+            //   retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            //   break;
+
+            // // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
+            // case 'atteint':
+            // case 'atteignent':
+            //   // remarque: négation appliquée plus loin.
+            //   retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            //   break;
+
+            // case 'se déclenche':
+            //   // remarque: négation appliquée plus loin.
+            //   if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
+            //     retVal = (compteur.valeur === 1);
+            //   } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la deuxième fois') {
+            //     retVal = (compteur.valeur === 2);
+            //   } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la troisième fois') {
+            //     retVal = (compteur.valeur === 3);
+            //   } else {
+            //     console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
+            //   }
+            //   break;
+
+            default:
+              console.error(
+                "Condition liste: verbe pas connu (" + condition.verbe + ").\n",
+                "Les verbes connus sont : être.\n",
                 condition);
               break;
 

@@ -53,6 +53,19 @@ describe('Epressions régulières − Définition d’une liste', () => {
     expect(result[9]).toBeUndefined(); // ici
   });
 
+  it('Def. liste : « X est une liste »', () => {
+    const result = ExprReg.xDefinitionElementAvecType.exec('X est une liste');
+    expect(result[1]).toBeUndefined(); // déterminant
+    expect(result[2]).toEqual("X"); // nom
+    expect(result[3]).toBeUndefined(); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toEqual("liste"); // classe
+    expect(result[6]).toBeUndefined(); // attribut
+    expect(result[7]).toBeUndefined(); // position
+    expect(result[8]).toBeUndefined(); // complément
+    expect(result[9]).toBeUndefined(); // ici
+  });
+
 });
 
 describe('Epressions régulières − Contenu d’une liste', () => {
@@ -63,8 +76,14 @@ describe('Epressions régulières − Contenu d’une liste', () => {
     expect(result[1]).toEqual("200") // élément jeu
   });
 
+  it('Cont. liste : « Ils incluent 7 »', () => {
+    const result = ExprReg.xPronomPersonnelContenu.exec('Ils incluent 7');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("7") // élément jeu
+  });
+
   it('Cont. liste : « Elle inclut 7, 21 et 9 »', () => {
-    const result = ExprReg.xPronomPersonnelContenu.exec('Elle contient 7, 21 et 9');
+    const result = ExprReg.xPronomPersonnelContenu.exec('Elle inclut 7, 21 et 9');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("7, 21 et 9") // élément jeu
   });
@@ -111,26 +130,97 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
-    // tester l’analyse spécifique
-    const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
-    expect(el).not.toBeNull(); // élément trouvé
-    ctxAnalyse.dernierElementGenerique = el; // dernier élément trouvé
-    expect(el.determinant).toEqual('les '); // déterminant
-    expect(el.nom).toEqual('nombres'); // nom
-    expect(el.epithete).toEqual('gagnants'); // épithète pas défini
-    expect(el.genre).toEqual(Genre.m); // genre
-    expect(el.nombre).toEqual(Nombre.p); // nombre
-    expect(el.quantite).toEqual(-1); // quantité
-    expect(el.classeIntitule).not.toBeNull(); // intitulé classe défini
-    expect(el.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
-    expect(el.positionString).toBeNull(); // position pas définie
-    AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-    expect(el.description).toBeNull(); // desrcription pas définie
-    expect(el.capacites).toHaveSize(0); // aucune capacité
-    expect(el.attributs).toHaveSize(0); // aucun attribut
-    expect(el.proprietes).toHaveSize(0); // aucune propriété
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // contrôler dernier élément générique trouvé
+    expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
+    expect(ctxAnalyse.dernierElementGenerique.determinant).toEqual("les ");
+    expect(ctxAnalyse.dernierElementGenerique.nom).toEqual("nombres");
+    expect(ctxAnalyse.dernierElementGenerique.epithete).toEqual("gagnants");
+    expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
+    expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
+    expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(3); //doit contenir des nombres
+    expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte
+    expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(0); // ne doit pas contenir d’intitulé
+  });
 
+  it('Élément sans pos: « Les suspects sont une liste. Ils incluent "Alice" et "Bob". »', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      'Les suspects sont une liste. Ils incluent "Alice" et "Bob".'
+    );
+    expect(phrases).toHaveSize(2); // 2 phrases
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[1].phrase).toHaveSize(4); // 4 morceaux
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // contrôler dernier élément générique trouvé
+    expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
+    expect(ctxAnalyse.dernierElementGenerique.determinant).toEqual("les ");
+    expect(ctxAnalyse.dernierElementGenerique.nom).toEqual("suspects");
+    expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
+    expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
+    expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
+    expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(0); //ne doit pas contenir de nombre
+    expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(2); // doit contenir des textes
+    expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(0); // ne doit pas contenir d’intitulé
+  });
+
+  it('Élément sans pos: « Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon. »', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      'Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon.'
+    );
+    expect(phrases).toHaveSize(2); // 2 phrases
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[1].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // contrôler dernier élément générique trouvé
+    expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
+    expect(ctxAnalyse.dernierElementGenerique.determinant).toEqual("les ");
+    expect(ctxAnalyse.dernierElementGenerique.nom).toEqual("pièces de la maison");
+    expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
+    expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
+    expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
+    expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(0); //ne doit pas contenir de nombre
+    expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte
+    expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(2); // doit contenir des intitulés
+  });
+
+  it('Élément sans pos: « X est une liste. Il inclut 1. »', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      'X est une liste. Il inclut 1.'
+    );
+    expect(phrases).toHaveSize(2); // 2 phrases
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[1].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // contrôler dernier élément générique trouvé
+    expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
+    expect(ctxAnalyse.dernierElementGenerique.determinant).toBeNull();
+    expect(ctxAnalyse.dernierElementGenerique.nom).toEqual("X");
+    expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
+    expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
+    expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.s); // nombre
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
+    expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(1); // doit pas contenir 1 nombre
+    expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte
+    expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(0); // ne doit pas contenir d’intitulé
   });
 
 });

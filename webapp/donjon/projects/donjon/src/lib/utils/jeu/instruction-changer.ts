@@ -7,10 +7,12 @@ import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
 import { Evenement } from "../../models/jouer/evenement";
+import { ExprReg } from "../compilation/expr-reg";
 import { InstructionDeplacerCopier } from "./instruction-deplacer-copier";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
+import { Liste } from "../../models/jeu/liste";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
@@ -75,12 +77,12 @@ export class InstructionChanger {
         default:
           let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false, false);
 
-          // PAS OBJET, PAS LIEU et PAS COMPTEUR
-          if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0) {
+          // PAS OBJET, PAS LIEU, PAS COMPTEUR et PAS LISTE
+          if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
             resultat.sortie = "{+[Instruction « changer » : le sujet « " + instruction.sujet + " » n’a pas été trouvé.]+}";
             // OBJET(S) SEULEMENT
-          } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {
+          } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.objets.length === 1) {
               resultat = this.changerElementJeu(correspondance.objets[0], instruction);
             } else {
@@ -88,7 +90,7 @@ export class InstructionChanger {
               resultat.sortie = "{n}{+[Instruction « changer » : plusieurs objets trouvés pour « " + instruction.sujet + " ».]+}";
             }
             // LIEU(X) SEULEMENT
-          } else if (correspondance.objets.length === 0 && correspondance.compteurs.length === 0) {
+          } else if (correspondance.objets.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.lieux.length === 1) {
               resultat = this.changerElementJeu(correspondance.lieux[0], instruction);
             } else {
@@ -96,13 +98,22 @@ export class InstructionChanger {
               resultat.sortie = "{n}{+[Instruction « changer » : plusieurs lieux trouvés pour « " + instruction.sujet + " ».]+}";
             }
             // COMPTEUR(S) SEULEMENT
-          } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0) {
+          } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.compteurs.length === 1) {
               resultat = this.changerCompteur(correspondance.compteurs[0], instruction, ceci, cela, evenement, declenchements);
             } else {
               console.error("executerChanger: plusieurs compteurs trouvés:", correspondance);
               resultat.sortie = "{n}{+[Instruction « changer » : plusieurs compteurs trouvés pour « " + instruction.sujet + " ».]+}";
             }
+            // LISTE(S) SEULEMENT
+          } else if (correspondance.objets.length === 0 && correspondance.lieux.length === 0 && correspondance.compteurs.length === 0) {
+            if (correspondance.listes.length === 1) {
+              resultat = this.changerListe(correspondance.listes[0], instruction, ceci, cela, evenement, declenchements);
+            } else {
+              console.error("executerChanger: plusieurs listes trouvées:", correspondance);
+              resultat.sortie = "{n}{+[Instruction « changer » : plusieurs listes trouvées pour « " + instruction.sujet + " ».]+}";
+            }
+
           } else {
             console.error("executerChanger: trouvé lieu(x) ET objet(s):", correspondance);
             resultat.sortie = "{n}{+[Instruction « changer » : plusieurs éléments (lieux ET objets) trouvés pour « " + instruction.sujet + " ».]+}";
@@ -359,8 +370,82 @@ export class InstructionChanger {
 
       default:
         resultat.succes = false;
-        console.error("executerCompteur: pas compris le verbe:", instruction.verbe, instruction);
+        console.error("changerCompteur: pas compris le verbe:", instruction.verbe, instruction);
         resultat.sortie = "{n}{+[Instruction « changer » : compteur « " + instruction.sujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
+        break;
+    }
+
+    return resultat;
+
+  }
+
+  private changerListe(liste: Liste, instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number): Resultat {
+    let resultat = new Resultat(true, '', 1);
+
+    switch (instruction.verbe.toLowerCase()) {
+
+      case 'contient':
+      case 'contiennent':
+        const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
+
+        //A) NOMBRE
+        // tester s’il s’agit d’un nombre
+        if (instruction.complement1.match(ExprReg.xNombre)) {
+          const nombre = Number.parseFloat(instruction.complement1);
+          // console.log("=> nombre");
+          // enlever le nombre
+          if (nEstPas) {
+            // console.log("Je vais enlever de la liste:", nombre, instruction);
+            liste.retirerNombre(nombre);
+            // ajouter le nombre
+          } else {
+            // console.log("Je vais ajouter à la liste:", nombre, instruction);
+            liste.ajouterNombre(nombre);
+          }
+          // B) INTITULÉ
+        } else if (instruction.sujetComplement1) {
+          let intitule: Intitule;
+          // i) rechercher parmi les cibles spéciales (ceci, cela, …)
+          const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.nom, ceci, cela, evenement, this.eju, this.jeu);
+          if (cibleSpeciale) {
+            intitule = cibleSpeciale;
+            // ii) rechercher parmis tous les éléments du jeu
+          } else {
+            const cor = this.eju.trouverCorrespondance(instruction.sujetComplement1, false, false);
+            if (cor.nbCor == 1) {
+              intitule = cor.unique;
+            } else {
+              intitule = cor.intitule;
+            }
+          }
+          // enlever l’intitulé
+          if (nEstPas) {
+            // console.log("Je vais enlever de la liste:", cibleTrouvee, instruction);
+            liste.retirerIntitule(intitule);
+            // ajouter l’intitulé
+          } else {
+            // console.log("Je vais ajouter à la liste:", cibleTrouvee, instruction);
+            liste.ajouterIntitule(intitule);
+          }
+          // C) TEXTE
+        } else {
+          // console.log("=> texte");
+          // enlever le nombre
+          if (nEstPas) {
+            // console.log("Je vais enlever de la liste:", instruction.complement1, instruction);
+            liste.retirerTexte(instruction.complement1);
+            // ajouter le nombre
+          } else {
+            // console.log("Je vais ajouter à la liste:", instruction.complement1, instruction);
+            liste.ajouterTexte(instruction.complement1);
+          }
+        }
+        break;
+
+      default:
+        resultat.succes = false;
+        console.error("changerListe: pas compris le verbe:", instruction.verbe, instruction);
+        resultat.sortie = "{n}{+[Instruction « changer » : liste « " + instruction.sujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
         break;
     }
 

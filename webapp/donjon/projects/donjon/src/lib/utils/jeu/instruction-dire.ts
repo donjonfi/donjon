@@ -16,11 +16,13 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Lieu } from "../../models/jeu/lieu";
+import { Liste } from "../../models/jeu/liste";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { ProprieteElement } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
+import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 
@@ -173,6 +175,70 @@ export class InstructionDire {
         // remplacer la balise par le résultat
         const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString + (exclureCaches ? " sauf cachés" : "") + "\\]", "g");
         contenu = contenu.replace(xCurBalise, resultatCurBalise);
+
+      });
+
+    }
+
+    // ================================================================================
+    // LISTER/DÉCRIRE UNE LISTE
+    // ================================================================================
+    const baliseListerDecrireListe = "(lister|décrire) ((?:le |la |l(?:’|')|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\\S+?))(?:(?: )(?!\\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\\b)(?:\\S+))?)";
+    const xBaliseListerDecrireListeMulti = new RegExp("\\[" + baliseListerDecrireListe + "\\]", "gi");
+    const xBaliseListerDecrireListeSolo = new RegExp("\\[" + baliseListerDecrireListe + "\\]", "i");
+    if (xBaliseListerDecrireListeMulti.test(contenu)) {
+      // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
+      const allBalises = contenu.match(xBaliseListerDecrireListeMulti);
+      // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver la préposition et la cible
+        const decoupe = xBaliseListerDecrireListeSolo.exec(curBalise);
+
+        const verbeString = decoupe[1];
+        let cibleString = decoupe[2];
+        let cibleGN = PhraseUtils.getGroupeNominal(cibleString, false);
+        const cible: Liste = InstructionsUtils.trouverListe(cibleGN, this.eju, this.jeu);
+
+        let resultat: string = '';
+
+        if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.liste)) {
+          const cibleElement: Liste = cible as Liste;
+
+          switch (verbeString) {
+
+            case 'lister':
+            case 'Lister':
+              resultat = cible.lister();
+              break;
+
+            case 'décrire':
+            case 'Décrire':
+              resultat = cible.decrire();
+              break;
+
+            // inconnu
+            default:
+              console.error("interpreterContenuDire: lister/décrire une liste: verbe pas pris en charge :", verbeString);
+              break;
+          }
+          // ne rien metre si on cible ceci? ou cela? (car argument factultatif)
+        } else if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          resultat = "";
+          // cible non trouvée
+        } else {
+          resultat = "?!?"
+        }
+
+        // echaper le ? à la fin de ceci? cela?
+        if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          cibleString = cibleString.replace("?", "\\?");
+        }
+
+        // remplacer la balise par le résultat
+        const xCurBalise = new RegExp("\\[" + verbeString + " " + cibleString + "\\]", "g");
+        contenu = contenu.replace(xCurBalise, resultat);
 
       });
 
@@ -601,8 +667,6 @@ export class InstructionDire {
     // ===================================================
 
     // Le nombre de propriété de élément
-    // const baliseNombreDePropriete = "(le )?nombre (de |d’|d')(\\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\\S+?|(\\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\\S+?))( (?!\\(|(ne|n’|n'|d’|d'|et|ou|un|de|dans|sur|avec|se|s’|s')\\b)(\\S+?))?";
-    // const xBaliseNombreDeProprieteMulti = new RegExp("\\[" + baliseNombreDePropriete + "\\]", "gi");
     const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
     if (xBaliseNombreDeProprieteMulti.test(contenu)) {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]

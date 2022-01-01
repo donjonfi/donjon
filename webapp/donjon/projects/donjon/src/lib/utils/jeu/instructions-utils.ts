@@ -10,6 +10,7 @@ import { Evenement } from "../../models/jouer/evenement";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
+import { Liste } from "../../models/jeu/liste";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
@@ -166,6 +167,19 @@ export class InstructionsUtils {
     return objetCible;
   }
 
+  public static trouverListe(recherche: GroupeNominal, eju: ElementsJeuUtils, jeu: Jeu): Liste | undefined {
+    const resultats = eju.trouverListe(recherche);
+    if (resultats.length == 1) {
+      return resultats[0];
+    } else if (resultats.length == 0) {
+      console.error("trouverListe > élément pas trouvé:", recherche);
+      return undefined;
+    } else {
+      console.error("trouverListe > plusieurs correspondances trouvées:", recherche);
+      return undefined;
+    }
+  }
+
   /**
    * Retrouver la propriété cible de l’instruction.
    * @param recherche à retrouver
@@ -180,8 +194,6 @@ export class InstructionsUtils {
       recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu);
       if (!recherche.element) {
         console.error("trouverProprieteCible > élément pas trouvé:", recherche.intituleElement);
-        throw new Error("trouverProprieteCible > élément pas trouvé: " + recherche.intituleElement);
-        
       }
     }
     // retrouver la classe

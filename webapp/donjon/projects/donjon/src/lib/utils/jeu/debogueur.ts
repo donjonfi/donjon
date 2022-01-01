@@ -2,7 +2,6 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { EClasseRacine } from '../../models/commun/constantes';
-import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Instructions } from './instructions';
@@ -13,6 +12,7 @@ import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
+import { stringify } from 'querystring';
 
 export class Debogueur {
 
@@ -196,29 +196,11 @@ export class Debogueur {
   }
 
   private afficherDetailListe(liste: Liste) {
-
     let sortie =
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(liste, false) + "*}" +
-      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(liste.classe) + "{n}{e}{_contenu_}{n}";
-
-    switch (liste.classe) {
-      case ClassesRacines.ListeVide:
-        sortie += "(vide)";
-        break;
-
-      case ClassesRacines.ListeNombre:
-        sortie += liste.valeursNombre.toString();
-        break;
-
-      case ClassesRacines.ListeTexte:
-        sortie += liste.valeursTexte.toString();
-        break;
-
-      default:
-        sortie += "(type de liste pas encore pris en charge ici)";
-        break;
-    }
-
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(liste.classe) +
+      "{n}{e}{_taille_}{n}" + liste.taille.toString() +
+      "{n}{e}{_contenu_}{n}" + liste.decrire();
     return sortie;
   }
 

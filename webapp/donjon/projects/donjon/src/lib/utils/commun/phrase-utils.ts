@@ -420,7 +420,7 @@ export class PhraseUtils {
               els.verbe = resSuite[4]?.trim() ?? null;
               els.negation = resSuite[5]?.trim() ?? null;
               els.complement1 = resSuite[6]?.trim() ?? null;
-              // décomposer le nouveau complément si possible
+              // décomposer le nouveau complément si possible              
               const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
               if (resCompl) {
                 // els.complement1 = null;

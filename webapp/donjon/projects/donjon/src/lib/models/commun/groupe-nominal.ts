@@ -12,13 +12,13 @@ export class GroupeNominal {
    * - la(2) canne à pèche(2)
    * - => préposition(1) déterminant article(2) nom(3) épithète(4).
    */
-  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
+  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?!")(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
 
   // un groupe nominal peut-être composé :
   // - [déterminant +] nom [+ épithète]
   // - pronom (mais pas encore géré ici)
 
-  constructor(
+  public constructor(
     /** Déterminant */
     public determinant: string,
     /** Nom */
@@ -27,7 +27,7 @@ export class GroupeNominal {
     public epithete: string = null
   ) { }
 
-  toString() {
+  public toString() {
 
     let retVal: string
     let determinant = this.determinant ?? '';

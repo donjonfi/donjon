@@ -441,8 +441,6 @@ export class Generateur {
     listes.forEach(lst => {
       const curListe = new Liste(lst.nom, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
 
-      console.log("lst.attributs=", lst.attributs);
-
       if (lst.valeursNombre.length) {
         curListe.ajouterNombres(lst.valeursNombre);
       }
@@ -450,27 +448,16 @@ export class Generateur {
         curListe.ajouterTextes(lst.valeursTexte);
       }
       if (lst.valeursIntitule.length) {
-        const eju = new ElementsJeuUtils(jeu, true);
+        const eju = new ElementsJeuUtils(jeu, false);
         lst.valeursIntitule.forEach(valeurIntitule => {
           const cor = eju.trouverCorrespondance(valeurIntitule, false, false);
           if (cor.nbCor == 1) {
-            curListe.valeursIntitule.push(cor.unique);
+            curListe.ajouterIntitule(cor.unique);
           } else {
-            curListe.valeursIntitule.push(cor.intitule);
+            curListe.ajouterIntitule(cor.intitule);
           }
         });
       }
-
-
-      // vérifier les attributs du compteur
-      lst.attributs.forEach(curAttribut => {
-        // // valeur initialisation
-        // const initialisation = ExprReg.xInitialiseA.exec(curAttribut)
-        // if (initialisation) {
-        //   // vérifier s’il s’agit d’un nombre
-        //   curListe.valeur = CompteursUtils.intituleNombreVersNombre(initialisation[1]);
-        // }
-      });
 
       jeu.listes.push(curListe);
     });

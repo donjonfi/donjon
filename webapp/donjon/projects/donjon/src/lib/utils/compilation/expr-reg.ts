@@ -86,7 +86,7 @@ export class ExprReg {
    *     - 💥 une tomate
    *     - 💥 des pièces
    */
-  static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(?!\d|un|une|des)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(?!(?:\d|un|une|des|le|la|les|l\b)|")(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
 
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
 
@@ -170,12 +170,13 @@ export class ExprReg {
    *     - Ils contiennent "Alice", "Bob", "Carole" et "David".
    * - Tests unitaires :
    *     - Elle contient 200
+   *     - Ils incluent 7
    *     - Elle inclut 7, 21 et 9
    *     - Elle contient la cuisine et le salon
    *     - Ils contiennent "Alice", "Bob", "Carole" et "David"
    *     - 💥 Bob contient 200
    */
-  static readonly xPronomPersonnelContenu = /^(?:(?:(?:il|elle|celui-ci|celle-ci) (?:contient|inclut))|(?:(?:ils|elles|celles-ci|ceux-ci) (?:contiennent|incluent)))(?: ((?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,]))))?/i;
+  static readonly xPronomPersonnelContenu = /^(?:(?:(?:il|elle|celui-ci|celle-ci) (?:contient|inclut))|(?:(?:ils|elles|celles-ci|ceux-ci) (?:contiennent|incluent)))(?: ((?:[^,\n\r]+)(?:$| et (?:[^,\n\r]+)|(?:, [^,\n\r]+)+ et (?:[^,\n\r]+))))?/i;
 
   /** Propriété
    * - Découpage :
