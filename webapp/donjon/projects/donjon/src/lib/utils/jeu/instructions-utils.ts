@@ -191,10 +191,17 @@ export class InstructionsUtils {
 
     // retrouver l’élément cible
     if (recherche.intituleElement) {
+      // rechercher parmi les éléments
       recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu);
+      // rechercher parmi les listes
       if (!recherche.element) {
-        console.error("trouverProprieteCible > élément pas trouvé:", recherche.intituleElement);
+        recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu);
+        // rien trouvé
+        if (!recherche.liste) {
+          console.error("trouverProprieteCible > élément ou liste pas trouvé:", recherche.intituleElement);
+        }
       }
+
     }
     // retrouver la classe
     if (recherche.intituleClasse) {
@@ -274,7 +281,12 @@ export class InstructionsUtils {
         // trouver la propriete
         recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
         if (!recherche.proprieteElement) {
-          console.error("trouverProprieteCible > proprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element?.nom ?? '?');
+          // spécial: taille d'une liste
+          if (recherche.liste && recherche.intituleProprieteElement.nom == 'taille') {
+            resultat = new Compteur("propriété calculée", recherche.liste.taille);
+          } else {
+            console.error("trouverProprieteCible > proprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element?.nom ?? '?');
+          }
         } else {
           // trouvé propriété
           resultat = recherche.proprieteElement;

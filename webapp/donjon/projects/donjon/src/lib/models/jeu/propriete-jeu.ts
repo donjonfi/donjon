@@ -4,6 +4,7 @@ import { Classe } from "../commun/classe";
 import { ElementJeu } from "./element-jeu";
 import { Etat } from "../commun/etat";
 import { GroupeNominal } from "../commun/groupe-nominal";
+import { Liste } from "./liste";
 import { ProprieteElement } from "../commun/propriete-element";
 
 export enum TypeProprieteJeu {
@@ -50,6 +51,9 @@ export class ProprieteJeu {
 
   /** Élément cible */
   public element: ElementJeu = null;
+
+  /** Liste cible */
+  public liste: Liste = null;
 
   // D. POSITION (relative à l’élément cible)
 
