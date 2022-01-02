@@ -17,47 +17,74 @@ import { Nombre } from "../commun/nombre.enum";
  * - Extérieur
  */
 export enum ELocalisation {
-    inconnu = '?',
-    /** Nord */
-    nord = 'n',
-    /** Sud */
-    sud = 's',
-    /** Est */
-    est = 'e',
-    /** Ouest */
-    ouest = 'o',
-    /** Haut */
-    haut = 'h',
-    /** Bas */
-    bas = 'b',
-    /** Intérieur */
-    interieur = 'i',
-    /** Extérieur */
-    exterieur = 'x',
-    /** Dessous */
-    dessous = 'd',
-    /** Dessus */
-    dessus = 'u',
+  inconnu = '?',
+  /** Nord */
+  nord = 'n',
+  /** Sud */
+  sud = 's',
+  /** Est */
+  est = 'e',
+  /** Ouest */
+  ouest = 'o',
+  /** Haut */
+  haut = 'h',
+  /** Bas */
+  bas = 'b',
+  /** Intérieur */
+  interieur = 'i',
+  /** Extérieur */
+  exterieur = 'x',
+  /** Dessous */
+  dessous = 'd',
+  /** Dessus */
+  dessus = 'u',
 }
 
 export class Localisation extends Intitule {
 
-    public static readonly Nord = new Localisation(ELocalisation.nord, "le ", "nord");
-    public static readonly Sud = new Localisation(ELocalisation.sud, "le ", "sud");
-    public static readonly Est = new Localisation(ELocalisation.est, "l'", "est");
-    public static readonly Ouest = new Localisation(ELocalisation.ouest, "l'", "ouest");
-    public static readonly Haut = new Localisation(ELocalisation.haut, "le ", "haut");
-    public static readonly Bas = new Localisation(ELocalisation.bas, "le ", "bas");
-    public static readonly Interieur = new Localisation(ELocalisation.interieur, "l'", "intérieur");
-    public static readonly Exterieur = new Localisation(ELocalisation.exterieur, "l'", "extérieur");
+  public static readonly Nord = new Localisation(ELocalisation.nord, "le ", "nord");
+  public static readonly Sud = new Localisation(ELocalisation.sud, "le ", "sud");
+  public static readonly Est = new Localisation(ELocalisation.est, "l'", "est");
+  public static readonly Ouest = new Localisation(ELocalisation.ouest, "l'", "ouest");
+  public static readonly Haut = new Localisation(ELocalisation.haut, "le ", "haut");
+  public static readonly Bas = new Localisation(ELocalisation.bas, "le ", "bas");
+  public static readonly Interieur = new Localisation(ELocalisation.interieur, "l'", "intérieur");
+  public static readonly Exterieur = new Localisation(ELocalisation.exterieur, "l'", "extérieur");
 
-    constructor(
-        public id: ELocalisation,
-        determinant: string,
-        nom: string
-    ) {
-        super(nom, new GroupeNominal(determinant, nom, null), ClassesRacines.Direction);
+  constructor(
+    public id: ELocalisation,
+    determinant: string,
+    nom: string
+  ) {
+    super(nom, new GroupeNominal(determinant, nom, null), ClassesRacines.Direction);
+  }
+
+  public static getLocalisation(localisation: ELocalisation): Localisation {
+    switch (localisation) {
+      case ELocalisation.nord:
+        return Localisation.Nord;
+      case ELocalisation.sud:
+        return Localisation.Sud;
+      case ELocalisation.est:
+        return Localisation.Est;
+      case ELocalisation.ouest:
+        return Localisation.Ouest;
+      case ELocalisation.haut:
+        return Localisation.Haut;
+      case ELocalisation.bas:
+        return Localisation.Bas;
+      case ELocalisation.interieur:
+        return Localisation.Interieur;
+      case ELocalisation.exterieur:
+        return Localisation.Exterieur;
+      default:
+        throw new Error("Localisation > getLocalisation > Localisation inconnue.");
     }
+  }
+
+  public override toString(): string {
+    return this.intitule.nom;
+  }
 }
 
 

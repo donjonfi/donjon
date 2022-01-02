@@ -326,9 +326,8 @@ export class ElementsJeuUtils {
    * @param loc 
    * @param type 
    */
-  getLieuxVoisinsVisibles(lieu: Lieu) {
+  getLieuxVoisinsVisibles(lieu: Lieu): Voisin[] {
     let voisinsVisibles: Voisin[] = [];
-    let voisin: Voisin = null;
     const allLieuxVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.lieu);
 
     // s’il y a des voisins
@@ -364,7 +363,6 @@ export class ElementsJeuUtils {
             voisinsVisibles.push(voisin);
           }
 
-
           // PAS D’OBSTACLE
         } else {
           voisinsVisibles.push(voisin);
@@ -373,6 +371,14 @@ export class ElementsJeuUtils {
     }
 
     return voisinsVisibles;
+  }
+
+  /**
+   * Récupérer les lieux voisins du lieu spécifié (y compris les voisins non visibles)
+   */
+  getLieuxVoisins(lieu: Lieu): Voisin[] {
+    const allLieuxVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.lieu);
+    return allLieuxVoisins;
   }
 
   estLieuAccessible(lieu: Lieu) {
@@ -748,7 +754,7 @@ export class ElementsJeuUtils {
   /**
  * 
  * Retrouver les objets contenus dans ceci.
- * En cas d’erreur null est retourné plutôt qu’on tableau d’objets.
+ * En cas d’erreur undefined est retourné plutôt qu’on tableau d’objets.
  * @param ceci 
  * @param inclureObjetsCachesDeCeci 
  * @param preposition (dans, sur, sous)

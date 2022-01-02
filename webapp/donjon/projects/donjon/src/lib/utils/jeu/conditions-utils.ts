@@ -511,40 +511,6 @@ export class ConditionsUtils {
               }
               break;
 
-            // // comparaison : égal (vaut) − différent (ne vaut pas)
-            // case 'valent':
-            // case 'vaut':
-            //   // remarque: négation appliquée plus loin.
-            //   retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
-            //   break;
-
-            // // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
-            // case 'dépasse':
-            // case 'dépassent':
-            //   // remarque: négation appliquée plus loin.
-            //   retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
-            //   break;
-
-            // // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
-            // case 'atteint':
-            // case 'atteignent':
-            //   // remarque: négation appliquée plus loin.
-            //   retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
-            //   break;
-
-            // case 'se déclenche':
-            //   // remarque: négation appliquée plus loin.
-            //   if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
-            //     retVal = (compteur.valeur === 1);
-            //   } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la deuxième fois') {
-            //     retVal = (compteur.valeur === 2);
-            //   } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la troisième fois') {
-            //     retVal = (compteur.valeur === 3);
-            //   } else {
-            //     console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
-            //   }
-            //   break;
-
             default:
               console.error(
                 "Condition liste: verbe pas connu (" + condition.verbe + ").\n",

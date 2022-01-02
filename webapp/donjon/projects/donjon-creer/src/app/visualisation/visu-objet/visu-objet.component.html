@@ -1,0 +1,30 @@
+<div *ngIf="objetPresent">
+  <a href="#" (click)="onObjetChoisi(objetPresent)">{{objetPresent.objet.intitule}}</a>
+  <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? '(caché)':''}}</i>
+  <ul>
+    <li *ngIf="objetsSur.length">Dessus :
+      <ul *ngIf="objetsSur.length">
+        <li *ngFor="let objetSur of objetsSur">
+          <app-visu-objet [objetPresent]="objetSur" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+        </li>
+      </ul>
+    </li>
+    <li *ngIf="objetsDans.length">Dedans :
+      <ul *ngIf="objetsDans.length">
+        <li *ngFor="let objetDans of objetsDans">
+          <app-visu-objet [objetPresent]="objetDans" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+        </li>
+      </ul>
+    </li>
+    <li *ngIf="objetsSous.length">Dessous :
+      <ul>
+        <li *ngFor="let objetSous of objetsSous">
+          <app-visu-objet [objetPresent]="objetSous" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<div *ngIf="!objetPresent">
+  (aucun objet sélectionné)
+</div>

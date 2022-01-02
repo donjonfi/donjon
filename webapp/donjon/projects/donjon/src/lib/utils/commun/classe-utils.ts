@@ -84,7 +84,7 @@ export class ClasseUtils {
     return retVal;
   }
 
-  public static getHierarchieClasse(classe: Classe) {
+  public static getHierarchieClasse(classe: Classe): string {
     let retVal = "−";
     if (classe) {
       retVal = classe.intitule;

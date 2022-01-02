@@ -37,10 +37,15 @@
               (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
+            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'visualisation') }"
+              (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
+              <i class="fas fa-fw fa-eye fa-lg"></i>
+            </button>
             <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
               (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
               <i class="fas fa-fw fa-sitemap fa-lg"></i>
             </button>
+
           </div>
 
           <ng-container *ngIf="tab == 'analyse' && jeu">
@@ -247,18 +252,27 @@
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
             <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false" [debogueur]="true"></djn-lecteur>
           </div>
-          <!-- </div> -->
 
           <!-- TAB: APERÇU ÉLÉMENTS -->
           <div *ngIf="tab === 'apercu'" class="card">
             <div class="card-body">
               <div *ngIf="compilationTerminee">
-                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs" [listes]="listes">
+                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs"
+                  [listes]="listes">
                 </app-apercu-monde>
               </div>
             </div>
           </div>
-          <!-- </div> -->
+
+          <!-- TAB: VISUALISATION -->
+          <div *ngIf="tab === 'visualisation'" class="card">
+            <div class="card-body">
+              <div *ngIf="compilationTerminee">
+                <app-visualisation [jeu]="jeu">
+                </app-visualisation>
+              </div>
+            </div>
+          </div>
 
           <!-- TAB: ANALYSE -->
           <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">

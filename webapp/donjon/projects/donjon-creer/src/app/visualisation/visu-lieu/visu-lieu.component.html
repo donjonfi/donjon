@@ -1,0 +1,23 @@
+<div *ngIf="curLieu">
+  <div class="card-body">
+    <h4>{{curLieu.titre}}</h4>
+
+    <h5>Sorties</h5>
+    <ul>
+      <li *ngFor="let voisin of voisinsPresents">
+        {{voisin.direction}} : <a href="#" (click)="onVoisinClick(voisin.lieu)">{{voisin.lieu.intitule}}</a> 
+      </li>
+    </ul>
+
+    <h5>Objets présents</h5>
+    <ul>
+      <li *ngFor="let objetPresent of objetsPresents">
+        <app-visu-objet [eju]="eju" [etats]="etats" [objetPresent]="objetPresent" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+      </li>
+    </ul>
+
+  </div>
+</div>
+<div *ngIf="!curLieu">
+  (aucun lieu sélectionné)
+</div>

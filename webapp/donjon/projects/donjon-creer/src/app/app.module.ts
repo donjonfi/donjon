@@ -20,6 +20,10 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { VisuLieuComponent } from './visualisation/visu-lieu/visu-lieu.component';
+import { VisualisationComponent } from './visualisation/visualisation/visualisation.component';
+import { VisuObjetComponent } from './visualisation/visu-objet/visu-objet.component';
+import { VisuDetailObjetComponent } from './visualisation/visu-detail-objet/visu-detail-objet.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -37,7 +41,11 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     ApercuRegleComponent,
     ApercuSujetComponent,
     EditeurComponent,
-    ApercuProprieteJeuComponent
+    ApercuProprieteJeuComponent,
+    VisuLieuComponent,
+    VisualisationComponent,
+    VisuObjetComponent,
+    VisuDetailObjetComponent
   ],
   imports: [
     CommonModule,

@@ -1,5 +1,4 @@
 import { ClasseUtils } from '../commun/classe-utils';
-import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
@@ -12,7 +11,6 @@ import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
-import { stringify } from 'querystring';
 
 export class Debogueur {
 

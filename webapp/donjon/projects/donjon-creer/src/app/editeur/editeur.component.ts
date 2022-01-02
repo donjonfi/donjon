@@ -43,7 +43,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
 
-  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario';
+  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' = 'scenario';
 
   nbLignesCode = 30;
   tailleTexte = 18;
@@ -923,7 +923,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   }
 
-  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' = 'scenario'): void {
+  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' = 'scenario'): void {
     this.tab = tab;
 
     /** focus sur le champ commandes si on est sur le tab jeu */
