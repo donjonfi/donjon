@@ -66,7 +66,7 @@
         },
         {
           "name": "variable.parameter",
-          "match": "\\b(joueur|inventaire|historique|jeu|licence)\\b"
+          "match": "\\b(joueur|inventaire|jeu|licence)\\b"
         }
       ]
     },

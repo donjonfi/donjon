@@ -225,16 +225,6 @@ export class Instructions {
         }
         break;
 
-      case 'sauver':
-        // console.log("executerInfinitif >> sauver=", instruction.complement1);
-        if (instruction.complement1) {
-          this.jeu.sauvegardes.push(instruction.complement1.trim().toLowerCase());
-          resultat.succes = true;
-        } else {
-          resultat.succes = false;
-        }
-        break;
-
       case 'exécuter':
         // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
 

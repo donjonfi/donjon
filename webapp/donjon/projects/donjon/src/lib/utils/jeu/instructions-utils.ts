@@ -103,7 +103,7 @@ export class InstructionsUtils {
   /**
   * Trouver l’élément du jeu spécifié (par ex la destination d’une copie, l’élémen cible d’une propriété, …)
   */
-  public static trouverElementCible(recherche: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu {
+  public static trouverElementCible(recherche: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): ElementJeu {
 
     let resultat: ElementJeu = null;
 
@@ -123,7 +123,9 @@ export class InstructionsUtils {
         resultat = correspondanceCompl.elements[0];
         // aucun élément trouvé
       } else if (correspondanceCompl.elements.length === 0) {
-        console.error("trouverElementCible >>> je n’ai pas trouvé l’élément:", recherche);
+        if (erreurSiPasTrouve) {
+          console.error("trouverElementCible >>> je n’ai pas trouvé l’élément:", recherche);
+        }
         // plusieurs éléments trouvés
       } else {
         console.error("trouverElementCible >>> j’ai trouvé plusieurs correspondances pour l’élément:", recherche, correspondanceCompl);
@@ -167,12 +169,14 @@ export class InstructionsUtils {
     return objetCible;
   }
 
-  public static trouverListe(recherche: GroupeNominal, eju: ElementsJeuUtils, jeu: Jeu): Liste | undefined {
+  public static trouverListe(recherche: GroupeNominal, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): Liste | undefined {
     const resultats = eju.trouverListe(recherche);
     if (resultats.length == 1) {
       return resultats[0];
     } else if (resultats.length == 0) {
-      console.error("trouverListe > élément pas trouvé:", recherche);
+      if (erreurSiPasTrouve) {
+        console.error("trouverListe > élément pas trouvé:", recherche);
+      }
       return undefined;
     } else {
       console.error("trouverListe > plusieurs correspondances trouvées:", recherche);
@@ -192,10 +196,10 @@ export class InstructionsUtils {
     // retrouver l’élément cible
     if (recherche.intituleElement) {
       // rechercher parmi les éléments
-      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu);
+      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu, false);
       // rechercher parmi les listes
       if (!recherche.element) {
-        recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu);
+        recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu, false);
         // rien trouvé
         if (!recherche.liste) {
           console.error("trouverProprieteCible > élément ou liste pas trouvé:", recherche.intituleElement);

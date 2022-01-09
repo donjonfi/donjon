@@ -76,7 +76,7 @@ $language_data = array (
 			'choix', 'choisir', 'aucun', 'autre', 'boucle', 'hasard', 'fois'
             ),
         4 => array(
-            'joueur', 'historique', 'ceci', 'cela', 
+            'joueur', 'ceci', 'cela', 
 			'celle-ci', 'celles-ci', 'celle-là', 'celles-là', 'celui-ci', 'ceux-ci', 'celui-là', 'ceux-là',
 			'ici', 'règle', 
 			'description','intitulé', 'texte', 'titre', 'réaction',

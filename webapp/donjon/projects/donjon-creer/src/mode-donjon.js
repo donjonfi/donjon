@@ -7,7 +7,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
   var DonjonHighlightRules = function () {
 
     var variableLanguage = (
-      "joueur|inventaire|historique|"
+      "joueur|inventaire|"
       + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|"
       + "aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu"
@@ -39,12 +39,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           start: "/\\*",
           end: "\\*/"
         }, {
-          token: "string", // multi line comment
+          token: "string", // multi line string
           //regex : "\\/\\*",
           regex: '"|\\]',
           next: [
             {
-              token: "string", // closing comment
+              token: "string", // closing string
               //regex : "\\*\\/",
               regex: '"|\\[',
               next: "start"
@@ -70,7 +70,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "(\\b(ceci|cela|ici|(la )?règle|(l’)?action|(la )?commande)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
-            
+
             + "(\\b("
             + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"

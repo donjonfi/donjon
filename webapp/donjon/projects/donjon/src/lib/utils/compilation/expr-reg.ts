@@ -465,7 +465,7 @@ export class ExprReg {
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contient|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contien(?:nen)?t|inclu(?:en)?t|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * - La valeur de ceci vaut 3

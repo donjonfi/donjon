@@ -645,12 +645,9 @@ export class ElementsJeuUtils {
  * Remarque: Il peut y avoir plus d’une correspondance.
  */
   trouverListe(sujet: GroupeNominal): Liste[] {
-
     let listesTrouvees: Liste[] = [];
     const sujetNom = sujet.nom.toLowerCase();
     const sujetEpithete = sujet.epithete?.toLowerCase();
-
-
 
     // Rechercher dans les compteurs
     this.jeu.listes.forEach(

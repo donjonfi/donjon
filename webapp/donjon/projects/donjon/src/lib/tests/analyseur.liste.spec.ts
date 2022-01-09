@@ -115,10 +115,6 @@ describe('Epressions régulières − Contenu d’une liste', () => {
 
 describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
-  // =========================================================
-  // ÉLÉMENTS SANS POSITION
-  // =========================================================
-
   it('Élément sans pos: « Les nombres gagnants sont une liste. Elle contient 7, 21 et 9. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
     let phrases = Compilateur.convertirCodeSourceEnPhrases(

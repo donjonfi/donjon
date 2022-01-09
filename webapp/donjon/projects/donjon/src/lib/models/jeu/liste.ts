@@ -14,8 +14,8 @@ export class Liste extends Intitule {
     nom: string,
     /** Intitulé de la liste */
     intitule: GroupeNominal | undefined = undefined,
-    /** Classe : liste */
-    classe: Classe = ClassesRacines.Liste,
+    /** Classe : liste vide */
+    classe: Classe = ClassesRacines.ListeVide,
   ) {
     super(nom, (intitule ? intitule : (new GroupeNominal(null, nom, null))), classe);
   }
@@ -366,7 +366,7 @@ export class Liste extends Intitule {
 
   /** Est-ce que la liste contient le nombre spécifié ? */
   public contientNombre(valeur: number): boolean {
-    let nombreTrouve: boolean;
+    let nombreTrouve = false;
     if (this.classe == ClassesRacines.ListeNombre) {
       nombreTrouve = this._valeursNombre.includes(valeur);
     } else if (this.classe == ClassesRacines.ListeMixte) {
@@ -377,7 +377,16 @@ export class Liste extends Intitule {
 
   /** Est-ce que la liste contient le texte spécifié ? */
   public contientTexte(valeur: string): boolean {
-    let texteTrouve: boolean;
+
+    console.log("contientTexte: valeur:", valeur, this._valeursTexte);
+    
+
+    // // enlever les "|Ƶ|ƶ  éventuels autours du texte
+    // const valeurNettoyee = valeur.replace(/^"|^Ƶ|"$|ƶ$/g, '');
+    //enlever les " éventuels autours du texte
+    // const valeurNettoyee = valeur.replace(/^"|"$/g, '');
+
+    let texteTrouve = false;
     if (this.classe == ClassesRacines.ListeTexte) {
       texteTrouve = this._valeursTexte.includes(valeur);
     } else if (this.classe == ClassesRacines.ListeMixte) {
@@ -391,7 +400,7 @@ export class Liste extends Intitule {
    * ATTENTION: la comparaison se fait en tenant compte uniquement de l’intitulé de l’objet.
    */
   public contientIntitule(valeur: Intitule): boolean {
-    let intituleTrouve: boolean;
+    let intituleTrouve = false;
     if (this.classe == ClassesRacines.ListeIntitule) {
       intituleTrouve = this._valeursIntitule.some(x => x.intitule == valeur.intitule);
     } else if (this.classe == ClassesRacines.ListeMixte) {

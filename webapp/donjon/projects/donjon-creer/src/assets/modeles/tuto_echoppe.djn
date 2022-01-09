@@ -3,15 +3,15 @@ L’auteur du jeu est "Wiki Donjon FI".
 Le titre de la licence est "CC BY 4.0".
 Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
------------------------------
+-------------------------------------------------------
 -- paramètres
------------------------------
+-------------------------------------------------------
 -- il n'y a pas de sorties donc on ne les affiche pas.
 désactiver l'affichage des sorties.
 
------------------------------
+-------------------------------------------------------
 -- description de l'échoppe
-------------------------------
+-------------------------------------------------------
 L’échoppe (f) est un lieu.
   Sa description est "Vous voici devant l'échoppe du célèbre Toto.".
   -- la table contient les objets à acheter
@@ -32,6 +32,8 @@ L’échoppe (f) est un lieu.
 -------------------------------------------------------
 -- Initialisation et affichage du contenu de la bourse
 -------------------------------------------------------
+-- l’historique permettra de retenir des évènements qui se sont déjà produits
+L’historique est une liste.
 -- Argent que possède le joueur en début de partie
 La bourse est un compteur initialisé à 100.
 -- afficher le contenu de la bourse lorsque le joueur consulte sont inventaire
@@ -115,4 +117,3 @@ La réaction de l'armurier concernant le ruban est :
     changer le joueur possède le ruban;
     dire "{/Le ruban a été ajouté à votre inventaire./}";
   fin si.
-

@@ -47,10 +47,6 @@ export class InstructionChanger {
         case 'joueur':
           resultat = this.changerJoueur(instruction, ceci, cela);
           break;
-        // historique
-        case 'historique':
-          resultat = this.changerHistorique(instruction);
-          break;
 
         // élément du jeu ou compteur (ceci)
         case 'ceci':
@@ -197,34 +193,6 @@ export class InstructionChanger {
     return resultat;
   }
 
-  /** Exécuter une instruction qui cible l'historique. */
-  private changerHistorique(instruction: ElementsPhrase) {
-    let resultat = new Resultat(false, '', 1);
-    if (instruction.verbe.toLocaleLowerCase() === 'contient') {
-      let valeur = instruction.complement1.trim().toLocaleLowerCase();
-      // trouver valeur dans l’historique
-      let foundIndex = this.jeu.sauvegardes.indexOf(valeur);
-
-      // SUPPRIMER la valeur de l’historique
-      if (instruction.negation) {
-        // supprimer seulement si présente
-        if (foundIndex !== -1) {
-          this.jeu.sauvegardes.splice(foundIndex, 1);
-          resultat.succes = true;
-        }
-        // AJOUTER une valeur à l’historique
-      } else {
-        // ajouter seulement si pas encore présente
-        if (foundIndex === -1) {
-          this.jeu.sauvegardes.push(valeur);
-          resultat.succes = true;
-        }
-      }
-    } else {
-      resultat.sortie = "{n}{+[Instruction « changer » : historique : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
-    }
-    return resultat;
-  }
 
   /** Exécuter une instruction qui cible le joueur */
   private changerJoueur(instruction: ElementsPhrase, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule): Resultat {

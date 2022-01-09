@@ -80,9 +80,6 @@ export class Jeu {
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];
 
-  /** États sauvegardés */
-  sauvegardes: string[] = [];
-
   /** Fiches d'aides */
   aides: Aide[] = [];
 
