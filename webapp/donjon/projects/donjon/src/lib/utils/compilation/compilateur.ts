@@ -240,7 +240,7 @@ export class Compilateur {
   public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
 
     const scenarioNettoye = Compilateur.nettoyerCodeSource(scenario);
-    
+
     // séparer les chaines de caractères (entre " ") du code
     const blocsInstructionEtTexte = scenarioNettoye.split('"');
 
@@ -248,6 +248,8 @@ export class Compilateur {
     let indexPhrase = 0;
     let numeroLigne = 1;
     let phrasePrecedente: Phrase = null;
+    let prochainBlocEstSousTexte: boolean = false;
+    let blocPrecedentEstSousTexte: boolean = false;
     // si le bloc commence par " on commence avec un bloc texte
     let blocSuivantEstInstruction: boolean;
     if (scenarioNettoye[0] === '"') {
@@ -261,7 +263,11 @@ export class Compilateur {
     blocsInstructionEtTexte.forEach(bloc => {
       if (bloc !== '') {
         // bloc instruction, séparer les phrases (sur les '.')
-        if (blocSuivantEstInstruction) {
+        if (blocSuivantEstInstruction && !prochainBlocEstSousTexte) {
+
+          console.warn("bloc code:", bloc);
+
+
           const phrasesBrutes = bloc.split('.');
           for (let k = 0; k < phrasesBrutes.length; k++) {
             const phraseBrute = phrasesBrutes[k];
@@ -302,6 +308,7 @@ export class Compilateur {
           }
           // si le bloc est un texte, l'ajouter tel quel :
         } else {
+
           // compte le nombre de lignes pour ne pas se décaller !
           const nbLignes = bloc.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
 
@@ -321,7 +328,49 @@ export class Compilateur {
 
           // le texte concerne toujours la phrase précédente (s'il y en a une)
           if (phrasePrecedente) {
-            phrasePrecedente.phrase.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
+            const blocActuelEstSousTexte = prochainBlocEstSousTexte;
+            if (prochainBlocEstSousTexte) {
+              console.error("bloc texte (forcé: OUI):", bloc);
+              // pas de guillets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
+              prochainBlocEstSousTexte = false;
+            } else {
+              console.warn("bloc texte (forcé NON):", bloc);
+              // si on a un crochet non fermé dans le texte actuel, le code suivant est en réalité la suite du texte
+              prochainBlocEstSousTexte = Compilateur.dernierCrochetEstOuvert(texteNettoye);
+            }
+            // GESTION DES GUILLEMETS
+            // cas le plus commun:
+            // le bloc précédent n’est pas un sous texte et  le bloc suivant n’est pas un sous texte
+            if (!blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
+              // on est dans un sous-texte:
+              //  ne pas mettre de guillemets (ils sont ajoutés par les blocs qui l’entourent)
+              if (blocActuelEstSousTexte) {
+                phrasePrecedente.phrase.push(texteNettoye);
+                // on est dans un texte principal:
+                //  on met des guillemets ouvrant et fermant autours du texte
+              } else {
+                phrasePrecedente.phrase.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
+              }
+              // autre cas:
+              //  le bloc précédent n’est pas un sous texte, on commence par un guillemet ouvrant
+              //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
+            } else if (!blocPrecedentEstSousTexte && prochainBlocEstSousTexte) {
+              phrasePrecedente.phrase.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereDebutTexte);
+              // autre cas:
+              //  le bloc précédent est un sous texte, on commence par un guillemet fermant
+              //  le bloc suivant n’est pas un sous texte, on termine sur un guillemet fermant
+            } else if (blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
+              phrasePrecedente.phrase.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereFinTexte);
+              // autre cas:
+              //  le bloc précédent est un sous texte, on commence par un guillemet fermant
+              //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
+            } else {
+              phrasePrecedente.phrase.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereDebutTexte);
+            }
+
+            // si on est actuellement dans un sous-texte, le prochain bloc suivra un sous-texte.
+            blocPrecedentEstSousTexte = blocActuelEstSousTexte;
+
           } else {
             console.error("Le scénario doit commencer par une instruction. (Il ne peut pas commencer par un texte entre guillemets.)");
           }
@@ -332,6 +381,24 @@ export class Compilateur {
     });
 
     return phrases;
+  }
+
+  /**
+    * Retourne 'true' si le dernier crochet rencontré est un crochet ouvert.
+    */
+  public static dernierCrochetEstOuvert(texte: string): boolean {
+    let dernierEstOuvert = false;
+    if (texte) {
+      for (let index = 0; index < texte.length; index++) {
+        const char = texte[index];
+        if (char == '[') {
+          dernierEstOuvert = true;
+        } else if (char == ']') {
+          dernierEstOuvert = false;
+        }
+      }
+    }
+    return (dernierEstOuvert);
   }
 
 
