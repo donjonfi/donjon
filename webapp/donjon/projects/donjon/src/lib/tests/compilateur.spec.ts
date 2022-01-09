@@ -30,9 +30,9 @@ describe('Compilateur − Nettoyer scénario', () => {
     expect(scenarioNettoye).toEqual('La plante set un objet.' + ExprReg.caractereRetourLigne + ExprReg.caractereRetourLigne + 'Sa description est "Une plante".');
   });
 
-  it('Nettoyer: 2 phrases, séparées par une ligne vide, avec partie', () => {
+  it('Nettoyer: 2 phrases, séparées par une ligne vide, avec partie sans point', () => {
     const scenarioNettoye = Compilateur.nettoyerCodeSource(
-      'Le titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde".'
+      'Le titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde"'
     );    
     expect(scenarioNettoye).toEqual('Le titre du jeu est "Sauvons Noël !".' + ExprReg.caractereRetourLigne + ExprReg.caractereRetourLigne + 'PARTIE "Description du monde".');
   });
@@ -85,7 +85,6 @@ describe('Compilateur − Nombre de lignes', () => {
   });
   
   it('Nombre de lignes: 4 phrases, 1 par ligne, avec textes et lignes vides', () => {
-    console.warn("?????????????????????????");
     let phrases = Compilateur.convertirCodeSourceEnPhrases(
       'Son titre est "a".\n\nLe chapeau est un objet.\n\nLe titre du jeu est "Sauvons Noël !".\n\nIl est ici.'
     );    
@@ -97,7 +96,6 @@ describe('Compilateur − Nombre de lignes', () => {
   });
 
   it('Nombre de lignes: 4 phrases, 1 par ligne, avec parties, textes et lignes vides', () => {
-    console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     let phrases = Compilateur.convertirCodeSourceEnPhrases(
       'PARTIE "Informations sur le jeu".\n\nLe titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde".\n\nCHAPITRE "le joueur".'
     );    
@@ -107,7 +105,6 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[2].ligne).toEqual(5);
     expect(phrases[3].ligne).toEqual(7);
   });
-
 
   it('Nombre de lignes: 2 phrases, sur même ligne, sans texte', () => {
     let phrases = Compilateur.convertirCodeSourceEnPhrases(

@@ -87,7 +87,7 @@ export class ExprReg {
    *     - 💥 une tomate
    *     - 💥 des pièces
    */
-  static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(?!(?:\d|un|une|des|le|la|les|l\b)|")(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|des|le|la|les|l)\b)|")(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
 
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
 
