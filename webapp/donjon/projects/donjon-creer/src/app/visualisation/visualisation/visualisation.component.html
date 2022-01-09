@@ -4,11 +4,14 @@
   <div class="col-6">
     <div class="card">
       <div class="card-body">
-        Lieu : <select [(ngModel)]="curLieu" class="form-select">
-          <option *ngFor="let lieu of jeu.lieux" class="list-group-item" [ngValue]="lieu">
-            {{lieu.intitule}}
-          </option>
-        </select>
+        <div class="row align-items-center">
+          <label for="choixLieu" class="col-auto col-form-label">Lieu : </label>
+          <select [(ngModel)]="curLieu" class="col form-select" id="choixLieu">
+            <option *ngFor="let lieu of jeu.lieux" class="list-group-item" [ngValue]="lieu">
+              {{lieu.intitule}}
+            </option>
+          </select>
+        </div>
         <app-visu-lieu [eju]="eju" [curLieu]="curLieu" [etats]="jeu.etats" (lieuChoisi)="onLieuChoisi($event)"
           (objetChoisi)="onObjetChoisi($event)"></app-visu-lieu>
       </div>

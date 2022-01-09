@@ -1,6 +1,6 @@
 <div *ngIf="objetPresent">
   <a href="#" (click)="onObjetChoisi(objetPresent)">{{objetPresent.objet.intitule}}</a>
-  <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? '(caché)':''}}</i>
+  <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? ' (caché)':''}}</i>
   <ul>
     <li *ngIf="objetsSur.length">Dessus :
       <ul *ngIf="objetsSur.length">
