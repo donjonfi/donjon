@@ -21,7 +21,9 @@ export class AnalyseurConsequences {
    * @returns 
    */
   public static separerConsequences(consequencesBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
-
+    if(!consequencesBrutes){
+      throw new Error("separerConsequences: consequencesBrutes doit être défini !");
+    }
     // on ajoute un «;» après les « fin si» si manquant (pour découper après cette instruction également.)
     consequencesBrutes = consequencesBrutes.replace(/fin si( )?(?!;|\]|\.)/g, "fin si;");
     consequencesBrutes = consequencesBrutes.replace(/finsi( )?(?!;|\]|\.)/g, "finsi;");

@@ -10,6 +10,7 @@ export class ExprReg {
   //   Ʒ − retour à la ligne
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
+  static readonly xCaractereRetourLigneDebutPhrase = /^(([ \t]*)Ʒ)+/g;
   //   ʔ − virgule dans les comentaires
   static readonly caractereVirgule = 'ʔ';
   static readonly xCaractereVirgule = /ʔ/g;

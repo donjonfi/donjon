@@ -15,6 +15,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
+import { lastValueFrom } from 'rxjs';
 
 export class Compilateur {
 
@@ -41,8 +42,8 @@ export class Compilateur {
     // inclure les commandes de base, sauf si on les a désactivées.
     if (!(scenario.includes('Désactiver les commandes de base.') || scenario.includes('désactiver les commandes de base.'))) {
       try {
-        const sourceCommandes = await http.get('assets/modeles/commandes.djn', { responseType: 'text' }).toPromise();
-        
+        const sourceCommandes = await lastValueFrom(http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
+
         try {
           Compilateur.analyserCode(sourceCommandes, ctxAnalyse);
         } catch (error) {
@@ -208,13 +209,14 @@ export class Compilateur {
   }
 
   /**
-   * Convertir le code source en une tableau de phrases.
-   * @param scenario Code source à analyser.
+   * Nettoyer le scénario :
+   * - ajouter des points aux sections
+   * - retirer les commentaires
+   * - échaper les retours à la ligne
    */
-  public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
-
+  public static nettoyerCodeSource(scenario: string): string {
     // terminer par un « . » les parties, chapitre et scènes.
-    const sectionsAvecPoint = scenario.replace(/^(?:\s*)((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
+    const sectionsAvecPoint = scenario.replace(/^(?:[ \t]*)((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
 
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
@@ -228,13 +230,23 @@ export class Compilateur {
       .replace(/( +)/g, " ")
       .trim();
 
+    return scenarioNettoye;
+  }
+
+  /**
+   * Convertir le code source en une tableau de phrases.
+   * @param scenario Code source à analyser.
+   */
+  public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
+
+    const scenarioNettoye = Compilateur.nettoyerCodeSource(scenario);
+    
     // séparer les chaines de caractères (entre " ") du code
     const blocsInstructionEtTexte = scenarioNettoye.split('"');
 
     let phrases = new Array<Phrase>();
     let indexPhrase = 0;
     let numeroLigne = 1;
-    let premiereLigne = true;
     let phrasePrecedente: Phrase = null;
     // si le bloc commence par " on commence avec un bloc texte
     let blocSuivantEstInstruction: boolean;
@@ -254,8 +266,13 @@ export class Compilateur {
           for (let k = 0; k < phrasesBrutes.length; k++) {
             const phraseBrute = phrasesBrutes[k];
             // compte le nombre de lignes pour ne pas se décaller !
-            const nbLignes = (phraseBrute.match(ExprReg.xCaractereRetourLigne) || []).length;
-
+            const nbLignes = phraseBrute.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
+            let nbLignesAvantPhrase = 0;
+            if (nbLignes > 0) {
+              const phraseSansLigneAvant = phraseBrute.replace(ExprReg.xCaractereRetourLigneDebutPhrase, '');
+              const nbLignesSansLigneAvant = phraseSansLigneAvant.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
+              nbLignesAvantPhrase = nbLignes - nbLignesSansLigneAvant;
+            }
             // si ce n’est pas la dernière phrase elle est forcément finie
             // si c’est la fin du bloc et qu’elle se termine par un point, la phrase est finie également.
             const trimBloc = bloc.trim();
@@ -270,7 +287,7 @@ export class Compilateur {
             // nouvelle phrase
             if (!phrasePrecedente || phrasePrecedente.finie) {
               if (phraseNettoyee !== '') {
-                phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, numeroLigne, finie);
+                phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie);
                 phrases.push(phrasePrecedente);
               }
               // suite de la phrase précédente
@@ -286,7 +303,7 @@ export class Compilateur {
           // si le bloc est un texte, l'ajouter tel quel :
         } else {
           // compte le nombre de lignes pour ne pas se décaller !
-          const nbLignes = (bloc.match(ExprReg.xCaractereRetourLigne) || []).length;
+          const nbLignes = bloc.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
 
           // pour éviter que les , et ; des textes soient interprétés, on les remplace par des caractères différents
           let texteNettoye = bloc.replace(/\,/g, ExprReg.caractereVirgule).trim();
@@ -309,11 +326,6 @@ export class Compilateur {
             console.error("Le scénario doit commencer par une instruction. (Il ne peut pas commencer par un texte entre guillemets.)");
           }
           numeroLigne += nbLignes; // Math.max(1, nbLignes);
-        }
-        // fix: il n'y a pas de retour à la ligne au début de la première ligne
-        if (premiereLigne) {
-          premiereLigne = false;
-          numeroLigne += 1;
         }
         blocSuivantEstInstruction = !blocSuivantEstInstruction;
       }

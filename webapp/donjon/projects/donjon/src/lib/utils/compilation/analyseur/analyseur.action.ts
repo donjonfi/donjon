@@ -59,39 +59,45 @@ export class AnalyseurAction {
             complement += phrase.phrase[index];
           }
         }
-        complement = complement.trim();
-        // retrouver l'action correspondante (une action simplifiée ne peut pas être modifiée)
-        let action = ctxAnalyse.actions
-          .find(x => x.simplifiee === false && x.infinitif == verbe && x.ceci == ceci && x.cela == cela);
-        // déterminer les instructions pour 'refuser', 'exécuter' ou 'terminer'
-        if (action) {
-          switch (motCle) {
-            case 'refuser':
-              action.verificationsBrutes = complement;
-              action.verifications = AnalyseurAction.testerRefuser(complement, phrase, ctxAnalyse);
-              break;
-            case 'exécuter':
-              action.instructionsBrutes = complement;
-              action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
-              break;
-            case 'terminer':
-              action.instructionsFinalesBrutes = complement;
-              action.instructionsFinales = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
-              break;
+        complement = complement?.trim();
 
-            default:
-              console.error("xDescriptionAction >>> motCle pas gérée:", motCle);
-              break;
+
+        if (complement) {
+          // retrouver l'action correspondante (une action simplifiée ne peut pas être modifiée)
+          let action = ctxAnalyse.actions
+            .find(x => x.simplifiee === false && x.infinitif == verbe && x.ceci == ceci && x.cela == cela);
+          // déterminer les instructions pour 'refuser', 'exécuter' ou 'terminer'
+          if (action) {
+            switch (motCle) {
+              case 'refuser':
+                action.verificationsBrutes = complement;
+                action.verifications = AnalyseurAction.testerRefuser(complement, phrase, ctxAnalyse);
+                break;
+              case 'exécuter':
+                action.instructionsBrutes = complement;
+                action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
+                break;
+              case 'terminer':
+                action.instructionsFinalesBrutes = complement;
+                action.instructionsFinales = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
+                break;
+
+              default:
+                console.error("xDescriptionAction >>> motCle pas gérée:", motCle);
+                break;
+            }
+          } else {
+            if (ctxAnalyse.verbeux) {
+              console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
+            }
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "action pas trouvée : " + phrase.phrase);
           }
-
+          // action existante mise à jour
+          return action;
         } else {
-          if (ctxAnalyse.verbeux) {
-            console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
-          }
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "action pas trouvée : " + phrase.phrase);
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "complément manquant : " + phrase.phrase);
+          return null; // rien trouvé
         }
-        // action existante mise à jour
-        return action;
         // C. Nouvelle Action Simple
       } else {
         const resultActionSimple = ExprReg.xActionSimplifiee.exec(phrase.phrase[0]);
