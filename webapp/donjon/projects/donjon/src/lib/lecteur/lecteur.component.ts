@@ -4,6 +4,7 @@ import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandeur } from '../utils/jeu/commandeur';
+import { ContexteTour } from '../models/jouer/contexte-tour';
 import { Declencheur } from '../utils/jeu/declencheur';
 import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -151,13 +152,15 @@ export class LecteurComponent implements OnInit, OnChanges {
       // évènement COMMENCER JEU
       let evCommencerJeu = new Evenement(TypeEvenement.jeu, 'commencer', true, null, 0, 'jeu', ClassesRacines.Special);
 
+      let contexteTour = new ContexteTour(undefined, undefined);
+
       // éxécuter les instructions AVANT le jeu commence
       let resultatAvant = new Resultat(true, "", 0);
       // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
       const declenchementsAvant = this.dec.avant(evCommencerJeu);
       // éxécuter les règles déclenchées
       declenchementsAvant.forEach(declenchement => {
-        const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions);
+        const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
         resultatAvant.sortie += sousResultatAvant.sortie;
         resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
         resultatAvant.nombre += sousResultatAvant.nombre;
@@ -197,7 +200,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         const declenchementsApres = this.dec.apres(evCommencerJeu);
         // éxécuter les règles déclenchées
         declenchementsApres.forEach(declenchement => {
-          const sousResultatApres = this.ins.executerInstructions(declenchement.instructions);
+          const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
           resultatApres.sortie += sousResultatApres.sortie;
           resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
           resultatApres.nombre += sousResultatApres.nombre;

@@ -1,13 +1,11 @@
 import { Compteur } from "../../models/compilateur/compteur";
-import { ElementJeu } from "../../models/jeu/element-jeu";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { InstructionsUtils } from "./instructions-utils";
-import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
-import { MotUtils } from "../commun/mot-utils";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { ProprieteElement } from "../../models/commun/propriete-element";
@@ -18,7 +16,7 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class CompteursUtils {
 
   /** Changer la valeur d’un compteur */
-  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number) {
+  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
 
     if (compteurOuPropriete) {
 
@@ -27,7 +25,7 @@ export class CompteursUtils {
 
       // A) compteur
       if (compteurOuPropriete instanceof Compteur) {
-        let opperationNum: number = this.intituleValeurVersNombre(valeurStr, ceci, cela, evenement, eju, jeu);
+        let opperationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
         if (opperationNum !== null) {
           switch (verbe) {
             case 'vaut':
@@ -52,7 +50,7 @@ export class CompteursUtils {
       } else {
         // > nombre
         if (compteurOuPropriete.type == TypeValeur.nombre) {
-          let opperationNum: number = this.intituleValeurVersNombre(valeurStr, ceci, cela, evenement, eju, jeu);
+          let opperationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
           if (opperationNum !== null) {
             switch (verbe) {
               case 'vaut':
@@ -110,7 +108,7 @@ export class CompteursUtils {
           switch (verbe) {
             case 'vaut':
             case 'est':
-              compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, ceci, cela, evenement, eju, jeu);
+              compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
               break;
 
             case 'diminue':
@@ -151,7 +149,7 @@ export class CompteursUtils {
     return valeurNum;
   }
 
-  public static intituleValeurVersNombre(valeurString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): number {
+  public static intituleValeurVersNombre(valeurString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): number {
     let valeurNum: number = null;
 
     // calculer la nouvelle valeur
@@ -168,19 +166,19 @@ export class CompteursUtils {
     } else if (valeurString == 'quantitéCela') {
       valeurNum = evenement.quantiteCela;
     } else if (valeurString == 'quantité ceci') {
-      valeurNum = (ceci as Objet).quantite;
+      valeurNum = (contexteTour.ceci as Objet).quantite;
     } else if (valeurString == 'quantité cela') {
-      valeurNum = (cela as Objet).quantite;
+      valeurNum = (contexteTour.cela as Objet).quantite;
     } else if (valeurString == 'valeur ceci') {
-      valeurNum = (ceci as Compteur).valeur;
+      valeurNum = (contexteTour.ceci as Compteur).valeur;
     } else if (valeurString == 'valeur cela') {
-      valeurNum = (cela as Compteur).valeur;
+      valeurNum = (contexteTour.cela as Compteur).valeur;
     } else {
       // retrouver une propriété éventuelle
       const curPropriete = PhraseUtils.trouverPropriete(valeurString);
       if (curPropriete) {
         // retrouver la propriété dans l’objet cible                  
-        const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, ceci, cela, eju, jeu);
+        const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, contexteTour, eju, jeu);
         if (curProprieteCible) {
           // récupérer la valeur
           if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
@@ -209,7 +207,7 @@ export class CompteursUtils {
     return valeurNum;
   }
 
-  public static intituleValeurVersString(valeurString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): string {
+  public static intituleValeurVersString(valeurString: string, contexteTour: ContexteTour | undefined, eju: ElementsJeuUtils, jeu: Jeu): string {
 
     let retVal: string;
 
@@ -224,7 +222,7 @@ export class CompteursUtils {
     const curPropriete = PhraseUtils.trouverPropriete(valeurString);
     if (curPropriete) {
       // retrouver la propriété dans l’objet cible                  
-      const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, ceci, cela, eju, jeu);
+      const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, contexteTour, eju, jeu);
       if (curProprieteCible) {
         // récupérer la valeur
         if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {

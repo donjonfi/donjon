@@ -8,6 +8,7 @@ import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from './compteurs-utils';
 import { ConditionMulti } from '../../models/compilateur/condition-multi';
 import { ConditionSolo } from '../../models/compilateur/condition-solo';
+import { ContexteTour } from '../../models/jouer/contexte-tour';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
@@ -37,12 +38,12 @@ export class ConditionsUtils {
 
 
   /** Vérifier la condition (multi) */
-  siEstVrai(conditionBrute: string, conditionMulti: ConditionMulti, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number): boolean {
+  siEstVrai(conditionBrute: string | undefined, conditionMulti: ConditionMulti | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): boolean {
 
     let resultatFinal: boolean = false;
 
     // si condition toujours brute, récupérer la condition multi correspondante.
-    if (conditionMulti == null) {
+    if (!conditionMulti) {
       conditionMulti = AnalyseurCondition.getConditionMulti(conditionBrute);
     }
 
@@ -51,7 +52,7 @@ export class ConditionsUtils {
 
     // s’il s’agit d’une condition simple
     if (conditionMulti.condition) {
-      resultatFinal = this.siEstVraiSansLien(null, conditionMulti.condition, ceci, cela, evenement, declenchements);
+      resultatFinal = this.siEstVraiSansLien(null, conditionMulti.condition, contexteTour, evenement, declenchements);
       // sinon il s’agit d’une condition composée
     } else if (conditionMulti.sousConditions?.length) {
       switch (conditionMulti.typeLienSousConditions) {
@@ -59,7 +60,7 @@ export class ConditionsUtils {
         case LienCondition.et:
           let toutVrai = true;
           for (let indexEt = 0; indexEt < conditionMulti.sousConditions.length; indexEt++) {
-            if (!this.siEstVrai(null, conditionMulti.sousConditions[indexEt], ceci, cela, evenement, declenchements)) {
+            if (!this.siEstVrai(null, conditionMulti.sousConditions[indexEt], contexteTour, evenement, declenchements)) {
               toutVrai = false;
               break;
             }
@@ -71,7 +72,7 @@ export class ConditionsUtils {
         case LienCondition.ou:
           let unVrai = false;
           for (let indexOu = 0; indexOu < conditionMulti.sousConditions.length; indexOu++) {
-            if (this.siEstVrai(null, conditionMulti.sousConditions[indexOu], ceci, cela, evenement, declenchements)) {
+            if (this.siEstVrai(null, conditionMulti.sousConditions[indexOu], contexteTour, evenement, declenchements)) {
               unVrai = true;
               break;
             }
@@ -83,7 +84,7 @@ export class ConditionsUtils {
         case LienCondition.soit:
           let nbVrai = 0;
           for (let indexSoit = 0; indexSoit < conditionMulti.sousConditions.length; indexSoit++) {
-            if (this.siEstVrai(null, conditionMulti.sousConditions[indexSoit], ceci, cela, evenement, declenchements)) {
+            if (this.siEstVrai(null, conditionMulti.sousConditions[indexSoit], contexteTour, evenement, declenchements)) {
               nbVrai += 1;
               if (nbVrai > 1) {
                 break;
@@ -108,10 +109,10 @@ export class ConditionsUtils {
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
-  public siEstVraiSansLien(conditionString: string, condition: ConditionSolo, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
+  public siEstVraiSansLien(conditionString: string | undefined, condition: ConditionSolo | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined) {
     let retVal = false;
     // si condition toujours brute, récupérer la condition correspondante.
-    if (condition == null) {
+    if (!condition) {
       condition = AnalyseurCondition.getConditionMulti(conditionString)?.condition;
     }
 
@@ -127,44 +128,44 @@ export class ConditionsUtils {
         }
         // ceci
         else if (condition.sujet.nom === 'ceci') {
-          sujet = ceci;
-          if (!ceci) {
+          sujet = contexteTour.ceci;
+          if (sujet) {
             console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
           }
           // cela
         } else if (condition.sujet.nom === 'cela') {
-          sujet = cela;
-          if (!cela) {
+          sujet = contexteTour.cela;
+          if (sujet) {
             console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
           }
           // quantitéCeci
         } else if (condition.sujet.nom === 'quantitéCeci') {
           const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
           sujet = cpt;
-          if (!ceci) {
+          if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
           }
           // quantitéCela
         } else if (condition.sujet.nom === 'quantitéCela') {
           const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
           sujet = cpt;
-          if (!cela) {
+          if (!contexteTour.cela) {
             console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
           }
           // quantité de ceci
         } else if (condition.sujet.nom === 'quantité de ceci') {
-          if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
+          if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
           } else {
-            const cpt = new Compteur("quantité de ceci", (ceci as ElementJeu).quantite);
+            const cpt = new Compteur("quantité de ceci", (contexteTour.ceci as ElementJeu).quantite);
             sujet = cpt;
           }
           // quantité de cela
         } else if (condition.sujet.nom === 'quantité de cela') {
-          if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
+          if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
           } else {
-            const cpt = new Compteur("quantité de cela", (cela as ElementJeu).quantite);
+            const cpt = new Compteur("quantité de cela", (contexteTour.cela as ElementJeu).quantite);
             sujet = cpt;
           }
           // préposition ceci
@@ -191,9 +192,9 @@ export class ConditionsUtils {
         } else if (condition.sujet.nom.match(/(sortie|obstacle|porte) vers/i)) {
           let locString: string = condition.sujet.epithete;
           if (condition.sujet.epithete == 'ceci') {
-            locString = ceci.intitule.nom;
+            locString = contexteTour.ceci.intitule.nom;
           } else if (condition.sujet.epithete == 'cela') {
-            locString = cela.intitule.nom;
+            locString = contexteTour.cela.intitule.nom;
           }
           const loc = ElementsJeuUtils.trouverLocalisation(new GroupeNominal(null, locString));
 
@@ -235,7 +236,7 @@ export class ConditionsUtils {
             // checher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
             if (proprieteJeu) {
-              const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, ceci, cela, this.eju, this.jeu);
+              const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
               if (proprieteCible instanceof Compteur) {
                 sujet = proprieteCible;
               } else {
@@ -285,7 +286,7 @@ export class ConditionsUtils {
           // Ex: aucune sortie n’existe vers le nord.
           // Ex: un aperçu existe pour cela.
           case 'existe':
-            retVal = this.verifierConditionExiste(condition, sujet, ceci, cela, evenement, declenchements);
+            retVal = this.verifierConditionExiste(condition, sujet, contexteTour, evenement, declenchements);
             break;
 
           // ÉLÉMENT POSSÉDÉ (PAR LE JOUEUR)
@@ -293,7 +294,7 @@ export class ConditionsUtils {
             if (sujet.nom === "joueur") {
               // vérifier si l’objet cible est possédé par le joueur
               // > remarque: négation appliquée plus loin.
-              const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, ceci, cela);
+              const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, contexteTour);
               if (objetCible) {
                 retVal = this.jeu.etats.possedeEtatIdElement(objetCible, this.jeu.etats.possedeID);
               }
@@ -309,7 +310,7 @@ export class ConditionsUtils {
             if (sujet.nom.toLowerCase() === "joueur") {
               // vérifier si l’objet cible est porté par le joueur
               // > remarque: négation appliquée plus loin.
-              const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, ceci, cela);
+              const objetCible = this.trouverObjetCible(condition.complement, condition.sujetComplement, contexteTour);
               if (objetCible) {
                 retVal = this.jeu.etats.possedeEtatIdElement(objetCible, this.jeu.etats.porteID);
               }
@@ -328,18 +329,18 @@ export class ConditionsUtils {
             if (condition.sujetComplement?.nom === "ici") {
               destination = this.eju.curLieu;
             } else if (condition.sujetComplement?.nom === "ceci") {
-              if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-                destination = ceci as Lieu;
+              if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.lieu)) {
+                destination = contexteTour.ceci as Lieu;
                 // (la commande aller passe par ici avec une direction)
-              } else if (!ceci || !ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-                console.error("siEstVraiSansLien > condition se trouve dans ceci: ceci n’est pas un lieu ceci=", ceci);
+              } else if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
+                console.error("siEstVraiSansLien > condition se trouve dans ceci: ceci n’est pas un lieu ceci=", contexteTour.ceci);
               }
             } else if (condition.sujetComplement?.nom === "cela") {
-              if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.lieu)) {
-                destination = ceci as Lieu;
+              if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.lieu)) {
+                destination = contexteTour.cela as Lieu;
                 // (la commande aller passe par ici avec une direction)
-              } else if (!cela || !ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
-                console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", cela);
+              } else if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
+                console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", contexteTour.cela);
               }
             } else {
               const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
@@ -375,7 +376,7 @@ export class ConditionsUtils {
           case 'vaut':
             // TODO: gérer plus de situations (en test)
             // remarque: négation appliquée plus loin.
-            console.warn("vaut condi=", condition, "ceci=", ceci, "cela=", cela);
+            console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
               retVal = true;
@@ -404,21 +405,21 @@ export class ConditionsUtils {
           case 'valent':
           case 'vaut':
             // remarque: négation appliquée plus loin.
-            retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            retVal = compteur.valeur === CompteursUtils.intituleValeurVersNombre(condition.complement, contexteTour, evenement, this.eju, this.jeu);
             break;
 
           // comparaison: plus grand que (dépasse) - plus petit ou égal (ne dépasse pas)
           case 'dépasse':
           case 'dépassent':
             // remarque: négation appliquée plus loin.
-            retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            retVal = compteur.valeur > CompteursUtils.intituleValeurVersNombre(condition.complement, contexteTour, evenement, this.eju, this.jeu);
             break;
 
           // comparaison: plus grand ou égal (atteint) − plus petit que (n’atteint pas)
           case 'atteint':
           case 'atteignent':
             // remarque: négation appliquée plus loin.
-            retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, ceci, cela, evenement, this.eju, this.jeu);
+            retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, contexteTour, evenement, this.eju, this.jeu);
             break;
 
           case 'se déclenche':
@@ -477,7 +478,7 @@ export class ConditionsUtils {
             } else if (condition.sujetComplement) {
               let intitule: Intitule;
               // i) rechercher parmi les cibles spéciales (ceci, cela, …)
-              const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, ceci, cela, evenement, this.eju, this.jeu);
+              const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
               if (cibleSpeciale) {
                 intitule = cibleSpeciale;
                 // ii) rechercher parmis tous les éléments du jeu
@@ -491,7 +492,7 @@ export class ConditionsUtils {
               }
               retVal = liste.contientIntitule(intitule);
               // C. TEXTE
-            } else {              
+            } else {
               retVal = liste.contientTexte(condition.complement);
             }
             break;
@@ -525,7 +526,7 @@ export class ConditionsUtils {
           // Ex: aucune sortie n’existe vers le nord.
           // Ex: un aperçu existe pour cela.
           case 'existe':
-            retVal = this.verifierConditionExiste(condition, sujet, ceci, cela, evenement, declenchements);
+            retVal = this.verifierConditionExiste(condition, sujet, contexteTour, evenement, declenchements);
             break;
 
           // comparaison : égalité
@@ -642,7 +643,7 @@ export class ConditionsUtils {
    * @param ceci pour le cas où brute vaut « ceci ».
    * @param cela pour le cas où brute vaut « cela ».
    */
-  private trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu): Objet {
+  private trouverObjetCible(brute: string, intitule: GroupeNominal, contexteTour: ContexteTour): Objet {
     let objetCible: Objet = null;
     // retrouver OBJET CLASSIQUE
     if (intitule) {
@@ -654,14 +655,14 @@ export class ConditionsUtils {
       }
       // retrouver OBJET SPÉCIAL
     } else if (brute === 'ceci') {
-      if (ceci && ClasseUtils.heriteDe(ceci?.classe, EClasseRacine.objet)) {
-        objetCible = ceci as Objet;
+      if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
+        objetCible = contexteTour.ceci as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > ceci n’est pas un objet.");
       }
     } else if (brute === 'cela') {
-      if (cela && ClasseUtils.heriteDe(cela?.classe, EClasseRacine.objet)) {
-        objetCible = cela as Objet;
+      if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
+        objetCible = contexteTour.cela as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > cela n’est pas un objet.");
       }
@@ -739,7 +740,7 @@ export class ConditionsUtils {
 
   }
 
-  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
+  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, contexteTour: ContexteTour, evenement: Evenement, declenchements: number) {
 
     let retVal = false;
 
@@ -878,8 +879,8 @@ export class ConditionsUtils {
     } else if ((condition.complement === 'aperçu') || (condition.complement === 'apercu')) {
       // => aperçu dans une direction
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
-        const dirCeci = ceci as Localisation;
-        let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
+        const dirSujet = sujet as Localisation;
+        let voisinID = this.eju.getVoisinDirectionID(dirSujet, EClasseRacine.lieu);
         if (voisinID !== -1) {
           let voisin = this.eju.getLieu(voisinID);
           retVal = voisin.apercu ? true : false;

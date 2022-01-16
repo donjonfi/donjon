@@ -2,6 +2,7 @@ import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
 import { ClasseUtils } from "../commun/classe-utils";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
@@ -23,10 +24,10 @@ export class InstructionDeplacerCopier {
   ) { }
 
   /** Déplacer (ceci, joueur) vers (cela, joueur, ici). */
-  public executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  public executerDeplacer(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, contexteTour: ContexteTour | undefined): Resultat {
 
     if (this.verbeux) {
-      console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+      console.log("executerDeplacer >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\ncontexteTour=", contexteTour);
     }
     let resultat = new Resultat(false, '', 1);
 
@@ -35,7 +36,7 @@ export class InstructionDeplacerCopier {
     }
 
     // trouver l’élément à déplacer
-    const objets = this.trouverObjetsDeplacementCopie(sujet, ceci, cela);
+    const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
     // retrouver le nombre d’occurence (quantité) à déplacer
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
@@ -45,7 +46,7 @@ export class InstructionDeplacerCopier {
 
 
     // trouver la destination
-    const destination = InstructionsUtils.trouverElementCible(complement, ceci, cela, this.eju, this.jeu);
+    const destination = InstructionsUtils.trouverElementCible(complement, contexteTour, this.eju, this.jeu);
 
     // si on a trouver le sujet et la distination, effectuer le déplacement.
     if (objets?.length == 1 && destination) {
@@ -65,10 +66,10 @@ export class InstructionDeplacerCopier {
   }
 
   /** Copier sujet (ceci) vers complément (cela, joueur, ici). */
-  public executerCopier(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  public executerCopier(sujet: GroupeNominal, preposition: string, complement: GroupeNominal, contexteTour: ContexteTour): Resultat {
 
     if (this.verbeux) {
-      console.log("executerCopier >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\nceci=", ceci, "\ncela=", cela);
+      console.log("executerCopier >>> \nsujet=", sujet, "\npreposition=", preposition, "\ncomplément=", complement, "\ncontexteTour=", contexteTour);
     }
     let resultat = new Resultat(false, '', 1);
 
@@ -77,13 +78,13 @@ export class InstructionDeplacerCopier {
     }
 
     // trouver l’élément à copier
-    const objets = this.trouverObjetsDeplacementCopie(sujet, ceci, cela);
+    const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
     // retrouver le nombre d’occurence (quantité) à copier
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // trouver la destination
-    const destination = InstructionsUtils.trouverElementCible(complement, ceci, cela, this.eju, this.jeu);
+    const destination = InstructionsUtils.trouverElementCible(complement, contexteTour, this.eju, this.jeu);
 
     // si on a trouvé le sujet et la distination, effectuer la copie.
     if (objets?.length == 1 && destination) {
@@ -349,45 +350,45 @@ export class InstructionDeplacerCopier {
   /**
    * Trouver les objets à déplacer ou à copier.
    */
-  private trouverObjetsDeplacementCopie(sujet: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null) {
+  private trouverObjetsDeplacementCopie(sujet: GroupeNominal, contexteTour: ContexteTour) {
     let objet: Objet = null;
     let objets: Objet[] = null;
 
     // si on déplace ceci, vérifier si ceci est un objet
-    if ((sujet.nom.endsWith(" ceci") || sujet.nom === 'ceci') && (!ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet))) {
+    if ((sujet.nom.endsWith(" ceci") || sujet.nom === 'ceci') && (!ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet))) {
       console.error("Copier/Déplacer ceci ou contenu ceci: ceci n'est pas un objet.");
     }
     // si on déplace cela, vérifier si cela est un objet
-    else if ((sujet.nom.endsWith(" cela") || sujet.nom === 'cela') && (!ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet))) {
+    else if ((sujet.nom.endsWith(" cela") || sujet.nom === 'cela') && (!ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet))) {
       console.error("Copier/Déplacer cela ou contenu cela: cela n'est pas un objet.");
     } else {
       switch (sujet.nom) {
         case "ceci":
-          objet = ceci as Objet;
+          objet = contexteTour.ceci as Objet;
           break;
         case "cela":
-          objet = cela as Objet;
+          objet = contexteTour.cela as Objet;
           break;
         case "joueur":
           objet = this.jeu.joueur;
           break;
         case "objets dans ceci":
-          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.dans);
+          objets = this.eju.obtenirContenu(contexteTour.ceci as Objet, PrepositionSpatiale.dans);
           break;
         case "objets sur ceci":
-          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sur);
+          objets = this.eju.obtenirContenu(contexteTour.ceci as Objet, PrepositionSpatiale.sur);
           break;
         case "objets sous ceci":
-          objets = this.eju.obtenirContenu(ceci as Objet, PrepositionSpatiale.sous);
+          objets = this.eju.obtenirContenu(contexteTour.ceci as Objet, PrepositionSpatiale.sous);
           break;
         case "objets dans cela":
-          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.dans);
+          objets = this.eju.obtenirContenu(contexteTour.cela as Objet, PrepositionSpatiale.dans);
           break;
         case "objets sur cela":
-          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sur);
+          objets = this.eju.obtenirContenu(contexteTour.cela as Objet, PrepositionSpatiale.sur);
           break;
         case "objets sous cela":
-          objets = this.eju.obtenirContenu(cela as Objet, PrepositionSpatiale.sous);
+          objets = this.eju.obtenirContenu(contexteTour.cela as Objet, PrepositionSpatiale.sous);
           break;
         case "objets ici":
           objets = this.eju.obtenirContenu(this.eju.curLieu, PrepositionSpatiale.dans);

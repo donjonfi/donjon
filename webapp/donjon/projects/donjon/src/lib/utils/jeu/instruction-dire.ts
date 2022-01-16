@@ -7,6 +7,7 @@ import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ConditionsUtils } from "./conditions-utils";
 import { Conjugaison } from "./conjugaison";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
@@ -38,48 +39,57 @@ export class InstructionDire {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
   }
 
-  public interpreterContenuDire(contenu: string, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number) {
+  public interpreterContenuDire(contenu: string, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined) {
 
     // Aperçu (d’un objet)
     if (contenu.includes("[aperçu") || contenu.includes("[apercu")) {
       if (contenu.includes("[aperçu ceci]") || contenu.includes("[apercu ceci]")) {
         let apercuCeci = "???";
-        if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.element)) {
-          const eleCeci = ceci as ElementJeu;
-          apercuCeci = this.calculerDescription(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-          contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
-        } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-          const dirCeci = ceci as Localisation;
-          let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
-          if (voisinID !== -1) {
-            let voisin = this.eju.getLieu(voisinID);
-            apercuCeci = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+        if (contexteTour.ceci) {
+          if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
+            const eleCeci = contexteTour.ceci as ElementJeu;
+            apercuCeci = this.calculerDescription(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+            contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
+          } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
+            const dirCeci = contexteTour.ceci as Localisation;
+            let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
+            if (voisinID !== -1) {
+              let voisin = this.eju.getLieu(voisinID);
+              apercuCeci = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+            } else {
+              console.error("interpreterContenuDire: aperçu de ceci: voisin pas trouvé dans cette direction.");
+            }
           } else {
-            console.error("interpreterContenuDire: aperçu de ceci: voisin pas trouvé dans cette direction.");
+            console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un élément jeu");
           }
         } else {
-          console.error("interpreterContenuDire: aperçu de ceci: ceci n'est pas un élément jeu");
+          console.error("interpreterContenuDire: aperçu de ceci: ceci n'a pas été défini.");
         }
         contenu = contenu.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
       }
       if (contenu.includes("[aperçu cela]") || contenu.includes("[apercu cela]")) {
         let apercuCela = "???";
-        if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.element)) {
-          const eleCela = cela as ElementJeu;
-          apercuCela = this.calculerDescription(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
-          contenu = contenu.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
-        } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
-          const dirCela = cela as Localisation;
-          let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
-          if (voisinID !== -1) {
-            let voisin = this.eju.getLieu(voisinID);
-            apercuCela = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+        if (contexteTour.cela) {
+          if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
+            const eleCela = contexteTour.cela as ElementJeu;
+            apercuCela = this.calculerDescription(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+            contenu = contenu.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
+          } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
+            const dirCela = contexteTour.cela as Localisation;
+            let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
+            if (voisinID !== -1) {
+              let voisin = this.eju.getLieu(voisinID);
+              apercuCela = this.calculerDescription(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+            } else {
+              console.error("interpreterContenuDire: aperçu de cela: voisin pas trouvé dans cette direction.");
+            }
           } else {
-            console.error("interpreterContenuDire: aperçu de cela: voisin pas trouvé dans cette direction.");
+            console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un élément jeu");
           }
         } else {
-          console.error("interpreterContenuDire: aperçu de cela: cela n'est pas un élément jeu");
+          console.error("interpreterContenuDire: aperçu de cela: cela n'a pas été défini.");
         }
+        contenu = contenu.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
       }
     }
 
@@ -91,16 +101,16 @@ export class InstructionDire {
     // statut (porte, contenant)
     if (contenu.includes("[statut")) {
       if (contenu.includes("[statut ceci]")) {
-        if (ceci && ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-          const statutCeci = this.afficherStatut(ceci as Objet);
+        if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
+          const statutCeci = this.afficherStatut(contexteTour.ceci as Objet);
           contenu = contenu.replace(/\[statut ceci\]/g, statutCeci);
         } else {
           console.error("interpreterContenuDire: statut de ceci: ceci n'est pas un objet");
         }
       }
       if (contenu.includes("[statut cela]")) {
-        if (cela && ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-          const statutCela = this.afficherStatut(cela as Objet);
+        if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
+          const statutCela = this.afficherStatut(contexteTour.cela as Objet);
           contenu = contenu.replace(/\[statut cela\]/g, statutCela);
         } else {
           console.error("interpreterContenuDire: statut de cela: cela n'est pas un objet");
@@ -133,7 +143,7 @@ export class InstructionDire {
         let phraseSiQuelqueChose = "{U}Vous voyez ";
         let afficherObjetsCaches = !exclureCaches;
 
-        const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
+        const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
 
         // cas particuliers
         // > inventaire / joueur
@@ -250,13 +260,13 @@ export class InstructionDire {
 
     if (contenu.includes("[obstacle ")) {
       if (contenu.includes("[obstacle vers ceci]")) {
-        if (ceci) {
+        if (contexteTour?.ceci) {
           let obstacleVersCeci: string = null;
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.direction)) {
-            obstacleVersCeci = this.afficherObstacle((ceci as Localisation).id);
+          if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
+            obstacleVersCeci = this.afficherObstacle((contexteTour.ceci as Localisation).id);
             contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
-          } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-            obstacleVersCeci = this.afficherObstacle(ceci as Lieu);
+          } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.lieu)) {
+            obstacleVersCeci = this.afficherObstacle(contexteTour.ceci as Lieu);
             contenu = contenu.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
           } else {
             console.error("interpreterContenuDire: statut sortie vers ceci: ceci n’est ni une direction ni un lieu.");
@@ -266,13 +276,13 @@ export class InstructionDire {
         }
       }
       if (contenu.includes("[obstacle vers cela]")) {
-        if (cela) {
+        if (contexteTour?.cela) {
           let obstacleVersCela: string = null;
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.direction)) {
-            obstacleVersCela = this.afficherObstacle((cela as Localisation).id);
+          if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
+            obstacleVersCela = this.afficherObstacle((contexteTour.cela as Localisation).id);
             contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
-          } else if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.lieu)) {
-            obstacleVersCela = this.afficherObstacle(cela as Lieu);
+          } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.lieu)) {
+            obstacleVersCela = this.afficherObstacle(contexteTour.cela as Lieu);
             contenu = contenu.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
           } else {
             console.error("interpreterContenuDire: statut sortie vers cela: cela n’est ni une direction ni un lieu.");
@@ -298,11 +308,11 @@ export class InstructionDire {
     // aide
     if (contenu.includes("[aide")) {
       if (contenu.includes("[aide ceci]")) {
-        const aideCeci = this.recupererFicheAide(ceci);
+        const aideCeci = this.recupererFicheAide(contexteTour.ceci);
         contenu = contenu.replace(/\[aide ceci\]/g, aideCeci);
       }
       if (contenu.includes("[aide cela]")) {
-        const aideCela = this.recupererFicheAide(cela);
+        const aideCela = this.recupererFicheAide(contexteTour.cela);
         contenu = contenu.replace(/\[aide cela\]/g, aideCela);
       }
     }
@@ -327,7 +337,7 @@ export class InstructionDire {
 
         const proprieteString = decoupe[1];
         let cibleString = decoupe[2];
-        const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
+        const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
 
         let resultat: string = '';
 
@@ -410,9 +420,9 @@ export class InstructionDire {
             // cod: le, la ou les
             case 'le':
               // singulier
-              if ((ceci as ElementJeu).nombre !== Nombre.p) {
+              if (cibleElement.nombre !== Nombre.p) {
                 // masculin
-                if ((ceci as ElementJeu).genre !== Genre.f) {
+                if (cibleElement.genre !== Genre.f) {
                   resultat = "le";
                   // féminin
                 } else {
@@ -427,9 +437,9 @@ export class InstructionDire {
             // lui, elle, eux, elles
             case 'lui':
               // singulier
-              if ((ceci as ElementJeu).nombre !== Nombre.p) {
+              if (cibleElement.nombre !== Nombre.p) {
                 // masculin
-                if ((ceci as ElementJeu).genre !== Genre.f) {
+                if (cibleElement.genre !== Genre.f) {
                   resultat = "lui";
                   // féminin
                 } else {
@@ -438,7 +448,7 @@ export class InstructionDire {
                 // pluriel
               } else {
                 // masculin
-                if ((ceci as ElementJeu).genre !== Genre.f) {
+                if (cibleElement.genre !== Genre.f) {
                   resultat = "eux";
                   // féminin
                 } else {
@@ -530,7 +540,7 @@ export class InstructionDire {
         const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
         const proprieteString = decoupe[1];
         const cibleString = decoupe[2];
-        let cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, ceci, cela, evenement, this.eju, this.jeu);
+        let cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
         let resultatCurBalise: string = null;
         if (cible) {
           switch (proprieteString) {
@@ -560,7 +570,7 @@ export class InstructionDire {
               if (propriete) {
                 // texte
                 if (propriete.type == TypeValeur.mots) {
-                  resultatCurBalise = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+                  resultatCurBalise = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
                   // nombre
                 } else {
                   resultatCurBalise = propriete.valeur;
@@ -644,7 +654,7 @@ export class InstructionDire {
         const sujet = decoupe[4];
 
         // retrouver le verbe conjugué
-        const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, ceci, cela, evenement);
+        const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, contexteTour, evenement);
 
         // remplacer la balise par le verbe conjugué
         const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujet}`;
@@ -672,7 +682,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeProprieteMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, contexteTour, evenement, declenchements);
     }
 
     // Le nombre de classe état1 état2 position
@@ -681,7 +691,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseNombreDeClasseEtatPossitionMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, contexteTour, evenement, declenchements);
     }
 
     // La propriété de élément
@@ -690,7 +700,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteDeElementMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, ceci, cela, evenement, declenchements);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, false, contexteTour, evenement, declenchements);
     }
 
     // propriété élément
@@ -699,7 +709,7 @@ export class InstructionDire {
       // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
       const allBalises = contenu.match(xBaliseProprieteElementMulti);
       // remplacer les balises par leur valeur
-      contenu = this.suiteTraiterPropriete(contenu, allBalises, true, ceci, cela, evenement, declenchements);
+      contenu = this.suiteTraiterPropriete(contenu, allBalises, true, contexteTour, evenement, declenchements);
     }
 
     // ===================================================
@@ -708,7 +718,7 @@ export class InstructionDire {
 
     // interpréter les balises encore présentes
     if (contenu.includes("[")) {
-      contenu = this.calculerDescription(contenu, nbExecutions, null, ceci, cela, evenement, declenchements);
+      contenu = this.calculerDescription(contenu, nbExecutions, null, contexteTour, evenement, declenchements);
     }
 
     // ===================================================
@@ -758,7 +768,7 @@ export class InstructionDire {
    * @param ceci 
    * @param cela 
    */
-  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, sansDe: boolean, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number): string {
+  private suiteTraiterPropriete(contenu: string, allBalises: RegExpMatchArray, sansDe: boolean, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number): string {
     // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
     const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
     // parcourir chaque balise trouvée    
@@ -780,7 +790,7 @@ export class InstructionDire {
       const curPropriete = PhraseUtils.trouverPropriete(curProprieteIntituleCorrige);
       if (curPropriete) {
         // retrouver la propriété dans l’objet cible                  
-        const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, ceci, cela, this.eju, this.jeu);
+        const curProprieteCible = InstructionsUtils.trouverProprieteCible(curPropriete, contexteTour, this.eju, this.jeu);
         if (curProprieteCible) {
           // récupérer la valeur
           if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
@@ -791,7 +801,7 @@ export class InstructionDire {
             const propriete = (curProprieteCible as ProprieteElement);
             // texte
             if (propriete.type == TypeValeur.mots) {
-              valeur = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(curPropriete.element, this.jeu.etats.intactID), ceci, cela, evenement, declenchements);
+              valeur = this.calculerDescription(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(curPropriete.element, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               // nombre
             } else {
               valeur = (curProprieteCible as ProprieteElement).valeur;
@@ -809,7 +819,7 @@ export class InstructionDire {
   }
 
   /** Vérifier si une condition [] est remplie. */
-  private estConditionDescriptionRemplie(condition: string, statut: StatutCondition, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number): boolean {
+  private estConditionDescriptionRemplie(condition: string, statut: StatutCondition, contexteTour: ContexteTour, evenement: Evenement, declenchements: number): boolean {
 
     let retVal = false;
     let conditionLC = condition.toLowerCase();
@@ -851,7 +861,7 @@ export class InstructionDire {
         retVal = false;
         console.error("Condition pas comprise: ", conditionLC);
       } else {
-        statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
+        statut.siVrai = this.cond.siEstVrai(null, condition, contexteTour, evenement, declenchements);
         retVal = statut.siVrai;
       }
       // SUITES
@@ -875,7 +885,7 @@ export class InstructionDire {
               retVal = false;
               console.error("Condition pas comprise: ", conditionLC);
             } else {
-              statut.siVrai = this.cond.siEstVrai(null, condition, ceci, cela, evenement, declenchements);
+              statut.siVrai = this.cond.siEstVrai(null, condition, contexteTour, evenement, declenchements);
               retVal = statut.siVrai;
             }
           }
@@ -984,14 +994,14 @@ export class InstructionDire {
   // CONJUGAISON
   // ===================================================
 
-  private calculerConjugaison(verbe: string, modeTemps: string, negation: string, sujetStr: string, ici: Lieu, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement): string {
+  private calculerConjugaison(verbe: string, modeTemps: string, negation: string, sujetStr: string, ici: Lieu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
 
     // retrouver et contrôler le sujet
     let sujet: ElementJeu | Intitule = null;
     let verbeConjugue: string = null;
     let verbePronominal = /(se |s’|s')(.+)/.test(verbe);
     let infinitifSansLeSe = verbePronominal ? verbe.replace(/^(se |s’|s')/i, "") : verbe;
-    sujet = InstructionsUtils.trouverCibleSpeciale(sujetStr, ceci, cela, evenement, this.eju, this.jeu);
+    sujet = InstructionsUtils.trouverCibleSpeciale(sujetStr, contexteTour, evenement, this.eju, this.jeu);
     if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
       console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
     }
@@ -1072,7 +1082,7 @@ export class InstructionDire {
   /**
  * Calculer une description en tenant compte des balises conditionnelles et des états actuels.
  */
-  private calculerDescription(description: string, nbAffichage: number, intact: boolean, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, declenchements: number) {
+  private calculerDescription(description: string, nbAffichage: number, intact: boolean, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
     let retVal = "";
     if (description) {
       const morceaux = description.split(/\[|\]/);
@@ -1085,7 +1095,7 @@ export class InstructionDire {
         statut.curMorceauIndex = index;
         const curMorceau = morceaux[index];
         if (suivantEstCondition) {
-          afficherMorceauSuivant = this.estConditionDescriptionRemplie(curMorceau, statut, ceci, cela, evenement, declenchements);
+          afficherMorceauSuivant = this.estConditionDescriptionRemplie(curMorceau, statut, contexteTour, evenement, declenchements);
           suivantEstCondition = false;
         } else {
           if (afficherMorceauSuivant) {
@@ -1253,7 +1263,7 @@ export class InstructionDire {
 
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercu.forEach(obj => {
-        const apercuCalcule = this.calculerDescription(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), null, null, null, null);
+        const apercuCalcule = this.calculerDescription(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
@@ -1320,7 +1330,7 @@ export class InstructionDire {
               if (curPorteObstacle.apercu) {
                 // afficher l'aperçu.
                 if (curPorteObstacle.apercu != '-') {
-                  resultat.sortie += "{U}" + this.calculerDescription(curPorteObstacle.apercu, curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), null, null, null, null);
+                  resultat.sortie += "{U}" + this.calculerDescription(curPorteObstacle.apercu, curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
                 }
                 // si pas d’aperçu défini
               } else {
@@ -1380,14 +1390,13 @@ export class InstructionDire {
       }
     }
 
-
     // trouver l’obstacle (autre que porte) qui est dans le chemin
     const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
     if (obstacleID !== -1) {
       const obstacle = this.eju.getObjet(obstacleID);
       // si aperçu dispo pour l’obstacle, on l’affiche.
       if (obstacle.apercu) {
-        retVal = this.calculerDescription(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), null, null, null, null);
+        retVal = this.calculerDescription(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
         // sinon on affiche texte auto.
       } else {
         retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";

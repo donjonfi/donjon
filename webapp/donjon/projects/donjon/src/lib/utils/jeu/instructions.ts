@@ -3,6 +3,7 @@ import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Commandeur } from './commandeur';
 import { ConditionsUtils } from './conditions-utils';
+import { ContexteTour } from '../../models/jouer/contexte-tour';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
@@ -53,12 +54,12 @@ export class Instructions {
   }
 
   /** Exécuter une liste d’instructions */
-  public executerInstructions(instructions: Instruction[], ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number = null): Resultat {
+  public executerInstructions(instructions: Instruction[], contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
     let resultat = new Resultat(true, '', 0);
     if (instructions && instructions.length > 0) {
       instructions.forEach(ins => {
-        const sousResultat = this.executerInstruction(ins, ceci, cela, evenement, declenchements);
+        const sousResultat = this.executerInstruction(ins, contexteTour, evenement, declenchements);
         resultat.nombre += sousResultat.nombre;
         resultat.succes = (resultat.succes && sousResultat.succes);
         resultat.sortie += sousResultat.sortie;
@@ -71,31 +72,31 @@ export class Instructions {
   }
 
   /** Exécuter une instruction */
-  public executerInstruction(instruction: Instruction, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement = null, declenchements: number = null): Resultat {
+  public executerInstruction(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
     if (this.verbeux) {
-      console.log(">>> ex instruction:", instruction, "ceci:", ceci, "cela:", cela);
+      console.log(">>> ex instruction:", instruction, "contexteTour:", contexteTour);
     }
     // incrémenter le nombre de fois que l’instruction a déjà été exécutée
     instruction.nbExecutions += 1;
 
     // instruction conditionnelle
     if (instruction.condition) {
-      const estVrai = this.cond.siEstVrai(null, instruction.condition, ceci, cela, evenement, declenchements);
+      const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
       }
       if (estVrai) {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, ceci, cela, evenement, declenchements);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, contexteTour, evenement, declenchements);
       } else {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, ceci, cela, evenement, declenchements);
+        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, contexteTour, evenement, declenchements);
       }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
-        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, ceci, cela, evenement, declenchements);
+        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, contexteTour, evenement, declenchements);
       } else {
         console.warn("executerInstruction : pas d'infinitif :", instruction);
       }
@@ -111,12 +112,12 @@ export class Instructions {
   }
 
 
-  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement, declenchements: number): Resultat {
+  private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number): Resultat {
     let resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
     if (this.verbeux) {
-      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (ceci=", ceci, "cela=", cela, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
+      console.log("EX INF − ", instruction.infinitif.toUpperCase(), " (contexteTour=", contexteTour, "instruction=", instruction, "nbExecutions=", nbExecutions, ")");
     }
 
     switch (instruction.infinitif.toLowerCase()) {
@@ -124,14 +125,14 @@ export class Instructions {
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         const complement = instruction.complement1.trim();
         let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, ceci, cela, evenement, declenchements);
+        contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, contexteTour, evenement, declenchements);
         resultat.sortie += contenu;
         // console.warn("--- complement:", complement);
         // console.warn("------ contenu:", contenu);
         // console.warn("------ resultat.sortie:", resultat.sortie);
         break;
       case 'changer':
-        sousResultat = this.insChanger.executerChanger(instruction, ceci, cela, evenement, declenchements);
+        sousResultat = this.insChanger.executerChanger(instruction, contexteTour, evenement, declenchements);
         resultat.sortie += sousResultat.sortie;
         resultat.succes = sousResultat.succes;
         break;
@@ -149,9 +150,9 @@ export class Instructions {
         // retrouver la destination du déplacement pour détecter si spéciale
         let destinationDeplacement: ElementJeu | Intitule = null;
         if (instruction.sujetComplement1?.nom === 'ceci') {
-          destinationDeplacement = ceci;
+          destinationDeplacement = contexteTour.ceci;
         } else if (instruction.sujetComplement1?.nom === 'cela') {
-          destinationDeplacement = cela;
+          destinationDeplacement = contexteTour.cela;
         } else if (instruction.sujetComplement1?.nom === 'ici') {
           destinationDeplacement = this.eju.curLieu;
         }
@@ -174,28 +175,28 @@ export class Instructions {
             }
             if (voisinID != -1) {
               const voisin = this.eju.getLieu(voisinID);
-              sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, voisin.intitule, null, null);
+              sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, voisin.intitule, undefined);
               resultat.succes = sousResultat.succes;
             } else {
               resultat.succes = false;
             }
             // déplacer sujet vers un ÉLÉMENT du jeu (lieu ou objet)
           } else if (ClasseUtils.heriteDe(destinationDeplacement.classe, EClasseRacine.element)) {
-            sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
+            sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, instruction.sujetComplement1, contexteTour);
             resultat.succes = sousResultat.succes;
           } else {
-            console.error("Exécuter infinitif: déplacer: la destination (ceci, cela ou ici) doit être soit un lieu, soit un objet, soit une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\nceci=", ceci, "\ncela=", cela, ")");
+            console.error("Exécuter infinitif: déplacer: la destination (ceci, cela ou ici) doit être soit un lieu, soit un objet, soit une direction. \ninstruction=", instruction, "\nsujet=", instruction.sujet, "\ncontexteTour=", contexteTour, ")");
             resultat.succes = false;
           }
           // destination classique
         } else {
-          sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
+          sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, instruction.sujetComplement1, contexteTour);
           resultat.succes = sousResultat.succes;
         }
         break;
 
       case 'copier':
-        // console.warn("$$$$ Copier", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\nceci:", ceci, "\ncela:", cela);
+        // console.warn("$$$$ Copier", "\nsujet:", instruction.sujet, "\npreposition1:", instruction.preposition1, "\nsujetComplement1:", instruction.sujetComplement1, "\ncontexteTour:", contexteTour);
 
         // retrouver quantité à copier
         let sujetCopie = instruction.sujet;
@@ -206,14 +207,14 @@ export class Instructions {
         }
 
         // copier l’élément
-        sousResultat = this.insDeplacerCopier.executerCopier(sujetCopie, instruction.preposition1, instruction.sujetComplement1, ceci, cela);
+        sousResultat = this.insDeplacerCopier.executerCopier(sujetCopie, instruction.preposition1, instruction.sujetComplement1, contexteTour);
         break;
 
       case 'effacer':
         if (instruction.sujet.nom == 'écran') {
           resultat.sortie = "@@effacer écran@@";
         } else {
-          const cible = InstructionsUtils.trouverObjetCible(instruction.sujet.nom, instruction.sujet, ceci, cela, this.eju, this.jeu);
+          const cible = InstructionsUtils.trouverObjetCible(instruction.sujet.nom, instruction.sujet, contexteTour, this.eju, this.jeu);
           if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
             sousResultat = this.executerEffacer(cible as Objet);
             resultat.succes = sousResultat.succes;
@@ -228,16 +229,15 @@ export class Instructions {
       case 'exécuter':
         // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
 
-        // console.log("executerInfinitif >> exécuter=", instruction);
         // EXÉCUTER RÉACTION
         if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
           // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
-          sousResultat = this.insExecuter.executerReaction(instruction, ceci, cela);
+          sousResultat = this.insExecuter.executerReaction(instruction, contexteTour);
           resultat.sortie = sousResultat.sortie;
           resultat.succes = sousResultat.succes;
           // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterAction)) {
-          resultat = this.insExecuter.executerAction(instruction, nbExecutions, ceci, cela, evenement, declenchements);
+          resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
           // EXÉCUTER COMMANDE
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterCommande)) {
           resultat = this.insExecuter.executerCommande(instruction);

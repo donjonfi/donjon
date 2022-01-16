@@ -2,6 +2,7 @@ import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ConditionsUtils } from './conditions-utils';
+import { ContexteTour } from '../../models/jouer/contexte-tour';
 import { Debogueur } from './debogueur';
 import { Declencheur } from './declencheur';
 import { EClasseRacine } from '../../models/commun/constantes';
@@ -146,8 +147,9 @@ export class Commandeur {
             }
           }
 
-          // Renvoyer l’explication du refu. 
-          retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, tempCeci, tempCela, null, null);
+          // Renvoyer l’explication du refu.
+          const contexteTourRefu = new ContexteTour(tempCeci, tempCela);
+          retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, contexteTourRefu, undefined, undefined);
 
           // regarder si de l’aide existe pour cet infinitif
           const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);
@@ -224,6 +226,9 @@ export class Commandeur {
           // console.error(">>>>>> evenement = ", evenement);F
 
 
+          // créer le contexte du tour
+          const contexteTour = new ContexteTour(actionCeciCela.ceci, actionCeciCela.cela);
+
           // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
           let resultatAvant = new Resultat(true, "", 0);
           // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score ou si règle générique
@@ -232,7 +237,7 @@ export class Commandeur {
           // éxécuter les règles déclenchées
           for (let index = 0; index < declenchementsAvant.length; index++) {
             const declenchement = declenchementsAvant[index];
-            const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+            const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, contexteTour, evenementV2, declenchement.declenchements);
             retVal += sousResultatAvant.sortie;
             resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
             resultatAvant.nombre += sousResultatAvant.nombre;
@@ -251,9 +256,9 @@ export class Commandeur {
               // parcourir les vérifications
               actionCeciCela.action.verifications.forEach(verif => {
                 if (verif.conditions.length == 1) {
-                  if (!refus && this.cond.siEstVrai(null, verif.conditions[0], actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null)) {
+                  if (!refus && this.cond.siEstVrai(null, verif.conditions[0], contexteTour, evenementV2, null)) {
                     // console.warn("> commande vérifie cela:", verif);
-                    const resultatRefuser = this.ins.executerInstructions(verif.resultats, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, null);
+                    const resultatRefuser = this.ins.executerInstructions(verif.resultats, contexteTour, evenementV2, null);
                     retVal += resultatRefuser.sortie;
                     refus = true;
                   }
@@ -266,7 +271,7 @@ export class Commandeur {
             // exécuter l’action si pas refusée
             if (!refus) {
               // PHASE EXÉCUTER l’action
-              const resultatExecuter = this.executerAction(actionCeciCela, evenementV2);
+              const resultatExecuter = this.executerAction(actionCeciCela, contexteTour, evenementV2);
               retVal += resultatExecuter.sortie;
               // ÉVÈNEMENT APRÈS la commande
               let resultatApres = new Resultat(true, "", 0);
@@ -276,7 +281,7 @@ export class Commandeur {
                 // éxécuter les règles déclenchées
                 for (let index = 0; index < declenchementsApres.length; index++) {
                   const declenchement = declenchementsApres[index];
-                  const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, actionCeciCela.ceci, actionCeciCela.cela, evenementV2, declenchement.declenchements);
+                  const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, contexteTour, evenementV2, declenchement.declenchements);
                   resultatApres.sortie += sousResultatApres.sortie;
                   resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
                   resultatApres.nombre += sousResultatApres.nombre;
@@ -291,7 +296,7 @@ export class Commandeur {
                 // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
                 if (resultatApres.terminerAvantRegle || !resultatApres.sortie || (resultatApres.terminerAvantRegleGenerique && declenchementsApres.length == 1)) {
                   // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
-                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela, contexteTour, evenementV2);
                   retVal += resultatFinaliser.sortie;
                   // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
                   if (resultatApres.terminerApresRegle || resultatApres.terminerApresRegleGenerique) {
@@ -307,13 +312,13 @@ export class Commandeur {
                 // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
                 if (resultatApres.terminerApresRegle || (resultatApres.terminerApresRegleGenerique && declenchementsApres.length == 1)) {
                   // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
-                  const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                  const resultatFinaliser = this.finaliserAction(actionCeciCela, contexteTour, evenementV2);
                   retVal += resultatFinaliser.sortie;
                 }
 
               } else {
                 // PHASE TERMINER l'action (sans règle « après »)
-                const resultatFinaliser = this.finaliserAction(actionCeciCela, evenementV2);
+                const resultatFinaliser = this.finaliserAction(actionCeciCela, contexteTour, evenementV2);
                 retVal += resultatFinaliser.sortie;
               }
 
@@ -339,13 +344,13 @@ export class Commandeur {
     return retVal;
   }
 
-  private executerAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructions, action.ceci, action.cela, evenement, null);
+  private executerAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
+    const resultat = this.ins.executerInstructions(action.action.instructions, contexteTour, evenement, undefined);
     return resultat;
   }
 
-  private finaliserAction(action: ActionCeciCela, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, action.ceci, action.cela, evenement, null);
+  private finaliserAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
+    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, contexteTour, evenement, undefined);
     return resultat;
   }
 

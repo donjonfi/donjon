@@ -541,22 +541,22 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = -100;
     cptC.valeur = 100;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', undefined, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', undefined, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c', undefined, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -567,33 +567,33 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 1;
     cptC.valeur = 0;
     cptD.valeur = 2;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 10;
     cptB.valeur = 10;
     cptC.valeur = 10;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -2;
     cptB.valeur = -2;
     cptC.valeur = 2;
     cptD.valeur = -2;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeTrue();
-    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', null, null, null, null, 0)).toBeFalse();
-    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', null, null, null, null, 0)).toBeFalse();
-    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas c ou d', undefined, undefined, undefined, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si a vaut b mais pas (c ou d)', undefined, undefined, undefined, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('si (a vaut b mais pas c ou d)', undefined, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -603,36 +603,36 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 1;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
-    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 4;
     cptB.valeur = 4;
     cptC.valeur = 100;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
-    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -1;
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeTrue();
-    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', undefined, undefined, undefined, 0)).toBeTrue();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', undefined, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 13;
     cptB.valeur = 13;
     cptC.valeur = 13;
     cptD.valeur = 13;
-    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeFalse();
-    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', undefined, undefined, undefined, 0)).toBeFalse();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', undefined, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', null, null, null, null, 0)).toBeFalse();
-    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('a ne vaut pas b ou c ou d', undefined, undefined, undefined, 0)).toBeFalse();
+    // expect(condUtils.siEstVrai('a ne vaut pas (b ou c ou d)', undefined, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -645,19 +645,19 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 1;
     cptC.valeur = 3;
     cptD.valeur = 3;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 2;
     cptD.valeur = 2;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 1
     cptB.valeur = 0;
     cptC.valeur = 1;
     cptD.valeur = 0
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
@@ -669,25 +669,25 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 2;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 3;
     cptD.valeur = 3;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -701,31 +701,31 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 2;
     cptC.valeur = 3.2;
     cptD.valeur = -4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 3.2;
     cptD.valeur = -4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 3.3;
     cptD.valeur = -4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 2;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 2;
     cptC.valeur = 3.2;
     cptD.valeur = -4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -738,37 +738,37 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 2;
     cptC.valeur = 1;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -10;
     cptB.valeur = 10;
     cptC.valeur = -10;
     cptD.valeur = -10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 3.8;
     cptB.valeur = 3.2;
     cptC.valeur = 3.8;
     cptD.valeur = 3.8;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 50;
     cptB.valeur = 25;
     cptC.valeur = 50;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 8.5;
     cptB.valeur = 8.5;
     cptC.valeur = 8.5;
     cptD.valeur = 8.5;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 1;
     cptC.valeur = 2;
     cptD.valeur = 3;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -781,31 +781,31 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptC.valeur = 5;
     cptD.valeur = 200;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptC.valeur = 200;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 1;
     cptB.valeur = 10;
     cptC.valeur = 10;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -818,25 +818,25 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 5;
     cptC.valeur = 0;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 5;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 2;
     cptD.valeur = 5;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 2;
     cptC.valeur = 3;
     cptD.valeur = 4;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -848,17 +848,17 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 2;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 10;
     cptC.valeur = 2;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -870,27 +870,27 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 2;
     cptB.valeur = 0;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = -2;
     cptC.valeur = -10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 2;
     cptB.valeur = 2;
     cptC.valeur = 2;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = -2;
     cptB.valeur = 2;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -900,19 +900,19 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 ou 2 ou 3');
 
     cptA.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 3;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = -2;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -925,37 +925,37 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 1;
     cptB.valeur = 10;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 50;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 1;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 2;
     cptB.valeur = 1;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
 
   });
@@ -968,17 +968,17 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 0;
     cptC.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 0;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -991,27 +991,27 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 51;
     cptB.valeur = -8;
     cptC.valeur = 51;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -2;
     cptB.valeur = 0;
     cptC.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -2;
     cptB.valeur = -2;
     cptC.valeur = -2;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 5;
     cptB.valeur = 5;
     cptC.valeur = 5;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -1024,25 +1024,25 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 1;
     cptC.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -20;
     cptB.valeur = 0;
     cptC.valeur = 0;
     cptD.valeur = -20;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 1;
     cptB.valeur = 1;
     cptC.valeur = 1;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -1054,42 +1054,42 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 0;
     cptB.valeur = 2;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 6;
     cptD.valeur = 1001;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 2000;
     cptD.valeur = 1001;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 101;
     cptB.valeur = 6;
     cptD.valeur = 10000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = -2;
     cptD.valeur = 2000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptD.valeur = 1000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 4;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 100;
     cptB.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -1101,42 +1101,42 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptA.valeur = 0;
     cptB.valeur = 2;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 0;
     cptB.valeur = 2000;
     cptD.valeur = 1001;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 101;
     cptB.valeur = 6;
     cptD.valeur = 10000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = 100;
     cptB.valeur = 6;
     cptD.valeur = 1001;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 100;
     cptB.valeur = -2;
     cptD.valeur = 2000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 100;
     cptB.valeur = 2;
     cptD.valeur = 1000;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 5;
     cptB.valeur = 4;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
     cptA.valeur = 100;
     cptB.valeur = 0;
     cptD.valeur = 0;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
 
   });
 
@@ -1149,13 +1149,13 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     cptB.valeur = 10;
     cptC.valeur = 100;
     cptD.valeur = 1;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
     cptA.valeur = -10;
     cptB.valeur = -5;
     cptC.valeur = -100;
     cptD.valeur = 10;
-    expect(condUtils.siEstVrai(null, condition, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
 
   });

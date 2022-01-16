@@ -3,12 +3,12 @@ import { ProprieteJeu, TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { Capacite } from "../../models/commun/capacite";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
-import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Liste } from "../../models/jeu/liste";
 import { Nombre } from "../../models/commun/nombre.enum";
@@ -20,7 +20,7 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class InstructionsUtils {
 
   /** Retrouver la cible spéciale sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
-  public static trouverCibleSpeciale(cibleString: string, ceci: ElementJeu | Intitule, cela: ElementJeu | Intitule, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu {
+  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu {
     let cible: ElementJeu = null;
     if (cibleString) {
       // retrouver la cible
@@ -30,19 +30,19 @@ export class InstructionsUtils {
           // afficherObjetsCaches = false;
           break;
         case 'ceci':
-          cible = ceci as ElementJeu;
+          cible = contexteTour.ceci as ElementJeu;
           break;
         case 'ceci?':
-          cible = ceci ? ceci as ElementJeu : null;
+          cible = contexteTour.ceci ? contexteTour.ceci as ElementJeu : null;
           break;
         case 'cela':
-          cible = cela as ElementJeu;
+          cible = contexteTour.cela as ElementJeu;
           break;
         case 'cela?':
-          cible = cela ? cela as ElementJeu : null;
+          cible = contexteTour.cela ? contexteTour.cela as ElementJeu : null;
           break;
         case 'quantitéceci':
-          cible = InstructionsUtils.copierElementTemp(ceci as Objet);
+          cible = InstructionsUtils.copierElementTemp(contexteTour.ceci as Objet);
           // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
           if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
             cible.quantite = 1;
@@ -56,10 +56,10 @@ export class InstructionsUtils {
             cible.nombre = Nombre.p;
             // => identique à l’original (sauf si original est illimité)
           } else if (cible.quantite == -1) {
-            if ((ceci as Objet).quantite == -1) {
+            if ((contexteTour.ceci as Objet).quantite == -1) {
               cible.nombre = Nombre.s; // TODO: indénombrables
             } else {
-              cible.nombre = (ceci as Objet).nombre;
+              cible.nombre = (contexteTour.ceci as Objet).nombre;
             }
             // => 0 ou 1
           } else {
@@ -67,7 +67,7 @@ export class InstructionsUtils {
           }
           break;
         case 'quantitécela':
-          cible = InstructionsUtils.copierElementTemp(cela as Objet);
+          cible = InstructionsUtils.copierElementTemp(contexteTour.cela as Objet);
           // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
           if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
             cible.quantite = 1;
@@ -81,10 +81,10 @@ export class InstructionsUtils {
             cible.nombre = Nombre.p;
             // => identique à l’original (sauf si original est illimité)
           } else if (cible.quantite == -1) {
-            if ((cela as Objet).quantite == -1) {
+            if ((contexteTour.cela as Objet).quantite == -1) {
               cible.nombre = Nombre.s; // TODO: indénombrables
             } else {
-              cible.nombre = (cela as Objet).nombre;
+              cible.nombre = (contexteTour.cela as Objet).nombre;
             }
             // => 0 ou 1
           } else {
@@ -103,12 +103,12 @@ export class InstructionsUtils {
   /**
   * Trouver l’élément du jeu spécifié (par ex la destination d’une copie, l’élémen cible d’une propriété, …)
   */
-  public static trouverElementCible(recherche: GroupeNominal, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): ElementJeu {
+  public static trouverElementCible(recherche: GroupeNominal, contexteTour: ContexteTour, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): ElementJeu {
 
     let resultat: ElementJeu = null;
 
     // A) trouver ÉLÉMENT SPÉCIAL
-    const cibleTrouvee = InstructionsUtils.trouverCibleSpeciale(recherche.nom, ceci, cela, null, eju, jeu);
+    const cibleTrouvee = InstructionsUtils.trouverCibleSpeciale(recherche.nom, contexteTour, null, eju, jeu);
     if (cibleTrouvee) {
       if (ClasseUtils.heriteDe(cibleTrouvee.classe, EClasseRacine.element)) {
         resultat = cibleTrouvee as ElementJeu;
@@ -141,11 +141,11 @@ export class InstructionsUtils {
    * @param ceci pour le cas où brute vaut « ceci ».
    * @param cela pour le cas où brute vaut « cela ».
    */
-  public static trouverObjetCible(brute: string, intitule: GroupeNominal, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu, eju: ElementsJeuUtils, jeu: Jeu): Objet {
+  public static trouverObjetCible(brute: string, intitule: GroupeNominal, contexteTour: ContexteTour, eju: ElementsJeuUtils, jeu: Jeu): Objet {
     let objetCible: Objet = null;
 
     // A) retrouver OBJET SPÉCIAL
-    const cibleTrouvee = InstructionsUtils.trouverCibleSpeciale(brute, ceci, cela, null, eju, jeu);
+    const cibleTrouvee = InstructionsUtils.trouverCibleSpeciale(brute, contexteTour, null, eju, jeu);
     if (cibleTrouvee) {
       if (ClasseUtils.heriteDe(cibleTrouvee.classe, EClasseRacine.objet)) {
         objetCible = cibleTrouvee as Objet;
@@ -190,13 +190,13 @@ export class InstructionsUtils {
    * @param ceci pour le cas où brute vaut « ceci ».
    * @param cela pour le cas où brute vaut « cela ».
    */
-  public static trouverProprieteCible(recherche: ProprieteJeu, ceci: Intitule | ElementJeu, cela: Intitule | ElementJeu, eju: ElementsJeuUtils, jeu: Jeu): ProprieteElement | Compteur {
+  public static trouverProprieteCible(recherche: ProprieteJeu, contexteTour: ContexteTour | undefined, eju: ElementsJeuUtils, jeu: Jeu): ProprieteElement | Compteur {
     let resultat: ProprieteElement | Compteur = null;
 
     // retrouver l’élément cible
     if (recherche.intituleElement) {
       // rechercher parmi les éléments
-      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, ceci, cela, eju, jeu, false);
+      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, contexteTour, eju, jeu, false);
       // rechercher parmi les listes
       if (!recherche.element) {
         recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu, false);

@@ -1,6 +1,7 @@
 import { ActionsUtils } from "./actions-utils";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Commandeur } from "./commandeur";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
@@ -49,38 +50,38 @@ export class InstructionExecuter {
  * @param ceci 
  * @param cela 
  */
-  public executerReaction(instruction: ElementsPhrase, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null): Resultat {
+  public executerReaction(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
 
     let resultat = new Resultat(false, '', 1);
 
     if (instruction.complement1) {
       switch (instruction.complement1.toLocaleLowerCase()) {
         case 'réaction de ceci':
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(ceci as Objet, null);
+          if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(contexteTour.ceci as Objet, null);
           } else {
             console.error("Exécuter réaction de ceci: ceci n'est pas un objet");
           }
           break;
         case 'réaction de cela':
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(cela as Objet, null);
+          if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(contexteTour.cela as Objet, undefined);
           } else {
             console.error("Exécuter réaction de cela: cela n'est pas un objet");
           }
           break;
         case 'réaction de ceci concernant cela':
         case 'réaction de ceci à cela':
-          if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(ceci as Objet, cela);
+          if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(contexteTour.ceci as Objet, contexteTour.cela);
           } else {
             console.error("Exécuter réaction de ceci à cela: ceci n'est pas un objet");
           }
           break;
         case 'réaction de cela concernant ceci':
         case 'réaction de cela à ceci':
-          if (ClasseUtils.heriteDe(cela.classe, EClasseRacine.objet)) {
-            resultat = this.suiteExecuterReaction(cela as Objet, ceci);
+          if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
+            resultat = this.suiteExecuterReaction(contexteTour.cela as Objet, contexteTour.ceci);
           } else {
             console.error("Exécuter réaction de cela à ceci: cela n'est pas un objet");
           }
@@ -99,7 +100,7 @@ export class InstructionExecuter {
   /**
   * Exécuter la réaction d'une personne à un sujet (ou non).
   */
-  private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule) {
+  private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule | undefined) {
 
     let resultat = new Resultat(false, '', 1);
     let reaction: Reaction = null;
@@ -141,7 +142,7 @@ export class InstructionExecuter {
     // on a trouvé une réaction
     if (reaction) {
       // TODO: faut-il fournir ceci,cela, l’évènement et déclenchements ?
-      resultat = this.ins.executerInstructions(reaction.instructions, null, null, null, null);
+      resultat = this.ins.executerInstructions(reaction.instructions, undefined, undefined, undefined);
       // on n’a pas trouvé de réaction
     } else {
       // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.
@@ -152,7 +153,7 @@ export class InstructionExecuter {
   }
 
   /** Exécuter l’instruction « Exécuter action xxxx… */
-  public executerAction(instruction: ElementsPhrase, nbExecutions: number, ceci: ElementJeu | Intitule = null, cela: ElementJeu | Intitule = null, evenement: Evenement, declenchements: number): Resultat {
+  public executerAction(instruction: ElementsPhrase, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement, declenchements: number): Resultat {
 
     let res = new Resultat(true, "", 1);
 
@@ -165,8 +166,9 @@ export class InstructionExecuter {
       const insPrepCela = tokens[4];
       const insCela = tokens[5];
 
-      const actionCeci = InstructionsUtils.trouverCibleSpeciale(insCeci, ceci, cela, evenement, this.eju, this.jeu);
-      const actionCela = InstructionsUtils.trouverCibleSpeciale(insCela, ceci, cela, evenement, this.eju, this.jeu);
+      const actionCeci = InstructionsUtils.trouverCibleSpeciale(insCeci, contexteTour, evenement, this.eju, this.jeu);
+      const actionCela = InstructionsUtils.trouverCibleSpeciale(insCela, contexteTour, evenement, this.eju, this.jeu);
+
 
       const resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false);
 
@@ -181,9 +183,13 @@ export class InstructionExecuter {
         res.succes = false;
         // exactement une action trouvée
       } else if (resChercherCandidats.candidatsEnLice.length === 1) {
+
+        // on crée un sous contexte (afin d’éviter d’écraser le contexte original du tour)
+        let sousContexteTour = new ContexteTour(actionCeci, actionCela);
+
         let action = resChercherCandidats.candidatsEnLice[0];
-        const sousResExecuter = this.ins.executerInstructions(action.instructions, actionCeci, actionCela, evenement, declenchements);
-        const sousResTerminer = this.ins.executerInstructions(action.instructionsFinales, actionCeci, actionCela, evenement, declenchements);
+        const sousResExecuter = this.ins.executerInstructions(action.instructions, sousContexteTour, evenement, declenchements);
+        const sousResTerminer = this.ins.executerInstructions(action.instructionsFinales, sousContexteTour, evenement, declenchements);
         res.sortie = res.sortie + sousResExecuter.sortie + sousResTerminer.sortie;
         res.succes = sousResExecuter.succes && sousResTerminer.succes;
         res.nombre = 1 + sousResExecuter.nombre + sousResTerminer.nombre;

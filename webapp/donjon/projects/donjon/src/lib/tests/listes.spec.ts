@@ -18,23 +18,23 @@ describe('Liste − Déclarer une liste vide', () => {
   const condUtils = new ConditionsUtils(jeu, false);
   
   it('vérifier que la taille de la liste (vaut 0)', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier que la taille de la liste (vaut 1)', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier que la liste est vide (est vide)', () => {
-    expect(condUtils.siEstVrai('l’historique est vide', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('l’historique est vide', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
-    expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
-    expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
 });
@@ -49,39 +49,39 @@ describe('Liste − Déclarer une liste remplie', () => {
   const condUtils = new ConditionsUtils(jeu, false);
 
   it('vérifier que la taille de la liste (vaut 0)', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier que la taille de la liste (vaut 1)', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier que la liste est vide (est vide)', () => {
-    expect(condUtils.siEstVrai('l’historique est vide', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('l’historique est vide', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
-    expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
   it('vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
-    expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier un élément qui se trouve dans la liste (contient)', () => {
-    expect(condUtils.siEstVrai('l’historique contient "bougie allumée"', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('l’historique contient "bougie allumée"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier un élément qui se trouve dans la liste (inclut)', () => {
-    expect(condUtils.siEstVrai('l’historique inclut "bougie allumée"', null, null, null, null, 0)).toBeTrue();
+    expect(condUtils.siEstVrai('l’historique inclut "bougie allumée"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
   it('vérifier un élément qui se trouve dans la liste (ne contient pas)', () => {
-    expect(condUtils.siEstVrai('l’historique ne contient pas "bougie allumée"', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('l’historique ne contient pas "bougie allumée"', undefined, undefined, undefined, 0)).toBeFalse();
   });
   
   it('vérifier un élément qui se trouve dans la liste (n’inclut pas)', () => {
-    expect(condUtils.siEstVrai('l’historique n’inclut pas "bougie allumée"', null, null, null, null, 0)).toBeFalse();
+    expect(condUtils.siEstVrai('l’historique n’inclut pas "bougie allumée"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
 });
