@@ -83,15 +83,19 @@ export class AnalyseurElementPosition {
         switch (iciDedansDessusDessous) {
           // ICI
           case 'ici':
-            if (ctx.dernierLieu && ctx.dernierLieu.nom !== nom) {
-              position = new PositionSujetString(
-                // sujet
-                nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
-                // complément
-                ctx.dernierLieu.nom,
-                // position
-                "dans"
-              );
+            if (ctx.dernierLieu) {
+              if (ctx.dernierLieu.nom !== nom) {
+                position = new PositionSujetString(
+                  // sujet
+                  nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                  // complément
+                  ctx.dernierLieu.nom,
+                  // position
+                  "dans"
+                );
+              } else {
+                AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
+              }
             } else {
               AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
             }

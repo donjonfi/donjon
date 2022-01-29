@@ -408,7 +408,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     if (nouveau) {
       nomFichierExemple = "nouveau.djn";
     } else {
-      nomFichierExemple = StringUtils.nameToSafeFileName(this.nomExemple, ".djn");
+      nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(this.nomExemple, "djn");
     }
     if (nomFichierExemple) {
       this.viderSectionsCodeSource("partie");

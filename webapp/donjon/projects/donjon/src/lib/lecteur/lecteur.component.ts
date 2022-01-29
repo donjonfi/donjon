@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
@@ -13,6 +13,7 @@ import { Instruction } from '../models/compilateur/instruction';
 import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Resultat } from '../models/jouer/resultat';
+import { StringUtils } from '../../public-api';
 import { TypeEvenement } from '../models/jouer/type-evenement';
 
 @Component({
@@ -20,7 +21,7 @@ import { TypeEvenement } from '../models/jouer/type-evenement';
   templateUrl: './lecteur.component.html',
   styleUrls: ['./lecteur.component.scss']
 })
-export class LecteurComponent implements OnInit, OnChanges {
+export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   static verbeux = true;
 
@@ -59,6 +60,9 @@ export class LecteurComponent implements OnInit, OnChanges {
   /** Index de la commande dans le système « triche » */
   private indexTriche: number = 0;
 
+  /** Afficher la case à cocher pour activer/désactiver l’audio */
+  private activerParametreAudio: boolean = false;
+
   private com: Commandeur;
   private ins: Instructions;
   private eju: ElementsJeuUtils;
@@ -69,12 +73,17 @@ export class LecteurComponent implements OnInit, OnChanges {
 
   resteDeLaSortie: string[] = [];
   commandeEnCours: boolean = false;
-
+  dossierRessourcesComplet: string = "???";
   constructor() { }
 
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // supprimer les musiques en court éventuelles
+    if (this.ins) {
+      this.ins.unload();
+    }
+
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.initialiserJeu();
@@ -95,6 +104,17 @@ export class LecteurComponent implements OnInit, OnChanges {
     this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
     // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
     this.ins.commandeur = this.com;
+    
+    // définir le dossier qui contient les ressources
+    this.dossierRessourcesComplet = Jeu.dossierRessources;
+    if (this.jeu.sousDossierRessources) {
+      // sécurisé nom du sous-dossier (au cas où on a chipoté mais normalement devrait déjà être fait)
+      const sousDossierSecurise = StringUtils.nomDeDossierSecurise(this.jeu.sousDossierRessources);
+      if (sousDossierSecurise.length) {
+        this.dossierRessourcesComplet = Jeu.dossierRessources + '/' + sousDossierSecurise;
+      }
+    }
+
     // afficher le titre et la version du jeu
     this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
@@ -140,7 +160,14 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.sortieJoueur += '</p>';
     }
 
+    if (this.jeu.parametres.activerAudio) {
+      this.activerParametreAudio = true;
+      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.dossierRessourcesComplet);
+    } else {
+      this.activerParametreAudio = false;
+    }
 
+    this.verifierTamponErreurs();
 
     // ==================
     // A. NOUVELLE PARTIE
@@ -168,7 +195,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       });
       // ajouter la sortie
       if (resultatAvant.sortie) {
-        this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatAvant.sortie));
+        this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatAvant.sortie, this.dossierRessourcesComplet));
       }
 
       // définir visibilité des objets initiale
@@ -187,7 +214,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         if (this.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
           let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
           const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
-          this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+          this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
         }
 
         this.jeu.commence = true;
@@ -209,7 +236,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         });
 
         if (resultatApres.sortie) {
-          this.ajouterSortieJoueur(BalisesHtml.doHtml(resultatApres.sortie));
+          this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatApres.sortie, this.dossierRessourcesComplet));
         }
 
 
@@ -223,11 +250,11 @@ export class LecteurComponent implements OnInit, OnChanges {
       // B. REPRISE D’UNE PARTIE
       // ========================
     } else {
-      this.sortieJoueur += ("<p>" + BalisesHtml.doHtml("{/{+(reprise de la partie)+}/}") + "</p>");
+      this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.dossierRessourcesComplet) + "</p>");
       // regarder où on est.
       let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
       const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
-      this.ajouterSortieJoueur("<p>" + BalisesHtml.doHtml(resRegarder.sortie) + "</p>");
+      this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
     }
 
     // donner le focus sur « entrez une commande » 
@@ -276,6 +303,25 @@ export class LecteurComponent implements OnInit, OnChanges {
     }
   }
 
+  private verifierTamponErreurs() {
+    setTimeout(() => {
+      if (this.jeu) {
+        // vérifier s’il reste des erreurs à afficher
+        if (this.jeu.tamponErreurs.length) {
+          let texteErreurs = "";
+          while (this.jeu.tamponErreurs.length) {
+            const erreur = this.jeu.tamponErreurs.shift();
+            texteErreurs += '{N}' + erreur;
+          }
+          this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.dossierRessourcesComplet);
+          this.scrollSortie();
+        }
+        // vérifier à nouveau dans quelques temps
+        this.verifierTamponErreurs();
+      }
+    }, 1000);
+  }
+
   private afficherSuiteSortie() {
     // prochaine section à afficher
     let texteSection = this.resteDeLaSortie.shift();
@@ -307,6 +353,10 @@ export class LecteurComponent implements OnInit, OnChanges {
         }
       }
     }
+    this.scrollSortie();
+  }
+
+  private scrollSortie() {
     // scroll
     setTimeout(() => {
       this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
@@ -376,7 +426,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.autoCommandes.pop();
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-    this.sortieJoueur += '<p>' + BalisesHtml.doHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>');
+    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.dossierRessourcesComplet);
 
   }
 
@@ -389,7 +439,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       });
       this.autoTricheActif = false;
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier solution (.sol) chargé./}"));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.dossierRessourcesComplet));
     }
   }
 
@@ -399,7 +449,7 @@ export class LecteurComponent implements OnInit, OnChanges {
       this.indexTriche = 0;
       this.commande = this.autoCommandes[this.indexTriche];
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/Aucun fichier solution (.sol) chargé./}"));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.dossierRessourcesComplet));
     }
   }
 
@@ -449,7 +499,7 @@ export class LecteurComponent implements OnInit, OnChanges {
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.doHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : '')) + '</span>';
+        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = Commandeur.nettoyerCommande(commandeComplete);
 
@@ -492,11 +542,11 @@ export class LecteurComponent implements OnInit, OnChanges {
               // }, 100);
               // sortie normale
             } else {
-              this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml(sortieCommande));
+              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.dossierRessourcesComplet));
             }
             // aucune sortie
           } else {
-            this.ajouterSortieJoueur("<br>" + BalisesHtml.doHtml("{/La commande n’a renvoyé aucun retour./}"));
+            this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.dossierRessourcesComplet));
           }
 
           this.sortieJoueur += "</p>";
@@ -512,15 +562,34 @@ export class LecteurComponent implements OnInit, OnChanges {
           }
         }
 
+        this.scrollSortie();
         setTimeout(() => {
-          this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-          this.commandeInputRef.nativeElement.focus();
           this.commandeEnCours = false;
         }, 100);
       }
     }
   }
 
+  /** afficher la case à cocher pour activer/désactiver l’audio */
+  get afficherCheckActiverAudio(): boolean {
+    return this.activerParametreAudio;
+  }
 
+  /** valeur de la case à cocher pour activer l’audio */
+  get audioActif(): boolean {
+    return this.jeu.parametres.activerAudio;
+  }
+
+  /** valeur de la case à cocher pour activer l’audio */
+  set audioActif(actif: boolean) {
+    this.jeu.parametres.activerAudio = actif;
+    this.ins.onChangementAudioActif();
+  }
+
+  ngOnDestroy(): void {
+    if (this.jeu && this.ins) {
+      this.ins.unload();
+    }
+  }
 
 }

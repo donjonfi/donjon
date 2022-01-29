@@ -1,6 +1,10 @@
+import { ElementsPhrase } from "../commun/elements-phrase";
 import { Intitule } from "../jeu/intitule";
 
 export class ContexteTour {
+
+  // erreurs
+  private erreurs: string[] = [];
 
   constructor(
     /** Ceci */
@@ -19,5 +23,10 @@ export class ContexteTour {
   // réponses (dernière, avant-dernière, préantépénultième)
 
   // 
+
+  ajouterErreurInstruction(instruction: ElementsPhrase, erreur: string) {
+    console.error(erreur, "\ninstruction: ", instruction);
+    this.erreurs.push(erreur);
+  }
 
 }

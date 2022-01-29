@@ -17,34 +17,43 @@ export class Jeu {
   }
 
   /** Titre du jeu. */
-  titre: string;
+  titre: string | undefined;
 
   /** Auteur du jeu. */
-  auteur: string;
+  auteur: string | undefined;
 
   /** Auteurs du jeu. */
-  auteurs: string;
+  auteurs: string | undefined;
 
   /** Titre du site web. */
-  siteWebTitre: string;
+  siteWebTitre: string | undefined;
 
   /** Lien du site web. */
-  siteWebLien: string;
+  siteWebLien: string | undefined;
 
   /** Version du jeu. */
-  version: string;
+  version: string | undefined;
+
+  /** sous-dossier qui contient les ressources du jeu (sous_dossier) */
+  sousDossierRessources: string | undefined;
+
+  /** dossier qui contient les ressources du jeu (./assets/ressources) */
+  public static readonly dossierRessources = "./assets/ressources";
 
   /** Titre de la licence du jeu. */
-  licenceTitre: string;
+  licenceTitre: string | undefined;
 
   /** Lien de la licence du jeu. */
-  licenceLien: string;
+  licenceLien: string | undefined;
 
   /** Le jeu est-il terminé ? */
   termine = false;
 
   /** Le jeu est-il déjà commencé ? */
   commence = false;
+
+  /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
+  tamponErreurs: string[] = [];
 
   classes: Classe[] = [];
 

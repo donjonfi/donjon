@@ -32,6 +32,6 @@ export class Monde {
   portesEtObstacles: ElementGenerique[] = [];
   /** objets filtrés sur « ni porte ni obstacle ni spécial » */
   classiques: ElementGenerique[] = [];
-  /** objets filtrés sur « spécial » (joueur, jeu, licence, …) */
+  /** objets filtrés sur « spécial » (joueur, jeu, licence, ressources du jeu, …) */
   speciaux: ElementGenerique[] = [];
 }

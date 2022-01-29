@@ -1,5 +1,6 @@
 import { Analyseur } from './analyseur/analyseur';
 import { AnalyseurConsequences } from './analyseur/analyseur.consequences';
+import { AnalyseurUtils } from './analyseur/analyseur.utils';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -36,6 +37,7 @@ export class Compilateur {
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
     // ajouter le jeu et la licence au monde
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("les ", "ressources du jeu", null, EClasseRacine.special, null, null, Genre.f, Nombre.p, -1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "site", "web", EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
 
@@ -57,7 +59,7 @@ export class Compilateur {
     }
 
     // rem: le point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
-    const regleInfoDonjon = "\n.après afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; terminer l’action avant.";
+    const regleInfoDonjon = ".\naprès afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; terminer l’action avant.";
 
     // B. Interpréter le scénario
     Compilateur.analyserCode((scenario + regleInfoDonjon), ctxAnalyse);
@@ -118,7 +120,26 @@ export class Compilateur {
         monde.lieux.push(el);
         // spécial
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
-        monde.speciaux.push(el);
+        // spécial: sous-dossier pour les ressources du jeu
+        if (el.nom.toLowerCase() == 'ressources du jeu' && el.positionString) {
+          if (el.positionString.complement.toLowerCase().startsWith('dossier ') && el.positionString.position.toLowerCase().startsWith("dans")) {
+            el.positionString.position = 'dans le dossier';
+            el.positionString.complement = el.positionString.complement.slice('dossier '.length);
+
+            const nomDossierNonSecurise = el.positionString.complement;
+            const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
+            if (nomDossierSecurise.length && nomDossierSecurise == nomDossierNonSecurise) {
+              monde.speciaux.push(el);
+            } else {
+              AnalyseurUtils.ajouterErreur(ctxAnalyse, undefined, 'Ressources du jeu: le nom du dossier ne peut contenir que lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Exemple: « mon_dossier ».');
+            }
+          } else {
+            AnalyseurUtils.ajouterErreur(ctxAnalyse, undefined, 'Ressources du jeu: utiliser la formulation « Les ressources du jeu se trouvent dans le dossier abc_def. »');
+          }
+          // autres éléments spéciaux
+        } else {
+          monde.speciaux.push(el);
+        }
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.compteur)) {
         compteurs.push(el);
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.liste)) {
@@ -264,11 +285,8 @@ export class Compilateur {
       if (bloc !== '') {
         // bloc instruction, séparer les phrases (sur les '.')
         if (blocSuivantEstInstruction && !prochainBlocEstSousTexte) {
-
-          console.warn("bloc code:", bloc);
-
-
-          const phrasesBrutes = bloc.split('.');
+          // séparer sur les points qui terminent un mot.
+          const phrasesBrutes = bloc.split(/\.(?!\w|_)/);
           for (let k = 0; k < phrasesBrutes.length; k++) {
             const phraseBrute = phrasesBrutes[k];
             // compte le nombre de lignes pour ne pas se décaller !
@@ -284,9 +302,11 @@ export class Compilateur {
             const trimBloc = bloc.trim();
             const finie = ((k < (phrasesBrutes.length - 1)) || (trimBloc.lastIndexOf(".") === (trimBloc.length - 1)));
 
+
+
             // enlever le "." et remplacer les retours à la ligne par des espaces
             const phraseNettoyee = phraseBrute
-              .replace('.', '')
+              .replace(/\.$/, '')
               .replace(ExprReg.xCaractereRetourLigne, " ")
               .trim();
 
@@ -330,11 +350,9 @@ export class Compilateur {
           if (phrasePrecedente) {
             const blocActuelEstSousTexte = prochainBlocEstSousTexte;
             if (prochainBlocEstSousTexte) {
-              console.error("bloc texte (forcé: OUI):", bloc);
               // pas de guillets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
               prochainBlocEstSousTexte = false;
             } else {
-              console.warn("bloc texte (forcé NON):", bloc);
               // si on a un crochet non fermé dans le texte actuel, le code suivant est en réalité la suite du texte
               prochainBlocEstSousTexte = Compilateur.dernierCrochetEstOuvert(texteNettoye);
             }

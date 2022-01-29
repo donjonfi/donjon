@@ -42,7 +42,7 @@ export class AnalyseurConsequences {
     for (let indexCurConsequence = 0; indexCurConsequence < listeConsequences.length; indexCurConsequence++) {
       const curConsequence = listeConsequences[indexCurConsequence];
 
-      // console.log("curConsequence=", curConsequence);
+      //console.log("curConsequence=", curConsequence);
 
       // NETTOYER CONSÉQUENCE
       let conBruNettoyee = curConsequence

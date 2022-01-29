@@ -1,11 +1,11 @@
 export class BalisesHtml {
 
   /**
-   * Retirer les tags HTML du texte et ajouter de noveaux tags HTML.
+   * Retirer les balises HTML du texte et convertir les balises Donjon en balises HTML.
    */
-  public static doHtml(texte: string): string {
+  public static convertirEnHtml(texte: string, dossierRessourcesComplet: string): string {
     texte = BalisesHtml.retirerBalisesHtml(texte);
-    texte = BalisesHtml.ajouterBalisesHtml(texte);
+    texte = BalisesHtml.ajouterBalisesHtml(texte, dossierRessourcesComplet);
     return texte;
   }
 
@@ -18,11 +18,18 @@ export class BalisesHtml {
   }
 
   /**
-   * Ajouter des tags HTML
+   * Ajouter des tags HTML à la place des tags Donjon.
+   * @argument dossierRessources chaine vide ou bien "/jeu.sousDossier"
    */
-  public static ajouterBalisesHtml(texte: string): string {
+  private static ajouterBalisesHtml(texte: string, dossierRessources: string): string {
+
+    let retVal = texte;
+    
+    // balises image
+    retVal = texte.replace(/@@image:([\w\-\.]*[\w]+)@@/g, '<img src="' + dossierRessources + '/images/$1" alt="$1" class="img-fluid rounded">');
+
     // italique: texte avec une partie en {/italique/} et le reste normal.
-    let retVal = texte.replace(/\{\//g, '<i>');
+    retVal = retVal.replace(/\{\//g, '<i>');
     retVal = retVal.replace(/\/\}/g, '</i>');
     // gras: texte avec une partie en {*gras*} et le reste normal.
     retVal = retVal.replace(/\{\*/g, '<b>');
@@ -100,22 +107,18 @@ export class BalisesHtml {
     retVal = retVal.replace(/\{n\}/g, '\n');
 
     // nouvelle ligne unique {u}
-    // > \n{u} => \n
-    retVal = retVal.replace(/\n\{u\}/g, '\n');
-    // > {u}\n => \n
-    retVal = retVal.replace(/\{u\}\n/g, '\n');
+    // > \n{u} => \n (même si espaces entre les 2)
+    retVal = retVal.replace(/\n( )*\{u\}/g, '\n');
+    // > {u}\n => \n (même si espaces entre les 2)
+    retVal = retVal.replace(/\{u\}( )*\n/g, '\n');
     // > {u}{u}… => \n
     retVal = retVal.replace(/(\{u\})+/g, '\n');
 
     // nouvelle ligne (\n) => <br>
     retVal = retVal.replace(/\n/g, '<br>');
 
-    // // remplacer les @F@ par un <br> (sauf celui qui termine le texte)
-
-    // console.log(">>>>> retVal=", retVal);
-    // retVal = retVal.replace(/@F@$/g, '');
-    // retVal = retVal.replace(/@F@/g, '@<br>');
-    // console.log("<<<<< retVal=", retVal);
+    // convertir " :" en " :" (demi espace insécable)
+    retVal = retVal.replace(/ :(?!\w)/g, ' :');
 
     return retVal;
   }

@@ -1,21 +1,68 @@
 export class StringUtils {
 
   /**
-   * Garder uniquement les caractères alphanumériques et les tirets. Ajouter ".djn" en fin de nom.
-   * Retourne null si pas de nom.
-   * @param name sécurisé.
-   * @param ext PAS sécurisé !
+   * Garder uniquement les caractères alphanumériques et les tirets dans le nom et l’extension.
+   * Concaténer le nom et l’extension autours d’un point.
+   * Seuls les 26 lettres de l’alphabet, les chiffres et les tirets sont supportés.
+   * @returns le nom sécurisé (ou undefined si pas de nom ou d’extension).
    */
-  static nameToSafeFileName(name: string, ext: string): string {
+  static nomDeFichierSecuriseExtensionForcee(nom: string, extension: string): string {
     var NonAphaNumTiret = /[^a-z0-9\-\_]/gi;
-    let fileName: string = null;
-    if (name) {
-      const nomNettoye = name.replace(NonAphaNumTiret, "");
-      if (nomNettoye !== "") {
-        fileName = nomNettoye + ext;
+    let nomFichier: string = undefined;
+    if (nom && extension) {
+      const nomNettoye = nom.replace(NonAphaNumTiret, "");
+      const extensionNettoyee = extension.replace(NonAphaNumTiret, "");
+      if (nomNettoye != "" && extensionNettoyee != "") {
+        nomFichier = nomNettoye + "." + extensionNettoyee;
       }
     }
-    return fileName;
+    return nomFichier;
+  }
+
+  /**
+   * Garder uniquement les caractères alphanumériques et les tirets dans le nom.
+   * Le nom peut contenir 0 ou 1 point.
+   * Le point ne peut pas être le dernier caractère du nom.
+   * Seuls les 26 lettres de l’alphabet, les chiffres et les tirets sont supportés.
+   * @returns le nom sécurisé (ou undefined si pas de nom).
+   */
+  static nomDeFichierSecurise(nom: string): string {
+    var NonAphaNumTiret = /[^a-z0-9\-\_]/gi;
+    let nomFichier: string = undefined;
+
+    let parties = nom.split('.');
+
+    // pas de point => pas d’extension
+    if (parties.length == 1) {
+      const nomNettoye = nom.replace(NonAphaNumTiret, "");
+      if (nomNettoye != "") {
+        nomFichier = nomNettoye;
+      }
+    } else if (parties.length == 2) {
+      const nomNettoye = parties[0].replace(NonAphaNumTiret, "");
+      const extensionNettoyee = parties[1].replace(NonAphaNumTiret, "");
+      if (nomNettoye != "" && extensionNettoyee != "") {
+        nomFichier = nomNettoye + "." + extensionNettoyee;
+      }
+    }
+    return nomFichier;
+  }
+
+  /**
+ * Garder uniquement les caractères alphanumériques et les tirets dans le nom.
+ * Le nom peut contenir aucun point.
+ * Seuls les 26 lettres de l’alphabet, les chiffres et les tirets sont supportés.
+ * @returns le nom sécurisé (ou undefined si pas de nom).
+ */
+  static nomDeDossierSecurise(nom: string): string {
+    var NonAphaNumTiret = /[^a-z0-9\-\_]/gi;
+    let nomDossier: string = undefined;
+    
+    const nomNettoye = nom.replace(NonAphaNumTiret, "");
+    if (nomNettoye != "") {
+      nomDossier = nomNettoye;
+    }
+    return nomDossier;
   }
 
   /** 

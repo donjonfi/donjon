@@ -39,7 +39,7 @@ export class JouerComponent implements OnInit {
   /** Charger un fichier depuis le site */
   onChargerExemple(nomExemple: string) {
     this.chargement = true;
-    const nomFichierExemple = StringUtils.nameToSafeFileName(nomExemple, ".djn");
+    const nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(nomExemple, "djn");
     if (nomFichierExemple) {
       this.http.get('assets/jeux/' + nomFichierExemple, { responseType: 'text' })
         .subscribe(
@@ -98,7 +98,7 @@ export class JouerComponent implements OnInit {
         Compilateur.analyserScenario(scenario, false, this.http).then(
           resultat => {
             // générer le jeu
-            this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions, resultat.compteurs, resultat.aides, resultat.parametres);
+            this.jeu = Generateur.genererJeu(resultat.monde, resultat.regles, resultat.actions, resultat.compteurs, resultat.listes, resultat.aides, resultat.parametres);
           }
         );
       }

@@ -25,8 +25,10 @@ import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { Parametres } from '../../models/commun/parametres';
+import { PhraseUtils } from '../commun/phrase-utils';
 import { ProprieteElement } from '../../models/commun/propriete-element';
 import { Regle } from '../../models/compilateur/regle';
+import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
 
@@ -67,6 +69,17 @@ export class Generateur {
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === "auteur")?.valeur;
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === "auteurs")?.valeur;
       jeu.version = jeuDansMonde.proprietes.find(x => x.nom === "version")?.valeur;
+    }
+
+    // dossier qui contient les ressources du jeu (./assets/dossier_ressources)
+    jeu.sousDossierRessources = undefined;
+    const ressourcesDuJeuDansMonde = monde.speciaux.find(x => x.nom === 'ressources du jeu');
+    if (ressourcesDuJeuDansMonde?.positionString?.complement) {
+      const nomDossierNonSecurise = ressourcesDuJeuDansMonde.positionString.complement;
+      const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
+      if (nomDossierSecurise.length && nomDossierSecurise == nomDossierNonSecurise) {
+        jeu.sousDossierRessources = nomDossierSecurise;
+      }
     }
 
     const siteWebDansMonde = monde.speciaux.find(x => x.nom === 'site' && x.epithete === 'web');
@@ -124,7 +137,8 @@ export class Generateur {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
           // TODO: gérer groupe nominal ?
-          nouvLieu.intitule = new GroupeNominal(null, pro.valeur);
+          const groupeNominal = PhraseUtils.getGroupeNominal(pro.valeur, false);
+          nouvLieu.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
           if (nouvLieu.nombre == Nombre.p) {
             nouvLieu.intituleP = nouvLieu.intitule;
           } else {
@@ -147,9 +161,9 @@ export class Generateur {
       });
       nouvLieu.proprietes.push(...nouvellesProp);
 
-      // description par défaut du lieu
+      // description par défaut du lieu (description automatique)
       if (nouvLieu.description === null) {
-        nouvLieu.description = "Vous êtes dans " + titreSansAutoMaj + ".";
+        nouvLieu.description = "Vous êtes dans " + nouvLieu.intitule + ".";
       }
 
       jeu.lieux.push(nouvLieu);

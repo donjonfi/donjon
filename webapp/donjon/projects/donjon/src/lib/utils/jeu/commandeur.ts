@@ -93,10 +93,14 @@ export class Commandeur {
           retVal = this.deb.deboguer(els);
 
         }
-        // B) commande spéciale : sauver les commandes dans un fichier
+        // B) commande spéciale : sauver les commandes dans un fichier.
       } else if (els.infinitif == "sauver" && els.sujet?.nom == "commandes") {
         retVal = "@sauver-commandes@";
-        // C) commandes chargées dynamiquement
+        // C) commande spéciale : émettre un son pour que le joueur puisse vérifier ses baffles.
+      } else if (els.infinitif == "tester" && els.sujet?.nom == "audio") {
+
+        retVal = this.ins.testerSon().sortie;
+        // D) commandes chargées dynamiquement
       } else {
         const actionsCeciCela = this.act.trouverActionPersonnalisee(els, resultatCeci, resultatCela);
         // =====================================================
@@ -149,7 +153,7 @@ export class Commandeur {
 
           // Renvoyer l’explication du refu.
           const contexteTourRefu = new ContexteTour(tempCeci, tempCela);
-          retVal = this.ins.dire.interpreterContenuDire(explicationRefu, 0, contexteTourRefu, undefined, undefined);
+          retVal = this.ins.dire.calculerTexteDynamique(explicationRefu, 0, undefined, contexteTourRefu, undefined, undefined);
 
           // regarder si de l’aide existe pour cet infinitif
           const aide = this.jeu.aides.find(x => x.infinitif === els.infinitif);

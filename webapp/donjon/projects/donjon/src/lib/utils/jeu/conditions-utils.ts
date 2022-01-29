@@ -129,13 +129,13 @@ export class ConditionsUtils {
         // ceci
         else if (condition.sujet.nom === 'ceci') {
           sujet = contexteTour.ceci;
-          if (sujet) {
+          if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
           }
           // cela
         } else if (condition.sujet.nom === 'cela') {
           sujet = contexteTour.cela;
-          if (sujet) {
+          if (!contexteTour.cela) {
             console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
           }
           // quantitéCeci

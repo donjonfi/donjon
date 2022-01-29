@@ -1,5 +1,4 @@
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
-import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { TexteUtils } from "../../commun/texte-utils";
 

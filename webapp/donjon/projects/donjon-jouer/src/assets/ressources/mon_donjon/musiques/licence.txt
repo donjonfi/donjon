@@ -1,0 +1,7 @@
+musique_classique.mp3:
+	Scenes from Childhood, Op. 15 - VI. An Important Event
+	pomposer:Robert Schumann
+	performer: Donald Betts
+	src: https://musopen.org/music/2326-scenes-from-childhood-op-15/#recordings
+	licence: https://creativecommons.org/publicdomain/mark/1.0/
+	

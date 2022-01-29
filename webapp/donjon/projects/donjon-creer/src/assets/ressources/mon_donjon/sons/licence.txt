@@ -1,0 +1,16 @@
+coup_d_epee.flac:
+son_utilise_par_commande_tester_audio.mp3:
+	Sword sound 2 by Merrick079
+	src: https://freesound.org/people/Merrick079/sounds/568169/
+	licence: https://creativecommons.org/publicdomain/zero/1.0/
+	
+bulle.mp3:
+	beep_sine by PearceL
+	https://freesound.org/people/PearceL/sounds/361603/
+	licence: https://creativecommons.org/publicdomain/zero/1.0/
+
+charge.ogg:
+	charging_laser by lavik89
+	https://freesound.org/people/lavik89/sounds/168986/
+	licence: https://creativecommons.org/publicdomain/zero/1.0/
+

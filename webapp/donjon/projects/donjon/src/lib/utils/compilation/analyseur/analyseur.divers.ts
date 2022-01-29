@@ -85,6 +85,10 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageLieuxInconnus = isActiver;
           break;
 
+        case 'audio':
+          ctxAnalyse.parametres.activerAudio = isActiver;
+          break;
+
         default:
           AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
           break;

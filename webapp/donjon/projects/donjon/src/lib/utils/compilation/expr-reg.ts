@@ -602,6 +602,42 @@ export class ExprReg {
    *     - 💥 l’action
    */
   static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
+  
+  /** 
+   * Complément de l’instruction jouer (un son/une musique)
+   * - Découpage :
+   *     - (le son/la musique)(1) nom_du_fichier.ext(2) [nombre (3)fois(4)] [en boucle]\(5)
+   * - Exemples :
+   *     - le son epee
+   *     - le son coup_d_epee.flac
+   *     - le son coup_d_epee.wav 3 fois
+   *     - la musique musique_classique.mp3
+   *     - la musique musique_classique.ogg en boucle
+   * - Tests unitaires
+   *     - le son epee
+   *     - le son coup_d_epee.flac
+   *     - le son coup_d_epee.wav 3 fois
+   *     - la musique musique_classique.mp3
+   *     - la musique musique_classique.ogg en boucle
+   *     - 💥 une chanson
+   *     - 💥 le son
+   */
+  static readonly xSuiteInstructionJouer = /^((?:le )?son|(?:la )?musique) ([\w\._]*\w)(?: (?:(?:([0-9]\d* )(fois))|(en boucle)))?$/i;
+
+    /** 
+   * Complément de l’instruction afficher (une image)
+   * - Découpage :
+   *     - l’image(1) nom_du_fichier.ext(2)
+   * - Exemples :
+   *     - l’image donjon.png
+   *     - image mon_image.gif
+   * - Tests unitaires
+   *     - l’image donjon.png
+   *     - image mon_image.gif
+   *     - 💥 une image
+   *     - 💥 image.gif
+   */
+  static readonly xSuiteInstructionAfficher = /^((?:l’|l')?image) ([\w\._]*\w)$/i;
 
   /**
    * - Manger tomate(2).

@@ -16,11 +16,13 @@ import { InstructionChanger } from './instruction-changer';
 import { InstructionDeplacerCopier } from './instruction-deplacer-copier';
 import { InstructionDire } from './instruction-dire';
 import { InstructionExecuter } from './instruction-executer';
+import { InstructionJouerArreter } from './instruction-jouer-arreter';
 import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
+import { StringUtils } from '../commun/string.utils';
 
 export class Instructions {
 
@@ -28,6 +30,7 @@ export class Instructions {
   private insDire: InstructionDire;
   private insExecuter: InstructionExecuter;
   private insChanger: InstructionChanger;
+  private insJouerArreter: InstructionJouerArreter;
   private insDeplacerCopier: InstructionDeplacerCopier;
 
   constructor(
@@ -42,6 +45,7 @@ export class Instructions {
     this.insDeplacerCopier = new InstructionDeplacerCopier(this.jeu, this.eju, this.verbeux);
     this.insChanger = new InstructionChanger(this.jeu, this.eju, this.verbeux);
     this.insChanger.instructionDeplacerCopier = this.insDeplacerCopier;
+    this.insJouerArreter = new InstructionJouerArreter(this.jeu);
   }
 
   get dire() {
@@ -125,7 +129,7 @@ export class Instructions {
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
         const complement = instruction.complement1.trim();
         let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.insDire.interpreterContenuDire(contenu, nbExecutions, contexteTour, evenement, declenchements);
+        contenu = this.insDire.calculerTexteDynamique(contenu, nbExecutions, undefined, contexteTour, evenement, declenchements);
         resultat.sortie += contenu;
         // console.warn("--- complement:", complement);
         // console.warn("------ contenu:", contenu);
@@ -247,17 +251,6 @@ export class Instructions {
         }
         break;
 
-      case 'stopper':
-        // Stopper l’action en cours (évènement AVANT spécial)
-        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'action') {
-          resultat.stopperApresRegle = true;
-          resultat.succes = true;
-        } else {
-          console.error("executerInfinitif >> stopper >> sujet autre que  « action » pas pris en charge. sujet=", instruction.sujet);
-          resultat.succes = false;
-        }
-        break;
-
       case 'terminer':
       case 'continuer':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
@@ -280,7 +273,31 @@ export class Instructions {
         }
         break;
 
+      case 'jouer':
+        resultat = this.insJouerArreter.executerJouer(instruction, contexteTour);
+        break;
 
+      case 'afficher':
+        // afficher une image
+        if (instruction.sujet?.nom?.trim() == 'image' && instruction.complement1) {
+          const nomFichierNonSecurise = instruction.complement1;
+          const nomFichierSecurise = StringUtils.nomDeFichierSecurise(nomFichierNonSecurise);
+          if (nomFichierSecurise == nomFichierNonSecurise && nomFichierSecurise.length) {
+            // on ajoute un retour à la ligne conditionnel unique avant et après l’image
+            resultat.sortie += '{U}@@image:' + nomFichierSecurise + '@@{U}';
+          } else {
+            resultat.sortie += "{+Le nom de l’image à afficher ne peut contenir que des lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Ex: mon_image.png+}"
+          }
+        } else {
+          resultat.sortie += "{+Je peux seulement afficher des images. Le nom de l’image à afficher ne peut contenir que des lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Ex: mon_image.png+}"
+        }
+        break;
+
+      case 'arrêter':
+      case 'arreter':
+      case 'stopper':
+        resultat = this.insJouerArreter.executerArreter(instruction, contexteTour);
+        break;
 
       case 'attendre':
         // Il faut continuer l’action en cours (évènement APRÈS spécial)
@@ -293,8 +310,10 @@ export class Instructions {
         }
         break;
 
+
+
       default:
-        console.warn("executerVerbe : pas compris instruction:", instruction);
+        contexteTour.ajouterErreurInstruction(instruction, "exécuter instruction: verbe inconnu: « " + instruction.infinitif + " ».")
         break;
     }
 
@@ -345,6 +364,20 @@ export class Instructions {
       }
     }
     return resultat;
+  }
+
+  /** émettre un son pour que le joueur puisse vérifier ses baffles. */
+  public testerSon(): Resultat {
+    return this.insJouerArreter.testSon();
+  }
+
+  public onChangementAudioActif() {
+    this.insJouerArreter.onChangementAudioActif();
+  }
+
+  public unload() {
+    // éviter que le son continue à jouer après qu’on ait quitté le jeu
+    this.insJouerArreter.unload();
   }
 
 }

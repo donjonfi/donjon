@@ -370,7 +370,7 @@ export class PhraseUtils {
 
     if (resInfinitifCompl) {
 
-      const infinitif = resInfinitifCompl[1];
+      const infinitif = resInfinitifCompl[1].toLocaleLowerCase(); // toujours mettre l’infinitif en minuscules
       const complement = resInfinitifCompl[2] ?? null;
 
       els = new ElementsPhrase(infinitif, null, null, null, complement);
@@ -381,79 +381,117 @@ export class PhraseUtils {
         // Ne PAS essayer de décomposer le complément s’il commence par « " » ou s’il s’agit de l’instruction exécuter.)
         if (!els.complement1.startsWith('"') && els.infinitif !== 'exécuter') {
 
-          // tester si le sujet est une propriéter à changer
-          const restChangerPropriete = ExprReg.xChangerPropriete.exec(els.complement1);
-          if (restChangerPropriete) {
-            const propriete = restChangerPropriete[1];
-            // ne garder que le premier mot de verbe (retirer du/de la/…)
-            const verbe = restChangerPropriete[2].split(" ")[0];
-            const nouvelleValeur = restChangerPropriete[3];
-
-            // trouver la propriété correspondante à la valeur1
-            const proprieteValeur1 = PhraseUtils.trouverPropriete(propriete);
-
-            // si la valeur1 est bien une propriété
-            if (proprieteValeur1) {
-              // propriété à changer
-              els.proprieteSujet = proprieteValeur1;
-              // verbe
-              els.verbe = verbe;
-              // complément (nouvelle valeur)
-              els.complement1 = nouvelleValeur;
-              // trouver la propriété correspondante à la valeur2
-              const proprieteValeur2 = PhraseUtils.trouverPropriete(nouvelleValeur);
-              els.proprieteComplement1 = proprieteValeur2;
-            }
-          }
-
-          // si le sujet n’est pas une propriété à changer
-          if (!restChangerPropriete || !els.proprieteSujet) {
-
-            // tester si le complément est une phrase simple
-            // ex: le joueur ne se trouve plus dans la piscine.
-            const resSuite = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec(els.complement1);
-            if (resSuite) {
-              let sujDet = resSuite[1] ?? null;
-              let sujNom = resSuite[2];
-              let sujAtt = resSuite[3] ?? null;
-              els.sujet = new GroupeNominal(sujDet, sujNom, sujAtt);
-              els.verbe = resSuite[4]?.trim() ?? null;
-              els.negation = resSuite[5]?.trim() ?? null;
-              els.complement1 = resSuite[6]?.trim() ?? null;
-              // décomposer le nouveau complément si possible              
-              const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
-              if (resCompl) {
-                // els.complement1 = null;
-                els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
-                els.preposition1 = resCompl[1] ? resCompl[1] : null;
+          // JOUER un son/une musique
+          if (els.infinitif == 'jouer') {
+            const suiteJouer = ExprReg.xSuiteInstructionJouer.exec(els.complement1);
+            if (suiteJouer) {
+              const leSonOuLaMusique = suiteJouer[1];
+              const fichier = suiteJouer[2];
+              const optionEnBoucle = suiteJouer[5] ? true : false;
+              const optionNombreFois = suiteJouer[3] ?? undefined;
+              els.sujet = PhraseUtils.getGroupeNominal(leSonOuLaMusique, true);
+              // complémnent 1: fichier
+              els.complement1 = fichier;
+              els.sujetComplement1 = undefined;
+              // complément 2: option (en boucle ou nombre de fois)
+              if (optionEnBoucle) {
+                els.complement2 = "en boucle";
+                els.sujetComplement2 = new GroupeNominal(undefined, "en boucle");
+              } else if (optionNombreFois) {
+                els.complement2 = optionNombreFois + "fois";
+                els.sujetComplement2 = new GroupeNominal(optionNombreFois, "fois");
               }
-              // tester si le complément est une instruction à 1 ou 2 compléments
-              // ex: déplacer le trésor vers le joueur.
             } else {
-              const res1ou2elements = ExprReg.xComplementInstruction1ou2elements.exec(els.complement1);
+              console.error("Instruction « jouer » pas complète.");
+            }
+            // AFFICHER une image
+          } else if (els.infinitif == 'afficher') {
+            const suiteAfficher = ExprReg.xSuiteInstructionAfficher.exec(els.complement1);
+            if (suiteAfficher) {
+              const limage = suiteAfficher[1];
+              const fichier = suiteAfficher[2];
+              els.sujet = PhraseUtils.getGroupeNominal(limage, true);
+              // complémnent 1: fichier
+              els.complement1 = fichier;
+              els.sujetComplement1 = undefined;
+            } else {
+              console.error("Instruction « afficher » pas complète.");
+            }
+            // AUTRE INFINITF
+          } else {
+            // tester si le sujet est une propriéter à changer
+            const restChangerPropriete = ExprReg.xChangerPropriete.exec(els.complement1);
+            if (restChangerPropriete) {
+              const propriete = restChangerPropriete[1];
+              // ne garder que le premier mot de verbe (retirer du/de la/…)
+              const verbe = restChangerPropriete[2].split(" ")[0];
+              const nouvelleValeur = restChangerPropriete[3];
 
-              if (res1ou2elements) {
+              // trouver la propriété correspondante à la valeur1
+              const proprieteValeur1 = PhraseUtils.trouverPropriete(propriete);
 
-                const determinant1 = res1ou2elements[1] ?? null;
-                const nom1 = res1ou2elements[2];
-                const epithete1 = res1ou2elements[3] ?? null;
-                const preposition = res1ou2elements[4] ?? null;
-                const determinant2 = res1ou2elements[5] ?? null;
-                const nom2 = res1ou2elements[6] ?? null;
-                const epithete2 = res1ou2elements[7] ?? null;
+              // si la valeur1 est bien une propriété
+              if (proprieteValeur1) {
+                // propriété à changer
+                els.proprieteSujet = proprieteValeur1;
+                // verbe
+                els.verbe = verbe;
+                // complément (nouvelle valeur)
+                els.complement1 = nouvelleValeur;
+                // trouver la propriété correspondante à la valeur2
+                const proprieteValeur2 = PhraseUtils.trouverPropriete(nouvelleValeur);
+                els.proprieteComplement1 = proprieteValeur2;
+              }
+            }
 
-                els.verbe = null;
-                els.negation = null;
-                els.sujet = new GroupeNominal(determinant1, nom1, epithete1);
-                els.preposition1 = preposition;
-                if (nom2) {
-                  els.sujetComplement1 = new GroupeNominal(determinant2, nom2, epithete2);
-                } else {
-                  els.complement1 = null;
+            // si le sujet n’est pas une propriété à changer
+            if (!restChangerPropriete || !els.proprieteSujet) {
+
+              // tester si le complément est une phrase simple
+              // ex: le joueur ne se trouve plus dans la piscine.
+              const resSuite = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec(els.complement1);
+              if (resSuite) {
+                let sujDet = resSuite[1] ?? null;
+                let sujNom = resSuite[2];
+                let sujAtt = resSuite[3] ?? null;
+                els.sujet = new GroupeNominal(sujDet, sujNom, sujAtt);
+                els.verbe = resSuite[4]?.trim() ?? null;
+                els.negation = resSuite[5]?.trim() ?? null;
+                els.complement1 = resSuite[6]?.trim() ?? null;
+                // décomposer le nouveau complément si possible              
+                const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
+                if (resCompl) {
+                  // els.complement1 = null;
+                  els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+                  els.preposition1 = resCompl[1] ? resCompl[1] : null;
+                }
+                // tester si le complément est une instruction à 1 ou 2 compléments
+                // ex: déplacer le trésor vers le joueur.
+              } else {
+                const res1ou2elements = ExprReg.xComplementInstruction1ou2elements.exec(els.complement1);
+
+                if (res1ou2elements) {
+
+                  const determinant1 = res1ou2elements[1] ?? null;
+                  const nom1 = res1ou2elements[2];
+                  const epithete1 = res1ou2elements[3] ?? null;
+                  const preposition = res1ou2elements[4] ?? null;
+                  const determinant2 = res1ou2elements[5] ?? null;
+                  const nom2 = res1ou2elements[6] ?? null;
+                  const epithete2 = res1ou2elements[7] ?? null;
+
+                  els.verbe = null;
+                  els.negation = null;
+                  els.sujet = new GroupeNominal(determinant1, nom1, epithete1);
+                  els.preposition1 = preposition;
+                  if (nom2) {
+                    els.sujetComplement1 = new GroupeNominal(determinant2, nom2, epithete2);
+                  } else {
+                    els.complement1 = null;
+                  }
                 }
               }
             }
-
           }
         }
       }
@@ -541,7 +579,7 @@ export class PhraseUtils {
   /**
    * Décomposer l’intitulé brut en un groupe nominal.
    */
-  public static getGroupeNominal(intituleBrut: string, forcerMinuscules: boolean) {
+  public static getGroupeNominal(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal {
     let determinant: string = null;
     let nom: string = null;
     let epithete: string = null;
