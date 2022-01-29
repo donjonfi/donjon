@@ -9,6 +9,7 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from '../jeu/compteurs-utils';
+import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -37,6 +38,8 @@ export class Generateur {
   public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], listes: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
 
     let jeu = new Jeu();
+
+    let ctx = new ContexteGeneration(false);
 
     // DÉFINIR LES CLASSES
     // *******************
@@ -173,7 +176,7 @@ export class Generateur {
     // ****************************
     for (let index = 0; index < monde.lieux.length; index++) {
       const curEle = monde.lieux[index];
-      Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index));
+      Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index), ctx);
     }
 
     // PLACER LE JOUEUR
@@ -352,7 +355,7 @@ export class Generateur {
         // POSITION de l’élément
         // --   A. OBSTACLE (PORTE ou autre)
         if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.obstacle)) {
-          Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id);
+          Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id, ctx);
         } else {
           // -- B. AUTRE TYPE D'OBJET
           if (curEle.positionString) {
@@ -476,25 +479,35 @@ export class Generateur {
       jeu.listes.push(curListe);
     });
 
-    return jeu;
+    // ajouter les erreurs
+    if (ctx.erreurs.length) {
+      jeu.tamponErreurs.push(...ctx.erreurs);
+    }
 
+    return jeu;
   }
 
   /**
    * Ajout d'un voisin (lieu ou porte) à un lieu 
+   * @argument lieux liste des lieux
+   * @argument voisin à ajouter
+   * @argument identifiant du voisin à ajouter
+   * @argument ctx contexte génération (pour pouvoir ajouter des erreurs)
    */
-  static ajouterVoisin(lieux: Lieu[], elVoisin: ElementGenerique, idElVoisin: number) {
+  static ajouterVoisin(lieux: Lieu[], elVoisin: ElementGenerique, idElVoisin: number, ctx: ContexteGeneration) {
 
-    // console.log("ajouterVoisin >>> ", elVoisin);
-
+    // Si le voisin possède une position
     if (elVoisin.positionString) {
+      // retrouver la localisation (nord, nord-est, …)
       const localisation = Generateur.getLocalisation(elVoisin.positionString.position);
+      // 
       const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement, true);
 
-      if (localisation === ELocalisation.inconnu || lieuTrouveID === -1) {
-        console.log("positionString pas trouvé:", elVoisin.positionString);
+      if (localisation === ELocalisation.inconnu) {
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.nom + ' » : position pas trouvée : ' + elVoisin.positionString.position);
+      } else if (lieuTrouveID === -1) {
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.nom + ' » : lieu pas trouvé : ' + elVoisin.positionString.complement);
       } else {
-
         // on met la classe racine lieu, porte ou obstacle:
         let classeRacine: string;
         // lieu
@@ -660,10 +673,21 @@ export class Generateur {
       case "nord":
         retVal = ELocalisation.nord;
         break;
+      case "nord-est":
+        retVal = ELocalisation.nord_est;
+        break;
+      case "nord-ouest":
+        retVal = ELocalisation.nord_ouest;
+        break;
       case "sud":
         retVal = ELocalisation.sud;
         break;
-
+      case "sud-est":
+        retVal = ELocalisation.sud_est;
+        break;
+      case "sud-ouest":
+        retVal = ELocalisation.sud_ouest;
+        break;
       default:
         console.log("Localisation pas connue: ", strPosition);
         break;
@@ -674,28 +698,40 @@ export class Generateur {
 
   static getOpposePosition(localisation: ELocalisation) {
     switch (localisation) {
-
-      case ELocalisation.bas:
-        return ELocalisation.haut;
-
-      case ELocalisation.haut:
-        return ELocalisation.bas;
-
+      // est
       case ELocalisation.est:
         return ELocalisation.ouest;
-
+      // ouest
       case ELocalisation.ouest:
         return ELocalisation.est;
-
+      // nord
       case ELocalisation.nord:
         return ELocalisation.sud;
-
+      // nord-est
+      case ELocalisation.nord_est:
+        return ELocalisation.sud_ouest;
+      // nord-ouest
+      case ELocalisation.nord_ouest:
+        return ELocalisation.sud_est;
+      // sud
       case ELocalisation.sud:
         return ELocalisation.nord;
-
+      // sud-est
+      case ELocalisation.sud_est:
+        return ELocalisation.nord_ouest;
+      // sud-ouest
+      case ELocalisation.sud_ouest:
+        return ELocalisation.nord_est;
+      // bas
+      case ELocalisation.bas:
+        return ELocalisation.haut;
+      // haut
+      case ELocalisation.haut:
+        return ELocalisation.bas;
+      // intérieur
       case ELocalisation.interieur:
         return ELocalisation.exterieur;
-
+      // extérieur
       case ELocalisation.exterieur:
         return ELocalisation.interieur;
 

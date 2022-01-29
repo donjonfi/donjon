@@ -7,25 +7,27 @@ import { Nombre } from "../commun/nombre.enum";
 
 /**
  * Localisation:
- * - Nord
- * - Sud
- * - Est
- * - Ouest
- * - Haut
- * - Bas
- * - Intérieur
- * - Extérieur
+ * nord, nord-est, est, sud-est, sud, sud-ouest, ouest, nord-ouest,
+ * haut, bas, intérieur, extérieur.
  */
 export enum ELocalisation {
   inconnu = '?',
   /** Nord */
   nord = 'n',
-  /** Sud */
-  sud = 's',
+  /** Nord-Est */
+  nord_est = 'ne',
   /** Est */
   est = 'e',
+  /** Sud-Est */
+  sud_est = 'se',
+  /** Sud */
+  sud = 's',
+  /** Sud-Ouest */
+  sud_ouest = 'so',
   /** Ouest */
   ouest = 'o',
+  /** Nord-Ouest */
+  nord_ouest = 'no',
   /** Haut */
   haut = 'h',
   /** Bas */
@@ -34,18 +36,18 @@ export enum ELocalisation {
   interieur = 'i',
   /** Extérieur */
   exterieur = 'x',
-  /** Dessous */
-  dessous = 'd',
-  /** Dessus */
-  dessus = 'u',
 }
 
 export class Localisation extends Intitule {
 
   public static readonly Nord = new Localisation(ELocalisation.nord, "le ", "nord");
-  public static readonly Sud = new Localisation(ELocalisation.sud, "le ", "sud");
+  public static readonly NordEst = new Localisation(ELocalisation.nord_est, "le ", "nord-est");
   public static readonly Est = new Localisation(ELocalisation.est, "l'", "est");
+  public static readonly SudEst = new Localisation(ELocalisation.sud_est, "le ", "sud-est");
+  public static readonly Sud = new Localisation(ELocalisation.sud, "le ", "sud");
+  public static readonly SudOuest = new Localisation(ELocalisation.sud_ouest, "le ", "sud-ouest");
   public static readonly Ouest = new Localisation(ELocalisation.ouest, "l'", "ouest");
+  public static readonly NordOuest = new Localisation(ELocalisation.nord_ouest, "le ", "nord-ouest");
   public static readonly Haut = new Localisation(ELocalisation.haut, "le ", "haut");
   public static readonly Bas = new Localisation(ELocalisation.bas, "le ", "bas");
   public static readonly Interieur = new Localisation(ELocalisation.interieur, "l'", "intérieur");
@@ -63,12 +65,20 @@ export class Localisation extends Intitule {
     switch (localisation) {
       case ELocalisation.nord:
         return Localisation.Nord;
-      case ELocalisation.sud:
-        return Localisation.Sud;
+      case ELocalisation.nord_est:
+        return Localisation.NordEst;
       case ELocalisation.est:
         return Localisation.Est;
+      case ELocalisation.sud_est:
+        return Localisation.SudEst;
+      case ELocalisation.sud:
+        return Localisation.Sud;
+      case ELocalisation.sud_ouest:
+        return Localisation.SudOuest;
       case ELocalisation.ouest:
         return Localisation.Ouest;
+      case ELocalisation.nord_ouest:
+        return Localisation.NordOuest;
       case ELocalisation.haut:
         return Localisation.Haut;
       case ELocalisation.bas:

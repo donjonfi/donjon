@@ -499,28 +499,29 @@ export class ElementsJeuUtils {
 
 
     switch (sujet.nom) {
-      case 'sud':
-        return Localisation.Sud;
-
       case 'nord':
         return Localisation.Nord;
-
+      case 'nord-est':
+        return Localisation.NordEst;
       case 'est':
         return Localisation.Est;
-
+      case 'sud-est':
+        return Localisation.SudEst;
+      case 'sud':
+        return Localisation.Sud;
+      case 'sud-ouest':
+        return Localisation.SudOuest;
       case 'ouest':
         return Localisation.Ouest;
-
-      case 'bas':
-        return Localisation.Bas;
-
+      case 'nord-ouest':
+        return Localisation.NordOuest;
+        
       case 'haut':
-        return Localisation.Haut;
-
       case 'dessus':
       case 'au-dessus':
         return Localisation.Haut;
 
+      case 'bas':
       case 'dessous':
       case 'au-dessous':
         return Localisation.Bas;

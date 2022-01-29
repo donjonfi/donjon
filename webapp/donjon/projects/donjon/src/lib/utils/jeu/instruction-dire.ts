@@ -846,7 +846,7 @@ export class InstructionDire {
         }
       }
 
-      if(valeur == "{+@problème balise@+}"){
+      if (valeur == "{+@problème balise@+}") {
         this.jeu.tamponErreurs.push("Balise pas comprise ou propriété pas trouvée: [" + curProprieteIntitule + "]");
       }
 
@@ -1532,26 +1532,38 @@ export class InstructionDire {
       case ELocalisation.nord:
         retVal = "nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
-      case ELocalisation.sud:
-        retVal = "sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+      case ELocalisation.nord_est:
+        retVal = "nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.est:
         retVal = "est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
+      case ELocalisation.sud_est:
+        retVal = "sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        break;
+      case ELocalisation.sud:
+        retVal = "sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        break;
+      case ELocalisation.sud_ouest:
+        retVal = "sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        break;
       case ELocalisation.ouest:
         retVal = "ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
-      case ELocalisation.bas:
-        retVal = "descendre" + obstacle + " − " + titreLieu;
+      case ELocalisation.nord_ouest:
+        retVal = "nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
       case ELocalisation.haut:
         retVal = "monter" + obstacle + " − " + titreLieu;
         break;
-      case ELocalisation.exterieur:
-        retVal = "sortir" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+      case ELocalisation.bas:
+        retVal = "descendre" + obstacle + " − " + titreLieu;
         break;
       case ELocalisation.interieur:
         retVal = "entrer" + obstacle + " − " + titreLieu;
+        break;
+      case ELocalisation.exterieur:
+        retVal = "sortir" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
         break;
 
       default:

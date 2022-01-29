@@ -409,6 +409,21 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
+  it('Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      "Le château du comte est un lieu au nord de le village."
+    );
+    expect(phrases).toHaveSize(1); // 1 phrase
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
+    // tester l’analyse spécifique
+    const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
+    expect(resultat).toBeNull(); // résultat PAS trouvé.
+    expect(ctxAnalyse.erreurs).toHaveSize(1); // aucune erreur
+  });
+
 
   it('Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();

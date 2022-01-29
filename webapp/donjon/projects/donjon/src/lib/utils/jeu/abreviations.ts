@@ -5,39 +5,31 @@ export class Abreviations {
     let retVal = deuxiemeMot;
     if (deuxiemeMot) {
       switch (deuxiemeMot) {
-
-        case 'e':
-          retVal = "à l’est";
-          break;
-
         case 'n':
           retVal = "au nord";
           break;
-
         case 'n-e':
           retVal = "au nord-est";
           break;
-
-        case 'n-o':
-          retVal = "au nord-ouest";
+        case 'e':
+          retVal = "à l’est";
           break;
-
-        case 'o':
-          retVal = "à l’ouest";
-          break;
-
-        case 's':
-          retVal = "au sud";
-          break;
-
         case 's-e':
           retVal = "au sud-est";
           break;
-
+        case 's':
+          retVal = "au sud";
+          break;
         case 's-o':
           retVal = "au sud-ouest";
           break;
-
+        case 'o':
+          retVal = "à l’ouest";
+          break;
+        case 'n-o':
+          retVal = "au nord-ouest";
+          break;
+          
         default:
           break;
       }

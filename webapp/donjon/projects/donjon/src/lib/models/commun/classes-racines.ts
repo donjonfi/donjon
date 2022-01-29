@@ -18,7 +18,8 @@ export class ClassesRacines {
   public static ListeIntitule = new Classe(EClasseRacine.listeIntitule, "liste intitulé", ClassesRacines.Liste, 2, []);
   public static ListeMixte = new Classe(EClasseRacine.listeMixte, "liste mixte", ClassesRacines.Liste, 2, []);
 
-  /** Il s’agit d’une direction (nord, sud, est, ouest, haut, bas, intérieur, extérieur) */
+  /** Il s’agit d’une direction (nord, nord-est, est, sud-est, sud, sud-ouest, 
+   * ouest, nord-ouest, haut, bas, intérieur, extérieur) */
   public static Direction = new Classe(EClasseRacine.direction, "direction", ClassesRacines.Intitule, 1, []);
 
   /** Il s’agit d’un élément du jeu */

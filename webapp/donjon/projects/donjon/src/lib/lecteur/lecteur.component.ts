@@ -104,7 +104,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
     // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
     this.ins.commandeur = this.com;
-    
+
     // définir le dossier qui contient les ressources
     this.dossierRessourcesComplet = Jeu.dossierRessources;
     if (this.jeu.sousDossierRessources) {
@@ -114,6 +114,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.dossierRessourcesComplet = Jeu.dossierRessources + '/' + sousDossierSecurise;
       }
     }
+
+    this.verifierTamponErreurs();
 
     // afficher le titre et la version du jeu
     this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
@@ -166,8 +168,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.activerParametreAudio = false;
     }
-
-    this.verifierTamponErreurs();
 
     // ==================
     // A. NOUVELLE PARTIE
@@ -304,21 +304,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private verifierTamponErreurs() {
-    setTimeout(() => {
-      if (this.jeu) {
-        // vérifier s’il reste des erreurs à afficher
-        if (this.jeu.tamponErreurs.length) {
-          let texteErreurs = "";
-          while (this.jeu.tamponErreurs.length) {
-            const erreur = this.jeu.tamponErreurs.shift();
-            texteErreurs += '{N}' + erreur;
-          }
-          this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.dossierRessourcesComplet);
-          this.scrollSortie();
-        }
-        // vérifier à nouveau dans quelques temps
-        this.verifierTamponErreurs();
+    // vérifier s’il reste des erreurs à afficher
+    if (this.jeu?.tamponErreurs.length) {
+      let texteErreurs = "";
+      while (this.jeu.tamponErreurs.length) {
+        const erreur = this.jeu.tamponErreurs.shift();
+        texteErreurs += '{N}' + erreur;
       }
+      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.dossierRessourcesComplet);
+      this.scrollSortie();
+    }
+
+    // vérifier à nouveau dans quelques temps
+    setTimeout(() => {
+      this.verifierTamponErreurs();
     }, 1000);
   }
 
