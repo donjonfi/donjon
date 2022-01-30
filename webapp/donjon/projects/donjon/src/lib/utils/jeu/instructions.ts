@@ -97,6 +97,10 @@ export class Instructions {
       } else {
         sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, contexteTour, evenement, declenchements);
       }
+      // instruction choisir
+    } else if (instruction.choix?.length) {
+      console.error("TODO: gérer l’instruction choix");
+      sousResultat = new Resultat(true, "{U}{+Un choix doit être fait ici !+}", 1);
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {

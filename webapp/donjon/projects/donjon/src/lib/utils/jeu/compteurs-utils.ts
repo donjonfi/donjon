@@ -189,7 +189,7 @@ export class CompteursUtils {
         }
         // trouver compteur éventuel
       } else {
-        const resultatGN = ExprReg.xGroupeNominal.exec(valeurString);
+        const resultatGN = ExprReg.xGroupeNominalArticleDefini.exec(valeurString);
         if (resultatGN) {
           let gn = new GroupeNominal(resultatGN[1] ?? null, resultatGN[2], resultatGN[3] ?? null);
           const curCompteur = eju.trouverCompteur(gn);

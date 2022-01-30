@@ -722,7 +722,7 @@ export class InstructionDire {
       }
 
       // Le nombre de classe état1 état2 position
-      const xBaliseNombreDeClasseEtatPossitionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?\]/gi;
+      const xBaliseNombreDeClasseEtatPossitionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?\]/gi;
       if (xBaliseNombreDeClasseEtatPossitionMulti.test(texteDynamique)) {
         // retrouver toutes les balises nombre de classe état1 état2 position
         const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPossitionMulti);

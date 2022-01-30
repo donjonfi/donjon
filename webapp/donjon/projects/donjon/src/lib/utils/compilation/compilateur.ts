@@ -1,10 +1,11 @@
 import { Analyseur } from './analyseur/analyseur';
-import { AnalyseurConsequences } from './analyseur/analyseur.consequences';
+import { AnalyseurInstructions } from './analyseur/analyseur.instructions';
 import { AnalyseurUtils } from './analyseur/analyseur.utils';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
 import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
+import { ContexteCompilation } from '../../models/compilateur/contexte-compilation';
 import { Definition } from '../../models/compilateur/definition';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
@@ -20,104 +21,77 @@ import { lastValueFrom } from 'rxjs';
 
 export class Compilateur {
 
-  private static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2022 Jonathan Claes − see MIT License";
+  private static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2022 Jonathan Claes − https://donjon.fi";
+  // rem: l’espace+point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
+  private static readonly regleInfoDonjon = " .\naprès afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; terminer l’action avant.";
 
-  /**
-   * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
-   * @param scenario Scénario du jeu
-   * @param verbeux Est-ce qu’il faut afficher beaucoup de détails dans la console ?
-   * @param http service http pour récupérerles fichiers à inclure.
-   */
-  public static async analyserScenario(scenario: string, verbeux: boolean, http: HttpClient) {
-    console.warn("analyserScenario >> verbeux=", verbeux);
-    // le contexte de l’analyse
-    let ctxAnalyse = new ContexteAnalyse(verbeux);
+  /** Ajouter les éléments spéciaux au scénario (joueur, inventaire, jeu, ressources, …) */
+  private static ajouterElementsSpeciaux(ctxAnalyse: ContexteAnalyse) {
     // ajouter le joueur et l’inventaire au monde
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, EClasseRacine.joueur, ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
-    // ajouter le jeu et la licence au monde
+    // ajouter le jeu, les ressources, la licence et le site web au monde
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("les ", "ressources du jeu", null, EClasseRacine.special, null, null, Genre.f, Nombre.p, -1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
     ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "site", "web", EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
+  }
 
-    // inclure les commandes de base, sauf si on les a désactivées.
-    if (!(scenario.includes('Désactiver les commandes de base.') || scenario.includes('désactiver les commandes de base.'))) {
-      try {
-        const sourceCommandes = await lastValueFrom(http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
-
-        try {
-          Compilateur.analyserCode(sourceCommandes, ctxAnalyse);
-        } catch (error) {
-          console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
-        }
-
-      } catch (error) {
-        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
-        ctxAnalyse.erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
-      }
-    }
-
-    // rem: le point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
-    const regleInfoDonjon = ".\naprès afficher aide: dire \"{n}{n}{+{/" + Compilateur.infoCopyright + "/}+}\"; terminer l’action avant.";
-
-    // B. Interpréter le scénario
-    Compilateur.analyserCode((scenario + regleInfoDonjon), ctxAnalyse);
-
+  private static peuplerLeMonde(ctx: ContexteCompilation) {
     // ********************************************
     // PEUPLER LE MONDE À PARTIR DE L’ANALYSE
     // ********************************************
     // le monde qui est décrit
-    let monde = new Monde();
+    ctx.monde = new Monde();
 
     // CLASSES
     // retrouver les types utilisateurs (classes)
-    ctxAnalyse.typesUtilisateur.forEach(def => {
-      Compilateur.ajouterClasseDuTypeUtilisateur(def.intitule, ctxAnalyse, monde);
+    ctx.analyse.typesUtilisateur.forEach(def => {
+      Compilateur.ajouterClasseDuTypeUtilisateur(def.intitule, ctx.analyse, ctx.monde);
     });
 
     // CLASSE ÉVÈNEMENTS DES RÈGLES
     // parcour des règles
-    ctxAnalyse.regles.forEach(regle => {
+    ctx.analyse.regles.forEach(regle => {
       // parcour des évènements de la règle
       regle.evenements.forEach(evenement => {
         // retrouver classe de ceci
         if (evenement.isCeci) {
           const ceciEstClasse = (evenement.ceci.match(/^un(e)? /i));
           if (ceciEstClasse) {
-            evenement.classeCeci = ClasseUtils.trouverOuCreerClasse(monde.classes, evenement.ceci);
+            evenement.classeCeci = ClasseUtils.trouverOuCreerClasse(ctx.monde.classes, evenement.ceci);
           }
         }
         // retrouver classe de cela
         if (evenement.isCela) {
           const celaEstClasse = (evenement.cela.match(/^un(e)? /i));
           if (celaEstClasse) {
-            evenement.classeCela = ClasseUtils.trouverOuCreerClasse(monde.classes, evenement.cela);
+            evenement.classeCela = ClasseUtils.trouverOuCreerClasse(ctx.monde.classes, evenement.cela);
           }
         }
       });
     });
 
     // ÉLÉMENTS
-    let compteurs: ElementGenerique[] = [];
-    let listes: ElementGenerique[] = [];
+    ctx.compteurs = [];
+    ctx.listes = [];
     // définir la classe des éléments génériques et les trier.
-    ctxAnalyse.elementsGeneriques.forEach(el => {
-      el.classe = ClasseUtils.trouverOuCreerClasse(monde.classes, el.classeIntitule);
+    ctx.analyse.elementsGeneriques.forEach(el => {
+      el.classe = ClasseUtils.trouverOuCreerClasse(ctx.monde.classes, el.classeIntitule);
       // objets
       if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
-        monde.objets.push(el);
+        ctx.monde.objets.push(el);
         // listes d’objets filtrés
         if (ClasseUtils.heriteDe(el.classe, EClasseRacine.obstacle)) {
-          monde.portesEtObstacles.push(el);
+          ctx.monde.portesEtObstacles.push(el);
         } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.joueur)) {
-          monde.speciaux.push(el);
+          ctx.monde.speciaux.push(el);
         } else {
-          monde.classiques.push(el);
+          ctx.monde.classiques.push(el);
         }
         // lieux
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
-        monde.lieux.push(el);
+        ctx.monde.lieux.push(el);
         // spécial
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
         // spécial: sous-dossier pour les ressources du jeu
@@ -129,21 +103,21 @@ export class Compilateur {
             const nomDossierNonSecurise = el.positionString.complement;
             const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
             if (nomDossierSecurise.length && nomDossierSecurise == nomDossierNonSecurise) {
-              monde.speciaux.push(el);
+              ctx.monde.speciaux.push(el);
             } else {
-              AnalyseurUtils.ajouterErreur(ctxAnalyse, undefined, 'Ressources du jeu: le nom du dossier ne peut contenir que lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Exemple: « mon_dossier ».');
+              AnalyseurUtils.ajouterErreur(ctx.analyse, undefined, 'Ressources du jeu: le nom du dossier ne peut contenir que lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Exemple: « mon_dossier ».');
             }
           } else {
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, undefined, 'Ressources du jeu: utiliser la formulation « Les ressources du jeu se trouvent dans le dossier abc_def. »');
+            AnalyseurUtils.ajouterErreur(ctx.analyse, undefined, 'Ressources du jeu: utiliser la formulation « Les ressources du jeu se trouvent dans le dossier abc_def. »');
           }
           // autres éléments spéciaux
         } else {
-          monde.speciaux.push(el);
+          ctx.monde.speciaux.push(el);
         }
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.compteur)) {
-        compteurs.push(el);
+        ctx.compteurs.push(el);
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.liste)) {
-        listes.push(el);
+        ctx.listes.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe, el);
       }
@@ -151,29 +125,29 @@ export class Compilateur {
 
 
     // *************************
-    // SÉPARER LES CONSÉQUENCES
+    // SÉPARER LES INSTRUCTIONS
     // *************************
     // - DES RÈGLES
-    ctxAnalyse.regles.forEach(regle => {
-      if (regle.consequencesBrutes) {
-        regle.instructions = AnalyseurConsequences.separerConsequences(regle.consequencesBrutes, ctxAnalyse, -1, regle);
+    ctx.analyse.regles.forEach(regle => {
+      if (regle.instructionsBrutes) {
+        regle.instructions = AnalyseurInstructions.separerInstructions(regle.instructionsBrutes, ctx.analyse, -1, regle);
       }
-      if (verbeux) {
+      if (ctx.verbeux) {
         console.log(">>> regle:", regle);
       }
     });
 
     // - DES RÉACTIONS
-    monde.objets.forEach(objet => {
+    ctx.monde.objets.forEach(objet => {
       if (objet.reactions && objet.reactions.length > 0) {
         objet.reactions.forEach(reaction => {
           // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
           if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
             reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
           }
-          reaction.instructions = AnalyseurConsequences.separerConsequences(reaction.instructionsBrutes, ctxAnalyse, -1, null, reaction, objet);
+          reaction.instructions = AnalyseurInstructions.separerInstructions(reaction.instructionsBrutes, ctx.analyse, -1, null, reaction, objet);
         });
-        if (verbeux) {
+        if (ctx.verbeux) {
           console.log(">>> objet avec réactions :", objet);
         }
       }
@@ -183,28 +157,88 @@ export class Compilateur {
     // AFFICHER RÉSULTAT DANS LA CONSOLE
     // **********************************
 
-    // if (verbeux) {
-    console.log("==================\n");
-    console.log("monde:", monde);
-    console.log("règles:", ctxAnalyse.regles);
-    console.log("actions:", ctxAnalyse.actions);
-    console.log("compteurs:", compteurs);
-    console.log("listes:", listes);
-    console.log("aides:", ctxAnalyse.aides);
-    console.log("typesUtilisateur:", ctxAnalyse.typesUtilisateur);
-    console.log("==================\n");
-    // }
+    if (ctx.verbeux) {
+      console.log("==================\n");
+      console.log("ctx.monde:", ctx.monde);
+      console.log("règles:", ctx.analyse.regles);
+      console.log("actions:", ctx.analyse.actions);
+      console.log("compteurs:", ctx.compteurs);
+      console.log("listes:", ctx.listes);
+      console.log("aides:", ctx.analyse.aides);
+      console.log("typesUtilisateur:", ctx.analyse.typesUtilisateur);
+      console.log("==================\n");
+    }
 
-    let resultat = new ResultatCompilation();
-    resultat.monde = monde;
-    resultat.regles = ctxAnalyse.regles;
-    resultat.actions = ctxAnalyse.actions;
-    resultat.compteurs = compteurs;
-    resultat.listes = listes;
-    resultat.erreurs = ctxAnalyse.erreurs;
-    resultat.aides = ctxAnalyse.aides;
-    resultat.parametres = ctxAnalyse.parametres;
-    return resultat;
+    ctx.resultat = new ResultatCompilation();
+    ctx.resultat.monde = ctx.monde;
+    ctx.resultat.regles = ctx.analyse.regles;
+    ctx.resultat.actions = ctx.analyse.actions;
+    ctx.resultat.compteurs = ctx.compteurs;
+    ctx.resultat.listes = ctx.listes;
+    ctx.resultat.erreurs = ctx.analyse.erreurs;
+    ctx.resultat.aides = ctx.analyse.aides;
+    ctx.resultat.parametres = ctx.analyse.parametres;
+
+  }
+
+  /**
+   * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
+   * Cette variante de l’analyse n’inclut pas les commandes de base ce qui lui permet d’être synchrone.
+   * @param scenario Scénario du jeu
+   * @param verbeux Est-ce qu’il faut afficher beaucoup de détails dans la console ?
+   */
+  public static analyserScenarioSansChargerCommandes(scenario: string, verbeux: boolean) {
+
+    let ctx = new ContexteCompilation(verbeux);
+
+    // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
+    Compilateur.ajouterElementsSpeciaux(ctx.analyse);
+
+    // interpréter le scénario
+    Compilateur.analyserCode((scenario + Compilateur.regleInfoDonjon), ctx.analyse);
+
+    // peupler le monde
+    Compilateur.peuplerLeMonde(ctx);
+
+    return ctx.resultat;
+
+  }
+
+  /**
+   * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
+   * @param scenario Scénario du jeu
+   * @param verbeux Est-ce qu’il faut afficher beaucoup de détails dans la console ?
+   * @param http service http pour récupérer le fichier commandes.djn, si pas fourni il ne sera pas récupéré.)
+   */
+  public static async analyserScenario(scenario: string, verbeux: boolean, http: HttpClient) {
+
+    let ctx = new ContexteCompilation(verbeux);
+
+    // ajouter les éléments spéciaux
+    Compilateur.ajouterElementsSpeciaux(ctx.analyse);
+
+    // inclure les commandes de base, sauf si on les a désactivées
+    if (!scenario.includes('Désactiver les commandes de base.') && !scenario.includes('désactiver les commandes de base.')) {
+      try {
+        const sourceCommandes = await lastValueFrom(http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
+        try {
+          Compilateur.analyserCode(sourceCommandes, ctx.analyse);
+        } catch (error) {
+          console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
+        }
+      } catch (error) {
+        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+        ctx.analyse.erreurs.push("Le fichier « assets/modeles/commandes.djn » n’a pas été trouvé. C’est le fichier qui contient les commandes de bases.");
+      }
+    }
+
+    // Interpréter le scénario
+    Compilateur.analyserCode((scenario + Compilateur.regleInfoDonjon), ctx.analyse);
+
+    // peupler le monde
+    Compilateur.peuplerLeMonde(ctx);
+
+    return ctx.resultat;
 
   }
 

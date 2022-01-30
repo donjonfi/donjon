@@ -25,11 +25,11 @@ export class ElementsPhrase {
   public complement4: string | undefined;
 
   constructor(
-    public infinitif: string | undefined,
-    public sujet: GroupeNominal | undefined,
-    public verbe: string | undefined,
-    public negation: string | undefined,
-    public complement1: string | undefined
+    public infinitif?: string | undefined,
+    public sujet?: GroupeNominal | undefined,
+    public verbe?: string | undefined,
+    public negation?: string | undefined,
+    public complement1?: string | undefined
   ) { }
 
 }

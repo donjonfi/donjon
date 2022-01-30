@@ -1,6 +1,6 @@
 import { Action } from "../../../models/compilateur/action";
 import { AnalyseurCondition } from "./analyseur.condition";
-import { AnalyseurConsequences } from "./analyseur.consequences";
+import { AnalyseurInstructions } from "./analyseur.instructions";
 import { AnalyseurUtils } from "./analyseur.utils";
 import { CibleAction } from "../../../models/compilateur/cible-action";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
@@ -75,11 +75,11 @@ export class AnalyseurAction {
                 break;
               case 'exécuter':
                 action.instructionsBrutes = complement;
-                action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
+                action.instructions = AnalyseurInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
               case 'terminer':
                 action.instructionsFinalesBrutes = complement;
-                action.instructionsFinales = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
+                action.instructionsFinales = AnalyseurInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
 
               default:
@@ -121,7 +121,7 @@ export class AnalyseurAction {
             action.cibleCeci = new CibleAction(resultActionSimple[3], resultActionSimple[4], resultActionSimple[5]);
           }
 
-          action.instructions = AnalyseurConsequences.separerConsequences(complement, ctxAnalyse, phrase.ligne);
+          action.instructions = AnalyseurInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
           action.simplifiee = true;
           ctxAnalyse.actions.push(action);
           // Renvoyer la nouvelle action
@@ -147,8 +147,8 @@ export class AnalyseurAction {
         if (!condition || condition.nbErreurs) {
           AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
         }
-        const consequences = AnalyseurConsequences.separerConsequences(result[3], ctxAnalyse, phrase.ligne);
-        verification.push(new Verification([condition], consequences));
+        const instructions = AnalyseurInstructions.separerInstructions(result[3], ctxAnalyse, phrase.ligne);
+        verification.push(new Verification([condition], instructions));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
         AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "refuser : " + cond);

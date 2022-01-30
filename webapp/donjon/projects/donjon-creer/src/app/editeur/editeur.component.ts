@@ -299,18 +299,18 @@ export class EditeurComponent implements OnInit, OnDestroy {
       }
 
       // interpréter le code
-      Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resultat => {
-        this.monde = resultat.monde;
-        this.regles = resultat.regles;
-        this.compteurs = resultat.compteurs;
-        this.listes = resultat.listes;
-        this.actions = resultat.actions.sort((a, b) => (
+      Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resComp => {
+        this.monde = resComp.monde;
+        this.regles = resComp.regles;
+        this.compteurs = resComp.compteurs;
+        this.listes = resComp.listes;
+        this.actions = resComp.actions.sort((a, b) => (
           (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
         ));
-        this.aides = resultat.aides;
-        this.erreurs = resultat.erreurs;
+        this.aides = resComp.aides;
+        this.erreurs = resComp.erreurs;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(this.monde, this.regles, this.actions, this.compteurs, this.listes, this.aides, resultat.parametres);
+        this.jeu = Generateur.genererJeu(resComp);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;

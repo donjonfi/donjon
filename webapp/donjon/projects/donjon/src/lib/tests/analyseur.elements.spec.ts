@@ -23,7 +23,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   // - Déterminant(1), Nom(2), Épithète(3)
 
   it('Groupe Nominal : « La pomme de terre pourrie »', () => {
-    const result = ExprReg.xGroupeNominal.exec("La pomme de terre pourrie");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("La pomme de terre pourrie");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
     expect(result[2]).toEqual("pomme de terre"); // nom
@@ -31,7 +31,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « la canne à pèche »', () => {
-    const result = ExprReg.xGroupeNominal.exec("la canne à pèche");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("la canne à pèche");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("la "); // déterminant
     expect(result[2]).toEqual("canne à pèche"); // nom
@@ -39,7 +39,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « le chapeau gris »', () => {
-    const result = ExprReg.xGroupeNominal.exec("le chapeau gris");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("le chapeau gris");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("le "); // déterminant
     expect(result[2]).toEqual("chapeau"); // nom
@@ -48,7 +48,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
 
 
   it('Groupe Nominal : « chapeau »', () => {
-    const result = ExprReg.xGroupeNominal.exec("chapeau");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("chapeau");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("chapeau"); // nom
@@ -56,7 +56,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « le chapeau »', () => {
-    const result = ExprReg.xGroupeNominal.exec("le chapeau");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("le chapeau");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("le "); // déterminant
     expect(result[2]).toEqual("chapeau"); // nom
@@ -64,7 +64,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « l’arracheur de dents dorées »', () => {
-    const result = ExprReg.xGroupeNominal.exec("l’arracheur de dents dorées");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("l’arracheur de dents dorées");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("l’"); // déterminant
     expect(result[2]).toEqual("arracheur de dents"); // nom
@@ -72,7 +72,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « Bruxelles-Capitale »', () => {
-    const result = ExprReg.xGroupeNominal.exec("Bruxelles-Capitale");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("Bruxelles-Capitale");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("Bruxelles-Capitale"); // nom
@@ -80,7 +80,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Groupe Nominal : « lettre »', () => {
-    const result = ExprReg.xGroupeNominal.exec("lettre");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("lettre");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("lettre"); // nom
@@ -88,22 +88,22 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
   it('Élément générique simple: « 20 tomates » ', () => {
-    const result = ExprReg.xGroupeNominal.exec("20 tomates");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("20 tomates");
     expect(result).toEqual(null);
   });
 
   it('Élément générique simple: « une tomate » ', () => {
-    const result = ExprReg.xGroupeNominal.exec("une tomate");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("une tomate");
     expect(result).toEqual(null);
   });
 
   it('Élément générique simple: « des pièces » ', () => {
-    const result = ExprReg.xGroupeNominal.exec("des pièces");
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("des pièces");
     expect(result).toEqual(null);
   });
 
   it('Groupe Nominal : « "texte" »  (💥)', () => {
-    const result = ExprReg.xGroupeNominal.exec('"texte"');
+    const result = ExprReg.xGroupeNominalArticleDefini.exec('"texte"');
     expect(result).toEqual(null);
   });
 

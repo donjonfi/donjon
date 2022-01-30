@@ -56,9 +56,13 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
     expect(result[2]).toEqual('un dé de 4'); // complément
   });
 
-
   it('Phrase:  « la pomme est verte » (💥)', () => {
     const result = ExprReg.xInstruction.exec("la pomme est verte");
+    expect(result).toBeNull();
+  });
+
+  it('Phrase:  « choisir parmis la liste » (💥)', () => {
+    const result = ExprReg.xInstruction.exec("choisir parmis la liste");
     expect(result).toBeNull();
   });
 
@@ -256,7 +260,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     const result = PhraseUtils.decomposerInstruction('afficher image mon_image.gif');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('afficher');
-    expect(result.sujet).toEqual(new GroupeNominal(null, 'image'));
+    expect(result.sujet).toEqual(new GroupeNominal(undefined, 'image'));
     expect(result.verbe).toBeNull();
     expect(result.complement1).toEqual('mon_image.gif');
     expect(result.sujetComplement1).toBeUndefined();
@@ -265,7 +269,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement3).toBeUndefined();
     expect(result.sujetComplement4).toBeUndefined();
   });
-  
+
 
   it('Instruction :  « jouer le son epee »', () => {
     const result = PhraseUtils.decomposerInstruction('jouer le son epee');

@@ -29,7 +29,7 @@ export class AnalyseurPropriete {
       } else {
         nomProprieteCible = result[2];
         const elementConcerneBrut = result[3];
-        const elementConcerneIntitule = ExprReg.xGroupeNominal.exec(elementConcerneBrut);
+        const elementConcerneIntitule = ExprReg.xGroupeNominalArticleDefini.exec(elementConcerneBrut);
         if (elementConcerneIntitule) {
           const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
           const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
@@ -99,7 +99,7 @@ export class AnalyseurPropriete {
     const listeSujetsBruts = PhraseUtils.separerListeIntitulesEtOu(sujets);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
-      const resultGn = ExprReg.xGroupeNominal.exec(sujetBrut);
+      const resultGn = ExprReg.xGroupeNominalArticleDefini.exec(sujetBrut);
       if (resultGn) {
         // on met en minuscules d’office pour éviter les soucis lors des comparaisons
         const sujetNom = resultGn[2]?.toLocaleLowerCase();

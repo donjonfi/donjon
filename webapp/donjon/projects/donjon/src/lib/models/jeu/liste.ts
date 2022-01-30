@@ -2,13 +2,14 @@ import { Classe } from "../commun/classe";
 import { ClassesRacines } from "../commun/classes-racines";
 import { GroupeNominal } from "../commun/groupe-nominal";
 import { Intitule } from "./intitule";
+import { Valeur } from "./valeur";
 
 export class Liste extends Intitule {
 
   private _valeursTexte: string[] | undefined = undefined;
   private _valeursNombre: number[] | undefined = undefined;
   private _valeursIntitule: Intitule[] | undefined = undefined;
-  private _valeursMixtes: (string | number | Intitule)[] | undefined = undefined;
+  private _valeursMixtes: Valeur[] | undefined = undefined;
   public constructor(
     /** Nom de la liste */
     nom: string,
@@ -259,7 +260,7 @@ export class Liste extends Intitule {
   }
 
   /** Ajouter des éléments de différents types à la liste. */
-  public ajouterMixtes(valeurs: (string | number | Intitule)[]) {
+  public ajouterMixtes(valeurs: Valeur[]) {
 
     switch (this.classe) {
       // Vide => Mixte
@@ -337,7 +338,7 @@ export class Liste extends Intitule {
   }
 
   /** Récupérer les valeurs de la liste (mixte) */
-  public get valeurs(): (string | number | Intitule)[] {
+  public get valeurs(): Valeur[] {
     switch (this.classe) {
       // Vide
       case ClassesRacines.ListeVide:

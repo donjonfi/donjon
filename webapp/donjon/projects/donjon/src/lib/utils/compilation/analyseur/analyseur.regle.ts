@@ -23,7 +23,7 @@ export class AnalyseurRegle {
         let typeRegle: TypeRegle;
         let motCle = StringUtils.normaliserMot(resultRegle[1]);
         let evenementsBruts = resultRegle[2];
-        let consequencesBrutes = resultRegle[3];
+        let instructionsBrutes = resultRegle[3];
 
         let evenements: Evenement[] = null;
         let condition: Condition = null;
@@ -47,14 +47,14 @@ export class AnalyseurRegle {
             break;
         }
   
-        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, consequencesBrutes);
+        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, instructionsBrutes);
   
         ctxAnalyse.regles.push(nouvelleRegle);
   
         // si phrase morcelée, rassembler les morceaux
         if (phrase.phrase.length > 1) {
           for (let index = 1; index < phrase.phrase.length; index++) {
-            nouvelleRegle.consequencesBrutes += phrase.phrase[index];
+            nouvelleRegle.instructionsBrutes += phrase.phrase[index];
           }
         }
   

@@ -518,6 +518,15 @@ export class ActionsUtils {
     return retVal;
   }
 
+  /**
+   * Vérifier dans les actions si l’infitif spécifié, avec le nombre d’arguments spécifiés, existe.
+   * Retourne true si une action existe pour l’inifitif et le nombre d’arguments spécifiés.
+   */
+  public verifierSiInfinitifExisteAvecCeciCela(infinitif: string, isCeci: boolean, isCela: boolean) {
+    var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela);
+    return candidats.candidatsEnLice.length != 0;
+  }
+
   public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean) {
     let candidatsEnLice: Action[] = [];
     let candidatsRefuses: Action[] = [];

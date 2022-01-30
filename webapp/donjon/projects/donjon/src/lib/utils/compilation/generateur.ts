@@ -1,8 +1,6 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
-import { Action } from '../../models/compilateur/action';
-import { Aide } from '../../models/commun/aide';
 import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -21,21 +19,20 @@ import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Liste } from '../../models/jeu/liste';
 import { ListeEtats } from '../jeu/liste-etats';
-import { Monde } from '../../models/compilateur/monde';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
-import { Parametres } from '../../models/commun/parametres';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { ProprieteElement } from '../../models/commun/propriete-element';
 import { Regle } from '../../models/compilateur/regle';
+import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
 
 export class Generateur {
 
-  public static genererJeu(monde: Monde, regles: Regle[], actions: Action[], compteurs: ElementGenerique[], listes: ElementGenerique[], aides: Aide[], parametres: Parametres): Jeu {
+  public static genererJeu(rc: ResultatCompilation): Jeu {
 
     let jeu = new Jeu();
 
@@ -44,18 +41,18 @@ export class Generateur {
     // DÉFINIR LES CLASSES
     // *******************
     jeu.classes = [];
-    monde.classes.forEach(classe => {
+    rc.monde.classes.forEach(classe => {
       classe.id = jeu.nextID++;
       jeu.classes.push(classe);
     });
 
     // DÉFINIR LES FICHES D'AIDE
     // *************************
-    jeu.aides = aides;
+    jeu.aides = rc.aides;
 
     // DÉFINIR LES PARAMÈTRES
     // *************************
-    jeu.parametres = parametres;
+    jeu.parametres = rc.parametres;
 
     // // ÉCRAN
     // // ****************
@@ -66,7 +63,7 @@ export class Generateur {
 
     // INFOS SUR LE JEU
     // ****************
-    const jeuDansMonde = monde.speciaux.find(x => x.nom === 'jeu');
+    const jeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'jeu');
     if (jeuDansMonde) {
       jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === "auteur")?.valeur;
@@ -76,7 +73,7 @@ export class Generateur {
 
     // dossier qui contient les ressources du jeu (./assets/dossier_ressources)
     jeu.sousDossierRessources = undefined;
-    const ressourcesDuJeuDansMonde = monde.speciaux.find(x => x.nom === 'ressources du jeu');
+    const ressourcesDuJeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'ressources du jeu');
     if (ressourcesDuJeuDansMonde?.positionString?.complement) {
       const nomDossierNonSecurise = ressourcesDuJeuDansMonde.positionString.complement;
       const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
@@ -85,13 +82,13 @@ export class Generateur {
       }
     }
 
-    const siteWebDansMonde = monde.speciaux.find(x => x.nom === 'site' && x.epithete === 'web');
+    const siteWebDansMonde = rc.monde.speciaux.find(x => x.nom === 'site' && x.epithete === 'web');
     if (siteWebDansMonde) {
       jeu.siteWebTitre = siteWebDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
       jeu.siteWebLien = siteWebDansMonde.proprietes.find(x => x.nom === 'lien')?.valeur;
     }
 
-    const licenceDansMonde = monde.speciaux.find(x => x.nom === 'licence');
+    const licenceDansMonde = rc.monde.speciaux.find(x => x.nom === 'licence');
     if (licenceDansMonde) {
       jeu.licenceTitre = licenceDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
       jeu.licenceLien = licenceDansMonde.proprietes.find(x => x.nom === "lien")?.valeur;
@@ -108,7 +105,7 @@ export class Generateur {
     // AJOUTER LES LIEUX
     // ******************
     let premierIndexLieu = (jeu.nextID);
-    monde.lieux.forEach(curEle => {
+    rc.monde.lieux.forEach(curEle => {
 
       // let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
       let titreSansAutoMaj = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
@@ -174,8 +171,8 @@ export class Generateur {
 
     // DÉFINIR LES VOISINS (LIEUX)
     // ****************************
-    for (let index = 0; index < monde.lieux.length; index++) {
-      const curEle = monde.lieux[index];
+    for (let index = 0; index < rc.monde.lieux.length; index++) {
+      const curEle = rc.monde.lieux[index];
       Generateur.ajouterVoisin(jeu.lieux, curEle, (premierIndexLieu + index), ctx);
     }
 
@@ -192,7 +189,7 @@ export class Generateur {
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
     // regarder si on a positionné le joueur dans le monde
-    const joueurDansMonde = monde.speciaux.find(x => x.nom === 'joueur');
+    const joueurDansMonde = rc.monde.speciaux.find(x => x.nom === 'joueur');
     if (joueurDansMonde) {
       if (joueurDansMonde.positionString) {
         const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
@@ -247,7 +244,7 @@ export class Generateur {
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
-    monde.objets.forEach(curEle => {
+    rc.monde.objets.forEach(curEle => {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
@@ -415,7 +412,7 @@ export class Generateur {
 
     // GÉNÉRER LES AUDITEURS
     // *********************
-    regles.forEach(regle => {
+    rc.regles.forEach(regle => {
       switch (regle.typeRegle) {
         case TypeRegle.apres:
         case TypeRegle.avant:
@@ -430,13 +427,13 @@ export class Generateur {
 
     // GÉNÉRER LES ACTIONS
     // *******************
-    actions.forEach(action => {
+    rc.actions.forEach(action => {
       jeu.actions.push(action);
     });
 
     // GÉNÉRER LES COMPTEURS
     // *********************
-    compteurs.forEach(cpt => {
+    rc.compteurs.forEach(cpt => {
       const curCompteur = new Compteur(cpt.nom, 0, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
 
       // vérifier les attributs du compteur
@@ -455,7 +452,7 @@ export class Generateur {
 
     // GÉNÉRER LES LISTES
     // *********************
-    listes.forEach(lst => {
+    rc.listes.forEach(lst => {
       const curListe = new Liste(lst.nom, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
 
       if (lst.valeursNombre.length) {

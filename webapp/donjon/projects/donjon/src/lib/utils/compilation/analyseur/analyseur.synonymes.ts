@@ -51,7 +51,7 @@ export class AnalyseurSynonymes {
         }
       } else {
         // tester si l’original est un GROUPE NOMINAL
-        let resultatGn = ExprReg.xGroupeNominal.exec(originalBrut);
+        let resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(originalBrut);
         if (resultatGn) {
           let determinant = resultatGn[1] ? resultatGn[1] : null;
           let nom = resultatGn[2];
@@ -65,7 +65,7 @@ export class AnalyseurSynonymes {
             let elementTrouve = elementsTrouves[0];
             listeSynonymesBruts.forEach(synonymeBrut => {
               // s’il s’agit d’un verbe, l’ajouter la liste des synonymes
-              resultatGn = ExprReg.xGroupeNominal.exec(synonymeBrut);
+              resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(synonymeBrut);
               if (resultatGn) {
                 determinant = resultatGn[1] ? resultatGn[1] : null;
                 nom = resultatGn[2];

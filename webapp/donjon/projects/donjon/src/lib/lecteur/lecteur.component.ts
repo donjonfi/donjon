@@ -4,13 +4,11 @@ import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { Commandeur } from '../utils/jeu/commandeur';
+import { ContextePartie } from '../models/jouer/contexte-partie';
 import { ContexteTour } from '../models/jouer/contexte-tour';
-import { Declencheur } from '../utils/jeu/declencheur';
-import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
 import { Evenement } from '../models/jouer/evenement';
 import { Instruction } from '../models/compilateur/instruction';
-import { Instructions } from '../utils/jeu/instructions';
 import { Jeu } from '../models/jeu/jeu';
 import { Resultat } from '../models/jouer/resultat';
 import { StringUtils } from '../../public-api';
@@ -29,8 +27,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   @Input() verbeux = false;
   @Input() debogueur = false;
 
-  readonly TAILLE_DERNIERES_COMMANDES: number = 20;
+  /** Le contexte de la partie en cours (jeu, commandeur, déclencheur, …) */
+  private ctx: ContextePartie | undefined;
 
+  readonly TAILLE_DERNIERES_COMMANDES: number = 20;
+  /** La sortie affichée au joueur (au format HTML). */
   sortieJoueur: string = null;
   /** Commande tapée par le joueur. */
   commande = "";
@@ -63,11 +64,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Afficher la case à cocher pour activer/désactiver l’audio */
   private activerParametreAudio: boolean = false;
 
-  private com: Commandeur;
-  private ins: Instructions;
-  private eju: ElementsJeuUtils;
-  private dec: Declencheur;
-
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
@@ -79,11 +75,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // supprimer les musiques en court éventuelles
-    if (this.ins) {
-      this.ins.unload();
+    
+    /** Décharcher la partie en cours (arrêter musiques par exemple) */
+    if(this.ctx){
+      this.ctx.unload();
     }
 
+    /** Initialiser une nouvelle partie si un jeu est fourni. */
     if (this.jeu) {
       console.warn("jeu: ", this.jeu);
       this.initialiserJeu();
@@ -98,71 +96,58 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.resteDeLaSortie = [];
     this.historiqueCommandesPartie = [];
     this.commandeEnCours = false;
-    this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
-    this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
-    this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
-    this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
-    // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
-    this.ins.commandeur = this.com;
 
-    // définir le dossier qui contient les ressources
-    this.dossierRessourcesComplet = Jeu.dossierRessources;
-    if (this.jeu.sousDossierRessources) {
-      // sécurisé nom du sous-dossier (au cas où on a chipoté mais normalement devrait déjà être fait)
-      const sousDossierSecurise = StringUtils.nomDeDossierSecurise(this.jeu.sousDossierRessources);
-      if (sousDossierSecurise.length) {
-        this.dossierRessourcesComplet = Jeu.dossierRessources + '/' + sousDossierSecurise;
-      }
-    }
+    // initialiser le contexte de la partie
+    this.ctx = new ContextePartie(this.jeu, this.verbeux);
 
     this.verifierTamponErreurs();
 
     // afficher le titre et la version du jeu
-    this.sortieJoueur += ("<h5>" + (this.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.jeu.titre) : "(jeu sans titre)"));
+    this.sortieJoueur += ("<h5>" + (this.ctx.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.ctx.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
-    if (this.jeu.version) {
-      this.sortieJoueur += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.jeu.version) + '</small>');
+    if (this.ctx.jeu.version) {
+      this.sortieJoueur += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.version) + '</small>');
     }
     this.sortieJoueur += '</h5><p>Un jeu de ';
 
     // afficher l’auteur du jeu
-    if (this.jeu.auteur) {
-      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteur));
-    } else if (this.jeu.auteurs) {
-      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.jeu.auteurs));
+    if (this.ctx.jeu.auteur) {
+      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.ctx.jeu.auteur));
+    } else if (this.ctx.jeu.auteurs) {
+      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.ctx.jeu.auteurs));
     } else {
       this.sortieJoueur += ("(anonyme)");
     }
 
     this.sortieJoueur += '</p>';
 
-    if (this.jeu.siteWebLien || this.jeu.licenceTitre) {
+    if (this.ctx.jeu.siteWebLien || this.ctx.jeu.licenceTitre) {
 
       this.sortieJoueur += '<p>';
       // site web du jeu
-      if (this.jeu.siteWebLien) {
-        if (this.jeu.siteWebTitre) {
-          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebTitre) + "</a>");
+      if (this.ctx.jeu.siteWebLien) {
+        if (this.ctx.jeu.siteWebTitre) {
+          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebTitre) + "</a>");
         } else {
-          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.siteWebLien) + "</a>");
+          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + "</a>");
         }
       }
 
       // afficher la licence du jeu
-      if (this.jeu.licenceTitre) {
-        if (this.jeu.siteWebLien) {
+      if (this.ctx.jeu.licenceTitre) {
+        if (this.ctx.jeu.siteWebLien) {
           this.sortieJoueur += '<br>';
         }
-        if (this.jeu.licenceLien) {
-          this.sortieJoueur += ('Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre) + "</a>");
+        if (this.ctx.jeu.licenceLien) {
+          this.sortieJoueur += ('Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceTitre) + "</a>");
         } else {
-          this.sortieJoueur += ('Licence : ' + BalisesHtml.retirerBalisesHtml(this.jeu.licenceTitre));
+          this.sortieJoueur += ('Licence : ' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceTitre));
         }
       }
       this.sortieJoueur += '</p>';
     }
 
-    if (this.jeu.parametres.activerAudio) {
+    if (this.ctx.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
       this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.dossierRessourcesComplet);
     } else {
@@ -172,7 +157,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // ==================
     // A. NOUVELLE PARTIE
     // ==================
-    if (!this.jeu.commence) {
+    if (!this.ctx.jeu.commence) {
 
       this.sortieJoueur += "<p>";
 
@@ -184,10 +169,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // éxécuter les instructions AVANT le jeu commence
       let resultatAvant = new Resultat(true, "", 0);
       // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-      const declenchementsAvant = this.dec.avant(evCommencerJeu);
+      const declenchementsAvant = this.ctx.dec.avant(evCommencerJeu);
       // éxécuter les règles déclenchées
       declenchementsAvant.forEach(declenchement => {
-        const sousResultatAvant = this.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
+        const sousResultatAvant = this.ctx.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
         resultatAvant.sortie += sousResultatAvant.sortie;
         resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
         resultatAvant.nombre += sousResultatAvant.nombre;
@@ -199,10 +184,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // définir visibilité des objets initiale
-      this.eju.majPresenceDesObjets();
+      this.ctx.eju.majPresenceDesObjets();
 
       // définir adjacence des lieux initiale
-      this.eju.majAdjacenceLieux();
+      this.ctx.eju.majAdjacenceLieux();
 
       // continuer l’exécution de l’action si elle n’a pas été arrêtée
       if (!resultatAvant.stopperApresRegle) {
@@ -211,23 +196,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // // if (resultatRemplacer.nombre === 0) {
 
         // regarder où on est (sauf si l’action n’existe pas)
-        if (this.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
+        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
           let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-          const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
+          const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
           this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
         }
 
-        this.jeu.commence = true;
+        this.ctx.jeu.commence = true;
 
         // // }
 
         // éxécuter les instructions APRÈS le jeu commence
         let resultatApres = new Resultat(true, "", 0);
         // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-        const declenchementsApres = this.dec.apres(evCommencerJeu);
+        const declenchementsApres = this.ctx.dec.apres(evCommencerJeu);
         // éxécuter les règles déclenchées
         declenchementsApres.forEach(declenchement => {
-          const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
+          const sousResultatApres = this.ctx.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
           resultatApres.sortie += sousResultatApres.sortie;
           resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
           resultatApres.nombre += sousResultatApres.nombre;
@@ -253,7 +238,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.dossierRessourcesComplet) + "</p>");
       // regarder où on est.
       let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-      const resRegarder = this.ins.executerInstruction(instruction, null, null, null);
+      const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
       this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
     }
 
@@ -305,10 +290,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private verifierTamponErreurs() {
     // vérifier s’il reste des erreurs à afficher
-    if (this.jeu?.tamponErreurs.length) {
+    if (this.ctx.jeu?.tamponErreurs.length) {
       let texteErreurs = "";
-      while (this.jeu.tamponErreurs.length) {
-        const erreur = this.jeu.tamponErreurs.shift();
+      while (this.ctx.jeu.tamponErreurs.length) {
+        const erreur = this.ctx.jeu.tamponErreurs.shift();
         texteErreurs += '{N}' + erreur;
       }
       this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.dossierRessourcesComplet);
@@ -504,7 +489,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         // VÉREFIER FIN DE PARTIE
         // vérifier si le jeu n’est pas déjà terminé
-        if (this.jeu.termine && !commandeComplete.match(/^(déboguer|sauver|effacer) /i)) {
+        if (this.ctx.jeu.termine && !commandeComplete.match(/^(déboguer|sauver|effacer) /i)) {
           this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
         } else {
           // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
@@ -522,7 +507,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.historiqueCommandesPartie.push(this.commande);
 
           // EXÉCUTION DE LA COMMANDE
-          const sortieCommande = this.com.executerCommande(commandeComplete.trim());
+          const sortieCommande = this.ctx.com.executerCommande(commandeComplete.trim());
           if (sortieCommande) {
             // sortie spéciale: auto-triche
             if (sortieCommande == "@auto-triche@") {
@@ -576,18 +561,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** valeur de la case à cocher pour activer l’audio */
   get audioActif(): boolean {
-    return this.jeu.parametres.activerAudio;
+    return this.ctx.jeu.parametres.activerAudio;
   }
 
   /** valeur de la case à cocher pour activer l’audio */
   set audioActif(actif: boolean) {
-    this.jeu.parametres.activerAudio = actif;
-    this.ins.onChangementAudioActif();
+    this.ctx.jeu.parametres.activerAudio = actif;
+    this.ctx.ins.onChangementAudioActif();
   }
 
   ngOnDestroy(): void {
-    if (this.jeu && this.ins) {
-      this.ins.unload();
+    if (this.ctx) {
+      this.ctx.unload();
     }
   }
 

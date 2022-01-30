@@ -87,7 +87,44 @@ export class ExprReg {
    *     - 💥 une tomate
    *     - 💥 des pièces
    */
-  static readonly xGroupeNominal = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|des|le|la|les|l)\b)|")(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xGroupeNominalArticleDefini = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+  static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  static readonly xPrepositions = /(?: (?:(?:(?:à propos (?:du|des|de))|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers) )|(?:à propos (?:d’|d'))|d’|d'|à )/ig;
+                                                   
+  /** 
+   * Tester si la chaine commence par une préposition.
+   * Dans ce cas, il s’agit de l’argument d’index 1 du résultat.
+   */
+  static readonly xPremierMotPreposition = /^((?:(?:à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?= ))|d’|d')/i;
+
+  /** 
+   * [déterminant](1) nom(2) [épithète](3) préposition(4) [déterminant](5) nom(6) [épithète](7)
+   * ex: Le chien rouge avec la laisse usée
+   */
+   static readonly xComplementSimplePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /** 
+   * [déterminant](1) nom(2) [épithète](3) préposition(4) [déterminant](5) nom-composé(6) [épithète](7)
+   * ex: Le canard de la salle de bain
+   */
+   static readonly xComplementSimplePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /** 
+   * [déterminant](1) nom-composé(2) [épithète](3) préposition(4) [déterminant](5) nom(6) [épithète](7)
+   * ex: La salle de bain de papa noel
+   */
+   static readonly xComplementComposePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /** 
+   * [déterminant](1) nom-composé(2) [épithète](3) préposition(4) [déterminant](5) nom-composé(6) [épithète](7)
+   * ex: La salle de bain de la maison de la rue
+   */
+   static readonly xComplementComposePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /**
+   * 2 compléments simples séparés par une préposition
+   */
 
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
 
@@ -105,7 +142,7 @@ export class ExprReg {
    *     - 💥 Ce sont des fruits
    *     - 💥 Le bucheron est une personne ici
    */
-  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(?!(?:au|à|dans|ici)\b)(.+))?$/i;
+  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?:(?: )(?!(?:au|à|dans|ici)\b)(.+))?$/i;
 
   /** élément générique positionné par rapport à complément
    * - Découpage :
@@ -123,7 +160,7 @@ export class ExprReg {
    *     - Le bucheron est une personne ici
    *     - L’arbre se trouve dans la forêt
    */
-  static readonly xPositionElementGeneriqueDefini = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont|se trouve(?:nt)?) (?:|(?:un|une|des) (\S+?)(?:(?: )(?!hors)(\S+?))? )?(?:(?:((?:(?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest))|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(?!le|la|l’|l'\b)(.+))|(ici|dessus|dedans|dessous))$/i;
+  static readonly xPositionElementGeneriqueDefini = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont|se trouve(?:nt)?) (?:|(?:un|une|des) (\S+?)(?:(?: )(?!hors)(\S+?))? )?(?:(?:((?:(?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest))|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(?!le|la|l’|l'\b)(.+))|(ici|dessus|dedans|dessous))$/i;
 
   /** élément générique positionné par rapport à complément :
    * - Découpage :
@@ -139,7 +176,7 @@ export class ExprReg {
    *     - 
    *     - 
    */
-  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de la |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(?!hors)(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest)|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')?|les |un |une )?))(.+)/i;
+  static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de la |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(?!hors)(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest)|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')?|les |un |une )?))(.+)/i;
 
   /** pronom personnel position :
    * => cas 1 : position(1) complément(3)
@@ -217,7 +254,7 @@ export class ExprReg {
    *     - L’aliance du lac rouge (f) est petite, fragile, vieille et dorée
    *     - Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides
    */
-  static readonly xElementSimpleAttribut = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
+  static readonly xElementSimpleAttribut = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   /**
    * Synonymes
@@ -301,7 +338,7 @@ export class ExprReg {
   static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |1 |2 |la |le |l’|l')?(\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un |une |1 |la |le |l’|l')(\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?$/i;
 
   /** Le joueur peut verbe(1) [[[ à/de/sur/…]\(2) déterminant(3) nom(4) epithete(5)]: instructions(6) */
-  static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)?(?: *):(?: *)(.+)?$/i;
+  static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
 
@@ -310,14 +347,14 @@ export class ExprReg {
   /** La commande "commande(1)" */
   static readonly xActionExecuterCommande = /^(?:la commande) \"(.+)\"$/i;
 
-  /** condition -> si(1) {condition}(2), {conséquence}(3) */
+  /** condition -> si(1) {condition}(2), {instruction}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
 
   // ================================================================================================
   //  RÈGLES
   // ================================================================================================
 
-  /** condition/événement -> avant|après|remplacer\(1) {évènements}(2): {conséquences}(3)
+  /** condition/événement -> avant|après|remplacer\(1) {évènements}(2): {instructions}(3)
    * - avant(1) (aller au nord, aller au sud ou sortir)(2):( pata pata)(3)
    * - avant commencer le jeu : pata pata
    * - avant aller au nord, aller au sud ou sortir: pata pata
@@ -357,9 +394,9 @@ export class ExprReg {
    * - donner la pièce au pirate
    * - jeter l’épée
    * - => utiliser(1) la(3) clé(4) rouge(5) \[sur(7) la(8) porte(9) verte(10)](6)
-   * - => peidre(1) sur(2) la(3) porte(4)
+   * - => peindre(1) sur(2) la(3) porte(4)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de))? (le |la |les |l'|l’|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?( (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de) (le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?)?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers))? (le |la |les |l'|l’|d’|d'|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?( (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?)?)?$/i;
 
   // -------------------------------------------
   //  PARLER, INTERROGER, MONTRER, DEMANDER , …
@@ -373,7 +410,7 @@ export class ExprReg {
    * - parler de la couronne magique avec le sorcier enflammé
    * - discuter de la table à manger avec le comte du bois
    */
-  static readonly xCommandeParlerSujetAvecInterlocuteur = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeParlerSujetAvecInterlocuteur = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 2) PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
@@ -384,38 +421,41 @@ export class ExprReg {
    * - parler avec le capitaine à propos de carte aux trésors
    * - discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée
    */
-  static readonly xCommandeParlerAvecInterlocuteurConcernantSujet = /^(parler|discuter) (avec (?:la |le |les |l’|l')?|à (?:la |l’|l')?|au(?:x)? )(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!d’|d'|et |un |de |des |à |au |aux )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeParlerAvecInterlocuteurConcernantSujet = /^(parler|discuter) (avec (?:la |le |les |l’|l')?|à (?:la |l’|l')?|au(?:x)? )(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!d’|d'|et |un |de |des |à |au |aux )(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
    * - => interroger(1) le(2) comte du bois(3) sauvage(4) sur(5) les(6) elfs aux pouvoirs(7) maléfiques(8)
-   * - interroger le fermier concernant la poule
-   * - questionner le fermier géant à propos de la poule rousse
-   * - questionner le boulanger sur de la farine grise
-   * - questionner le marchand d’armes concernant une épée magique
-   * - interroger elf sur de l’eau douce
-   * - interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques
-   * - questionner les lutins concernant du bois à brûler
-   * - interroger Dracula à propos d’une fiole
+   * - tests unitaires:
+   *   - interroger le fermier concernant la poule
+   *   - questionner le fermier géant à propos de la poule rousse
+   *   - questionner le boulanger sur de la farine grise
+   *   - questionner le marchand d’armes concernant une épée magique
+   *   - interroger elf sur de l’eau douce
+   *   - interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques
+   *   - questionner les lutins concernant du bois à brûler
+   *   - interroger Dracula à propos d’une fiole
    */
-  static readonly xCommandeQuestionnerInterlocuteurConcernantSujet = /^(interroger|questionner) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeQuestionnerInterlocuteurConcernantSujet = /^(interroger|questionner) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (?:(à propos(?:| d’| d')?|concernant|sur) (les |un |une |du |des |(?:de )?(?:la |le |l’|l')?)?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 4a) DEMANDER/DONNER/MONTRER SUJET À INTERLOCUTEUR
    * - => donner(1) la(2) pièce du trésor(3) maudit(4) (à la(6))(5) princesse aux souhaits(7) énervée(8)
-   * - montrer poisson au chat
-   * - donner la pièce du trésor maudit à la princesse aux souhaits énervée
-   * - donner une pièce à la princesse
-   * - demander de la nourriture à l’aubergiste
-   * - demander poison à vendeur embulant
-   * - parler du somnifère au magicien
-   * - parler d’une fiole de poison au magicien maléfique
-   * - donner saucisse à griller à vendeur
-   * - montrer saucisse à griller à vendeur à viande
-   * - parler de manger à l’aubergiste
-   * - demander à boire à l’aubergiste
+   * - tests unitaires:
+   *   - montrer poisson au chat (avec et sans l’objet 'poisson au chat')
+   *   - donner la pièce du trésor maudit à la princesse aux souhaits énervée
+   *   - donner une pièce à la princesse
+   *   - demander de la nourriture à l’aubergiste
+   *   - demander poison à vendeur ambulant
+   *   - parler du somnifère au magicien (avec et sans l’objet 'somnifère au magicien')
+   *   - parler d’une fiole de poison au magicien maléfique
+   *   - parler magicien à propos d’une fiole
+   *   - donner saucisse à griller à vendeur
+   *   - montrer saucisse à griller à vendeur à viande
+   *   - parler de manger à l’aubergiste
+   *   - demander à boire à l’aubergiste
    */
-  static readonly xCommandeDemanderSujetAInterlocuteur = /^(montrer|demander|donner|parler) (les |(?:d(?:’|'))?(?:un |une |1 )|du |des |(?:de )?(?:|0 |[1-9]\d* |la |le |l’|l')?)?((?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|\S+?|)(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeDemanderSujetAInterlocuteur = /^(montrer|demander|donner|parler) (les |(?:d(?:’|'))?(?:un |une |1 )|du |des |(?:de )?(?:|0 |[1-9]\d* |la |le |l’|l')?)?((?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|\S+?|)(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 4b) DEMANDER/DONNER À VERBE À INTERLOCUTEUR
@@ -424,7 +464,7 @@ export class ExprReg {
    * - demander à dormir longtemps à l’aubergiste cupide
    * - demander à l’aubergiste à dormir => pas pris en compte car pas un verbe
    */
-  static readonly xCommandeDemanderAVerbeAInterlocuteur = /^(demander|donner) (à \S+(?:ir|er|re))(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeDemanderAVerbeAInterlocuteur = /^(demander|donner) (à \S+(?:ir|er|re))(?:(?: )(?!à |au |aux )(\S+))? (au(?:x)? |à (la |l’|l')?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
@@ -436,7 +476,7 @@ export class ExprReg {
    * - parler au magicien du bois de la potion magique (=> souci)
    * - discuter avec le comte Dracula de la tournure inatendue
    */
-  static readonly xCommandeParlerAvecInterlocuteurDeSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
+  static readonly xCommandeParlerAvecInterlocuteurDeSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation à déconseiller, on privilégie infinitif + compl. direct + compl. indirect)
@@ -445,17 +485,7 @@ export class ExprReg {
    * - donner au marquis énervé une potion de relaxation magique
    * - montrer à la tortue le chemin de la victoire
    */
-  static readonly xCommandeDemanderAInterlocuteurSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?$/i;
-
-  /** 
-   * il y a aussi des commandes spéciales:
-   * - position
-   * - sorties
-   * - inventaire
-   * - aide
-   * - aide parler
-   */
-  static readonly xCommandeSpeciale = /^(position|sorties|inventaire|aide)(?: (\S+))?$/i;
+  static readonly xCommandeDemanderAInterlocuteurSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   // ================================================================================================
   //  CONDITIONS
@@ -465,7 +495,7 @@ export class ExprReg {
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contien(?:nen)?t|inclu(?:en)?t|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contien(?:nen)?t|inclu(?:en)?t|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * - La valeur de ceci vaut 3
@@ -504,12 +534,12 @@ export class ExprReg {
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
-  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
+  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
 
   /**
    *  [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5)( pas| )(6)complément1(7) (et|ou)(8) complément2(9) [(et|ou) complément3(10)]  [(et|ou) complément3(11)]
    */
-  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
+  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
@@ -520,22 +550,53 @@ export class ExprReg {
    * - Si l’inventaire contient le sucre et la farine
    * - le joueur possède le chat ou le chien ou l’autruche ou la poule
    */
-  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
+  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
 
   /** 
    * si aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela|ici)(5)
    */
-  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici)$/i;
+  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici)$/i;
 
   /**
-   * si (condition)(1) (:|,)(2) (consequences)(3)
+   * si (condition)(1) (:|,)(2) (instructions)(3)
    */
-  static readonly xSeparerSiConditionConsequences = /^si (.+?)(?: )?(:|alors|,)(?: )?(.+)$/i;
+  static readonly xSeparerSiConditionInstructions = /^si (.+?)(?: )?(:|alors|,)(?: )?(.+)$/i;
 
   /**
-   * (sinonsi|sinon)(1) :|, ({condition}consequences)(2)
+   * (sinonsi|sinon)(1) :|, ({condition}instructions)(2)
    */
-  static readonly xSeparerSinonConsequences = /^(sinonsi|sinon)(?: )?(?::|,)?(?: )?(.+)$/i;
+  static readonly xSeparerSinonInstructions = /^(sinonsi|sinon)(?: )?(?::|,)?(?: )?(.+)$/i;
+
+  /**
+   * choisir (1er choix et 1ère instruction | liste de choix dynamique)(1)
+   */
+  static readonly xSeparerChoisirInstructions = /^choisir (.+)$/i;
+
+  /**
+   * choix "texte"(1): instructions(2)
+   */
+  static readonly xChoixTexte = /^choix ("(?:[^"]+?)")\s*:\s*(.+)$/i;
+
+  /**
+   * choix nombre(1): instructions(2)
+   */
+  static readonly xChoixNombre = /^choix (0|(?:[1-9]\d*))\s*:\s*(.+)$/i;
+
+  /**
+   * choix intitulé(1): instructions(2)
+   */
+  static readonly xChoixIntitule = /^choix ([^\d"][^"]*?)\s*:\s*(.+)$/i;
+
+  /**
+   * choix ("texte"(1)|nombre(2)|intitulé(3)): instructions(4)
+   * TODO: gérer float ?
+   */
+  static readonly xChoixTexteNombreOuIntitule = /^choix (?:("(?:[^"]+?)")|(0|(?:[1-9]\d*))|([^\d"][^"]*?))\s*:\s*(.+)$/i;
+
+  /**
+   * choix (texte ou intitulé)(1) : (instructions)(2)
+   */
+  static readonly xSeparerChoixInstructions = /^choix (.+?)(?: )?(?::)(?: )?(.+)$/i;
 
   // ================================================================================================
   //  CONDITIONS (V3)
@@ -545,7 +606,7 @@ export class ExprReg {
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7)
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
-  static readonly xDebutConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(.+?)$/i;
+  static readonly xDebutConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(.+?)$/i;
 
   /**
    * (ni|soit)(1) complément1(2)
@@ -581,8 +642,9 @@ export class ExprReg {
    *     - dire "Bonjour !"
    *     - changer le score augmente de 1
    *     - 💥 la pomme est verte
+   *     - 💥 choisir parmis la liste
    */
-  static readonly xInstruction = /^(\S+(?:ir|er|re)) (.+)?$/i;
+  static readonly xInstruction = /^(?!choisir)(\S+(?:ir|er|re)) (.+)?$/i;
 
   /**
    * Phrase simple avec un verbe conjugé.
@@ -601,8 +663,8 @@ export class ExprReg {
    *     - le score augmente de 1
    *     - 💥 l’action
    */
-  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
-  
+  static readonly xSuiteInstructionPhraseAvecVerbeConjugue = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (?:ne |n(?:'|’))?(?!vers)((?:se (?:trouve(?:nt)?))|(?:est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|porte(?:nt)?|contien(?:nen)?t|possède(?:nt)?))(?: (pas|plus))?(?: (.+))?$/i;
+
   /** 
    * Complément de l’instruction jouer (un son/une musique)
    * - Découpage :
@@ -624,19 +686,19 @@ export class ExprReg {
    */
   static readonly xSuiteInstructionJouer = /^((?:le )?son|(?:la )?musique) ([\w\._]*\w)(?: (?:(?:([0-9]\d* )(fois))|(en boucle)))?$/i;
 
-    /** 
-   * Complément de l’instruction afficher (une image)
-   * - Découpage :
-   *     - l’image(1) nom_du_fichier.ext(2)
-   * - Exemples :
-   *     - l’image donjon.png
-   *     - image mon_image.gif
-   * - Tests unitaires
-   *     - l’image donjon.png
-   *     - image mon_image.gif
-   *     - 💥 une image
-   *     - 💥 image.gif
-   */
+  /** 
+ * Complément de l’instruction afficher (une image)
+ * - Découpage :
+ *     - l’image(1) nom_du_fichier.ext(2)
+ * - Exemples :
+ *     - l’image donjon.png
+ *     - image mon_image.gif
+ * - Tests unitaires
+ *     - l’image donjon.png
+ *     - image mon_image.gif
+ *     - 💥 une image
+ *     - 💥 image.gif
+ */
   static readonly xSuiteInstructionAfficher = /^((?:l’|l')?image) ([\w\._]*\w)$/i;
 
   /**
@@ -652,7 +714,7 @@ export class ExprReg {
    *     - l’arc à flèches rouillé avec la flèche rouge
    *     - 💥 manger le biscuit
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de) (le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
+  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 
   /**
    * => valeur1(1) verbeConjugué(2) valeur2(3)
@@ -682,7 +744,7 @@ export class ExprReg {
    * - La taille de la pomme rouge
    * - Le texte du livre
    */
-  static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)?(?!le | la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+  static readonly xProprieteElement = /^(le (?!nombre)|la |les |l'|l’)?(?!le | la |les |l'|l’)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?$/i;
 
   /**
    * Le nombre de|d’|d' propriété(1) prepositionElement(2) nomElement(3) épithèteElement(4)
@@ -692,7 +754,7 @@ export class ExprReg {
    * - Le nombre de pattes du mille-pattes grincheux
    * - Le nombre d’arbres du bois de la colline enchantée
    */
-  static readonly xNombreDeProprieteElement = /^(?:le)? nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?$/i;
+  static readonly xNombreDeProprieteElement = /^(?:le)? nombre (?:de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?$/i;
 
   /**
    * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
@@ -707,7 +769,7 @@ export class ExprReg {
    * - Le nombre de lampes allumées
    * - Le nombre de pièces possédées
    */
-  static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?:(?: (?:et )?)(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?)?$/i;
+  static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?(?:(?: (?:et )?)(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:à |au(?:x)? |en |(?:(?:dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?$/i;
 
 
   // ================================================================================================

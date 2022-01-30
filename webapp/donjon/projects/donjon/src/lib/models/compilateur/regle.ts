@@ -13,7 +13,7 @@ export class Regle {
     public condition: Condition,
     public evenements: Evenement[],
     public commande: ElementsPhrase,
-    public consequencesBrutes: string,
+    public instructionsBrutes: string,
   ) { }
 
   /** Obtenir l’intitulé de la règle */
