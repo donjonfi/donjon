@@ -75,9 +75,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    
+
     /** Décharcher la partie en cours (arrêter musiques par exemple) */
-    if(this.ctx){
+    if (this.ctx) {
       this.ctx.unload();
     }
 
@@ -251,6 +251,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * Cette méthode tient compte des pauses (attendre touche).
    */
   private ajouterSortieJoueur(contenu: string) {
+
     if (contenu) {
 
       // en mode auto-triche, on n’attend pas !
@@ -357,7 +358,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // regarder s’il reste du texte à afficher
       if (this.resteDeLaSortie?.length) {
         this.afficherSuiteSortie();
-        this.commande = "";
+        // effacer sortie sauf si mode triche actif
+        if (!this.tricheActif) {
+          this.commande = "";
+        }
         event.preventDefault();
       }
     }

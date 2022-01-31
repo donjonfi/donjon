@@ -252,8 +252,6 @@ export class AnalyseurConsequences {
       AnalyseurConsequences.afficherErreurBloc("fin si manquant (" + (indexBlocCondCommence + 1) + ").", ctxAnalyse, regle, reaction, el, ligne);
     }
 
-    // console.warn("@@@@ separerConsequences:\nconsequencesBrutes=", consequencesBrutes, "\ninstructions=", instructionsPrincipales);
-
     return instructionsPrincipales;
   }
 

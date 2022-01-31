@@ -468,9 +468,6 @@ export class AnalyseurInstructions {
       AnalyseurInstructions.afficherErreurBloc("fin choisir manquant (" + (indexBlocChoisirCommence + 1) + ").", ctxAnalyse, regle, reaction, el, ligne);
     }
 
-
-    // console.warn("@@@@ separerInstructions:\ninstructionsBrutes=", instructionsBrutes, "\ninstructions=", instructionsPrincipales);
-
     return instructionsPrincipales;
   }
 

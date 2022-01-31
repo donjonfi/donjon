@@ -24,9 +24,9 @@ export class BalisesHtml {
   private static ajouterBalisesHtml(texte: string, dossierRessources: string): string {
 
     let retVal = texte;
-    
+
     // balises image
-    retVal = texte.replace(/@@image:([\w\-\.]*[\w]+)@@/g, '<img src="' + dossierRessources + '/images/$1" alt="$1" class="img-fluid rounded">');
+    retVal = retVal.replace(/@@image:([\w\-\.]*[\w]+)@@/g, '<img src="' + dossierRessources + '/images/$1" alt="$1" class="img-fluid rounded">');
 
     // italique: texte avec une partie en {/italique/} et le reste normal.
     retVal = retVal.replace(/\{\//g, '<i>');

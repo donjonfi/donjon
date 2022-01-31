@@ -15,6 +15,8 @@ describe('Décomposer des commandes', () => {
       'aller vers ceci est une action qui concerne un intitulé. ' +
       'utiliser ceci est une action qui concerne un objet visible. ' +
       'utiliser ceci sur cela est une action qui concerne deux objets visibles. ' +
+      'ouvrir ceci est une action qui concerne un objet visible. ' +
+      'ouvrir ceci avec cela est une action qui concerne deux objets visibles. ' +
       'Le bateau est un lieu. ' +
       'Le capitaine est une personne ici. ' +
       'La clé est un objet ici. ' +
@@ -24,6 +26,9 @@ describe('Décomposer des commandes', () => {
       'Le trésor du pirate est un objet dedans. ' +
       'Berlin est une ville. ' +
       'Le comte de Berlin est une personne. ' +
+      'La boite aux lettres est un contenant ouvrable. ' +
+      'Interpréter la boite comme la boite aux lettres. ' +
+      'La lettre est un objet. ' +
       '';
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -128,12 +133,14 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
     // ceci: nord
     expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
-    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la clé');
+    expect(ctxCom.candidats[0].els.sujet.nom).toEqual('clé');
+    // expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la clé');
     // pas de préposition1
     expect(ctxCom.candidats[0].els.preposition1).toEqual('sur');
     // pas de cela
     expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
-    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le coffre du capitaine');
+    expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('coffre du capitaine');
+    // expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le coffre du capitaine');
 
     // infinitif
     expect(ctxCom.candidats[1].els.infinitif).toEqual('utiliser');
@@ -147,6 +154,26 @@ describe('Décomposer des commandes', () => {
     // pas de cela
     expect(ctxCom.candidats[1].isCelaV1).toBeTrue();
     expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('capitaine');
+
+  });
+
+  it('commande « utiliser la clé avec le coffre du capitaine »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé avec le coffre du capitaine');
+    expect(ctxCom.brute).toEqual('utiliser la clé avec le coffre du capitaine');
+    expect(ctxCom.candidats.length).toEqual(1);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('utiliser');
+    // pas de préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
+    // ceci: nord
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la clé');
+    // pas de préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toEqual('avec');
+    // pas de cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
+    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le coffre du capitaine');
 
   });
 
@@ -172,7 +199,7 @@ describe('Décomposer des commandes', () => {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé du capitaine sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé du capitaine sur le coffre');
     expect(ctxCom.candidats.length).toEqual(2);
-    expect(ctxCom.candidats[0].score).toEqual(ctxCom.candidats[1].score);
+    expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('utiliser');
@@ -180,12 +207,12 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
     // ceci
     expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
-    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la clé');
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la clé du capitaine');
     // préposition1
-    expect(ctxCom.candidats[0].els.preposition1).toEqual('du');
+    expect(ctxCom.candidats[0].els.preposition1).toEqual('sur');
     // cela
     expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
-    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('capitaine sur le coffre');
+    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le coffre');
 
     // infinitif
     expect(ctxCom.candidats[1].els.infinitif).toEqual('utiliser');
@@ -193,12 +220,12 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].els.preposition0).toBeFalsy();
     // ceci
     expect(ctxCom.candidats[1].isCeciV1).toBeTrue();
-    expect(ctxCom.candidats[1].ceciIntituleV1.toString()).toEqual('la clé du capitaine');
+    expect(ctxCom.candidats[1].ceciIntituleV1.toString()).toEqual('la clé');
     // préposition1
-    expect(ctxCom.candidats[1].els.preposition1).toEqual('sur');
+    expect(ctxCom.candidats[1].els.preposition1).toEqual('du');
     // cela
     expect(ctxCom.candidats[1].isCelaV1).toBeTrue();
-    expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('le coffre');
+    expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('capitaine sur le coffre');
 
   });
 
@@ -385,6 +412,41 @@ describe('Décomposer des commandes', () => {
     // cela
     expect(ctxCom.candidats[1].isCelaV1).toBeFalse();
     expect(ctxCom.candidats[1].celaIntituleV1).toBeUndefined();
+  });
+
+  
+  it('commande « ouvrir boite aux lettres »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('ouvrir boite aux lettres');
+    expect(ctxCom.brute).toEqual('ouvrir boite aux lettres');
+    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('ouvrir');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('boite aux lettres');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toBeFalsy();
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
+
+    // infinitif
+    expect(ctxCom.candidats[1].els.infinitif).toEqual('ouvrir');
+    // préposition0
+    expect(ctxCom.candidats[1].els.preposition0).toBeFalsy();
+    // ceci
+    expect(ctxCom.candidats[1].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[1].ceciIntituleV1.toString()).toEqual('boite');
+    // préposition1
+    expect(ctxCom.candidats[1].els.preposition1).toEqual('aux')
+    // cela
+    expect(ctxCom.candidats[1].isCelaV1).toBeTrue();
+    expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('lettres');
+
+
   });
 
 });

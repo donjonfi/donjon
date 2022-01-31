@@ -520,11 +520,24 @@ export class ActionsUtils {
 
   /**
    * Vérifier dans les actions si l’infitif spécifié, avec le nombre d’arguments spécifiés, existe.
-   * Retourne true si une action existe pour l’inifitif et le nombre d’arguments spécifiés.
+   * Retourne un score qui sera plus élevé si les prépositions sont celles prévues pour cette commande.
    */
-  public verifierSiInfinitifExisteAvecCeciCela(infinitif: string, isCeci: boolean, isCela: boolean) {
+  public scoreInfinitifExisteAvecCeciCela(infinitif: string, isCeci: boolean, isCela: boolean, prepositionCeci: string | undefined, prepositionCela: string | undefined): number {
     var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela);
-    return candidats.candidatsEnLice.length != 0;
+    var score = 0;
+
+    if (candidats.candidatsEnLice.length != 0) {
+      // si action avec cet infinitif et ce nombre d'arguments existe, augmenter le score.
+      score += 100;
+      // si les prépositions correspondent à celles prévues pour la commande, on augment le score.
+      if (candidats.candidatsEnLice.some(x =>
+        (x.prepositionCeci == prepositionCeci && x.prepositionCela == prepositionCela)
+      )) {
+        score += 10;
+      }
+
+    }
+    return score;
   }
 
   public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean) {
@@ -577,8 +590,6 @@ export class ActionsUtils {
   /** Trouver l’action personnalisée correspondant le mieux la la commande de l’utilisateur */
   public trouverActionPersonnalisee(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance): CandidatActionCeciCela[] {
 
-    // console.log("trouverActionPersonnalisee els=", els, "ceci=", ceci, "cela=", cela);
-
     let matchCeci: ResultatVerifierCandidat = null;
     let matchCela: ResultatVerifierCandidat = null;
     let resultat: CandidatActionCeciCela[] = null;
@@ -607,9 +618,11 @@ export class ActionsUtils {
               // B. au moins un candidat se démarque
             } else {
               // 2) vérifier complément (CELA)
-              if (commande.complement1) {
+              if (commande.sujetComplement1 || commande.complement1) {
                 if (candidatAction.cibleCela) {
+                  
                   matchCela = this.verifierCandidatCeciCela(celaCommande, candidatAction.cibleCela);
+                  
                   // A. aucun candidat valide trouvé
                   if (matchCela.elementsTrouves.length === 0) {
                     // console.log(">>> Pas de candidat valide trouvé pour cela avec le candidat:", candidat, "cela:", cela);
@@ -661,6 +674,7 @@ export class ActionsUtils {
         });
       }
     }
+
     return resultat;
   }
 

@@ -1281,8 +1281,6 @@ export class InstructionDire {
     let resultat = new Resultat(false, '', 1);
     const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDansSurSous, prepositionSpatiale);
 
-    // console.log("@@@ executerDecrireContenu > \nceci:", ceci, "\nprepositionSpatiale:", prepositionSpatiale, "\nobjets:", objets);
-
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
       resultat.succes = true;

@@ -124,9 +124,11 @@ export class Commandeur {
 
       // 4.2 - SCORE NOMBRE D’ARGUMENTS
       // vérifier si le nombre d’arguments trouvés correspond à une action existante
-      if (this.act.verifierSiInfinitifExisteAvecCeciCela(candidat.els.infinitif, candidat.isCeciV1, candidat.isCelaV1)) {
-        candidat.score += 100;
-      }
+      candidat.score += this.act.scoreInfinitifExisteAvecCeciCela(
+        candidat.els.infinitif,
+        candidat.isCeciV1, candidat.isCelaV1,
+        candidat.els.preposition0 ?? undefined, candidat.els.preposition1 ?? undefined
+      );
 
 
     });
@@ -150,17 +152,14 @@ export class Commandeur {
       // 1) PARLER/DISCUTER => PARLER AVEC INTERLOCUTEUR (CONCERNANT SUJET) => 
       case 'parler':
       case 'discuter':
-        console.error('####### parler avant - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
 
         // A. PARLER *DE* SUJET *AVEC* INTERLOCUTEUR
         // préposition après parler
         if (candidat.els.preposition0) {
           // du/de/des/à propos/concernant
           if (candidat.els.preposition0.match(/(du|de(?: la| l(?:’|'))?|des|d(?:’|')(?:un|une)?|à propos|concernant)/)) {
-            console.error('####### cas A')
             // préposition 1
             if (candidat.els.preposition1) {
-              console.error("####### Prep1:", candidat.els.preposition1);
               // avec/à/au/aux
               if (candidat.els.preposition1.match(/(avec|à|au(?:x)?)/)) {
 
@@ -191,7 +190,6 @@ export class Commandeur {
             // B. PARLER *AVEC* INTERLOCUTEUR [*CONCERNANT* SUJET]
             // avec/à/au
           } else if (candidat.els.preposition0.match(/(avec|à|au(?:x)?)/)) {
-            console.error('####### cas B')
             candidat.els.preposition0 = 'avec'; // on uniformise
             if (candidat.els.preposition1) {
               // B.a parler avec interlocuteur concernant/à propos de sujet
@@ -213,7 +211,6 @@ export class Commandeur {
           }
           // pas de préposition après parler
         } else {
-          console.error("####### Pas de prep");
           // la 2e préposition est sans ambiguïté
           if (candidat.els.preposition1?.match(/(à propos|concernant)/)) {
             // l’ordre est déjà bon, formulation priviliégiée car évite les ambiguités avec les noms composés
@@ -226,14 +223,11 @@ export class Commandeur {
 
           }
         }
-
-        console.error('####### parler après - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
         break;
 
       // 2) INTERROGER/QUESTIONNER => INTERROGER INTERLOCUTEUR *CONCERNANT* SUJET
       case 'interroger':
       case 'questionner':
-        console.error('####### interroger avant - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
         // aucune préposition après l’infinitif
         if (!candidat.els.preposition0) {
           if (candidat.els.preposition1.match(/(à propos|concernant)/)) {
@@ -249,14 +243,12 @@ export class Commandeur {
         } else {
           // formulation pas prévue
         }
-        console.error('####### interroger après - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
         break;
 
       // 3) DEMANDER/DONNER/MONTRER => DEMANDER SUJET À INTERLOCUTEUR
       case 'demander':
       case 'donner':
       case 'montrer':
-        console.error('####### demander avant - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
         // A. DEMANDER SUJET *À* INTERLOCUTEUR
         if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d’|du|des/)) {
           // préposition
@@ -325,7 +317,6 @@ export class Commandeur {
             }
           }
         }
-        console.error('####### demander après - pre0:', candidat.els.preposition0, 'suj:', candidat.els.sujet, 'pre1:', candidat.els.preposition1, 'c1', candidat.els.sujetComplement1);
         break;
 
       default:
@@ -346,6 +337,7 @@ export class Commandeur {
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
     let ctx = this.decomposerCommande(commande);
+
     // si on a réussi à décomposer la commande
     if (ctx.candidats.length > 0) {
 
@@ -424,7 +416,11 @@ export class Commandeur {
       ctx.commandeValidee = true; // la commande a été validée et exécutée
       // D) commandes chargées dynamiquement
     } else {
+
+
+      
       const actionsCeciCela = this.act.trouverActionPersonnalisee(ctx.candidats[indexCandidat].els, ctx.candidats[indexCandidat].correspondCeci, ctx.candidats[indexCandidat].correspondCela);
+           
       // =====================================================
       // A. VERBE PAS CONNU
       // B. VERBE CONNU MAIS CECI/CELA NE CORRESPONDENT PAS

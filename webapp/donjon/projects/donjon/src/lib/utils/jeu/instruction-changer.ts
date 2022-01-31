@@ -175,7 +175,7 @@ export class InstructionChanger {
             }
 
             resultat.succes = true;
-            console.log("propriété trouvée:", propSujetTrouvee);
+            // console.log("propriété trouvée:", propSujetTrouvee);
           } else {
             console.error("executerChanger: propriété pas trouvée:", instruction.proprieteSujet);
             resultat.sortie = "{n}{+[Instruction « changer » : propriété pas trouvée : « " + instruction.proprieteSujet + " ».]+}";
@@ -452,7 +452,6 @@ export class InstructionChanger {
 
       case 'se trouve':
       case 'se trouvent':
-        console.log("executerElementJeu: se trouve:", instruction);
         resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, undefined);
         break;
 

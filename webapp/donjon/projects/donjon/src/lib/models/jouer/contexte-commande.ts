@@ -10,7 +10,7 @@ export class ContexteCommande {
 
   public candidats: CandidatCommande[];
 
-  public sortie: string;
+  public sortie: string = "";
 
   /** 
    * Est-ce qu’une des commandes candidates a été validée et exécutée ?

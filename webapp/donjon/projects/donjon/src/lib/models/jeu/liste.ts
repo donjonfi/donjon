@@ -379,7 +379,7 @@ export class Liste extends Intitule {
   /** Est-ce que la liste contient le texte spécifié ? */
   public contientTexte(valeur: string): boolean {
 
-    console.log("contientTexte: valeur:", valeur, this._valeursTexte);
+    // console.log("contientTexte: valeur:", valeur, this._valeursTexte);
     
 
     // // enlever les "|Ƶ|ƶ  éventuels autours du texte

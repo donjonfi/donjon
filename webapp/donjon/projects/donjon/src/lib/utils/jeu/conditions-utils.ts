@@ -110,6 +110,7 @@ export class ConditionsUtils {
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
    */
   public siEstVraiSansLien(conditionString: string | undefined, condition: ConditionSolo | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined) {
+
     let retVal = false;
     // si condition toujours brute, récupérer la condition correspondante.
     if (!condition) {
@@ -376,7 +377,7 @@ export class ConditionsUtils {
           case 'vaut':
             // TODO: gérer plus de situations (en test)
             // remarque: négation appliquée plus loin.
-            console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
+            // console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
               retVal = true;
@@ -469,32 +470,37 @@ export class ConditionsUtils {
           case 'inclut':
           case 'incluent':
             // remarque: négation appliquée plus loin.
-            // A. NOMBRE
-            if (condition.complement.match(ExprReg.xNombreEntier)) {
-              retVal = liste.contientNombre(Number.parseInt(condition.complement));
-            } else if (condition.complement.match(ExprReg.xNombreDecimal)) {
-              retVal = liste.contientNombre(Number.parseFloat(condition.complement));
-              // B. INTITULÉ
-            } else if (condition.sujetComplement) {
-              let intitule: Intitule;
-              // i) rechercher parmi les cibles spéciales (ceci, cela, …)
-              const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
-              if (cibleSpeciale) {
-                intitule = cibleSpeciale;
-                // ii) rechercher parmis tous les éléments du jeu
-              } else {
-                const cor = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
-                if (cor.nbCor == 1) {
-                  intitule = cor.unique;
+            if (condition.complement) {
+              // A. NOMBRE
+              if (condition.complement.match(ExprReg.xNombreEntier)) {
+                retVal = liste.contientNombre(Number.parseInt(condition.complement));
+              } else if (condition.complement.match(ExprReg.xNombreDecimal)) {
+                retVal = liste.contientNombre(Number.parseFloat(condition.complement));
+                // B. INTITULÉ
+              } else if (condition.sujetComplement) {
+                let intitule: Intitule;
+                // i) rechercher parmi les cibles spéciales (ceci, cela, …)
+                const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
+                if (cibleSpeciale) {
+                  intitule = cibleSpeciale;
+                  // ii) rechercher parmis tous les éléments du jeu
                 } else {
-                  intitule = cor.intitule;
+                  const cor = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
+                  if (cor.nbCor == 1) {
+                    intitule = cor.unique;
+                  } else {
+                    intitule = cor.intitule;
+                  }
                 }
+                retVal = liste.contientIntitule(intitule);
+                // C. TEXTE
+              } else {
+                retVal = liste.contientTexte(condition.complement);
               }
-              retVal = liste.contientIntitule(intitule);
-              // C. TEXTE
             } else {
-              retVal = liste.contientTexte(condition.complement);
+              this.jeu.tamponErreurs.push('Condition "liste contient": il manque un complément. (' + (conditionString ? conditionString : condition.toString()) +')')
             }
+
             break;
 
           default:
@@ -682,9 +688,6 @@ export class ConditionsUtils {
   private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Intitule) {
     let resultCondition: boolean = null;
 
-    // console.warn("@@@   cond:", cond);
-
-
     if (!condition.sujetComplement || !condition.sujetComplement.determinant) {
       // vérifier la liste des états (si c’est un élémentJeu)
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
@@ -705,9 +708,7 @@ export class ConditionsUtils {
         case "du ":
         case "de l’":
         case "de l'":
-          // console.log("@@@@", sujet.classe, cond.sujetComplement.nom);
           resultCondition = ClasseUtils.heriteDe(sujet.classe, condition.sujetComplement.nom);
-          // console.log("resultCondition=", resultCondition, "el.classe=", sujet.classe, "sujetComp.nom=", cond.sujetComplement.nom);
           break;
 
         case "la ":
@@ -715,7 +716,6 @@ export class ConditionsUtils {
         case "l’":
         case "l'":
         case "les ":
-          // console.log("cond est sujet=", sujet, "compl=", cond.sujetComplement);
           resultCondition = (sujet.intitule.nom === condition.sujetComplement.nom) && (sujet.intitule.epithete === condition.sujetComplement.epithete);
           // si le complément est un groupe nominal, vérifier également les synonymes du sujet
           if (!resultCondition && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {

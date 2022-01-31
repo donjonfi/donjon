@@ -23,8 +23,16 @@ export class AnalyseurDivers {
 
     const aide = ExprReg.xAide.exec(phrase.phrase[0]);
     if (aide) {
+      // reconstituer le texte complet
+      let texteAide = "";
+      for (let index = 1; index < phrase.phrase.length; index++) {
+        texteAide += TexteUtils.retrouverTexteOriginal(phrase.phrase[index]);
+      }
+      // enlever les guillemets autours du texte
+      texteAide = texteAide.trim().replace(/^\"|\"$/g, '');
+      
       ctxAnalyse.aides.push(
-        new Aide(aide[1], TexteUtils.retrouverTexteOriginal(phrase.phrase[1]))
+        new Aide(aide[1], texteAide)
       );
       elementTrouve = ResultatAnalysePhrase.aide;
     }

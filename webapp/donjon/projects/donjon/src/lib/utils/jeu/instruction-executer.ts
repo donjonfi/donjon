@@ -109,6 +109,7 @@ export class InstructionExecuter {
     if (!personne) {
       console.error("suiteExecuterReaction: la personne est null");
     }
+    
     if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.personne)) {
       if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.objet)) {
         console.error("suiteExecuterReaction: la personne qui doit réagir n’est ni une personne, ni un objet:", personne);
@@ -119,7 +120,6 @@ export class InstructionExecuter {
 
     // réaction à un sujet
     if (sujet) {
-      // console.log("suiteExecuterReaction: sujet=", sujet, " personne=", personne);
 
       const nomMinuscules = sujet.intitule.nom.toLowerCase() ?? null;
       const epitheteMinuscules = sujet.intitule.epithete?.toLowerCase() ?? null;
@@ -135,7 +135,7 @@ export class InstructionExecuter {
     }
     // si pas de réaction à un sujet, prendre réaction par défaut (aucun sujet)
     if (!reaction) {
-      // console.log("suiteExecuterReaction: réaction à aucun sujet");
+      //  console.log("suiteExecuterReaction: réaction à aucun sujet");
       reaction = (personne as Objet).reactions
         .find(x => x.sujets && x.sujets.some(y => y.nom == "aucun" && y.epithete == "sujet"));
     }

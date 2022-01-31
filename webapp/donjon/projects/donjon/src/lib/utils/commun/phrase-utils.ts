@@ -137,8 +137,6 @@ export class PhraseUtils {
 
   static obtenirLesCommandesPossibles(commande: string): CandidatCommande[] {
 
-    console.error("@@@@@@@@@@ commande", commande);
-
     let resultats: ElementsPhrase[] = [];
 
     // au cas où
@@ -156,9 +154,6 @@ export class PhraseUtils {
     const infinitifTrouve = (espaceApresVerbe != -1 ? commande.slice(0, espaceApresVerbe) : commande);
     const commandeSansInfinitif = (espaceApresVerbe != -1 ? commande.slice(espaceApresVerbe + 1).trim() : undefined);
 
-    console.error("@@@@@@@@@@ infinitifTrouve", infinitifTrouve);
-    console.error("@@@@@@@@@@ commandeSansInfinitif", commandeSansInfinitif);
-
     // > Vérifier qu’il s’agit bien d’un infinitif
     if (infinitifTrouve.match(ExprReg.xVerbeInfinitif)) {
 
@@ -170,23 +165,13 @@ export class PhraseUtils {
         // tester si le reste commence par une préposition
         const premierMotPreposition = ExprReg.xPremierMotPreposition.exec(commandeSansInfinitif);
 
-        console.error("@@@@@@@@@@ premierMotPreposition", premierMotPreposition);
-
         if (premierMotPreposition) {
           preposition0Trouvee = premierMotPreposition[1].trim();
         }
         const commandeSansPreposition0 = (preposition0Trouvee ? (commandeSansInfinitif.slice(preposition0Trouvee.length).trim()) : commandeSansInfinitif);
 
-        if (infinitifTrouve.match(""))
-
-          console.error("@@@@@@@@@@ commandeSansPreposition0", commandeSansPreposition0);
-
-
         // tester le nombre de prépositions potentielles dans le reste de la commande
         const nbPrepositionsTrouvees = (commandeSansPreposition0.match(ExprReg.xPrepositions) || []).length;
-
-        console.error("@@@@@@@@@@ nbPrepositionsTrouvees", nbPrepositionsTrouvees);
-
 
         // s’il n’y en a aucune, facile, il y a exactement 1 argument (c’est sûr):
         // - complément direct simple
@@ -213,7 +198,7 @@ export class PhraseUtils {
             curPossibilite.sujet = decoupe1;
             resultats.push(curPossibilite);
           } else {
-            console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
           }
 
           // CAS 2: complément direct simple + préposition + complément indirect simple
@@ -227,7 +212,7 @@ export class PhraseUtils {
             curPossibilite.sujetComplement1 = new GroupeNominal(decoupe2[5] ?? undefined, decoupe2[6], decoupe2[7] ?? undefined);
             resultats.push(curPossibilite);
           } else {
-            console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct simple + préposition + complément indirect simple] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct simple + préposition + complément indirect simple] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
           }
 
           // s’il y en a 2, c’est un cas ambigu car ça peut être:
@@ -246,7 +231,7 @@ export class PhraseUtils {
             curPossibilite.sujetComplement1 = new GroupeNominal(decoupe1[5] ?? undefined, decoupe1[6], decoupe1[7] ?? undefined);
             resultats.push(curPossibilite);
           } else {
-            console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct simple + préposition + complément indirect composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct simple + préposition + complément indirect composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
           }
 
           // CAS 2: complément direct composé + préposition + complément indirect simple
@@ -260,7 +245,7 @@ export class PhraseUtils {
             curPossibilite.sujetComplement1 = new GroupeNominal(decoupe2[5] ?? undefined, decoupe2[6], decoupe2[7] ?? undefined);
             resultats.push(curPossibilite);
           } else {
-            console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé + préposition + complément indirect simple] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé + préposition + complément indirect simple] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
           }
 
           // s’il y en a 3, ça m’est pas ambigu car ça sera d’office
@@ -278,7 +263,7 @@ export class PhraseUtils {
             curPossibilite.sujetComplement1 = new GroupeNominal(decoupe1[5] ?? undefined, decoupe1[6], decoupe1[7] ?? undefined);
             resultats.push(curPossibilite);
           } else {
-            console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé + préposition + complément indirect composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct composé + préposition + complément indirect composé] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
           }
         }
         // s’il n’y a plus rien après le verbe il n’y a aucun argument.

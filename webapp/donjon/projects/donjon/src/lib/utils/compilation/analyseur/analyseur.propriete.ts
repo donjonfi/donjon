@@ -80,8 +80,15 @@ export class AnalyseurPropriete {
 
           // si phrase en plusieurs morceaux, ajouter valeur (texte) de la propriété
           if (phrase.phrase.length > 1) {
-            // ajouter la valeur en enlevant les caractères spéciaux
-            ctxAnalyse.dernierePropriete.valeur = TexteUtils.retrouverTexteOriginal(phrase.phrase[1]);
+            // reconstituer la valeur et enlever les caractèrs spéciaux
+            let valeur = "";
+            for (let index = 1; index < phrase.phrase.length; index++) {
+              // ajouter la description en enlevant les caractères spéciaux
+              valeur += TexteUtils.retrouverTexteOriginal(phrase.phrase[index]);
+            }
+            // enlever les guillemets autours de la valeur
+            valeur = valeur.trim().replace(/^\"|\"$/g, '');
+            ctxAnalyse.dernierePropriete.valeur = valeur;
           }
         }
 
