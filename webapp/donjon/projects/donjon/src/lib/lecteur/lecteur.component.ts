@@ -69,7 +69,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   resteDeLaSortie: string[] = [];
   commandeEnCours: boolean = false;
-  dossierRessourcesComplet: string = "???";
   constructor() { }
 
   ngOnInit(): void { }
@@ -149,7 +148,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.ctx.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
-      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.dossierRessourcesComplet);
+      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.ctx.dossierRessourcesComplet);
     } else {
       this.activerParametreAudio = false;
     }
@@ -180,7 +179,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       });
       // ajouter la sortie
       if (resultatAvant.sortie) {
-        this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatAvant.sortie, this.dossierRessourcesComplet));
+        this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatAvant.sortie, this.ctx.dossierRessourcesComplet));
       }
 
       // définir visibilité des objets initiale
@@ -199,7 +198,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
           let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
           const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
-          this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
+          this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
         }
 
         this.ctx.jeu.commence = true;
@@ -221,7 +220,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         if (resultatApres.sortie) {
-          this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatApres.sortie, this.dossierRessourcesComplet));
+          this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatApres.sortie, this.ctx.dossierRessourcesComplet));
         }
 
 
@@ -235,11 +234,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // B. REPRISE D’UNE PARTIE
       // ========================
     } else {
-      this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.dossierRessourcesComplet) + "</p>");
+      this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.ctx.dossierRessourcesComplet) + "</p>");
       // regarder où on est.
       let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
       const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
-      this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.dossierRessourcesComplet) + "</p>");
+      this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
     }
 
     // donner le focus sur « entrez une commande » 
@@ -297,7 +296,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
         texteErreurs += '{N}' + erreur;
       }
-      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.dossierRessourcesComplet);
+      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
       this.scrollSortie();
     }
 
@@ -414,7 +413,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.autoCommandes.pop();
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.dossierRessourcesComplet);
+    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.ctx.dossierRessourcesComplet);
 
   }
 
@@ -427,7 +426,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       });
       this.autoTricheActif = false;
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.dossierRessourcesComplet));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
     }
   }
 
@@ -437,7 +436,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.indexTriche = 0;
       this.commande = this.autoCommandes[this.indexTriche];
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.dossierRessourcesComplet));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
     }
   }
 
@@ -487,7 +486,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
-        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.dossierRessourcesComplet) + '</span>';
+        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = Commandeur.nettoyerCommande(commandeComplete);
 
@@ -530,11 +529,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               // }, 100);
               // sortie normale
             } else {
-              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.dossierRessourcesComplet));
+              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
             }
             // aucune sortie
           } else {
-            this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.dossierRessourcesComplet));
+            this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
           }
 
           this.sortieJoueur += "</p>";

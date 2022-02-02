@@ -151,7 +151,7 @@ export class PhraseUtils {
     // si commence par se, il faudra prendre le 2e espace
     const commenceParSe = commande.match(/^se|me/i);
     const espaceApresVerbe = commande.indexOf(' ', (commenceParSe ? 3 : 0));
-    const infinitifTrouve = (espaceApresVerbe != -1 ? commande.slice(0, espaceApresVerbe) : commande);
+    const infinitifTrouve = (espaceApresVerbe != -1 ? commande.slice(0, espaceApresVerbe) : commande).toLocaleLowerCase();
     const commandeSansInfinitif = (espaceApresVerbe != -1 ? commande.slice(espaceApresVerbe + 1).trim() : undefined);
 
     // > Vérifier qu’il s’agit bien d’un infinitif

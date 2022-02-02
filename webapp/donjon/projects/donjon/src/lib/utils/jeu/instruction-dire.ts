@@ -694,9 +694,6 @@ export class InstructionDire {
           const expression = `image ${fichier}`;
           const regExp = new RegExp("\\[" + expression + "\\]", "g");
           texteDynamique = texteDynamique.replace(regExp, baliseImage);
-
-          console.log("expression:", expression, "baliseImage:", baliseImage);
-
         });
       }
 
