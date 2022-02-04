@@ -107,7 +107,7 @@ export class InstructionJouerArreter {
 
       // arrêter l’action qui va être exécutée (évènement AVANT spécial)
       case 'action':
-        resultat.stopperApresRegle = true;
+        resultat.arreterApresRegle = true;
         resultat.succes = true;
         break;
 

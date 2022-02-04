@@ -1,4 +1,4 @@
-<ul *ngIf="!ins.condition">
+<ul *ngIf="!ins.condition && !ins.choix">
   <ng-container *ngIf="ins.instruction">
     <li>Action : {{ins.instruction.infinitif}}</li>
     <li *ngIf="ins.instruction.sujet">
@@ -10,7 +10,8 @@
     <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
     <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
     <li *ngIf="ins.instruction.preposition1">Préposition : {{ins.instruction.preposition1}}</li>
-    <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément : {{ins.instruction.complement1}}</li>
+    <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément :
+      {{ins.instruction.complement1}}</li>
     <li *ngIf="ins.instruction.sujetComplement1">
       <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
     </li>
@@ -18,7 +19,7 @@
   <ng-container *ngIf="!ins.instruction">
     <li><i class="text-error">Pas d’instruction</i></li>
   </ng-container>
-  
+
 </ul>
 
 <ul *ngIf="ins.condition">
@@ -45,3 +46,18 @@
   </li>
 
 </ul>
+
+<div *ngIf="ins.choix">
+  <ul>
+    <li>Action: choisir</li>
+    <li *ngFor="let choix of ins.choix; index as i">
+      Choix {{i+1}} : {{choix.valeur}}
+      <ul>
+        <li *ngFor="let ins of choix.instructions; index as k">
+          Instruction {{(k+1)}} :
+          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>

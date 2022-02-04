@@ -1,7 +1,6 @@
+import { ActionCeciCela } from "../compilateur/action";
 import { CandidatCommande } from "./candidat-commande";
-import { Correspondance } from "../../utils/jeu/correspondance";
-import { ElementsPhrase } from "../commun/elements-phrase";
-import { GroupeNominal } from "../commun/groupe-nominal";
+import { Evenement } from "./evenement";
 
 export class ContexteCommande {
 
@@ -16,6 +15,16 @@ export class ContexteCommande {
    * Est-ce qu’une des commandes candidates a été validée et exécutée ?
    */
   public commandeValidee: boolean;
+
+  /**
+   * L’action qui a été choisie pour la commande à exécuter.
+   */
+  public actionChoisie: ActionCeciCela;
+
+  /**
+   * L’évènement produit par la commande
+   */
+  public evenement: Evenement;
 
   // /** La commande décomposée en éléments de phrase (étape 1) */
   // public els: ElementsPhrase;

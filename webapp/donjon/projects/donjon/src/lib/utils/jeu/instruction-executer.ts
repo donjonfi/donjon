@@ -1,5 +1,6 @@
 import { ActionsUtils } from "./actions-utils";
 import { ClasseUtils } from "../commun/classe-utils";
+import { CommandesUtils } from "./commandes-utils";
 import { Commandeur } from "./commandeur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
@@ -214,7 +215,7 @@ export class InstructionExecuter {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
-      const commande = Commandeur.nettoyerCommande(tokens[1]);
+      const commande = CommandesUtils.nettoyerCommande(tokens[1]);
       res.sortie = this.com.executerCommande(commande);
     } else {
       console.error("executerCommande: format complément1 par reconnu:", instruction.complement1);

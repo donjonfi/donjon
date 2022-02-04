@@ -61,25 +61,35 @@ export class Instructions {
   public executerInstructions(instructions: Instruction[], contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
     let resultat = new Resultat(true, '', 0);
-    if (instructions && instructions.length > 0) {
-      instructions.forEach(ins => {
-        const sousResultat = this.executerInstruction(ins, contexteTour, evenement, declenchements);
-        resultat.nombre += sousResultat.nombre;
-        resultat.succes = (resultat.succes && sousResultat.succes);
-        resultat.sortie += sousResultat.sortie;
-        resultat.stopperApresRegle = resultat.stopperApresRegle || sousResultat.stopperApresRegle;
-        resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
-        resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
-      });
+
+    for (let indexInstruction = 0; indexInstruction < instructions.length; indexInstruction++) {
+      const ins = instructions[indexInstruction];
+      const sousResultat = this.executerInstruction(ins, contexteTour, evenement, declenchements);
+      // additionner l’instruction au résultat
+      resultat.nombre += sousResultat.nombre;
+      resultat.succes = (resultat.succes && sousResultat.succes);
+      resultat.sortie += sousResultat.sortie;
+      resultat.arreterApresRegle = resultat.arreterApresRegle || sousResultat.arreterApresRegle;
+      resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
+      resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
+
+      // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
+      if (sousResultat.interrompreBlocInstruction) {
+        resultat.interrompreBlocInstruction = true;
+        // les choix à proposer au joueur
+        resultat.choix = sousResultat.choix;
+        // retenir le reste des instructions
+        resultat.reste = instructions.slice(indexInstruction + 1);
+        break;
+      }
     }
     return resultat;
   }
 
   /** Exécuter une instruction */
-  public executerInstruction(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
+  private executerInstruction(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
-    let resultat = new Resultat(true, '', 1);
-    let sousResultat: Resultat;
+    let resultat: Resultat;
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction, "contexteTour:", contexteTour);
     }
@@ -93,29 +103,29 @@ export class Instructions {
         console.log(">>>> estVrai=", estVrai);
       }
       if (estVrai) {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, contexteTour, evenement, declenchements);
+        resultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, contexteTour, evenement, declenchements);
       } else {
-        sousResultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, contexteTour, evenement, declenchements);
+        resultat = this.executerInstructions(instruction.instructionsSiConditionPasVerifiee, contexteTour, evenement, declenchements);
       }
       // instruction choisir
-    } else if (instruction.choix?.length) {
-      console.error("TODO: gérer l’instruction choix");
-      sousResultat = new Resultat(true, "{U}{+Un choix doit être fait ici !+}", 1);
+    } else if (instruction.choix) {
+      if (instruction.choix.length > 0) {
+        resultat = new Resultat(true, "{U}{+Un choix doit être fait ici !+}", 1);
+        resultat.interrompreBlocInstruction = true;
+        resultat.choix = instruction.choix;
+      } else {
+        this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")
+        resultat = new Resultat(false, '', 0);
+      }
       // instruction simple
     } else {
       if (instruction.instruction.infinitif) {
-        sousResultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, contexteTour, evenement, declenchements);
+        resultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, contexteTour, evenement, declenchements);
       } else {
-        console.warn("executerInstruction : pas d'infinitif :", instruction);
+        this.jeu.tamponErreurs.push("executerInstruction : pas d'infinitif : « " + instruction + " »")
+        resultat = new Resultat(false, '', 0);
       }
     }
-    resultat.sortie += sousResultat.sortie;
-    resultat.stopperApresRegle = resultat.stopperApresRegle || sousResultat.stopperApresRegle;
-    resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
-    resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
-
-    // console.warn("exInstruction >>> instruction=", instruction, "resultat=", resultat);
-
     return resultat;
   }
 

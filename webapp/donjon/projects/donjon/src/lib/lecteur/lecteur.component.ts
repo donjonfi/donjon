@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChang
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClassesRacines } from '../models/commun/classes-racines';
+import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { Commandeur } from '../utils/jeu/commandeur';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { ContexteTour } from '../models/jouer/contexte-tour';
@@ -175,7 +176,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         resultatAvant.sortie += sousResultatAvant.sortie;
         resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
         resultatAvant.nombre += sousResultatAvant.nombre;
-        resultatAvant.stopperApresRegle = resultatAvant.stopperApresRegle || sousResultatAvant.stopperApresRegle;
+        resultatAvant.arreterApresRegle = resultatAvant.arreterApresRegle || sousResultatAvant.arreterApresRegle;
       });
       // ajouter la sortie
       if (resultatAvant.sortie) {
@@ -189,7 +190,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.ctx.eju.majAdjacenceLieux();
 
       // continuer l’exécution de l’action si elle n’a pas été arrêtée
-      if (!resultatAvant.stopperApresRegle) {
+      if (!resultatAvant.arreterApresRegle) {
         // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
         // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
         // // if (resultatRemplacer.nombre === 0) {
@@ -197,7 +198,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // regarder où on est (sauf si l’action n’existe pas)
         if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
           let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-          const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
+          const resRegarder = this.ctx.ins.executerInstructions([instruction], null, null, null);
           this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
         }
 
@@ -237,7 +238,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.ctx.dossierRessourcesComplet) + "</p>");
       // regarder où on est.
       let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-      const resRegarder = this.ctx.ins.executerInstruction(instruction, null, null, null);
+      const resRegarder = this.ctx.ins.executerInstructions([instruction], null, null, null);
       this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
     }
 
@@ -488,7 +489,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
-        const commandeNettoyee = Commandeur.nettoyerCommande(commandeComplete);
+        const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
         // VÉREFIER FIN DE PARTIE
         // vérifier si le jeu n’est pas déjà terminé
