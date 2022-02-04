@@ -48,7 +48,7 @@ $language_data = array (
 			'attendre', 'changer', 'chercher', 'continuer(?!\:)', 'dire', 'déplacer',
 			'effacer', 'stopper', 'terminer',
 			'activer', 'désactiver', 'exécuter',
-			'affecter'
+			'affecter', 'afficher', 'jouer', 'arrêter'
             ),
         2 => array(
 			'objet',    'objets',    'lieu',      'lieux', 
@@ -63,7 +63,7 @@ $language_data = array (
 			
             ),
         3 => array(
-            'si', 'sinon', 'sinonsi', 'remplacer', 'exécuter(?! la)', 'refuser', 'terminer', 
+            'si', 'sinon', 'sinonsi', 'choix', 'choisir', 'remplacer', 'exécuter(?! la)', 'refuser', 'terminer', 
 			'avant', 'après',
 			'définition', 'définitions',
 			'peut', 'est', 'sont', 'pas', 'plus',
@@ -72,7 +72,8 @@ $language_data = array (
 			'atteint', 'atteignent', 'dépasse', 'dépassent', 'se déclenche', 'se déclenchent',
 			'ni', 'soit', 'ou', 'et', 'mais',
 			'interpréter', 'comme',
-			'initialement', 'puis', 'fin', 'finsi',
+			'initialement', 'puis', 'fin', 'finsi', 'finchoix', 'finchoisir',
+      'prioritairement', 'progressivement',
 			'choix', 'choisir', 'aucun', 'autre', 'boucle', 'hasard', 'fois'
             ),
         4 => array(

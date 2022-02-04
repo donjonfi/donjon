@@ -1,0 +1,52 @@
+
+PARTIE "Paramètres".
+  -- activer l’audio (requis pour que l’audio fonctionne dans votre jeu)
+  activer l’audio.
+  -- afficher les lieux qui n’ont pas encore été visités
+  activer l'affichage des lieux inconnus.
+
+PARTIE "Description des lieux".
+  Le hall est un lieu.
+  Le salon est un lieu au nord du hall.
+  La salle d’armes est un lieu au sud du hall.
+  Le futur est un lieu à l’est du hall.
+    
+  -- gérer l’audio quand le joueur se déplace entre les lieux
+  après aller vers ceci ou commencer le jeu:
+    -- salon: jouer de la musique en boucle
+    si le joueur se trouve dans le salon:
+      jouer la musique musique_classique.mp3 en boucle;
+    -- salle d’armes: jouer 1 son à 3 reprises en arrivant
+    sinonsi le joueur se trouve dans la salle d’armes:
+      jouer le son coup_d_epee.flac 3 fois;
+    -- futur: jouer 2 sons différents (à la suite) en arrivant
+    sinonsi le joueur se trouve dans le futur:
+      jouer le son charge.ogg;
+      jouer le son bulle.mp3;
+    fin si
+    
+    -- terminer l’action normalement
+    continuer l’action après.
+    
+  -- en quittant le salon, baisser la musique et l’arrêter
+  avant aller vers ceci:
+    si le joueur se trouve dans le salon:
+       -- enlever le mot clé « progressivement » pour l’arrêter d’un coup
+       arrêter la musique progressivement;
+    fin si.
+
+PARTIE "emplacement des ressources du jeu".
+
+-- Par défaut, vous devez placer les ressources du jeux dans le dossier ./assets/ressources :
+-- > ./assets/ressources/sons/test.mp3  (pour « jouer le son test.mp3 »)
+-- > ./assets/ressources/musiques/test.flac (pour « jouer la musique test.flac »)
+
+-- Si vous mettez plusieurs jeux sur le même site web, vous pouvez définir un dossier
+-- spécifique pour chacun des jeux. Un même dossier peut-être réutilisé pour plusieurs jeux.
+
+-- Définition du dossier qui contient les ressources du jeu (ici « mon_donjon »):
+Les ressources du jeu se trouvent dans le dossier mon_donjon.
+
+-- Vous devez alors placer les ressources du jeux dans ce dossier ./assets/ressources/mon_donjon:
+-- > ./assets/ressources/mon_donjon/sons/test.mp3  (pour « jouer son test.mp3 »)
+-- > ./assets/ressources/mon_donjon/musiques/test.flac (pour « jouer musique test.flac »)

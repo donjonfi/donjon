@@ -1,0 +1,37 @@
+PARTIE "description du monde".
+
+Le titre du jeu est "Mon Donjon".
+
+avant commencer le jeu:
+  -- A) INSTRUCTION AFFICHER UNE IMAGE:
+  --    au lancement du jeu, afficher une image de couverture
+  afficher l’image affiche.png;
+  attendre touche;
+  effacer l’écran;
+  -- introduction
+  dire "Vous allumez votre ordinateur et vous naviguez vers votre site préféré afin de vous lancer dans la création d’une fiction interactive !
+    
+        À présent vous êtes prêt à créer un monde merveilleux !".
+
+Le bureau est un lieu.
+La chaise est un support ici.
+La table est un support ici.
+L'ordinateur se trouve sur la table.
+Interpréter ordi comme ordinateur.
+-- B) INCLURE UNE IMAGES DANS UN TEXTE:
+--    la description de l’ordinateur contient une image
+Sa description est "Votre ordinateur. Vous prenez le temps d'apprécier le logo de donjon.fi: [image logo.png] Il s’agit d’une tour.".
+
+PARTIE "emplacement des ressources du jeu"
+
+-- Par défaut, vous devez placer les ressources du jeux dans le dossier ./assets/ressources :
+-- > ./assets/ressources/images/test.png (pour « afficher l’image test.png »)
+
+-- Si vous mettez plusieurs jeux sur le même site web, vous pouvez définir un dossier
+-- spécifique pour chacun des jeux. Un même dossier peut-être réutilisé pour plusieurs jeux.
+
+-- Définition du dossier qui contient les ressources du jeu (ici « mon_donjon »):
+Les ressources du jeu se trouvent dans le dossier mon_donjon.
+
+-- Vous devez alors placer les ressources du jeux dans ce dossier ./assets/ressources/mon_donjon:
+-- > ./assets/ressources/mon_donjon/images/test.png (pour « afficher image test.png »)
