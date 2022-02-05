@@ -1,5 +1,6 @@
 import { ContexteCommande } from "./contexte-commande";
 import { ElementsPhrase } from "../commun/elements-phrase";
+import { Instruction } from "../compilateur/instruction";
 import { Intitule } from "../jeu/intitule";
 import { Resultat } from "./resultat";
 
@@ -14,13 +15,15 @@ export class ContexteTour {
 
   public resultatRegleApres: Resultat | undefined;
 
+  public reste: Instruction[] | undefined;
+
   constructor(
     /** Ceci */
     public ceci: Intitule | undefined,
     /** Cela */
     public cela: Intitule | undefined,
   ) {
-    
+
     // C’est le début du tour
     this.phase = PhaseTour.debut;
   }

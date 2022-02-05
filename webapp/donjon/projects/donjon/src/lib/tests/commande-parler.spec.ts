@@ -631,7 +631,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('montrer');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -660,7 +660,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('montrer');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -686,7 +686,7 @@ describe('Décomposer commande parler', () => {
     const ctxCom = ctxPartie.com.decomposerCommande('donner la pièce du trésor maudit à la princesse aux souhaits énervée');
     expect(ctxCom.candidats.length).toEqual(1);
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('donner');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -711,9 +711,11 @@ describe('Décomposer commande parler', () => {
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('donner une pièce à la princesse');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
+
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('donner');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -729,6 +731,19 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.determinant).toEqual('la ');
     expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('princesse');
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
+
+    expect(ctxCom.candidats[1].els.infinitif).toEqual('donner');
+    // préposition0
+    expect(ctxCom.candidats[1].els.preposition0).toBeFalsy();
+    // sujet
+    expect(ctxCom.candidats[1].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[1].els.sujet.determinant).toEqual('une ');
+    expect(ctxCom.candidats[1].els.sujet.nom).toEqual('pièce à la princesse');
+    expect(ctxCom.candidats[1].els.sujet.epithete).toBeFalsy();
+    // préposition1
+    expect(ctxCom.candidats[1].els.preposition1).toBeFalsy();
+    // interlocuteur
+    expect(ctxCom.candidats[1].isCelaV1).toBeFalse();
   });
 
   it('commande « demander de la nourriture à l’aubergiste »', function () {
@@ -740,7 +755,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toEqual('de');
@@ -758,17 +773,17 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « demander poison à vendeur ambulant »', function () {
+  it('commande « commander poison à vendeur ambulant »', function () {
     const scenario = '';
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
-    const ctxCom = ctxPartie.com.decomposerCommande('demander poison à vendeur ambulant');
+    const ctxCom = ctxPartie.com.decomposerCommande('commander poison à vendeur ambulant');
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
-    expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('commander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
     // sujet
@@ -900,7 +915,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('donner');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -927,7 +942,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(1);
 
     // infinitif
-    // DEMANDER/DONNER/MONTRER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('montrer');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();
@@ -982,7 +997,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER => DEMANDER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeUndefined();
@@ -1006,7 +1021,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
     // infinitif
-    // DEMANDER/DONNER/MONTRER => DEMANDER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeUndefined();
@@ -1031,7 +1046,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats.length).toEqual(1);
 
     // infinitif
-    // DEMANDER/DONNER/MONTRER => DEMANDER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeUndefined();
@@ -1059,7 +1074,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
-    // DEMANDER/DONNER/MONTRER => DEMANDER SUJET *À* INTERLOCUTEUR
+    // DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER SUJET *À* INTERLOCUTEUR
     expect(ctxCom.candidats[0].els.infinitif).toEqual('demander');
     // préposition0
     expect(ctxCom.candidats[0].els.preposition0).toBeFalsy();

@@ -73,6 +73,7 @@ export class Instructions {
       resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
       resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
 
+      console.log("executerInstructions: sousResultat.interrompreBlocInstruction=", sousResultat.interrompreBlocInstruction);
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
         resultat.interrompreBlocInstruction = true;
@@ -80,9 +81,12 @@ export class Instructions {
         resultat.choix = sousResultat.choix;
         // retenir le reste des instructions
         resultat.reste = instructions.slice(indexInstruction + 1);
+        console.log("RESTE: ", resultat.reste, "Tout:", instructions);
         break;
       }
     }
+    console.log("executerInstructions resultat.interrompreBlocInstruction=", resultat.interrompreBlocInstruction);
+
     return resultat;
   }
 
@@ -98,6 +102,8 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
+      console.log("executerInstruction: CONDITION:", instruction);
+      
       const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
@@ -109,6 +115,8 @@ export class Instructions {
       }
       // instruction choisir
     } else if (instruction.choix) {
+      console.log("executerInstruction: CHOIX:", instruction);
+
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "{U}{+Un choix doit être fait ici !+}", 1);
         resultat.interrompreBlocInstruction = true;
@@ -119,6 +127,8 @@ export class Instructions {
       }
       // instruction simple
     } else {
+      console.log("executerInstruction: SIMPLE:", instruction);
+
       if (instruction.instruction.infinitif) {
         resultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, contexteTour, evenement, declenchements);
       } else {

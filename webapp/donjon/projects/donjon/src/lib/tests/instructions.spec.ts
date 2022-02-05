@@ -24,7 +24,7 @@ describe('Instructions − Lieux', () => {
     this.joueur = new Objet(
       1,
       "joueur",
-      PhraseUtils.getGroupeNominal("Le joueur", false),
+      PhraseUtils.getGroupeNominalDefini("Le joueur", false),
       ClassesRacines.Special,
       1,
       Genre.m,
@@ -36,21 +36,21 @@ describe('Instructions − Lieux', () => {
     this.cuisine = new Lieu(
       2, // id
       'cuisine', // nom
-      PhraseUtils.getGroupeNominal("La cuisine", false), // intitule
+      PhraseUtils.getGroupeNominalDefini("La cuisine", false), // intitule
       "Cuisine", // titre
       ClassesRacines.Lieu
     );
     this.sdb = new Lieu(
       3, // id
       'salle de bain', // nom
-      PhraseUtils.getGroupeNominal("La salle de bain", false), // intitule
+      PhraseUtils.getGroupeNominalDefini("La salle de bain", false), // intitule
       "Salle de bain", // titre
       ClassesRacines.Lieu
     );
     this.chambre = new Lieu(
       4, // id
       'chambre', // nom
-      PhraseUtils.getGroupeNominal("La chambre à coucher", false), // intitule
+      PhraseUtils.getGroupeNominalDefini("La chambre à coucher", false), // intitule
       "Chambre", // titre
       ClassesRacines.Lieu
     );

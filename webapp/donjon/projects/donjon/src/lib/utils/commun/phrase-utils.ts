@@ -51,14 +51,14 @@ export class PhraseUtils {
         const actImp = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
 
         if (actImp) {
-          const ceci = PhraseUtils.getGroupeNominal(actImp[1], false);
+          const ceci = PhraseUtils.getGroupeNominalDefini(actImp[1], false);
           const isCeci = true;
           const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
           const ceciClasse = null;
           const prepCeci = null;
           const quantiteCeci = 0;
 
-          const cela = PhraseUtils.getGroupeNominal(actImp[2], false);
+          const cela = PhraseUtils.getGroupeNominalDefini(actImp[2], false);
           const isCela = cela ? true : false;
           const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
           const celaClasse = null;
@@ -178,11 +178,14 @@ export class PhraseUtils {
         if (nbPrepositionsTrouvees == 0) {
 
           // trouver le complément direct simple
-          const decoupeComplement = PhraseUtils.getGroupeNominal(commandeSansPreposition0, false);
+          const decoupeComplement = PhraseUtils.getGroupeNominalDefiniOuIndefini(commandeSansPreposition0, false);
+                    
           let curPossibilite = new ElementsPhrase(infinitifTrouve);
           curPossibilite.preposition0 = preposition0Trouvee;
           curPossibilite.sujet = decoupeComplement;
           resultats.push(curPossibilite);
+
+
 
           // s’il y en a 1, c’est un cas ambigu car ça peut être:
           // - complément direct composé
@@ -191,7 +194,7 @@ export class PhraseUtils {
 
           // CAS 1: complément direct composé
           // trouver le complément direct composé
-          const decoupe1 = PhraseUtils.getGroupeNominal(commandeSansPreposition0, false);
+          const decoupe1 = PhraseUtils.getGroupeNominalDefiniOuIndefini(commandeSansPreposition0, false);
           if (decoupe1) {
             const curPossibilite = new ElementsPhrase(infinitifTrouve);
             curPossibilite.preposition0 = preposition0Trouvee;
@@ -308,12 +311,12 @@ export class PhraseUtils {
       sensInterlocSujet = true;
       res = ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
     }
-    // => 4a) DEMANDER/DONNER/MONTRER SUJET À INTERLOCUTEUR
+    // => 4a) DEMANDER/COMMANDER/DONNER/MONTRER SUJET À INTERLOCUTEUR
     if (!res) {
       sensInterlocSujet = false;
       res = ExprReg.xCommandeDemanderSujetAInterlocuteur.exec(commande);
     }
-    // => 4b) DEMANDER/DONNER À VERBE À INTERLOCUTEUR
+    // => 4b) DEMANDER/COMMANDER/DONNER À VERBE À INTERLOCUTEUR
     if (!res) {
       sensInterlocSujet = false;
       res = ExprReg.xCommandeDemanderAVerbeAInterlocuteur.exec(commande);
@@ -526,7 +529,7 @@ export class PhraseUtils {
               const fichier = suiteJouer[2];
               const optionEnBoucle = suiteJouer[5] ? true : false;
               const optionNombreFois = suiteJouer[3] ?? undefined;
-              els.sujet = PhraseUtils.getGroupeNominal(leSonOuLaMusique, true);
+              els.sujet = PhraseUtils.getGroupeNominalDefini(leSonOuLaMusique, true);
               // complémnent 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
@@ -547,7 +550,7 @@ export class PhraseUtils {
             if (suiteAfficher) {
               const limage = suiteAfficher[1];
               const fichier = suiteAfficher[2];
-              els.sujet = PhraseUtils.getGroupeNominal(limage, true);
+              els.sujet = PhraseUtils.getGroupeNominalDefini(limage, true);
               // complémnent 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
@@ -716,7 +719,7 @@ export class PhraseUtils {
   /**
    * Décomposer l’intitulé brut en un groupe nominal.
    */
-  public static getGroupeNominal(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
+  public static getGroupeNominalDefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
     let determinant: string | undefined;
     let nom: string | undefined;
     let epithete: string | undefined;
@@ -738,4 +741,30 @@ export class PhraseUtils {
     }
     return retVal;
   }
+
+    /**
+   * Décomposer l’intitulé brut en un groupe nominal.
+   */
+     public static getGroupeNominalDefiniOuIndefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
+      let determinant: string | undefined;
+      let nom: string | undefined;
+      let epithete: string | undefined;
+      let retVal: GroupeNominal | undefined;
+      const resultatGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(intituleBrut);
+      if (resultatGn) {
+        // forcer minuscules
+        if (forcerMinuscules) {
+          determinant = resultatGn[1]?.toLowerCase() ?? undefined;
+          nom = resultatGn[2].toLowerCase();
+          epithete = resultatGn[3]?.toLowerCase() ?? undefined;
+          // garder casse originale
+        } else {
+          determinant = resultatGn[1] ?? undefined;
+          nom = resultatGn[2];
+          epithete = resultatGn[3] ?? undefined;
+        }
+        retVal = new GroupeNominal(determinant, nom, epithete);
+      }
+      return retVal;
+    }
 }

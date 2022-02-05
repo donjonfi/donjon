@@ -30,6 +30,7 @@ describe('Décomposer des commandes', () => {
       'La boite aux lettres est un contenant ouvrable. ' +
       'Interpréter la boite comme la boite aux lettres. ' +
       'La lettre est un objet. ' +
+      'La tarte à la crème est un objet mangeable. ' +
       '';
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -283,6 +284,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('la salle de bain');
   });
 
+
   it('commande « parler de berlin au comte de berlin »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler de berlin au comte de berlin');
     expect(ctxCom.brute).toEqual('parler de berlin au comte de berlin');
@@ -415,7 +417,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].celaIntituleV1).toBeUndefined();
   });
 
-  
+
   it('commande « ouvrir boite aux lettres »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('ouvrir boite aux lettres');
     expect(ctxCom.brute).toEqual('ouvrir boite aux lettres');
@@ -448,6 +450,80 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('lettres');
 
 
+  });
+
+  it('commande « poser une question »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('poser une question');
+    expect(ctxCom.candidats.length).toEqual(1);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('poser');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy()
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('une question');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toBeFalsy()
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
+  });
+
+
+  it('commande « commander une pomme rouge »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('commander une pomme rouge');
+    expect(ctxCom.candidats.length).toEqual(1);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('commander');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy()
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('une pomme rouge');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toBeFalsy()
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
+  });
+
+
+  it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la cerise');
+    // la tarte à la cerise n’existe pas
+    expect(ctxCom.candidats.length).toEqual(2);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('offrir');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy()
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('une tarte');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toEqual('à');
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
+    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('la cerise');
+
+  });
+
+  it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
+    // la tarte à la crème existe
+    const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la crème');
+    expect(ctxCom.candidats.length).toEqual(2);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('offrir');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy()
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('une tarte à la crème');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toBeFalsy()
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
 });

@@ -93,7 +93,7 @@ export class CommandeurDecomposer {
   }
 
   /**
- * Toujours fournir les arguments de la commande parler/interroger/discuter/montrer/… 
+ * Toujours fournir les arguments de la commande parler/interroger/demander/discuter/montrer/… 
  * dans le même order.
  */
   private static manipulationVerbesParlerDemanderDonnerMontrer(candidat: CandidatCommande) {
@@ -196,9 +196,11 @@ export class CommandeurDecomposer {
         }
         break;
 
-      // 3) DEMANDER/DONNER/MONTRER => DEMANDER SUJET À INTERLOCUTEUR
+      // 3) DEMANDER/COMMANDER/DONNER/OFFRIR/MONTRER => DEMANDER SUJET À INTERLOCUTEUR
       case 'demander':
+      case 'commander':
       case 'donner':
+      case 'offrir':
       case 'montrer':
         // A. DEMANDER SUJET *À* INTERLOCUTEUR
         if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d’|du|des/)) {

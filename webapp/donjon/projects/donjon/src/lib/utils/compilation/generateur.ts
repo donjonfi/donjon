@@ -137,7 +137,7 @@ export class Generateur {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
           // TODO: gérer groupe nominal ?
-          const groupeNominal = PhraseUtils.getGroupeNominal(pro.valeur, false);
+          const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
           nouvLieu.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
           if (nouvLieu.nombre == Nombre.p) {
             nouvLieu.intituleP = nouvLieu.intitule;

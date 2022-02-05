@@ -29,6 +29,34 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[1].els.sujetComplement1.nom).toEqual('fromage');
   });
 
+  it('commande « poser une question »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('poser une question');
+    expect(resultats.length).toBe(1);
+    expect(resultats[0].els.infinitif).toEqual('poser');
+    expect(resultats[0].els.preposition0).toBeFalsy()
+    expect(resultats[0].els.sujet.determinant).toEqual('une ');
+    expect(resultats[0].els.sujet.nom).toEqual('question');
+  });
+
+
+  it('commande « commander à manger »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('commander à manger');
+    expect(resultats.length).toBe(1);
+    expect(resultats[0].els.infinitif).toEqual('commander');
+    expect(resultats[0].els.preposition0).toEqual('à');
+    expect(resultats[0].els.sujet.determinant).toBeFalsy();
+    expect(resultats[0].els.sujet.nom).toEqual('manger');
+  });
+
+  it('commande « prendre une pomme »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('prendre une pomme');
+    expect(resultats.length).toBe(1);
+    expect(resultats[0].els.infinitif).toEqual('prendre');
+    expect(resultats[0].els.preposition0).toBeFalsy()
+    expect(resultats[0].els.sujet.determinant).toEqual('une ');
+    expect(resultats[0].els.sujet.nom).toEqual('pomme');
+  });
+
   it('commande « sauter sur la table »', () => {
     const resultats = PhraseUtils.obtenirLesCommandesPossibles('sauter sur la table');
     expect(resultats.length).toBe(1);

@@ -214,7 +214,7 @@ export class InstructionDire {
 
           const verbeString = decoupe[1];
           let cibleString = decoupe[2];
-          let cibleGN = PhraseUtils.getGroupeNominal(cibleString, false);
+          let cibleGN = PhraseUtils.getGroupeNominalDefini(cibleString, false);
           const cible: Liste = InstructionsUtils.trouverListe(cibleGN, this.eju, this.jeu, true);
 
           let resultat: string = '';

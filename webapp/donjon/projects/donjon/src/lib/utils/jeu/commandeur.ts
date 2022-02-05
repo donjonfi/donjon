@@ -56,6 +56,9 @@ export class Commandeur {
     // > décomposer la commande
     let ctx = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
 
+    console.error("ctx.candidats:", ctx.candidats);
+
+
     // si on a réussi à décomposer la commande
     if (ctx.candidats.length > 0) {
 
@@ -104,6 +107,9 @@ export class Commandeur {
   private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande) {
 
     let actionsCeciCela = this.act.trouverActionPersonnalisee(candidatCommande.els, candidatCommande.correspondCeci, candidatCommande.correspondCela);
+
+    console.error("chercherParmisLesActions:", actionsCeciCela);
+
 
     // =====================================================
     // A. VERBE PAS CONNU
@@ -246,6 +252,8 @@ export class Commandeur {
 
   /** Exécuter la phase « avant » du tour. */
   private executerPhaseAvant(tour: ContexteTour) {
+    console.warn("@@ phase avant @@");
+
     // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
     let resultatAvant = new Resultat(true, "", 0);
     // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score ou si règle générique
@@ -259,6 +267,14 @@ export class Commandeur {
       resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
       resultatAvant.nombre += sousResultatAvant.nombre;
       resultatAvant.arreterApresRegle = resultatAvant.arreterApresRegle || sousResultatAvant.arreterApresRegle;
+      // vérifier s’il y a une interruption
+      if (sousResultatAvant.interrompreBlocInstruction) {
+        resultatAvant.interrompreBlocInstruction = true;
+        resultatAvant.reste = sousResultatAvant.reste;
+        if (declenchementsAvant.length > 1) {
+          this.jeu.tamponErreurs.push("Déclanchement règle avant: l’instruction choisir ne fonctionne pas correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
+        }
+      }
       if (resultatAvant.arreterApresRegle) {
         break;
       }
@@ -268,24 +284,31 @@ export class Commandeur {
     if (resultatAvant.arreterApresRegle === true) {
       // cloturer le tour
       tour.phase = PhaseTour.fin;
-      // sinon on passe à la phase suivante du tour.
+    }
+    // si le déroulement a été interrompu
+    if (resultatAvant.interrompreBlocInstruction) {
+      tour.reste = resultatAvant.reste;
+      this.executerInterruption(tour);
     } else {
+      // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
     }
   }
 
   /** Exécuter la phase « refuser » du tour. */
-  private executerPhaseVerifier(tour: ContexteTour) {
+  private executerPhaseRefuser(tour: ContexteTour) {
+    console.warn("@@ phase refuser @@");
 
     // PHASE REFUSER (vérifier l'action)
     let refus = false;
+    let resultatRefuser: Resultat | undefined;
     if (tour.commande.actionChoisie.action.verifications) {
       // parcourir les vérifications
       tour.commande.actionChoisie.action.verifications.forEach(verif => {
         if (verif.conditions.length == 1) {
           if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
             // console.warn("> commande vérifie cela:", verif);
-            const resultatRefuser = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
+            resultatRefuser = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
             tour.commande.sortie += resultatRefuser.sortie;
             refus = true;
           }
@@ -299,25 +322,43 @@ export class Commandeur {
     if (refus) {
       // cloturer le tour
       tour.phase = PhaseTour.fin;
-      // sinon passer à la phase suivante
+    }
+
+    // si le déroulement a été interrompu
+    if (resultatRefuser?.interrompreBlocInstruction) {
+      tour.reste = resultatRefuser.reste;
+      this.executerInterruption(tour);
     } else {
+      // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
     }
+
   }
 
   /** Exécuter la phase « exécuter » du tour. */
   private executerPhaseExecuter(tour: ContexteTour) {
+    console.warn("@@ phase exécuter @@");
 
     // PHASE EXÉCUTER l’action
-    const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
+    // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
+    const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.instructions, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatExecuter.sortie;
 
-    // passer à la phase suivante
-    this.executerLaPhaseSuivante(tour);
+    // si le déroulement a été interrompu
+    if (resultatExecuter.interrompreBlocInstruction) {
+      tour.reste = resultatExecuter.reste;
+     console.log("Reste exécuter:", tour.reste);
+     
+      this.executerInterruption(tour);
+    } else {
+      // sinon on passe à la phase suivante du tour.
+      this.executerLaPhaseSuivante(tour);
+    }
   }
 
   /** Exécuter la phase « après » du tour. */
   private executerPhaseApres(tour: ContexteTour) {
+    console.warn("@@ phase après @@");
 
     // ÉVÈNEMENT APRÈS la commande
     let resultatApres = new Resultat(true, "", 0);
@@ -389,6 +430,7 @@ export class Commandeur {
 
   /** Exécuter la phase « terminer » du tour. */
   private executerPhaseTerminer(tour: ContexteTour) {
+    console.warn("@@ phase terminer @@");
 
     // PHASE TERMINER l'action (sans règle « après »)
     const resultatFinaliser = this.finaliserAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
@@ -400,54 +442,84 @@ export class Commandeur {
       tour.resultatRegleApres = undefined;
     }
 
-    // exécuter la phase suivante du tour
-    this.executerLaPhaseSuivante(tour);
+    // si le déroulement a été interrompu
+    if (resultatFinaliser.interrompreBlocInstruction) {
+      tour.reste = resultatFinaliser.reste;
+      this.executerInterruption(tour);
+    } else {
+      // sinon on passe à la phase suivante du tour.
+      this.executerLaPhaseSuivante(tour);
+    }
+  }
+
+  private executerInterruption(tour: ContexteTour) {
+    console.warn("+interruption+");
+    tour.commande.sortie +=("{N}{++Interruption++}{N}");
+    // continuer le tour après l’interruption
+    this.continuerLeTourInterrompu(tour);
+  }
+
+  private continuerLeTourInterrompu(tour: ContexteTour) {
+    console.warn("@@ reste phase @@ reste=", tour.reste);
+
+    // terminer les instructions de la phase interrompue
+    // TODO: nombre de déclanchements s’il s’agit d’une règle
+    const resultatReste = this.ins.executerInstructions(tour.reste, tour, tour.commande.evenement, undefined);
+    tour.commande.sortie += resultatReste.sortie;
+    // si le déroulement a été interrompu
+    if (resultatReste.interrompreBlocInstruction) {
+      tour.reste = resultatReste.reste;
+      this.executerInterruption(tour);
+    } else {
+      // sinon on passe à la phase suivante du tour.
+      this.executerLaPhaseSuivante(tour);
+    }
   }
 
   /** Exécuter la phase suivante du tour. */
-  private executerLaPhaseSuivante(ctxTour: ContexteTour) {
-    switch (ctxTour.phase) {
+  private executerLaPhaseSuivante(tour: ContexteTour) {
+    switch (tour.phase) {
       // DÉBUT
       case PhaseTour.debut:
         // passer à la phase « avant »
-        ctxTour.phase = PhaseTour.avant;
-        this.executerPhaseAvant(ctxTour);
+        tour.phase = PhaseTour.avant;
+        this.executerPhaseAvant(tour);
         break;
       // AVANT
       case PhaseTour.avant:
         // passer à la phase « refuser »
-        ctxTour.phase = PhaseTour.refuser;
-        this.executerPhaseVerifier(ctxTour);
+        tour.phase = PhaseTour.refuser;
+        this.executerPhaseRefuser(tour);
         break;
       // REFUSER
       case PhaseTour.refuser:
         // passer à la phase « exécuter »
-        ctxTour.phase = PhaseTour.executer;
-        this.executerPhaseExecuter(ctxTour);
+        tour.phase = PhaseTour.executer;
+        this.executerPhaseExecuter(tour);
         break;
       // EXÉCUTER
       case PhaseTour.executer:
         // passer à la phase « après »
-        ctxTour.phase = PhaseTour.apres;
-        this.executerPhaseApres(ctxTour);
+        tour.phase = PhaseTour.apres;
+        this.executerPhaseApres(tour);
         break;
       // APRÈS
       case PhaseTour.apres:
         // passer à la phase « terminer »
-        ctxTour.phase = PhaseTour.terminer;
-        this.executerPhaseTerminer(ctxTour);
+        tour.phase = PhaseTour.terminer;
+        this.executerPhaseTerminer(tour);
         break;
       // TERMINER
       case PhaseTour.terminer:
         // passer à la phase « fin »
-        ctxTour.phase = PhaseTour.fin;
+        tour.phase = PhaseTour.fin;
         break;
       // FIN
       case PhaseTour.fin:
         break;
 
       default:
-        console.error("Phase inconnue:", ctxTour.phase);
+        console.error("Phase inconnue:", tour.phase);
         break;
     }
   }
@@ -501,10 +573,10 @@ export class Commandeur {
     }
   }
 
-  private executerAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructions, contexteTour, evenement, undefined);
-    return resultat;
-  }
+  // private executerAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
+  //   const resultat = this.ins.executerInstructions(action.action.instructions, contexteTour, evenement, undefined);
+  //   return resultat;
+  // }
 
   private finaliserAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
     const resultat = this.ins.executerInstructions(action.action.instructionsFinales, contexteTour, evenement, undefined);

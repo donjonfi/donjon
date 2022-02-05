@@ -377,7 +377,8 @@ export class ConditionsUtils {
           case 'vaut':
             // TODO: gérer plus de situations (en test)
             // remarque: négation appliquée plus loin.
-            // console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
+
+            console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
               retVal = true;
@@ -498,7 +499,7 @@ export class ConditionsUtils {
                 retVal = liste.contientTexte(condition.complement);
               }
             } else {
-              this.jeu.tamponErreurs.push('Condition "liste contient": il manque un complément. (' + (conditionString ? conditionString : condition.toString()) +')')
+              this.jeu.tamponErreurs.push('Condition "liste contient": il manque un complément. (' + (conditionString ? conditionString : condition.toString()) + ')')
             }
 
             break;
@@ -573,7 +574,11 @@ export class ConditionsUtils {
           case 'valent':
           case 'vaut':
             // remarque: négation appliquée plus loin.
-            if (('"' + sujet.nom + '"') === condition.complement) {
+            if (condition.sujetComplement) {
+              if (sujet.intitule.nom == condition.sujetComplement.nom && (sujet.intitule.epithete == condition.sujetComplement.epithete)) {
+                retVal = true;
+              }
+            } else if (sujet.intitule.toString() == condition.complement) {
               retVal = true;
             }
             break;
