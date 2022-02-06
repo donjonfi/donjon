@@ -1,10 +1,10 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { ClassesRacines } from '../models/commun/classes-racines';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
-import { Commandeur } from '../utils/jeu/commandeur';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { ContexteTour } from '../models/jouer/contexte-tour';
 import { ElementsPhrase } from '../models/commun/elements-phrase';
@@ -68,8 +68,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
+  /** le texte restant à afficher dans la sortie (après appuyer sur une touche) */
   resteDeLaSortie: string[] = [];
+  /** une commande est en cours */
   commandeEnCours: boolean = false;
+  /** une interruption de type choix est en cours */
+  interruptionChoixEnCours: boolean = false;
+  /** Interruption qui est en cours */
+  interruptionEnCours: Interruption | undefined;
+  /** Les choix possibles pour l’utilisateur */
+  choixPossibles: string[] = [];
+
   constructor() { }
 
   ngOnInit(): void { }
@@ -96,6 +105,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.resteDeLaSortie = [];
     this.historiqueCommandesPartie = [];
     this.commandeEnCours = false;
+    this.interruptionChoixEnCours = false;
 
     // initialiser le contexte de la partie
     this.ctx = new ContextePartie(this.jeu, this.verbeux);
@@ -295,7 +305,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       let texteErreurs = "";
       while (this.ctx.jeu.tamponErreurs.length) {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
-        texteErreurs += '{N}' + erreur;
+        texteErreurs += '{N}+++ ' + erreur +  ' +++';
       }
       this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
       this.scrollSortie();
@@ -305,6 +315,80 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.verifierTamponErreurs();
     }, 1000);
+  }
+
+  private traiterProchaineInterruption() {
+    console.warn("+++ traiterInterruptions +++");
+
+    // traiter la prochaine interruption
+    this.interruptionEnCours = this.jeu.tamponInterruptions.shift();
+    if (this.interruptionEnCours) {
+      switch (this.interruptionEnCours.typeInterruption) {
+        case TypeInterruption.attendreChoix:
+          if (this.interruptionEnCours.choix?.length) {
+            const identifiantsChoix = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            this.choixPossibles = identifiantsChoix.slice(0, this.interruptionEnCours.choix.length);
+            this.sortieJoueur += '<ul class="no-bullet">';
+            for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {
+              const curChoix = this.interruptionEnCours.choix[indexChoix];
+              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + curChoix.valeur + '</li>';
+            }
+            this.sortieJoueur += '</ul>'
+            this.interruptionChoixEnCours = true;
+          } else {
+            this.jeu.tamponErreurs.push("interruptions: le joueur doit faire un choix mais il n’y a aucun choix dans la liste");
+          }
+          break;
+
+        case TypeInterruption.attendreTouche:
+
+          break;
+
+        default:
+          this.jeu.tamponErreurs.push("interruptions: je ne connais pas ce type d’interruption: " + this.interruptionEnCours.typeInterruption);
+          break;
+      }
+    }
+  }
+
+  private traiterChoixJoueur() {
+    this.commande = this.commande?.trim();
+    this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+
+    const indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
+    if (indexChoix != -1) {
+      // effacer la commande
+      this.commande = '';
+      const choix = this.interruptionEnCours.choix[indexChoix];
+      if (!choix) {
+        this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
+      } else {
+        // Il s’agit d’un tour interrompu
+        if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
+          // tour à continuer
+          const tourInterrompu = this.interruptionEnCours.tour;
+          // l’interruption est terminée
+          this.interruptionChoixEnCours = false;
+          this.interruptionEnCours = undefined;
+          // ajouter les instructions découlant du choix au reste des instructions à exécuter pour ce tour
+          if (choix.instructions?.length) {
+            tourInterrompu.reste.unshift(...choix.instructions);
+          }
+          // continuer le tour interrompu
+          const sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
+          // afficher la sortie du tour
+          this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+
+        } else {
+          this.jeu.tamponErreurs.push("Traiter choix: actuellement je ne gère que les interruptions du tour.");
+          // l’interruption est terminée
+          this.interruptionChoixEnCours = false;
+          this.interruptionEnCours = undefined;
+        }
+      }
+    } else {
+      this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
+    }
   }
 
   private afficherSuiteSortie() {
@@ -478,7 +562,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param event 
    */
   onKeyDownEnter(event: Event) {
-    if (!this.resteDeLaSortie?.length) {
+    if (this.interruptionChoixEnCours) {
+      this.traiterChoixJoueur();
+    } else if (!this.resteDeLaSortie?.length) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
         event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
@@ -534,19 +620,30 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             }
             // aucune sortie
           } else {
-            this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
+            // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
+            if (this.jeu.tamponInterruptions.length) {
+              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
+            }
           }
 
-          this.sortieJoueur += "</p>";
+          // terminer le paragraphe si on n’a pas d’interruptions à gérer
+          if (!this.jeu.tamponInterruptions.length) {
+            this.sortieJoueur += "</p>";
+          }
         }
         // nettoyer l’entrée commande et scroll du texte
         this.commande = "";
 
-        // mode triche: afficher commande suivante
-        if (this.tricheActif && !this.resteDeLaSortie?.length) {
-          this.indexTriche += 1;
-          if (this.indexTriche < this.autoCommandes.length) {
-            this.commande = this.autoCommandes[this.indexTriche];
+        // s’il y a encore des interruptions à gérer, il faut les gérer
+        if (this.jeu.tamponInterruptions.length) {
+          this.traiterProchaineInterruption();
+        } else {
+          // mode triche: afficher commande suivante
+          if (this.tricheActif && !this.resteDeLaSortie?.length) {
+            this.indexTriche += 1;
+            if (this.indexTriche < this.autoCommandes.length) {
+              this.commande = this.autoCommandes[this.indexTriche];
+            }
           }
         }
 

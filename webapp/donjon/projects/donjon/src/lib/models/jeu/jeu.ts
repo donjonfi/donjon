@@ -3,6 +3,7 @@ import { Aide } from '../commun/aide';
 import { Auditeur } from '../jouer/auditeur';
 import { Classe } from '../commun/classe';
 import { Compteur } from '../compilateur/compteur';
+import { Interruption } from './interruption';
 import { Lieu } from './lieu';
 import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
@@ -54,6 +55,9 @@ export class Jeu {
 
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponErreurs: string[] = [];
+  
+  /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
+  tamponInterruptions: Interruption[] = [];
 
   classes: Classe[] = [];
 

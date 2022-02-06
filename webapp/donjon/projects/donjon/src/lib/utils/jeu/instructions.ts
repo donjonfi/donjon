@@ -73,19 +73,26 @@ export class Instructions {
       resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
       resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
 
-      console.log("executerInstructions: sousResultat.interrompreBlocInstruction=", sousResultat.interrompreBlocInstruction);
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
         resultat.interrompreBlocInstruction = true;
         // les choix à proposer au joueur
         resultat.choix = sousResultat.choix;
-        // retenir le reste des instructions
-        resultat.reste = instructions.slice(indexInstruction + 1);
-        console.log("RESTE: ", resultat.reste, "Tout:", instructions);
+        // retenir le reste des instructions du sous-resultat (s’il y en a un)
+        if (sousResultat.reste?.length) {
+          resultat.reste = sousResultat.reste;
+          // le reste des instructions de la liste principale (s’il y en a un)
+          if (indexInstruction < (instructions.length - 1)) {
+            resultat.reste.push(...instructions.slice(indexInstruction + 1));
+          }
+          // sinon retenir uniquement le reste des instructions de la liste principale
+        } else {
+          resultat.reste = instructions.slice(indexInstruction + 1);
+        }
         break;
       }
     }
-    console.log("executerInstructions resultat.interrompreBlocInstruction=", resultat.interrompreBlocInstruction);
+    console.log("executerInstructions ins=", instructions, "resINT=", resultat.interrompreBlocInstruction, "reste:", resultat.reste);
 
     return resultat;
   }
@@ -103,7 +110,7 @@ export class Instructions {
     // instruction conditionnelle
     if (instruction.condition) {
       console.log("executerInstruction: CONDITION:", instruction);
-      
+
       const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
@@ -118,7 +125,7 @@ export class Instructions {
       console.log("executerInstruction: CHOIX:", instruction);
 
       if (instruction.choix.length > 0) {
-        resultat = new Resultat(true, "{U}{+Un choix doit être fait ici !+}", 1);
+        resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
         resultat.choix = instruction.choix;
       } else {
@@ -260,9 +267,7 @@ export class Instructions {
         // EXÉCUTER RÉACTION
         if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
           // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
-          sousResultat = this.insExecuter.executerReaction(instruction, contexteTour);
-          resultat.sortie = sousResultat.sortie;
-          resultat.succes = sousResultat.succes;
+          resultat = this.insExecuter.executerReaction(instruction, contexteTour);
           // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterAction)) {
           resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);

@@ -1,4 +1,5 @@
 import { ContexteTour, PhaseTour } from '../../models/jouer/contexte-tour';
+import { Interruption, TypeContexte, TypeInterruption } from '../../models/jeu/interruption';
 
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
@@ -54,33 +55,33 @@ export class Commandeur {
 
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
-    let ctx = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
+    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
 
-    console.error("ctx.candidats:", ctx.candidats);
+    console.error("ctx.candidats:", ctxCmd.candidats);
 
 
     // si on a réussi à décomposer la commande
-    if (ctx.candidats.length > 0) {
+    if (ctxCmd.candidats.length > 0) {
 
       // un seul candidat, c’est forcément lui
-      if (ctx.candidats.length == 1) {
-        this.essayerLaCommande(0, ctx);
-      } else if (ctx.candidats.length == 2) {
+      if (ctxCmd.candidats.length == 1) {
+        this.essayerLaCommande(0, ctxCmd);
+      } else if (ctxCmd.candidats.length == 2) {
 
         // les 2 candidats ont le même score
-        if (ctx.candidats[0].score == ctx.candidats[1].score) {
+        if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
           this.jeu.tamponErreurs.push("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
-          this.essayerLaCommande(0, ctx);
+          this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
-          if (!ctx.commandeValidee) {
-            this.essayerLaCommande(1, ctx);
+          if (!ctxCmd.commandeValidee) {
+            this.essayerLaCommande(1, ctxCmd);
           }
           // le premier candidat a un score plus élevé
         } else {
-          this.essayerLaCommande(0, ctx);
+          this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
-          if (!ctx.commandeValidee) {
-            this.essayerLaCommande(1, ctx);
+          if (!ctxCmd.commandeValidee) {
+            this.essayerLaCommande(1, ctxCmd);
           }
         }
         // s’il y a plus de 2 candidats, c’est un cas qui n’est pas pris en charge (ça ne devrait pas arriver)
@@ -90,18 +91,18 @@ export class Commandeur {
 
       // la commande n’a pas pu être décomposée
     } else {
-      ctx.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
-      ctx.sortie += "Voici des exemples de commandes que je comprend :\n";
-      ctx.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
-      ctx.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
-      ctx.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
-      ctx.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
-      ctx.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
-      ctx.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
-      ctx.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
-      ctx.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
+      ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
+      ctxCmd.sortie += "Voici des exemples de commandes que je comprend :\n";
+      ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
+      ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
+      ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
+      ctxCmd.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
+      ctxCmd.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
+      ctxCmd.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
+      ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
+      ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
     }
-    return ctx.sortie;
+    return ctxCmd.sortie;
   }
 
   private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande) {
@@ -288,6 +289,8 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatAvant.interrompreBlocInstruction) {
       tour.reste = resultatAvant.reste;
+      tour.choix = resultatAvant.choix;
+      tour.typeInterruption = TypeInterruption.attendreChoix;
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -327,6 +330,8 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatRefuser?.interrompreBlocInstruction) {
       tour.reste = resultatRefuser.reste;
+      tour.choix = resultatRefuser.choix;
+      tour.typeInterruption = TypeInterruption.attendreChoix;
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -347,8 +352,10 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatExecuter.interrompreBlocInstruction) {
       tour.reste = resultatExecuter.reste;
-     console.log("Reste exécuter:", tour.reste);
-     
+      tour.choix = resultatExecuter.choix;
+      tour.typeInterruption = TypeInterruption.attendreChoix;
+      console.log("Reste exécuter:", tour.reste);
+
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -445,6 +452,8 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatFinaliser.interrompreBlocInstruction) {
       tour.reste = resultatFinaliser.reste;
+      tour.choix = resultatFinaliser.choix;
+      tour.typeInterruption = TypeInterruption.attendreChoix;
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -454,13 +463,19 @@ export class Commandeur {
 
   private executerInterruption(tour: ContexteTour) {
     console.warn("+interruption+");
-    tour.commande.sortie +=("{N}{++Interruption++}{N}");
-    // continuer le tour après l’interruption
-    this.continuerLeTourInterrompu(tour);
+    const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
+    interruption.tour = tour;
+    interruption.choix = tour.choix;
+    interruption.typeInterruption = tour.typeInterruption;
+    interruption.typeContexte = TypeContexte.tour;
+    this.jeu.tamponInterruptions.push(interruption);
   }
 
-  private continuerLeTourInterrompu(tour: ContexteTour) {
-    console.warn("@@ reste phase @@ reste=", tour.reste);
+  public continuerLeTourInterrompu(tour: ContexteTour): string {
+    console.warn("@@ continuer le tour interrompu @@ reste=", tour.reste);
+
+    // on a déjà affiché la sortie de la partie précédente de la commande donc on peut la vider
+    tour.commande.sortie = "";
 
     // terminer les instructions de la phase interrompue
     // TODO: nombre de déclanchements s’il s’agit d’une règle
@@ -469,11 +484,15 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatReste.interrompreBlocInstruction) {
       tour.reste = resultatReste.reste;
+      tour.choix = resultatReste.choix;
+      tour.typeInterruption = TypeInterruption.attendreChoix;
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
     }
+    // retourner la suite de la sortie de la commande
+    return tour.commande.sortie;
   }
 
   /** Exécuter la phase suivante du tour. */

@@ -1,8 +1,10 @@
+import { Choix } from "../compilateur/choix";
 import { ContexteCommande } from "./contexte-commande";
 import { ElementsPhrase } from "../commun/elements-phrase";
 import { Instruction } from "../compilateur/instruction";
 import { Intitule } from "../jeu/intitule";
 import { Resultat } from "./resultat";
+import { TypeInterruption } from "../jeu/interruption";
 
 export class ContexteTour {
 
@@ -16,6 +18,8 @@ export class ContexteTour {
   public resultatRegleApres: Resultat | undefined;
 
   public reste: Instruction[] | undefined;
+  public choix: Choix[] | undefined;
+  public typeInterruption: TypeInterruption | undefined;
 
   constructor(
     /** Ceci */
