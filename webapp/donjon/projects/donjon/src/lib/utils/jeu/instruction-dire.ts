@@ -781,7 +781,7 @@ export class InstructionDire {
     // ======================================================================================================
     // > POINT FINAL => ajout d’un retour à la ligne conditionnel automatiquement, sauf si balise de type {x}
     // ======================================================================================================
-    if (texteDynamiqueSansBaliseStyle.match(/(\.|…|:|\?|!)$/)) {
+    if (texteDynamiqueSansBaliseStyle.match(/(\.|…|:|\?|!)(\)| »)?$/)) {
       // si le texte se termine par une balise de type {x}, ne pas ajouter de retour à la ligne auto.
       if (texteDynamique.match(/\{\w\}$/)) {
         // sinon ajouter retour à la ligne auto.

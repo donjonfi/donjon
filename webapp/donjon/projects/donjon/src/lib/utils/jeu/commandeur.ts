@@ -57,9 +57,6 @@ export class Commandeur {
     // > décomposer la commande
     let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
 
-    console.error("ctx.candidats:", ctxCmd.candidats);
-
-
     // si on a réussi à décomposer la commande
     if (ctxCmd.candidats.length > 0) {
 
@@ -108,9 +105,6 @@ export class Commandeur {
   private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande) {
 
     let actionsCeciCela = this.act.trouverActionPersonnalisee(candidatCommande.els, candidatCommande.correspondCeci, candidatCommande.correspondCela);
-
-    console.error("chercherParmisLesActions:", actionsCeciCela);
-
 
     // =====================================================
     // A. VERBE PAS CONNU
@@ -253,7 +247,7 @@ export class Commandeur {
 
   /** Exécuter la phase « avant » du tour. */
   private executerPhaseAvant(tour: ContexteTour) {
-    console.warn("@@ phase avant @@");
+    // console.warn("@@ phase avant @@");
 
     // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
     let resultatAvant = new Resultat(true, "", 0);
@@ -272,6 +266,7 @@ export class Commandeur {
       if (sousResultatAvant.interrompreBlocInstruction) {
         resultatAvant.interrompreBlocInstruction = true;
         resultatAvant.reste = sousResultatAvant.reste;
+        resultatAvant.choix = sousResultatAvant.choix;
         if (declenchementsAvant.length > 1) {
           this.jeu.tamponErreurs.push("Déclanchement règle avant: l’instruction choisir ne fonctionne pas correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
         }
@@ -291,6 +286,7 @@ export class Commandeur {
       tour.reste = resultatAvant.reste;
       tour.choix = resultatAvant.choix;
       tour.typeInterruption = TypeInterruption.attendreChoix;
+      tour.phase = PhaseTour.avant_interrompu; // on pourrait encore terminer dans la 2e partie de la règle.
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -300,8 +296,7 @@ export class Commandeur {
 
   /** Exécuter la phase « refuser » du tour. */
   private executerPhaseRefuser(tour: ContexteTour) {
-    console.warn("@@ phase refuser @@");
-
+    // console.warn("@@ phase refuser @@");
     // PHASE REFUSER (vérifier l'action)
     let refus = false;
     let resultatRefuser: Resultat | undefined;
@@ -342,8 +337,7 @@ export class Commandeur {
 
   /** Exécuter la phase « exécuter » du tour. */
   private executerPhaseExecuter(tour: ContexteTour) {
-    console.warn("@@ phase exécuter @@");
-
+    // console.warn("@@ phase exécuter @@");
     // PHASE EXÉCUTER l’action
     // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
     const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.instructions, tour, tour.commande.evenement, undefined);
@@ -354,8 +348,6 @@ export class Commandeur {
       tour.reste = resultatExecuter.reste;
       tour.choix = resultatExecuter.choix;
       tour.typeInterruption = TypeInterruption.attendreChoix;
-      console.log("Reste exécuter:", tour.reste);
-
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -365,89 +357,114 @@ export class Commandeur {
 
   /** Exécuter la phase « après » du tour. */
   private executerPhaseApres(tour: ContexteTour) {
-    console.warn("@@ phase après @@");
-
+    // console.warn("@@ phase après @@");
     // ÉVÈNEMENT APRÈS la commande
     let resultatApres = new Resultat(true, "", 0);
     // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
     const declenchementsApres = this.dec.apres(tour.commande.evenement);
+
+
+    // vérifier si la première instruction est un "continuer l'action avant"
     if (declenchementsApres.length) {
-      // éxécuter les règles déclenchées
-      for (let index = 0; index < declenchementsApres.length; index++) {
-        const declenchement = declenchementsApres[index];
-        const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, tour, tour.commande.evenement, declenchement.declenchements);
-        resultatApres.sortie += sousResultatApres.sortie;
-        resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-        resultatApres.nombre += sousResultatApres.nombre;
-        resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || (sousResultatApres.terminerAvantRegle && !declenchement.estRegleActionQuelconque);
-        resultatApres.terminerAvantRegleGenerique = resultatApres.terminerAvantRegleGenerique || (sousResultatApres.terminerAvantRegle && declenchement.estRegleActionQuelconque);
-        resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || (sousResultatApres.terminerApresRegle && !declenchement.estRegleActionQuelconque);
-        resultatApres.terminerApresRegleGenerique = resultatApres.terminerApresRegleGenerique || (sousResultatApres.terminerApresRegle && declenchement.estRegleActionQuelconque);
+      let phaseTerminerActionAvantRegleApres = false;
+      // éviter de faire le test 2x...
+      if (tour.phase == PhaseTour.apres) {
+        // tester si la première instruction est un "continuer l'action avant"
+        for (let index = 0; index < declenchementsApres.length; index++) {
+          const declenchement = declenchementsApres[index];
+          if (declenchement.instructions.length > 0 && declenchement.instructions[0].instruction) {
+            const premiereInstruction = declenchement.instructions[0].instruction;
+            if (premiereInstruction.infinitif == 'continuer' &&
+              premiereInstruction.sujet?.nom?.toLocaleLowerCase() == 'action' &&
+              premiereInstruction.sujet?.epithete?.toLocaleLowerCase() == 'avant') {
+              phaseTerminerActionAvantRegleApres = true;
+            }
+          }
+        }
       }
 
-      // Normalement on n’exécute pas la phase « terminer » s’il y a une règle « après », sauf si demandé explicitement
-      // => la sortie de la phase « terminer » doit-elle être intercalée AVANT la sortie de la phase « après » ?
-      // rem: si aucune sortie pour la règle après, on termine d’office.
-      // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
-      if (resultatApres.terminerAvantRegle || !resultatApres.sortie || (resultatApres.terminerAvantRegleGenerique && declenchementsApres.length == 1)) {
-
-        // on sauve la sortie de la phase « APRÈS » dans le contexte du tour pour l’afficher plus tard
-        tour.resultatRegleApres = resultatApres;
-
-        // cas particulier : exécuter la phase suivante du tour malgré la règle « après ».
+      // si on doit terminer l'action avant la règle après, passer à la phase terminer, on reviendra ici après
+      if (phaseTerminerActionAvantRegleApres) {
+        tour.phase = PhaseTour.apres_a_traiter_apres_terminer;
         this.executerLaPhaseSuivante(tour);
-
-        // // PHASE TERMINER l'action (avant sortie règle « après ») => « terminer l’action avant »
-        // const resultatFinaliser = this.finaliserAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
-        // tour.commande.sortie += resultatFinaliser.sortie;
-
-        // // éviter de terminer 2x l’action (en cas d’erreur de l’utilisateur)
-        // if (resultatApres.terminerApresRegle || resultatApres.terminerApresRegleGenerique) {
-        //   resultatApres.terminerApresRegle = false;
-        //   resultatApres.terminerApresRegleGenerique = false;
-        // }
-
-        // sinon on affiche normalement la sortie de la phase « après ».
+        // sinon exécuter la règle après
       } else {
+        // éxécuter les règles déclenchées
+        for (let index = 0; index < declenchementsApres.length; index++) {
+          const declenchement = declenchementsApres[index];
+          const sousResultatApres = this.ins.executerInstructions(declenchement.instructions, tour, tour.commande.evenement, declenchement.declenchements);
+          resultatApres.sortie += sousResultatApres.sortie;
+          resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
+          resultatApres.nombre += sousResultatApres.nombre;
+          // resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || (sousResultatApres.terminerAvantRegle && !declenchement.estRegleActionQuelconque);
+          // resultatApres.terminerAvantRegleGenerique = resultatApres.terminerAvantRegleGenerique || (sousResultatApres.terminerAvantRegle && declenchement.estRegleActionQuelconque);
+          resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || (sousResultatApres.terminerApresRegle && !declenchement.estRegleActionQuelconque);
+          resultatApres.terminerApresRegleGenerique = resultatApres.terminerApresRegleGenerique || (sousResultatApres.terminerApresRegle && declenchement.estRegleActionQuelconque);
+
+          // vérifier s’il y a une interruption
+          if (sousResultatApres.interrompreBlocInstruction) {
+            resultatApres.interrompreBlocInstruction = true;
+            resultatApres.reste = sousResultatApres.reste;
+            resultatApres.choix = sousResultatApres.choix;
+            if (declenchementsApres.length > 1) {
+              this.jeu.tamponErreurs.push("Déclanchement règle après: l’instruction choisir ne fonctionne pas correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
+            }
+          }
+        } // fin exécution des instructions des règles après
+
         // sortie règle après
         tour.commande.sortie += resultatApres.sortie;
+
+        // si on a été interrompu
+        if (resultatApres.interrompreBlocInstruction) {
+          if (tour.phase == PhaseTour.continuer_apres) {
+            tour.phase = PhaseTour.continuer_apres_interrompu;
+          } else {
+            tour.phase = PhaseTour.apres_interrompu;
+          }
+          tour.reste = resultatApres.reste;
+          tour.choix = resultatApres.choix;
+          tour.typeInterruption = TypeInterruption.attendreChoix;
+          this.executerInterruption(tour);
+          //  - sinon on n'a pas été interrompu
+        } else {
+
+          // Normalement on n’exécute pas la phase « terminer » s’il y a une règle « après », sauf si demandé explicitement
+          // ou si aucune sortie
+          // => exécuter la phase « terminer » après règle « après » ?
+          // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
+          if (!resultatApres.sortie || resultatApres.terminerApresRegle || (resultatApres.terminerApresRegleGenerique && declenchementsApres.length == 1)) {
+            //on est déjà en phase après, rien à faire pour passer en phase terminer.
+          } else {
+            // case normal: on passe directement en phase fin
+            tour.phase = PhaseTour.fin;
+          }
+          this.executerLaPhaseSuivante(tour);
+        }
+
       }
 
-      // Normalement on n’exécute pas la phase « terminer » s’il y a une règle « après », sauf si demandé explicitement
-      // => exécuter la phase « terminer » après règle « après » ?
-      // rem: si règle générique demande de continuer, on le fait que si elle est toute seule sinon on tient compte des autres règles
-      if (resultatApres.terminerApresRegle || (resultatApres.terminerApresRegleGenerique && declenchementsApres.length == 1)) {
-        // // PHASE TERMINER l'action (après sortie règle « après ») => « terminer l’action après » (ou « continuer l’action »)
-        // const resultatFinaliser = this.finaliserAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
-        // tour.commande.sortie += resultatFinaliser.sortie;
-
-        // cas particulier : exécuter la phase suivante du tour malgré la règle « après ».
-        this.executerLaPhaseSuivante(tour);
-
-        // Cas normal: on cloture le tour après la règle « après »
-      } else {
-        tour.phase = PhaseTour.fin;
-      }
       // Pas de règle « après » : on exécute la phase suivante
     } else {
       // exécuter la phase suivante du tour
+      // (on n'a pas pu être interrompu ici puisque pas de règle après donc pas d'instructions)
       this.executerLaPhaseSuivante(tour);
     }
   }
 
   /** Exécuter la phase « terminer » du tour. */
   private executerPhaseTerminer(tour: ContexteTour) {
-    console.warn("@@ phase terminer @@");
+    // console.warn("@@ phase terminer @@");
 
     // PHASE TERMINER l'action (sans règle « après »)
     const resultatFinaliser = this.finaliserAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
     tour.commande.sortie += resultatFinaliser.sortie;
 
-    // s’il restait à afficher la sortie de la règle « après » (commande « terminer avant »)
-    if (tour.resultatRegleApres) {
-      tour.commande.sortie += tour.resultatRegleApres.sortie;
-      tour.resultatRegleApres = undefined;
-    }
+    // // s’il restait à afficher la sortie de la règle « après » (commande « terminer avant »)
+    // if (tour.phase == PhaseTour.terminer_avant_sortie_apres) {
+    //   tour.commande.sortie += tour.resultatRegleApres.sortie;
+    //   tour.resultatRegleApres = undefined;
+    // }
 
     // si le déroulement a été interrompu
     if (resultatFinaliser.interrompreBlocInstruction) {
@@ -472,7 +489,7 @@ export class Commandeur {
   }
 
   public continuerLeTourInterrompu(tour: ContexteTour): string {
-    console.warn("@@ continuer le tour interrompu @@ reste=", tour.reste);
+    // console.warn("@@ continuer le tour interrompu @@ reste=", tour.reste);
 
     // on a déjà affiché la sortie de la partie précédente de la commande donc on peut la vider
     tour.commande.sortie = "";
@@ -481,6 +498,13 @@ export class Commandeur {
     // TODO: nombre de déclanchements s’il s’agit d’une règle
     const resultatReste = this.ins.executerInstructions(tour.reste, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatReste.sortie;
+
+    if (tour.phase == PhaseTour.avant_interrompu && resultatReste.arreterApresRegle) {
+      tour.phase = PhaseTour.fin;
+    } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle && !resultatReste.terminerApresRegle) {
+      tour.phase = PhaseTour.fin;
+    }
+
     // si le déroulement a été interrompu
     if (resultatReste.interrompreBlocInstruction) {
       tour.reste = resultatReste.reste;
@@ -500,12 +524,13 @@ export class Commandeur {
     switch (tour.phase) {
       // DÉBUT
       case PhaseTour.debut:
-        // passer à la phase « avant »
+        // passer à la phase « avant »  
         tour.phase = PhaseTour.avant;
         this.executerPhaseAvant(tour);
         break;
       // AVANT
       case PhaseTour.avant:
+      case PhaseTour.avant_interrompu:
         // passer à la phase « refuser »
         tour.phase = PhaseTour.refuser;
         this.executerPhaseRefuser(tour);
@@ -524,14 +549,30 @@ export class Commandeur {
         break;
       // APRÈS
       case PhaseTour.apres:
+      case PhaseTour.apres_interrompu:
         // passer à la phase « terminer »
         tour.phase = PhaseTour.terminer;
         this.executerPhaseTerminer(tour);
         break;
-      // TERMINER
-      case PhaseTour.terminer:
+      case PhaseTour.apres_a_traiter_apres_terminer:
+        // passer à la phase « terminer »
+        tour.phase = PhaseTour.terminer_avant_traiter_apres;
+        this.executerPhaseTerminer(tour);
+        break;
+      case PhaseTour.continuer_apres:
+      case PhaseTour.continuer_apres_interrompu:
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
+        break;
+      // TERMINER
+      case PhaseTour.terminer:
+        // case PhaseTour.terminer_avant_sortie_apres:
+        // passer à la phase « fin »
+        tour.phase = PhaseTour.fin;
+        break;
+      case PhaseTour.terminer_avant_traiter_apres:
+        tour.phase = PhaseTour.continuer_apres;
+        this.executerPhaseApres(tour);
         break;
       // FIN
       case PhaseTour.fin:

@@ -305,7 +305,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       let texteErreurs = "";
       while (this.ctx.jeu.tamponErreurs.length) {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
-        texteErreurs += '{N}+++ ' + erreur +  ' +++';
+        texteErreurs += '{N}+++ ' + erreur + ' +++';
       }
       this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
       this.scrollSortie();
@@ -389,6 +389,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
     }
+    this.scrollSortie();
   }
 
   private afficherSuiteSortie() {
@@ -669,6 +670,26 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   set audioActif(actif: boolean) {
     this.ctx.jeu.parametres.activerAudio = actif;
     this.ctx.ins.onChangementAudioActif();
+  }
+
+  get placeHolder(): string {
+    if (this.interruptionChoixEnCours) {
+      return 'Veuillez faire un choix';
+    } else if (this.resteDeLaSortie?.length) {
+      return 'Appuyez sur une touche…';
+    } else {
+      return 'Entrez une commande (infinitif + compl. direct + compl. indirect)';
+    }
+  }
+
+  get maxLen(): number {
+    if (this.interruptionChoixEnCours) {
+      return 1;
+    } else if (this.resteDeLaSortie?.length) {
+      return 0;
+    } else {
+      return -1;
+    }
   }
 
   ngOnDestroy(): void {

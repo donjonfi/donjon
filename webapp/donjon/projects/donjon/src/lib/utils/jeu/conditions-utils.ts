@@ -378,7 +378,7 @@ export class ConditionsUtils {
             // TODO: gérer plus de situations (en test)
             // remarque: négation appliquée plus loin.
 
-            console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
+            // console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
               retVal = true;

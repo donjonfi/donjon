@@ -92,8 +92,6 @@ export class Instructions {
         break;
       }
     }
-    console.log("executerInstructions ins=", instructions, "resINT=", resultat.interrompreBlocInstruction, "reste:", resultat.reste);
-
     return resultat;
   }
 
@@ -109,8 +107,6 @@ export class Instructions {
 
     // instruction conditionnelle
     if (instruction.condition) {
-      console.log("executerInstruction: CONDITION:", instruction);
-
       const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
       if (this.verbeux) {
         console.log(">>>> estVrai=", estVrai);
@@ -122,8 +118,6 @@ export class Instructions {
       }
       // instruction choisir
     } else if (instruction.choix) {
-      console.log("executerInstruction: CHOIX:", instruction);
-
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
@@ -134,8 +128,6 @@ export class Instructions {
       }
       // instruction simple
     } else {
-      console.log("executerInstruction: SIMPLE:", instruction);
-
       if (instruction.instruction.infinitif) {
         resultat = this.executerInfinitif(instruction.instruction, instruction.nbExecutions, contexteTour, evenement, declenchements);
       } else {
