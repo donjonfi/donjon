@@ -49,6 +49,23 @@ export class EditeurComponent implements OnInit, OnDestroy {
   tailleTexte = 18;
   hauteurLigneCode = 18;
 
+
+  /** Afficher les préférences ou non */
+  afficherPreferences = false;
+  /** Afficher les sections ou non */
+  afficherSections = false;
+
+  /** Faut-il automatiquement corriger « sinon si » en « sinonsi » ? */
+  corrigerSinonSi = true;
+  /** Faut-il essayer de corriger « . » et « ; » manquants ? */
+  corrigerPoint = true;
+
+  /** Faut-il afficher les numéros de ligne ? */
+  afficherNumerosLigne = true;
+
+  /** Faut-il désactiver la mise en forme dans l'éditeur de texte (pour lecteur d'écran) ? */
+  sansMiseEnForme = false;
+
   public config: AceConfigInterface = {
     // mode: 'text',
     mode: 'donjon',
@@ -58,7 +75,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     tabSize: 2,
     fontSize: this.tailleTexte,
     showGutter: true,
-    showLineNumbers: true,
+    showLineNumbers: this.afficherNumerosLigne,
     showPrintMargin: false,
     hScrollBarAlwaysVisible: false,
     wrap: true,
@@ -117,17 +134,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   chargementFichierEnCours = false;
   /** Fichier d'exemple par défaut. */
   nomExemple = "coince";
-  /** Afficher les préférences ou non */
-  afficherPreferences = false;
-  /** Afficher les sections ou non */
-  afficherSections = false;
 
-  /** Faut-il automatiquement corriger « sinon si » en « sinonsi » ? */
-  corrigerSinonSi = true;
-  /** Faut-il essayer de corriger « . » et « ; » manquants ? */
-  corrigerPoint = true;
-  /** Faut-il désactiver la mise en forme dans l'éditeur de texte (pour lecteur d'écran) ? */
-  sansMiseEnForme = false;
 
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
@@ -207,6 +214,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
     retVal = localStorage.getItem('EditeurTheme');
     if (retVal) {
       this.theme = retVal;
+    }
+    // - numéros de ligne
+    retVal = localStorage.getItem('AfficherNumerosLigne');
+    if (retVal) {
+      if (retVal == '1') {
+        this.afficherNumerosLigne = true;
+      } else {
+        this.afficherNumerosLigne = false;
+      }
     }
 
     // =========================================
@@ -938,6 +954,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  GESTION DES PRÉFÉRENCES
   // =============================================
 
+  onChangerAfficherPreferences(): void {
+    this.afficherPreferences = !this.afficherPreferences;
+    this.majTailleAce();
+  }
+
   /** Changer correction auto de « sinon si » en « sinonsi ». */
   onChangerCorrectionSinonSi(): void {
     localStorage.setItem('CorrigerSinonSi', (this.corrigerSinonSi ? '1' : '0'));
@@ -946,6 +967,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Changer correction des « . » et « ; » manquants. */
   onChangerCorrectionPoint(): void {
     localStorage.setItem('CorrigerPoint', (this.corrigerPoint ? '1' : '0'));
+  }
+
+  onChangerAfficherNumerosLigne(): void {
+    localStorage.setItem('AfficherNumerosLigne', (this.afficherNumerosLigne ? '1' : '0'));
+    this.majTailleAce();
   }
 
   /** Désactiver la mise en forme de l'éditeur de scénario (pour lecteur d'écran) */
@@ -974,6 +1000,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
         // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
         this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
         this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+        this.codeEditorElmRef["directiveRef"].ace().setOption("showLineNumbers", this.afficherNumerosLigne);
+        this.codeEditorElmRef["directiveRef"].ace().setOption("showGutter", this.afficherNumerosLigne);
         // en fonction du navigateur cette valeur est variable !
         this.hauteurLigneCode = this.codeEditorElmRef["directiveRef"].ace().renderer.lineHeight;
       }

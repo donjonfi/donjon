@@ -85,7 +85,7 @@
 
             <!-- préférences -->
             <br>
-            <button class="btn btn-secondary mt-4" (click)="afficherPreferences = !afficherPreferences"
+            <button class="btn btn-secondary mt-4" (click)="onChangerAfficherPreferences()"
               tooltip="Préférences" placement="right" title="Préférences">
               <i class="fas fa-fw fa-sliders-h fa-lg"></i>
             </button>
@@ -93,7 +93,7 @@
             <!-- sections -->
             <br>
             <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
-            <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
+            <button *ngIf="false" class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
               placement="right" title="Sections">
               <i class="fas fa-fw fa-thumbtack fa-lg"></i>
             </button>
@@ -156,6 +156,7 @@
                       </div>
                     </div>
                   </div>
+
                   <div *ngIf="false" class="row mb-1">
                     <div class="col-12">
                       <div class="form-check">
@@ -163,6 +164,16 @@
                           (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
                         <label class="form-check-label" for="ckCorrigerPoint">Essayer de corriger les « . » et « ; »
                           manquants.</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="afficherNumerosLigne"
+                          (change)="onChangerAfficherNumerosLigne()" id="ckNumeroLigne">
+                        <label class="form-check-label" for="ckNumeroLigne">Afficher les numéros de ligne</label>
                       </div>
                     </div>
                   </div>
@@ -180,7 +191,7 @@
                 </ng-container>
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-                <div *ngIf="afficherSections" class="row mb-2">
+                <div *ngIf="false && afficherSections" class="row mb-2">
                   <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pe-md-1 py-1">
                     <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-select"
                       name="choixPartie">
