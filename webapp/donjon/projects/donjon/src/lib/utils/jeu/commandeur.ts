@@ -479,7 +479,7 @@ export class Commandeur {
   }
 
   private executerInterruption(tour: ContexteTour) {
-    console.warn("+interruption+");
+    // console.warn("+interruption+");
     const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
     interruption.tour = tour;
     interruption.choix = tour.choix;
@@ -489,7 +489,7 @@ export class Commandeur {
   }
 
   public continuerLeTourInterrompu(tour: ContexteTour): string {
-    // console.warn("@@ continuer le tour interrompu @@ reste=", tour.reste);
+    //  console.warn("@@ continuer le tour interrompu @@ reste=", tour.reste);
 
     // on a déjà affiché la sortie de la partie précédente de la commande donc on peut la vider
     tour.commande.sortie = "";
@@ -515,6 +515,7 @@ export class Commandeur {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
     }
+
     // retourner la suite de la sortie de la commande
     return tour.commande.sortie;
   }

@@ -305,7 +305,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       let texteErreurs = "";
       while (this.ctx.jeu.tamponErreurs.length) {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
-        texteErreurs += '{N}+++ ' + erreur + ' +++';
+        texteErreurs += '{N}# ' + erreur + '';
       }
       this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
       this.scrollSortie();
@@ -385,6 +385,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.interruptionChoixEnCours = false;
           this.interruptionEnCours = undefined;
         }
+
+        // s’il y a encore des interruptions à gérer, il faut les gérer
+        if (this.jeu.tamponInterruptions.length) {
+          this.traiterProchaineInterruption();
+        } else {
+          // mode triche: afficher commande suivante
+          if (this.tricheActif && !this.resteDeLaSortie?.length) {
+            this.indexTriche += 1;
+            if (this.indexTriche < this.autoCommandes.length) {
+              this.commande = this.autoCommandes[this.indexTriche];
+            }
+          }
+        }
+        this.scrollSortie();
+
       }
     } else {
       this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";

@@ -49,8 +49,12 @@ export class ElementGenerique implements ElementDonjon {
 
   }
 
+  public get elIntitule() {
+    return this.nom + (this.epithete ? (' ' + this.epithete) : '');
+  }
+
   public static elIntitule(el: ElementGenerique) {
-    return el.nom;
+    return el.nom + (el.epithete ? (' ' + el.epithete) : '');
   }
 
 }

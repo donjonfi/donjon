@@ -84,19 +84,14 @@ export class AnalyseurInstructions {
               // CAS C.1 >> DÉBUT BLOC CHOISIR
               let resultChoisirIns = ExprReg.xSeparerChoisirInstructions.exec(conBruNettoyee);
               if (resultChoisirIns) {
-                console.error("D.1 BLOC CHOISIR", conBruNettoyee);
                 this.traiterInstructionChoisir(resultChoisirIns, ctx);
               } else {
                 // CAS C.2 >> BLOC CHOIX
                 let resultChoixIns = ExprReg.xChoixTexteNombreOuIntitule.exec(conBruNettoyee);
                 if (resultChoixIns) {
-                  console.error("D.2 BLOC CHOIX:", conBruNettoyee);
-
                   this.traiterInstructionChoix(resultChoixIns, ctx);
-
                   // CAS C.3 >> FIN BLOC CHOISIR
                 } else if (conBruNettoyee.trim().toLowerCase().match(/^(fin choix|finchoix|fin choisir|finchoisir)$/i)) {
-                  console.error("D.3 FIN CHOISIR", conBruNettoyee);
                   this.traiterInstructionFinChoisir(ctx);
 
                   // *****************************************************************************
@@ -359,9 +354,6 @@ export class AnalyseurInstructions {
 
     const premierChoixOuParmis = resultChoisirIns[1];
 
-    console.log("premierChoixOuParmis=", premierChoixOuParmis);
-
-
     // a. CHOISIR DIRECTEMENT PARMIS LES CHOIX
     //    ex: choisir
     //          choix "oui":
@@ -370,7 +362,7 @@ export class AnalyseurInstructions {
     //            ....
     //        fin choix
     if (premierChoixOuParmis.match(ExprReg.xChoixTexteNombreOuIntitule)) {
-      console.warn("a. CHOISIR DIRECTEMENT PARMIS LES CHOIX");
+      // console.warn("a. CHOISIR DIRECTEMENT PARMIS LES CHOIX");
 
       // => on remet le reste de l’instruction dans la liste des instructions pour l’interpréter à la prochaine itération.
       ctx.listeInstructions.splice(ctx.indexCurInstruction + 1, 0, premierChoixOuParmis);
@@ -423,7 +415,7 @@ export class AnalyseurInstructions {
     // première instruction pour ce choix
     const premiereInstructionChoix = resultChoixIns[4];
 
-    console.log("premiereInstructionChoix:", premiereInstructionChoix);
+    // console.log("premiereInstructionChoix:", premiereInstructionChoix);
 
 
     // => on l’ajoute à la liste des instructions pour l’interpréter à la prochaine itération.
@@ -433,7 +425,7 @@ export class AnalyseurInstructions {
     let nouvelleListeInstructionsChoix = new Array<Instruction>();
     ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].push(new Choix(valeurChoix, nouvelleListeInstructionsChoix));
 
-    console.log("valeurChoix=", valeurChoix);
+    // console.log("valeurChoix=", valeurChoix);
 
 
     // ajout d’une liste d’instructions pour ce nouveau choix
@@ -493,7 +485,7 @@ export class AnalyseurInstructions {
     } else if (ctx.regle) {
       AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "règle « " + Regle.regleIntitule(ctx.regle) + " » : " + message);
     } else if (ctx.reaction) {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "élément « " + ElementGenerique.elIntitule(ctx.el) + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
+      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "élément « " + ctx.el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
     } else {
       AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "----- : conséquence : " + message);
     }

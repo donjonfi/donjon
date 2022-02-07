@@ -271,7 +271,7 @@ export class AnalyseurConsequences {
     } else if (regle) {
       AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "règle « " + Regle.regleIntitule(regle) + " » : " + message);
     } else if (reaction) {
-      AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "élément « " + ElementGenerique.elIntitule(el) + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : " + message);
+      AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "élément « " + el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(reaction) + " » : " + message);
     } else {
       AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, "----- : conséquence : " + message);
     }

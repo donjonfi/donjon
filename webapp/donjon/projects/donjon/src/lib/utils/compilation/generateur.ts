@@ -392,7 +392,8 @@ export class Generateur {
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
                 // >> pas trouvé de contenant
               } else {
-                console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curEle.positionString);
+                //console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curEle.positionString);
+                ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curEle.positionString.positionToString());
               }
             }
           }
@@ -501,9 +502,9 @@ export class Generateur {
       const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement, true);
 
       if (localisation === ELocalisation.inconnu) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.nom + ' » : position pas trouvée : ' + elVoisin.positionString.position);
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : position pas trouvée : ' + elVoisin.positionString.position);
       } else if (lieuTrouveID === -1) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.nom + ' » : lieu pas trouvé : ' + elVoisin.positionString.complement);
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : lieu pas trouvé : ' + elVoisin.positionString.complement);
       } else {
         // on met la classe racine lieu, porte ou obstacle:
         let classeRacine: string;
