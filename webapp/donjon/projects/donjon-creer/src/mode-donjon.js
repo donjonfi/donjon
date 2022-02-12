@@ -11,7 +11,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
       + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|"
       + "aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu|"
-      + "son|musique|image"
+      + "musique|image"
     );
 
     var builtinFunctions = (
@@ -60,10 +60,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "(\\b(désactiver|activer|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|choix|choisir|refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|interpréter|comme)\\b)|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e)? fois|[1-9][0-9]?(ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin choix|fin choisir|finchoisir|finchoix)\\b)|" +
+          regex: "(\\b(désactiver|activer|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|(autre )?choix|choisir( parmis)?|refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|interpréter|comme)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e)? fois|[1-9][0-9]?(ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin action|fin avant|fin choix|fin choisir|finchoisir|finchoix)\\b)|" +
             "(\\b(mais pas|mais bien|mais ni|mais soit|mais plus|ainsi que|et|ou|ni|soit)\\b)|" +
-            "(\\b(partie|chapitre|scène) )",
+            "(\\b(partie|chapitre|scène) )|" + 
+            "action"
+            ,
           caseInsensitive: true
         },
         {
