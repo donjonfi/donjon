@@ -75,6 +75,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     showGutter: true,
     showLineNumbers: this.afficherNumerosLigne,
     showPrintMargin: false,
+    showFoldWidgets: false,
     hScrollBarAlwaysVisible: false,
     wrap: true,
     //copyWithEmptySelection: true
@@ -221,9 +222,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.afficherNumerosLigne = false;
       }
     }
-    if (!this.sansMiseEnForme) {
-      this.majTailleAce();
-    }
+    this.majTailleAce();
 
     // =========================================
     // vérifier si un fichier est renseigné
@@ -315,13 +314,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
         // TODO: essayer de corriger les points manqants.
       }
 
-      // tester les erreurs
-      this.codeEditorElmRef["directiveRef"].ace().getSession().setAnnotations([{
-        row: 1,
-        column: 0,
-        text: "Error Message", 
-        type: "warning" //This would give a red x on the gutter
-      }]);
+      // // tester les erreurs
+      // this.codeEditorElmRef["directiveRef"].ace().getSession().setAnnotations([{
+      //   row: 1,
+      //   column: 0,
+      //   text: "Error Message",
+      //   type: "warning" //This would give a red x on the gutter
+      // }]);
 
       this.codeEditorElmRef["directiveRef"].ace().resize();
 
@@ -513,9 +512,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.onChangerSelPartie(false, true);
 
     // refraichir ACE editor
-    setTimeout(() => {
-      this.majTailleAce();
-    }, 100);
+    this.majTailleAce();
   }
 
   // =============================================
@@ -1003,24 +1000,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Changer la taille de la police de caractères. */
   onChangerTailleFont(): void {
     localStorage.setItem('EditeurTailleTexte', this.tailleTexte.toString());
-    if (!this.sansMiseEnForme) {
-      this.majTailleAce();
-    }
+    this.majTailleAce();
   }
 
   /** Changer la taille du composant affichant le code source. */
   majTailleAce(): void {
-    setTimeout(() => {
-      if (this.codeEditorElmRef) {
-        this.codeEditorElmRef["directiveRef"].ace().resize();
-        // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
-        this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
-        this.codeEditorElmRef["directiveRef"].ace().setOption("showLineNumbers", true); // this.afficherNumerosLigne);
-        this.codeEditorElmRef["directiveRef"].ace().setOption("showGutter", true); // this.afficherNumerosLigne);
-        this.codeEditorElmRef["directiveRef"].ace().setOption("showFoldWidgets", false);
-        this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
-      }
-    }, (this.codeEditorElmRef && this.codeEditorElmRef["directiveRef"]?.ace()) ? 0 : 200);
+    if (!this.sansMiseEnForme) {
+      setTimeout(() => {
+        if (this.codeEditorElmRef) {
+          this.codeEditorElmRef["directiveRef"].ace().resize();
+          // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("showLineNumbers", true); // this.afficherNumerosLigne);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("showGutter", true); // this.afficherNumerosLigne);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("showFoldWidgets", false);
+          this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
+        }
+      }, (this.codeEditorElmRef && this.codeEditorElmRef["directiveRef"]?.ace()) ? 10 : 200);
+    }
   }
 
   /** changer le premier numéro de ligne de l’éditeur */
