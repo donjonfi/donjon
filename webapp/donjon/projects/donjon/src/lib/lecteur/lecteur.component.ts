@@ -3,17 +3,9 @@ import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/inte
 
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
-import { ClassesRacines } from '../models/commun/classes-racines';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
-import { ContexteTour } from '../models/jouer/contexte-tour';
-import { ElementsPhrase } from '../models/commun/elements-phrase';
-import { Evenement } from '../models/jouer/evenement';
-import { Instruction } from '../models/compilateur/instruction';
 import { Jeu } from '../models/jeu/jeu';
-import { Resultat } from '../models/jouer/resultat';
-import { StringUtils } from '../../public-api';
-import { TypeEvenement } from '../models/jouer/type-evenement';
 
 @Component({
   selector: 'djn-lecteur',
@@ -78,6 +70,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   interruptionEnCours: Interruption | undefined;
   /** Les choix possibles pour l’utilisateur */
   choixPossibles: string[] = [];
+  /** Index du choix actuellement sélectionné */
+  indexChoixPropose: number = undefined;
 
   constructor() { }
 
@@ -187,8 +181,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.sortieJoueur = "";
         }
       }
-      // le jeu est commencé
-      this.ctx.jeu.commence = true;
+      // le jeu est commencé à moins qu’il ne soit interrompu
+      if (!this.interruptionEnCours) {
+        this.ctx.jeu.commence = true;
+      }
 
       // ========================
       // B. REPRISE D’UNE PARTIE
@@ -276,7 +272,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private traiterProchaineInterruption() {
-    console.warn("+++ traiterInterruptions +++");
+    // console.warn("+++ traiterInterruptions +++");
 
     // traiter la prochaine interruption
     this.interruptionEnCours = this.jeu.tamponInterruptions.shift();
@@ -293,6 +289,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             }
             this.sortieJoueur += '</ul>'
             this.interruptionChoixEnCours = true;
+            if (this.choixPossibles.length > 0) {
+              this.indexChoixPropose = 0;
+              this.commande = this.choixPossibles[this.indexChoixPropose];
+              this.focusCommande();
+            }
           } else {
             this.jeu.tamponErreurs.push("interruptions: le joueur doit faire un choix mais il n’y a aucun choix dans la liste");
           }
@@ -347,7 +348,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // s’il y a encore des interruptions à gérer, il faut les gérer
         if (this.jeu.tamponInterruptions.length) {
           this.traiterProchaineInterruption();
+          // sinon la commande est terminée
         } else {
+
+          // si le jeu n’étais pas encore commencé, il l’est à présent
+          if (!this.ctx.jeu.commence) {
+            this.ctx.jeu.commence = true;
+          }
+
           // mode triche: afficher commande suivante
           if (this.tricheActif && !this.resteDeLaSortie?.length) {
             this.indexTriche += 1;
@@ -430,11 +438,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param event
    */
   onKeyDownArrowUp(event) {
-    if (!this.resteDeLaSortie?.length) {
+    if (!this.resteDeLaSortie?.length && !this.interruptionChoixEnCours) {
       if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
         this.curseurHistorique += 1;
         const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
         this.commande = this.historiqueCommandes[index];
+        this.focusCommande();
+      }
+      // proposer le choix précédent
+    } else if (this.interruptionChoixEnCours) {
+      if (this.choixPossibles.length > 0) {
+        this.indexChoixPropose--;
+        if (this.indexChoixPropose < 0) {
+          this.indexChoixPropose = (this.choixPossibles.length - 1);
+        }
+        this.commande = this.choixPossibles[this.indexChoixPropose];
         this.focusCommande();
       }
     }
@@ -444,7 +462,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * Historique: revenir en avant (Flèche bas)
    */
   onKeyDownArrowDown(event) {
-    if (!this.resteDeLaSortie?.length) {
+    if (!this.resteDeLaSortie?.length && !this.interruptionChoixEnCours) {
       if (this.curseurHistorique >= 0) {
         this.curseurHistorique -= 1;
         const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
@@ -452,6 +470,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.focusCommande();
       } else {
         this.commande = "";
+      }
+      // proposer le choix suivant
+    } else if (this.interruptionChoixEnCours) {
+      if (this.choixPossibles.length > 0) {
+        this.indexChoixPropose++;
+        if (this.indexChoixPropose > (this.choixPossibles.length - 1)) {
+          this.indexChoixPropose = 0;
+        }
+        this.commande = this.choixPossibles[this.indexChoixPropose];
+        this.focusCommande();
       }
     }
   }
@@ -625,7 +653,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // s’il y a encore des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
       this.traiterProchaineInterruption();
+      // sinon la commande est terminée
     } else {
+
+      // si le jeu n’étais pas encore commencé, il l’est à présent
+      if (!this.ctx.jeu.commence) {
+        this.ctx.jeu.commence = true;
+      }
+
       // mode triche: afficher commande suivante
       if (this.tricheActif && !this.resteDeLaSortie?.length) {
         this.indexTriche += 1;
