@@ -1,0 +1,54 @@
+PARTIE "introduction".
+  -- poser une question avant de commencer le jeu
+  avant commencer le jeu:
+    dire "Ça va être difficile de ne pas mourir...";
+    choisir
+      choix "Même pas peur":
+        dire "Super ! On y va !";
+      choix "Ok je ferai attention.":
+        dire "Bonne idée ! Commençons la partie.";
+    fin choisir.
+
+PARTIE "description du monde".
+
+  Le bois maudit est un lieu.
+    Sa description est "[1ère fois]Vous voilà entré dans le bois maudit. Vous entendez des sons sinistres.[puis]Vous vous trouvez dans le bois maudit. Vous entendez des craquements.[fin choix]".
+  
+  Le sage est une personne ici.
+  
+PARTIE "interactions avec le sage".
+
+Sa réaction est :
+  dire "<< Bonjour, de quoi voulez-vous que je vous parle ? >>";
+  choisir
+    -- les craquements
+    choix "Les craquements":
+      dire "<< Ce sont les arbres. Il vaut mieux ne pas trop s’en approcher.{e}";
+    -- la mélédiction
+    choix "La maléditions":
+      dire "<< Il est trop tard pour l’éviter à présent que vous avez pénétré dans les bois.{e}";
+    -- la sortie
+    choix "Comment sortir ?":
+      -- aider le joueur s’il choisi face
+      si l’historique ne contient ni "pile" ni "face":
+        dire "<< Hum hum... Pile ou face ? >>";
+        choisir
+          choix "pile":
+            changer l’historique contient "pile";
+            dire "<< Pas de chance vous allez y rester.";
+          choix "face":
+            changer l’historique contient "face";
+            dire "<< Vous avez de la chance, je vais vous aider.";
+        fin choisir
+      -- si le joueur à déja choisi pile
+      sinonsi l’historique contient "pile":
+        dire "<< Il n’y a pas de seconde chance.";
+      -- si le joueur à déja choisi face
+      sinonsi l’historique contient "face":
+        dire "<< Un peu de patience.";
+      fin si
+  fin choisir
+  dire "Et oui! Je sais tout. >>".
+
+-- initialiser l’historique
+L’historique est une liste.
