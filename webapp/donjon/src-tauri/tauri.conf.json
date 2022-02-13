@@ -48,11 +48,11 @@
       }
     },
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
         "https://donjon.fi/update/donjon-creer.json"
       ],
-      "dialog": true    
+      "dialog": true
     },
     "allowlist": {
       "all": true
@@ -67,7 +67,8 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'"
+      "csp": "default-src 'self'",
+      "devCsp": null
     }
   }
 }
