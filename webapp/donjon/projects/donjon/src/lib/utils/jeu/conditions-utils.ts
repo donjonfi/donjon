@@ -247,6 +247,9 @@ export class ConditionsUtils {
                   sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
                 }
               }
+              // le jeu n’est pas dans les objets mais il est géré plus loin
+            } else if (condition.sujet.nom == 'jeu' && !condition.sujet.epithete) {
+              // rien à dire ici
             } else {
               console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
             }
@@ -615,7 +618,17 @@ export class ConditionsUtils {
         //  D. AUCUN SUJET
         // *********************************************
       } else {
-        console.error("siEstVraiSansLien > Condition sans sujet pas gérée: \nsujet:", sujet, "\ncondition:", condition);
+
+        // condition spéciale: le jeu est commencé
+        if (condition.sujet.nom == 'jeu' && !condition.sujet.epithete && condition.verbe == 'est' && condition.complement == 'commencé') {
+          // remarque: négation appliquée plus loin
+          if (this.jeu.commence) {
+            retVal = true;
+          }
+          // rien trouvé comme sujet
+        } else {
+          this.jeu.tamponErreurs.push("condition sans sujet pas prise en charge: \nsujet: " + sujet + "\ncondition: " + condition)
+        }
       }
 
     } else {

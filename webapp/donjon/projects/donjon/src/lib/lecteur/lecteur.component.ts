@@ -159,7 +159,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.ctx.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
-      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.ctx.dossierRessourcesComplet);
+      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.ctx.dossierRessourcesComplet) + "</p>";
     } else {
       this.activerParametreAudio = false;
     }
@@ -168,88 +168,46 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // A. NOUVELLE PARTIE
     // ==================
     if (!this.ctx.jeu.commence) {
+      // si la commande commencer le jeu existe, commencer le jeu
+      if (this.ctx.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
+        // exécuter la commande « commencer le jeu »
+        this.executerLaCommande("commencer le jeu", false, true);
+        // sinon initialiser les éléments du jeu en fonction de la position du joueur
+      } else {
+        // définir visibilité des objets initiale
+        this.ctx.eju.majPresenceDesObjets();
+        // définir adjacence des lieux initiale
+        this.ctx.eju.majAdjacenceLieux();
 
-      this.sortieJoueur += "<p>";
-
-      // évènement COMMENCER JEU
-      let evCommencerJeu = new Evenement(TypeEvenement.jeu, 'commencer', true, null, 0, 'jeu', ClassesRacines.Special);
-
-      let contexteTour = new ContexteTour(undefined, undefined);
-
-      // éxécuter les instructions AVANT le jeu commence
-      let resultatAvant = new Resultat(true, "", 0);
-      // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-      const declenchementsAvant = this.ctx.dec.avant(evCommencerJeu);
-      // éxécuter les règles déclenchées
-      declenchementsAvant.forEach(declenchement => {
-        const sousResultatAvant = this.ctx.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
-        resultatAvant.sortie += sousResultatAvant.sortie;
-        resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
-        resultatAvant.nombre += sousResultatAvant.nombre;
-        resultatAvant.arreterApresRegle = resultatAvant.arreterApresRegle || sousResultatAvant.arreterApresRegle;
-      });
-      // ajouter la sortie
-      if (resultatAvant.sortie) {
-        this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatAvant.sortie, this.ctx.dossierRessourcesComplet));
-      }
-
-      // définir visibilité des objets initiale
-      this.ctx.eju.majPresenceDesObjets();
-
-      // définir adjacence des lieux initiale
-      this.ctx.eju.majAdjacenceLieux();
-
-      // continuer l’exécution de l’action si elle n’a pas été arrêtée
-      if (!resultatAvant.arreterApresRegle) {
-        // // // exécuter les instruction REMPLACER s’il y a lieu, sinon suivre le cours normal
-        // // let resultatRemplacer = this.ins.executerInstructions(this.dec.remplacer(evCommencerJeu));
-        // // if (resultatRemplacer.nombre === 0) {
-
-        // regarder où on est (sauf si l’action n’existe pas)
-        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela)) {
-          let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-          const resRegarder = this.ctx.ins.executerInstructions([instruction], null, null, null);
-          this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
+        // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
+        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
+          // exécuter la commande « regarder »
+          this.executerLaCommande("regarder", false, true);
+        } else {
+          this.sortieJoueur = "";
         }
-
-        this.ctx.jeu.commence = true;
-
-        // // }
-
-        // éxécuter les instructions APRÈS le jeu commence
-        let resultatApres = new Resultat(true, "", 0);
-        // à priori 1 déclenchement mais il pourrait y en avoir plusieurs si même score
-        const declenchementsApres = this.ctx.dec.apres(evCommencerJeu);
-        // éxécuter les règles déclenchées
-        declenchementsApres.forEach(declenchement => {
-          const sousResultatApres = this.ctx.ins.executerInstructions(declenchement.instructions, contexteTour, evCommencerJeu, declenchement.declenchements);
-          resultatApres.sortie += sousResultatApres.sortie;
-          resultatApres.succes = resultatApres.succes && sousResultatApres.succes;
-          resultatApres.nombre += sousResultatApres.nombre;
-          resultatApres.terminerAvantRegle = resultatApres.terminerAvantRegle || sousResultatApres.terminerAvantRegle;
-          resultatApres.terminerApresRegle = resultatApres.terminerApresRegle || sousResultatApres.terminerApresRegle;
-        });
-
-        if (resultatApres.sortie) {
-          this.ajouterSortieJoueur(BalisesHtml.convertirEnHtml(resultatApres.sortie, this.ctx.dossierRessourcesComplet));
-        }
-
-
       }
-      //terminer le paragraphe sauf si on attends une touche pour continuer
-      if (!this.resteDeLaSortie?.length && !this.sortieJoueur.endsWith("</p>")) {
-        this.sortieJoueur += "</p>";
-      }
+      // le jeu est commencé
+      this.ctx.jeu.commence = true;
 
       // ========================
       // B. REPRISE D’UNE PARTIE
       // ========================
     } else {
-      this.sortieJoueur += ("<p>" + BalisesHtml.convertirEnHtml("{/{+(reprise de la partie)+}/}", this.ctx.dossierRessourcesComplet) + "</p>");
-      // regarder où on est.
-      let instruction = new Instruction(new ElementsPhrase('exécuter', null, null, null, 'la commande "regarder"'));
-      const resRegarder = this.ctx.ins.executerInstructions([instruction], null, null, null);
-      this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(resRegarder.sortie, this.ctx.dossierRessourcesComplet) + "</p>");
+      // si la commande continuer le jeu existe, continuer le jeu
+      if (this.ctx.jeu.actions.some(x => x.infinitif == 'continuer' && x.ceci && !x.cela)) {
+        // exécuter la commande « continuer le jeu »
+        this.executerLaCommande("continuer le jeu", false, true);
+        // sinon, si la commande regarder existe, et s’il y a au moins 1 lieu, l’exécuter
+      } else {
+        // afficher info suite partie
+        this.sortieJoueur += "<p><i>(reprise de la partie)</i>";
+        // regarder
+        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
+          // exécuter la commande « regarder »
+          this.executerLaCommande("regarder", false, false);
+        }
+      }
     }
 
     // donner le focus sur « entrez une commande » 
@@ -593,82 +551,94 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-        // VÉREFIER FIN DE PARTIE
-        // vérifier si le jeu n’est pas déjà terminé
-        if (this.ctx.jeu.termine && !commandeComplete.match(/^(déboguer|sauver|effacer) /i)) {
-          this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
-        } else {
-          // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
-          // ajouter à l’historique (à condition que différent du précédent)
-          // (commande nettoyée)
-          if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
-            this.historiqueCommandes.push(commandeNettoyee);
-            if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
-              this.historiqueCommandes.shift();
-            }
-          }
-
-          // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
-          // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-          this.historiqueCommandesPartie.push(this.commande);
-
-          // EXÉCUTION DE LA COMMANDE
-          const sortieCommande = this.ctx.com.executerCommande(commandeComplete.trim());
-          if (sortieCommande) {
-            // sortie spéciale: auto-triche
-            if (sortieCommande == "@auto-triche@") {
-              setTimeout(() => {
-                this.lancerAutoTriche();
-              }, 100);
-              // sortie spéciale: triche
-            } else if (sortieCommande == "@triche@") {
-              setTimeout(() => {
-                this.lancerTriche();
-              }, 100);
-              // sortie spéciale: sauver-commandes
-            } else if (sortieCommande == "@sauver-commandes@") {
-              // setTimeout(() => {
-              this.lancerSauverCommandes();
-              // }, 100);
-              // sortie normale
-            } else {
-              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
-            }
-            // aucune sortie
-          } else {
-            // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
-            if (this.jeu.tamponInterruptions.length) {
-              this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
-            }
-          }
-
-          // terminer le paragraphe si on n’a pas d’interruptions à gérer
-          if (!this.jeu.tamponInterruptions.length) {
-            this.sortieJoueur += "</p>";
-          }
-        }
-        // nettoyer l’entrée commande et scroll du texte
-        this.commande = "";
-
-        // s’il y a encore des interruptions à gérer, il faut les gérer
-        if (this.jeu.tamponInterruptions.length) {
-          this.traiterProchaineInterruption();
-        } else {
-          // mode triche: afficher commande suivante
-          if (this.tricheActif && !this.resteDeLaSortie?.length) {
-            this.indexTriche += 1;
-            if (this.indexTriche < this.autoCommandes.length) {
-              this.commande = this.autoCommandes[this.indexTriche];
-            }
-          }
-        }
-
-        this.scrollSortie();
-        setTimeout(() => {
-          this.commandeEnCours = false;
-        }, 100);
+        this.executerLaCommande(commandeNettoyee, true, false);
       }
     }
+  }
+
+  /**
+   * Exécuter la commande avec le commandeur
+   * @param commandeNettoyee la commande déjà nettoyée avec CommandesUtils.nettoyerCommande();
+   * @param ajouterCommandeDansHistorique faut-il ajouter la commande à l’historique des commandes du joueur ?
+   * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
+   */
+  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean) {
+    // VÉREFIER FIN DE PARTIE
+    // vérifier si le jeu n’est pas déjà terminé
+    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer) /i)) {
+      this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
+    } else {
+      // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
+      if (ajouterCommandeDansHistorique) {
+        // ajouter à l’historique (à condition que différent du précédent)
+        // (commande nettoyée)
+        if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
+          this.historiqueCommandes.push(commandeNettoyee);
+          if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
+            this.historiqueCommandes.shift();
+          }
+        }
+      }
+
+      // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
+      // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+      this.historiqueCommandesPartie.push(this.commande);
+
+      // EXÉCUTION DE LA COMMANDE
+      const sortieCommande = this.ctx.com.executerCommande(commandeNettoyee);
+      if (sortieCommande) {
+        // sortie spéciale: auto-triche
+        if (sortieCommande == "@auto-triche@") {
+          setTimeout(() => {
+            this.lancerAutoTriche();
+          }, 100);
+          // sortie spéciale: triche
+        } else if (sortieCommande == "@triche@") {
+          setTimeout(() => {
+            this.lancerTriche();
+          }, 100);
+          // sortie spéciale: sauver-commandes
+        } else if (sortieCommande == "@sauver-commandes@") {
+          // setTimeout(() => {
+          this.lancerSauverCommandes();
+          // }, 100);
+          // sortie normale
+        } else {
+          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+        }
+        // aucune sortie
+      } else {
+        // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
+        if (this.jeu.tamponInterruptions.length) {
+          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
+        }
+      }
+
+      // terminer le paragraphe si on n’a pas d’interruptions à gérer
+      if (!this.jeu.tamponInterruptions.length) {
+        this.sortieJoueur += "</p>";
+      }
+    }
+    // nettoyer l’entrée commande et scroll du texte
+    this.commande = "";
+
+    // s’il y a encore des interruptions à gérer, il faut les gérer
+    if (this.jeu.tamponInterruptions.length) {
+      this.traiterProchaineInterruption();
+    } else {
+      // mode triche: afficher commande suivante
+      if (this.tricheActif && !this.resteDeLaSortie?.length) {
+        this.indexTriche += 1;
+        if (this.indexTriche < this.autoCommandes.length) {
+          this.commande = this.autoCommandes[this.indexTriche];
+        }
+      }
+    }
+
+    this.scrollSortie();
+    setTimeout(() => {
+      this.commandeEnCours = false;
+    }, 100);
   }
 
   /** afficher la case à cocher pour activer/désactiver l’audio */
