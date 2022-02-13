@@ -182,6 +182,42 @@ SCÈNE "chanter".
   terminer chanter:
     dire "Vous entonnez une chanson joyeuse.".
 
+SCÈNE "commencer".
+  -- ======================
+  --   COMMENCER (je jeu)
+  -- ======================
+  commencer ceci est une action qui concerne un intitulé.
+
+  refuser commencer ceci:
+    si ceci n’est pas le jeu, dire "Je peux seulement commencer le jeu.";
+    si ceci est le jeu et si le jeu est commencé, dire "Le jeu a déjà commencé.".
+
+  exécuter commencer ceci:
+    si ceci est le jeu:
+      -- déplacer le joueur pour provoquer le mise à jour de 
+      -- la présence des objets et de l’adjacence des lieux
+      changer le joueur se trouve dans ici;
+      -- afficher ce que voit le joueur.
+      exécuter la commande "regarder";
+    fin si.
+    
+SCÈNE "continuer".
+  -- ======================
+  --   CONTINUER (je jeu)
+  -- ======================
+  continuer ceci est une action qui concerne un intitulé.
+
+  refuser continuer ceci:
+    si ceci n’est pas le jeu, dire "Je peux seulement continuer le jeu.";
+    si ceci est le jeu et si le jeu n’est pas commencé, dire "Le jeu n’a pas encore commencé.".
+
+  exécuter continuer ceci:
+    si ceci est le jeu:
+      dire "{/{+(reprise de la partie)+}/}{N}";
+      -- afficher ce que voit le joueur.
+      exécuter la commande "regarder";
+    fin si.
+
 SCÈNE "crier".
   -- ============
   --   CRIER
@@ -190,7 +226,7 @@ SCÈNE "crier".
   -- crier 
   crier est une action.
 
-  terminer énerver ceci:
+  terminer crier:
     dire "Vous criez un bon coup.".
 
   -- crier sur ceci
@@ -201,8 +237,6 @@ SCÈNE "crier".
     
   terminer crier sur ceci:
     dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
-
-  CHAPITRE "regarder et examiner".
 
 SCÈNE "danser".
   -- ===========
@@ -359,8 +393,6 @@ SCÈNE "donner".
     > {-donner {/la poudre magique/} à {/la magicienne/}-}
     > {-donner {/la pomme/} au {/nain/}-}
     {+raccourci+} : {-d-}".
-
-  interpréter ramasser comme prendre.
 
 SCÈNE "écouter".
   -- ===========
@@ -1000,6 +1032,7 @@ SCÈNE "pousser".
   --  fin si.
     dire "[Intitulé quantitéCeci] [v être ipac quantitéCeci] ajouté[es quantitéCeci] à votre inventaire.".
   
+  interpréter ramasser comme prendre.
   
   L'aide pour l'action prendre est "{*Prendre*}
     Permet de prendre un objet accessible pour le mettre dans votre inventaire.
