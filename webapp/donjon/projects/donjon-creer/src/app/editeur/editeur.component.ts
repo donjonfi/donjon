@@ -481,6 +481,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.onMajSections();
     this.chargementFichierEnCours = false;
     this.onChangerSelPartie(false, true);
+
+    // afficher onglet scénario
+    this.tab = 'scenario';
+
     // refraichir ACE editor
     setTimeout(() => {
       this.majTailleAce();
