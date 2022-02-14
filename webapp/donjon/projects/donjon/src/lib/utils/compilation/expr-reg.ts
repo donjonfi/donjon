@@ -340,7 +340,7 @@ export class ExprReg {
    * - => utiliser(1) la(3) clé(4) rouge(5) \[sur(7) la(8) porte(9) verte(10)](6)
    * - => peidre(1) sur(2) la(3) porte(4)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de))? (le |la |les |l'|l’|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?( (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de) (le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?)?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|par|de))? (le |la |les |l'|l’|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?( (avec|et|sur|sous|à|au|aux|vers|dans|hors|pour|en|de) (le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)\S+?))?)?)?$/i;
 
   // -------------------------------------------
   //  PARLER, INTERROGER, MONTRER, DEMANDER , …
