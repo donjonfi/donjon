@@ -481,6 +481,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.onMajSections();
     this.chargementFichierEnCours = false;
     this.onChangerSelPartie(false, true);
+    // refraichir ACE editor
+    setTimeout(() => {
+      this.majTailleAce();
+    }, 100);
   }
 
   // =============================================
