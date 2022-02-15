@@ -204,11 +204,14 @@ export class InstructionExecuter {
 
 
   /** Exécuter l’instruction « Exécuter commande "xxxx…" */
-  public executerCommande(instruction: ElementsPhrase): Resultat {
+  public executerCommande(instruction: ElementsPhrase, ceci: Intitule, cela: Intitule): Resultat {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
-      const commande = Commandeur.nettoyerCommande(tokens[1]);
+      // remplacer les balises éventuelles dans le texte  
+      let commande = Commandeur.nettoyerCommande(tokens[1]);
+      commande = this.ins.dire.interpreterContenuDire(commande, undefined, ceci, cela, undefined, undefined);
+      // exécuter la commande
       res.sortie = this.com.executerCommande(commande);
     } else {
       console.error("executerCommande: format complément1 par reconnu:", instruction.complement1);
