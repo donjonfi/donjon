@@ -263,6 +263,35 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[9]).toEqual("ici"); // ici
   });
 
+  it('Élément générique positionné: « Le cadenas bleu est dans le labo »', () => {
+    const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le cadenas bleu est dans le labo");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("Le "); // déterminant
+    expect(result[2]).toEqual("cadenas"); // nom
+    expect(result[3]).toEqual("bleu"); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toBeUndefined(); // classe
+    expect(result[6]).toBeUndefined(); // attribut
+    expect(result[7]).toEqual("dans le "); // position
+    expect(result[8]).toEqual("labo"); // complément
+    expect(result[9]).toBeUndefined(); // ici
+  });
+
+
+  it('Élément générique positionné: « Le cadenas bleu est un objet dans le labo »', () => {
+    const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le cadenas bleu est un objet dans le labo");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("Le "); // déterminant
+    expect(result[2]).toEqual("cadenas"); // nom
+    expect(result[3]).toEqual("bleu"); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toEqual("objet"); // classe
+    expect(result[6]).toBeUndefined(); // attribut
+    expect(result[7]).toEqual("dans le "); // position
+    expect(result[8]).toEqual("labo"); // complément
+    expect(result[9]).toBeUndefined(); // ici
+  });
+
 });
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -400,6 +429,38 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
     expect(el.positionString).not.toBeNull(); // position définie
     expect(el.positionString).toEqual(new PositionSujetString('château du comte', 'village', 'au nord du ')); // position
+    AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
+    expect(el.description).toBeNull(); // desrcription pas définie
+    expect(el.capacites).toHaveSize(0); // aucune capacité
+    expect(el.attributs).toHaveSize(0); // aucun attribut
+    expect(el.proprietes).toHaveSize(0); // aucune propriété
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+
+  });
+
+  it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      "Le cadenas bleu est un objet dans le labo."
+    );
+    expect(phrases).toHaveSize(1); // 1 phrase
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    // tester l’analyse spécifique
+    const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
+    expect(el).not.toBeNull(); // élément trouvé
+    ctxAnalyse.dernierElementGenerique = el; // dernier élément trouvé
+    expect(el.determinant).toEqual('le '); // déterminant
+    expect(el.nom).toEqual('cadenas'); // nom de l’élément
+    expect(el.epithete).toEqual('bleu'); // épithète pas défini
+    expect(el.genre).toEqual(Genre.m); // genre
+    expect(el.nombre).toEqual(Nombre.s); // nombre
+    expect(el.quantite).toEqual(1); // quantité
+    expect(el.classeIntitule).not.toBeNull(); // intitulé classe défini
+    expect(el.classeIntitule).toEqual(EClasseRacine.objet); // intitulé classe
+    expect(el.positionString).not.toBeNull(); // position définie
+    expect(el.positionString).toEqual(new PositionSujetString('cadenas bleu', 'labo', 'dans le ')); // position
     AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
     expect(el.description).toBeNull(); // desrcription pas définie
     expect(el.capacites).toHaveSize(0); // aucune capacité
