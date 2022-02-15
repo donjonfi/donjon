@@ -98,7 +98,7 @@ export class AnalyseurConsequences {
           // CAS B > INSTRUCTION CONDITIONNELLE
         } else {
 
-          let resultSiCondCons = ExprReg.xSeparerSiConditionConsequences.exec(conBruNettoyee);
+          let resultSiCondCons = ExprReg.xSeparerSiConditionInstructions.exec(conBruNettoyee);
 
           // CAS B.1 >> SI
           if (resultSiCondCons) {
@@ -117,7 +117,7 @@ export class AnalyseurConsequences {
 
             let nouvelleListeConsequencesSi = new Array<Instruction>();
             let nouvelleListeConsequencesSinon = new Array<Instruction>();
-            let newInstruction = new Instruction(null, condition, nouvelleListeConsequencesSi, nouvelleListeConsequencesSinon);
+            let newInstruction = new Instruction(null, undefined, condition, nouvelleListeConsequencesSi, nouvelleListeConsequencesSinon);
 
             // UN SI RAPIDE EST EN COURS
             if (prochaineInstructionAttendue) {
@@ -182,7 +182,7 @@ export class AnalyseurConsequences {
 
           } else {
             // CAS B.2 >> SINON / SINONSI (sinon si)
-            let resultSinonCondCons = ExprReg.xSeparerSinonConsequences.exec(conBruNettoyee);
+            let resultSinonCondCons = ExprReg.xSeparerSinonInstructions.exec(conBruNettoyee);
             if (resultSinonCondCons) {
 
               // console.warn("indexBlocCondCommence=", indexBlocCondCommence, "dansBlocSinon[indexBlocCondCommence]=", dansBlocSinon[indexBlocCondCommence], "prochaineInstructionAttendue=", prochaineInstructionAttendue);

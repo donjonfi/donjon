@@ -32,7 +32,17 @@ export class MotUtils {
         pluriel = nomS.slice(0, nomS.length - 1) + 'ux';
         // (e)au / eu => +x
       } else if (nomS.endsWith('au') || nomS.endsWith('eu')) {
-        pluriel = nomS + 'x';
+        if (nomS == 'pneu' || nomS == 'bleu' || nomS == 'pneu' || nomS == 'émeu') {
+          pluriel = nomS + 's';
+        } else {
+          pluriel = nomS + 'x';
+        }
+      } else if (nomS.endsWith('ou')) {
+        if (nomS == 'bijou' || nomS == 'caillou' || nomS == 'chou' || nomS == 'genou' || nomS == 'hibou' || nomS == 'joujou' || nomS == 'pou' || nomS == 'ripou') {
+          pluriel = nomS + 'x';
+        } else {
+          pluriel = nomS + 's';
+        }
         // s/x/z => ne pas changer
       } else if (nomS.endsWith('s') || nomS.endsWith('x') || nomS.endsWith('z')) {
         pluriel = nomS;
@@ -218,7 +228,7 @@ export class MotUtils {
         case "-1":
           retVal = -1;
           break;
-          
+
         // aucun déterminant 
         case "":
           retVal = quantiteSiAucunDeterminant;

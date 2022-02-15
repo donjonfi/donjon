@@ -6,9 +6,9 @@ export class PositionsUtils {
 
     /** Vérifier si les 2 positions spécifiées sont identiques.  */
     static positionsIdentiques(positionA: PositionObjet, positionB: PositionObjet): boolean {
-        const retVal = (positionA.cibleType === positionB.cibleType
-            && positionA.cibleId === positionB.cibleId
-            && positionA.pre === positionB.pre);
+        const retVal = (positionA?.cibleType === positionB?.cibleType
+            && positionA?.cibleId === positionB?.cibleId
+            && positionA?.pre === positionB?.pre);
 
         return retVal;
     }

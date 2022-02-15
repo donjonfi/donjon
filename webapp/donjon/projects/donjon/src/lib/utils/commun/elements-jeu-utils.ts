@@ -453,7 +453,7 @@ export class ElementsJeuUtils {
         // 3. Chercher parmis les objets
 
         // déterminer si le mot à chercher est au pluriel
-        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : (MotUtils.estFormePlurielle(sujet.nom) ? Nombre.p : Nombre.s);
+        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
 
         cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         // ajouter les objets aux éléments
