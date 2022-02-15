@@ -250,7 +250,8 @@ export class Instructions {
           resultat = this.insExecuter.executerAction(instruction, nbExecutions, ceci, cela, evenement, declenchements);
           // EXÉCUTER COMMANDE
         } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterCommande)) {
-          resultat = this.insExecuter.executerCommande(instruction);
+
+          resultat = this.insExecuter.executerCommande(instruction, ceci, cela);
         } else {
           console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
