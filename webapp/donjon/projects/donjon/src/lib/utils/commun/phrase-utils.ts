@@ -149,7 +149,7 @@ export class PhraseUtils {
     // > Séparer l’infinitif (premier mot) du reste de la commande
 
     // si commence par se, il faudra prendre le 2e espace
-    const commenceParSe = commande.match(/^se|me/i);
+    const commenceParSe = commande.match(/^(se|me)\b/i);
     const espaceApresVerbe = commande.indexOf(' ', (commenceParSe ? 3 : 0));
     const infinitifTrouve = (espaceApresVerbe != -1 ? commande.slice(0, espaceApresVerbe) : commande).toLocaleLowerCase();
     const commandeSansInfinitif = (espaceApresVerbe != -1 ? commande.slice(espaceApresVerbe + 1).trim() : undefined);
@@ -179,12 +179,15 @@ export class PhraseUtils {
 
           // trouver le complément direct simple
           const decoupeComplement = PhraseUtils.getGroupeNominalDefiniOuIndefini(commandeSansPreposition0, false);
-                    
-          let curPossibilite = new ElementsPhrase(infinitifTrouve);
-          curPossibilite.preposition0 = preposition0Trouvee;
-          curPossibilite.sujet = decoupeComplement;
-          resultats.push(curPossibilite);
 
+          if (decoupeComplement) {
+            let curPossibilite = new ElementsPhrase(infinitifTrouve);
+            curPossibilite.preposition0 = preposition0Trouvee;
+            curPossibilite.sujet = decoupeComplement;
+            resultats.push(curPossibilite);
+          } else {
+            // console.error("obtenirLesCommandesPossibles > je m’attendais à un [complément direct simple] mais je ne l’ai pas trouvé.", commandeSansPreposition0);
+          }
 
 
           // s’il y en a 1, c’est un cas ambigu car ça peut être:
@@ -271,6 +274,8 @@ export class PhraseUtils {
         }
         // s’il n’y a plus rien après le verbe il n’y a aucun argument.
       } else {
+        console.log("XXXXXXXXX_1 pour ", commande);
+
         let curPossibilite = new ElementsPhrase(infinitifTrouve);
         resultats.push(curPossibilite);
       }
@@ -742,29 +747,29 @@ export class PhraseUtils {
     return retVal;
   }
 
-    /**
-   * Décomposer l’intitulé brut en un groupe nominal.
-   */
-     public static getGroupeNominalDefiniOuIndefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
-      let determinant: string | undefined;
-      let nom: string | undefined;
-      let epithete: string | undefined;
-      let retVal: GroupeNominal | undefined;
-      const resultatGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(intituleBrut);
-      if (resultatGn) {
-        // forcer minuscules
-        if (forcerMinuscules) {
-          determinant = resultatGn[1]?.toLowerCase() ?? undefined;
-          nom = resultatGn[2].toLowerCase();
-          epithete = resultatGn[3]?.toLowerCase() ?? undefined;
-          // garder casse originale
-        } else {
-          determinant = resultatGn[1] ?? undefined;
-          nom = resultatGn[2];
-          epithete = resultatGn[3] ?? undefined;
-        }
-        retVal = new GroupeNominal(determinant, nom, epithete);
+  /**
+ * Décomposer l’intitulé brut en un groupe nominal.
+ */
+  public static getGroupeNominalDefiniOuIndefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
+    let determinant: string | undefined;
+    let nom: string | undefined;
+    let epithete: string | undefined;
+    let retVal: GroupeNominal | undefined;
+    const resultatGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(intituleBrut);
+    if (resultatGn) {
+      // forcer minuscules
+      if (forcerMinuscules) {
+        determinant = resultatGn[1]?.toLowerCase() ?? undefined;
+        nom = resultatGn[2].toLowerCase();
+        epithete = resultatGn[3]?.toLowerCase() ?? undefined;
+        // garder casse originale
+      } else {
+        determinant = resultatGn[1] ?? undefined;
+        nom = resultatGn[2];
+        epithete = resultatGn[3] ?? undefined;
       }
-      return retVal;
+      retVal = new GroupeNominal(determinant, nom, epithete);
     }
+    return retVal;
+  }
 }

@@ -119,4 +119,17 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[0].els.sujetComplement1.nom).toEqual('salle de bain');
   });
 
+  it('commande « jeter l’avion par la fenêtre »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('jeter l’avion par la fenêtre');
+    expect(resultats.length).toBe(1);
+    
+    expect(resultats[0].els.infinitif).toEqual('jeter');
+    expect(resultats[0].els.preposition0).toBeFalsy();
+    expect(resultats[0].els.sujet.determinant).toEqual('l’');
+    expect(resultats[0].els.sujet.nom).toEqual('avion');
+    expect(resultats[0].els.preposition1).toEqual('par');
+    expect(resultats[0].els.sujetComplement1.determinant).toEqual('la ');
+    expect(resultats[0].els.sujetComplement1.nom).toEqual('fenêtre');
+  });
+
 });

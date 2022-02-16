@@ -90,37 +90,37 @@ export class ExprReg {
   static readonly xGroupeNominalArticleDefini = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
   static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
-  static readonly xPrepositions = /(?: (?:(?:(?:à propos (?:du|des|de))|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers) )|(?:à propos (?:d’|d'))|d’|d'|à )/ig;
+  static readonly xPrepositions = /(?: (?:(?:(?:à propos (?:du|des|de))|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers) )|(?:à propos (?:d’|d'))|d’|d'|à )/ig;
                                                    
   /** 
    * Tester si la chaine commence par une préposition.
    * Dans ce cas, il s’agit de l’argument d’index 1 du résultat.
    */
-  static readonly xPremierMotPreposition = /^((?:(?:à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?= ))|d’|d')/i;
+  static readonly xPremierMotPreposition = /^((?:(?:à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?= ))|d’|d')/i;
 
   /** 
    * [déterminant](1) nom(2) [épithète](3) préposition(4) [déterminant](5) nom(6) [épithète](7)
    * ex: Le chien rouge avec la laisse usée
    */
-   static readonly xComplementSimplePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+   static readonly xComplementSimplePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /** 
    * [déterminant](1) nom(2) [épithète](3) préposition(4) [déterminant](5) nom-composé(6) [épithète](7)
    * ex: Le canard de la salle de bain
    */
-   static readonly xComplementSimplePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+   static readonly xComplementSimplePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /** 
    * [déterminant](1) nom-composé(2) [épithète](3) préposition(4) [déterminant](5) nom(6) [épithète](7)
    * ex: La salle de bain de papa noel
    */
-   static readonly xComplementComposePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+   static readonly xComplementComposePrepositionComplementSimple = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /** 
    * [déterminant](1) nom-composé(2) [épithète](3) préposition(4) [déterminant](5) nom-composé(6) [épithète](7)
    * ex: La salle de bain de la maison de la rue
    */
-   static readonly xComplementComposePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+   static readonly xComplementComposePrepositionComplementCompose = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * 2 compléments simples séparés par une préposition
@@ -397,7 +397,7 @@ export class ExprReg {
    * - => utiliser(1) la(3) clé(4) rouge(5) \[sur(7) la(8) porte(9) verte(10)](6)
    * - => peindre(1) sur(2) la(3) porte(4)
    */
-  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers))? (le |la |les |l'|l’|d’|d'|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?( (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?)?)?$/i;
+  static readonly xCommandeInfinitif = /^(\S+(?:ir|er|re))(?:(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers))? (le |la |les |l'|l’|d’|d'|du |de (?:la |l'|l’)|des |un |une |0 |[1-9]\d* |au |à (?:la |l'|l’)|à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?( (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |les |l'|l’|des |du |de la |de l(?:’|')|un |une |au |à l'|à l’|à la |à |mon |ma |mes |se |me )?(\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?)?)?$/i;
 
   // -------------------------------------------
   //  PARLER, INTERROGER, MONTRER, DEMANDER , …
@@ -717,7 +717,7 @@ export class ExprReg {
    *     - l’arc à flèches rouillé avec la flèche rouge
    *     - 💥 manger le biscuit
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
+  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 
   /**
    * => valeur1(1) verbeConjugué(2) valeur2(3)
