@@ -274,8 +274,6 @@ export class PhraseUtils {
         }
         // s’il n’y a plus rien après le verbe il n’y a aucun argument.
       } else {
-        console.log("XXXXXXXXX_1 pour ", commande);
-
         let curPossibilite = new ElementsPhrase(infinitifTrouve);
         resultats.push(curPossibilite);
       }
