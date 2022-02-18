@@ -60,18 +60,25 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         },
         {
           token: "keyword",
-          regex: "(\\b(désactiver|activer|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|si|sinon|sinonsi|fin si|finsi|(autre )?choix|choisir( parmis)?|refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|interpréter|comme)\\b)|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e)? fois|[1-9][0-9]?(ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin action|fin avant|fin choix|fin choisir|finchoisir|finchoix)\\b)|" +
-            "(\\b(mais pas|mais bien|mais ni|mais soit|mais plus|ainsi que|et|ou|ni|soit)\\b)|" +
-            "(\\b(partie|chapitre|scène) )|" + 
+          regex: "(\\b(" +
+            "désactiver|activer|" +
+            "si|sinon|sinonsi|" +
+            "(autre )?choix|choisir( parmis)?|" +
+            "quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|" +
+            "refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
+            "interpréter|comme)\\b" +
+            ")|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|avant|après|si|choix|choisir)|finsi|finchoisir|finchoix)\\b)|" +
+            "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et|ou|ni|soit)\\b)|" +
+            "(\\b(partie|chapitre|scène) )|" +
             "action(?!;|\.)"
-            ,
+          ,
           caseInsensitive: true
         },
         {
           token: "constant.language",
           regex: "(au (sud|nord)(?:-(?:est|ouest))?)|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
-            + "(\\b(ceci|cela|ici|(la )?règle|(l’)?action|(la )?commande)\\b)|"
+            + "(\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|(la )?règle|(l’)?action|(la )?commande)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
 
@@ -81,18 +88,19 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|transportable|"
             + "porté|possédé|disponible|occupé|"
-            + "(in)?visible|(in)?accessible|ajdacent"
+            + "(in)?visible|(in)?accessible|ajdacent|"
+            + "multiple|unique|illimité"
             + ")(e)?(s)?(?!\\w))"
 
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
-            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|liste|compteurs)"
+          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
+            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)"
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "\\b((ne |n’|n')?(se |s’)?(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
+          regex: "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))\\b"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
