@@ -1,5 +1,10 @@
 # Historique des versions
 
+## [0.6.0] - 18/02/2022
+### Améliorations
+
+- Coloration syntaxique
+
 ## [0.5.0] - 11/12/2021
 ### Ajouts
 
