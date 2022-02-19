@@ -25,23 +25,23 @@
         <!-- COL 1 : LISTE DES ONGLETS -->
         <div class="col-auto ps-2 pe-0">
           <div class="btn-group-vertical">
-            <button class="btn btn-primary" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
+            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
               title="Scénario" tooltip="Scénario" placement="right">
               <i class="fas fa-fw fa-book fa-lg"></i>
             </button>
-            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
+            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
               (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
               <i class="fas fa-fw fa-glasses fa-lg"></i>
             </button>
-            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
+            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
               (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
-            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'visualisation') }"
+            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'visualisation') }"
               (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
               <i class="fas fa-fw fa-eye fa-lg"></i>
             </button>
-            <button class="btn btn-primary" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
+            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
               (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
               <i class="fas fa-fw fa-sitemap fa-lg"></i>
             </button>
@@ -50,12 +50,12 @@
 
           <ng-container *ngIf="tab == 'analyse' && jeu">
             <br>
-            <button class="btn btn-secondary mt-4" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
+            <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
               placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
             <br>
-            <button class="btn btn-danger mt-4" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
+            <button class="btn btn-danger mt-4 px-2" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
               tooltip="Aperçu" placement="right">
               <i class="fas fa-fw fa-sitemap fa-lg"></i>
             </button>
@@ -64,28 +64,28 @@
           <ng-container *ngIf="tab == 'scenario'">
             <br>
             <!-- analyser -->
-            <button class="btn btn-warning mt-4" (click)="onCompiler()" tooltip="Analyser" placement="right"
+            <button class="btn btn-warning mt-4 px-2" (click)="onCompiler()" tooltip="Analyser" placement="right"
               title="Anaylser">
-              <i class="fas fa-fw fa-magic fa-lg"></i>
+              <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
             </button>
 
             <!-- sauvegarder fichier localement -->
             <br>
-            <button class="btn btn-danger mt-4" (click)="onSauvegarderSous()" tooltip="Sauvegarder" placement="right"
+            <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder" placement="right"
               title="Sauvegarder">
               <i class="fas fa-fw fa-save fa-lg"></i>
             </button>
 
             <!-- wiki -->
             <br>
-            <a class="btn btn-primary mt-4" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
+            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
               placement="right" container="body">
               <i class="fas fa-fw fa-question fa-lg"></i>
             </a>
 
             <!-- préférences -->
             <br>
-            <button class="btn btn-secondary mt-4" (click)="onChangerAfficherPreferences()"
+            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()"
               tooltip="Préférences" placement="right" title="Préférences">
               <i class="fas fa-fw fa-sliders-h fa-lg"></i>
             </button>
@@ -221,8 +221,7 @@
                     <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-select"
                       name="choixScene">
                       <option [ngValue]="null">
-                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la
-                        partie)':'(tout le scénario)'))}}
+                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
                       </option>
                       <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
                         <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">

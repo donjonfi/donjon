@@ -8,27 +8,35 @@
   </div>
   <div class="rl-2">
     <!-- entrée utilisateur -->
-    <div class="input-group mt-2">
+    <div class="input-group mt-2 px-1">
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
         id="txtCommande"
         [placeholder]="placeHolder" [maxlength]="maxLen">
-      <div class="input-group-append">
         <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
           id="btExecuter">Valider</button>
         <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
           id="btExecuter">↑</button>
-      </div>
     </div>
     <small class="row m-0 p-0">
       <div class="col p-1 pb-0">
-        <p class="mb-0">
+        <p *ngIf="!interruptionChoixEnCours && historiqueCommandes.length % 10 < 5" class="mb-0">
           Tapez « <span class="text-primary">aide</span> » pour afficher les actions les plus courantes.
           <ng-container *ngIf="debogueur">
             <br>Tapez : « <span class="text-primary">déb épée</span> »
             pour déboguer l’épée dans la console.
           </ng-container>
+        </p>
+        <p *ngIf="!interruptionChoixEnCours && historiqueCommandes.length % 10 >= 5" class="mb-0">
+          Naviguez dans l'historique de vos commandes avec les touches <i class="fa-solid fa-arrow-up"></i> et <i class="fas fa-arrow-down"></i>.
+          <ng-container *ngIf="debogueur">
+            <br>Tapez : « <span class="text-primary">déb épée</span> »
+            pour déboguer l’épée dans la console.
+          </ng-container>
+        </p>
+        <p *ngIf="interruptionChoixEnCours" class="mb-0">
+          Naviguez entre les proposition avec les touches <i class="fa-solid fa-arrow-up"></i> et <i class="fas fa-arrow-down"></i>.
         </p>
       </div>
       <div *ngIf="afficherCheckActiverAudio" class="col-auto p-1 pb-0">
