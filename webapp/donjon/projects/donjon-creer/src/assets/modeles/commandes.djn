@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-02-13-0037
+-- Version: 2022-02-13-0038
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -24,7 +24,7 @@ SCÈNE "afficher".
       dire "{_Quelques commandes utiles_}
         {e}- {-aide {/parler/}-} : afficher l’aide d’une commande
         {e}- {-aller {/nord/}-} : aller vers le nord
-        {e}- {-regarder-} : regarder autours de vous
+        {e}- {-regarder-} : regarder autour de vous
         {e}- {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations
         {e}- {-prendre {/épée/}-} : prendre un objet
         {e}- {-inventaire-} : afficher le contenu de votre inventaire
@@ -48,7 +48,7 @@ SCÈNE "afficher".
     si ceci est l’aide,
       dire "[aide cela]".
     
-  terminer afficher ceci cela:
+  terminer afficher ceci pour cela:
     si ceci n’est pas l’aide,
       dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
 
@@ -96,7 +96,7 @@ SCÈNE "assommer".
   assommer ceci est une action qui concerne un objet visible.
 
   refuser assommer ceci:
-    si ceci est le joueur, dire "Il doit y a voir un autre moyen de résoudre votre problème.";
+    si ceci est le joueur, dire "Il doit y avoir un autre moyen de résoudre votre problème.";
     si ceci n’est pas un vivant, dire "[Pronom ceci] [v vivre ipr pas ceci].".
 
   terminer assommer ceci:
@@ -194,7 +194,7 @@ SCÈNE "commencer".
 
   exécuter commencer ceci:
     si ceci est le jeu:
-      -- déplacer le joueur pour provoquer le mise à jour de 
+      -- déplacer le joueur pour provoquer la mise à jour de 
       -- la présence des objets et de l’adjacence des lieux
       changer le joueur se trouve dans ici;
       -- afficher ce que voit le joueur.
@@ -203,7 +203,7 @@ SCÈNE "commencer".
     
 SCÈNE "continuer".
   -- ======================
-  --   CONTINUER (je jeu)
+  --   CONTINUER (le jeu)
   -- ======================
   continuer ceci est une action qui concerne un intitulé.
 
@@ -826,7 +826,7 @@ SCÈNE "manger".
       dire "J’ai mangé [intitulé quantitéCeci].";
     fin si.
     
-  interpréter engloutir comme manger.
+  interpréter engloutir, ingérer et avaler comme manger.
 
 SCÈNE "montrer".
   -- ==========
@@ -909,7 +909,7 @@ SCÈNE "parler".
     si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
   
   exécuter parler avec ceci:
-    -- parler avec/à une personne spécifée
+    -- parler avec/à une personne spécifiée
     si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
       si ceci réagit : 
         exécuter réaction de ceci;
@@ -918,7 +918,7 @@ SCÈNE "parler".
     sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
       si le nombre de personnes présentes vaut 1:
         dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
-              Néammoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+              Néanmmoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
       sinonsi le nombre de personnes présentes dépasse 1:
         dire "Il y a plusieurs personnes présentes.
               Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
@@ -926,7 +926,7 @@ SCÈNE "parler".
         dire "Je n'ai trouvé personne à qui parler.";
       fin si
     sinon
-      dire "Connait pas cette préposition : [préposition ceci].";
+      dire "Je ne connais pas cette préposition : [préposition ceci].";
     fin si.
   
   terminer parler avec ceci:
@@ -1112,7 +1112,7 @@ SCÈNE "regarder".
       exécuter l’action examiner ceci.
     
   L'aide pour l'action regarder est "{*Regarder*}
-    Permet de regarder autours de vous pour en savoir plus sur le lieu où vous vous trouvez.
+    Permet de regarder autour de vous pour en savoir plus sur le lieu où vous vous trouvez.
     {+exemple+} :
     > {-regarder-}
     {+raccourci+} : {-re-}".
