@@ -69,7 +69,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "interpréter|comme)\\b" +
             ")|" +
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|avant|après|si|choix|choisir)|finsi|finchoisir|finchoix)\\b)|" +
-            "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et|ou|ni|soit)\\b)|" +
+            "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
             "action(?!;|\.)"
           ,

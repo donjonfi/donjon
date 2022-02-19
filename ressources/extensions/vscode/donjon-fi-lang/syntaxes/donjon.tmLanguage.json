@@ -46,7 +46,7 @@
         },
         {
           "name": "constant.language",
-          "match":  "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|dénombrable|indénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|porté|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|multiple|unique|illimité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|dénombrable|indénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|porté|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|multiple|unique|illimité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -74,7 +74,7 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|refuser|(exécuter|terminer)(?= (\\w)+(er|re|ir))|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|avant|après|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et|ou|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|action(?!;|\\.)"
+          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|refuser|(exécuter|terminer)(?= (\\w)+(er|re|ir))|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|avant|après|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|action(?!;|\\.)"
         },
         {
           "name": "keyword.operator",

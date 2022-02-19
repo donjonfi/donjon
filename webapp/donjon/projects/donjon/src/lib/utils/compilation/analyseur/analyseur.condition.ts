@@ -75,12 +75,14 @@ export class AnalyseurCondition {
       // OU simple (ou, ou si)
       case LienCondition.ou:
       case LienCondition.ouSi:
+      case LienCondition.ouQue:
         // ou
         conditionMulti.lienFrereAine = LienCondition.ou;
         break;
       // ET simple (et, et si, ainsi que, mais bien)
       case LienCondition.et:
       case LienCondition.etSi:
+      case LienCondition.etQue:
       case LienCondition.ainsiQue:
         // et
         conditionMulti.lienFrereAine = LienCondition.et;
@@ -474,8 +476,8 @@ export class AnalyseurCondition {
         'ni',
         'soit',
         'ainsi que|mais pas|mais bien|mais ni|mais soit',
-        'et si',
-        'ou si'
+        'et si|et que',
+        'ou si|ou que'
       ];
 
       morceauxConditionPrincipale = [conditionPrincipale];
@@ -559,14 +561,21 @@ export class AnalyseurCondition {
       switch (lien) {
         case 'ou':
           return LienCondition.ou;
+
         case 'ou si':
           return LienCondition.ouSi;
+
+        case 'ou que':
+          return LienCondition.ouQue;
 
         case 'et':
           return LienCondition.et;
 
         case 'et si':
           return LienCondition.etSi;
+
+        case 'et que':
+          return LienCondition.etQue;
 
         case 'ainsi que':
           return LienCondition.ainsiQue;
@@ -607,10 +616,12 @@ export class AnalyseurCondition {
       switch (lien) {
         case 'ou':
         case 'ou si':
+        case 'ou que':
           return LienCondition.ou;
 
         case 'et':
         case 'et si':
+        case 'et que':
         case 'ainsi que':
         case 'mais bien':
         case 'mais pas':
@@ -640,7 +651,9 @@ export class AnalyseurCondition {
     if (lien) {
       switch (lien) {
         case LienCondition.etSi:
+        case LienCondition.etQue:
         case LienCondition.ouSi:
+        case LienCondition.ouQue:
         case LienCondition.aucun:
           return true;
       }

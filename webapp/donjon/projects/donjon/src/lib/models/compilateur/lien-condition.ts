@@ -23,7 +23,11 @@ export enum LienCondition {
   maisSoit = "mais soit",
   /** lien « et si » (et) (p6) */
   etSi = "et si",
+  /** lien « et que » (et) (p6) */
+  etQue = "et que",
   /** lien « ou si » (ou inclusif) (p7) */
   ouSi = "ou si",
+  /** lien « ou si » (ou inclusif) (p7) */
+  ouQue = "ou que",
 }
 

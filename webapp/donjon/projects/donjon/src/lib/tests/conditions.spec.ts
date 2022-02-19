@@ -660,6 +660,31 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
   });
 
+  
+  it('vérifier résultat condition: « si a dépasse b et que c vaut d »', () => {
+
+    // (A > B) ET (C = D)
+    const condition = AnalyseurCondition.getConditionMulti('si a dépasse b et que c vaut d');
+
+    cptA.valeur = 2;
+    cptB.valeur = 1;
+    cptC.valeur = 3;
+    cptD.valeur = 3;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 2;
+    cptB.valeur = 2;
+    cptC.valeur = 2;
+    cptD.valeur = 2;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
+
+    cptA.valeur = 1
+    cptB.valeur = 0;
+    cptC.valeur = 1;
+    cptD.valeur = 0
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
+  });
+
   it('vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
 
     // (A=1 et B=2) ou (C=3 et d=4)
@@ -692,10 +717,78 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   });
 
 
+  it('vérifier résultat condition: « si a vaut 1 et que b vaut 2 ou que c vaut 3 et que d vaut 4 »', () => {
+
+    // (A=1 et B=2) ou (C=3 et d=4)
+    const condition = AnalyseurCondition.getConditionMulti('si a vaut 1 et que b vaut 2 ou que c vaut 3 et que d vaut 4');
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 0;
+    cptB.valeur = 0;
+    cptC.valeur = 3;
+    cptD.valeur = 4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 1;
+    cptC.valeur = 3;
+    cptD.valeur = 3;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
+
+  });
+
   it('vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4 »', () => {
 
     // A=1 et (B=2 ou C=3) et D=4
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4');
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 0;
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 3.3;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
+
+    cptA.valeur = 1;
+    cptB.valeur = 2;
+    cptC.valeur = 0;
+    cptD.valeur = 0;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
+
+    cptA.valeur = 0;
+    cptB.valeur = 2;
+    cptC.valeur = 3.2;
+    cptD.valeur = -4;
+    expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
+
+  });
+
+  it('vérifier résultat condition: « a vaut 1 et que (b vaut 2 ou que c vaut 3.2) et si d vaut -4 »', () => {
+
+    // A=1 et (B=2 ou C=3) et D=4
+    const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et que (b vaut 2 ou que c vaut 3.2) et si d vaut -4');
 
     cptA.valeur = 1;
     cptB.valeur = 2;
