@@ -542,7 +542,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
     if (!this.resteDeLaSortie?.length) {
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
       if (commandeComplete !== this.commande) {
         this.commande = commandeComplete;
         this.focusCommande();
@@ -574,7 +574,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
-        const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande);
+        const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
         this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);

@@ -54,6 +54,10 @@ export class Generateur {
     // *************************
     jeu.parametres = rc.parametres;
 
+    // DÉFINIR LES ABRÉVIATIONS
+    // *************************
+    jeu.abreviations = rc.abreviations;
+
     // // ÉCRAN
     // // ****************
     // let ecran = new Objet(jeu.nextID++, "écran", new GroupeNominal("l’", "écran"), ClassesRacines.Objet, 1, Genre.m, Nombre.s);

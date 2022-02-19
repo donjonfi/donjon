@@ -6,6 +6,7 @@ export enum ResultatAnalysePhrase {
   aide,
   regle,
   synonyme,
+  abreviation,
   action,
   activerParametre,
   elementAvecPosition,

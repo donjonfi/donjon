@@ -1,3 +1,4 @@
+import { Abreviation } from "../../models/compilateur/abreviation";
 
 export class Abreviations {
 
@@ -29,7 +30,7 @@ export class Abreviations {
         case 'n-o':
           retVal = "au nord-ouest";
           break;
-          
+
         default:
           break;
       }
@@ -37,9 +38,11 @@ export class Abreviations {
     return retVal;
   }
 
-  static obtenirCommandeComplete(commande: string) {
-    // séparer le premier m’ ou s’ de la suite de la commande
+  static obtenirCommandeComplete(commande: string, abreviations: Abreviation[]) {
+
     let commandeModifiee = commande.toLocaleLowerCase("fr");
+
+    // séparer le premier m’ ou s’ de la suite de la commande
     if (commandeModifiee.startsWith("m’") || commandeModifiee.startsWith("m'")) {
       commandeModifiee = "m’ " + commandeModifiee.slice(2);
     } else if (commandeModifiee.startsWith("s’") || commandeModifiee.startsWith("s'")) {
@@ -48,7 +51,7 @@ export class Abreviations {
 
     let mots = commandeModifiee.split(' ');
     if (mots.length > 0) {
-      let premierMotComplet = Abreviations.premierMotCommande(mots[0], true);
+      let premierMotComplet = Abreviations.premierMotCommande(mots[0], true, abreviations);
       let deuxiemeMotComplet: string = null;
 
       // si commande en plusieurs mots
@@ -101,310 +104,334 @@ export class Abreviations {
    * Transforme l’abréviation (1, 2 ou 3 lettres) en un mot complet.
    * @param premierMot abréviation en 1, 2 ou 3 lettres ou bien mot complet.
    */
-  static premierMotCommande(premierMot: string, avecEspaceFinal: boolean) {
+  static premierMotCommande(premierMot: string, avecEspaceFinal: boolean, abreviations: Abreviation[]) {
     let retVal = premierMot;
 
     if (premierMot && premierMot.length > 0 && premierMot.length <= 10) {
-      switch (premierMot) {
 
-        // ======================
-        //           ?
-        // ======================
+      let dejaTrouve = false;
+      // parcourir en premier lieux les abréviations du scénario
+      abreviations.forEach(abreviation => {
+        if (premierMot == abreviation.abreviation) {
+          retVal = abreviation.commande;
+          dejaTrouve = true;
+        }
+      });
 
-        case '?':
-          retVal = "afficher l’aide";
-          break;
+      if (!dejaTrouve) {
 
-        // ======================
-        //           A
-        // ======================
+        switch (premierMot) {
 
-        case 'aide':
-          retVal = "afficher l’aide";
-          break;
+          // ======================
+          //           ?
+          // ======================
 
-        case 'af':
-          retVal = "afficher ";
-          break;
+          case '?':
+            retVal = "afficher l’aide";
+            break;
 
-        case 'a':
-        case 'al':
-        case 'all':
-          retVal = "aller ";
-          break;
+          // ======================
+          //           A
+          // ======================
 
-        case 'at':
-        case 'att':
-          retVal = "attaquer ";
-          break;
+          case 'aide':
+            retVal = "afficher l’aide";
+            break;
 
-        case 'triche':
-          retVal = "déboguer triche ";
-          break;
+          case 'af':
+            retVal = "afficher ";
+            break;
 
-        // ======================
-        //           C
-        // ======================
+          case 'a':
+          case 'al':
+          case 'all':
+            retVal = "aller ";
+            break;
 
-        case 'ch':
-        case 'cha':
-          retVal = "chausser ";
-          break;
+          case 'at':
+          case 'att':
+            retVal = "attaquer ";
+            break;
 
-        // ======================
-        //           D
-        // ======================
+          case 'triche':
+            retVal = "déboguer triche ";
+            break;
 
-        case 'de':
-        case 'descendre':
-          retVal = "aller en bas";
-          break;
+          // ======================
+          //           C
+          // ======================
 
-        case 'deb':
-        case 'deboguer':
-        case 'déb':
-          retVal = "déboguer ";
-          break;
+          case 'ch':
+          case 'cha':
+            retVal = "chausser ";
+            break;
 
-        case 'dem':
-          retVal = "demander ";
-          break;
+          // ======================
+          //           D
+          // ======================
 
-        case 'dep':
-        case 'deplacer':
-        case 'dép':
-          retVal = "déplacer ";
-          break;
+          case 'de':
+          case 'descendre':
+            retVal = "aller en bas";
+            break;
 
-        case 'dev':
-        case 'deverrouiller':
-        case 'dév':
-          retVal = "déverrouiller";
-          break;
+          case 'deb':
+          case 'deboguer':
+          case 'déb':
+            retVal = "déboguer ";
+            break;
 
-        case 'd':
-        case 'do':
-        case 'don':
-          retVal = "donner ";
-          break;
+          case 'dem':
+            retVal = "demander ";
+            break;
 
-        // ======================
-        //           E
-        // ======================
+          case 'dep':
+          case 'deplacer':
+          case 'dép':
+            retVal = "déplacer ";
+            break;
 
-        case 'e':
-        case 'est':
-          retVal = "aller à l’est";
-          break;
+          case 'dev':
+          case 'deverrouiller':
+          case 'dév':
+            retVal = "déverrouiller";
+            break;
 
-        case 'ef':
-        case 'eff':
-          retVal = "effacer";
-          break;
+          case 'd':
+          case 'do':
+          case 'don':
+            retVal = "donner ";
+            break;
 
-        case 'en':
-        case 'entrer':
-          retVal = 'aller dedans';
-          break;
+          // ======================
+          //           E
+          // ======================
 
-        case 'enf':
-          retVal = 'enfiler ';
-          break;
+          case 'e':
+          case 'est':
+            retVal = "aller à l’est";
+            break;
 
-        case 'ex':
-        case 'exa':
-          retVal = "examiner ";
-          break;
+          case 'ef':
+          case 'eff':
+            retVal = "effacer";
+            break;
 
-        // ======================
-        //           F
-        // ======================
+          case 'en':
+          case 'entrer':
+            retVal = 'aller dedans';
+            break;
 
-        case 'f':
-        case 'fo':
-        case 'fou':
-          retVal = "fouiller ";
-          break;
+          case 'enf':
+            retVal = 'enfiler ';
+            break;
 
-        case 'fe':
-        case 'fer':
-          retVal = "fermer ";
-          break;
+          case 'ex':
+          case 'exa':
+            retVal = "examiner ";
+            break;
 
-        // ======================
-        //           I
-        // ======================
+          // ======================
+          //           F
+          // ======================
+
+          case 'f':
+          case 'fo':
+          case 'fou':
+            retVal = "fouiller ";
+            break;
+
+          case 'fe':
+          case 'fer':
+            retVal = "fermer ";
+            break;
+
+          // ======================
+          //           I
+          // ======================
 
 
-        case 'i':
-        case 'in':
-        case 'inv':
-        case 'inventaire':
-          retVal = "afficher inventaire";
-          break;
+          case 'i':
+          case 'in':
+          case 'inv':
+          case 'inventaire':
+            retVal = "afficher inventaire";
+            break;
 
-        case 'int':
-          retVal = "interroger ";
-          break;
+          case 'int':
+            retVal = "interroger ";
+            break;
 
-        // ======================
-        //           J
-        // ======================
+          // ======================
+          //           J
+          // ======================
 
-        case 'j':
-        case 'je':
-        case 'jet':
-          retVal = "jeter ";
-          break;
+          case 'j':
+          case 'je':
+          case 'jet':
+            retVal = "jeter ";
+            break;
 
-        // ======================
-        //           M
-        // ======================
+          // ======================
+          //           M
+          // ======================
 
-        case 'mo':
-        case 'monter':
-          retVal = "aller en haut";
-          break;
+          case 'mo':
+          case 'monter':
+            retVal = "aller en haut";
+            break;
 
-        case 'mon':
-          retVal = "montrer ";
-          break;
+          case 'mon':
+            retVal = "montrer ";
+            break;
 
-        case 'm\'':
-        case 'm’':
-        case 'me':
-          retVal = "moi";
-          break;
+          case 'm\'':
+          case 'm’':
+          case 'me':
+            retVal = "moi";
+            break;
 
-        case 'met':
-          retVal = "mettre ";
-          break;
+          case 'met':
+            retVal = "mettre ";
+            break;
 
-        // ======================
-        //           N
-        // ======================
+          // ======================
+          //           N
+          // ======================
 
-        case 'n':
-        case 'nord':
-          retVal = "aller au nord";
-          break;
+          case 'n':
+          case 'nord':
+            retVal = "aller au nord";
+            break;
 
-        case 'n-e':
-        case 'nord-est':
-          retVal = "aller au nord-est";
-          break;
+          case 'n-e':
+          case 'nord-est':
+            retVal = "aller au nord-est";
+            break;
 
-        case 'n-o':
-        case 'nord-ouest':
-          retVal = "aller au nord-ouest";
-          break;
-        // ======================
-        //           O
-        // ======================
+          case 'n-o':
+          case 'nord-ouest':
+            retVal = "aller au nord-ouest";
+            break;
+          // ======================
+          //           O
+          // ======================
 
-        case 'o':
-        case 'ouest':
-          retVal = "aller à l’ouest";
-          break;
+          case 'o':
+          case 'ouest':
+            retVal = "aller à l’ouest";
+            break;
 
-        case 'ou':
-        case 'ouv':
-          retVal = "ouvrir ";
-          break;
+          case 'ou':
+          case 'ouv':
+            retVal = "ouvrir ";
+            break;
 
-        // ======================
-        //           P
-        // ======================
+          // ======================
+          //           P
+          // ======================
 
-        case 'p':
-        case 'pr':
-        case 'pre':
-          retVal = "prendre ";
-          break;
+          case 'p':
+          case 'pr':
+          case 'pre':
+            retVal = "prendre ";
+            break;
 
-        // case 'pa':
-        case 'par':
-          retVal = "parler ";
-          break;
+          // case 'pa':
+          case 'par':
+            retVal = "parler ";
+            break;
 
-        case 'pos':
-          retVal = "poser ";
-          break;
+          case 'pos':
+            retVal = "poser ";
+            break;
 
-        case 'pou':
-          retVal = "pousser ";
-          break;
+          case 'pou':
+            retVal = "pousser ";
+            break;
 
-        // ======================
-        //           Q
-        // ======================
-        case 'que':
-          retVal = "questionner";
-          break;
+          // ======================
+          //           Q
+          // ======================
+          case 'que':
+            retVal = "questionner";
+            break;
 
-        // ======================
-        //           R
-        // ======================
+          // ======================
+          //           R
+          // ======================
 
-        case 'r':
-        case 're':
-        case 'reg':
-          retVal = "regarder ";
-          break;
+          case 'r':
+          case 're':
+          case 'reg':
+            retVal = "regarder ";
+            break;
 
-        // ======================
-        //           S
-        // ======================
+          // ======================
+          //           S
+          // ======================
 
-        case 's':
-        case 'sud':
-          retVal = "aller au sud";
-          break;
+          case 's':
+          case 'sud':
+            retVal = "aller au sud";
+            break;
 
-        case 's-e':
-        case 'sud-est':
-          retVal = "aller au sud-est";
-          break;
+          case 's-e':
+          case 'sud-est':
+            retVal = "aller au sud-est";
+            break;
 
-        case 's-o':
-        case 'sud-ouest':
-          retVal = "aller au sud-ouest";
-          break;
+          case 's-o':
+          case 'sud-ouest':
+            retVal = "aller au sud-ouest";
+            break;
 
-        case 'so':
-        case 'sortir':
-          retVal = 'aller dehors';
-          break;
+          case 'so':
+          case 'sortir':
+            retVal = 'aller dehors';
+            break;
 
-        case 'sor':
-        case 'sortie':
-        case 'sorties':
-          retVal = "afficher sorties";
-          break;
+          case 'sor':
+          case 'sortie':
+          case 'sorties':
+            retVal = "afficher sorties";
+            break;
 
-        // ======================
-        //           T
-        // ======================
+          // ======================
+          //           T
+          // ======================
 
-        case 'te':
-        case 'ten':
-          retVal = "tenir ";
-          break;
+          case 'te':
+          case 'ten':
+            retVal = "tenir ";
+            break;
 
-        // ======================
-        //           U
-        // ======================
+          // ======================
+          //           U
+          // ======================
 
-        case 'u':
-        case 'ut':
-        case 'uti':
-          retVal = "utiliser ";
-          break;
+          case 'u':
+          case 'ut':
+          case 'uti':
+            retVal = "utiliser ";
+            break;
 
-        default:
-          break;
+          // ======================
+          //           X
+          // ======================
+
+          case 'x':
+            retVal = "examiner ";
+            break;
+
+          default:
+            break;
+        }
+
+
       }
     }
+
 
     if (!avecEspaceFinal) {
       retVal = retVal.trim();

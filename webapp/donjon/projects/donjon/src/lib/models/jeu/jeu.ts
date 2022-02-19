@@ -1,3 +1,4 @@
+import { Abreviation } from '../compilateur/abreviation';
 import { Action } from '../compilateur/action';
 import { Aide } from '../commun/aide';
 import { Auditeur } from '../jouer/auditeur';
@@ -92,6 +93,9 @@ export class Jeu {
 
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];
+
+  /** Les abréviations pour les commandes du jeu */
+  abreviations: Abreviation[] = [];
 
   /** Fiches d'aides */
   aides: Aide[] = [];

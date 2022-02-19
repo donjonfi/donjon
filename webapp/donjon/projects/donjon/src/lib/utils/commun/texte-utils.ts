@@ -7,10 +7,19 @@ export class TexteUtils {
    */
   static retrouverTexteOriginal(texteEncode: string): string {
     return texteEncode?.replace(ExprReg.xCaractereDebutCommentaire, ' "')
-    .replace(ExprReg.xCaractereFinCommentaire, '" ')
-    .replace(ExprReg.xCaractereRetourLigne, '\n')
-    .replace(ExprReg.xCaracterePointVirgule, ';')
-    .replace(ExprReg.xCaractereVirgule, ',')
+      .replace(ExprReg.xCaractereFinCommentaire, '" ')
+      .replace(ExprReg.xCaractereRetourLigne, '\n')
+      .replace(ExprReg.xCaracterePointVirgule, ';')
+      .replace(ExprReg.xCaractereVirgule, ',')
+  }
+
+  static enleverGuillemets(texteEncode: string, trim: boolean): string {
+    let retVal = texteEncode?.replace(ExprReg.xCaractereDebutCommentaire, '')
+      .replace(ExprReg.xCaractereFinCommentaire, '');
+    if (trim) {
+      retVal = retVal.trim();
+    }
+    return retVal;
   }
 
 }

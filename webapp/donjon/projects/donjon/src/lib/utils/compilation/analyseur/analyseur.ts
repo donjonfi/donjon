@@ -95,6 +95,16 @@ export class Analyseur {
       }
 
       // ===============================================
+      // ABRÉVIATIONS
+      // ===============================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurSynonymes.testerAbreviation(phrase, ctx)
+        if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.abreviation) {
+          console.log("=> trouvé abréviation");
+        }
+      }
+
+      // ===============================================
       // ACTIONS
       // ===============================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {

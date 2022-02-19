@@ -162,6 +162,7 @@ export class Compilateur {
       console.log("ctx.monde:", ctx.monde);
       console.log("règles:", ctx.analyse.regles);
       console.log("actions:", ctx.analyse.actions);
+      console.log("abréviations:", ctx.analyse.abreviations);
       console.log("compteurs:", ctx.compteurs);
       console.log("listes:", ctx.listes);
       console.log("aides:", ctx.analyse.aides);
@@ -173,6 +174,7 @@ export class Compilateur {
     ctx.resultat.monde = ctx.monde;
     ctx.resultat.regles = ctx.analyse.regles;
     ctx.resultat.actions = ctx.analyse.actions;
+    ctx.resultat.abreviations = ctx.analyse.abreviations;
     ctx.resultat.compteurs = ctx.compteurs;
     ctx.resultat.listes = ctx.listes;
     ctx.resultat.erreurs = ctx.analyse.erreurs;

@@ -1,3 +1,4 @@
+import { Abreviation } from "../../../models/compilateur/abreviation";
 import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
@@ -5,8 +6,35 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { TexteUtils } from "../../commun/texte-utils";
 
 export class AnalyseurSynonymes {
+
+  /**
+   * Rechecher une abréviation de commande
+   */
+  public static testerAbreviation(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+
+    let resultatTrouve = ResultatAnalysePhrase.aucun;
+
+    const result = ExprReg.xAbreviation.exec(phrase.phrase[0]);
+    if (result !== null) {
+      const abreviation = result[1];
+      if (phrase.phrase[1]) {
+        const commande = TexteUtils.enleverGuillemets(phrase.phrase[1], false);
+        if (commande?.length) {
+          ctxAnalyse.abreviations.push(new Abreviation(abreviation, commande));
+          resultatTrouve = ResultatAnalysePhrase.abreviation;
+        } else {
+          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "abréviation d’une commande : la commande est vide.");
+        }
+      } else {
+        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "abréviation d’une commande : la commande n'a pas été spécifiée entre guillemets.");
+      }
+    }
+
+    return resultatTrouve;
+  }
 
   /**
    * Rechecher un synonyme d’action ou d’élment du jeu

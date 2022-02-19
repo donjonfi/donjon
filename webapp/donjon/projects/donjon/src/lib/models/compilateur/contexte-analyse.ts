@@ -1,3 +1,4 @@
+import { Abreviation } from "./abreviation";
 import { Action } from "./action";
 import { Aide } from "../commun/aide";
 import { Definition } from "./definition";
@@ -13,6 +14,7 @@ export class ContexteAnalyse {
     public elementsGeneriques = new Array<ElementGenerique>(),
     public regles = new Array<Regle>(),
     public actions = new Array<Action>(),
+    public abreviations = new Array<Abreviation>(),
     public aides = new Array<Aide>(),
     public typesUtilisateur = new Map<string, Definition>(),
     public erreurs = new Array<string>(),
