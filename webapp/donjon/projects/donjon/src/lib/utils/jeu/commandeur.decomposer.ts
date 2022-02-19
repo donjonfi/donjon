@@ -179,8 +179,8 @@ export class CommandeurDecomposer {
       // 2) INTERROGER/QUESTIONNER => INTERROGER INTERLOCUTEUR *CONCERNANT* SUJET
       case 'interroger':
       case 'questionner':
-        // aucune préposition après l’infinitif
-        if (!candidat.els.preposition0) {
+        // aucune préposition après l’infinitif mais prépostion entre les 2 compléments
+        if (!candidat.els.preposition0 && candidat.els.preposition1) {
           if (candidat.els.preposition1.match(/(à propos|concernant)/)) {
             // l’ordre est déjà bon, formulation priviliégiée car évite les ambiguïtés avec les noms composés
             candidat.score += 200;
