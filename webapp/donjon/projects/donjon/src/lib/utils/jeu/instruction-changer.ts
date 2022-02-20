@@ -278,11 +278,22 @@ export class InstructionChanger {
           if (instruction.negation) {
             // l'objet n’est plus porté
             this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.enfilable, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.chaussable, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.equipable, true);
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
             resultat = this.insDeplacerCopier.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, objet.quantite);
-            // l'objet est porté
+            // l'objet est enfilé, porté, chaussé, équipé, porté
+            if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.enfilable, this.eju)) {
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.enfile, true);
+            } else if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.chaussable, this.eju)) {
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.chausse, true);
+            } else if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.equipable, this.eju)) {
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.equipe, true);
+            }
+            // on met toujours porté
             this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
           }
         }

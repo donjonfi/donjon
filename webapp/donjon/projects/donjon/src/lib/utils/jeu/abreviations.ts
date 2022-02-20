@@ -273,6 +273,19 @@ export class Abreviations {
             break;
 
           // ======================
+          //           L
+          // ======================
+
+          case 'l':
+          case 'la':
+          case 'lâ':
+          case 'lac':
+          case 'lâc':
+          case 'lacher':
+            retVal = "lâcher ";
+            break;
+
+          // ======================
           //           M
           // ======================
 

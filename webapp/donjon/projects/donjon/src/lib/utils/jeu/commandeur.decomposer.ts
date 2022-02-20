@@ -51,11 +51,11 @@ export class CommandeurDecomposer {
             candidat.score += 100;
           } else {
             // 1 des 2 arguments a une correspondance (50% correspondance)
-            candidat.score += 25;
+            candidat.score += 30;
           }
         } else if (candidat.correspondCela.nbCor > 0) {
           // 1 des 2 arguments a une correspondance (50% correspondance)
-          candidat.score += 25;
+          candidat.score += 30;
         }
         // b) 1 argument
       } else if (candidat.isCeciV1) {
@@ -97,7 +97,6 @@ export class CommandeurDecomposer {
  * dans le même order.
  */
   private static manipulationVerbesParlerDemanderDonnerMontrer(candidat: CandidatCommande) {
-
 
     switch (candidat.els.infinitif) {
       // 1) PARLER/DISCUTER => PARLER AVEC INTERLOCUTEUR (CONCERNANT SUJET) => 

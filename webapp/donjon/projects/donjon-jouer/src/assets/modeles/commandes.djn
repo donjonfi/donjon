@@ -721,6 +721,27 @@ SCÈNE "jeter".
 
   interpréter lancer comme jeter.
 
+SCÈNE "lâcher".
+  -- ===========
+  --    LÂCHER
+  -- ===========
+  lâcher ceci est une action qui concerne un objet prioritairement possédé.
+
+  refuser lâcher ceci:
+    si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci].";
+    -- on veut en jeter 0…
+    si quantitéCeci vaut 0, dire "Je n’en lâche donc aucun.";
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
+
+  exécuter lâcher ceci:
+    déplacer quantitéCeci ceci vers ici.
+
+  terminer lâcher ceci:
+    dire "Je [l' quantitéCeci]ai lâché[accord quantitéCeci].".
+
+  interpréter lacher comme lâcher.
+
 SCÈNE "lire".
   -- ===========
   --    LIRE
@@ -748,16 +769,24 @@ SCÈNE "mettre".
   refuser mettre ceci:
     si ceci n'est pas accessible, dire "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].";
     si ceci est le joueur, dire "Vous avez de drôles d'idées.";
-    si ceci n'est pas portable, dire "Je ne peux pas porter [intitulé ceci] sur moi.";
+    si ceci n'est ni portable ni enfilable ni équipable ni chaussable, dire "Je ne peux pas mettre [intitulé ceci] sur moi.";
     si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
   
   exécuter mettre ceci:
     changer le joueur porte ceci.
-    
+
   terminer mettre ceci:
-    dire "Vous portez [intitulé ceci].".
-    
-  -- c) metre ceci dans cela
+    si ceci est enfilé:
+      dire "Vous avez enfilé [intitulé ceci].";
+    sinonsi ceci est chaussé:
+      dire "Vous avec chaussé [intitulé ceci].";
+    sinonsi ceci est équipé:
+      dire "Vous avez équipé [intitulé ceci].";
+    sinon:
+      dire "Vous portez [intitulé ceci].";
+    fin si.
+
+  -- c) metre ceci sur/dans cela
   mettre ceci dans cela est une action qui concerne deux objets visibles.
   
   refuser mettre ceci dans cela:
@@ -765,7 +794,7 @@ SCÈNE "mettre".
     si cela n'est pas accessible, dire "[Intitulé cela] [v être ipr pas cela] accessible[s cela].";
     si ceci est fixé, dire "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].";
     si cela n'est ni un support ni un contenant ni un vivant, dire "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.";
-    si cela est fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
+    si cela est un contenant et fermé, dire "[Intitulé cela] [v être ipr cela] fermé[es cela].".
   
   exécuter mettre ceci dans cela:
     si cela est un support:
@@ -782,11 +811,9 @@ SCÈNE "mettre".
     si cela est un support ou un contenant,
       dire "C’est fait.";
     si cela est un vivant mais pas le joueur,
-      dire "C’est fait.";
-    si cela est le joueur,
-      dire "Vous portez [intitulé ceci].".
+      dire "C’est fait.".
       
-  interpréter chausser, enfiler, porter, équiper, poser et tenir comme mettre.
+  interpréter enfiler, chausser, porter, équiper et tenir comme mettre.
   
   L'aide pour l'action mettre est "{*Mettre / Poser / Tenir / Enfiler / Chausser*}
     Permet de poser un objet sur un support ou de le mettre dans un contenant.
@@ -892,50 +919,64 @@ SCÈNE "parler".
   -- ====================
   --   PARLER (discuter)
   -- ====================
-  
-  -- b) parler avec ceci / parler de ceci
-  parler avec ceci est une action qui concerne un intitulé.
-  
+
+  -- b) parler à ceci
+  parler à ceci est une action qui concerne un objet visible.
+
   refuser parler avec ceci:
-    si (aucune préposition n’existe pour ceci et si ceci n’est pas un élément), dire "<< [Intitulé ceci] >> n’est pas un élément du jeu.
-      Veuillez utiliser une des formulations suivantes:
-      {t}{-parler avec {/personne/}-}
-      {t}{-parler avec {/personne/} concernant {/sujet/}-}
-      {t}{-parler de {/sujet/}-}* => avec la seule personne présente ici ou le précédent interlocuteur
-      *{/(en développement)/}";
-      
-    si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est ni une personne ni parlant ou si ceci est muet), dire "[Intitulé ceci] ne parle pas.";
-    si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est pas visible), dire "[Intitulé ceci] ne parle pas.";
-    si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
-  
+    si ceci n'est ni une personne ni parlant ou si ceci est muet, dire "[Intitulé ceci] ne parle pas.";
+    si ceci est le joueur, dire "Vous entamez un monologue.".
+
   exécuter parler avec ceci:
-    -- parler avec/à une personne spécifiée
-    si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
-      si ceci réagit : 
-        exécuter réaction de ceci;
-      fin si
-    -- parler d’un sujet (à la seule personne présente ici)
-    sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
-      si le nombre de personnes présentes vaut 1:
-        dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
-              Néanmmoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
-      sinonsi le nombre de personnes présentes dépasse 1:
-        dire "Il y a plusieurs personnes présentes.
-              Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
-      sinon
-        dire "Je n'ai trouvé personne à qui parler.";
-      fin si
-    sinon
-      dire "Je ne connais pas cette préposition : [préposition ceci].";
-    fin si.
-  
+    si ceci réagit, exécuter réaction de ceci.
+
   terminer parler avec ceci:
-    si aucune préposition n’existe pour ceci, dire "Pas de préposition trouvée.";
-    si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
-      si ceci ne réagit pas:
-        dire "(Et ils eurent une conversation peu intéressante.)";
-      fin si
-    fin si.
+    si ceci ne réagit pas, dire "(Et ils eurent une conversation peu intéressante.)".
+    
+  
+  -- -- b) parler avec ceci / parler de ceci
+  -- parler avec ceci est une action qui concerne un intitulé.
+  
+  -- refuser parler avec ceci:
+  --   si (aucune préposition n’existe pour ceci et si ceci n’est pas un élément), dire "<< [Intitulé ceci] >> n’est pas un élément du jeu.
+  --     Veuillez utiliser une des formulations suivantes:
+  --     {t}{-parler avec {/personne/}-}
+  --     {t}{-parler avec {/personne/} concernant {/sujet/}-}
+  --     {t}{-parler de {/sujet/}-}* => avec la seule personne présente ici ou le précédent interlocuteur
+  --     *{/(en développement)/}";
+      
+  --   si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est ni une personne ni parlant ou si ceci est muet), dire "[Intitulé ceci] ne parle pas.";
+  --   si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci n'est pas visible), dire "[Intitulé ceci] ne parle pas.";
+  --   si (aucune préposition n’existe pour ceci ou si la préposition de ceci est avec ou à) et si (ceci est le joueur), dire "Vous entamez un monologue.".
+  
+  -- exécuter parler avec ceci:
+  --   -- parler avec/à une personne spécifiée
+  --   si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
+  --     si ceci réagit : 
+  --       exécuter réaction de ceci;
+  --     fin si
+  --   -- parler d’un sujet (à la seule personne présente ici)
+  --   sinonsi la préposition de ceci est concernant ou de ou du ou des ou à propos de:
+  --     si le nombre de personnes présentes vaut 1:
+  --       dire "J’ai trouvé exactement une personne, je pourrai bientôt lui parler automatiquement.
+  --             Néanmmoins, en attendant cette mise à jour, veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+  --     sinonsi le nombre de personnes présentes dépasse 1:
+  --       dire "Il y a plusieurs personnes présentes.
+  --             Veuillez utiliser la commande {-parler avec {/personne/} concernant {/sujet/}-}.";
+  --     sinon
+  --       dire "Je n'ai trouvé personne à qui parler.";
+  --     fin si
+  --   sinon
+  --     dire "Je ne connais pas cette préposition : [préposition ceci].";
+  --   fin si.
+  
+  -- terminer parler avec ceci:
+  --   si aucune préposition n’existe pour ceci, dire "Pas de préposition trouvée.";
+  --   si (aucune préposition n’existe pour ceci) ou si (la préposition de ceci est avec ou à):
+  --     si ceci ne réagit pas:
+  --       dire "(Et ils eurent une conversation peu intéressante.)";
+  --     fin si
+  --   fin si.
     
   -- c) parler à ceci de cela
   parler avec ceci concernant cela est une action qui concerne un objet visible et un intitulé.
@@ -973,6 +1014,39 @@ SCÈNE "péter".
     dire "Vous faites un bruit malpoli.".
   
   interpréter roter comme péter.
+
+SCÈNE "poser".
+  -- ===========
+  --   POSER
+  -- ===========
+  poser ceci est une action qui concerne un objet prioritairement possédé.
+
+  refuser poser ceci:
+    si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci].";
+    -- on veut en jeter 0…
+    si quantitéCeci vaut 0, dire "Je n’en pose donc aucun.";
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
+   
+    exécuter poser ceci:
+      -- todo: mettre sur le sol
+      déplacer quantitéCeci ceci vers ici.
+      
+    terminer poser ceci:
+      dire "Je [l' quantitéCeci]ai posé[es quantitéCeci].".
+
+  poser ceci sur cela est une action qui concerne un objet prioritairement possédé et un support.
+
+  refuser poser ceci sur cela:
+    si ceci n'est pas possédé, dire "Vous ne possédez pas [intitulé ceci].";
+    -- on veut en jeter 0…
+    si quantitéCeci vaut 0, dire "Je n’en pose donc aucun.";
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, dire "Il n’y en a pas autant !".
+    
+  exécuter poser ceci sur cela:
+    exécuter la commande "mettre [intitulé ceci] sur [intitulé cela]".
+
 
 SCÈNE "pousser".
   -- ===========
@@ -1203,10 +1277,11 @@ SCÈNE "tuer".
   terminer tuer ceci:
     dire "Je suis contre la violence.".
 
--- ============
---   UTILISER
--- ============
-CHAPITRE "utiliser".
+
+SCÈNE "utiliser".
+  -- ============
+  --   UTILISER
+  -- ============
   utiliser ceci est une action qui concerne un objet visible.
 
   terminer utiliser ceci:

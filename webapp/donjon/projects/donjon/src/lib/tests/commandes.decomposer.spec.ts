@@ -132,4 +132,25 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[0].els.sujetComplement1.nom).toEqual('fenêtre');
   });
 
+  it('commande « mettre la pomme sur la table »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('mettre la pomme sur la table');
+    expect(resultats.length).toBe(2);
+    
+
+    expect(resultats[0].els.infinitif).toEqual('mettre');
+    expect(resultats[0].els.preposition0).toBeFalsy();
+    expect(resultats[0].els.sujet.determinant).toEqual('la ');
+    expect(resultats[0].els.sujet.nom).toEqual('pomme sur la table');
+    expect(resultats[0].els.preposition1).toBeFalsy();
+    expect(resultats[0].els.sujetComplement1).toBeFalsy();
+
+    expect(resultats[1].els.infinitif).toEqual('mettre');
+    expect(resultats[1].els.preposition0).toBeFalsy();
+    expect(resultats[1].els.sujet.determinant).toEqual('la ');
+    expect(resultats[1].els.sujet.nom).toEqual('pomme');
+    expect(resultats[1].els.preposition1).toEqual('sur');
+    expect(resultats[1].els.sujetComplement1.determinant).toEqual('la ');
+    expect(resultats[1].els.sujetComplement1.nom).toEqual('table');
+ });
+
 });

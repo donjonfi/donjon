@@ -135,12 +135,19 @@ export class Debogueur {
     let infoContenant: string;
 
     if (contenant === this.jeu.joueur) {
-      const porte = this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.porteID, this.eju);
-      if (porte) {
-        infoContenant = " (porté par joueur)";
+
+      if (this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.enfileID, this.eju)) {
+        infoContenant = " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(objet, this.jeu.etats.enfileID) + " par joueur)";
+      } else if (this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.chausseID, this.eju)) {
+        infoContenant = " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(objet, this.jeu.etats.chausseID) + " par joueur)";
+      } else if (this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.equipeID, this.eju)) {
+        infoContenant = " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(objet, this.jeu.etats.equipeID) + " par joueur)";
+      } else if (this.jeu.etats.possedeEtatIdElement(objet, this.jeu.etats.porteID, this.eju)) {
+        infoContenant = " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(objet, this.jeu.etats.porteID) + " par joueur)";
       } else {
         infoContenant = " (dans inventaire joueur)";
       }
+
     } else {
       infoContenant = (contenant ? (' (' + contenantPreposition + contenant.nom + ')') : '')
     }

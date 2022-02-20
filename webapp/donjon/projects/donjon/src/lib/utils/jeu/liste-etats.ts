@@ -31,6 +31,9 @@ export class ListeEtats {
   public disponibleID = -1;
   public occupeID = -1;
   public porteID = -1;
+  public enfileID = -1;
+  public chausseID = -1;
+  public equipeID = -1;
   public ouvertID = -1;
   public ouvrableID = -1;
   public fermeID = -1;
@@ -84,6 +87,9 @@ export class ListeEtats {
     this.occupeID = poDiOc[2].id;
     // porté (objet)
     this.porteID = this.creerEtat(EEtatsBase.porte, Genre.m, Nombre.s, true).id;
+    this.enfileID = this.creerEtat(EEtatsBase.enfile, Genre.m, Nombre.s, true).id;
+    this.chausseID = this.creerEtat(EEtatsBase.chausse, Genre.m, Nombre.s, true).id;
+    this.equipeID = this.creerEtat(EEtatsBase.equipe, Genre.m, Nombre.s, true).id;
     // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
     // dénombrable et indénombrable (objet)
     this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
@@ -96,6 +102,9 @@ export class ListeEtats {
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);
     this.creerEtat(EEtatsBase.portable);
+    this.creerEtat(EEtatsBase.enfilable);
+    this.creerEtat(EEtatsBase.equipable);
+    this.creerEtat(EEtatsBase.chaussable);
     // ouvrable, ouvert, fermé (porte, contenant)
     this.ouvrableID = this.creerEtat(EEtatsBase.ouvrable).id;
     const ouvFer = this.creerBasculeEtats(EEtatsBase.ouvert, EEtatsBase.ferme);

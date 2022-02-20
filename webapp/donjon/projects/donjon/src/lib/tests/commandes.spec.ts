@@ -31,6 +31,8 @@ describe('Décomposer des commandes', () => {
       'Interpréter la boite comme la boite aux lettres. ' +
       'La lettre est un objet. ' +
       'La tarte à la crème est un objet mangeable. ' +
+      'La pomme est un objet mangeable. ' +
+      'La table basse est un support ici. ' + 
       '';
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -524,6 +526,25 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].els.preposition1).toBeFalsy()
     // cela
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
+  });
+
+  it('commande « mettre la pomme sur la table basse »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('mettre la pomme sur la table basse');
+    expect(ctxCom.candidats.length).toEqual(2);
+
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('mettre');
+    // préposition0
+    expect(ctxCom.candidats[0].els.preposition0).toBeFalsy()
+    // ceci
+    expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+    expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('la pomme');
+    // préposition1
+    expect(ctxCom.candidats[0].els.preposition1).toEqual('sur')
+    // cela
+    expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
+    expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('la table basse');
+
   });
 
 });

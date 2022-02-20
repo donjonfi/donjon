@@ -1213,7 +1213,13 @@ export class InstructionDire {
           ++curObjIndex;
           resultat.sortie += "\n " + InstructionDire.getRetrait(retrait) + (retrait <= 1 ? "- " : "> ") + this.eju.calculerIntituleElement(obj, false, false);
           // ajouter « (porté) » aux objets portés
-          if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
+          if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.enfileID)) {
+            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.enfileID) + ")";
+          } else if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.chausseID)) {
+            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.chausseID) + ")";
+          } else if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.equipeID)) {
+            resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.equipeID) + ")";
+          } else if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.porteID)) {
             resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.porteID) + ")";
           }
           // ajouter « contenu » des contenants ouverts ou transparents
