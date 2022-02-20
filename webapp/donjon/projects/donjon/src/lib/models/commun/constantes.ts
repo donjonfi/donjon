@@ -1,6 +1,6 @@
 
-export const version = "0.306 beta"
-export const versionNum = 306;
+export const version = "0.307"
+export const versionNum = 307;
 
 export enum EClasseRacine {
   intitule = 'intitule',
@@ -65,6 +65,12 @@ export enum EEtatsBase {
   occupe = 'occupé',
   /** porté (calculé) (→ possédé) */
   porte = 'porté',
+  /** enfilé */
+  enfile = 'enfilé',
+  /** chaussé */
+  chausse = 'chaussé',
+  /** équipé */
+  equipe = 'équipé',
   /** dénombrable (↔ indénombrable) */
   denombrable = 'dénombrable',
   /** indénombrable (↔ dénombrable) */
@@ -83,6 +89,12 @@ export enum EEtatsBase {
   buvable = 'buvable',
   /** portable (le joueur peut le mettre sur lui, s'habiller avec) */
   portable = 'portable',
+  /** enfilable (le joueur peut le mettre sur lui, s'habiller avec) */
+  enfilable = 'enfilable',
+  /** équipable (le joueur s'équiper de cet objet) */
+  equipable = 'équipable',
+  /** chaussable (le joueur chausser cet objet) */
+  chaussable = 'chaussable',
   /** ouvrable */
   ouvrable = 'ouvrable',
   /** ouvert (↔ fermé) : porte, contenant, … */
