@@ -24,9 +24,9 @@ Le texte du magazine est "Ils repassent un film de Noël ce soir.".
 -- règle: sortie spécifique la 1ère et 2e fois que le joueur prend la pomme.
 après prendre la pomme:
   si la règle se déclenche pour la première fois:
-    dire "D’un geste royal, vous prennez la pomme !";
+    dire "D’un geste royal, vous prenez la pomme !";
   sinonsi la règle se déclenche pour la deuxième fois:
-    dire "Avec toujours autant de manières, vous prennez la pomme.";
+    dire "Avec toujours autant de manières, vous prenez la pomme.";
   sinon
     continuer l’action;
   fin si.
