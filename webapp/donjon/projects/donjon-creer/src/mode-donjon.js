@@ -86,11 +86,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
-            + "marche|arrêt|parlant|opaque|transparent|fixé|transportable|"
-            + "porté|possédé|disponible|occupé|"
+            + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
+            + "enfilable|chaussable|"
+            + "porté|enfilé|chaussé|possédé|disponible|occupé|"
             + "(in)?visible|(in)?accessible|ajdacent|"
             + "multiple|unique|illimité"
-            + ")(e)?(s)?(?!\\w))"
+            + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
 
         }, {
           token: "storage.type",
