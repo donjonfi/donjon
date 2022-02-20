@@ -1,17 +1,21 @@
 <div class="subgrid">
-  <div class="rr1">
+  <div class="rr1 mb-2" *ngIf="!afficherBanniere">
+  </div>
+  <div class="rr1" *ngIf="afficherBanniere">
     <nav class="navbar navbar-dark bg-success text-light mb-2 p-0">
-      <a class="navbar-brand" routerLink="/">
+      <a class="navbar-brand">
         <img src="./assets/tower_50px.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        Donjon
+        Donjon FI
       </a>
       <form class="form-inline">
         <label class="btn btn-primary btn-file me-2" tooltip="Charger nouveau jeu ou partie sauvegardée"
           container="body" placement="bottom" title="Charger un nouveau jeu ou une partie sauvegardée">
           <i class="fas fa-folder-open"></i><input type="file" accept=".djn,.sav,.txt" style="display: none;"
-            name="choixFichierNouveau"  (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
+            name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
         </label>
-
+        <a class="btn btn-sm btn-primary me-2" href="https://donjon.fi" target="_blank" tooltip="Créez votre fiction interactive sur https://donjon.fi [Donjon FI v{{version}}]" container="body"
+          placement="bottom"><i class="fas fa-info fa-fw"></i>
+        </a>
         <!-- <button *ngIf="jeu" class="btn btn-sm btn-danger me-2" tooltip="Sauvergarder partie" container="body"
           placement="bottom" title="Sauvegarder la partie" name="btnSauver" (click)="onSauvegarderJeu()"><i
             class="fas fa-save fa-fw"></i>
@@ -36,7 +40,8 @@
         <br>
         <label class="btn btn-secondary btn-file me-2 mt-2" title="Charger un nouveau jeu ou une partie sauvegardée">
           <i class="fas fa-folder-open me-2"></i>Charger<input type="file" accept=".djn,.sav,.txt"
-            style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
+            style="display: none;" name="choixFichierNouveau" (change)="onChargerFichierLocal($event.target)"
+            onclick="this.value=null">
         </label>
       </p>
 

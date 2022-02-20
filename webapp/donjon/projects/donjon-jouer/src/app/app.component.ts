@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from '../environments/environment';
 import { version } from '@donjon/core';
 
 @Component({
@@ -8,4 +9,8 @@ import { version } from '@donjon/core';
 })
 export class AppComponent {
   version = version;
+
+  get afficherPiedPage(): boolean {
+    return environment.piedDePage;
+  }
 }

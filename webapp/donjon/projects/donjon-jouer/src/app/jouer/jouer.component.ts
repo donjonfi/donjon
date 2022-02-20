@@ -1,10 +1,11 @@
 import * as FileSaver from 'file-saver';
 
-import { Compilateur, Generateur, Jeu, ListeEtats, StringUtils } from '@donjon/core';
+import { Compilateur, Generateur, Jeu, ListeEtats, StringUtils, version } from '@donjon/core';
 import { Component, OnInit } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-jouer',
@@ -26,14 +27,24 @@ export class JouerComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const sub = this.route.params.subscribe(params => {
-      const fichier = params['fichier'];
-      if (fichier) {
-        this.onChargerExemple(fichier);
-      } else {
-        // this.erreurs = ['aucun fichier de jeu renseigné.'];
-      }
-    });
+
+    if (environment.chargementAutoJeu) {
+      //essayer de charcher jeu.djn
+      this.onChargerExemple("jeu");
+    } else {
+      const sub = this.route.params.subscribe(params => {
+        const fichier = params['fichier'];
+        if (fichier) {
+          this.onChargerExemple(fichier);
+        } else {
+          // aucun jeu pré-chargé
+        }
+      });
+    }
+  }
+
+  get afficherBanniere(): boolean {
+    return environment.banniere;
   }
 
   /** Charger un fichier depuis le site */
@@ -42,14 +53,16 @@ export class JouerComponent implements OnInit {
     const nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(nomExemple, "djn");
     if (nomFichierExemple) {
       this.http.get('assets/jeux/' + nomFichierExemple, { responseType: 'text' })
-        .subscribe(
-          scenario => {
+        .subscribe({
+          next: scenario => {
             this.chargement = false;
             this.chargerJeu(scenario);
-          }, erreur => {
+          },
+          error: erreur => {
             this.chargement = false;
             this.erreurs = ["Le code source n’a pas pu être téléchargé."];
-          });
+          }
+        });
     } else {
       this.erreurs = ["Pas de nom de fichier à charger."];
     }
@@ -117,6 +130,10 @@ export class JouerComponent implements OnInit {
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([sauvegarde], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sav"), { type: "text/plain;charset=utf-8" });
     FileSaver.saveAs(file);
+  }
+
+  get version(){
+    return version;
   }
 
 }

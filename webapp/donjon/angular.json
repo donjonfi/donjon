@@ -169,7 +169,7 @@
             "scripts": []
           },
           "configurations": {
-            "production": {
+            "multi": {
               "budgets": [
                 {
                   "type": "initial",
@@ -185,10 +185,33 @@
               "fileReplacements": [
                 {
                   "replace": "projects/donjon-jouer/src/environments/environment.ts",
-                  "with": "projects/donjon-jouer/src/environments/environment.prod.ts"
+                  "with": "projects/donjon-jouer/src/environments/environment.multi.ts"
                 }
               ],
               "outputHashing": "all"
+            },
+            "one": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/donjon-jouer/src/environments/environment.ts",
+                  "with": "projects/donjon-jouer/src/environments/environment.one.ts"
+                }
+              ],
+              "outputHashing": "all",
+              "outputPath": "dist/donjon-one",
+              "baseHref": "./"
             },
             "development": {
               "buildOptimizer": false,
