@@ -1183,7 +1183,11 @@ SCÈNE "regarder".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.".
     
   exécuter regarder ceci:
-      exécuter la commande "examiner [intitulé ceci]";
+      si ceci est une personne:
+        dire "[description ceci]";
+      sinon
+        exécuter la commande "examiner [intitulé ceci]";
+      fin si.
     
   L'aide pour l'action regarder est "{*Regarder*}
     Permet de regarder autour de vous pour en savoir plus sur le lieu où vous vous trouvez.
