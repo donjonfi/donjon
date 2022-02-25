@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [12.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -30,6 +30,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: webapp/donjon/package-lock.json
-    - run: npm ci
+    - run: npm i
     - run: npm run build donjon --if-present
     - run: npm test donjon
