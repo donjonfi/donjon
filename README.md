@@ -15,6 +15,8 @@ Vous pouvez utiliser Donjon FI directement sur le site [donjon.fi](https://donjo
 
 ## Compilation de Donjon FI
 
+[![Build & Test](https://github.com/zigotteau/donjon/actions/workflows/node.js.yml/badge.svg)](https://github.com/zigotteau/donjon/actions/workflows/node.js.yml)
+
 Donjon IDE est développé avec *Angular*.\
 Les langages utilisés sont le *TypeScript*, *HTML* et *SCSS*.
 
