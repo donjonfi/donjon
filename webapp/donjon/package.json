@@ -12,6 +12,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:prod": "ng test donjon --browsers=ChromeHeadless --watch=false --code-coverage",
     "tauri": "tauri"
   },
   "private": true,

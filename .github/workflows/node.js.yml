@@ -32,4 +32,4 @@ jobs:
         cache-dependency-path: webapp/donjon/package-lock.json
     - run: npm i
     - run: npm run build donjon --if-present
-    - run: npm test donjon
+    - run: npm run test:prod
