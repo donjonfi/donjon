@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: /webapp/donjon/projects/donjon
+        working-directory: webapp/donjon/projects/donjon
 
     strategy:
       matrix:
