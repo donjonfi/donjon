@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: webapp/donjon/projects/donjon
+        working-directory: webapp/donjon
 
     strategy:
       matrix:
@@ -31,5 +31,5 @@ jobs:
         cache: 'npm'
         cache-dependency-path: webapp/donjon/package-lock.json
     - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - run: npm run build donjon --if-present
+    - run: npm test donjon
