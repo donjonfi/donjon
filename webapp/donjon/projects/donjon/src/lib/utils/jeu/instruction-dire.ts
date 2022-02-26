@@ -41,7 +41,7 @@ export class InstructionDire {
   /**
    * Calculer le texte dynamique en tenant compte des balises conditionnelles et des états actuels.
    */
-  public calculerTexteDynamique(texteDynamiqueOriginal: string, nbAffichage: number, intact: boolean | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined) {
+  public calculerTexteDynamique(texteDynamiqueOriginal: string, nbAffichage: number, intact: boolean | undefined, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
 
     let texteDynamique = texteDynamiqueOriginal;
 
@@ -51,7 +51,7 @@ export class InstructionDire {
       if (texteDynamique.includes("[aperçu") || texteDynamique.includes("[apercu")) {
         if (texteDynamique.includes("[aperçu ceci]") || texteDynamique.includes("[apercu ceci]")) {
           let apercuCeci = "???";
-          if (contexteTour.ceci) {
+          if (contexteTour?.ceci) {
             if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
               const eleCeci = contexteTour.ceci as ElementJeu;
               apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
@@ -75,7 +75,7 @@ export class InstructionDire {
         }
         if (texteDynamique.includes("[aperçu cela]") || texteDynamique.includes("[apercu cela]")) {
           let apercuCela = "???";
-          if (contexteTour.cela) {
+          if (contexteTour?.cela) {
             if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
               const eleCela = contexteTour.cela as ElementJeu;
               apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
@@ -107,7 +107,7 @@ export class InstructionDire {
       // statut (porte, contenant)
       if (texteDynamique.includes("[statut")) {
         if (texteDynamique.includes("[statut ceci]")) {
-          if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
+          if (contexteTour?.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
             const statutCeci = this.afficherStatut(contexteTour.ceci as Objet);
             texteDynamique = texteDynamique.replace(/\[statut ceci\]/g, statutCeci);
           } else {
@@ -115,7 +115,7 @@ export class InstructionDire {
           }
         }
         if (texteDynamique.includes("[statut cela]")) {
-          if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
+          if (contexteTour?.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
             const statutCela = this.afficherStatut(contexteTour.cela as Objet);
             texteDynamique = texteDynamique.replace(/\[statut cela\]/g, statutCela);
           } else {
@@ -314,12 +314,20 @@ export class InstructionDire {
       // aide
       if (texteDynamique.includes("[aide")) {
         if (texteDynamique.includes("[aide ceci]")) {
-          const aideCeci = this.recupererFicheAide(contexteTour.ceci);
-          texteDynamique = texteDynamique.replace(/\[aide ceci\]/g, aideCeci);
+          if (contexteTour) {
+            const aideCeci = this.recupererFicheAide(contexteTour.ceci);
+            texteDynamique = texteDynamique.replace(/\[aide ceci\]/g, aideCeci);
+          } else {
+            console.error("calculerTexteDynamique: aide ceci: pas de contexteTour");
+          }
         }
         if (texteDynamique.includes("[aide cela]")) {
-          const aideCela = this.recupererFicheAide(contexteTour.cela);
-          texteDynamique = texteDynamique.replace(/\[aide cela\]/g, aideCela);
+          if (contexteTour) {
+            const aideCela = this.recupererFicheAide(contexteTour.cela);
+            texteDynamique = texteDynamique.replace(/\[aide cela\]/g, aideCela);
+          } else {
+            console.error("calculerTexteDynamique: aide cela: pas de contexteTour");
+          }
         }
       }
 
@@ -728,7 +736,7 @@ export class InstructionDire {
       }
 
       // La propriété de élément
-      const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!nombre)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+      const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!(v|p|le|la|les|l'|l’|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
       if (xBaliseProprieteDeElementMulti.test(texteDynamique)) {
         // retrouver toutes les balises propriété de élément
         const allBalises = texteDynamique.match(xBaliseProprieteDeElementMulti);
@@ -737,7 +745,7 @@ export class InstructionDire {
       }
 
       // propriété élément
-      const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l’|si|sinon|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s'|si|sinon|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
+      const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l’|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s'|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
       if (xBaliseProprieteElementMulti.test(texteDynamique)) {
         // retrouver toutes les balises  propriété élément
         const allBalises = texteDynamique.match(xBaliseProprieteElementMulti);
@@ -892,12 +900,12 @@ export class InstructionDire {
       // SI
     } else if (conditionLC.startsWith("si ")) {
       statut.conditionDebutee = ConditionDebutee.si;
-      const condition = AnalyseurCondition.getConditionMulti(conditionLC);
-      if (condition.nbErreurs) {
+      const conditionMulti = AnalyseurCondition.getConditionMulti(condition);
+      if (conditionMulti.nbErreurs) {
         retVal = false;
-        console.error("Condition pas comprise: ", conditionLC);
+        console.error("Condition pas comprise: ", condition);
       } else {
-        statut.siVrai = this.cond.siEstVrai(null, condition, contexteTour, evenement, declenchements);
+        statut.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
         retVal = statut.siVrai;
       }
       // SUITES
@@ -913,15 +921,15 @@ export class InstructionDire {
             // le si précédent était faux => tester le sinonsi
           } else {
             // (on retire le « sinon » qui précède le si)
-            conditionLC = conditionLC.substr('sinon'.length).trim()
+            const conditionSansSinon = condition.substring('sinon'.length).trim()
             // tester le si
-            const condition = AnalyseurCondition.getConditionMulti(conditionLC);
+            const conditionMulti = AnalyseurCondition.getConditionMulti(conditionSansSinon);
 
-            if (condition.nbErreurs) {
+            if (conditionMulti.nbErreurs) {
               retVal = false;
-              console.error("Condition pas comprise: ", conditionLC);
+              console.error("Condition pas comprise: ", condition);
             } else {
-              statut.siVrai = this.cond.siEstVrai(null, condition, contexteTour, evenement, declenchements);
+              statut.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
               retVal = statut.siVrai;
             }
           }
