@@ -146,36 +146,39 @@ export class InstructionDire {
           const exclureCaches = decoupe[4] && decoupe[4] == 'sauf cachés';
 
           let phraseSiVide = "";
-          let phraseSiQuelqueChose = "{U}Vous voyez ";
+          let phraseSiQuelqueChose = "";
           let afficherObjetsCaches = !exclureCaches;
 
           const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
-
-          // cas particuliers
-          // > inventaire / joueur
-          if (cible == this.jeu.joueur) {
-            phraseSiQuelqueChose = "";
-            // > ici
-          } else if (cible == this.eju.curLieu) {
-            //afficherObjetsCaches = false;
-          }
 
           // retrouver la préposition (dans par défaut)
           let preposition = PrepositionSpatiale.dans;
           if (prepositionString) {
             preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
           }
-          if (cible != this.eju.curLieu) {
+
+          // cas particuliers
+          // > ici
+          if (cible == this.eju.curLieu) {
+            phraseSiQuelqueChose = "{U}Vous apercevez ";
+            // > inventaire / joueur
+          } else if (cible == this.jeu.joueur) {
+            phraseSiQuelqueChose = "";
+            phraseSiVide = "Votre inventaire est vide.";
+          } else {
             switch (preposition) {
               case PrepositionSpatiale.sur:
+                phraseSiQuelqueChose = " Dessus, il y a ";
                 phraseSiVide = "Il n’y a rien dessus.";
                 break;
 
               case PrepositionSpatiale.sous:
+                phraseSiQuelqueChose = " Dessous, il y a ";
                 phraseSiVide = "Il n’y a rien dessous.";
                 break;
               case PrepositionSpatiale.dans:
               default:
+                phraseSiQuelqueChose = " Dedans, il y a ";
                 phraseSiVide = "[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
             }
           }
@@ -1296,55 +1299,71 @@ export class InstructionDire {
     if (objets !== undefined) {
       resultat.succes = true;
 
-      // - objets avec aperçu (ne pas lister les objets décoratifs):
-      let objetsAvecApercu = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
+      // - objets avec aperçu (ne pas inclure les objets décoratifs):
+      let objetsAvecApercuSpecifique = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
       // const nbObjetsAvecApercus = objetsAvecApercu.length;
-      // - objets sans apercu (ne pas lister les éléments décoratifs)
-      let objetsSansApercu = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
-      let nbObjetsSansApercus = objetsSansApercu.length;
+      // - objets sans apercu (ne pas inclure les éléments décoratifs)
+      let objetsAvecApercuAuto = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID));
+      // - nombre d’objets sans aperçu (et non décoratifs)
+      let nbObjetsApercuAuto = objetsAvecApercuAuto.length;
+      // - nombre d’objets sans aperçu
+      let nbObjetsSansAperu = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID)).length;
 
       // - supports décoratifs (eux ne sont pas affichés, mais leur contenu bien !)
       let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
 
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
-      objetsAvecApercu.forEach(obj => {
+      objetsAvecApercuSpecifique.forEach(obj => {
         const apercuCalcule = this.calculerTexteDynamique(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
-          if (apercuCalcule !== '-') {
+          if (apercuCalcule == '-') {
+            nbObjetsSansAperu += 1;
+          } else {
             resultat.sortie += "{U}" + apercuCalcule;
             // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
-            if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
-              // ne pas afficher objets cachés du support, on ne l’examine pas directement
-              const sousRes = this.executerDecrireContenu(obj, ("{U}Sur " + this.eju.calculerIntituleElement(obj, false, true) + " il y a "), "", false, false, false, PrepositionSpatiale.sur);
-              resultat.sortie += sousRes.sortie;
+            // (uniquement si option activée)
+            if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
+              if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
+                // enlever le retour à la ligne auto
+                if (resultat.sortie.endsWith('{N}')) {
+                  resultat.sortie = resultat.sortie.slice(0, resultat.sortie.length - '{N}'.length);
+                }
+                // ne pas afficher objets cachés du support, on ne l’examine pas directement
+                const sousRes = this.executerDecrireContenu(obj, (" Dessus, il y a "), "", false, false, false, PrepositionSpatiale.sur);
+                resultat.sortie += sousRes.sortie;
+              }
             }
           }
           // si l'aperçu est vide, ajouter l'objets à la liste des objets sans aperçu.
         } else {
-          objetsSansApercu.push(obj);
-          nbObjetsSansApercus += 1;
+          objetsAvecApercuAuto.push(obj);
+          nbObjetsApercuAuto += 1;
+
         }
       });
 
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
-      supportsDecoratifs.forEach(support => {
-        // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-        const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, PrepositionSpatiale.sur);
-        resultat.sortie += sousRes.sortie;
-      });
+      // (uniquement si option activée)
+      if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
+        supportsDecoratifs.forEach(support => {
+          // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, PrepositionSpatiale.sur);
+          resultat.sortie += sousRes.sortie;
+        });
+      }
 
       // C.1 AFFICHER ÉLÉMENTS SANS APERÇU
-      if (nbObjetsSansApercus > 0) {
+      if (nbObjetsApercuAuto > 0) {
         resultat.sortie += texteSiQuelqueChose;
         let curObjIndex = 0;
-        objetsSansApercu.forEach(obj => {
+        objetsAvecApercuAuto.forEach(obj => {
           ++curObjIndex;
           resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
-          if (curObjIndex < (nbObjetsSansApercus - 1)) {
+          if (curObjIndex < (nbObjetsApercuAuto - 1)) {
             resultat.sortie += ", ";
-          } else if (curObjIndex == (nbObjetsSansApercus - 1)) {
+          } else if (curObjIndex == (nbObjetsApercuAuto - 1)) {
             resultat.sortie += " et ";
           } else {
             resultat.sortie += ".";
@@ -1352,13 +1371,26 @@ export class InstructionDire {
         });
 
         // C.2 AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS
-        let supportsSansApercu = objetsSansApercu.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
-        supportsSansApercu.forEach(support => {
-          // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, PrepositionSpatiale.sur);
-          resultat.sortie += sousRes.sortie;
-        });
-
+        // (uniquement si option activée)
+        if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
+          // s’il n’y a qu’un seul objet avec aperçu auto
+          if (objetsAvecApercuAuto.length == 1) {
+            // s’il s’agit d’un support
+            if (ClasseUtils.heriteDe(objetsAvecApercuAuto[0].classe, EClasseRacine.support)) {
+              // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+              const sousRes = this.executerDecrireContenu(objetsAvecApercuAuto[0], (" Dessus, il y a "), ("{U}Il n'y a rien de particulier dessus."), false, false, false, PrepositionSpatiale.sur);
+              resultat.sortie += sousRes.sortie;
+            }
+            // sinon il y en a plusieurs
+          } else {
+            let supportsAvecApercuAuto = objetsAvecApercuAuto.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
+            supportsAvecApercuAuto.forEach(support => {
+              // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
+              const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, PrepositionSpatiale.sur);
+              resultat.sortie += sousRes.sortie;
+            });
+          }
+        }
       }
 
       // D. AFFICHER LES PORTES ET LES OBSTACLES SI C'EST UN LIEU
@@ -1401,7 +1433,7 @@ export class InstructionDire {
       }
 
       // si on n’a encore rien affiché, afficher le texte spécifique
-      if (!resultat.sortie) {
+      if (!resultat.sortie && nbObjetsSansAperu == 0) {
         resultat.sortie = texteSiRien;
         // enlever le 1er {N} du résultat
         // } else if (resultat.sortie.startsWith("{N}")) {

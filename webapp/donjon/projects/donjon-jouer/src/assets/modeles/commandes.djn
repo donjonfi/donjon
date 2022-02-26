@@ -1186,7 +1186,6 @@ SCÈNE "regarder".
       si ceci est une personne:
         dire "[description ceci]";
       sinon
-        dire "Je vais lancer la commande: examiner [préposition ceci] [intitulé ceci]";
         exécuter la commande "examiner [préposition ceci] [intitulé ceci]";
       fin si.
     

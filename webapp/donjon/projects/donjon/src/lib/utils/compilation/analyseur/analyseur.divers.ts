@@ -30,7 +30,7 @@ export class AnalyseurDivers {
       }
       // enlever les guillemets autours du texte
       texteAide = texteAide.trim().replace(/^\"|\"$/g, '');
-      
+
       ctxAnalyse.aides.push(
         new Aide(aide[1], texteAide)
       );
@@ -93,7 +93,16 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageLieuxInconnus = isActiver;
           break;
 
+        case 'description des objets sur les supports':
+        case 'description des objets supportes':
+          ctxAnalyse.parametres.activerDescriptionDesObjetsSupportes = isActiver;
+          break;
+
         case 'audio':
+        case 'son':
+        case 'sons':
+        case 'musique':
+        case 'musiques':
           ctxAnalyse.parametres.activerAudio = isActiver;
           break;
 
