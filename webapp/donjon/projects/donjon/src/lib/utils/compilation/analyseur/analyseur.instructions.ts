@@ -285,7 +285,7 @@ export class AnalyseurInstructions {
     // si un sinon est attendu
     if (ctx.indexBlocCondCommence != -1 && !ctx.dansBlocSinon[ctx.indexBlocCondCommence] && !ctx.prochaineInstructionAttenduePourSiRapide) {
 
-      let typeDeSinon = resultSinonCondCons[1];
+      let typeDeSinon = resultSinonCondCons[1].toLocaleLowerCase();
 
       // console.log(">>typeDeSinon=", typeDeSinon);
 

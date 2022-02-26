@@ -1,6 +1,5 @@
 import { Compilateur, Generateur } from "../../public-api";
 
-import { CommandeurDecomposer } from "../utils/jeu/commandeur.decomposer";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
 describe('Décomposer des commandes', () => {
