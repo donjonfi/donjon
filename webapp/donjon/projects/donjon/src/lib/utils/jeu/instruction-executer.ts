@@ -216,10 +216,10 @@ export class InstructionExecuter {
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
       // remplacer les balises éventuelles dans le texte  
-      let commande = CommandesUtils.nettoyerCommande(tokens[1]);
-      commande = this.ins.dire.calculerTexteDynamique(commande, 0, undefined, contexteTour, undefined, undefined);
+      let texteCommande = CommandesUtils.nettoyerCommande(tokens[1]);
+      texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande.evenement, undefined);
       // exécuter la commande
-      res.sortie = this.com.executerCommande(commande);
+      res.sortie = this.com.executerCommande(texteCommande);
     } else {
       console.error("executerCommande: format complément1 par reconnu:", instruction.complement1);
       res.succes = false;
