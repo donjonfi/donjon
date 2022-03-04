@@ -28,7 +28,7 @@ export class AnalyseurListe {
         elementTrouve = ResultatAnalysePhrase.pronomPersonnelContenuListe;
         // il n’y a pas de liste qui précède le pronom
       } else {
-        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Le pronom doit faire référence à une liste.");
+        ctxAnalyse.ajouterErreur(phrase.ligne, "Le pronom doit faire référence à une liste.");
       }
 
       if (elementTrouve == ResultatAnalysePhrase.pronomPersonnelContenuListe) {
@@ -46,13 +46,13 @@ export class AnalyseurListe {
                 // nombre paire => autre
               } else if (index > 0) {
                 if (morceau != ',' && morceau != 'et') {
-                  AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
+                  ctxAnalyse.ajouterErreur(phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
                   break;
                 }
               }
             }
           } else {
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
+            ctxAnalyse.ajouterErreur(phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
           }
 
           // sinon il faut juste les découper
@@ -67,7 +67,7 @@ export class AnalyseurListe {
             } else if (morceau.match(ExprReg.xGroupeNominalArticleDefini)) {
               ctxAnalyse.dernierElementGenerique.valeursIntitule.push(PhraseUtils.getGroupeNominalDefini(morceau, false));
             } else {
-              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
+              ctxAnalyse.ajouterErreur(phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');
             }
           });
         }

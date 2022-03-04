@@ -28,13 +28,13 @@ export class Compilateur {
   /** Ajouter les éléments spéciaux au scénario (joueur, inventaire, jeu, ressources, …) */
   private static ajouterElementsSpeciaux(ctxAnalyse: ContexteAnalyse) {
     // ajouter le joueur et l’inventaire au monde
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, EClasseRacine.joueur, ClassesRacines.Vivant, null, Genre.m, Nombre.s, 1, null));
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "joueur", null, EClasseRacine.joueur, ClassesRacines.Vivant, [], Genre.m, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("l’", "inventaire", null, EClasseRacine.special, null, [], Genre.m, Nombre.s, 1, null));
     // ajouter le jeu, les ressources, la licence et le site web au monde
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("les ", "ressources du jeu", null, EClasseRacine.special, null, null, Genre.f, Nombre.p, -1, null));
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, null, Genre.f, Nombre.s, 1, null));
-    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "site", "web", EClasseRacine.special, null, null, Genre.m, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "jeu", null, EClasseRacine.special, null, [], Genre.m, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("les ", "ressources du jeu", null, EClasseRacine.special, null, [], Genre.f, Nombre.p, -1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("la ", "licence", null, EClasseRacine.special, null, [], Genre.f, Nombre.s, 1, null));
+    ctxAnalyse.elementsGeneriques.push(new ElementGenerique("le ", "site", "web", EClasseRacine.special, null, [], Genre.m, Nombre.s, 1, null));
   }
 
   private static peuplerLeMonde(ctx: ContexteCompilation) {
@@ -95,20 +95,20 @@ export class Compilateur {
         // spécial
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
         // spécial: sous-dossier pour les ressources du jeu
-        if (el.nom.toLowerCase() == 'ressources du jeu' && el.positionString) {
-          if (el.positionString.complement.toLowerCase().startsWith('dossier ') && el.positionString.position.toLowerCase().startsWith("dans")) {
-            el.positionString.position = 'dans le dossier';
-            el.positionString.complement = el.positionString.complement.slice('dossier '.length);
+        if (el.nom.toLowerCase() == 'ressources du jeu' && el.positionString?.length == 1) {
+          if (el.positionString[0].complement.toLowerCase().startsWith('dossier ') && el.positionString[0].position.toLowerCase().startsWith("dans")) {
+            el.positionString[0].position = 'dans le dossier';
+            el.positionString[0].complement = el.positionString[0].complement.slice('dossier '.length);
 
-            const nomDossierNonSecurise = el.positionString.complement;
+            const nomDossierNonSecurise = el.positionString[0].complement;
             const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
             if (nomDossierSecurise.length && nomDossierSecurise == nomDossierNonSecurise) {
               ctx.monde.speciaux.push(el);
             } else {
-              AnalyseurUtils.ajouterErreur(ctx.analyse, undefined, 'Ressources du jeu: le nom du dossier ne peut contenir que lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Exemple: « mon_dossier ».');
+              ctx.analyse.ajouterErreur(undefined, 'Ressources du jeu: le nom du dossier ne peut contenir que lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Exemple: « mon_dossier ».');
             }
           } else {
-            AnalyseurUtils.ajouterErreur(ctx.analyse, undefined, 'Ressources du jeu: utiliser la formulation « Les ressources du jeu se trouvent dans le dossier abc_def. »');
+            ctx.analyse.ajouterErreur(undefined, 'Ressources du jeu: utiliser la formulation « Les ressources du jeu se trouvent dans le dossier abc_def. »');
           }
           // autres éléments spéciaux
         } else {
@@ -214,7 +214,8 @@ export class Compilateur {
    */
   public static async analyserScenario(scenario: string, verbeux: boolean, http: HttpClient) {
 
-    let ctx = new ContexteCompilation(verbeux);
+    let ctx = new ContexteCompilation(true);
+    // let ctx = new ContexteCompilation(verbeux);
 
     // ajouter les éléments spéciaux
     Compilateur.ajouterElementsSpeciaux(ctx.analyse);
@@ -489,7 +490,7 @@ export class Compilateur {
     let retVal = monde.classes.find(x => x.nom == nom);
     // existe déjà
     if (retVal) {
-      // AnalyseurUtils.ajouterErreur(ctxAnalyse, 0, ("Type défini plusieurs fois : " + retVal.intitule));
+      // ctxAnalyse.ajouterErreur(0, ("Type défini plusieurs fois : " + retVal.intitule));
       // n’existe pas encore
     } else {
       retVal = new Classe(nom, intitule, parent, niveau, def.etats);

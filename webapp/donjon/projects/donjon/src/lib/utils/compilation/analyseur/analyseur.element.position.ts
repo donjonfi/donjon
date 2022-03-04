@@ -1,4 +1,3 @@
-import { AnalyseurUtils } from "./analyseur.utils";
 import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { EClasseRacine } from "../../../models/commun/constantes";
@@ -9,9 +8,7 @@ import { MotUtils } from "../../commun/mot-utils";
 import { Nombre } from "../../../models/commun/nombre.enum";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { PositionObjet } from "../../../models/jeu/position-objet";
 import { PositionSujetString } from "../../../models/compilateur/position-sujet";
-import { PositionsUtils } from "../../commun/positions-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 
 export class AnalyseurElementPosition {
@@ -94,10 +91,10 @@ export class AnalyseurElementPosition {
                   "dans"
                 );
               } else {
-                AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
+                ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
               }
             } else {
-              AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+              ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
             }
             break;
 
@@ -114,12 +111,12 @@ export class AnalyseurElementPosition {
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
             } else {
-              AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est ici : un « élément » doit avoir été défini précédemment.")
+              ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « élément » doit avoir été défini précédemment.")
             }
             break;
 
           default:
-            AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[9]);
+            ctx.ajouterErreur(phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[9]);
             break;
         }
         // Position relative classique
@@ -140,7 +137,7 @@ export class AnalyseurElementPosition {
         epithete,
         intituleClasseNormalise,
         null, // classe
-        position,
+        (position ? [position] : []),
         // genre
         MotUtils.getGenre(determinant, estFeminin),
         // nombre
@@ -230,7 +227,7 @@ export class AnalyseurElementPosition {
           epithete,
           intituleClasseNormalise,
           null, // classe
-          position,
+          (position ? [position] : []),
           genre,
           nombre,
           MotUtils.getQuantite(determinant, 1),
@@ -263,16 +260,22 @@ export class AnalyseurElementPosition {
         // finalement l’élément concerné est l’élément trouvé
         elementConcerne = elementGeneriqueFound;
         // - position
-        if (newElementGenerique.positionString) {
-          // s'il y avait déjà une position définie, c'est un autre élément, donc on ajoute quand même le nouveau !
-          if (elementGeneriqueFound.positionString) {
-            ctx.elementsGeneriques.push(newElementGenerique);
-            elementConcerne = newElementGenerique;
-          } else {
-            // sinon, ajouter la position à l’élément trouvé
-            elementGeneriqueFound.positionString = newElementGenerique.positionString;
-          }
-        }
+        // // if (newElementGenerique.positionString) {
+        // //   // s'il y avait déjà une position définie, c'est un autre élément, donc on ajoute quand même le nouveau !
+        // //   if (elementGeneriqueFound.positionString) {
+        // //     ctx.elementsGeneriques.push(newElementGenerique);
+        // //     elementConcerne = newElementGenerique;
+        // //   } else {
+        // //     // sinon, ajouter la position à l’élément trouvé
+        // //     elementGeneriqueFound.positionString = newElementGenerique.positionString;
+        // //   }
+        // // }
+        //ajouter la position à l’élément trouvé
+
+        console.warn("èèèèèèèèèèèèèèèè");
+        
+
+        elementGeneriqueFound.positionString.push(...newElementGenerique.positionString);
 
         // - màj attributs de l’élément trouvé
         if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.attributs.length > 0) {
@@ -310,27 +313,31 @@ export class AnalyseurElementPosition {
       if (result[3]) {
         const pos = result[1] ? result[1] : result[2];
         const compl = result[3].toLowerCase();
-        ctxAnalyse.dernierElementGenerique.positionString = new PositionSujetString(
-          // sujet
-          ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
-          // complément
-          compl,
-          // position
-          pos
+        ctxAnalyse.dernierElementGenerique.positionString.push(
+          new PositionSujetString(
+            // sujet
+            ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
+            // complément
+            compl,
+            // position
+            pos
+          )
         );
         // => ici (dernier lieu défini)
       } else {
         if (ctxAnalyse.dernierLieu && ctxAnalyse.dernierLieu.nom !== ctxAnalyse.dernierElementGenerique.nom) {
-          ctxAnalyse.dernierElementGenerique.positionString = new PositionSujetString(
-            // sujet
-            ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
-            // complément
-            ctxAnalyse.dernierLieu.nom,
-            // position
-            "dans"
+          ctxAnalyse.dernierElementGenerique.positionString.push(
+            new PositionSujetString(
+              // sujet
+              ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
+              // complément
+              ctxAnalyse.dernierLieu.nom,
+              // position
+              "dans"
+            )
           );
         } else {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+          ctxAnalyse.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
         }
       }
       elementTrouve = ResultatAnalysePhrase.pronomPersonnelPosition;

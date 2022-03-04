@@ -26,10 +26,10 @@ export class AnalyseurSynonymes {
           ctxAnalyse.abreviations.push(new Abreviation(abreviation, commande));
           resultatTrouve = ResultatAnalysePhrase.abreviation;
         } else {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "abréviation d’une commande : la commande est vide.");
+          ctxAnalyse.ajouterErreur(phrase.ligne, "abréviation d’une commande : la commande est vide.");
         }
       } else {
-        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "abréviation d’une commande : la commande n'a pas été spécifiée entre guillemets.");
+        ctxAnalyse.ajouterErreur(phrase.ligne, "abréviation d’une commande : la commande n'a pas été spécifiée entre guillemets.");
       }
     }
 
@@ -71,11 +71,11 @@ export class AnalyseurSynonymes {
               });
               resultatTrouve = ResultatAnalysePhrase.synonyme;
             } else {
-              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
+              ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
             }
           });
         } else {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’une action : action originale pas trouvée : " + infinitif);
+          ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : action originale pas trouvée : " + infinitif);
         }
       } else {
         // tester si l’original est un GROUPE NOMINAL
@@ -102,17 +102,17 @@ export class AnalyseurSynonymes {
                 // ajouter le synonyme à l’élément
                 elementTrouve.synonymes.push(synonyme);
               } else {
-                AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
+                ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
               }
             });
             resultatTrouve = ResultatAnalysePhrase.synonyme;
 
             // AUCUN élément trouvé
           } else if (elementsTrouves.length === 0) {
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
+            ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
             // PLUSIEURS éléments trouvés
           } else {
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
+            ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
           }
         }
       }

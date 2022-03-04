@@ -15,7 +15,7 @@ export class AnalyseurElementSimple {
 
   // Élement simple non positionné
   // public static testerElementSimple(dictionnaire: Map<string, Definition>, elementsGeneriques: ElementGenerique[], phrase: Phrase, verbeux: boolean): ElementGenerique {
-    public static testerElementSansPosition(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ElementGenerique {
+  public static testerElementSansPosition(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ElementGenerique {
     let nouvelElementGenerique: ElementGenerique = null;
     let elementConcerne: ElementGenerique = null;
 
@@ -80,7 +80,7 @@ export class AnalyseurElementSimple {
         epithete,
         intituleClasseNormalise,
         null,
-        position,
+        (position ? [position] : []),
         genre,
         nombre,
         quantite,
@@ -140,7 +140,7 @@ export class AnalyseurElementSimple {
           result[3],
           EClasseRacine.objet,
           null,
-          null,
+          [],
           MotUtils.getGenre(result[1], estFeminin),
           MotUtils.getNombre(result[1]),
           MotUtils.getQuantite(result[1], 1),

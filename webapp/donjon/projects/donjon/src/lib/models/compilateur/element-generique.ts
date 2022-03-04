@@ -32,7 +32,7 @@ export class ElementGenerique implements ElementDonjon {
     public epithete: string,
     public classeIntitule: string,
     public classe: Classe,
-    public positionString: PositionSujetString,
+    public positionString: PositionSujetString[],
     public genre: Genre,
     public nombre: Nombre,
     public quantite: number,

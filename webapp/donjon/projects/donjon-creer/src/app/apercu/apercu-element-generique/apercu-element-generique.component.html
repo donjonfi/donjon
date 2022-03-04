@@ -55,12 +55,18 @@
         </li>
       </ul>
     </li>
-    <li>Position : <span *ngIf="! el.positionString"> ?</span>
+
+    <li *ngIf="!estLieu">Positions :<span *ngIf="!el.positionString || el.positionString.length == 0"> (aucune)</span>
       <ul *ngIf="el.positionString">
-        <li>sujet : {{el.positionString.sujet}}</li>
-        <li>position : {{el.positionString.position}}</li>
-        <li>complement : {{el.positionString.complement}}</li>
+        <li *ngFor="let pos of el.positionString">
+          <ul>
+            <li>sujet : {{pos.sujet}}</li>
+            <li>position : {{pos.position}}</li>
+            <li>complement : {{pos.complement}}</li>
+          </ul>
+        </li>
       </ul>
     </li>
+
   </ul>
 </div>

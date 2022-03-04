@@ -78,8 +78,8 @@ export class Generateur {
     // dossier qui contient les ressources du jeu (./assets/dossier_ressources)
     jeu.sousDossierRessources = undefined;
     const ressourcesDuJeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'ressources du jeu');
-    if (ressourcesDuJeuDansMonde?.positionString?.complement) {
-      const nomDossierNonSecurise = ressourcesDuJeuDansMonde.positionString.complement;
+    if (ressourcesDuJeuDansMonde?.positionString[0]?.complement) {
+      const nomDossierNonSecurise = ressourcesDuJeuDansMonde.positionString[0].complement;
       const nomDossierSecurise = StringUtils.nomDeDossierSecurise(nomDossierNonSecurise);
       if (nomDossierSecurise.length && nomDossierSecurise == nomDossierNonSecurise) {
         jeu.sousDossierRessources = nomDossierSecurise;
@@ -195,9 +195,9 @@ export class Generateur {
     // regarder si on a positionné le joueur dans le monde
     const joueurDansMonde = rc.monde.speciaux.find(x => x.nom === 'joueur');
     if (joueurDansMonde) {
-      if (joueurDansMonde.positionString) {
-        const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString.position);
-        const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString.complement, true);
+      if (joueurDansMonde.positionString.length) {
+        const ps = PositionObjet.getPrepositionSpatiale(joueurDansMonde.positionString[0].position);
+        const lieuID = Generateur.getLieuID(jeu.lieux, joueurDansMonde.positionString[0].complement, true);
         if (lieuID !== -1) {
           joueur.position = new PositionObjet(ps, EClasseRacine.lieu, lieuID);
         }
@@ -359,15 +359,17 @@ export class Generateur {
           Generateur.ajouterVoisin(jeu.lieux, curEle, newObjet.id, ctx);
         } else {
           // -- B. AUTRE TYPE D'OBJET
-          if (curEle.positionString) {
-            //console.error("@@ curEle.positionString=", curEle.positionString);
+          if (curEle.positionString.length != 0) {
+            const curPositionString = curEle.positionString[0];
 
-            // const localisation = Generateur.getLocalisation(curEle.positionString.position);
-            const lieuID = Generateur.getLieuID(jeu.lieux, curEle.positionString.complement, false);
+            //console.error("@@ curPositionString=", curPositionString);
+
+            // const localisation = Generateur.getLocalisation(curPositionString.position);
+            const lieuID = Generateur.getLieuID(jeu.lieux, curPositionString.complement, false);
 
             // A) lieu trouvé
             if (lieuID !== -1) {
-              newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.lieu, lieuID);
+              newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.lieu, lieuID);
 
               // vu que l’objet est dans un lieu, il ni porté ni occupé donc il est disponible
               jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
@@ -376,7 +378,7 @@ export class Generateur {
             } else {
 
               // chercher un contenant ou un support
-              const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curEle.positionString.complement);
+              const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curPositionString.complement);
               // >> trouvé contenant
               if (contenantSupport) {
 
@@ -393,14 +395,20 @@ export class Generateur {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, true);
                 }
 
-                newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curEle.positionString.position), EClasseRacine.objet, contenantSupport.id);
+                newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
                 // >> pas trouvé de contenant
               } else {
-                //console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curEle.positionString);
-                ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curEle.positionString.positionToString());
+                //console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curPositionString);
+                ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
               }
             }
-          }
+
+            if (curEle.positionString.length > 1) {
+              ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
+            }
+
+          };
+
         }
         jeu.objets.push(newObjet);
       }
@@ -498,17 +506,18 @@ export class Generateur {
    */
   static ajouterVoisin(lieux: Lieu[], elVoisin: ElementGenerique, idElVoisin: number, ctx: ContexteGeneration) {
 
-    // Si le voisin possède une position
-    if (elVoisin.positionString) {
+    // Parcourir les positions relatives du nouveau voisin
+    elVoisin.positionString.forEach(curPositionString => {
+
       // retrouver la localisation (nord, nord-est, …)
-      const localisation = Generateur.getLocalisation(elVoisin.positionString.position);
-      // 
-      const lieuTrouveID = Generateur.getLieuID(lieux, elVoisin.positionString.complement, true);
+      const localisation = Generateur.getLocalisation(curPositionString.position);
+      // lieu auquel il faut ajouter le voisin
+      const lieuTrouveID = Generateur.getLieuID(lieux, curPositionString.complement, true);
 
       if (localisation === ELocalisation.inconnu) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : position pas trouvée : ' + elVoisin.positionString.position);
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : position pas trouvée : ' + curPositionString.position);
       } else if (lieuTrouveID === -1) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : lieu pas trouvé : ' + elVoisin.positionString.complement);
+        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : lieu pas trouvé : ' + curPositionString.complement);
       } else {
         // on met la classe racine lieu, porte ou obstacle:
         let classeRacine: string;
@@ -538,11 +547,8 @@ export class Generateur {
         } else if (classeRacine == EClasseRacine.porte) {
           // todo: rendre la porte visible chez le voisin également
         }
-
       }
-    } else {
-      // ???
-    }
+    });
   }
 
   static getAuditeur(regle: Regle) {

@@ -5,6 +5,7 @@ import { AnalyseurDivers } from './analyseur.divers';
 import { AnalyseurElementPosition } from './analyseur.element.position';
 import { AnalyseurElementSimple } from './analyseur.element.simple';
 import { AnalyseurListe } from './analyseur.liste';
+import { AnalyseurPosition } from './analyseur.position';
 import { AnalyseurPropriete } from './analyseur.propriete';
 import { AnalyseurRegle } from './analyseur.regle';
 import { AnalyseurSynonymes } from './analyseur.synonymes';
@@ -149,6 +150,19 @@ export class Analyseur {
       }
 
       // ===================================================================
+      // MONDE 0 - TESTER POSITION ÉLÉMENT
+      // ===================================================================
+      if (elementTrouve === ResultatAnalysePhrase.aucun) {
+        elementTrouve = AnalyseurPosition.testerPositionElement(phrase, ctx);
+        if (elementTrouve == ResultatAnalysePhrase.positionElement) {
+          if (ctx.verbeux) {
+            console.log("=> trouvé position élément:", ctx.dernierElementGenerique);
+            console.log("=> => nbPos: ", ctx.dernierElementGenerique.positionString.length);
+          }
+        }
+      }
+
+      // ===================================================================
       // MONDE 1 - TESTER ÉLÉMENT (NOUVEAU OU EXISTANT) AVEC POSITION
       // ===================================================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {
@@ -283,7 +297,7 @@ export class Analyseur {
     // ==========================================================================================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       // résultat
-      AnalyseurUtils.ajouterErreur(ctx, phrase.ligne, phrase.phrase[0]);
+      ctx.ajouterErreur(phrase.ligne, phrase.phrase[0]);
       if (ctx.verbeux) {
         console.warn("=> PAS trouvé de signification.");
       }

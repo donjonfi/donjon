@@ -42,7 +42,7 @@ export class AnalyseurPropriete {
             console.warn("xPropriete: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
           }
         } else {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
+          ctxAnalyse.ajouterErreur(phrase.ligne, "l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
         }
       }
 
@@ -113,7 +113,7 @@ export class AnalyseurPropriete {
         const sujetEpithete = resultGn[3]?.toLowerCase();
         listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
       } else {
-        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        ctxAnalyse.ajouterErreur(phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
       }
     });
     return listeSujets;

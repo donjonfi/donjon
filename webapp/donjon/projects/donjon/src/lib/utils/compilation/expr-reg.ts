@@ -88,6 +88,12 @@ export class ExprReg {
    *     - 💥 des pièces
    */
   static readonly xGroupeNominalArticleDefini = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /**
+  * Groupe nominal.
+  * - Découpage :
+  *     - Déterminant(1), Nom(2), Épithète(3)
+  **/
   static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   static readonly xPrepositions = /(?: (?:(?:(?:à propos (?:du|des|de))|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers) )|(?:à propos (?:d’|d'))|d’|d'|à )/ig;
@@ -172,18 +178,47 @@ export class ExprReg {
    *     - Formulation B : Une canne à pèche neuve (cannes à pèche) est sur le bord du lac.
    * - Tests unitaires :
    *     - 
-   *     - 
-   *     - 
-   *     - 
-   *     - 
    */
   static readonly xPositionElementGeneriqueIndefini = /^(?:(?:il y a (un |une |des |du |de la |de l(?:’|')|[1-9]\d* )(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+?))?(?:(?: )(\(.+\))?)?)|(?:(un |une |des |du |de l(?:’|'))(\S+|(?:\S+ (?:à|en|de(?: la)?|du|des) \S+))(?:(?: )(?!hors)(\S+))?(?:(?: )(\(.+\))?)? (?:est|sont))) ((?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest)|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')?|les |un |une )?))(.+)/i;
+
 
   /** pronom personnel position :
    * => cas 1 : position(1) complément(3)
    * => cas 2 : position(2) complément(3)
    * => cas 3 : ici(3)*/
   static readonly xPronomPersonnelPosition = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont)) (?:(?:(?:(?:(à l(?:’|')intérieur|à l(?:’|')extérieur|hors|au sud(?:-(?:est|ouest))?|au nord(?:-(?:est|ouest))?|à l(?:’|')est|à l(?:’|')ouest|en haut|en bas|au-dessus|au-dessous) (?:du |de (?:la |l’|l')?|des ))|(?:(dans|sur|sous) (?:la |le |les |l(?:’|')|un |une )|de (?:la |l(?:’|'))|du ))(.+))|(ici|dessus|dedans|dessous))$/i;
+
+  /**
+   * Définition de la position d’un élément du jeu
+   * - Découpage :
+   *   - élément(1) se trouve[nt] position(2)
+   * - Tests unitaires :
+   *   - Le chat se trouve sur le divant
+   *   - Les haricots sauvages se trouvent ici
+   *   - Bob se trouve à l’intérieur de la cabane hurlante.
+   *   - La forêt se trouve au nord du chemin et au sud de l’abri.
+   *   - Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest.
+   *   - Il se trouve ici.
+   */
+  static readonly xDefinirPositionElement = /^(?!(?:changer|si|(?:le joueur peut)) )(.+) se trouve(?:nt)? (.+)$/i;
+
+  /**
+   * position relative d’un élément du jeu
+   * - Découpage :
+   *   - position(1) {autre élément}(2)
+   *   - postion(3)
+   * - Tests unitaires :
+   *   - {sur le }(1) {divan}(2)
+   *   - ici (3)
+   *   - dessus (3)
+   *   - à l’intérieur (3)
+   *   - {à l'intérieur de la }(1) {cabane hurlante}(2)
+   *   - {sur}(1) {bob}(2)
+   *   - {au sud del'}(1) {l'abri}(2)
+   *   - 💥 au nord du chemin et au sud de l'abri
+   *   - 💥 au nord, au sud et à l'ouest
+   **/
+  static readonly xPositionRelative = /^(?:(?:((?:(?:(?:à l(?:’|')(?:intérieur|interieur|extérieur|exterieur|est|ouest))|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l’|l')?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:’|')|les |un | une )?|de (?:la |l(?:’|'))|du ))(?!le |la |l’|l')(.+))|(ici|dessus|dedans|dessous|à l(?:’|')intérieur))$/i;
 
 
   /** pronom démonstratif

@@ -202,7 +202,7 @@ export class AnalyseurInstructions {
     const condition = AnalyseurCondition.getConditionMulti(conditionStr);
 
     if (!condition || condition.nbErreurs) {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, ctx.ligne, "condition : " + conditionStr);
+      ctx.ctxAnalyse.ajouterErreur(ctx.ligne, "condition : " + conditionStr);
     }
 
     const estBlocCondition = resultSiCondIns[2] == ':' || resultSiCondIns[2] == 'alors';
@@ -481,13 +481,13 @@ export class AnalyseurInstructions {
   private static afficherErreurBloc(message: string, ctx: ContexteSeparerInstructions) {
     console.error("separerInstructions > " + message);
     if (ctx.ligne > 0) {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, ctx.ligne, "conséquence : " + message);
+      ctx.ctxAnalyse.ajouterErreur(ctx.ligne, "conséquence : " + message);
     } else if (ctx.regle) {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "règle « " + Regle.regleIntitule(ctx.regle) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "règle « " + Regle.regleIntitule(ctx.regle) + " » : " + message);
     } else if (ctx.reaction) {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "élément « " + ctx.el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "élément « " + ctx.el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
     } else {
-      AnalyseurUtils.ajouterErreur(ctx.ctxAnalyse, 0, "----- : conséquence : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "----- : conséquence : " + message);
     }
   }
 }
