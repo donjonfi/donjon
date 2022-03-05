@@ -33,7 +33,16 @@ export class AnalyseurPosition {
         const elementEtAutreElement = PhraseUtils.separerListeIntitulesEt(elementBrutNettoye);
         // trouver les positions relatives
         morceauxPosition.forEach(morceauPosition => {
-          elementTrouve = this.testerPositionRelative(elementEtAutreElement[0], morceauPosition + ' de ' + elementEtAutreElement[1], phrase, ctxAnalyse);
+          let curPositionBrut: string;
+          // de le => du
+          if(elementEtAutreElement[1].toLocaleLowerCase().startsWith("le ")){
+            curPositionBrut = morceauPosition + ' du ' + elementEtAutreElement[1].slice(3);
+          // autres
+          }else{
+            curPositionBrut = morceauPosition + ' de ' + elementEtAutreElement[1];
+          }
+          
+          elementTrouve = this.testerPositionRelative(elementEtAutreElement[0], curPositionBrut , phrase, ctxAnalyse);
         });
       } else {
         // il peut y avoir plusieurs positions relatives
