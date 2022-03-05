@@ -4,8 +4,15 @@
 
     <h5>Sorties</h5>
     <ul>
-      <li *ngFor="let voisin of voisinsPresents">
+      <li *ngFor="let voisin of lieuxVoisinsPresents">
         {{voisin.direction}} : <a href="#" (click)="onVoisinClick(voisin.lieu)">{{voisin.lieu.intitule}}</a> 
+      </li>
+    </ul>
+
+    <h5>Obstacles</h5>
+    <ul>
+      <li *ngFor="let voisin of obstaclesVoisinsPresents">
+        {{voisin.direction}} : <app-visu-objet [eju]="eju" [etats]="etats" [objetPresent]="voisin" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
       </li>
     </ul>
 

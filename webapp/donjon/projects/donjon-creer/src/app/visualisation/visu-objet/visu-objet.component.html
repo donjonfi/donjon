@@ -1,4 +1,4 @@
-<div *ngIf="objetPresent">
+<span *ngIf="objetPresent">
   <a href="#" (click)="onObjetChoisi(objetPresent)">{{objetPresent.objet.intitule}}</a>
   <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? ' (caché)':''}}</i>
   <ul>
@@ -24,7 +24,7 @@
       </ul>
     </li>
   </ul>
-</div>
-<div *ngIf="!objetPresent">
+</span>
+<span *ngIf="!objetPresent">
   (aucun objet sélectionné)
-</div>
+</span>

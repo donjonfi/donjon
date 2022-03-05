@@ -322,6 +322,38 @@ export class ElementsJeuUtils {
   }
 
   /**
+   * Récupérer les obstacles depuis le lieu spécifié
+   * @param lieu 
+   * @returns 
+   */
+  getObstaclesVoisins(lieu: Lieu): Voisin[] {
+    const allObstaclesVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte);
+    return allObstaclesVoisins;
+  }
+
+  /**
+   * Récupérer les obstacles depuis le lieu spécifié
+   * @param lieu 
+   * @returns 
+   */
+  getObstaclesVoisinsVisibles(lieu: Lieu): Voisin[] {
+    let voisinsVisibles: Voisin[] = [];
+
+    const allObstaclesVoisins = lieu.voisins.filter(x => x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte);
+
+    if (allObstaclesVoisins.length) {
+
+      allObstaclesVoisins.forEach(voisin => {
+        const curObstacle = this.getObjet(voisin.id);
+        if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.visibleID, this)) {
+          voisinsVisibles.push(voisin);
+        }
+      });
+    }
+    return voisinsVisibles;
+  }
+
+  /**
    * Récupérer les lieux voisins visibles depuis le lieu spécifié.
    * @param loc 
    * @param type 
@@ -515,7 +547,7 @@ export class ElementsJeuUtils {
         return Localisation.Ouest;
       case 'nord-ouest':
         return Localisation.NordOuest;
-        
+
       case 'haut':
       case 'dessus':
       case 'au-dessus':
@@ -762,6 +794,7 @@ export class ElementsJeuUtils {
     inclureObjetsCachesDeCeci: boolean,
     inclureObjetsNonVisibles: boolean,
     inclureObjetsDansSurSous: boolean,
+    inclureJoueur: boolean,
     preposition: PrepositionSpatiale
   ): Objet[] | undefined {
     let objets: Objet[] | undefined;
@@ -804,25 +837,27 @@ export class ElementsJeuUtils {
       let objetsDansSurSous: Objet[] = [];
       objets.forEach(obj => {
         // ajouter les objets sur
-        const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.dans);
+        const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.dans);
         if (objetsDans.length) {
           objetsDansSurSous.push(...objetsDans);
         }
         // ajouter les objets dans
-        const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sur);
+        const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sur);
         if (objetsSur.length) {
           objetsDansSurSous.push(...objetsSur);
         }
         // ajouter les objets sous
-        const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, PrepositionSpatiale.sous);
+        const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sous);
         if (objetsSous.length) {
           objetsDansSurSous.push(...objetsSous);
         }
       });
     }
 
-    // ne jamais lister le joueur
-    objets = objets?.filter(x => x.id !== this.jeu.joueur.id);
+    // ne pas lister le joueur à moins qu’on ne l’ai demandé
+    if (!inclureJoueur) {
+      objets = objets?.filter(x => x.id !== this.jeu.joueur.id);
+    }
 
     return objets;
   }

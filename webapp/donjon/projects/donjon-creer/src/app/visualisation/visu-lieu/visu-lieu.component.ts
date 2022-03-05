@@ -3,6 +3,7 @@ import { ElementsJeuUtils, Lieu, ListeEtats, Localisation, PrepositionSpatiale }
 
 import { LieuVoisin } from '../models/lieu-voisin';
 import { ObjetPresent } from '../models/objet-present';
+import { ObstacleVoisin } from '../models/obstacle-voisin';
 
 @Component({
   selector: 'app-visu-lieu',
@@ -24,7 +25,8 @@ export class VisuLieuComponent implements OnInit, OnChanges {
 
   /** Objets présents dans le lieu affiché */
   public objetsPresents: ObjetPresent[] = [];
-  public voisinsPresents: LieuVoisin[] = [];
+  public lieuxVoisinsPresents: LieuVoisin[] = [];
+  public obstaclesVoisinsPresents: ObstacleVoisin[] = [];
   constructor() { }
 
   ngOnInit(): void {
@@ -52,7 +54,8 @@ export class VisuLieuComponent implements OnInit, OnChanges {
   private updateObjetsPresents() {
     this.objetsPresents = [];
     if (this.curLieu) {
-      const objetsDans = this.eju.trouverContenu(this.curLieu, true, true, true, PrepositionSpatiale.dans);
+      let objetsDans = this.eju.trouverContenu(this.curLieu, true, true, true, true, PrepositionSpatiale.dans);
+
       objetsDans.forEach(curObjet => {
         const curObjetPresent = new ObjetPresent(curObjet, undefined, undefined, undefined);
         curObjetPresent.cache = this.etats.possedeEtatIdElement(curObjet, this.etats.cacheID, this.eju)
@@ -64,20 +67,33 @@ export class VisuLieuComponent implements OnInit, OnChanges {
   }
 
   private updateVoisins() {
-    // récupérer l’ensemble des voisins
-    const voisins = this.eju.getLieuxVoisins(this.curLieu);
-    const voisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.curLieu);
-
-    this.voisinsPresents = [];
-
-    voisins.forEach(voisin => {
+    // récupérer l’ensemble des LIEUX voisins
+    const lieuxVoisins = this.eju.getLieuxVoisins(this.curLieu);
+    const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.curLieu);
+    this.lieuxVoisinsPresents = [];
+    lieuxVoisins.forEach(voisin => {
       const lieu = this.eju.getLieu(voisin.id);
-      const visible = voisinsVisibles.some(x => x.id == voisin.id);
+      const visible = lieuxVoisinsVisibles.some(x => x.id == voisin.id);
       const accessible = true;
       const direction = Localisation.getLocalisation(voisin.localisation);
       const curLieuVoisin = new LieuVoisin(direction, lieu, visible, accessible);
-      this.voisinsPresents.push(curLieuVoisin);
+      this.lieuxVoisinsPresents.push(curLieuVoisin);
     });
+
+    // récupérer l’ensemble des OBSTACLES voisins
+    const obstaclesVoisins = this.eju.getObstaclesVoisins(this.curLieu);
+    const obstaclesVoisinsVisibles = this.eju.getObstaclesVoisinsVisibles(this.curLieu);
+    this.obstaclesVoisinsPresents = [];
+    obstaclesVoisins.forEach(voisin => {
+      const objet = this.eju.getObjet(voisin.id);
+      const visible = obstaclesVoisinsVisibles.some(x => x.id == voisin.id);
+      const accessible = true;
+      const direction = Localisation.getLocalisation(voisin.localisation);
+      const curObstacleVoisin = new ObstacleVoisin(direction, objet, visible, accessible, undefined);
+      this.obstaclesVoisinsPresents.push(curObstacleVoisin);
+    });
+
+
   }
 
   onVoisinClick(lieu: Lieu) {
