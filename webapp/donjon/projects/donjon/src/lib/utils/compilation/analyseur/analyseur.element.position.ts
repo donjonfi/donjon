@@ -272,10 +272,7 @@ export class AnalyseurElementPosition {
         // // }
         //ajouter la position à l’élément trouvé
 
-        console.warn("èèèèèèèèèèèèèèèè");
-        
-
-        elementGeneriqueFound.positionString.push(...newElementGenerique.positionString);
+        elementGeneriqueFound.ajouterPositionsString(newElementGenerique.positionString);
 
         // - màj attributs de l’élément trouvé
         if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.attributs.length > 0) {
@@ -313,7 +310,7 @@ export class AnalyseurElementPosition {
       if (result[3]) {
         const pos = result[1] ? result[1] : result[2];
         const compl = result[3].toLowerCase();
-        ctxAnalyse.dernierElementGenerique.positionString.push(
+        ctxAnalyse.dernierElementGenerique.ajouterPositionString(
           new PositionSujetString(
             // sujet
             ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
@@ -326,7 +323,7 @@ export class AnalyseurElementPosition {
         // => ici (dernier lieu défini)
       } else {
         if (ctxAnalyse.dernierLieu && ctxAnalyse.dernierLieu.nom !== ctxAnalyse.dernierElementGenerique.nom) {
-          ctxAnalyse.dernierElementGenerique.positionString.push(
+          ctxAnalyse.dernierElementGenerique.ajouterPositionString(
             new PositionSujetString(
               // sujet
               ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),

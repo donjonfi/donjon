@@ -101,6 +101,8 @@ export class MotUtils {
         case "un":
         case "mon":
         case "son":
+        case "celui-ci":
+        case "ceux-ci":
           retVal = Genre.m;
           break;
         case "la":
@@ -109,6 +111,8 @@ export class MotUtils {
         case "une":
         case "ma":
         case "sa":
+        case "celle-ci":
+        case "celles-ci":
           retVal = Genre.f;
           break;
 

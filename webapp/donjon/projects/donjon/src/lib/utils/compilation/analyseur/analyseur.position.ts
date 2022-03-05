@@ -1,14 +1,11 @@
 import { AnalyseurUtils } from "./analyseur.utils";
-import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
-import { ElementGenerique } from "../../../models/compilateur/element-generique";
+import { EClasseRacine } from "../../../models/commun/constantes";
 import { ExprReg } from "../expr-reg";
-import { MotUtils } from "../../commun/mot-utils";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { PositionSujetString } from "../../../models/compilateur/position-sujet";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
-import { StringUtils } from "../../commun/string.utils";
 
 export class AnalyseurPosition {
 
@@ -20,8 +17,6 @@ export class AnalyseurPosition {
    */
   public static testerPositionElement(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 
-    console.log("@@@@@ testerPositionElement");
-    
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -61,55 +56,88 @@ export class AnalyseurPosition {
     const resultElementConcerne = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(elementConcerneBrut);
     if (resultElementConcerne) {
 
+      // retrouver l’élément générique concerné
       const elementConcerneNom = resultElementConcerne[2].toLowerCase();
       const elementConcerneEpithete = resultElementConcerne[3] ? resultElementConcerne[3].toLowerCase() : null;
+      let elementConcerne = AnalyseurUtils.trouverCorrespondance(elementConcerneNom, elementConcerneEpithete, ctxAnalyse);
+      if (elementConcerne) {
 
-      // vérifier si la position est valide
-      const resultPosition = ExprReg.xPositionRelative.exec(positionBrut);
-      if (resultPosition) {
-        const positionSuivieBrut = resultPosition[1];
-        const autreElementBrut = resultPosition[2];
-        const positionSoloBrut = resultPosition[3];
-        console.log("positionSuivieBrut:", positionSuivieBrut);
-        console.log("autreElementBrut:", autreElementBrut);
-        console.log("positionSoloBrut:", positionSoloBrut);
-        // s'il s'agit d'une position suivie, vérifier l'autre élément
-        if (positionSuivieBrut) {
-          // vérifier l'autre élément
-          const resultAutreElement = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(autreElementBrut);
-          if (resultAutreElement) {
+        // vérifier si la position est valide
+        const resultPosition = ExprReg.xPositionRelative.exec(positionBrut);
+        if (resultPosition) {
+          const positionSuivieBrut = resultPosition[1];
+          const autreElementBrut = resultPosition[2];
+          const positionSoloBrut = resultPosition[3];
+          // console.log("positionSuivieBrut:", positionSuivieBrut);
+          // console.log("autreElementBrut:", autreElementBrut);
+          // console.log("positionSoloBrut:", positionSoloBrut);
+          // s'il s'agit d'une position suivie, vérifier l'autre élément
+          if (positionSuivieBrut) {
+            // vérifier l'autre élément
+            const resultAutreElement = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(autreElementBrut);
+            if (resultAutreElement) {
 
-            // retrouver l’élément générique concerné
-            let elementConcerne = AnalyseurUtils.trouverCorrespondance(elementConcerneNom, elementConcerneEpithete, ctxAnalyse);
-
-            if (elementConcerne) {
-              elementConcerne.positionString.push(
-                new PositionSujetString(elementConcerneBrut, autreElementBrut, positionSuivieBrut)
+              elementConcerne.ajouterPositionString(
+                new PositionSujetString(
+                  // sujet
+                  elementConcerne.nom.toLowerCase() + (elementConcerne.epithete ? (' ' + elementConcerne.epithete.toLowerCase()) : ''),
+                  // complément
+                  autreElementBrut,
+                  // position
+                  positionSuivieBrut
+                )
               );
+
+              // modifier le dernier élément de la liste
+              ctxAnalyse.dernierElementGenerique = elementConcerne;
+              // modifier éventuellement le dernier lieu de la liste
+              if (elementConcerne.classeIntitule == EClasseRacine.lieu) {
+                ctxAnalyse.dernierLieu = elementConcerne;
+              }
 
               // résultat
               elementTrouve = ResultatAnalysePhrase.positionElement;
-              console.log("ça marche A !");
-              
+
             } else {
-              ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : l'élément concerné n'a pas été trouvé : " + elementConcerneBrut);
+              ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : le nom de l'autre élément n'est pas supporté : " + autreElementBrut)
             }
           } else {
-            ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : le nom de l'autre élément n'est pas supporté : " + autreElementBrut)
+
+            // console.log("positionSuivieBrut:", positionSuivieBrut);
+            // console.log("autreElementBrut:", autreElementBrut);
+            // console.log("positionSoloBrut:", positionSoloBrut);
+
+            // même si il y a une erreur, on a tout de même compris la formulation
+            elementTrouve = ResultatAnalysePhrase.positionElement;
+
+            const nouvellePosition = AnalyseurUtils.trouverPositionIciDedansDessusDessous(elementConcerne, positionSoloBrut, phrase, ctxAnalyse);
+
+            if (nouvellePosition) {
+              elementConcerne.ajouterPositionString(nouvellePosition);
+              // résultat
+
+              // modifier le dernier élément de la liste
+              ctxAnalyse.dernierElementGenerique = elementConcerne;
+              // modifier éventuellement le dernier lieu de la liste
+              if (elementConcerne.classeIntitule == EClasseRacine.lieu) {
+                ctxAnalyse.dernierLieu = elementConcerne;
+              }
+            } else {
+              // (erreur déjà générée par trouverPositionIciDedansDessusDessous)
+            }
+
           }
         } else {
-          // résultat
-          elementTrouve = ResultatAnalysePhrase.positionElement;
-          console.log("ça marche B !");
+          ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : la position de l’élément n'est pas supportée : " + positionBrut)
         }
       } else {
-        ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : la position de l’élément n'est pas supportée : " + positionBrut)
+        ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : l'élément concerné n'a pas été trouvé : " + elementConcerneBrut);
       }
     } else {
       ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : le nom de l’élément n'est pas supporté : " + elementConcerneBrut)
     }
+
     return elementTrouve;
   }
-
-
 }
+

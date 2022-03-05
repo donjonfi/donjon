@@ -32,7 +32,7 @@ export class ElementGenerique implements ElementDonjon {
     public epithete: string,
     public classeIntitule: string,
     public classe: Classe,
-    public positionString: PositionSujetString[],
+    public _positionString: PositionSujetString[],
     public genre: Genre,
     public nombre: Nombre,
     public quantite: number,
@@ -45,6 +45,38 @@ export class ElementGenerique implements ElementDonjon {
     } else if (nombre === Nombre.s) {
       this.nomS = this.nom;
       this.epitheteS = this.epithete;
+    }
+
+  }
+
+  public get positionString(): ReadonlyArray<PositionSujetString> {
+    return this._positionString;
+  }
+
+ // Ajoute les positions si elles ne sont pas déjà présente
+ public ajouterPositionsString(nouvPositions: ReadonlyArray<PositionSujetString>) {
+
+  nouvPositions.forEach(nouvPosition => {
+    this.ajouterPositionString(nouvPosition);
+  });
+
+}
+
+
+  // Ajoute la position si elle n’est pas déjà présente
+  public ajouterPositionString(nouvPosition: PositionSujetString) {
+
+    let dejaPresente = false;
+
+    for (const curPosition of this._positionString) {
+      if (curPosition.position == nouvPosition.position && curPosition.sujet == nouvPosition.sujet && curPosition.complement == nouvPosition.complement) {
+        dejaPresente = true;
+        break;
+      }
+    }
+
+    if (!dejaPresente) {
+      this._positionString.push(nouvPosition);
     }
 
   }
