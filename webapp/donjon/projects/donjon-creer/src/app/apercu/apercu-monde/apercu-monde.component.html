@@ -6,7 +6,7 @@
   <p *ngIf="monde.lieux && monde.lieux.length == 0">Aucun lieu trouvé.</p>
   <ul>
     <li *ngFor="let el of monde.lieux">
-      <app-apercu-element-generique [el]="el" [estLieu]="true"></app-apercu-element-generique>
+      <app-apercu-lieu [el]="el" [estLieu]="true"></app-apercu-lieu>
     </li>
   </ul>
 
@@ -14,7 +14,7 @@
   <p *ngIf="monde.portesEtObstacles && monde.portesEtObstacles.length == 0">Aucun obstacle trouvé.</p>
   <ul>
     <li *ngFor="let el of monde.portesEtObstacles">
-      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+      <app-apercu-objet [el]="el"></app-apercu-objet>
     </li>
   </ul>
 
@@ -22,7 +22,7 @@
   <p *ngIf="monde.classiques && monde.classiques.length == 0">Aucun objet trouvé.</p>
   <ul>
     <li *ngFor="let el of monde.classiques">
-      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+      <app-apercu-objet [el]="el"></app-apercu-objet>
     </li>
   </ul>
 

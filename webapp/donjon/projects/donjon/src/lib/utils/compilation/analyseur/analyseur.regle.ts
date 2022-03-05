@@ -36,12 +36,12 @@ export class AnalyseurRegle {
             typeRegle = TypeRegle[motCle];
             evenements = PhraseUtils.getEvenementsRegle(evenementsBruts);
             if (!evenements?.length) {
-              AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "évènement(s) : " + evenementsBruts);
+              ctxAnalyse.ajouterErreur(phrase.ligne, "évènement(s) : " + evenementsBruts);
             }
             break;
   
           default:
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "type règle : " + motCle);
+            ctxAnalyse.ajouterErreur(phrase.ligne, "type règle : " + motCle);
             console.error("tester regle: opérateur inconnu:", motCle);
             typeRegle = TypeRegle.inconnu;
             break;

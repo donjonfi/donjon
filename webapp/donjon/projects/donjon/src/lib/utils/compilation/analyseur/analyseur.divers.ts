@@ -107,7 +107,7 @@ export class AnalyseurDivers {
           break;
 
         default:
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
+          ctxAnalyse.ajouterErreur(phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
           break;
       }
 

@@ -90,12 +90,12 @@ export class AnalyseurAction {
             if (ctxAnalyse.verbeux) {
               console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
             }
-            AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "action pas trouvée : " + phrase.phrase);
+            ctxAnalyse.ajouterErreur(phrase.ligne, "action pas trouvée : " + phrase.phrase);
           }
           // action existante mise à jour
           return action;
         } else {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "complément manquant : " + phrase.phrase);
+          ctxAnalyse.ajouterErreur(phrase.ligne, "complément manquant : " + phrase.phrase);
           return null; // rien trouvé
         }
         // C. Nouvelle Action Simple
@@ -145,13 +145,13 @@ export class AnalyseurAction {
         const typeRefuser = result[1]; // si uniquement pour l'instant
         const condition = AnalyseurCondition.getConditionMulti(result[2]);
         if (!condition || condition.nbErreurs) {
-          AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "condition : " + result[2]);
+          ctxAnalyse.ajouterErreur(phrase.ligne, "condition : " + result[2]);
         }
         const instructions = AnalyseurInstructions.separerInstructions(result[3], ctxAnalyse, phrase.ligne);
         verification.push(new Verification([condition], instructions));
       } else {
         console.error("testerRefuser: format pas reconu:", cond);
-        AnalyseurUtils.ajouterErreur(ctxAnalyse, phrase.ligne, "refuser : " + cond);
+        ctxAnalyse.ajouterErreur(phrase.ligne, "refuser : " + cond);
       }
     });
 

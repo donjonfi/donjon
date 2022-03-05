@@ -26,4 +26,15 @@ export class ContexteAnalyse {
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 
+  /** Ajouter une nouvelle erreur. */
+  public ajouterErreur(ligne: number, erreur: string) {
+    let index: number;
+    if (ligne) {
+      index = this.erreurs.push(("0000" + ligne).slice(-5) + " : " + erreur);
+    } else {
+      index = this.erreurs.push(erreur);
+    }
+    console.error(this.erreurs[index - 1]);
+  }
+
 }
