@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-auto pe-1">
+    <button class="btn btn-sm my-1 py-0 text-monospace"
+      [ngClass]="{'btn-outline-secondary': replie, 'btn-outline-primary': !replie}" (click)="replie = !replie">
+      {{(replie ? 'montrer' : 'masquer' )}}
+    </button>
+  </div>
+
+  <div class="col">
+    {{(el.determinant ? el.determinant : "")}}
+    <span class="objet">{{el.nom}}
+      <span *ngIf="el.epithete" class="epithete">{{el.epithete}}</span>
+    </span>
+  </div>
+</div>
+
+<div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
+
+  <ul>
+    <li>Classe : {{(el.classe != null ? getHierarchieClasse(el.classe) : '?')}}</li>
+    <li>Genre/nombre/quantité : {{el.genre}}/{{el.nombre}}/{{el.quantite}}</li>
+    
+    <li>Propriétés :
+      <ul>
+        <li *ngIf="el.description">description : {{el.description}}</li>
+        <li *ngIf="el.nomS">singulier : {{el.nomS}}
+          <span *ngIf="el.epitheteS" class="epithete">{{el.epitheteS}}</span>
+        </li>
+        <li *ngIf="el.nomP">pluriel : {{el.nomP}}
+          <span *ngIf="el.epitheteP" class="epithete">{{el.epitheteP}}</span>
+        </li>
+        <li *ngFor="let prop of el.proprietes">{{prop.nom + (prop.valeur ? (' : ' + prop.valeur): '')}}</li>
+      </ul>
+    </li>
+
+    <li>Synonymes :<span *ngIf="!el.synonymes || el.synonymes.length == 0"> (aucun)</span>
+      <ul *ngIf="el.synonymes">
+        <li *ngFor="let syn of el.synonymes">
+          <app-apercu-sujet [sujet]="syn" title="''"></app-apercu-sujet>
+        </li>
+      </ul>
+    </li>
+
+    <li>Attributs :<span *ngIf="!el.attributs || el.attributs.length == 0"> (aucun)</span>
+      <ul *ngIf="el.attributs">
+        <li *ngFor="let at of el.attributs">{{at}}</li>
+      </ul>
+    </li>
+
+    <li>Capacités :<span *ngIf="!el.capacites || el.capacites.length == 0"> (aucune)</span>
+      <ul *ngIf="el.capacites">
+        <li *ngFor="let cap of el.capacites">{{cap.verbe + (cap.complement ? (' - ' + cap.complement): '')}}</li>
+      </ul>
+    </li>
+    
+    <li>Réactions :<span *ngIf="!el.reactions || el.reactions.length == 0"> (aucune)</span>
+      <ul *ngIf="el.reactions">
+        <li *ngFor="let rea of el.reactions">
+          <app-apercu-reaction [reaction]="rea"></app-apercu-reaction>
+        </li>
+      </ul>
+    </li>
+
+    <li *ngIf="!estLieu">Positions :<span *ngIf="!el.positionString || el.positionString.length == 0"> (aucune)</span>
+      <ul *ngIf="el.positionString">
+        <li *ngFor="let pos of el.positionString">
+          <ul>
+            <li>sujet : {{pos.sujet}}</li>
+            <li>position : {{pos.position}}</li>
+            <li>complement : {{pos.complement}}</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+  </ul>
+</div>

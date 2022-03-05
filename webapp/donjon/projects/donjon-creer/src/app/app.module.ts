@@ -24,6 +24,8 @@ import { VisuLieuComponent } from './visualisation/visu-lieu/visu-lieu.component
 import { VisualisationComponent } from './visualisation/visualisation/visualisation.component';
 import { VisuObjetComponent } from './visualisation/visu-objet/visu-objet.component';
 import { VisuDetailObjetComponent } from './visualisation/visu-detail-objet/visu-detail-objet.component';
+import { ApercuLieuComponent } from './apercu/apercu-lieu/apercu-lieu.component';
+import { ApercuObjetComponent } from './apercu/apercu-objet/apercu-objet.component';
 
 const DEFAULT_ACE_CONFIG: AceConfigInterface = {
   tabSize: 2
@@ -45,7 +47,9 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     VisuLieuComponent,
     VisualisationComponent,
     VisuObjetComponent,
-    VisuDetailObjetComponent
+    VisuDetailObjetComponent,
+    ApercuLieuComponent,
+    ApercuObjetComponent
   ],
   imports: [
     CommonModule,
