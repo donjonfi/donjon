@@ -292,6 +292,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             if (this.choixPossibles.length > 0) {
               this.indexChoixPropose = 0;
               this.commande = this.choixPossibles[this.indexChoixPropose];
+
+              // si mode triche, proposer le choix de la solution (commande suivante)
+              if (this.tricheActif) {
+                this.indexTriche += 1;
+                if (this.indexTriche < this.autoCommandes.length) {
+                  this.commande = this.autoCommandes[this.indexTriche];
+                }
+              }
+
               this.focusCommande();
             }
           } else {
@@ -316,6 +325,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     const indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
     if (indexChoix != -1) {
+
+      // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
+      // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+      this.historiqueCommandesPartie.push(this.commande);
+
       // effacer la commande
       this.commande = '';
       const choix = this.interruptionEnCours.choix[indexChoix];
@@ -566,6 +580,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   onKeyDownEnter(event: Event) {
     if (this.interruptionChoixEnCours) {
       this.traiterChoixJoueur();
+
     } else if (!this.resteDeLaSortie?.length) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
