@@ -25,9 +25,13 @@
         <!-- COL 1 : LISTE DES ONGLETS -->
         <div class="col-auto ps-2 pe-0">
           <div class="btn-group-vertical">
-            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'scenario') }" (click)="showTab('scenario')"
-              title="Scénario" tooltip="Scénario" placement="right">
+            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'scenario') }"
+              (click)="showTab('scenario')" title="Scénario" tooltip="Scénario" placement="right">
               <i class="fas fa-fw fa-book fa-lg"></i>
+            </button>
+            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'actions') }"
+              (click)="showTab('actions')" title="Actions" tooltip="Actions (commandes)" placement="right">
+              <i class="fas fa-fw fa-person-walking fa-lg"></i>
             </button>
             <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
               (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
@@ -50,8 +54,8 @@
 
           <ng-container *ngIf="tab == 'analyse' && jeu">
             <br>
-            <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu" tooltip="Jeu"
-              placement="right">
+            <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu"
+              tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
             <br>
@@ -71,8 +75,8 @@
 
             <!-- sauvegarder fichier localement -->
             <br>
-            <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder" placement="right"
-              title="Sauvegarder">
+            <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder"
+              placement="right" title="Sauvegarder">
               <i class="fas fa-fw fa-save fa-lg"></i>
             </button>
 
@@ -85,16 +89,16 @@
 
             <!-- préférences -->
             <br>
-            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()"
-              tooltip="Préférences" placement="right" title="Préférences">
+            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()" tooltip="Préférences"
+              placement="right" title="Préférences">
               <i class="fas fa-fw fa-sliders-h fa-lg"></i>
             </button>
 
             <!-- sections -->
             <br>
             <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
-            <button *ngIf="false" class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections" tooltip="Sections"
-              placement="right" title="Sections">
+            <button *ngIf="false" class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections"
+              tooltip="Sections" placement="right" title="Sections">
               <i class="fas fa-fw fa-thumbtack fa-lg"></i>
             </button>
 
@@ -257,6 +261,19 @@
             </div>
           </div>
 
+          <!-- TAB: ACTIONS (COMMANDES) -->
+          <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
+            <h3>Actions de base</h3>
+            <ul>
+              <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
+              <li>Version chargée : <b>{{versionActions}}</b></li>
+              <li>Dernière tentative : <b>{{derniereTentativeFichierCommande}}</b></li>
+            </ul>
+            
+            <button class="btn btn-primary ms-1" (click)="onRafraichirCommandes()"><i class="fas fa-rotate"></i> Rafraîchir fichier actions</button>
+
+            
+          </div>
 
           <!-- TAB: TESTER LE JEU -->
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
@@ -288,7 +305,15 @@
           <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">
             <div class="card-body">
 
-              <div *ngIf="compilationEnCours">
+              <div *ngIf="chargementCommandesEnCours">
+                <p>Chargement des commandes …
+                </p>
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+
+              <div *ngIf="compilationEnCours && !chargementCommandesEnCours">
                 <p>Analyse en cours …
                 </p>
                 <div class="spinner-border text-primary" role="status">

@@ -1,6 +1,5 @@
 import { Analyseur } from './analyseur/analyseur';
 import { AnalyseurInstructions } from './analyseur/analyseur.instructions';
-import { AnalyseurUtils } from './analyseur/analyseur.utils';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -184,6 +183,40 @@ export class Compilateur {
   }
 
   /**
+    * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
+    * Cette variante de l’analyse n’inclut pas les commandes de base ce qui lui permet d’être synchrone.
+    * @param scenario Scénario du jeu
+    * @param verbeux Est-ce qu’il faut afficher beaucoup de détails dans la console ?
+    */
+  public static analyserScenarioAvecCommandesFournies(scenario: string, commandes: string, verbeux: boolean) {
+
+    let ctx = new ContexteCompilation(verbeux);
+
+    // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
+    Compilateur.ajouterElementsSpeciaux(ctx.analyse);
+
+    if (commandes) {
+      try {
+        Compilateur.analyserCode(commandes, ctx.analyse);
+      } catch (error) {
+        console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
+      }
+    } else {
+      ctx.analyse.ajouterErreur(0, "(Pas d'actions fournies en plus du scénario)");
+    }
+
+
+    // interpréter le scénario
+    Compilateur.analyserCode((scenario + Compilateur.regleInfoDonjon), ctx.analyse);
+
+    // peupler le monde
+    Compilateur.peuplerLeMonde(ctx);
+
+    return ctx.resultat;
+
+  }
+
+  /**
    * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
    * Cette variante de l’analyse n’inclut pas les commandes de base ce qui lui permet d’être synchrone.
    * @param scenario Scénario du jeu
@@ -214,14 +247,19 @@ export class Compilateur {
    */
   public static async analyserScenario(scenario: string, verbeux: boolean, http: HttpClient) {
 
-    let ctx = new ContexteCompilation(true);
+    let ctx = new ContexteCompilation(verbeux);
     // let ctx = new ContexteCompilation(verbeux);
 
     // ajouter les éléments spéciaux
     Compilateur.ajouterElementsSpeciaux(ctx.analyse);
 
     // inclure les commandes de base, sauf si on les a désactivées
-    if (!scenario.includes('Désactiver les commandes de base.') && !scenario.includes('désactiver les commandes de base.')) {
+    if (
+      !scenario.includes('Désactiver les commandes de base.') &&
+      !scenario.includes('désactiver les commandes de base.') &&
+      !scenario.includes('Désactiver les actions de base.') &&
+      !scenario.includes('désactiver les actions de base.')
+    ) {
       try {
         const sourceCommandes = await lastValueFrom(http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
         try {

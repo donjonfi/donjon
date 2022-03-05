@@ -23,6 +23,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editeur',
@@ -43,7 +44,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
 
-  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' = 'scenario';
+  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario';
 
   nbLignesCode = 30;
   tailleTexte = 18;
@@ -140,10 +141,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
 
+  private problemeChargementFichierActions: boolean | undefined;
+
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   focusOutEnCours = false;
   compilationEnCours = false;
   compilationTerminee = false;
+  chargementCommandesEnCours = false;
 
   constructor(
     private http: HttpClient,
@@ -324,8 +328,12 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
       this.codeEditorElmRef["directiveRef"].ace().resize();
 
-      // interpréter le code
-      Compilateur.analyserScenario(this.codeSource, verbeux, this.http).then(resComp => {
+
+      // vérifier si on a déjà le fichier commandes
+      const sourceCommandes = this.chargerCommandes(false).then(commandes => {
+
+        // interpréter le code
+        const resComp = Compilateur.analyserScenarioAvecCommandesFournies(this.codeSource, commandes, verbeux)
         this.monde = resComp.monde;
         this.regles = resComp.regles;
         this.compteurs = resComp.compteurs;
@@ -346,7 +354,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
           this.showTab('jeu');
         }
 
+
       });
+
+
     } else {
       this.monde = null;
       this.regles = null;
@@ -359,6 +370,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.compilationTerminee = true;
     }
   }
+
 
   // =============================================
   //  SAUVEGARDE SCÉNARIO (code source)
@@ -955,7 +967,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   }
 
-  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' = 'scenario'): void {
+  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario'): void {
     this.tab = tab;
 
     /** focus sur le champ commandes si on est sur le tab jeu */
@@ -964,6 +976,86 @@ export class EditeurComponent implements OnInit, OnDestroy {
         ((this.lecteurRef as any) as LecteurComponent).focusCommande();
       }, 100);
     }
+  }
+
+  // =============================================
+  //  GESTION DES ACTIONS
+  // =============================================
+
+  onRafraichirCommandes(): void {
+    this.chargerCommandes(true);
+  }
+
+  public async chargerCommandes(forcerMaj: boolean): Promise<string | null> {
+
+    let sourceCommandes: string | null = sessionStorage.getItem("commandes");
+
+    if (!sourceCommandes || forcerMaj) {
+      this.problemeChargementFichierActions = undefined;
+      try {
+        this.chargementCommandesEnCours = true;
+        sourceCommandes = await lastValueFrom(this.http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
+        sessionStorage.setItem("commandes", sourceCommandes);
+        this.problemeChargementFichierActions = false;
+      } catch (error) {
+        this.problemeChargementFichierActions = true;
+        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+      } finally {
+        this.chargementCommandesEnCours = false;
+      }
+    }
+
+    return sourceCommandes;
+
+  }
+
+  get statutActions(): string {
+    let retVal: string;
+    const commandes = sessionStorage.getItem("commandes");
+    if (commandes) {
+      retVal = "✔️ fichier chargé en mémoire.";
+    } else {
+      retVal = "❌ fichier pas encore téléchargé.";
+    }
+
+    return retVal;
+  }
+
+  get versionActions(): string {
+    let retVal: string;
+    const commandes = sessionStorage.getItem("commandes");
+    if (commandes) {
+      const resultat = commandes.match(/-- Version: (\S+)/i);
+      if (resultat) {
+        retVal = resultat[1];
+      } else {
+        retVal = "Inconnue";
+      }
+    } else {
+      retVal = "-"
+    }
+
+    return retVal;
+  }
+
+  get derniereTentativeFichierCommande(): string {
+    let retVal: string;
+
+    switch (this.problemeChargementFichierActions) {
+      case undefined:
+        retVal = "?";
+        break;
+
+      case true:
+        retVal = "❌ échec";
+        break;
+
+      case false:
+        retVal = "✔️ succès";
+        break;
+    }
+
+    return retVal;
   }
 
   // =============================================
