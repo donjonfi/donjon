@@ -76,6 +76,9 @@ export class LecteurAudio {
 
       return new Resultat(true, '', 1);
     } else {
+      // vider la liste de lecture
+      this.lectureEnCours = false;
+      this.listeLecture = [];
       return new Resultat(false, '{/L’audio est désactivé (jouer «' + urlFichierSecurisee + '»)/}{N}', 1);
     }
   }
