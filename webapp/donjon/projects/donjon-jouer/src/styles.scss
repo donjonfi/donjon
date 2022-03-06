@@ -7,6 +7,13 @@
 @import "../../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
 @import "../../../node_modules/@fortawesome/fontawesome-free/scss/solid";
 
+// ============================================
+// Thème jeu
+// ============================================
+#txtCommande:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 // ============================================
 // APERÇU

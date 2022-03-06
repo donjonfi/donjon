@@ -11,14 +11,14 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
       + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|"
       + "aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu|"
-      + "musique|image"
+      + "musique|image|thème"
     );
 
     var builtinFunctions = (
       "attendre|changer|continuer|copier|déplacer|déverrouiller|"
       + "dire|effacer|exécuter|fermer|ouvrir|remplacer|"
       + "sauver|stopper|terminer|verrouiller|"
-      + "jouer|arrêter|afficher"
+      + "jouer|arrêter|afficher|décharger|charger"
     );
 
     var keywordMapper = this.createKeywordMapper({

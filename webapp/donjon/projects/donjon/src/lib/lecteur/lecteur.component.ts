@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -6,6 +6,7 @@ import { BalisesHtml } from '../utils/jeu/balises-html';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'djn-lecteur',
@@ -73,7 +74,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Index du choix actuellement sélectionné */
   indexChoixPropose: number = undefined;
 
-  constructor() { }
+  constructor(
+    @Inject(DOCUMENT) private document: Document
+  ) { }
 
   ngOnInit(): void { }
 
@@ -102,7 +105,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.interruptionChoixEnCours = false;
 
     // initialiser le contexte de la partie
-    this.ctx = new ContextePartie(this.jeu, this.verbeux);
+    this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux);
 
     this.verifierTamponErreurs();
 
@@ -221,7 +224,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // en mode auto-triche, on n’attend pas !
       if (this.autoTricheActif) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
-        contenu = contenu.replace(/@@attendre touche@@/g, '<p class="text-primary font-italic">Appuyez sur une touche…</p>')
+        contenu = contenu.replace(/@@attendre touche@@/g, '<p class="t-commande font-italic">Appuyez sur une touche…</p>')
       }
 
       // découper en fonction des pauses
@@ -246,7 +249,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         }
         // attendre pour afficher la suite éventuelle
         if (sectionsContenu.length > 1) {
-          this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…'
+          this.sortieJoueur += '<p class="t-commande font-italic">Appuyez sur une touche…'
           this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
         }
       }
@@ -321,7 +324,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private traiterChoixJoueur() {
     this.commande = this.commande?.trim();
-    this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
 
     const indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
     if (indexChoix != -1) {
@@ -408,7 +411,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     // s’il reste d’autres sections, attendre
     if (this.resteDeLaSortie.length) {
-      this.sortieJoueur += '<p class="text-primary font-italic">Appuyez sur une touche…'
+      this.sortieJoueur += '<p class="t-commande font-italic">Appuyez sur une touche…'
     } else {
       // mode triche : afficher commande suivante
       if (this.tricheActif) {
@@ -590,7 +593,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
-        this.sortieJoueur += '<p><span class="text-primary">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 

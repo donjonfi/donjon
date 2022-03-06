@@ -560,6 +560,19 @@ export class PhraseUtils {
             } else {
               console.error("Instruction « afficher » pas complète.");
             }
+            // CHRAGER le thème
+          } else if (els.infinitif == 'charger') {
+            const suiteCharger = ExprReg.xSuiteInstructionCharger.exec(els.complement1);
+            if (suiteCharger) {
+              const letheme = suiteCharger[1];
+              const fichier = suiteCharger[2];
+              els.sujet = PhraseUtils.getGroupeNominalDefini(letheme, true);
+              // complémnent 1: fichier
+              els.complement1 = fichier;
+              els.sujetComplement1 = undefined;
+            } else {
+              console.error("Instruction « charger » pas complète.");
+            }
             // AUTRE INFINITF
           } else {
             // tester si le sujet est une propriéter à changer
@@ -723,24 +736,27 @@ export class PhraseUtils {
    * Décomposer l’intitulé brut en un groupe nominal.
    */
   public static getGroupeNominalDefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
+
     let determinant: string | undefined;
     let nom: string | undefined;
     let epithete: string | undefined;
     let retVal: GroupeNominal | undefined;
-    const resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(intituleBrut);
-    if (resultatGn) {
-      // forcer minuscules
-      if (forcerMinuscules) {
-        determinant = resultatGn[1]?.toLowerCase() ?? undefined;
-        nom = resultatGn[2].toLowerCase();
-        epithete = resultatGn[3]?.toLowerCase() ?? undefined;
-        // garder casse originale
-      } else {
-        determinant = resultatGn[1] ?? undefined;
-        nom = resultatGn[2];
-        epithete = resultatGn[3] ?? undefined;
+    if (intituleBrut) {
+      const resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(intituleBrut);
+      if (resultatGn) {
+        // forcer minuscules
+        if (forcerMinuscules) {
+          determinant = resultatGn[1]?.toLowerCase() ?? undefined;
+          nom = resultatGn[2].toLowerCase();
+          epithete = resultatGn[3]?.toLowerCase() ?? undefined;
+          // garder casse originale
+        } else {
+          determinant = resultatGn[1] ?? undefined;
+          nom = resultatGn[2];
+          epithete = resultatGn[3] ?? undefined;
+        }
+        retVal = new GroupeNominal(determinant, nom, epithete);
       }
-      retVal = new GroupeNominal(determinant, nom, epithete);
     }
     return retVal;
   }

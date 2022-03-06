@@ -1,0 +1,65 @@
+.subgrid-jouer {
+  /* fond de la fenêtre */
+  background-color: #181616 !important;
+
+  /* couleur du texte par défaut en dehors de la sortie du jeu */
+  color: #ffffff;
+}
+
+.card.sortie-jeu {
+  /* couleur du texte par défaut */
+  color: #ffffff;
+
+  /* fond de la sortie du jeu */
+  background-color: #181616;
+
+  /** bordure de la sortie du jeu **/
+  border: none;
+
+  /* texte entre {- -} */
+}
+
+/* invite de commandes */
+#txtCommande {
+  /* fond de l’invite de commandes */
+  background-color: #000000;
+  /* bordure de l’invite de commandes */
+  border: 2px solid #ffffff;
+  /* texte de l’invite de commandes */
+  color: #ffffff;
+}
+
+/* bordure de l’invite de commande (quand sélectionné) */
+#txtCommande:focus {
+  border: 2px solid #ff00ff;
+}
+
+/* astuce dans l’invite de commande */
+#txtCommande::placeholder {
+  color: #cacaca;
+}
+
+/* astuce sous l’invite de commande */
+.subgrid-jouer .astuce {
+  color: #cacaca;
+}
+
+.card.sortie-jeu a {
+  /* couleur du texte des liens */
+  color: #afafaf;
+}
+
+.card.sortie-jeu a:hover {
+  /* couleur du texte des liens */
+  color: #ffffff;
+}
+
+/* texte entre {- -} */
+.card.sortie-jeu .t-commande {
+  color: #ff00ff;
+}
+
+/* texte entre {+ +} */
+.card.sortie-jeu .t-important {
+  color: #00eeff;
+}

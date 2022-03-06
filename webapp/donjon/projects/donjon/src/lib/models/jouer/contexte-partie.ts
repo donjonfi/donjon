@@ -17,11 +17,13 @@ export class ContextePartie {
   constructor(
     /** L’état du jeu correspondant à la partie. */
     public jeu: Jeu,
+    /** Le document (pour le thème) */
+    public document: Document | undefined = undefined,
     /** Faut-il afficher un maximum de messages d’erreurs ? */
     public verbeux: boolean = false
   ) {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
-    this.ins = new Instructions(this.jeu, this.eju, this.verbeux);
+    this.ins = new Instructions(this.jeu, this.eju, this.document, this.verbeux);
     this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
     this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
     // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)

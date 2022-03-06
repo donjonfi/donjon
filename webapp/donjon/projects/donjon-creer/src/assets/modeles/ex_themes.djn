@@ -1,0 +1,32 @@
+-- paramètres
+Désactiver l’affichage des sorties.
+
+-- placement des éléments
+La salle est un lieu. "Vous êtes quelque part.".
+Le sélecteur est un objet fixé ici.
+interpréter sel et selecteur comme le sélecteur.
+
+le joueur peut arrêter le sélecteur:
+  décharger le thème;
+  dire "Ok.".
+interpréter désactiver et stopper comme arrêter.
+
+-- règle lorsqu’on interagi avec le sélecteur
+avant une action impliquant le sélecteur:
+  si l’infinitif de l’action n’est ni détruire ni prendre ni arrêter:
+    dire "Veuillez sélectionner une couleur :";
+    choisir
+      choix "bleu":
+          -- on change le thème
+          charger le thème bleu.css;
+      choix "orange":
+          -- on change le thème
+          charger le thème orange.css;
+    fin choisir
+    arrêter l’action;
+  fin si.
+  
+avant commencer le jeu:
+  effacer l’écran.
+
+interpréter allumer, activer et enclancher comme utiliser.

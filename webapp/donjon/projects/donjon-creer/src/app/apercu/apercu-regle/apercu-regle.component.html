@@ -16,8 +16,8 @@
           {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}<span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</span>
           <span class="preposition"> {{(curEv.prepositionCeci ? curEv.prepositionCeci :'')}}</span>          
           <span class="objet"> {{curEv.ceci}}</span>
-          <span class="preposition"> {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.cela ? 'et':''))}}</span>
-          <span class="objet"> {{curEv.cela}}</span>
+          <span class="preposition"> {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.isCela ? 'et':''))}}</span>
+          <span *ngIf="curEv.isCela" class="objet"> {{curEv.cela}}</span>
         </span>
       </span>
 

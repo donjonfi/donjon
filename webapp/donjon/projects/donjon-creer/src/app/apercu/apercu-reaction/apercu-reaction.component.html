@@ -4,7 +4,7 @@
     <span *ngFor="let sujet of reaction.sujets; let prem = first; let dern = last;">
       <span *ngIf="!prem && !dern">, </span>
       <span *ngIf="!prem && dern"> et </span>
-      <span class="text-primary">
+      <span class="texte-primary">
         <app-apercu-sujet [titre]="''" [sujet]="sujet"></app-apercu-sujet>
       </span>
     </span>

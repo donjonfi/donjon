@@ -37,11 +37,11 @@ export class BalisesHtml {
     // souligner. texte avec une partie {_soulignée_} et le reste normal.
     retVal = retVal.replace(/\{_/g, '<u>');
     retVal = retVal.replace(/_\}/g, '</u>');
-    // texte DANGER {+texte+}
-    retVal = retVal.replace(/\{\+/g, '<span class="text-danger">');
+    // texte IMPORTANT {+texte+}
+    retVal = retVal.replace(/\{\+/g, '<span class="t-important">');
     retVal = retVal.replace(/\+\}/g, '</span>');
-    // texte PRIMARY {-texte-}
-    retVal = retVal.replace(/\{-/g, '<span class="text-primary">');
+    // texte COMMANDE {-texte-}
+    retVal = retVal.replace(/\{-/g, '<span class="t-commande">');
     retVal = retVal.replace(/-\}/g, '</span>');
 
 

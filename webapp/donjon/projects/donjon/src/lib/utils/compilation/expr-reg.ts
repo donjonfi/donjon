@@ -748,6 +748,20 @@ export class ExprReg {
  */
   static readonly xSuiteInstructionAfficher = /^((?:l’|l')?image) ([\w\._]*\w)$/i;
 
+
+  /** 
+    * Complément de l’instruction charger (un thème)
+    * - Découpage :
+    *     - le thème(1) nom_du_fichier.ext(2)
+    * - Exemples :
+    *     - le thème neon.css
+    *     - thème mon_theme.css
+    * - Tests unitaires
+    *     - le thème neon.css
+    *     - thème mon_theme.css
+    */
+  static readonly xSuiteInstructionCharger = /^((?:le )?thème) ([\w\._]*\w)$/i;
+
   /**
    * - Manger tomate(2).
    * - Déplacer le(1) trésor(2) vers(4) le(5) joueur(6).

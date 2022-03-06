@@ -13,6 +13,7 @@ import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
 import { InstructionChanger } from './instruction-changer';
+import { InstructionCharger } from './instruction-charger';
 import { InstructionDeplacerCopier } from './instruction-deplacer-copier';
 import { InstructionDire } from './instruction-dire';
 import { InstructionExecuter } from './instruction-executer';
@@ -31,11 +32,13 @@ export class Instructions {
   private insExecuter: InstructionExecuter;
   private insChanger: InstructionChanger;
   private insJouerArreter: InstructionJouerArreter;
+  private insCharger: InstructionCharger;
   private insDeplacerCopier: InstructionDeplacerCopier;
 
   constructor(
     private jeu: Jeu,
     private eju: ElementsJeuUtils,
+    private document: Document | undefined,
     private verbeux: boolean,
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
@@ -46,6 +49,7 @@ export class Instructions {
     this.insChanger = new InstructionChanger(this.jeu, this.eju, this.verbeux);
     this.insChanger.instructionDeplacerCopier = this.insDeplacerCopier;
     this.insJouerArreter = new InstructionJouerArreter(this.jeu);
+    this.insCharger = new InstructionCharger(this.jeu, this.document);
   }
 
   get dire() {
@@ -298,6 +302,15 @@ export class Instructions {
         resultat = this.insJouerArreter.executerJouer(instruction, contexteTour);
         break;
 
+      case 'charger':
+        resultat = this.insCharger.executerCharger(instruction, contexteTour);
+        break;
+
+      case 'décharger':
+      case 'decharger':
+        resultat = this.insCharger.executerDecharger(instruction, contexteTour);
+        break;
+
       case 'afficher':
         // afficher une image
         if (instruction.sujet?.nom?.trim() == 'image' && instruction.complement1) {
@@ -399,6 +412,8 @@ export class Instructions {
   public unload() {
     // éviter que le son continue à jouer après qu’on ait quitté le jeu
     this.insJouerArreter.unload();
+
+    this.insCharger.unload();
   }
 
 }

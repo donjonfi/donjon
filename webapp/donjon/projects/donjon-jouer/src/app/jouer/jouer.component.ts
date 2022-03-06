@@ -23,7 +23,6 @@ export class JouerComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-
   ) { }
 
   ngOnInit(): void {
@@ -92,7 +91,9 @@ export class JouerComponent implements OnInit {
     }
   }
 
+
   private chargerJeu(scenario: string) {
+
     this.compilation = true;
     this.erreurs = [];
     if (scenario.trim() !== '') {
@@ -135,5 +136,6 @@ export class JouerComponent implements OnInit {
   get version(){
     return version;
   }
+
 
 }

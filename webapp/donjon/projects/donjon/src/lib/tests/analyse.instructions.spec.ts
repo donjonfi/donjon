@@ -285,6 +285,20 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
+  it('Instruction :  « charger le thème néon.css »', () => {
+    const result = PhraseUtils.decomposerInstruction('charger le thème neon.css');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('charger');
+    expect(result.sujet).toEqual(new GroupeNominal('le ', 'thème'));
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toEqual('neon.css');
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+    expect(result.sujetComplement2).toBeUndefined();
+    expect(result.sujetComplement3).toBeUndefined();
+    expect(result.sujetComplement4).toBeUndefined();
+  });
+
   it('Instruction :  « jouer le son coup_d_epee.flac »', () => {
     const result = PhraseUtils.decomposerInstruction('jouer le son coup_d_epee.flac');
     expect(result).not.toBeNull();
