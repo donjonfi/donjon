@@ -36,30 +36,33 @@ Les tours restants est un compteur initialisé à 3.
 après une action quelconque:
   -- laisser la sortie normale de l’action
   terminer l’action avant;
-  -- on a utilisé un tour de jeu supplémentaire
-  -- (on ne compte pas les commandes effacer, regarder et afficher)
-  si l’infinitif de l’action n’est ni effacer ni regarder ni afficher:
-    changer les tours restants diminuent de 1;
-  fin si
-  -- si le joueur porte la bouée : il flotte
-  si le joueur porte la bouée :
-    dire "{U}{/L’eau monte, vous flottez./}";
-  -- sinon, l’eau monte sans lui
-  sinon
-    si les tours restants valent 3:
-      dire "{U}{/L’eau vous arrive aux mollets./}";
-    sinonsi les tours restants valent 2:
-      dire "{U}{/L’eau vous arrive à la taille./}";
-    sinonsi les tours restants valent 1:
-      dire "{U}{/L’eau vous arrive à la nuque./}";
-    sinonsi les tours restants valent 0:
-      dire "{U}{/Vous êtes immergé./}";
+  -- éviter d’utiliser un tour de jeu lorsqu’on commence le jeu
+  si l’infinitif de l’action n’est pas commencer:
+    -- on a utilisé un tour de jeu supplémentaire
+    -- (on ne compte pas les commandes effacer, regarder et afficher)
+    si l’infinitif de l’action n’est ni effacer ni regarder ni afficher:
+      changer les tours restants diminuent de 1;
+    fin si
+    -- si le joueur porte la bouée : il flotte
+    si le joueur porte la bouée :
+      dire "{U}{/L’eau monte, vous flottez./}";
+    -- sinon, l’eau monte sans lui
+    sinon
+      si les tours restants valent 3:
+        dire "{U}{/L’eau vous arrive aux mollets./}";
+      sinonsi les tours restants valent 2:
+        dire "{U}{/L’eau vous arrive à la taille./}";
+      sinonsi les tours restants valent 1:
+        dire "{U}{/L’eau vous arrive à la nuque./}";
+      sinonsi les tours restants valent 0:
+        dire "{U}{/Vous êtes immergé./}";
+      fin si
     fin si
   fin si.
   
 -- avant chaque action, vérifier que le joueur n’est pas déjà noyé
 avant une action quelconque:
-  si l’infinitif de l’action n’est ni effacer ni regarder:
+  si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher:
     si les tours restants valent 0:
       si le joueur porte la bouée :
         dire "Grâce à la bouée, vous montez en même temps que l’eau.
