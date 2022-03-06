@@ -17,20 +17,12 @@
 // Thème jeu
 // ============================================
 
-.subgrid-jouer {
-  /* fond de la fenêtre */
-  background-color: #ffffff;
-
-  /* couleur du texte par défaut en dehors de la sortie du jeu */
-  color: #000000;
-}
-
 .card.sortie-jeu {
   /* couleur du texte par défaut */
   color: #000000;
 
   /* fond de la sortie du jeu */
-  background-color: #eeebe4;
+  background-color: #fcf8ef;
 
   /* image de fond */
   background-image: none;
@@ -58,7 +50,7 @@
   color: #000000;
 
   /* fond de l’invite de commandes */
-  background-color: #eeebe4;
+  background-color: #fcf8ef;
 
   /* bordure de l’invite de commandes */
   border: 2px solid #dad8d8;
