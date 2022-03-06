@@ -386,7 +386,7 @@ export class InstructionChanger {
         } else if (instruction.sujetComplement1) {
           let intitule: Intitule;
           // i) rechercher parmi les cibles spéciales (ceci, cela, …)
-          const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.nom, contexteTour, evenement, this.eju, this.jeu);
+          const cibleSpeciale: Intitule = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.nom, contexteTour, evenement, this.eju, this.jeu);
           if (cibleSpeciale) {
             intitule = cibleSpeciale;
             // ii) rechercher parmis tous les éléments du jeu

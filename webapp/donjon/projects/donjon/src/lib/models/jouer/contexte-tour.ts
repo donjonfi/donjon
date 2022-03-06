@@ -1,8 +1,11 @@
 import { Choix } from "../compilateur/choix";
 import { ContexteCommande } from "./contexte-commande";
+import { ElementJeu } from "../jeu/element-jeu";
 import { ElementsPhrase } from "../commun/elements-phrase";
 import { Instruction } from "../compilateur/instruction";
 import { Intitule } from "../jeu/intitule";
+import { Lieu } from "../jeu/lieu";
+import { Localisation } from "../jeu/localisation";
 import { Resultat } from "./resultat";
 import { TypeInterruption } from "../jeu/interruption";
 
@@ -20,6 +23,13 @@ export class ContexteTour {
   public reste: Instruction[] | undefined;
   public choix: Choix[] | undefined;
   public typeInterruption: TypeInterruption | undefined;
+
+  /** déplacement du joueur pour ce tour : origine */
+  public origine: Lieu;
+  /** déplacement du joueur pour ce tour : destination */
+  public destination: Lieu;
+  /** déplacement du joueur pour ce tour : orientation */
+  public orientation: Localisation;
 
   constructor(
     /** Ceci */

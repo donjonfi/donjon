@@ -126,9 +126,8 @@ export class ConditionsUtils {
         // ici
         if (condition.sujet.nom === 'ici') {
           sujet = this.eju.curLieu;
-        }
-        // ceci
-        else if (condition.sujet.nom === 'ceci') {
+          // ceci
+        } else if (condition.sujet.nom === 'ceci') {
           sujet = contexteTour.ceci;
           if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
@@ -175,7 +174,24 @@ export class ConditionsUtils {
           // préposition cela
         } else if (condition.sujet.nom.match(/préposition (?:de )?cela/i)) {
           sujet = new Intitule(evenement.prepositionCela, new GroupeNominal(null, evenement.prepositionCela, null), ClassesRacines.Intitule);
-
+          // origine
+        } else if (condition.sujet.nom === 'origine') {
+          sujet = contexteTour.origine;
+          if (!contexteTour.origine) {
+            console.warn("siEstVraiSansLien: le « origine » de la condition est null.");
+          }
+          // origine
+        } else if (condition.sujet.nom === 'destination') {
+          sujet = contexteTour.destination;
+          if (!contexteTour.destination) {
+            console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
+          }
+          // orientation
+        } else if (condition.sujet.nom === 'orientation') {
+          sujet = contexteTour.orientation;
+          if (!contexteTour.orientation) {
+            console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
+          }
           // règle
         } else if (condition.sujet.nom === 'règle') {
           if (!declenchements) {
@@ -484,7 +500,7 @@ export class ConditionsUtils {
               } else if (condition.sujetComplement) {
                 let intitule: Intitule;
                 // i) rechercher parmi les cibles spéciales (ceci, cela, …)
-                const cibleSpeciale: ElementJeu = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
+                const cibleSpeciale: Intitule = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
                 if (cibleSpeciale) {
                   intitule = cibleSpeciale;
                   // ii) rechercher parmis tous les éléments du jeu
@@ -782,7 +798,6 @@ export class ConditionsUtils {
         // regarder s'il y a une sortie dans la direction indiquée
       } else {
         let voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
-
         // cas particulier : si le joueur utilise entrer/sortir quand une seule sortie visible, aller dans la direction de cette sortie
         if (loc instanceof Localisation && (loc.id == ELocalisation.exterieur /*|| loc.id == ELocalisation.interieur*/)) {
           const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);

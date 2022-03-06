@@ -11,6 +11,7 @@ import { Evenement } from "../../models/jouer/evenement";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { Jeu } from "../../models/jeu/jeu";
 import { Liste } from "../../models/jeu/liste";
+import { Localisation } from "../../models/jeu/localisation";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
@@ -20,8 +21,8 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class InstructionsUtils {
 
   /** Retrouver la cible spéciale sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
-  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu {
-    let cible: ElementJeu = null;
+  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu | Localisation | null {
+    let cible: ElementJeu | Localisation | null = null;
     if (cibleString) {
       // retrouver la cible
       switch (cibleString.toLowerCase()) {
@@ -95,6 +96,16 @@ export class InstructionsUtils {
         case 'joueur':
           cible = jeu.joueur;
           break;
+        case 'origine':
+          cible = contexteTour.origine;
+          break;
+        case 'destination':
+          cible = contexteTour.destination;
+          break;
+        case 'orientation':
+          cible = contexteTour.orientation;
+          break;
+
       }
     }
     return cible;

@@ -125,11 +125,11 @@ export class InstructionDire {
       }
 
       // ================================================================================
-      // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|ceci|cela|inventaire]
+      // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|origine|destination|ceci|cela|inventaire]
       // ================================================================================
       if (texteDynamique.includes("[lister objets ") || texteDynamique.includes("[décrire objets ")) {
         // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
-        const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)(?: (sauf cachés))?\]/gi;
+        const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?\]/gi;
         const allBalises = texteDynamique.match(xBaliseContenu);
         // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
@@ -137,7 +137,7 @@ export class InstructionDire {
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
           // retrouver la préposition et la cible
-          const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|ceci|cela|inventaire)(?: (sauf cachés))?\]/i.exec(curBalise);
+          const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?\]/i.exec(curBalise);
 
           const ListerDecrireString = decoupe[1];
           let isLister = ListerDecrireString.toLowerCase() == 'lister';
@@ -149,7 +149,7 @@ export class InstructionDire {
           let phraseSiQuelqueChose = "";
           let afficherObjetsCaches = !exclureCaches;
 
-          const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
 
           // retrouver la préposition (dans par défaut)
           let preposition = PrepositionSpatiale.dans;
@@ -184,11 +184,14 @@ export class InstructionDire {
           }
 
           let resultatCurBalise: string;
-
-          if (isLister) {
-            resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, preposition).sortie;
+          if (cible instanceof ElementJeu) {
+            if (isLister) {
+              resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, preposition).sortie;
+            } else {
+              resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, preposition).sortie;
+            }
           } else {
-            resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, preposition).sortie;
+            resultatCurBalise = "{+(cible pas trouvée)+}";
           }
 
           // remplacer la balise par le résultat
@@ -335,10 +338,10 @@ export class InstructionDire {
       }
 
       // ======================================================================================================
-      // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci|cela|ici|quantitéCeci|quantitéCela
+      // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci?|cela?|ici|origine|destination|orientation|quantitéCeci|quantitéCela
       // ======================================================================================================
 
-      const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|quantitéCeci|quantitéCela)";
+      const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|quantitéCeci|quantitéCela)";
       const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
       const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 
@@ -354,7 +357,7 @@ export class InstructionDire {
 
           const proprieteString = decoupe[1];
           let cibleString = decoupe[2];
-          const cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
 
           let resultat: string = '';
 
@@ -557,7 +560,7 @@ export class InstructionDire {
           const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
           const proprieteString = decoupe[1];
           const cibleString = decoupe[2];
-          let cible: ElementJeu = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
           let resultatCurBalise: string = null;
           if (cible) {
             switch (proprieteString) {
@@ -568,32 +571,52 @@ export class InstructionDire {
               // intitulé (connu forcé)
               case 'intitulé':
               case 'intitule':
-                resultatCurBalise = this.eju.calculerIntituleElement(cible, false, true);
+                if (cible instanceof ElementJeu) {
+                  resultatCurBalise = this.eju.calculerIntituleElement(cible, false, true);
+                } else {
+                  resultatCurBalise = cible.intitule.toString();
+                }
                 break;
               // Intitulé (maj forcée, connu forcé)
               case 'Intitulé':
               case 'Intitule':
-                resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
+                if (cible instanceof ElementJeu) {
+                  resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
+                } else {
+                  resultatCurBalise = cible.intitule.toString();
+                  // forcer majuscule
+                  if (resultatCurBalise.length > 0) {
+                    resultatCurBalise = resultatCurBalise[0].toUpperCase() + resultatCurBalise.slice(1);
+                  }
+                }
                 break;
               // quantité
               case 'quantité':
               case 'quantite':
-                resultatCurBalise = cible.quantite.toString();
+                if (cible instanceof ElementJeu) {
+                  resultatCurBalise = cible.quantite.toString();
+                } else {
+                  resultatCurBalise = "???";
+                }
                 break;
 
               // Propriété
               default:
-                const propriete = cible.proprietes.find(x => x.nom == proprieteString);
-                if (propriete) {
-                  // texte
-                  if (propriete.type == TypeValeur.mots) {
-                    resultatCurBalise = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
-                    // nombre
+                if (cible instanceof ElementJeu) {
+                  const propriete = cible.proprietes.find(x => x.nom == proprieteString);
+                  if (propriete) {
+                    // texte
+                    if (propriete.type == TypeValeur.mots) {
+                      resultatCurBalise = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                      // nombre
+                    } else {
+                      resultatCurBalise = propriete.valeur;
+                    }
                   } else {
-                    resultatCurBalise = propriete.valeur;
+                    resultatCurBalise = "(propriété « " + proprieteString + " » pas trouvée)";
                   }
                 } else {
-                  resultatCurBalise = "(propriété « " + proprieteString + " » pas trouvée)";
+                  resultatCurBalise = "???";
                 }
                 break;
             }

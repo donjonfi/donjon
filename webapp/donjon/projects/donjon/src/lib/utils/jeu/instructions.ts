@@ -21,6 +21,7 @@ import { InstructionJouerArreter } from './instruction-jouer-arreter';
 import { InstructionsUtils } from './instructions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { StringUtils } from '../commun/string.utils';
@@ -344,7 +345,48 @@ export class Instructions {
         }
         break;
 
+      case 'déterminer':
+      case 'determiner':
+        if (instruction.sujet?.nom?.toLocaleLowerCase() === 'déplacement du joueur') {
 
+          contexteTour.origine = this.eju.curLieu;
+
+          let cibleDestination = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.toString(), contexteTour, evenement, this.eju, this.jeu);
+
+          if (cibleDestination) {
+            // si on a fourni un lieu => trouver l’orientation correspondante
+            if (ClasseUtils.heriteDe(cibleDestination.classe, EClasseRacine.lieu)) {
+              contexteTour.destination = cibleDestination as Lieu;
+              // trouver orientation
+              let voisin = contexteTour.destination.voisins.find(x => x.type == EClasseRacine.lieu && x.id == contexteTour.destination.id);
+              if (voisin) {
+                contexteTour.orientation = Localisation.getLocalisation(voisin.localisation);
+              }
+              // si on a fourni une orientation => trouver le lieu correspondant
+            } else if (ClasseUtils.heriteDe(cibleDestination.classe, EClasseRacine.direction)) {
+              contexteTour.orientation = cibleDestination as Localisation;
+              // trouver le lieu
+              let voisinId = this.eju.getVoisinDirectionID(contexteTour.orientation, EClasseRacine.lieu);
+              // cas particulier : si le joueur utilise sortir quand une seule sortie visible, aller dans la direction de cette sortie
+              if (contexteTour.orientation.id == ELocalisation.exterieur) {
+                const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
+                if (lieuxVoisinsVisibles.length == 1) {
+                  voisinId = lieuxVoisinsVisibles[0].id;
+                  contexteTour.orientation = Localisation.getLocalisation(lieuxVoisinsVisibles[0].localisation);
+                }
+              }
+              if (voisinId != -1) {
+                contexteTour.destination = this.eju.getLieu(voisinId);
+              }
+            } else {
+              contexteTour.ajouterErreurInstruction(instruction, "Cible destination joueur pas prise en charge.");
+            }
+          }
+
+        } else {
+          resultat.sortie = "je sais pas déterminer ça:" + instruction.sujet.toString();
+        }
+        break;
 
       default:
         contexteTour.ajouterErreurInstruction(instruction, "exécuter instruction: verbe inconnu: « " + instruction.infinitif + " ».")
