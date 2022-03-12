@@ -366,6 +366,8 @@ export class InstructionChanger {
 
       case 'contient':
       case 'contiennent':
+      case 'inclut':
+      case 'incluent':
         const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
 
         //A) NOMBRE

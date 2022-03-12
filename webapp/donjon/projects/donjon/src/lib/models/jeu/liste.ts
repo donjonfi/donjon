@@ -28,7 +28,7 @@ export class Liste extends Intitule {
 
   /** Le nombre d’éléments de la liste */
   public get taille(): number {
-    return this.valeurs.length;
+    return this.valeurs?.length ?? 0;
   }
 
   /** Vider la liste */
@@ -61,6 +61,7 @@ export class Liste extends Intitule {
       default:
         throw new Error("Not implemented");
     }
+    this.classe = ClassesRacines.ListeVide;
   }
 
 
@@ -380,7 +381,7 @@ export class Liste extends Intitule {
   public contientTexte(valeur: string): boolean {
 
     // console.log("contientTexte: valeur:", valeur, this._valeursTexte);
-    
+
 
     // // enlever les "|Ƶ|ƶ  éventuels autours du texte
     // const valeurNettoyee = valeur.replace(/^"|^Ƶ|"$|ƶ$/g, '');
@@ -433,8 +434,10 @@ export class Liste extends Intitule {
   /** Décrire les valeurs de la liste. */
   public decrire(): string {
     let retVal: string;
-    const nbElements = this.taille;
-    if (nbElements) {
+    if (this.vide) {
+      retVal = "(vide)";
+    } else {
+      const nbElements = this.taille;
       retVal = "";
       for (let index = 0; index < nbElements; index++) {
         retVal += this.valeurs[index];
@@ -446,8 +449,6 @@ export class Liste extends Intitule {
           retVal += ", "
         }
       }
-    } else {
-      retVal = "(vide)";
     }
     return retVal;
   }

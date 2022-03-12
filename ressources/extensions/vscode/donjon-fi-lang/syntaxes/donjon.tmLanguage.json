@@ -34,7 +34,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller|jouer|arrêter|afficher)\\b"
+          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b"
         },
         {
           "name": "support.constant",

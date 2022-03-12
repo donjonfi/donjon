@@ -679,17 +679,20 @@ export class ElementsJeuUtils {
  */
   trouverListe(sujet: GroupeNominal): Liste[] {
     let listesTrouvees: Liste[] = [];
-    const sujetNom = sujet.nom.toLowerCase();
-    const sujetEpithete = sujet.epithete?.toLowerCase();
 
-    // Rechercher dans les compteurs
-    this.jeu.listes.forEach(
-      lst => {
-        if (lst.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === lst.intitule.epithete?.toLowerCase())) {
-          listesTrouvees.push(lst);
+    if (sujet) {
+      const sujetNom = sujet.nom.toLowerCase();
+      const sujetEpithete = sujet.epithete?.toLowerCase();
+
+      // Rechercher dans les listes
+      this.jeu.listes.forEach(
+        lst => {
+          if (lst.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === lst.intitule.epithete?.toLowerCase())) {
+            listesTrouvees.push(lst);
+          }
         }
-      }
-    );
+      );
+    }
 
     return listesTrouvees;
   }

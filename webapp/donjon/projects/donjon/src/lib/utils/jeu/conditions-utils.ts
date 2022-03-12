@@ -297,6 +297,9 @@ export class ConditionsUtils {
 
           // CONTENU
           case 'contient':
+          case 'contiennent':
+          case 'inclut':
+          case 'incluent':
             // remarque: négation appliquée plus loin.
             if (condition.sujetComplement && condition.sujetComplement.nom === 'objet' && (condition.sujetComplement.determinant?.trim() === 'un' || condition.sujetComplement.determinant === "d'" || condition.sujetComplement.determinant === 'd’')) {
               retVal = this.eju.verifierContientObjet(sujet as ElementJeu);

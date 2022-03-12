@@ -355,6 +355,19 @@ export class Instructions {
         }
         break;
 
+      case 'vider':
+        const liste = this.eju.trouverListe(instruction.sujet);
+        if (liste.length) {
+          if (liste.length == 1) {
+            liste[0].vider();
+          } else {
+            contexteTour.ajouterErreurInstruction(instruction, "vider liste: plusieurs listes trouvées: " + instruction)
+          }
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction)
+        }
+        break;
+
       default:
         contexteTour.ajouterErreurInstruction(instruction, "exécuter instruction: verbe inconnu: « " + instruction.infinitif + " ».")
         break;
