@@ -2,6 +2,7 @@ import { ConditionDebutee, StatutCondition, xFois } from "../../models/jouer/sta
 import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
+import { Action } from "../../models/compilateur/action";
 import { AnalyseurCondition } from "../compilation/analyseur/analyseur.condition";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
@@ -1179,12 +1180,44 @@ export class InstructionDire {
 
   /** Afficher la fiche d’aide. */
   private recupererFicheAide(intitule: Intitule) {
-    const ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
+
+    // A. Chercher l’action correspondante
+
+
+    // A) Chercher si une fiche d’aide exacte existe
+    let ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
+
+    // B) Chercher l’inifitif original de l’action
+    if (!ficheAide) {
+      let actionOriginaleTrouvee: Action | undefined;
+      for (const action of this.jeu.actions) {
+        for (const synonyme of action.synonymes) {
+          if (synonyme == intitule.nom) {
+            actionOriginaleTrouvee = action;
+            break;
+          }
+        }
+        if (actionOriginaleTrouvee) {
+          break;
+        }
+      }
+
+      console.log("synonymeTrouve:", actionOriginaleTrouvee);
+      console.log("this.jeu.aides:", this.jeu.aides);
+      
+
+      if (actionOriginaleTrouvee) {
+        ficheAide = this.jeu.aides.find(x => x.infinitif == actionOriginaleTrouvee.infinitif);
+      }
+    }
+
+    // renvoyer l’aide trouvée
     if (ficheAide) {
       return ficheAide.informations;
     } else {
       return "Désolé, je n’ai pas de page d’aide concernant la commande « " + intitule.nom + " »";
     }
+
   }
 
   /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */

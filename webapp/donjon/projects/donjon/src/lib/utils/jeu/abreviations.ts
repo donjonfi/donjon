@@ -78,11 +78,16 @@ export class Abreviations {
           premierMotComplet = mots[1];
           deuxiemeMotComplet = 'le joueur';
         }
+        
+          console.log("mots:", mots);
 
         // commande aide : ajouter « pour » avant le sujet
-        if (premierMotComplet.trim() === 'afficher l’aide' && (mots[1])) {
+        if (premierMotComplet.trim() === 'afficher l’aide' && (mots[1]) && (mots[1] != 'pour')) {
+
+          
+
           premierMotComplet += " pour ";
-        } else if (mots[0] === 'afficher' && (mots[1] === 'aide' || mots[1] === 'l’aide' || mots[1] === 'l\'aide') && mots[2]) {
+        } else if (mots[0] === 'afficher' && (mots[1] === 'aide' || mots[1] === 'l’aide' || mots[1] === 'l\'aide') && mots[2] && mots[2] != 'pour') {
           deuxiemeMotComplet = "l’aide pour "
         }
 
