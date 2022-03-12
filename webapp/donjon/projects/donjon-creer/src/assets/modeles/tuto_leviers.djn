@@ -1,0 +1,79 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Tuto : leviers dans le bon ordre".
+L’auteur du jeu est "OursBlanc".
+
+-- positionner le joueur dans le jeu
+Le joueur se trouve dans le salon.
+
+-- Paramètre: activer l'affichage des lieux
+Activer l'affichage des lieux inconnus.
+
+--  L'étape sert à sauvegarder l'état d'avancement du joueur.
+L'étape est un compteur initialisé à 0.
+
+-- Ajout d'un texte introductif au lancement du jeu
+avant commencer le jeu:
+  dire "Petit exemple d'action de levier dans un certain ordre pour déclencher une action (ici permettre l'ouverture du coffre).
+  Les verbes suivant fonctionnent sur les leviers : actionner, allumer, activer, enclencher et utiliser.
+  L'ordre est : bleu (salon) ; jaune (cuisine) ; rouge (chambre).{n}{n}".
+
+-- synonymes de l'action utiliser
+interpréter actionner, allumer, activer et enclencher comme utiliser.
+
+-- description des lieux et des leviers
+
+le salon est un lieu.
+
+  le coffre est un contenant fixé dans le salon.
+  Il est fermé, ouvrable et verrouillé.
+  
+  avant ouvrir le coffre:
+    si le coffre est ouvert:
+      dire "Le coffre est déjà ouvert.";
+    sinonsi l'étape vaut 3:
+      dire "Vous avez réussi à ouvrir le coffre ! Victoire ! ";
+      changer le coffre est déverrouillé et  ouvert;
+      stopper action;
+      terminer le jeu;
+    sinon
+      dire "Le coffre est verrouillé. Il faut actionner les leviers dans le bon ordre pour l'ouvrir.";
+      arrêter action;
+    fin si.
+  
+  Le levier bleu est un objet fixé dans le salon.
+    interpréter levier comme levier bleu.
+    avant utiliser sur le levier bleu:
+      si l'étape vaut 0:
+        dire "Vous tirer le levier bleu, et vous entendez un *ding*";
+        changer l'étape vaut 1;
+      sinon:
+        dire "Vous tirer le levier bleu, et vous entendez un *HEUM : Erreur*";
+        changer l'étape vaut 0;
+      fin si
+      arrêter action.
+
+la cuisine est un lieu au nord du salon.
+  Le levier jaune est un objet fixé dans la cuisine.
+    interpréter levier comme levier jaune.
+    avant utiliser sur le levier jaune:
+      si l'étape vaut 1:
+        dire "Vous tirer le levier jaune, et vous entendez un *ding*";
+        changer l'étape vaut 2;
+      sinon:
+        dire "Vous tirer le levier jaune, et vous entendez un *HEUM : Erreur*";
+        changer l'étape vaut 0;
+      fin si
+      arrêter action.
+
+la chambre est un lieu au sud du salon.
+  Le levier rouge est un objet fixé dans la chambre.
+    interpréter levier comme levier rouge.
+    avant utiliser sur le levier rouge:
+      si l'étape vaut 2:
+        dire "Vous tirer le levier rouge, et vous entendez un *ding* ; et vous entendez un *clic* provenant du salon.";
+        changer l'étape vaut 3;
+      sinon:
+        dire "Vous tirer le levier rouge, et vous entendez un *HEUM : Erreur*";
+        changer l'étape vaut 0;
+      fin si
+      arrêter action.
