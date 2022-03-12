@@ -368,7 +368,7 @@ export class ExprReg {
   /** 
    * nouvelle action
    * - Découpage :
-   *     - verbe(1) [[à/de/…]\(2) ceci(3)[[ à/de/sur/…]\(4) cela(5)]] est une action[ qui concerne un|une|deux(6) typeObjetA(7) attributObjetA(8) [prioriteAttributObjetA(9)] [et un|une(10) typeObjetB(11) attributObjetB(12) [prioriteAttributObjetB(13)]]]
+   *     - verbe(1) [[à/de/…]\(2) ceci(3)[[ à/de/sur/…]\(4) cela(5)]] est une action[ qui concerne un|une|deux(6) typeObjetA(7) attributObjetA(8) [prioriteAttributObjetA(9)] [et un|une(10) typeObjetB(11) attributObjetB(12) [prioriteAttributObjetB(13)]]][[et] qui déplace le joueur vers destination(14)]
    * - Exemples :
    *     - Jeter ceci est une action qui concerne un objet possédé.
    *     - Examiner ceci est une action qui concerne 1 objet visible prioritairement disponible.
@@ -379,8 +379,9 @@ export class ExprReg {
    *     - Examiner ceci est une action qui concerne 1 objet visible prioritairement disponible.
    *     - prendre ceci avec cela est une action qui concerne un objet prioritairement disponible et un objet visible prioritairement possédé
    *     - Appuyer sur ceci avec cela est une action qui concerne deux objets accessibles prioritairement possédés.
+   *     - Aller vers ceci est une action qui concerne un intitulé et qui déplace le joueur vers ceci
    */
-  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |1 |2 |la |le |l’|l')?(\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un |une |1 |la |le |l’|l')(\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?$/i;
+  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |1 |2 |la |le |l’|l')?(\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un |une |1 |la |le |l’|l')(\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?(?:(?: et?) qui déplace le joueur vers (.+?))?$/i;
 
   /** Le joueur peut verbe(1) [[[ à/de/sur/…]\(2) déterminant(3) nom(4) epithete(5)]: instructions(6) */
   static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;

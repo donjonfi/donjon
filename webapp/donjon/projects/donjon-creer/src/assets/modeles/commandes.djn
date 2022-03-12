@@ -3,7 +3,7 @@ Désactiver les commandes de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-03-06-0041
+-- Version: 2022-03-12-0042
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -65,7 +65,7 @@ SCÈNE "aller".
   --   ALLER
   -- =========
   -- a) aller vers
-  aller vers ceci est une action qui concerne un intitulé.
+  aller vers ceci est une action qui concerne un intitulé et qui déplace le joueur vers ceci.
   
   refuser aller vers ceci:
     si le joueur se trouve dans ceci, dire "Vous y êtes déjà.";
@@ -75,8 +75,6 @@ SCÈNE "aller".
     si aucune sortie accessible n’existe vers ceci, dire "[obstacle vers ceci] Je ne peux pas aller par là.".
   
   exécuter aller vers ceci:
-    -- déterminer les valeurs du déplacement: origine, destination et orientation
-    déterminer le déplacement du joueur vers ceci;
     déplacer le joueur vers ceci.
   
   terminer aller vers ceci:

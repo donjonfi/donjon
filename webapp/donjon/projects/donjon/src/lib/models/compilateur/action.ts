@@ -27,6 +27,9 @@ export class Action {
   /** Les actions simplifiees (le joueur peut xxx) ne peuvent pas être modifiées ensuite */
   public simplifiee: boolean = false;
 
+  /** Cette action va déplacer le joueur vers destinationDeplacement */
+  public destinationDeplacement: string | undefined;
+
 }
 
 export class ActionCeciCela {

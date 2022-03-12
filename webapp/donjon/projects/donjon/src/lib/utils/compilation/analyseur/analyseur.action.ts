@@ -29,6 +29,8 @@ export class AnalyseurAction {
       const cela = result[5] === 'cela';
       let action = new Action(verbe, prepCeci, ceci, prepCela, cela);
 
+      action.destinationDeplacement = result[14] ?? undefined;
+
       // concerne un élément ?
       if (ceci) {
         action.cibleCeci = new CibleAction(result[6], result[7], result[8], result[9]);

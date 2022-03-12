@@ -94,6 +94,26 @@ describe('Epressions régulières − Action', () => {
     expect(result[11]).toBeUndefined(); // classe B
     expect(result[12]).toBeUndefined(); // attribut B
     expect(result[13]).toBeUndefined(); // attribut prioritaire B
+    expect(result[14]).toBeUndefined(); // destination déplacement
+  });
+
+  it('Action :  « Aller vers ceci est une action qui concerne un intitulé et qui déplace le joueur vers ceci »', () => {
+    const result = ExprReg.xAction.exec("Aller vers ceci est une action qui concerne un intitulé et qui déplace le joueur vers ceci");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("Aller"); // verbe
+    expect(result[2]).toEqual("vers"); // adverbe ceci
+    expect(result[3]).toEqual("ceci"); // ceci
+    expect(result[4]).toBeUndefined(); // adverbe cela
+    expect(result[5]).toBeUndefined(); // cela
+    expect(result[6]).toEqual("un "); // un/une/deux
+    expect(result[7]).toEqual("intitulé"); // classe A
+    expect(result[8]).toBeUndefined(); // attribut A
+    expect(result[9]).toBeUndefined(); // attribut prioritaire A
+    expect(result[10]).toBeUndefined(); // un
+    expect(result[11]).toBeUndefined(); // classe B
+    expect(result[12]).toBeUndefined(); // attribut B
+    expect(result[13]).toBeUndefined(); // attribut prioritaire B
+    expect(result[14]).toEqual('ceci'); // destination déplacement
   });
   
   it('Action :  « Frapper sur ceci est une action qui concerne un objet accessible prioritairement disponible »', () => {

@@ -242,12 +242,18 @@ export class Commandeur {
     // créer le contexte du tour
     const contexteTour = new ContexteTour(commande.actionChoisie.ceci, commande.actionChoisie.cela);
     contexteTour.commande = commande;
+
     this.executerLaPhaseSuivante(contexteTour);
   }
 
   /** Exécuter la phase « avant » du tour. */
   private executerPhaseAvant(tour: ContexteTour) {
     // console.warn("@@ phase avant @@");
+
+    // s’il s’agit d’une commande qui déplace le joueur, on remplit origine, destination et orientation
+    if (tour.commande.actionChoisie.action.destinationDeplacement) {
+      this.ins.determinerDeplacementVers(tour.commande.actionChoisie.action.destinationDeplacement, tour);
+    }
 
     // ÉVÈNEMENT AVANT la commande (qu'elle soit refusée ou non)
     let resultatAvant = new Resultat(true, "", 0);
@@ -339,6 +345,13 @@ export class Commandeur {
   private executerPhaseExecuter(tour: ContexteTour) {
     // console.warn("@@ phase exécuter @@");
     // PHASE EXÉCUTER l’action
+
+    // s’il s’agit d’une commande qui déplace le joueur, on remplit origine, destination et orientation
+    // (on le fait à nouveau car la phase avant pourrait avoir changé des choses…)
+    if (tour.commande.actionChoisie.action.destinationDeplacement) {
+      this.ins.determinerDeplacementVers(tour.commande.actionChoisie.action.destinationDeplacement, tour);
+    }
+
     // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
     const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.instructions, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatExecuter.sortie;
