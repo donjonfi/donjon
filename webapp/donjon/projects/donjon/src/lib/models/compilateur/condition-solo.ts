@@ -10,10 +10,15 @@ export class ConditionSolo {
   ) { }
 
   toString() {
-    return this.sujet.toString() + ' '
-      + this.verbe + ' '
-      + (this.negation ? (this.negation + ' ') : '')
-      + (this.complement ? (this.complement + ' ') : '')
-      + (this.sujetComplement ? (this.sujetComplement.toString() + ' ') : '');
+
+    let retVal = this.sujet.toString() + ' ' + this.verbe + ' ' + (this.negation ? (this.negation + ' ') : '');
+
+    if (this.sujetComplement) {
+      retVal += (this.sujetComplement ? (this.sujetComplement.toString() + ' ') : '');
+    } else {
+      retVal += (this.complement ? (this.complement + ' ') : '');
+    }
+
+    return retVal;
   }
 }

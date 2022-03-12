@@ -56,7 +56,10 @@ export class Jeu {
 
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponErreurs: string[] = [];
-  
+
+  /** Les conseils qui doivent encore être affichés au créateur (si le débogueur est actif) */
+  tamponConseils: string[] = [];
+
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponInterruptions: Interruption[] = [];
 

@@ -268,6 +268,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.scrollSortie();
     }
 
+    // vérifier s’il reste des conseils à afficher
+    if (this.debogueur && this.ctx.jeu?.tamponConseils.length) {
+      let texteConseils = "";
+      while (this.ctx.jeu.tamponConseils.length) {
+        const erreur = this.ctx.jeu.tamponConseils.shift();
+        texteConseils += '{N}# ' + erreur + '';
+      }
+      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      this.scrollSortie();
+    }
+
     // vérifier à nouveau dans quelques temps
     setTimeout(() => {
       this.verifierTamponErreurs();

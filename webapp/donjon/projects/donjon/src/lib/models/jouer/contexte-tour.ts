@@ -52,8 +52,12 @@ export class ContexteTour {
 
   // 
 
-  ajouterErreurInstruction(instruction: ElementsPhrase, erreur: string) {
-    console.error(erreur, "\ninstruction: ", instruction);
+  ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {
+    if (instruction) {
+      console.error(erreur, "\ninstruction: ", instruction);
+    } else {
+      console.error(erreur);
+    }
     this.erreurs.push(erreur);
   }
 
