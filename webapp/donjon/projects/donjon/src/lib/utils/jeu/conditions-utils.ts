@@ -284,9 +284,15 @@ export class ConditionsUtils {
         switch (condition.verbe) {
           // ÉTAT
           case 'est':
-            // est une [classe] | est [état]
+          case 'sont':
             // remarque: négation appliquée plus loin.
-            retVal = this.verifierConditionEst(condition, (sujet as ElementJeu));
+            if (condition.complement?.startsWith('défini')) {
+              retVal = true;
+            } else {
+              // est une [classe] | est [état]
+              // remarque: négation appliquée plus loin.
+              retVal = this.verifierConditionEst(condition, (sujet as ElementJeu));
+            }
             break;
 
           // CONTENU
@@ -422,6 +428,16 @@ export class ConditionsUtils {
         // ++++++++++++++++++++
         switch (condition.verbe) {
 
+          case 'est':
+          case 'sont':
+            // remarque: négation appliquée plus loin.
+            if (condition.complement?.startsWith('défini')) {
+              retVal = true;
+            } else {
+              console.error("Condition compteur: est: supporté seulement pour « défini »");
+            }
+            break;
+
           // comparaison : égal (vaut) − différent (ne vaut pas)
           case 'valent':
           case 'vaut':
@@ -480,8 +496,10 @@ export class ConditionsUtils {
             // remarque: négation appliquée plus loin.
             if (condition.complement == 'vide' || condition.complement == 'vides') {
               retVal = liste.vide;
+            } else if (condition.complement?.startsWith('défini')) {
+              retVal = true;
             } else {
-              console.error("Condition liste: est: supporté seulement pour « vide »");
+              console.error("Condition liste: est: supporté seulement pour « vide » et « défini »");
             }
             break;
 
@@ -643,7 +661,15 @@ export class ConditionsUtils {
           }
           // rien trouvé comme sujet
         } else {
-          this.jeu.tamponErreurs.push("condition sans sujet pas prise en charge: \nsujet: " + sujet + "\ncondition: " + condition)
+          // si le verbe est "être", on retourne toujours faux, puisqu’un élément indéfini n’est pas.
+          if (condition.verbe == 'est' || condition.verbe == 'sont') {
+            retVal = false;
+            if (!condition.complement?.startsWith('défini')) {
+              this.jeu.tamponConseils.push("le sujet de la condition n’étant pas défini, le résultat est faux: si " + condition + " (" + condition.sujet + ")");
+            }
+          } else {
+            this.jeu.tamponErreurs.push("le sujet de la condition n’est pas défini, le résultat est faux: si " + condition + " (" + condition.sujet + ")");
+          }
         }
       }
 
