@@ -195,16 +195,23 @@ export class Compilateur {
     // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
     Compilateur.ajouterElementsSpeciaux(ctx.analyse);
 
-    if (commandes) {
-      try {
-        Compilateur.analyserCode(commandes, ctx.analyse);
-      } catch (error) {
-        console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
+    // inclure les commandes de base, sauf si on les a désactivées
+    if (
+      !scenario.includes('Désactiver les commandes de base.') &&
+      !scenario.includes('désactiver les commandes de base.') &&
+      !scenario.includes('Désactiver les actions de base.') &&
+      !scenario.includes('désactiver les actions de base.')
+    ) {
+      if (commandes) {
+        try {
+          Compilateur.analyserCode(commandes, ctx.analyse);
+        } catch (error) {
+          console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
+        }
+      } else {
+        ctx.analyse.ajouterErreur(0, "(Pas d'actions fournies en plus du scénario)");
       }
-    } else {
-      ctx.analyse.ajouterErreur(0, "(Pas d'actions fournies en plus du scénario)");
     }
-
 
     // interpréter le scénario
     Compilateur.analyserCode((scenario + Compilateur.regleInfoDonjon), ctx.analyse);
