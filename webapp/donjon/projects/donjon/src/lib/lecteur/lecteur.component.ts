@@ -327,7 +327,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           if (this.interruptionEnCours.messageAttendre) {
             this.sortieJoueur += BalisesHtml.convertirEnHtml(this.interruptionEnCours.messageAttendre, undefined);
           } else {
-            this.sortieJoueur += '<br><i>Veuillez appuyer sur une touche…</i><br>';
+            this.sortieJoueur += '</p><p>' + BalisesHtml.convertirEnHtml('{-{/Veuillez appuyer sur une touche…/}-}', undefined) + '<br>';
           }
           this.commande = "";
           this.focusCommande();
@@ -713,7 +713,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // aucune sortie
       } else {
         // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
-        if (this.jeu.tamponInterruptions.length) {
+        if (!this.jeu.tamponInterruptions.length) {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
         }
       }

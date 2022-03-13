@@ -338,7 +338,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.regles = resComp.regles;
         this.compteurs = resComp.compteurs;
         this.listes = resComp.listes;
-        this.actions = resComp.actions.sort((a, b) => (
+        this.actions = resComp.actions.sort((a: Action, b: Action) => (
           (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
         ));
         this.aides = resComp.aides;
