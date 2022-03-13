@@ -7,6 +7,7 @@ import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
 import { DOCUMENT } from '@angular/common';
+import { Choix } from '../models/compilateur/choix';
 
 @Component({
   selector: 'djn-lecteur',
@@ -65,8 +66,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   resteDeLaSortie: string[] = [];
   /** une commande est en cours */
   commandeEnCours: boolean = false;
-  /** une interruption de type choix est en cours */
-  interruptionChoixEnCours: boolean = false;
+
   /** Interruption qui est en cours */
   interruptionEnCours: Interruption | undefined;
   /** Les choix possibles pour l’utilisateur */
@@ -102,7 +102,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.resteDeLaSortie = [];
     this.historiqueCommandesPartie = [];
     this.commandeEnCours = false;
-    this.interruptionChoixEnCours = false;
+    this.interruptionEnCours = undefined;
 
     // initialiser le contexte de la partie
     this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux);
@@ -290,6 +290,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     // traiter la prochaine interruption
     this.interruptionEnCours = this.jeu.tamponInterruptions.shift();
+
     if (this.interruptionEnCours) {
       switch (this.interruptionEnCours.typeInterruption) {
         case TypeInterruption.attendreChoix:
@@ -302,7 +303,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + curChoix.valeur + '</li>';
             }
             this.sortieJoueur += '</ul>'
-            this.interruptionChoixEnCours = true;
             if (this.choixPossibles.length > 0) {
               this.indexChoixPropose = 0;
               this.commande = this.choixPossibles[this.indexChoixPropose];
@@ -324,6 +324,34 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         case TypeInterruption.attendreTouche:
 
+          if (this.interruptionEnCours.messageAttendre) {
+            this.sortieJoueur += BalisesHtml.convertirEnHtml(this.interruptionEnCours.messageAttendre, undefined);
+          } else {
+            this.sortieJoueur += '<br><i>Veuillez appuyer sur une touche…</i><br>';
+          }
+          this.commande = "";
+          this.focusCommande();
+
+          // si on est en auto-triche on n'attend pas !
+          if (this.autoTricheActif) {
+            this.terminerInterruption(undefined);
+          }
+
+          break;
+
+        case TypeInterruption.attendreSecondes:
+          let nbMillisecondes = Math.floor(this.interruptionEnCours.nbSecondesAttendre * 1000);
+          this.commande = "";
+          this.focusCommande();
+          // si auto triche actif, on n'attends pas
+          if (this.autoTricheActif) {
+            this.terminerInterruption(undefined);
+            // sinon attendre avant de terminer l’interruption
+          } else {
+            setTimeout(() => {
+              this.terminerInterruption(undefined);
+            }, nbMillisecondes);
+          }
           break;
 
         default:
@@ -350,53 +378,62 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (!choix) {
         this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
-        // Il s’agit d’un tour interrompu
-        if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
-          // tour à continuer
-          const tourInterrompu = this.interruptionEnCours.tour;
-          // l’interruption est terminée
-          this.interruptionChoixEnCours = false;
-          this.interruptionEnCours = undefined;
-          // ajouter les instructions découlant du choix au reste des instructions à exécuter pour ce tour
-          if (choix.instructions?.length) {
-            tourInterrompu.reste.unshift(...choix.instructions);
-          }
-          // continuer le tour interrompu
-          const sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
-          // afficher la sortie du tour
-          this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
-
-        } else {
-          this.jeu.tamponErreurs.push("Traiter choix: actuellement je ne gère que les interruptions du tour.");
-          // l’interruption est terminée
-          this.interruptionChoixEnCours = false;
-          this.interruptionEnCours = undefined;
-        }
-
-        // s’il y a encore des interruptions à gérer, il faut les gérer
-        if (this.jeu.tamponInterruptions.length) {
-          this.traiterProchaineInterruption();
-          // sinon la commande est terminée
-        } else {
-
-          // si le jeu n’étais pas encore commencé, il l’est à présent
-          if (!this.ctx.jeu.commence) {
-            this.ctx.jeu.commence = true;
-          }
-
-          // mode triche: afficher commande suivante
-          if (this.tricheActif && !this.resteDeLaSortie?.length) {
-            this.indexTriche += 1;
-            if (this.indexTriche < this.autoCommandes.length) {
-              this.commande = this.autoCommandes[this.indexTriche];
-            }
-          }
-        }
-        this.scrollSortie();
-
+        // terminer l’interruption
+        this.terminerInterruption(choix);
       }
     } else {
       this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
+    }
+    this.scrollSortie();
+  }
+
+  /**
+   * Fin de l’interruption:
+   *  - traiter la prochaine instruction éventuelle, 
+   *  - démarrer le jeu, 
+   *  - commande suivante si mode triche,
+   *  - faire défiler la sortie
+   */
+  private terminerInterruption(choix: Choix | undefined) {
+
+    // Il s’agit d’un tour interrompu
+    if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
+      // tour à continuer
+      const tourInterrompu = this.interruptionEnCours.tour;
+      // l’interruption est terminée
+      this.interruptionEnCours = undefined;
+      // ajouter les instructions découlant du choix au reste des instructions à exécuter pour ce tour
+      if (choix?.instructions?.length) {
+        tourInterrompu.reste.unshift(...choix.instructions);
+      }
+      // continuer le tour interrompu
+      const sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
+      // afficher la sortie du tour
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+    } else {
+      this.jeu.tamponErreurs.push("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
+      // l’interruption est terminée
+      this.interruptionEnCours = undefined;
+    }
+
+    // s’il y a encore des interruptions à gérer, il faut les gérer
+    if (this.jeu.tamponInterruptions.length) {
+      this.traiterProchaineInterruption();
+      // sinon la commande est terminée
+    } else {
+
+      // si le jeu n’étais pas encore commencé, il l’est à présent
+      if (!this.ctx.jeu.commence) {
+        this.ctx.jeu.commence = true;
+      }
+
+      // mode triche: afficher commande suivante
+      if (this.tricheActif && !this.resteDeLaSortie?.length) {
+        this.indexTriche += 1;
+        if (this.indexTriche < this.autoCommandes.length) {
+          this.commande = this.autoCommandes[this.indexTriche];
+        }
+      }
     }
     this.scrollSortie();
   }
@@ -446,7 +483,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Appuis sur une touche par le joueur.
    */
-  onKeyDown(event: Event) {
+  onKeyDown(event: KeyboardEvent) {
     // éviter de déclencher appuis touche avant la fin de la commande en cours
     if (!this.commandeEnCours) {
       // regarder s’il reste du texte à afficher
@@ -457,7 +494,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
         }
         event.preventDefault();
+      } else if (this.interruptionAttendreToucheEnCours) {
+        this.terminerInterruption(undefined);
       }
+    }
+
+    // choix: garder la dernière lettre entrée
+    if (this.interruptionAttendreChoixEnCours && this.commande.length && (
+      event.key != "Enter" && event.key != "Backspace" &&
+      event.key != "ArrowDown" && event.key != "ArrowUp" &&
+      event.key != "Shift" && event.key != "Tab")
+    ) {
+      this.commande = "";
     }
   }
 
@@ -466,7 +514,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param event
    */
   onKeyDownArrowUp(event) {
-    if (!this.resteDeLaSortie?.length && !this.interruptionChoixEnCours) {
+    if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
       if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
         this.curseurHistorique += 1;
         const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
@@ -474,7 +522,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.focusCommande();
       }
       // proposer le choix précédent
-    } else if (this.interruptionChoixEnCours) {
+    } else if (this.interruptionAttendreChoixEnCours) {
       if (this.choixPossibles.length > 0) {
         this.indexChoixPropose--;
         if (this.indexChoixPropose < 0) {
@@ -490,7 +538,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * Historique: revenir en avant (Flèche bas)
    */
   onKeyDownArrowDown(event) {
-    if (!this.resteDeLaSortie?.length && !this.interruptionChoixEnCours) {
+    if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
       if (this.curseurHistorique >= 0) {
         this.curseurHistorique -= 1;
         const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
@@ -500,7 +548,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.commande = "";
       }
       // proposer le choix suivant
-    } else if (this.interruptionChoixEnCours) {
+    } else if (this.interruptionAttendreChoixEnCours) {
       if (this.choixPossibles.length > 0) {
         this.indexChoixPropose++;
         if (this.indexChoixPropose > (this.choixPossibles.length - 1)) {
@@ -592,10 +640,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param event 
    */
   onKeyDownEnter(event: Event) {
-    if (this.interruptionChoixEnCours) {
+    if (this.interruptionAttendreChoixEnCours) {
       this.traiterChoixJoueur();
-
-    } else if (!this.resteDeLaSortie?.length) {
+    } else if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
         event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
@@ -722,23 +769,40 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   get placeHolder(): string {
-    if (this.interruptionChoixEnCours) {
+    if (this.interruptionAttendreChoixEnCours) {
       return 'Veuillez faire un choix';
-    } else if (this.resteDeLaSortie?.length) {
+    } else if (this.interruptionAttendreToucheEnCours || this.resteDeLaSortie?.length) {
       return 'Appuyez sur une touche…';
+    } else if (this.interruptionAttendreSecondesEnCours) {
+      return 'Veuillez patienter…';
     } else {
       return 'Entrez une commande (infinitif + compl. direct + compl. indirect)';
     }
   }
 
   get maxLen(): number {
-    if (this.interruptionChoixEnCours) {
-      return 1;
-    } else if (this.resteDeLaSortie?.length) {
+    if (this.interruptionAttendreChoixEnCours) {
+      return 2;
+    } else if (this.interruptionAttendreSecondesEnCours || this.interruptionAttendreToucheEnCours || this.resteDeLaSortie?.length) {
       return 0;
     } else {
       return -1;
     }
+  }
+
+  /** une interruption de type attendre choix est en cours */
+  get interruptionAttendreChoixEnCours(): boolean {
+    return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreChoix;
+  }
+
+  /** une interruption de type attendre touche est en cours */
+  get interruptionAttendreToucheEnCours(): boolean {
+    return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreTouche;
+  }
+
+  /** une interruption de type attendre X secondes est en cours */
+  get interruptionAttendreSecondesEnCours(): boolean {
+    return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreSecondes;
   }
 
   ngOnDestroy(): void {

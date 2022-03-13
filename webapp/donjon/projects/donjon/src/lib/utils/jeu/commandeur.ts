@@ -1,5 +1,5 @@
 import { ContexteTour, PhaseTour } from '../../models/jouer/contexte-tour';
-import { Interruption, TypeContexte, TypeInterruption } from '../../models/jeu/interruption';
+import { Interruption, TypeContexte } from '../../models/jeu/interruption';
 
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
@@ -14,6 +14,7 @@ import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
 import { Instructions } from './instructions';
+import { InterruptionsUtils } from './interruptions-utils';
 import { Jeu } from '../../models/jeu/jeu';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
@@ -270,9 +271,7 @@ export class Commandeur {
       resultatAvant.arreterApresRegle = resultatAvant.arreterApresRegle || sousResultatAvant.arreterApresRegle;
       // vérifier s’il y a une interruption
       if (sousResultatAvant.interrompreBlocInstruction) {
-        resultatAvant.interrompreBlocInstruction = true;
-        resultatAvant.reste = sousResultatAvant.reste;
-        resultatAvant.choix = sousResultatAvant.choix;
+        InterruptionsUtils.definirInterruptionSousResultat(resultatAvant, sousResultatAvant);
         if (declenchementsAvant.length > 1) {
           this.jeu.tamponErreurs.push("Déclanchement règle avant: l’instruction choisir ne fonctionne pas correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
         }
@@ -289,9 +288,7 @@ export class Commandeur {
     }
     // si le déroulement a été interrompu
     if (resultatAvant.interrompreBlocInstruction) {
-      tour.reste = resultatAvant.reste;
-      tour.choix = resultatAvant.choix;
-      tour.typeInterruption = TypeInterruption.attendreChoix;
+      InterruptionsUtils.definirInterruptionTour(tour, resultatAvant);
       tour.phase = PhaseTour.avant_interrompu; // on pourrait encore terminer dans la 2e partie de la règle.
       this.executerInterruption(tour);
     } else {
@@ -330,15 +327,12 @@ export class Commandeur {
 
     // si le déroulement a été interrompu
     if (resultatRefuser?.interrompreBlocInstruction) {
-      tour.reste = resultatRefuser.reste;
-      tour.choix = resultatRefuser.choix;
-      tour.typeInterruption = TypeInterruption.attendreChoix;
+      InterruptionsUtils.definirInterruptionTour(tour, resultatRefuser);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
     }
-
   }
 
   /** Exécuter la phase « exécuter » du tour. */
@@ -358,9 +352,7 @@ export class Commandeur {
 
     // si le déroulement a été interrompu
     if (resultatExecuter.interrompreBlocInstruction) {
-      tour.reste = resultatExecuter.reste;
-      tour.choix = resultatExecuter.choix;
-      tour.typeInterruption = TypeInterruption.attendreChoix;
+      InterruptionsUtils.definirInterruptionTour(tour, resultatExecuter);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -416,9 +408,7 @@ export class Commandeur {
 
           // vérifier s’il y a une interruption
           if (sousResultatApres.interrompreBlocInstruction) {
-            resultatApres.interrompreBlocInstruction = true;
-            resultatApres.reste = sousResultatApres.reste;
-            resultatApres.choix = sousResultatApres.choix;
+            InterruptionsUtils.definirInterruptionSousResultat(resultatApres, sousResultatApres);
             if (declenchementsApres.length > 1) {
               this.jeu.tamponErreurs.push("Déclanchement règle après: l’instruction choisir ne fonctionne pas correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
             }
@@ -435,9 +425,7 @@ export class Commandeur {
           } else {
             tour.phase = PhaseTour.apres_interrompu;
           }
-          tour.reste = resultatApres.reste;
-          tour.choix = resultatApres.choix;
-          tour.typeInterruption = TypeInterruption.attendreChoix;
+          InterruptionsUtils.definirInterruptionTour(tour, resultatApres);
           this.executerInterruption(tour);
           //  - sinon on n'a pas été interrompu
         } else {
@@ -481,9 +469,7 @@ export class Commandeur {
 
     // si le déroulement a été interrompu
     if (resultatFinaliser.interrompreBlocInstruction) {
-      tour.reste = resultatFinaliser.reste;
-      tour.choix = resultatFinaliser.choix;
-      tour.typeInterruption = TypeInterruption.attendreChoix;
+      InterruptionsUtils.definirInterruptionTour(tour, resultatFinaliser);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -491,13 +477,15 @@ export class Commandeur {
     }
   }
 
+
+
   private executerInterruption(tour: ContexteTour) {
     // console.warn("+interruption+");
-    const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
+    const interruption = new Interruption(tour.typeInterruption, TypeContexte.tour);
     interruption.tour = tour;
     interruption.choix = tour.choix;
-    interruption.typeInterruption = tour.typeInterruption;
-    interruption.typeContexte = TypeContexte.tour;
+    interruption.messageAttendre = tour.messageAttendre;
+    interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
     this.jeu.tamponInterruptions.push(interruption);
   }
 
@@ -520,9 +508,7 @@ export class Commandeur {
 
     // si le déroulement a été interrompu
     if (resultatReste.interrompreBlocInstruction) {
-      tour.reste = resultatReste.reste;
-      tour.choix = resultatReste.choix;
-      tour.typeInterruption = TypeInterruption.attendreChoix;
+      InterruptionsUtils.definirInterruptionTour(tour, resultatReste);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.

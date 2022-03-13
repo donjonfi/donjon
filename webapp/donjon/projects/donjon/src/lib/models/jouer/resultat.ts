@@ -1,5 +1,6 @@
 import { Choix } from "../compilateur/choix";
 import { Instruction } from "../compilateur/instruction";
+import { TypeInterruption } from "../jeu/interruption";
 
 export class Resultat {
 
@@ -22,9 +23,15 @@ export class Resultat {
 
   /** le bloc d’instruction est interrompu (le temps que l’utilisateur fasse un choix ou appuie sur une touche) */
   public interrompreBlocInstruction: boolean = false;
-  /** les choix possibles pour l’utilisateur */
-  public choix: Choix[] | undefined;
+  /** Le type d’interruption (quand le bloc d’instruction est interrompu) */
+  public typeInterruption: TypeInterruption | undefined;
   /** le reste des instructions pour quand on reprendra après l’interruption */
   public reste: Instruction[] | undefined;
+  /** les choix possibles pour l’utilisateur (interruption choix) */
+  public choix: Choix[] | undefined;
+  /** le message à afficher à l’utilisateur (interruption attendre) */
+  public messageAttendre: string | undefined;
+  /** le nombre de secondes à attendre (interruption attendre) */
+  public nbSecondesAttendre: number | undefined;
 
 }

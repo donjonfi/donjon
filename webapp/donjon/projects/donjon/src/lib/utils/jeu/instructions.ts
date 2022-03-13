@@ -2,6 +2,7 @@ import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
 import { ClasseUtils } from '../commun/classe-utils';
 import { Commandeur } from './commandeur';
+import { CompteursUtils } from './compteurs-utils';
 import { ConditionsUtils } from './conditions-utils';
 import { ContexteTour } from '../../models/jouer/contexte-tour';
 import { EClasseRacine } from '../../models/commun/constantes';
@@ -19,12 +20,15 @@ import { InstructionDire } from './instruction-dire';
 import { InstructionExecuter } from './instruction-executer';
 import { InstructionJouerArreter } from './instruction-jouer-arreter';
 import { InstructionsUtils } from './instructions-utils';
+import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { StringUtils } from '../commun/string.utils';
+import { TexteUtils } from '../commun/texte-utils';
+import { TypeInterruption } from '../../models/jeu/interruption';
 
 export class Instructions {
 
@@ -80,17 +84,12 @@ export class Instructions {
 
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
-        resultat.interrompreBlocInstruction = true;
-        // les choix à proposer au joueur
-        resultat.choix = sousResultat.choix;
-        // retenir le reste des instructions du sous-resultat (s’il y en a un)
-        if (sousResultat.reste?.length) {
-          resultat.reste = sousResultat.reste;
-          // le reste des instructions de la liste principale (s’il y en a un)
+        InterruptionsUtils.definirInterruptionSousResultat(resultat, sousResultat);
+        if (resultat.reste?.length) {
+          //le reste des instructions de la liste principale (s’il y en a un)
           if (indexInstruction < (instructions.length - 1)) {
             resultat.reste.push(...instructions.slice(indexInstruction + 1));
           }
-          // sinon retenir uniquement le reste des instructions de la liste principale
         } else {
           resultat.reste = instructions.slice(indexInstruction + 1);
         }
@@ -126,6 +125,7 @@ export class Instructions {
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
+        resultat.typeInterruption = TypeInterruption.attendreChoix;
         resultat.choix = instruction.choix;
       } else {
         this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")
@@ -335,12 +335,25 @@ export class Instructions {
         break;
 
       case 'attendre':
-        // Il faut continuer l’action en cours (évènement APRÈS spécial)
-        if (instruction?.sujet.nom?.toLocaleLowerCase() === 'touche') {
-          resultat.sortie = "@@attendre touche@@";
+        // ATTENDRE UNE TOUCHE
+        if (instruction.sujet?.nom.toLocaleLowerCase() == 'touche') {
+          // resultat.sortie = "@@attendre touche@@";
+          resultat.interrompreBlocInstruction = true;
+          resultat.typeInterruption = TypeInterruption.attendreTouche;
+          resultat.messageAttendre = TexteUtils.enleverGuillemets(instruction.complement1, true);
+          resultat.succes = true;
+          // ATTENDRE NOMBRE DE SECONDES
+        } else if (instruction.sujet?.nom.toLocaleLowerCase() == 'seconde' || instruction.sujet?.nom.toLocaleLowerCase() == 'secondes') {
+          resultat.interrompreBlocInstruction = true;
+          resultat.typeInterruption = TypeInterruption.attendreSecondes;
+          resultat.nbSecondesAttendre = CompteursUtils.intituleNombreVersNombre(instruction.sujet.determinant);
+          if (resultat.nbSecondesAttendre > 10) {
+            contexteTour.ajouterErreurInstruction(instruction, "Attendre: 10 secondes maximum.");
+            resultat.nbSecondesAttendre = 10;
+          }
           resultat.succes = true;
         } else {
-          console.error("executerInfinitif >> attenre >> sujet autre que  « touche » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> attenre >> sujet autre que  « une touche » ou « nombre secondes » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;

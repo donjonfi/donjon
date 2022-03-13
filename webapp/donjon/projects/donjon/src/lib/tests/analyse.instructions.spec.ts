@@ -28,10 +28,17 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
   });
 
   it('Phrase:  « dire "Bonjour !" »', () => {
-    const result = ExprReg.xInstruction.exec("dire \"Bonjour !\"");
+    const result = ExprReg.xInstruction.exec('dire "Bonjour !"');
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('dire'); // verbe
-    expect(result[2]).toEqual("\"Bonjour !\""); // complément
+    expect(result[2]).toEqual('"Bonjour !"'); // complément
+  });
+
+  it('Phrase:  « attendre touche "Veuillez appuyer sur une touche" »', () => {
+    const result = ExprReg.xInstruction.exec('attendre touche "Veuillez appuyer sur une touche"');
+    expect(result).not.toBeNull();
+    expect(result[1]).toEqual('attendre'); // verbe
+    expect(result[2]).toEqual('touche "Veuillez appuyer sur une touche"'); // complément
   });
 
   it('Phrase: « changer le score augmente de 1 »', () => {
@@ -121,6 +128,16 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
     expect(result).toEqual(null);
   });
 
+  it('Phrase: « touche "enfoncez enter" » (💥)', () => {
+    const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec('touche "enfoncez enter"');
+    expect(result).toEqual(null);
+  });
+
+  it('Phrase: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
+    const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec('touche "Veuillez appuyer sur une touche"');
+    expect(result).toEqual(null);
+  });
+
 });
 
 describe('Epressions régulières − Complément instruction (1 ou 2 éléments)', () => {
@@ -192,6 +209,16 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
   it('Complément:  « manger le biscuit » (💥)', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("manger le biscuit");
     expect(result).toBeNull();
+  });
+
+  it('Complément: « touche "enfoncez enter" » (💥)', () => {
+    const result = ExprReg.xComplementInstruction1ou2elements.exec('touche "enfoncez enter"');
+    expect(result).toEqual(null);
+  });
+
+  it('Complément: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
+    const result = ExprReg.xComplementInstruction1ou2elements.exec('touche "Veuillez appuyer sur une touche"');
+    expect(result).toEqual(null);
   });
 
 });
@@ -354,5 +381,110 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement3).toBeUndefined();
     expect(result.sujetComplement4).toBeUndefined();
   });
+
+  
+  it('Instruction :  « attendre touche "Il faut appuyer à présent!" »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre touche "Il faut appuyer à présent!"');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.toString()).toEqual('une touche');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toEqual('"Il faut appuyer à présent!"');
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre touche »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre touche');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.toString()).toEqual('une touche');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre 1 touche »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 1 touche');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.toString()).toEqual('une touche');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre touche "Veuillez entrer n’importe quelle touche." »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre touche "Veuillez entrer n’importe quelle touche."');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.toString()).toEqual('une touche');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toEqual('"Veuillez entrer n’importe quelle touche."');
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre 0.5 seconde »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 0.5 seconde');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.determinant).toEqual('0.5');
+    expect(result.sujet.nom).toEqual('seconde');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  
+  it('Instruction :  « attendre 0,3 secondes »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 0,3 secondes');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.determinant).toEqual('0,3');
+    expect(result.sujet.nom).toEqual('secondes');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre 1 seconde »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 1 seconde');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.determinant).toEqual('1');
+    expect(result.sujet.nom).toEqual('seconde');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre 5 secondes »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 5 secondes');
+    expect(result).not.toBeNull();
+    expect(result.infinitif).toEqual('attendre');
+    expect(result.sujet.determinant).toEqual('5');
+    expect(result.sujet.nom).toEqual('secondes');
+    expect(result.verbe).toBeNull();
+    expect(result.complement1).toBeUndefined();
+    expect(result.sujetComplement1).toBeUndefined();
+    expect(result.complement2).toBeUndefined();
+  });
+
+  it('Instruction :  « attendre -1 seconde »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre -1 seconde');
+    expect(result).toBeNull();
+  });
+
+  it('Instruction :  « attendre 0 seconde »', () => {
+    const result = PhraseUtils.decomposerInstruction('attendre 0 seconde');
+    expect(result).toBeNull();
+  });
+
 
 });

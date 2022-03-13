@@ -763,6 +763,24 @@ export class ExprReg {
     */
   static readonly xSuiteInstructionCharger = /^((?:le )?thème) ([\w\._]*\w)$/i;
 
+  /** 
+    * Complément de l’instruction attendre (une touche ou un nombre de secondes)
+    * - Découpage :
+    *     - [1|une] touche(1) ["texte"]\(2) | nombre(3) seconde[s]\(4)
+    * - Exemples :
+    *     - touche
+    *     - 1 touche
+    *     - une touche
+    *     - une touche "Veuillez entrer n’importe quelle touche."
+    *     - 0.5 seconde
+    *     - 0,3 secondes
+    *     - 1 seconde
+    *     - 5 secondes
+    *     - 💥 -1 seconde
+    *     - 💥 0 seconde
+    */
+   static readonly xSuiteInstructionAttendre = /^(?:(?:(?:une |1 )?(touche)(?: (".+"))?)|(?:((?:(?:[1-9][0-9]*|0)[\.|,][0-9]+)|(?:[1-9][0-9]*)) (seconde(?:s)?)?))$/i;
+
   /**
    * - Manger tomate(2).
    * - Déplacer le(1) trésor(2) vers(4) le(5) joueur(6).

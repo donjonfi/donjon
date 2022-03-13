@@ -8,11 +8,16 @@ export class Interruption {
   public tour: ContexteTour | undefined;
   /** Commande à exécuter une fois que le choix a été fait */
   public commande: ContexteCommande | undefined;
-  /** Choix possibles */
+  
+  /** les choix possibles pour l’utilisateur (interruption choix) */
   public choix: Choix[] | undefined;
+  /** le message à afficher à l’utilisateur (interruption attendre) */
+  public messageAttendre: string | undefined;
+  /** le nombre de secondes à attendre (interruption attendre) */
+  public nbSecondesAttendre: number | undefined;
 
   constructor(
-    /** Type d’interruption (attendre un choix, attendre une touche) */
+    /** Type d’interruption (attendre un choix, attendre une touche, attendre X secondes) */
     public typeInterruption: TypeInterruption,
     /** Type de contexte dans lequel l’interruption a eu lieu (tour de jeu, avant choix d’une commande, …) */
     public typeContexte: TypeContexte
@@ -28,6 +33,8 @@ export enum TypeContexte {
 }
 
 export enum TypeInterruption {
+  /** Attendre un certain nombre de secondes */
+  attendreSecondes = 's',
   /** Attendre une touche */
   attendreTouche = 't',
   /** Attendre un choix */

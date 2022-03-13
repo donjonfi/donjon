@@ -12,32 +12,40 @@
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
-        id="txtCommande"
-        [placeholder]="placeHolder" [maxlength]="maxLen">
-        <!-- <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
+        id="txtCommande" [placeholder]="placeHolder" [maxlength]="maxLen">
+      <!-- <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
           id="btExecuter">Valider</button>
         <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
           id="btExecuter">↑</button> -->
     </div>
     <small class="row m-0 p-0 pb-1">
       <div class="col p-1 astuce">
-        <p *ngIf="!interruptionChoixEnCours && historiqueCommandes.length % 10 < 5" class="mb-0">
-          Tapez « <span class="t-commande">aide</span> » suivi de [<small>ENTER</small>] pour afficher les actions les plus courantes.
+        <p *ngIf="!interruptionEnCours && historiqueCommandes.length % 10 < 5" class="mb-0">
+          Tapez « <span class="t-commande">aide</span> » suivi de [<small>ENTER</small>] pour afficher les actions les
+          plus courantes.
           <ng-container *ngIf="debogueur">
             <br>Tapez : « <span class="t-commande">déb épée</span> »
             pour déboguer l’épée.
           </ng-container>
         </p>
-        <p *ngIf="!interruptionChoixEnCours && historiqueCommandes.length % 10 >= 5" class="mb-0">
-          Naviguez dans l'historique de vos commandes avec les touches <i class="fa-solid fa-arrow-up"></i> et <i class="fas fa-arrow-down"></i>.
+        <p *ngIf="!interruptionEnCours && historiqueCommandes.length % 10 >= 5" class="mb-0">
+          Naviguez dans l'historique de vos commandes avec les touches <i class="fa-solid fa-arrow-up"></i> et <i
+            class="fas fa-arrow-down"></i>.
           <ng-container *ngIf="debogueur">
             <br>Tapez : « <span class="t-commande">déb épée</span> »
             pour déboguer l’épée dans la console.
           </ng-container>
         </p>
-        <p *ngIf="interruptionChoixEnCours" class="mb-0">
-          Naviguez entre les proposition avec les touches <i class="fa-solid fa-arrow-up"></i> et <i class="fas fa-arrow-down"></i>.
+        <p *ngIf="interruptionAttendreChoixEnCours" class="mb-0">
+          Naviguez entre les proposition avec les touches <i class="fa-solid fa-arrow-up"></i> et <i
+            class="fas fa-arrow-down"></i>.
         </p>
+        <p *ngIf="interruptionAttendreToucheEnCours" class="mb-0">
+          Appuyez sur n’importe quelle touche pour continuer.
+        </p>
+        <!-- <p *ngIf="interruptionAttendreSecondesEnCours" class="mb-0">
+          Veuillez patienter…
+        </p> -->
       </div>
       <div *ngIf="afficherCheckActiverAudio" class="col-auto p-1 pb-0">
         <div class="form-check">

@@ -532,7 +532,7 @@ export class PhraseUtils {
               const fichier = suiteJouer[2];
               const optionEnBoucle = suiteJouer[5] ? true : false;
               const optionNombreFois = suiteJouer[3] ?? undefined;
-              els.sujet = PhraseUtils.getGroupeNominalDefini(leSonOuLaMusique, true);
+              els.sujet = PhraseUtils.getGroupeNominalDefiniOuIndefini(leSonOuLaMusique, true);
               // complémnent 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
@@ -546,6 +546,7 @@ export class PhraseUtils {
               }
             } else {
               console.error("Instruction « jouer » pas complète.");
+              els = null;
             }
             // AFFICHER une image
           } else if (els.infinitif == 'afficher') {
@@ -559,6 +560,7 @@ export class PhraseUtils {
               els.sujetComplement1 = undefined;
             } else {
               console.error("Instruction « afficher » pas complète.");
+              els = null;
             }
             // CHRAGER le thème
           } else if (els.infinitif == 'charger') {
@@ -572,7 +574,32 @@ export class PhraseUtils {
               els.sujetComplement1 = undefined;
             } else {
               console.error("Instruction « charger » pas complète.");
+              els = null;
             }
+            // ATTENDRE
+          } else if (els.infinitif == 'attendre') {
+            const suiteAttendre = ExprReg.xSuiteInstructionAttendre.exec(els.complement1);
+            if (suiteAttendre) {
+              const touche = suiteAttendre[1];
+              const texteTouche = suiteAttendre[2];
+              const nbSecondes = suiteAttendre[3];
+              const secondes = suiteAttendre[4];
+
+              // => touche
+              if (touche) {
+                els.sujet = new GroupeNominal("une ", touche);
+                els.complement1 = texteTouche ?? undefined;
+                // => secondes
+              } else {
+                els.sujet = new GroupeNominal(nbSecondes, secondes);
+                els.complement1 = undefined;
+              }
+            } else {
+              console.error("Instruction « attendre » pas complète.");
+              els = null;
+            }
+
+
             // AUTRE INFINITF
           } else {
             // tester si le sujet est une propriéter à changer

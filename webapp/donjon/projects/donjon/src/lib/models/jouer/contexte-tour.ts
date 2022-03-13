@@ -20,9 +20,16 @@ export class ContexteTour {
 
   public resultatRegleApres: Resultat | undefined;
 
-  public reste: Instruction[] | undefined;
-  public choix: Choix[] | undefined;
+  /** Le type d’interruption (quand le bloc d’instruction est interrompu) */
   public typeInterruption: TypeInterruption | undefined;
+  /** le reste des instructions pour quand on reprendra après l’interruption */
+  public reste: Instruction[] | undefined;
+  /** les choix possibles pour l’utilisateur (interruption choix) */
+  public choix: Choix[] | undefined;
+  /** le message à afficher à l’utilisateur (interruption attendre) */
+  public messageAttendre: string | undefined;
+  /** le nombre de secondes à attendre (interruption attendre) */
+  public nbSecondesAttendre: number | undefined;
 
   /** déplacement du joueur pour ce tour : origine */
   public origine: Lieu;
