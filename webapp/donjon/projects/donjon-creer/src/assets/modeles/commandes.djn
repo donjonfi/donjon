@@ -1,9 +1,9 @@
-Désactiver les commandes de base.
+Désactiver les actions de base.
 
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-03-12-0042
+-- Version: 2022-03-13-0043
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -481,7 +481,7 @@ SCÈNE "examiner".
   examiner ceci est une action qui concerne un intitulé.
 
   refuser examiner ceci:
-    si ceci n’est ni un element ni une direction, dire "Je ne comprend pas ce que vous voulez examiner.";
+    si ceci n’est ni un élément ni une direction, dire "Je ne comprend pas ce que vous voulez examiner.";
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.";
     si ceci est une personne, dire "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
@@ -1179,7 +1179,7 @@ SCÈNE "regarder".
   regarder ceci est une action qui concerne un intitulé.
   
   refuser regarder ceci:
-    si ceci n’est ni un element ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.";
+    si ceci n’est ni un élément ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.";
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.".
     
   exécuter regarder ceci:

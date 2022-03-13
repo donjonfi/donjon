@@ -512,9 +512,9 @@ export class InstructionDire {
               case 'préposition':
               case 'preposition':
                 if (cibleString == 'ceci' || cibleString == 'ceci?') {
-                  resultat = evenement?.prepositionCeci ?? 'x';
+                  resultat = evenement?.prepositionCeci ?? '';
                 } else if (cibleString == 'cela' || cibleString == 'cela?') {
-                  resultat = evenement?.prepositionCela ?? 'x';
+                  resultat = evenement?.prepositionCela ?? '';
                 } else {
                   resultat = "?!";
                 }

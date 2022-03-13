@@ -78,6 +78,7 @@ export class AnalyseurDivers {
 
       switch (parametreNormalise) {
         case 'commandes de base':
+        case 'actions de base':
           // ne rien faire ici car déja interprété au début de la compilation.
           break;
 

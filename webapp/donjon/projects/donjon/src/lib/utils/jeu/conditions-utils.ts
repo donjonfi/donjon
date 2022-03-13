@@ -605,9 +605,16 @@ export class ConditionsUtils {
         switch (condition.verbe) {
 
           case 'est':
-            // est une [classe] | est [état]
+
             // remarque: négation appliquée plus loin.
-            retVal = this.verifierConditionEst(condition, (sujet as Intitule));
+            if (condition.complement?.startsWith('défini')) {
+              retVal = true;
+            } else {
+              // est une [classe] | est [état]
+              // remarque: négation appliquée plus loin.
+              retVal = this.verifierConditionEst(condition, (sujet as Intitule));
+            }
+
             break;
 
           // comparaison : égalité
@@ -667,6 +674,8 @@ export class ConditionsUtils {
           // si le verbe est "être", on retourne toujours faux, puisqu’un élément indéfini n’est pas.
           if (condition.verbe == 'est' || condition.verbe == 'sont') {
             retVal = false;
+            console.log("Pas défini donc.");
+
             if (!condition.complement?.startsWith('défini')) {
               this.jeu.tamponConseils.push("le sujet de la condition n’étant pas défini, le résultat est faux: si " + condition + " (" + condition.sujet + ")");
             }
