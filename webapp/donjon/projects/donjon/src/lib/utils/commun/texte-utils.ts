@@ -16,9 +16,10 @@ export class TexteUtils {
   static enleverGuillemets(texteEncode: string, trim: boolean): string {
     let retVal = texteEncode?.replace(ExprReg.xCaractereDebutCommentaire, '')
       .replace(ExprReg.xCaractereFinCommentaire, '')
-      .replace(/"/g, '')
+      .replace(/"/g, '');
+
     if (trim) {
-      retVal = retVal.trim();
+      retVal = retVal?.trim();
     }
     return retVal;
   }
