@@ -45,6 +45,9 @@
         </p>
         <p *ngIf="interruptionAttendreToucheEnCours" class="mb-0">
           Appuyez sur n’importe quelle touche pour continuer.
+          <ng-container *ngIf="debogueur">
+            <br>&nbsp;
+          </ng-container>
         </p>
         <p *ngIf="interruptionAttendreSecondesEnCours" class="mb-0">
           &nbsp;
