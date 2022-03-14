@@ -2,7 +2,7 @@ PARTIE "Informations sur le jeu".
 
   Le titre du jeu est "Sauvons Noël !".
   L’auteur du jeu est "JG".
-  La version du jeu est "1.10".
+  La version du jeu est "1.11".
   Le titre de la licence est "CC BY 4.0".
   Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -302,12 +302,15 @@ PARTIE "Règles".
   CHAPITRE "début du jeu".
     avant commencer le jeu:
       attendre touche;
-      dire "{/CRAC !/}
-            {/Pif !/}";
-      attendre touche;
-      dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.
-      << Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
-      dire "{n}{n}Vous vous levez tant bien que mal.
+      dire "{/CRAC !/}";
+      attendre 0.3 seconde;
+      dire "{/Pif !/}";
+      attendre 1 seconde;
+      dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.";
+      attendre 1,5 secondes;
+      dire"{p}<< Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
+      attendre 1,5 secondes;
+      dire "{p}Vous vous levez tant bien que mal.
             Vous avez froid. C'est normal, vous êtes en slip !";
       attendre touche.
 
