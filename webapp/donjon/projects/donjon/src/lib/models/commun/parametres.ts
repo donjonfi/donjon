@@ -6,5 +6,6 @@ export class Parametres {
     public activerAffichageLieuxInconnus = false;
     public activerDescriptionDesObjetsSupportes = true;
     public activerAudio = false;
+    public activerRemplacementDestinationDeplacements = true;
    
 }

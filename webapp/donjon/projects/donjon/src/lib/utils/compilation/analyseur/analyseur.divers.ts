@@ -107,6 +107,11 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAudio = isActiver;
           break;
 
+        case 'remplacement de la destination des déplacements':
+        case 'remplacement de la destination des deplacements':
+          ctxAnalyse.parametres.activerRemplacementDestinationDeplacements = isActiver;
+          break;
+
         default:
           ctxAnalyse.ajouterErreur(phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
           break;

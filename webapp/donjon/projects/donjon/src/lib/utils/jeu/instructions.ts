@@ -444,39 +444,56 @@ export class Instructions {
     this.insJouerArreter.onChangementAudioActif();
   }
 
-  public determinerDeplacementVers(destination: string, contexteTour: ContexteTour) {
-    contexteTour.origine = this.eju.curLieu;
+  public determinerDeplacementVers(destination: string, ctxTour: ContexteTour) {
+    ctxTour.origine = this.eju.curLieu;
 
-    let cibleDestination = InstructionsUtils.trouverCibleSpeciale(destination, contexteTour, contexteTour.commande.evenement, this.eju, this.jeu);
+    let cibleDestination = InstructionsUtils.trouverCibleSpeciale(destination, ctxTour, ctxTour.commande.evenement, this.eju, this.jeu);
 
     if (cibleDestination) {
       // si on a fourni un lieu => trouver l’orientation correspondante
       if (ClasseUtils.heriteDe(cibleDestination.classe, EClasseRacine.lieu)) {
-        contexteTour.destination = cibleDestination as Lieu;
+        ctxTour.destination = cibleDestination as Lieu;
         // trouver orientation
-        let voisin = contexteTour.destination.voisins.find(x => x.type == EClasseRacine.lieu && x.id == contexteTour.destination.id);
+        let voisin = ctxTour.destination.voisins.find(x => x.type == EClasseRacine.lieu && x.id == ctxTour.destination.id);
         if (voisin) {
-          contexteTour.orientation = Localisation.getLocalisation(voisin.localisation);
+          ctxTour.orientation = Localisation.getLocalisation(voisin.localisation);
         }
         // si on a fourni une orientation => trouver le lieu correspondant
       } else if (ClasseUtils.heriteDe(cibleDestination.classe, EClasseRacine.direction)) {
-        contexteTour.orientation = cibleDestination as Localisation;
+        ctxTour.orientation = cibleDestination as Localisation;
         // trouver le lieu
-        let voisinId = this.eju.getVoisinDirectionID(contexteTour.orientation, EClasseRacine.lieu);
+        let voisinId = this.eju.getVoisinDirectionID(ctxTour.orientation, EClasseRacine.lieu);
         // cas particulier : si le joueur utilise sortir quand une seule sortie visible, aller dans la direction de cette sortie
-        if (contexteTour.orientation.id == ELocalisation.exterieur) {
+        if (ctxTour.orientation.id == ELocalisation.exterieur) {
           const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(this.eju.curLieu);
           if (lieuxVoisinsVisibles.length == 1) {
             voisinId = lieuxVoisinsVisibles[0].id;
-            contexteTour.orientation = Localisation.getLocalisation(lieuxVoisinsVisibles[0].localisation);
+            ctxTour.orientation = Localisation.getLocalisation(lieuxVoisinsVisibles[0].localisation);
           }
         }
         if (voisinId != -1) {
-          contexteTour.destination = this.eju.getLieu(voisinId);
+          ctxTour.destination = this.eju.getLieu(voisinId);
         }
       } else {
-        contexteTour.ajouterErreurInstruction(undefined, "Cible destination joueur pas prise en charge:" + destination);
+        ctxTour.ajouterErreurInstruction(undefined, "Cible destination joueur pas prise en charge:" + destination);
       }
+
+      // si l’option n’est pas désactivée, remplacer ceci/cela par le lieu destination
+      // afin d’avoir toujours le lieu comme paramètre plutôt que parfois le lieu et parfois la direction.
+      if (this.jeu.parametres.activerRemplacementDestinationDeplacements) {
+        if (ctxTour.commande.actionChoisie.action.destinationDeplacement == 'ceci') {
+          if (ctxTour.destination) {
+            ctxTour.commande.evenement.ceci = ctxTour.destination.nom;
+            ctxTour.commande.evenement.classeCeci = ctxTour.destination.classe;
+          }
+        } else if (ctxTour.commande.actionChoisie.action.destinationDeplacement == 'cela') {
+          if (ctxTour.destination) {
+            ctxTour.commande.evenement.cela = ctxTour.destination.nom;
+            ctxTour.commande.evenement.classeCela = ctxTour.destination.classe;
+          }
+        }
+      }
+
     }
   }
 
