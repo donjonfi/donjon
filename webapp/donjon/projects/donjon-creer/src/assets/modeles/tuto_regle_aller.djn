@@ -1,0 +1,39 @@
+activer l'affichage des lieux inconnus.
+
+Le tronçon B50 est un lieu.
+
+Le tronçon B51 est un lieu au nord du tronçon B50.
+Le tronçon B52 est un lieu au sud du tronçon B50.
+Le tronçon B53 est un lieu à l'est du tronçon B50.
+Le tronçon B54 est un lieu à l'ouest du tronçon B50.
+
+Le tronçon B61 est un lieu au sud du tronçon B52.
+Le tronçon B62 est un lieu à l'est du tronçon B52.
+Le tronçon B63 est un lieu à l'ouest du tronçon B52.
+
+L'historique est une liste.
+
+avant aller vers ceci:
+  -- tester le lieu de destination du joueur
+  si la destination est le tronçon B61 et si l'historique ne contient pas "B62":
+    dire "Il est encore trop tôt pour me rendre vers [intitulé destination].";
+    arrêter l'action;
+  fin si
+  -- tester le lieu d'origine du joueur:
+  si l'origine est le tronçon B50 ou le tronçon B51:
+    dire "Je ne vais pas regretter [intitulé origine] !";
+  fin si.
+
+après aller vers ceci:
+  continuer l'action avant;
+  -- tester l'orientation du déplacement
+  si l'orientation est le sud:
+    dire "{n}Il fait plus chaud quand je me rend vers [intitulé orientation].";
+  fin si
+  -- tester la destination du déplacement
+  si la destination est le tronçon B62:
+    changer l'historique contient "B62";
+  sinonsi la destination est le tronçon B61:
+    dire "C'est ici que je voulais arriver !";
+  fin si.
+  

@@ -1,0 +1,9 @@
+
+La cuisine est un lieu.
+Le salon est un lieu au nord de la cuisine.
+
+avant aller vers le salon:
+  dire "Vous allez vers [intitulé destination] alors que vous vous trouviez dans [intitulé origine].".
+  
+après aller vers la cuisine:
+  dire "Vous êtes allés vers la cuisine pour cela vous vous êtes orientés vers [intitulé orientation].".
