@@ -39,13 +39,19 @@
         <p *ngIf="interruptionAttendreChoixEnCours" class="mb-0">
           Naviguez entre les proposition avec les touches <i class="fa-solid fa-arrow-up"></i> et <i
             class="fas fa-arrow-down"></i>.
+          <ng-container *ngIf="debogueur">
+            <br>&nbsp;
+          </ng-container>
         </p>
         <p *ngIf="interruptionAttendreToucheEnCours" class="mb-0">
           Appuyez sur n’importe quelle touche pour continuer.
         </p>
-        <!-- <p *ngIf="interruptionAttendreSecondesEnCours" class="mb-0">
-          Veuillez patienter…
-        </p> -->
+        <p *ngIf="interruptionAttendreSecondesEnCours" class="mb-0">
+          &nbsp;
+          <ng-container *ngIf="debogueur">
+            <br>&nbsp;
+          </ng-container>
+        </p>
       </div>
       <div *ngIf="afficherCheckActiverAudio" class="col-auto p-1 pb-0">
         <div class="form-check">

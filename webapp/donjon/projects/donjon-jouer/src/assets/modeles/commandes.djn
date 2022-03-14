@@ -3,7 +3,7 @@ Désactiver les actions de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-03-13-0043
+-- Version: 2022-03-14-0044
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1173,7 +1173,7 @@ SCÈNE "regarder".
     fin si.
     
   terminer regarder:
-    dire "{N}[sorties ici]".
+    dire "{P}[sorties ici]".
   
   -- b) regarder ceci
   regarder ceci est une action qui concerne un intitulé.

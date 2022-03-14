@@ -89,22 +89,29 @@ export class BalisesHtml {
     retVal = retVal.replace(/\{i\}/g, '&nbsp;');
 
 
-    // nouvelle ligne, si pas vide ({N} et {U})
-    // - si débute par {N} ou {U}, ne pas en tenir compte
-    while (retVal.startsWith("{N}") || retVal.startsWith("{U}")) {
+    // nouvelle ligne ou paragraphe, si pas vide ({N}, {U} et {P})
+    // - si débute par {N}, {P} ou {U}, ne pas en tenir compte
+    while (retVal.startsWith("{N}") || retVal.startsWith("{U}") || retVal.startsWith("{P}")) {
       retVal = retVal.slice(3);
     }
-    // si termine par {N} ou un {U}, ne pas en tenir compte
-    while (retVal.endsWith("{N}") || retVal.endsWith("{U}")) {
+    // - si termine par {N}, {U} ou {P}, ne pas en tenir compte
+    while (retVal.endsWith("{N}") || retVal.endsWith("{U}") || retVal.endsWith("{P}")) {
       retVal = retVal.slice(0, retVal.length - 3);
     }
-    // - remplacer les {N} restants par un \n
-    retVal = retVal.replace(/\{N\}/g, '\n');
+
+    // - remplacer les {N}{P} restants par un {p}
+    retVal = retVal.replace(/\{N\}\{P\}/g, '{p}');
+    // remplacerles {P} et {p} restants par </p><p> (nouveau paragraphe)
+    retVal = retVal.replace(/\{P\}/gi, '</p><p>');
+
+    // - remplacer les {N} et {n} restants par un \n
+    retVal = retVal.replace(/\{N\}/gi, '\n');
+
     // - remplacer les {U} restants par un {u}
     retVal = retVal.replace(/\{U\}/g, '{u}');
 
-    // nouvelle ligne {n}
-    retVal = retVal.replace(/\{n\}/g, '\n');
+    // remplacer nouvelle ligne {l} par un \n (pas documenté mais supporté)
+    retVal = retVal.replace(/\{l\}/g, '\n');
 
     // nouvelle ligne unique {u}
     // > \n{u} => \n (même si espaces entre les 2)
@@ -116,6 +123,7 @@ export class BalisesHtml {
 
     // nouvelle ligne (\n) => <br>
     retVal = retVal.replace(/\n/g, '<br>');
+
 
     // convertir " :" en " :" (demi espace insécable)
     retVal = retVal.replace(/ :(?!\w)/g, ' :');
