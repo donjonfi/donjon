@@ -355,6 +355,8 @@ export class ElementsJeuUtils {
 
   /**
    * Récupérer les lieux voisins visibles depuis le lieu spécifié.
+   * Ces lieux ne sont donc PAS séparés du lieu actuel par une porte invisible fermée.
+   * Ces lieux ne sont donc PAS cachés.
    * @param loc 
    * @param type 
    */
@@ -366,37 +368,40 @@ export class ElementsJeuUtils {
     if (allLieuxVoisins.length != 0) {
       // pour chaque voisin vérifier s’il y a un obstacle qui empèche de voir qu’il y a une sortie
       allLieuxVoisins.forEach(voisin => {
-        // A) PORTES
-        const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte) && x.localisation == voisin.localisation);
-        // il y a au moins un obstacle
-        if (curVoisinObstacles.length) {
 
-          let voisinCache = false;
+        let voisinCache = false;
 
-          curVoisinObstacles.forEach(obstacle => {
-            // retrouver l’obstacle
-            const curObstacle = this.getObjet(obstacle.id);
-            // A) Porte
-            if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
-              // si la porte est n’est ni visible ni ouverte, le voisin ne doit pas être ajouté à la liste (il est caché).
-              if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.fermeID) && !this.jeu.etats.estVisible(curObstacle, this)) {
-                voisinCache = true;
-              }
-              // B) Autre type d’obstacle
-            } else {
-              // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).
-              if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.couvrantID)) {
-                voisinCache = true;
-              }
-            }
-          });
-
-          if (!voisinCache) {
-            voisinsVisibles.push(voisin);
-          }
-
-          // PAS D’OBSTACLE
+        // vérifier si le lieu n’est pas caché
+        const curLieuVoisin = this.getLieu(voisin.id);
+        if (this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.cacheID)) {
+          voisinCache = true;
         } else {
+          // A) PORTES
+          const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte) && x.localisation == voisin.localisation);
+          // il y a au moins un obstacle
+          if (curVoisinObstacles.length) {
+            curVoisinObstacles.forEach(obstacle => {
+              // retrouver l’obstacle
+              const curObstacle = this.getObjet(obstacle.id);
+              // A) Porte
+              if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
+                // si la porte est n’est ni visible ni ouverte, le voisin ne doit pas être ajouté à la liste (il est caché).
+                if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.fermeID) && !this.jeu.etats.estVisible(curObstacle, this)) {
+                  voisinCache = true;
+                }
+                // B) Autre type d’obstacle
+              } else {
+                // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).
+                if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.couvrantID)) {
+                  voisinCache = true;
+                }
+              }
+            });
+            // PAS D’OBSTACLE
+          } else {
+          }
+        }
+        if (!voisinCache) {
           voisinsVisibles.push(voisin);
         }
       });

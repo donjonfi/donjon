@@ -1599,20 +1599,20 @@ export class InstructionDire {
 
     if (lieu) {
       if (this.jeu.parametres.activerAffichageSorties) {
-        // retrouver les voisins visibles (càd PAS séparés par une porte à la fois invisible et fermée)
+        // retrouver les voisins visibles
         const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
 
         if (lieuxVoisinsVisibles.length > 0) {
           retVal = "Sorties :";
           // afficher les voisins : directions + lieux
           if (this.jeu.parametres.activerAffichageDirectionSorties) {
-            lieuxVoisinsVisibles.forEach(voisin => {
-              retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(voisin.localisation, lieu.id, voisin.id, this.jeu.parametres.activerAffichageLieuxInconnus));
+            lieuxVoisinsVisibles.forEach(lieuVoisinVisible => {
+              retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(lieuVoisinVisible.localisation, lieu.id, lieuVoisinVisible.id, this.jeu.parametres.activerAffichageLieuxInconnus));
             });
             // afficher les voisins: lieux
           } else {
-            lieuxVoisinsVisibles.forEach(voisin => {
-              retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisin.localisation, lieu.id, voisin.id));
+            lieuxVoisinsVisibles.forEach(voisinVisible => {
+              retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisinVisible.localisation, lieu.id, voisinVisible.id));
             });
           }
 
