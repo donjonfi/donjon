@@ -12,7 +12,7 @@ export class PhraseUtils {
 
   public static getEvenementsRegle(evenementsBruts: string) {
     // découper les attributs, les séparateurs possibles sont «, », et « ou ».
-    const evenementsSepares = PhraseUtils.separerListeIntitulesOu(evenementsBruts);
+    const evenementsSepares = PhraseUtils.separerListeIntitulesOu(evenementsBruts, true);
     let retVal: Evenement[] = [];
     evenementsSepares.forEach(evenementBrut => {
       // A) TESTER S’IL S’AGIT D’UNE COMMANDE
@@ -105,31 +105,54 @@ export class PhraseUtils {
     return retVal;
   }
 
-  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"/"ou" */
-  public static separerListeIntitulesEtOu(attributsString: string): string[] {
-    if (attributsString && attributsString.trim() !== '') {
+  /**
+   * Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"/"ou" 
+   * @param intitulesString texte à séparer sur les virgules et les et/ou.
+   * @param autoriserVirguleEtOu autoriser ", et", ",et" ", ou" et ",ou"
+   */
+  public static separerListeIntitulesEtOu(intitulesString: string, autoriserVirguleEtOu: boolean): string[] {
+    if (intitulesString && intitulesString.trim() !== '') {
       // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-      return attributsString.trim().split(/(?:, | et | ou )+/);
+      if (autoriserVirguleEtOu) {
+        return intitulesString.trim().split(/(?:,et |,ou |, et |, ou |, | et | ou )+/);
+      } else {
+        return intitulesString.trim().split(/(?:, | et | ou )+/);
+      }
     } else {
       return new Array<string>();
     }
   }
 
-  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et" */
-  public static separerListeIntitulesEt(attributsString: string): string[] {
+  /**
+   * Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"
+   * @param intitulesString texte à séparer sur les virgules et les et.
+   * @param autoriserVirguleEtOu autoriser ", et", et ",et" "
+   */
+  public static separerListeIntitulesEt(attributsString: string, autoriserVirguleEt: boolean): string[] {
     if (attributsString && attributsString.trim() !== '') {
-      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-      return attributsString.trim().split(/(?:, | et )+/);
+      // découper les attributs, les séparateurs possibles sont «, » et « et »
+      if (autoriserVirguleEt) {
+        return attributsString.trim().split(/(?:,et |, et |, | et )+/);
+      } else {
+        return attributsString.trim().split(/(?:, | et )+/);
+      }
     } else {
       return new Array<string>();
     }
   }
 
-  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "ou" */
-  public static separerListeIntitulesOu(attributsString: string): string[] {
+  /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "ou" 
+   * @param intitulesString texte à séparer sur les virgules et les et.
+   * @param autoriserVirguleEtOu autoriser ", ou" et ",ou"
+   */
+  public static separerListeIntitulesOu(attributsString: string, autoriserVirguleOu: boolean): string[] {
     if (attributsString && attributsString.trim() !== '') {
       // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-      return attributsString.trim().split(/(?:, | ou )+/);
+      if (autoriserVirguleOu) {
+        return attributsString.trim().split(/(?:,ou |, ou |, | ou )+/);
+      } else {
+        return attributsString.trim().split(/(?:, | ou )+/);
+      }
     } else {
       return new Array<string>();
     }

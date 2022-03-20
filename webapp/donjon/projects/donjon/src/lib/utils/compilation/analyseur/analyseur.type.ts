@@ -35,7 +35,7 @@ export class AnalyseurType {
             let nouveauxAttributs: string[] = null;
             if (attributsBruts?.trim() !== '') {
                 // découper les attributs
-                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
+                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts, true);
             }
 
             // vérifier si le type parent est déjà défini
@@ -99,7 +99,7 @@ export class AnalyseurType {
             let nouveauxAttributs: string[] = null;
             if (attributsBruts?.trim() !== '') {
                 // découper les attributs
-                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
+                nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts, true);
             }
 
             // si le type est déjà défini

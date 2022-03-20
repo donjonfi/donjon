@@ -1,4 +1,3 @@
-import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { MotUtils } from "../../commun/mot-utils";
@@ -32,7 +31,7 @@ export class AnalyseurAttributs {
       // attributs de l'élément précédent
       if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
-        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
+        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts, true);
         // ajouter les attributs
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
@@ -63,7 +62,7 @@ export class AnalyseurAttributs {
       // attributs de l'élément précédent
       if (attributsBruts && attributsBruts.trim() !== '') {
         // découper les attributs
-        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts);
+        const nouveauAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts, true);
         // ajouter les attributs
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }

@@ -57,7 +57,7 @@ export class AnalyseurListe {
 
           // sinon il faut juste les découper
         } else {
-          let morceaux = PhraseUtils.separerListeIntitulesEt(contenuBrut);
+          let morceaux = PhraseUtils.separerListeIntitulesEt(contenuBrut, true);
 
           morceaux.forEach(morceau => {
             if (morceau.match(ExprReg.xNombreEntier)) {

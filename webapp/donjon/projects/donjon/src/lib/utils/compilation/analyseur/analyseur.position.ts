@@ -28,9 +28,9 @@ export class AnalyseurPosition {
       const positionBrut = result[2];
 
       if (/par rapport (?:à|au|aux) /i.exec(elementBrut)) {
-        const morceauxPosition = PhraseUtils.separerListeIntitulesEt(positionBrut);
+        const morceauxPosition = PhraseUtils.separerListeIntitulesEt(positionBrut, true);
         const elementBrutNettoye = elementBrut.replace(/par rapport (?:à|au|aux) /i, "");
-        const elementEtAutreElement = PhraseUtils.separerListeIntitulesEt(elementBrutNettoye);
+        const elementEtAutreElement = PhraseUtils.separerListeIntitulesEt(elementBrutNettoye, true);
         // trouver les positions relatives
         morceauxPosition.forEach(morceauPosition => {
           let curPositionBrut: string;
@@ -46,7 +46,7 @@ export class AnalyseurPosition {
         });
       } else {
         // il peut y avoir plusieurs positions relatives
-        const morceauxPosition = PhraseUtils.separerListeIntitulesEt(positionBrut);
+        const morceauxPosition = PhraseUtils.separerListeIntitulesEt(positionBrut, true);
         // trouver les positions relatives
         morceauxPosition.forEach(morceauPosition => {
           elementTrouve = this.testerPositionRelative(elementBrut, morceauPosition, phrase, ctxAnalyse);

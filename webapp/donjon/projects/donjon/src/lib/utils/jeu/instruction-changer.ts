@@ -314,7 +314,7 @@ export class InstructionChanger {
             console.log("executerJoueur: ajouter l’état '", instruction.complement1, "'");
           }
           // séparer les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1);
+          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
           attributsSepares.forEach(attribut => {
             this.jeu.etats.ajouterEtatElement(this.jeu.joueur, attribut);
           });
@@ -455,7 +455,7 @@ export class InstructionChanger {
             console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
           }
           // séparer les attributs, les séparateurs possibles sont «, », « et ».
-          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1);
+          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
           attributsSepares.forEach(attribut => {
             this.jeu.etats.ajouterEtatElement(element, attribut);
           });

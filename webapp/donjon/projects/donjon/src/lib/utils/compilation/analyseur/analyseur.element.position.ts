@@ -217,7 +217,7 @@ export class AnalyseurElementPosition {
 
         genre = MotUtils.getGenre(determinant, estFeminin);
         // retrouver les attributs
-        attributs = PhraseUtils.separerListeIntitulesEt(attributsString);
+        attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
 
         position = new PositionSujetString(nom.toLowerCase() + (epithete ? (" " + epithete.toLowerCase()) : ""), result[10].toLowerCase(), result[9]);
 

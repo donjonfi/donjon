@@ -47,7 +47,7 @@ export class AnalyseurSynonymes {
     if (result !== null) {
 
       const synonymesBruts = result[1];
-      const listeSynonymesBruts = PhraseUtils.separerListeIntitulesEtOu(synonymesBruts);
+      const listeSynonymesBruts = PhraseUtils.separerListeIntitulesEtOu(synonymesBruts, true);
       const originalBrut = result[2];
 
       // tester si l’original est un VERBE
