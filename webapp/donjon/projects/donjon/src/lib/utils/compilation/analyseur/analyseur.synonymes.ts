@@ -1,5 +1,4 @@
 import { Abreviation } from "../../../models/compilateur/abreviation";
-import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
@@ -70,6 +69,29 @@ export class AnalyseurSynonymes {
                 action.synonymes.push(synonyme);
               });
               resultatTrouve = ResultatAnalysePhrase.synonyme;
+
+              // vérifier si ce synonyme n’a pas déjà été utilisé pour une autre action
+              let listeAutresSynonymes: string[] = [];
+              ctxAnalyse.actions.forEach(autreAction => {
+                if (autreAction.infinitif !== infinitif) {
+                  autreAction.synonymes.forEach(autreSynonyme => {
+                    if (autreSynonyme == synonyme) {
+                      if (!listeAutresSynonymes.includes(autreAction.infinitif)) {
+                        listeAutresSynonymes.push(autreAction.infinitif);
+                      }
+                    }
+                  });
+                }
+              });
+              if (listeAutresSynonymes.length) {
+                let message = "Le synonyme « " + synonymeBrut + " » est défini pour plusieurs actions différentes (";
+                listeAutresSynonymes.forEach(autreSynonyme => {
+                  message += autreSynonyme + ", ";
+                });
+                message = message.slice(0, message.length - 2);
+                message += " et " + originalBrut + "), cela ne fonctionnera pas.";
+                ctxAnalyse.ajouterErreur(phrase.ligne, message);
+              }
             } else {
               ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
             }

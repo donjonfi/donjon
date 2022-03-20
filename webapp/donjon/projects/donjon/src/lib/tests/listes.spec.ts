@@ -158,13 +158,13 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    expect(ctx.jeu.listes.length).toBe(1);
+    expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
     ctx.com.executerCommande("tester");
 
-    expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
 
     ctx.com.executerCommande("vérifier");
@@ -186,7 +186,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    expect(ctx.jeu.listes.length).toBe(1);
+    expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
@@ -195,7 +195,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     ctx.com.executerCommande("tester");
 
-    expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"métro"');
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
@@ -215,7 +215,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    expect(ctx.jeu.listes.length).toBe(1);
+    expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
@@ -224,7 +224,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     ctx.com.executerCommande("tester");
 
-    expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
