@@ -137,4 +137,7 @@ export enum EEtatsBase {
   adjacent = 'adjacent',
   /** lu : objet */
   lu = "lu",
+  /** vide: objet */
+  vide = 'vide',
+  
 }

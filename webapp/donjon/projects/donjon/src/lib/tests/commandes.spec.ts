@@ -35,7 +35,7 @@ describe('Décomposer des commandes', () => {
       'La lettre est un objet. ' +
       'La tarte à la crème est un objet mangeable. ' +
       'La pomme est un objet mangeable. ' +
-      'La table basse est un support ici. ' + 
+      'La table basse est un support ici. ' +
       '';
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -579,9 +579,6 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].els.infinitif).toEqual('pecher');
     // action trouvée
     const candidatsAction = this.actionsUtils.trouverActionPersonnalisee(ctxCom.candidats[0].els, undefined, undefined);
-
-    console.error("candidatsAction >>>>>>>", candidatsAction);
-    
 
     expect(candidatsAction).toHaveSize(1);
     expect(candidatsAction[0].action.infinitif).toEqual('pêcher');

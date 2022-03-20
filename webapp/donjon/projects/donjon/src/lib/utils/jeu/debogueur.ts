@@ -109,6 +109,7 @@ export class Debogueur {
     const estSupport = ClasseUtils.heriteDe(objet.classe, EClasseRacine.support);
     const visible = this.jeu.etats.estVisible(objet, this.eju);
     const accessible = this.jeu.etats.estAccessible(objet, this.eju);
+    const vide = this.jeu.etats.estVide(objet, this.eju);
     const emplacement = this.eju.getLieu(this.eju.getLieuObjet(objet));
     contenant = (objet.position?.cibleType === EClasseRacine.objet ? this.eju.getObjet(objet.position.cibleId) : null)
     // retrouver la préposition de la position de l’objet par rapport à sont contenant/support
@@ -166,7 +167,7 @@ export class Debogueur {
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(objet.classe) +
       "{n}{e}{_ID_}{n}" + objet.id + (objet.idOriginal ? (' (copie de ' + objet.idOriginal + ')') : '') +
       "{n}{e}{_synonymes_}{n}" + (objet.synonymes?.length ? objet.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
-      "{n}{e}{_visible / accessible_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') +
+      "{n}{e}{_visible / accessible" + ((estContenant || estSupport) ? " / vide" : "") + "_}{n}" + (visible ? 'oui' : 'non') + " / " + (accessible ? 'oui' : 'non') + ((estContenant || estSupport) ? (" / " + (vide ? 'oui' : 'non')) : "") +
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
       "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucun') + infoContenant) +

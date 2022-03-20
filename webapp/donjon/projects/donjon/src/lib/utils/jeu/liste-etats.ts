@@ -5,13 +5,12 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
-import { InstructionDire } from './instruction-dire';
 import { LienCondition } from '../../models/compilateur/lien-condition';
 import { Lieu } from '../../models/jeu/lieu';
 import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
-import { stringify } from '@angular/compiler/src/util';
+import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 export class ListeEtats {
 
@@ -48,6 +47,7 @@ export class ListeEtats {
   public clairID = -1;
   public eclaireID = -1;
   public obscurID = -1;
+  public videID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -136,8 +136,10 @@ export class ListeEtats {
     // adjacent (lieu)
     this.adjacentID = this.creerEtat(EEtatsBase.adjacent, Genre.m, Nombre.s, true).id;
     // lu (objet)
-    this.creerEtat(EEtatsBase.lu, Genre.m, Nombre.s, false).id;
+    this.creerEtat(EEtatsBase.lu, Genre.m, Nombre.s, false);
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.lu); // est-ce une bonne idée ?
+    // vide (contenant)
+    this.videID = this.creerEtat(EEtatsBase.vide, Genre.m, Nombre.s, true).id;
   }
 
   /**
@@ -395,7 +397,10 @@ export class ListeEtats {
         // B. ACCESSIBLE
       } else if (etatID === this.accessibleID) {
         return this.estAccessible((element as Objet), eju);
-        // C. DIVERS
+        // C. VIDE
+      } else if (etatID === this.videID) {
+        return this.estVide(element, eju);
+        // D. DIVERS
       } else {
         retVal = element.etats.includes(etatID);
       }
@@ -429,6 +434,14 @@ export class ListeEtats {
           // objet
         } else {
           return this.estAccessible((element as Objet), eju);
+        }
+      } else if (nomEtat.match(/^vide(s)?$/)) {
+        // lieu
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return eju.estLieuAccessible(element as Lieu);
+          // objet
+        } else {
+          return this.estVide((element as Objet), eju);
         }
       } else if (nomEtat.match(/^obstrué(e)?(s)?$/)) {
         // lieu
@@ -588,6 +601,17 @@ export class ListeEtats {
       return true;
     }
 
+  }
+
+  estVide(element: ElementJeu, eju: ElementsJeuUtils) {
+    if (ClasseUtils.heriteDe(element.classe, EClasseRacine.support) || ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+      return eju.obtenirContenu(element, PrepositionSpatiale.sur).length == 0;
+    } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant)) {
+      return eju.obtenirContenu(element, PrepositionSpatiale.dans).length == 0;
+    } else {
+      console.error("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", element);
+      return false;
+    }
   }
 
   /**

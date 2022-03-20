@@ -621,10 +621,6 @@ export class ActionsUtils {
     if (!candidats.verbeConnu) {
       candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false);
     }
-
-    console.log("chercherCandidatsCommandeSansControle @@@@@ candidats:", candidats);
-
-
     return candidats;
   }
 
@@ -715,10 +711,6 @@ export class ActionsUtils {
         });
       }
     }
-
-    console.warn("trouverActionPersonnalisee:", resultat);
-
-
     return resultat;
   }
 
