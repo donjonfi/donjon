@@ -110,7 +110,7 @@ export class InstructionExecuter {
     if (!personne) {
       console.error("suiteExecuterReaction: la personne est null");
     }
-    
+
     if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.personne)) {
       if (!ClasseUtils.heriteDe(personne.classe, EClasseRacine.objet)) {
         console.error("suiteExecuterReaction: la personne qui doit réagir n’est ni une personne, ni un objet:", personne);
@@ -170,8 +170,13 @@ export class InstructionExecuter {
       const actionCeci = InstructionsUtils.trouverCibleSpeciale(insCeci, contexteTour, evenement, this.eju, this.jeu);
       const actionCela = InstructionsUtils.trouverCibleSpeciale(insCela, contexteTour, evenement, this.eju, this.jeu);
 
+      // chercher les candidats en tenant compte des accents
+      let resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, true);
 
-      const resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false);
+      // si verbe pas trouvé, chercher candidat en ne tenant pas compte des accents
+      if (!resChercherCandidats.verbeConnu) {
+        resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, false);
+      }
 
       // action pas trouvée
       if (!resChercherCandidats.verbeConnu) {

@@ -66,7 +66,7 @@ export class AnalyseurSynonymes {
               // parcourir les actions trouvées
               actionsTrouvees.forEach(action => {
                 // ajouter le synonyme à l’action
-                action.synonymes.push(synonyme);
+                action.ajouterSynonyme(synonyme);
               });
               resultatTrouve = ResultatAnalysePhrase.synonyme;
 

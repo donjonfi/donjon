@@ -24,6 +24,7 @@ import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { ProprieteElement } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
+import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 
@@ -1179,12 +1180,9 @@ export class InstructionDire {
   }
 
   /** Afficher la fiche d’aide. */
-  private recupererFicheAide(intitule: Intitule) {
+  private recupererFicheAide(intitule: Intitule): string {
 
-    // A. Chercher l’action correspondante
-
-
-    // A) Chercher si une fiche d’aide exacte existe
+    // A) Chercher si une fiche d’aide exacte existe (avec accents)
     let ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
 
     // B) Chercher l’inifitif original de l’action
@@ -1201,11 +1199,41 @@ export class InstructionDire {
           break;
         }
       }
+      if (actionOriginaleTrouvee) {
+        ficheAide = this.jeu.aides.find(x => x.infinitif == actionOriginaleTrouvee.infinitif);
+      }
+    }
 
-      console.log("synonymeTrouve:", actionOriginaleTrouvee);
-      console.log("this.jeu.aides:", this.jeu.aides);
-      
+    // renvoyer l’aide trouvée
+    if (ficheAide) {
+      return ficheAide.informations;
+    } else {
+      return this.recupererFicheAideSansTenirCompteDesAccents(intitule);
+    }
 
+  }
+
+  private recupererFicheAideSansTenirCompteDesAccents(intitule: Intitule): string {
+
+    const nomNormalise = StringUtils.normaliserMot(intitule.nom)
+
+    // A) Chercher si une fiche d’aide exacte existe (avec accents)
+    let ficheAide = this.jeu.aides.find(x => StringUtils.normaliserMot(x.infinitif) === nomNormalise);
+  
+    // B) Chercher l’inifitif original de l’action
+    if (!ficheAide) {
+      let actionOriginaleTrouvee: Action | undefined;
+      for (const action of this.jeu.actions) {
+        for (const synonymeSansAccent of action.synonymesSansAccent) {
+          if (synonymeSansAccent == nomNormalise) {
+            actionOriginaleTrouvee = action;
+            break;
+          }
+        }
+        if (actionOriginaleTrouvee) {
+          break;
+        }
+      }
       if (actionOriginaleTrouvee) {
         ficheAide = this.jeu.aides.find(x => x.infinitif == actionOriginaleTrouvee.infinitif);
       }

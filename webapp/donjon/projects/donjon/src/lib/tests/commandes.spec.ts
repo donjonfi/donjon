@@ -1,4 +1,4 @@
-import { Compilateur, Generateur } from "../../public-api";
+import { ActionsUtils, Compilateur, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
@@ -6,6 +6,7 @@ describe('Décomposer des commandes', () => {
 
   interface ThisContext {
     ctxPartie: ContextePartie;
+    actionsUtils: ActionsUtils;
   }
 
   beforeEach(function (this: ThisContext) {
@@ -17,6 +18,9 @@ describe('Décomposer des commandes', () => {
       'utiliser ceci sur cela est une action qui concerne deux objets visibles. ' +
       'ouvrir ceci est une action qui concerne un objet visible. ' +
       'ouvrir ceci avec cela est une action qui concerne deux objets visibles. ' +
+      'tâcher est une action. ' +
+      'tacher est une action. ' +
+      'pêcher est une action. ' +
       'Le bateau est un lieu. ' +
       'Le capitaine est une personne ici. ' +
       'La clé est un objet ici. ' +
@@ -36,6 +40,7 @@ describe('Décomposer des commandes', () => {
     const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     this.ctxPartie = new ContextePartie(jeu);
+    this.actionsUtils = new ActionsUtils(jeu, false);
   });
 
   it('commande « chanter »', function (this: ThisContext) {
@@ -544,6 +549,43 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
     expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('la table basse');
 
+  });
+
+  it('commande « tacher »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('tacher');
+    expect(ctxCom.candidats.length).toEqual(1);
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('tacher');
+  });
+
+  it('commande « tâcher »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('tâcher');
+    expect(ctxCom.candidats.length).toEqual(1);
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('tâcher');
+  });
+
+  it('commande « pêcher »', function (this: ThisContext) {
+    const ctxCom = this.ctxPartie.com.decomposerCommande('pêcher');
+    expect(ctxCom.candidats.length).toEqual(1);
+    // infinitif
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('pêcher');
+  });
+
+  it('commande « pecher »', function (this: ThisContext) {
+    // décomposition
+    const ctxCom = this.ctxPartie.com.decomposerCommande('pecher');
+    expect(ctxCom.candidats).toHaveSize(1);
+    expect(ctxCom.candidats[0].els.infinitif).toEqual('pecher');
+    // action trouvée
+    const candidatsAction = this.actionsUtils.trouverActionPersonnalisee(ctxCom.candidats[0].els, undefined, undefined);
+
+    console.error("candidatsAction >>>>>>>", candidatsAction);
+    
+
+    expect(candidatsAction).toHaveSize(1);
+    expect(candidatsAction[0].action.infinitif).toEqual('pêcher');
+    expect(candidatsAction[0].action.infinitifSansAccent).toEqual('pecher');
   });
 
 });

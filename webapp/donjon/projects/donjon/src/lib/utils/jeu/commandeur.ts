@@ -103,7 +103,7 @@ export class Commandeur {
     return ctxCmd.sortie;
   }
 
-  private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande) {
+  private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande): void {
 
     let actionsCeciCela = this.act.trouverActionPersonnalisee(candidatCommande.els, candidatCommande.correspondCeci, candidatCommande.correspondCela);
 
