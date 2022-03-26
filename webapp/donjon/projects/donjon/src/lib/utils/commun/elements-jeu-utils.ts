@@ -7,6 +7,7 @@ import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { Correspondance } from '../jeu/correspondance';
 import { ElementJeu } from '../../models/jeu/element-jeu';
+import { ExprReg } from '../compilation/expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Intitule } from '../../models/jeu/intitule';
@@ -54,7 +55,7 @@ export class ElementsJeuUtils {
 
       // indénombrable
       if (this.jeu.etats.possedeEtatElement(ceci, EEtatsBase.indenombrable, this)) {
-        if (nom.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+        if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
           determinant = "de l’";
         } else {
           if (ceci.genre === Genre.f) {
@@ -95,7 +96,7 @@ export class ElementsJeuUtils {
                 // si l’élément a déjà été déplacer ou modifié
               } else {
                 // commence par une voyelle
-                if (nom.match(/^(a|e|é|è|ê|i|o|u|y)(.+)/)) {
+                if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
                   determinant = "l’";
                   // commence par une consonne
                 } else {
@@ -163,7 +164,7 @@ export class ElementsJeuUtils {
         switch (el.genre) {
           // féminin
           case Genre.f:
-            if (el.intitule.nom.match(/^{aeiouy}.*/)) {
+            if (ExprReg.xCommenceParUneVoyelle.test(el.intitule.nom)) {
               return "de l’"
             } else {
               return "de la "
@@ -171,7 +172,7 @@ export class ElementsJeuUtils {
 
           // masculin
           case Genre.m:
-            if (el.intitule.nom.match(/^{aeiouy}.*/)) {
+            if (ExprReg.xCommenceParUneVoyelle.test(el.intitule.nom)) {
               return "de l’"
             } else {
               return "du "

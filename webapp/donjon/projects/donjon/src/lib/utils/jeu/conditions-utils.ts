@@ -301,10 +301,15 @@ export class ConditionsUtils {
           case 'inclut':
           case 'incluent':
             // remarque: négation appliquée plus loin.
-            if (condition.sujetComplement && condition.sujetComplement.nom === 'objet' && (condition.sujetComplement.determinant?.trim() === 'un' || condition.sujetComplement.determinant === "d'" || condition.sujetComplement.determinant === 'd’')) {
+            if (condition.sujetComplement &&
+              condition.sujetComplement.determinant?.match(/un |des |d'|d’/i) &&
+              condition.sujetComplement.nom.match(/objet(s)?/i)
+            ) {
               retVal = this.eju.verifierContientObjet(sujet as ElementJeu);
+            } else if (condition.sujetComplement && condition.sujetComplement.nom === 'aucun' && condition.sujetComplement.epithete?.match(/objet(s)?/i)) {
+              retVal = !this.eju.verifierContientObjet(sujet as ElementJeu);
             } else {
-              console.error("siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ", condition.complement);
+              console.error("siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ", condition.complement, condition.sujetComplement);
             }
             break;
 

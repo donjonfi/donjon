@@ -13,6 +13,7 @@ import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
+import { ExprReg } from "../compilation/expr-reg";
 import { Genre } from "../../models/commun/genre.enum";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
@@ -1110,7 +1111,7 @@ export class InstructionDire {
     // tenir compte du se/s’
     if (verbePronominal) {
       let se: string = null;
-      if (/^(a|e|é|è|ê|i|o|u|y)(.+)/.test(verbeConjugue)) {
+      if (ExprReg.xCommenceParUneVoyelle.test(verbeConjugue)) {
         se = "s’";
       } else {
         se = "se ";
@@ -1133,7 +1134,7 @@ export class InstructionDire {
       // ajouter la négation (sans se)
       if (negation) {
         let ne: string = null;
-        if (verbeConjugue.match(/^(a|e|é|è|ê|i|o|u|y)(.*)/)) {
+        if (ExprReg.xCommenceParUneVoyelle.test(verbeConjugue)) {
           ne = "n’";
         } else {
           ne = "ne ";

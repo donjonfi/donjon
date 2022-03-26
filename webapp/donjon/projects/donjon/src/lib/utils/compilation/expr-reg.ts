@@ -96,6 +96,11 @@ export class ExprReg {
   **/
   static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
+  /**
+   * Est-ce que le texte commence par une voyelle ?
+   */
+  static readonly xCommenceParUneVoyelle = /^[aàâeéêèiïîôouùy]/i
+
   static readonly xPrepositions = /(?: (?:(?:(?:à propos (?:du|des|de))|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers) )|(?:à propos (?:d’|d'))|d’|d'|à )/ig;
 
   /** 
