@@ -1,8 +1,15 @@
 <h4>{{objetVisible.objet.intitule}}</h4>
-<p>
-  <b>Type :</b> {{hierachieClasse}}
-  <br><b>États :</b> {{listeEtats}}
-  <br><b>Genre :</b> {{objetVisible.objet.genre}}
-  <br><b>Nombre :</b> {{objetVisible.objet.nombre}}
-  <br><b>Quantité :</b> {{objetVisible.objet.quantite}}
-</p>
+<ul>
+  <li><b>Nom :</b> {{objetVisible.objet.nom}}</li>
+  <li>
+    <b>Intitulé : </b>
+    <span *ngIf="objetVisible.objet.intitule.determinant">({{objetVisible.objet.intitule.determinant}})</span>
+    {{objetVisible.objet.intitule.nom}}
+    <span *ngIf="objetVisible.objet.intitule.epithete"><i>{{objetVisible.objet.intitule.epithete}}</i></span>
+  </li>
+  <li><b>Type :</b> {{hierachieClasse}}</li>
+  <li><b>États :</b> {{listeEtats}}</li>
+  <li><b>Genre :</b> {{objetVisible.objet.genre}}</li>
+  <li><b>Nombre :</b> {{objetVisible.objet.nombre}}</li>
+  <li><b>Quantité :</b> {{objetVisible.objet.quantite}}</li>
+</ul>

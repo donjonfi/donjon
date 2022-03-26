@@ -322,11 +322,17 @@ export class Generateur {
           // spécial: intitulé
           if (pro.nom == 'intitulé') {
             // TODO: gérer groupe nominal ?
-            newObjet.intitule = new GroupeNominal(null, pro.valeur);
-            if (newObjet.nombre == Nombre.p) {
-              newObjet.intituleP = newObjet.intitule;
+            // newObjet.intitule = new GroupeNominal(null, pro.valeur);
+            const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(pro.valeur, false);
+            if (intituleDecompose) {
+              newObjet.intitule = intituleDecompose;
+              if (newObjet.nombre == Nombre.p) {
+                newObjet.intituleP = newObjet.intitule;
+              } else {
+                newObjet.intituleS = newObjet.intitule;
+              }
             } else {
-              newObjet.intituleS = newObjet.intitule;
+              ctx.ajouterErreur("L’intitulé « " + pro.valeur + " » n’est pas supporté (" + pro.nom +" => " + newObjet.nom + ")");
             }
             // autres propriétés
           } else {
