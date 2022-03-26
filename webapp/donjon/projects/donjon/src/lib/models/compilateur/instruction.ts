@@ -14,4 +14,7 @@ export class Instruction {
   /** Nombre de fois que cette instruction a déjà été exécutée. */
   public nbExecutions = 0;
 
+  /** L'instruction est-elle un "choisir librement" ? */
+  public choixLibre = false;
+
 }

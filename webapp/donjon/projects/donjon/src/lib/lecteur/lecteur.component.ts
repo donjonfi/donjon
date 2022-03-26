@@ -8,6 +8,7 @@ import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
 import { DOCUMENT } from '@angular/common';
 import { Choix } from '../models/compilateur/choix';
+import { StringUtils } from '../../public-api';
 
 @Component({
   selector: 'djn-lecteur',
@@ -293,6 +294,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.interruptionEnCours) {
       switch (this.interruptionEnCours.typeInterruption) {
+        case TypeInterruption.attendreChoixLibre:
+          this.commande = "";
+          // si mode triche, proposer le choix de la solution (commande suivante)
+          if (this.tricheActif) {
+            this.indexTriche += 1;
+            if (this.indexTriche < this.autoCommandes.length) {
+              this.commande = this.autoCommandes[this.indexTriche];
+            }
+          }
+          // focus sur l'entrée de commande
+          this.focusCommande();
+          break;
         case TypeInterruption.attendreChoix:
           if (this.interruptionEnCours.choix?.length) {
             const identifiantsChoix = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -314,7 +327,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
                   this.commande = this.autoCommandes[this.indexTriche];
                 }
               }
-
+              // focus sur l'entrée de commande
               this.focusCommande();
             }
           } else {
@@ -361,13 +374,48 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private traiterChoixJoueur() {
+  private traiterChoixStatiqueJoueur() {
     this.commande = this.commande?.trim();
     this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
 
-    const indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
+    // choix classique
+    let indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
+
     if (indexChoix != -1) {
 
+      // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
+      // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+      this.historiqueCommandesPartie.push(this.commande);
+
+      // effacer la commande
+      this.commande = '';
+      const choix = this.interruptionEnCours.choix[indexChoix];
+      if (!choix) {
+        this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
+      } else {
+        // terminer l’interruption
+        this.terminerInterruption(choix);
+      }
+    } else {
+      this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
+    }
+    this.scrollSortie();
+  }
+
+  private traiterChoixLibreJoueur() {
+    this.commande = this.commande?.trim();
+    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+
+    const choixNettoye = StringUtils.normaliserReponse(this.commande.toLocaleLowerCase());
+
+    // choix classique
+    let indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == choixNettoye);
+    // essayer "autre choix"
+    if (indexChoix == -1) {
+      indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == "autre choix");
+    }
+
+    if (indexChoix != -1) {
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
       this.historiqueCommandesPartie.push(this.commande);
@@ -641,7 +689,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    */
   onKeyDownEnter(event: Event) {
     if (this.interruptionAttendreChoixEnCours) {
-      this.traiterChoixJoueur();
+      this.traiterChoixStatiqueJoueur();
+    } else if (this.interruptionAttendreChoixLibreEnCours) {
+      this.traiterChoixLibreJoueur()
     } else if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
       this.curseurHistorique = -1;
       if (this.commande && this.commande.trim() !== "") {
@@ -771,6 +821,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   get placeHolder(): string {
     if (this.interruptionAttendreChoixEnCours) {
       return 'Veuillez faire un choix';
+    } else if (this.interruptionAttendreChoixLibreEnCours) {
+      return 'Veuillez répondre';
     } else if (this.interruptionAttendreToucheEnCours || this.resteDeLaSortie?.length) {
       return 'Appuyez sur une touche…';
     } else if (this.interruptionAttendreSecondesEnCours) {
@@ -793,6 +845,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** une interruption de type attendre choix est en cours */
   get interruptionAttendreChoixEnCours(): boolean {
     return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreChoix;
+  }
+
+  /** une interruption de type attendre choix libre est en cours */
+  get interruptionAttendreChoixLibreEnCours(): boolean {
+    return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreChoixLibre;
   }
 
   /** une interruption de type attendre touche est en cours */

@@ -642,6 +642,11 @@ export class ExprReg {
   static readonly xChoixTexteNombreOuIntitule = /^choix (?:("(?:[^"]+?)")|(0|(?:[1-9]\d*))|([^\d"][^"]*?))\s*:\s*(.+)$/i;
 
   /**
+   * (autre[s] choix)(1): instructions(2)
+   */
+  static readonly xAutreChoix = /^(autre(?:s)? choix)\s*:\s*(.+)$/i;
+
+  /**
    * choix (texte ou intitulé)(1) : (instructions)(2)
    */
   static readonly xSeparerChoixInstructions = /^choix (.+?)(?: )?(?::)(?: )?(.+)$/i;
@@ -692,7 +697,7 @@ export class ExprReg {
    *     - 💥 la pomme est verte
    *     - 💥 choisir parmis la liste
    */
-  static readonly xInstruction = /^(?!choisir)(\S+(?:ir|er|re)) (.+)?$/i;
+  static readonly xInstruction = /^(?!choisir|autre)(\S+(?:ir|er|re)) (.+)?$/i;
 
   /**
    * Phrase simple avec un verbe conjugé.

@@ -57,7 +57,7 @@ export class StringUtils {
   static nomDeDossierSecurise(nom: string): string {
     var NonAphaNumTiret = /[^a-z0-9\-\_]/gi;
     let nomDossier: string = undefined;
-    
+
     const nomNettoye = nom.replace(NonAphaNumTiret, "");
     if (nomNettoye != "") {
       nomDossier = nomNettoye;
@@ -85,6 +85,32 @@ export class StringUtils {
         .replace(/ç/g, 'c')
         // retirer déterminant qui débute la chaîne
         .replace(/^(un |une |des |le |la |l'|l’|les )/, '');
+    }
+    return retVal;
+  }
+
+  /** 
+   * - Retirer caractères spéciaux
+   * - mettre le mot en minuscules
+   * - enlever espace avant/après
+   */
+  static normaliserReponse(reponse: string) {
+    let retVal = "";
+    if (reponse) {
+      retVal = reponse
+        // minuscules
+        .toLocaleLowerCase()
+        // transformer caractères spéciaux
+        .replace(/œ/g, 'oe')
+        .replace(/æ/g, 'ae')
+        .replace(/(é|è|ê|ë)/g, 'e')
+        .replace(/ï/g, 'i')
+        .replace(/(à|ä)/g, 'a')
+        .replace(/ç/g, 'c')
+        // enlever les espaces en début et fin
+        .trim()
+        // enlever les guillemets en début et fin
+        .replace(/(^\s*")|(\s*"$)/g, '')
     }
     return retVal;
   }

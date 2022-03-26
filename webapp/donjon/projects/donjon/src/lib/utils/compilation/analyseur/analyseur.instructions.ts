@@ -1,14 +1,13 @@
-import { BlocOuvert, ETypeBloc } from "../../../models/compilateur/bloc-ouvert";
-
 import { AnalyseurCondition } from "./analyseur.condition";
-import { AnalyseurUtils } from "./analyseur.utils";
 import { Choix } from "../../../models/compilateur/choix";
 import { ClassesRacines } from "../../../models/commun/classes-racines";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ContexteSeparerInstructions } from "../../../models/compilateur/contexte-separer-instructions";
+import { ETypeBloc } from "../../../models/compilateur/bloc-ouvert";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ElementsPhrase } from "../../../models/commun/elements-phrase";
 import { ExprReg } from "../expr-reg";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { Intitule } from "../../../models/jeu/intitule";
 import { PhraseUtils } from "../../commun/phrase-utils";
@@ -82,23 +81,29 @@ export class AnalyseurInstructions {
               // *****************************************************************************
             } else {
               // CAS C.1 >> DÉBUT BLOC CHOISIR
-              let resultChoisirIns = ExprReg.xSeparerChoisirInstructions.exec(conBruNettoyee);
+              const resultChoisirIns = ExprReg.xSeparerChoisirInstructions.exec(conBruNettoyee);
               if (resultChoisirIns) {
                 this.traiterInstructionChoisir(resultChoisirIns, ctx);
               } else {
                 // CAS C.2 >> BLOC CHOIX
-                let resultChoixIns = ExprReg.xChoixTexteNombreOuIntitule.exec(conBruNettoyee);
+                const resultChoixIns = ExprReg.xChoixTexteNombreOuIntitule.exec(conBruNettoyee);
                 if (resultChoixIns) {
                   this.traiterInstructionChoix(resultChoixIns, ctx);
-                  // CAS C.3 >> FIN BLOC CHOISIR
-                } else if (conBruNettoyee.trim().toLowerCase().match(/^(fin choix|finchoix|fin choisir|finchoisir)$/i)) {
-                  this.traiterInstructionFinChoisir(ctx);
-
-                  // *****************************************************************************
-                  //  CAS D > RIEN TROUVÉ
-                  // *****************************************************************************
+                  // CAS C.3 >> BLOC AUTRE CHOIX
                 } else {
-                  AnalyseurInstructions.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), ctx);
+                  const resultAutreChoixIns = ExprReg.xAutreChoix.exec(conBruNettoyee);
+                  if (resultAutreChoixIns) {
+                    this.traiterInstructionAutreChoix(resultAutreChoixIns, ctx);
+                    // CAS C.4 >> FIN BLOC CHOISIR
+                  } else if (conBruNettoyee.trim().toLowerCase().match(/^(fin choix|finchoix|fin choisir|finchoisir)$/i)) {
+                    this.traiterInstructionFinChoisir(ctx);
+
+                    // *****************************************************************************
+                    //  CAS D > RIEN TROUVÉ
+                    // *****************************************************************************
+                  } else {
+                    AnalyseurInstructions.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), ctx);
+                  }
                 }
               }
             }
@@ -360,44 +365,55 @@ export class AnalyseurInstructions {
     //            .......
     //          choix "non":
     //            ....
-    //        fin choix
+    //        fin choisir
     if (premierChoixOuParmis.match(ExprReg.xChoixTexteNombreOuIntitule)) {
       // console.warn("a. CHOISIR DIRECTEMENT PARMIS LES CHOIX");
 
       // => on remet le reste de l’instruction dans la liste des instructions pour l’interpréter à la prochaine itération.
       ctx.listeInstructions.splice(ctx.indexCurInstruction + 1, 0, premierChoixOuParmis);
 
-      // b. CHOISIR PARMIS UNE LISTE DYNAMIQUE
-      //    ex: choisir parmis les couleurs disponibles
-      //          choix rose:
-      //            .......
-      //          choix jaune:
-      //            ....
-      //        fin choix
     } else {
-      console.warn("b. CHOISIR PARMIS UNE LISTE DYNAMIQUE");
+      // b. CHOISIR LIBREMENT
+      //    ex: choisir librement[:]
+      //          choix "mlkjmlkj":
+      //            ....
+      //          autre choix:
+      //            ...
+      //         fin choisir
+      const resLibrement = /^(librement(?:\s*:)?(?:\s+))choix/i.exec(premierChoixOuParmis);
+      if (resLibrement) {
+        instructionChoisir.choixLibre = true;
+        // => on remet le reste de l’instruction dans la liste des instructions pour l’interpréter à la prochaine itération.
+        ctx.listeInstructions.splice(ctx.indexCurInstruction + 1, 0, premierChoixOuParmis.slice(resLibrement[1].length).trim());
 
-      // => retrouver la liste dynamique (ex: les couleurs disponibles)
-      // TODO: gestion des listes de choix dynamiques
+        // c. CHOISIR PARMIS UNE LISTE DYNAMIQUE
+        //    ex: choisir parmis les couleurs disponibles
+        //          choix rose:
+        //            .......
+        //          choix jaune:
+        //            ....
+        //        fin choisir
+      } else {
+        console.warn("c. CHOISIR PARMIS UNE LISTE DYNAMIQUE");
+
+        // => retrouver la liste dynamique (ex: les couleurs disponibles)
+        // TODO: gestion des listes de choix dynamiques
+      }
     }
+  }
 
+  /** Traiter un choix spécial (d’une instruction choisir) */
+  private static traiterInstructionAutreChoix(resultChoixIns: RegExpExecArray, ctx: ContexteSeparerInstructions) {
+    // valeur du choix: autre choix
+    let valeurChoix: Valeur = new Intitule("autre choix", new GroupeNominal(null, "autre choix", null), ClassesRacines.Intitule);
+    // première instruction pour ce choix
+    const premiereInstructionChoix = resultChoixIns[2];
+    // console.log("premiereInstructionChoix:", premiereInstructionChoix);
+    this.suiteTraiterInstructionChoix(valeurChoix, premiereInstructionChoix, ctx);
   }
 
   /** Traiter un choix (d’une instruction choisir) */
   private static traiterInstructionChoix(resultChoixIns: RegExpExecArray, ctx: ContexteSeparerInstructions) {
-
-    // s’il ne s’agit PAS du premier choix du bloc choisir
-    if (ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].length != 0) {
-      // fermer le choix précédent
-      const blocFerme = ctx.blocsOuverts.pop();
-      if (blocFerme != ETypeBloc.choix) {
-        console.error("SeparerInstructions: Fermeture choix précédent: le bloc ouvert n’est pas un choix.");
-      }
-      // retirer le choix précédent de la liste des choix ouverts
-      ctx.instructionsBlocsChoixEnCours.pop();
-      ctx.indexBlocChoixCommence -= 1;
-    }
-
     let valeurChoix: Valeur;
     // texte
     if (resultChoixIns[1] !== undefined) {
@@ -417,6 +433,22 @@ export class AnalyseurInstructions {
 
     // console.log("premiereInstructionChoix:", premiereInstructionChoix);
 
+    this.suiteTraiterInstructionChoix(valeurChoix, premiereInstructionChoix, ctx);
+
+  }
+
+  private static suiteTraiterInstructionChoix(valeurChoix: Valeur, premiereInstructionChoix: string, ctx: ContexteSeparerInstructions) {
+    // s’il ne s’agit PAS du premier choix du bloc choisir
+    if (ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].length != 0) {
+      // fermer le choix précédent
+      const blocFerme = ctx.blocsOuverts.pop();
+      if (blocFerme != ETypeBloc.choix) {
+        console.error("SeparerInstructions: Fermeture choix précédent: le bloc ouvert n’est pas un choix.");
+      }
+      // retirer le choix précédent de la liste des choix ouverts
+      ctx.instructionsBlocsChoixEnCours.pop();
+      ctx.indexBlocChoixCommence -= 1;
+    }
 
     // => on l’ajoute à la liste des instructions pour l’interpréter à la prochaine itération.
     ctx.listeInstructions.splice(ctx.indexCurInstruction + 1, 0, premiereInstructionChoix);
@@ -425,16 +457,12 @@ export class AnalyseurInstructions {
     let nouvelleListeInstructionsChoix = new Array<Instruction>();
     ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].push(new Choix(valeurChoix, nouvelleListeInstructionsChoix));
 
-    // console.log("valeurChoix=", valeurChoix);
-
-
     // ajout d’une liste d’instructions pour ce nouveau choix
     ctx.instructionsBlocsChoixEnCours.push(nouvelleListeInstructionsChoix);
     ctx.indexBlocChoixCommence += 1;
 
     // on a ouvert un nouveau bloc choix
     ctx.blocsOuverts.push(ETypeBloc.choix);
-
   }
 
   /** Traiter une instruction « fin choisir » */

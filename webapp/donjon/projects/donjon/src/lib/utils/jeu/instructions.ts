@@ -125,7 +125,7 @@ export class Instructions {
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
-        resultat.typeInterruption = TypeInterruption.attendreChoix;
+        resultat.typeInterruption = instruction.choixLibre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
         resultat.choix = instruction.choix;
       } else {
         this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")

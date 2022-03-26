@@ -8,9 +8,11 @@ export class Interruption {
   public tour: ContexteTour | undefined;
   /** Commande à exécuter une fois que le choix a été fait */
   public commande: ContexteCommande | undefined;
-  
+
   /** les choix possibles pour l’utilisateur (interruption choix) */
   public choix: Choix[] | undefined;
+  /** le type de choix (libre, statique, dynamique) */
+  // public typeChoix: TypeChoixInterruption = TypeChoixInterruption.aucun;
   /** le message à afficher à l’utilisateur (interruption attendre) */
   public messageAttendre: string | undefined;
   /** le nombre de secondes à attendre (interruption attendre) */
@@ -39,4 +41,17 @@ export enum TypeInterruption {
   attendreTouche = 't',
   /** Attendre un choix */
   attendreChoix = 'c',
+  /** Attendre un choix libre */
+  attendreChoixLibre = 'l',
 }
+
+// export enum TypeChoixInterruption {
+//   /** Aucun choix */
+//   aucun = 'a',
+//   /** Choix libre */
+//   libre = 'l',
+//   /** Choix statiques */
+//   statique = 's',
+//   /** Choix dynamiques */
+//   dynamique = 'd',
+// }
