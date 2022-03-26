@@ -572,6 +572,7 @@ SCÈNE "fermer".
 
   refuser fermer ceci:
     si ceci est le joueur, dire "Pardon ?";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci n'est pas ouvrable, dire "[Pronom ceci] [v se fermer ipr pas ceci].";
     si ceci est verrouillé, dire "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
     
@@ -891,6 +892,7 @@ SCÈNE "ouvrir".
 
   refuser ouvrir ceci:
     si ceci est le joueur, dire "Pardon ?";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci n'est pas ouvrable, dire "[Pronom ceci] [v s’ouvrir ipr pas ceci].";
     si ceci est verrouillé, dire "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
     
