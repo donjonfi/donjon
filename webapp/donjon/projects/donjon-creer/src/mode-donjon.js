@@ -79,7 +79,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         {
           token: "constant.language",
           regex: "(au (sud|nord)(?:-(?:est|ouest))?)|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous |"
-            + "(\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|origine|destination|orientation|(la )?règle|(l’)?action|(la )?commande)\\b)|"
+            + "(\\b(ceci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|réponse|origine|destination|orientation|(la )?règle|(l’)?action|(la )?commande)\\b)|"
             + "(éteint(e)?(s)?(?!\\w))|"
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
 

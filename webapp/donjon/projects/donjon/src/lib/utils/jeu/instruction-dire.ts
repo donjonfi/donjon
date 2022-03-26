@@ -341,10 +341,10 @@ export class InstructionDire {
       }
 
       // ======================================================================================================
-      // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci?|cela?|ici|origine|destination|orientation|quantitéCeci|quantitéCela
+      // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci?|cela?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela
       // ======================================================================================================
 
-      const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|quantitéCeci|quantitéCela)";
+      const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
       const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
       const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
 

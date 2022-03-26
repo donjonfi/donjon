@@ -393,6 +393,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (!choix) {
         this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
+        // sauvegarder la réponse dans le contexte du tour
+        this.interruptionEnCours.tour.reponse = choix.valeur.toString();
         // terminer l’interruption
         this.terminerInterruption(choix);
       }
@@ -406,13 +408,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.commande = this.commande?.trim();
     this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
 
-    const choixNettoye = StringUtils.normaliserReponse(this.commande.toLocaleLowerCase());
+    const choixPasNettoye = this.commande.trim();
+    const choixNettoye = StringUtils.normaliserReponse(this.commande);
+
+    let estAutreChoix = false;
 
     // choix classique
     let indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == choixNettoye);
     // essayer "autre choix"
     if (indexChoix == -1) {
       indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == "autre choix");
+      estAutreChoix = true;
     }
 
     if (indexChoix != -1) {
@@ -426,6 +432,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (!choix) {
         this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
+        // sauvegarder la réponse dans le contexte du tour
+        if (estAutreChoix) {
+          this.interruptionEnCours.tour.reponse = choixPasNettoye;
+        } else {
+          this.interruptionEnCours.tour.reponse = choix.valeur;
+        }
         // terminer l’interruption
         this.terminerInterruption(choix);
       }

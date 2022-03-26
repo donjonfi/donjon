@@ -2,6 +2,7 @@ import { ProprieteJeu, TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 
 import { Capacite } from "../../models/commun/capacite";
 import { ClasseUtils } from "../commun/classe-utils";
+import { ClassesRacines } from "../../models/commun/classes-racines";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
@@ -9,11 +10,13 @@ import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
+import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Liste } from "../../models/jeu/liste";
 import { Localisation } from "../../models/jeu/localisation";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
+import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { ProprieteElement } from "../../models/commun/propriete-element";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
@@ -21,8 +24,8 @@ import { TypeValeur } from "../../models/compilateur/type-valeur";
 export class InstructionsUtils {
 
   /** Retrouver la cible spéciale sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
-  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu | Localisation | null {
-    let cible: ElementJeu | Localisation | null = null;
+  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu | Intitule | Localisation | null {
+    let cible: ElementJeu | Intitule | Localisation | null = null;
     if (cibleString) {
       // retrouver la cible
       switch (cibleString.toLowerCase()) {
@@ -44,52 +47,58 @@ export class InstructionsUtils {
           break;
         case 'quantitéceci':
           cible = InstructionsUtils.copierElementTemp(contexteTour.ceci as Objet);
-          // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
-          if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
-            cible.quantite = 1;
-            // sinon on prend la quantité demandée
-          } else {
-            cible.quantite = evenement.quantiteCeci;
-          }
-          // nombre
-          //     => multiple
-          if (cible.quantite > 1) {
-            cible.nombre = Nombre.p;
-            // => identique à l’original (sauf si original est illimité)
-          } else if (cible.quantite == -1) {
-            if ((contexteTour.ceci as Objet).quantite == -1) {
-              cible.nombre = Nombre.s; // TODO: indénombrables
+          if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
+            const cibleEle = cible as ElementJeu;
+            // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
+            if (cibleEle.quantite === -1 && evenement.quantiteCeci === -1) {
+              cibleEle.quantite = 1;
+              // sinon on prend la quantité demandée
             } else {
-              cible.nombre = (contexteTour.ceci as Objet).nombre;
+              cibleEle.quantite = evenement.quantiteCeci;
             }
-            // => 0 ou 1
-          } else {
-            cible.nombre = Nombre.s;
+            // nombre
+            //     => multiple
+            if (cibleEle.quantite > 1) {
+              cibleEle.nombre = Nombre.p;
+              // => identique à l’original (sauf si original est illimité)
+            } else if (cibleEle.quantite == -1) {
+              if ((contexteTour.ceci as Objet).quantite == -1) {
+                cibleEle.nombre = Nombre.s; // TODO: indénombrables
+              } else {
+                cibleEle.nombre = (contexteTour.ceci as Objet).nombre;
+              }
+              // => 0 ou 1
+            } else {
+              cibleEle.nombre = Nombre.s;
+            }
           }
           break;
         case 'quantitécela':
           cible = InstructionsUtils.copierElementTemp(contexteTour.cela as Objet);
-          // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
-          if (cible.quantite === -1 && evenement.quantiteCeci === -1) {
-            cible.quantite = 1;
-            // sinon on prend la quantité demandée
-          } else {
-            cible.quantite = evenement.quantiteCela;
-          }
-          // nombre
-          //     => multiple
-          if (cible.quantite > 1) {
-            cible.nombre = Nombre.p;
-            // => identique à l’original (sauf si original est illimité)
-          } else if (cible.quantite == -1) {
-            if ((contexteTour.cela as Objet).quantite == -1) {
-              cible.nombre = Nombre.s; // TODO: indénombrables
+          if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
+            const cibleEle = cible as ElementJeu;
+            // on ne peut pas prendre un nombre illimité d’objets => on n’en prend qu’un seul.
+            if (cibleEle.quantite === -1 && evenement.quantiteCeci === -1) {
+              cibleEle.quantite = 1;
+              // sinon on prend la quantité demandée
             } else {
-              cible.nombre = (contexteTour.cela as Objet).nombre;
+              cibleEle.quantite = evenement.quantiteCela;
             }
-            // => 0 ou 1
-          } else {
-            cible.nombre = Nombre.s;
+            // nombre
+            //     => multiple
+            if (cibleEle.quantite > 1) {
+              cibleEle.nombre = Nombre.p;
+              // => identique à l’original (sauf si original est illimité)
+            } else if (cibleEle.quantite == -1) {
+              if ((contexteTour.cela as Objet).quantite == -1) {
+                cibleEle.nombre = Nombre.s; // TODO: indénombrables
+              } else {
+                cibleEle.nombre = (contexteTour.cela as Objet).nombre;
+              }
+              // => 0 ou 1
+            } else {
+              cibleEle.nombre = Nombre.s;
+            }
           }
           break;
         case 'inventaire':
@@ -105,7 +114,10 @@ export class InstructionsUtils {
         case 'orientation':
           cible = contexteTour.orientation;
           break;
-
+        case 'réponse':
+        case 'reponse':
+          cible = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
+          break;
       }
     }
     return cible;

@@ -8,6 +8,7 @@ import { Lieu } from "../jeu/lieu";
 import { Localisation } from "../jeu/localisation";
 import { Resultat } from "./resultat";
 import { TypeInterruption } from "../jeu/interruption";
+import { Valeur } from "../jeu/valeur";
 
 export class ContexteTour {
 
@@ -37,6 +38,9 @@ export class ContexteTour {
   public destination: Lieu;
   /** déplacement du joueur pour ce tour : orientation */
   public orientation: Localisation;
+
+  /** réponse du joueur au dernier choisir */
+  public reponse: Valeur;
 
   constructor(
     /** Ceci */

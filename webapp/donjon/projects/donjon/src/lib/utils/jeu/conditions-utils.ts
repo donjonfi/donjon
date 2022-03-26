@@ -192,6 +192,13 @@ export class ConditionsUtils {
           if (!contexteTour.orientation) {
             console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
           }
+          // réponse (au dernier choisir)
+        } else if (condition.sujet.nom === 'réponse' || condition.sujet.nom === 'reponse') {
+          if (!contexteTour.reponse) {
+            this.eju.ajouterConseil("Condition sur « réponse » : il n’y a pas de réponse pour ce tour de jeu.")
+          } else {
+            sujet = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
+          }
           // règle
         } else if (condition.sujet.nom === 'règle') {
           if (!declenchements) {
