@@ -511,7 +511,7 @@ export class ElementsJeuUtils {
         // console.log(" >>>> lieux trouvés:", cor.lieux);
         // console.log(" >>>> intitulé:", cor.intitule);
       }
-
+      
     }
 
     // sélectionner le résultat unique (s’il n’y en a qu’un seul)
@@ -749,6 +749,10 @@ export class ElementsJeuUtils {
         }
       }
     });
+
+    if (sujetNom == 'ici' && !sujetEpithete) {
+      retVal.push(this.curLieu)
+    }
 
     return retVal;
   }
