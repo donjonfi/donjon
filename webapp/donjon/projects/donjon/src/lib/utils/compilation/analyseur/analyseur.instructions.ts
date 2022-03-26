@@ -380,7 +380,7 @@ export class AnalyseurInstructions {
       //          autre choix:
       //            ...
       //         fin choisir
-      const resLibrement = /^(librement(?:\s*:)?(?:\s+))choix/i.exec(premierChoixOuParmis);
+      const resLibrement = /^(librement(?:\s*:)?(?:\s+))(?:autre )?choix/i.exec(premierChoixOuParmis);
       if (resLibrement) {
         instructionChoisir.choixLibre = true;
         // => on remet le reste de l’instruction dans la liste des instructions pour l’interpréter à la prochaine itération.

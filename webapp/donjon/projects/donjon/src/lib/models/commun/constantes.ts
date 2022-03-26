@@ -1,5 +1,5 @@
 
-export const version = "0.315"
+export const version = "0.315b"
 export const versionNum = 315;
 
 export enum EClasseRacine {
