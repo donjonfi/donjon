@@ -48,6 +48,7 @@ export class ListeEtats {
   public eclaireID = -1;
   public obscurID = -1;
   public videID = -1;
+  public indenombrableID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -92,7 +93,8 @@ export class ListeEtats {
     this.equipeID = this.creerEtat(EEtatsBase.equipe, Genre.m, Nombre.s, true).id;
     // this.ajouterImplication(EEtatsBase.porte, EEtatsBase.possede);
     // dénombrable et indénombrable (objet)
-    this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
+    const denInden = this.creerBasculeEtats(EEtatsBase.denombrable, EEtatsBase.indenombrable);
+    this.indenombrableID = denInden[1].id;
     // unique, multiple, illimité
     this.creerBasculeEtats(EEtatsBase.unique, EEtatsBase.multiple);
     this.creerEtat(EEtatsBase.illimite);
@@ -631,8 +633,13 @@ export class ListeEtats {
             // si le contenant est fermé
             if (parent.etats.includes(this.fermeID)) {
               // tester également s’il est opaque
-              if (testerOpaque && parent.etats.includes(this.opaqueID)) {
-                return true; // on s’arrête, il y a un contenant opaque et fermé
+              if (testerOpaque) {
+                if (parent.etats.includes(this.opaqueID)) {
+                  // on s’arrête, il y a un contenant opaque et fermé
+                  return true; 
+                } else {
+                  // on continue, le contenant est fermé mais transparent
+                }
                 // se contenter de fermé
               } else {
                 return true; // on s’arrête, il y a un contenant fermé

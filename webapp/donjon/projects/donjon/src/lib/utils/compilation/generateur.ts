@@ -262,11 +262,6 @@ export class Generateur {
         newObjet.reactions = curEle.reactions;
         newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
 
-        // ajouter description éventuelle de l’objet
-        if (curEle.description) {
-          newObjet.description = curEle.description;
-        }
-
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
@@ -275,6 +270,14 @@ export class Generateur {
           curEle.attributs.forEach(attribut => {
             jeu.etats.ajouterEtatElement(newObjet, attribut);
           });
+        }
+
+        // si indénombrable singulier, le nombre est indéfini.
+        Generateur.corrigerNombreSiIndenombrable(newObjet, jeu);
+
+        // ajouter description éventuelle de l’objet
+        if (curEle.description) {
+          newObjet.description = curEle.description;
         }
 
         // attributs liés à la quantité d’objets
@@ -745,6 +748,15 @@ export class Generateur {
 
       default:
         return ELocalisation.inconnu;
+    }
+  }
+
+  /**
+   * Un élément qui est singulier et indénombrable possède en fait le nombre indéfini.
+   */
+  private static corrigerNombreSiIndenombrable(el: ElementJeu, jeu: Jeu) {
+    if (el.nombre == Nombre.s && jeu.etats.possedeEtatIdElement(el, jeu.etats.indenombrableID, undefined)) {
+      el.nombre = Nombre.i;
     }
   }
 
