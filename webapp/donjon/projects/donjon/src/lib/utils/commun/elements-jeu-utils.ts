@@ -511,7 +511,7 @@ export class ElementsJeuUtils {
         // console.log(" >>>> lieux trouvés:", cor.lieux);
         // console.log(" >>>> intitulé:", cor.intitule);
       }
-      
+
     }
 
     // sélectionner le résultat unique (s’il n’y en a qu’un seul)
@@ -965,6 +965,20 @@ export class ElementsJeuUtils {
 
     // TODO: faut-il copier le contenu ?
     return copie;
+  }
+
+  /**
+   * Ajouter une erreur visible dans le jeu.
+   */
+  public ajouterErreur(erreur: string) {
+    this.jeu.tamponErreurs.push(erreur);
+  }
+
+  /**
+   * Ajouter un conseil visible dans le jeu en mode création uniquement.
+   */
+  public ajouterConseil(conseil: string) {
+    this.jeu.tamponConseils.push(conseil);
   }
 
 }

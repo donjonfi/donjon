@@ -456,6 +456,15 @@ export class ListeEtats {
       } else {
         let etat = this.trouverEtat(nomEtat);
         if (etat) {
+
+          // conseil inaccessible
+          if (nomEtat.match(/^inaccessible(s)?$/)) {
+            eju.ajouterConseil("L’état « inaccessible » n’est PAS l’inverse de « accessible ». Pour tester si un élément est accessible faites vos tests sur l’état « accessible ».");
+          // conseil invisible
+          } else if (nomEtat.match(/^invisible(s)?$/)) {
+            eju.ajouterConseil("L’état « invisible » n’est PAS l’inverse de « visible ». Pour tester si un élément est visible faites vos tests sur l’état « visible ».");
+          }
+
           retVal = element.etats.includes(etat.id);
         } else {
           console.warn("possedeCetEtatElement >> état introuvable:", nomEtat);
@@ -611,7 +620,7 @@ export class ListeEtats {
     } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant)) {
       return eju.obtenirContenu(element, PrepositionSpatiale.dans).length == 0;
     } else {
-      console.error("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", element);
+      console.warn("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", element);
       return false;
     }
   }
@@ -636,7 +645,7 @@ export class ListeEtats {
               if (testerOpaque) {
                 if (parent.etats.includes(this.opaqueID)) {
                   // on s’arrête, il y a un contenant opaque et fermé
-                  return true; 
+                  return true;
                 } else {
                   // on continue, le contenant est fermé mais transparent
                 }

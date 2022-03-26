@@ -3,7 +3,7 @@ Désactiver les actions de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-03-14-0044
+-- Version: 2022-03-26-0045
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -119,7 +119,7 @@ SCÈNE "boire".
 
   refuser boire ceci:
     si ceci est un lieu, dire "Ça ne se mange pas voyons !";
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est un vivant mais pas buvable, dire "Vous avez de drôles d’idées.";
     si ceci n’est pas buvable, dire "Ça ne se boit pas voyons !";
       -- on veut en mannger 0…
@@ -148,7 +148,7 @@ SCÈNE "brûler".
   brûler ceci est une action qui concerne un objet visible.
 
   refuser brûler ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Ça ne va pas ?";
     si ceci est un vivant, dire "Vous avez de drôles d’idées.".
 
@@ -164,7 +164,7 @@ SCÈNE "casser".
   casser ceci est une action qui concerne un objet visible.
 
   refuser casser ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Ça ne va pas ?";
     si ceci est un vivant, dire "Vous avez de drôles d’idées.".
 
@@ -352,7 +352,7 @@ SCÈNE "déplacer".
   déplacer ceci est une action qui concerne un objet visible.
 
   refuser déplacer ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "La commande {-aller-} devrait vous convenir.";
     si ceci est fixé, dire "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
     
@@ -508,7 +508,7 @@ SCÈNE "examiner".
           dire "[décrire objets sur ceci]";
         fin si;
       fin si;
-      -- >> ojbet inaccessible
+      -- >> ojbet pas accessible
       si ceci n'est ni accessible ni l’inventaire, 
         dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].";
       -- >> inventaire
@@ -833,7 +833,7 @@ SCÈNE "manger".
 
   refuser manger ceci:
     si ceci est un lieu, dire "Ça ne se mange pas voyons !";
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est un vivant mais pas mangeable, dire "Vous avez de drôles d’idées.";
     si ceci n’est pas mangeable, dire "Ça ne se mange pas voyons !";
     -- on veut en mannger 0…
@@ -1055,7 +1055,7 @@ SCÈNE "pousser".
   pousser ceci est une action qui concerne un objet visible.
   
   refuser pousser ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Je suis dans le chemin ?".
   
   exécuter pousser ceci:
@@ -1222,7 +1222,7 @@ SCÈNE "secouer".
   secouer ceci est une action qui concerne un objet visible.
   
   refuser secouer ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Rien de tel pour se réveiller.";
     si ceci est un vivant, dire "Je suis contre la violence.".
   
@@ -1239,7 +1239,7 @@ SCÈNE "tirer".
   tirer ceci est une action qui concerne un objet visible.
   
   refuser tirer ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Pardon ?".
   
   exécuter tirer ceci:
@@ -1256,7 +1256,7 @@ SCÈNE "toucher".
   toucher ceci est une action qui concerne un objet visible.
   
   refuser toucher ceci:
-    si ceci est inaccessible, dire "Je n’y ai pas accès.";
+    si ceci n’est pas accessible, dire "Je n’y ai pas accès.";
     si ceci est le joueur, dire "Non vous ne revez pas.";
     si ceci est un vivant, dire "Vous lui avez demandé son avis ?".
   

@@ -273,8 +273,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (this.debogueur && this.ctx.jeu?.tamponConseils.length) {
       let texteConseils = "";
       while (this.ctx.jeu.tamponConseils.length) {
-        const erreur = this.ctx.jeu.tamponConseils.shift();
-        texteConseils += '{N}# ' + erreur + '';
+        const conseil = this.ctx.jeu.tamponConseils.shift();
+        texteConseils += '{N}💡' + conseil + '';
       }
       this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
       this.scrollSortie();
