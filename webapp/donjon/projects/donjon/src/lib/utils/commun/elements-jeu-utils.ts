@@ -19,6 +19,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { ProprieteElement } from '../../models/commun/propriete-element';
+import { RechercheUtils } from './recherche-utils';
 import { Voisin } from '../../models/jeu/voisin';
 
 export class ElementsJeuUtils {
@@ -493,6 +494,8 @@ export class ElementsJeuUtils {
         // déterminer si le mot à chercher est au pluriel
         const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
 
+        // TODO: comparer score des objets avec score des autres types d’éléments.
+        // cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
         cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
@@ -583,6 +586,40 @@ export class ElementsJeuUtils {
 
   }
 
+  /**
+   * Chercher un élément d’un certain type (objet, lieu, compteur, liste) sur base de son intitulé.
+   * Retourne les meilleurs candidats et le meilleur score.
+   * 
+   * Score:
+   *  - 1.0 : correspondance exacte
+   *  - 0.75 : correspondance proche
+   *  - 0.5 : correspondance exacte partielle
+   *  - 0.375: correspondance proche partielle
+   */
+  public static chercherSurIntitule<Type extends Intitule>(recherche: GroupeNominal, candidats: Type[]): [number, Type[]] {
+    let meilleursCandidats: Type[] = [];
+    let meilleurScore = 0.0;
+
+    const rechercheMotsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(recherche.nomEpithete);
+
+    // A) rechercher sur tous les mots clés
+
+    candidats.forEach(candidat => {
+
+      const scoreCorrespondance = RechercheUtils.correspondanceMotsCles(rechercheMotsCles, candidat.motsCles);
+
+      // même meilleur score : on ajoute le candidat
+      if (scoreCorrespondance == meilleurScore) {
+        meilleursCandidats.push(candidat);
+        // meilleur score : en remplace le résultat par le candidat
+      } else if (scoreCorrespondance > meilleurScore) {
+        meilleursCandidats = [candidat];
+      }
+
+    });
+
+    return [meilleurScore, meilleursCandidats];
+  }
 
   /**
    * Retrouver un objet parmis tous les objets sur base de son intitulé.
@@ -595,24 +632,120 @@ export class ElementsJeuUtils {
     const sujetNom = sujet.nom.toLowerCase();
     const sujetEpithete = sujet.epithete?.toLowerCase();
 
-    // chercher parmis les objets présents
+    // chercher parmi les objets présents
     const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
-    // console.warn("objetsPresents=", objetsPresents);
-    objetsTrouves = this.suiteTrouverObjet(objetsPresents, sujetNom, sujetEpithete, nombre);
-    // console.warn("objetsTrouves=", objetsTrouves);
+    objetsTrouves = this.ancienSuiteTrouverObjet(objetsPresents, sujetNom, sujetEpithete, nombre);
 
     // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
     if (objetsTrouves.length === 0 || !prioriteObjetsPresents) {
+      // chercher parmi les objets NON présents
       const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
-      // console.warn("objetsNonPresents=", objetsNonPresents, "\nsujetNom=", sujetNom, "\nsujetEpithete=", sujetEpithete, "\nnombre=", nombre);
-      objetsTrouves = objetsTrouves.concat(this.suiteTrouverObjet(objetsNonPresents, sujetNom, sujetEpithete, nombre));
-      // console.warn("objetsTrouves=", objetsTrouves);
+      objetsTrouves = objetsTrouves.concat(this.ancienSuiteTrouverObjet(objetsNonPresents, sujetNom, sujetEpithete, nombre));
     }
 
     return objetsTrouves;
   }
 
-  private suiteTrouverObjet(objets: Objet[], sujetNom: string, sujetEpithete: string, nombre: Nombre) {
+
+  /**
+   * Retrouver un objet parmis tous les objets sur base de son intitulé.
+   * Remarque: Il peut y avoir plus d’une correspondance.
+   * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
+   */
+  trouverObjetAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i): [number, Objet[]] {
+
+    let objetsTrouvesPresents: [number, Objet[]];
+    let objetsTrouvesNonPresents: [number, Objet[]];
+
+    // chercher parmi les objets présents
+    const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
+    objetsTrouvesPresents = this.nouveauSuiteTrouverObjet(objetsPresents, recherche, nombre);
+
+    // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
+    if (objetsTrouvesPresents[0] == 0.0 || !prioriteObjetsPresents) {
+      // chercher parmi les objets NON présents
+      const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
+      objetsTrouvesNonPresents = this.nouveauSuiteTrouverObjet(objetsNonPresents, recherche, nombre);
+      // retourner le meilleur score parmis les objets trouvés
+      if (objetsTrouvesPresents[0] > objetsTrouvesNonPresents[0]) {
+        return objetsTrouvesPresents;
+      } else if (objetsTrouvesNonPresents[0] > objetsTrouvesNonPresents[0] || objetsTrouvesNonPresents[0] == 0.0) {
+        return objetsTrouvesNonPresents;
+      } else {
+        // même score > 0.0 : on combine les 2
+        const tousLesObjetsTrouves = objetsTrouvesPresents[1].concat(objetsTrouvesNonPresents[1]);
+        return [objetsTrouvesPresents[0], tousLesObjetsTrouves];
+      }
+    } else {
+      return objetsTrouvesPresents;
+    }
+  }
+
+  /**
+   * Chercher un objet sur base de son intitulé et de ses synonymes.
+   * Retourne les meilleurs candidats et le meilleur score.
+   * 
+   * Score:
+   *  - 1.0 : correspondance exacte
+   *  - 0.75 : correspondance proche
+   *  - 0.5 : correspondance exacte partielle
+   *  - 0.375: correspondance proche partielle
+   */
+  private nouveauSuiteTrouverObjet(objets: Objet[], recherche: GroupeNominal, nombre: Nombre): [number, Objet[]] {
+
+    let meilleursCandidats: Objet[] = [];
+    let meilleurScore = 0.0;
+
+    if(recherche){
+
+      objets.forEach(obj => {
+        let intituleOriginal: GroupeNominal;
+  
+        // A. regarder dans l'intitulé original de l’objet
+        switch (nombre) {
+          case Nombre.i:
+            intituleOriginal = obj.intitule;
+            break;
+          case Nombre.s:
+            intituleOriginal = obj.intituleS;
+            break;
+          case Nombre.p:
+            intituleOriginal = obj.intituleP;
+            break;
+        }
+  
+        let meilleurScorePourCetObjet = RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles);
+        // si on n’a pas une correspondance exacte, essayer les synonymes
+        if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
+          for (const synonyme of obj.synonymes) {
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles);
+            if (scoreSynonyme > meilleurScorePourCetObjet) {
+              meilleurScorePourCetObjet = scoreSynonyme;
+              if (scoreSynonyme == 1.0) {
+                break;
+              }
+            }
+          }
+        }
+  
+        // si même score que le meilleur score, l’ajouter aux meilleurs candidats
+        if (meilleurScorePourCetObjet == meilleurScore) {
+          meilleursCandidats.push(obj);
+          // si nouveau meilleur score, remplacer les meilleurs candidats par celui-ci
+        } else if (meilleurScorePourCetObjet > meilleurScore) {
+          meilleurScore = meilleurScorePourCetObjet;
+          meilleursCandidats = [obj];
+        }
+  
+      });
+
+    }
+
+    return [meilleurScore, meilleursCandidats];
+
+  }
+
+  private ancienSuiteTrouverObjet(objets: Objet[], sujetNom: string, sujetEpithete: string, nombre: Nombre) {
 
     let retVal: Objet[] = [];
 
