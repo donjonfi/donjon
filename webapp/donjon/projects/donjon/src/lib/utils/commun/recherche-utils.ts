@@ -54,12 +54,7 @@ export class RechercheUtils {
     let motsClesConserves: string[] = [];
     if (expression) {
       const expressionNettoyee = this.transformerCaracteresSpeciauxEtMajuscules(expression);
-      const motsCles = expressionNettoyee.split(/ |'|’|-/);
-      motsCles.forEach(motCle => {
-        if (!this.motsTropCommuns.test(motCle)) {
-          motsClesConserves.push(motCle);
-        }
-      });
+      motsClesConserves = this.transformerEnMotsCles(expressionNettoyee);
     }
     return motsClesConserves;
   }
@@ -142,8 +137,8 @@ export class RechercheUtils {
       score = 0.0;
     }
 
-    // TODO: enlever by pass
-    if (score < 1.0) {
+    // TODO: enlever by pass quand moins de mots dans la recherche
+    if (score < 0.75) {
       score = 0.0;
     }
 

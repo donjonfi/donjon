@@ -495,8 +495,9 @@ export class ElementsJeuUtils {
         const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
 
         // TODO: comparer score des objets avec score des autres types d’éléments.
-        // cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
-        cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
+        cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
+        // cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
+
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
           cor.elements = cor.elements.concat(cor.objets);
@@ -609,12 +610,15 @@ export class ElementsJeuUtils {
       const scoreCorrespondance = RechercheUtils.correspondanceMotsCles(rechercheMotsCles, candidat.motsCles);
 
       // même meilleur score : on ajoute le candidat
-      if (scoreCorrespondance == meilleurScore) {
-        meilleursCandidats.push(candidat);
-        // meilleur score : en remplace le résultat par le candidat
-      } else if (scoreCorrespondance > meilleurScore) {
-        meilleursCandidats = [candidat];
+      if (scoreCorrespondance > 0) {
+        if (scoreCorrespondance == meilleurScore) {
+          meilleursCandidats.push(candidat);
+          // meilleur score : en remplace le résultat par le candidat
+        } else if (scoreCorrespondance > meilleurScore) {
+          meilleursCandidats = [candidat];
+        }
       }
+
 
     });
 
@@ -696,11 +700,11 @@ export class ElementsJeuUtils {
     let meilleursCandidats: Objet[] = [];
     let meilleurScore = 0.0;
 
-    if(recherche){
+    if (recherche) {
 
       objets.forEach(obj => {
         let intituleOriginal: GroupeNominal;
-  
+
         // A. regarder dans l'intitulé original de l’objet
         switch (nombre) {
           case Nombre.i:
@@ -713,8 +717,8 @@ export class ElementsJeuUtils {
             intituleOriginal = obj.intituleP;
             break;
         }
-  
-        let meilleurScorePourCetObjet = RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles);
+
+        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles) : 0.0;
         // si on n’a pas une correspondance exacte, essayer les synonymes
         if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
           for (const synonyme of obj.synonymes) {
@@ -727,16 +731,17 @@ export class ElementsJeuUtils {
             }
           }
         }
-  
-        // si même score que le meilleur score, l’ajouter aux meilleurs candidats
-        if (meilleurScorePourCetObjet == meilleurScore) {
-          meilleursCandidats.push(obj);
-          // si nouveau meilleur score, remplacer les meilleurs candidats par celui-ci
-        } else if (meilleurScorePourCetObjet > meilleurScore) {
-          meilleurScore = meilleurScorePourCetObjet;
-          meilleursCandidats = [obj];
+
+        if (meilleurScorePourCetObjet != 0) {
+          // si même score que le meilleur score, l’ajouter aux meilleurs candidats
+          if (meilleurScorePourCetObjet == meilleurScore) {
+            meilleursCandidats.push(obj);
+            // si nouveau meilleur score, remplacer les meilleurs candidats par celui-ci
+          } else if (meilleurScorePourCetObjet > meilleurScore) {
+            meilleurScore = meilleurScorePourCetObjet;
+            meilleursCandidats = [obj];
+          }
         }
-  
       });
 
     }

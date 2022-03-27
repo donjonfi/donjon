@@ -54,7 +54,7 @@ export class GroupeNominal {
   /** Transformer l’intitulé en mots clés (afin d’effectuer une recherche) */
   public get motsCles(): string[] {
     if (!this._motsCles) {
-      this._motsCles = RechercheUtils.transformerEnMotsCles(this.nomEpithete);
+      this._motsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(this.nomEpithete);
     }
     return this._motsCles;
   }

@@ -44,9 +44,9 @@ export class Intitule {
   get motsCles(): string[] {
     if (!this._motsCles) {
       if (this.intitule) {
-        this._motsCles = RechercheUtils.transformerEnMotsCles(this.intitule.nomEpithete);
+        this._motsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(this.intitule.nomEpithete);
       } else {
-        this._motsCles = RechercheUtils.transformerEnMotsCles(this.nom);
+        this._motsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(this.nom);
       }
     }
     return this._motsCles;
