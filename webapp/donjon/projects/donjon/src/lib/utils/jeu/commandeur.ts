@@ -410,7 +410,7 @@ export class Commandeur {
           if (sousResultatApres.interrompreBlocInstruction) {
             InterruptionsUtils.definirInterruptionSousResultat(resultatApres, sousResultatApres);
             if (declenchementsApres.length > 1) {
-              this.jeu.tamponErreurs.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionnel pas correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
+              this.jeu.tamponConseils.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionnel pas correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
             }
           }
         } // fin exécution des instructions des règles après
