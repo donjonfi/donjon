@@ -8,7 +8,7 @@ export class Intitule {
   private _motsCles: string[];
 
   /** Nom de l’élément */
-  private _nom: string;
+  private _nom: string | undefined;
 
   constructor(
 
@@ -34,7 +34,9 @@ export class Intitule {
      */
     public classe: Classe,
   ) {
-    this._nom = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(nom.trim());
+    if (nom) {
+      this._nom = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(nom.trim());
+    }
   }
 
   toString() {
@@ -50,7 +52,7 @@ export class Intitule {
    * Il est toujours em minuscules et sans les caractères spéciaux.
    */
   get nom() {
-    return this._nom;
+    return this._nom ?? undefined;
   }
 
   /** Transformer l’intitulé en mots clés (afin d’effectuer une recherche) */

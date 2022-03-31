@@ -22,6 +22,7 @@ import { Lieu } from '../../models/jeu/lieu';
 import { Liste } from '../../models/jeu/liste';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
+import { RechercheUtils } from '../commun/recherche-utils';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
 
 export class ConditionsUtils {
@@ -139,21 +140,21 @@ export class ConditionsUtils {
             console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
           }
           // quantitéCeci
-        } else if (condition.sujet.nom === 'quantitéCeci') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCeci')) {
           const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
           sujet = cpt;
           if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
           }
           // quantitéCela
-        } else if (condition.sujet.nom === 'quantitéCela') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCela')) {
           const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
           sujet = cpt;
           if (!contexteTour.cela) {
             console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
           }
           // quantité de ceci
-        } else if (condition.sujet.nom === 'quantité de ceci') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de ceci')) {
           if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
           } else {
@@ -161,7 +162,7 @@ export class ConditionsUtils {
             sujet = cpt;
           }
           // quantité de cela
-        } else if (condition.sujet.nom === 'quantité de cela') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de cela')) {
           if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
           } else {
@@ -193,14 +194,14 @@ export class ConditionsUtils {
             console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
           }
           // réponse (au dernier choisir)
-        } else if (condition.sujet.nom === 'réponse' || condition.sujet.nom === 'reponse') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('réponse')) {
           if (!contexteTour.reponse) {
             this.eju.ajouterConseil("Condition sur « réponse » : il n’y a pas de réponse pour ce tour de jeu.")
           } else {
             sujet = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
           }
           // règle
-        } else if (condition.sujet.nom === 'règle') {
+        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('règle')) {
           if (!declenchements) {
             console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
           } else {
@@ -476,11 +477,11 @@ export class ConditionsUtils {
 
           case 'se déclenche':
             // remarque: négation appliquée plus loin.
-            if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la première fois') {
+            if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la première fois') {
               retVal = (compteur.valeur === 1);
-            } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la deuxième fois') {
+            } else if (compteur.nom ===  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la deuxième fois') {
               retVal = (compteur.valeur === 2);
-            } else if (compteur.nom === 'déclenchements règle' && condition.complement === 'pour la troisième fois') {
+            } else if (compteur.nom ===  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la troisième fois') {
               retVal = (compteur.valeur === 3);
             } else {
               console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");

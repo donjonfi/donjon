@@ -104,7 +104,7 @@ export class Generateur {
     // (on l’ajoute pour pouvoir interragir avec)
     let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
-    jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible);
+    jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
     jeu.objets.push(inventaire);
 
     // AJOUTER LES LIEUX
@@ -128,11 +128,11 @@ export class Generateur {
       }
       // ajouter les états par défaut de la classe du lieu
       //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
-      Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats);
+      Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats, ctx);
       // ajouter les états du lieu définis explicitements
       if (curEle.attributs) {
         curEle.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(nouvLieu, attribut);
+          jeu.etats.ajouterEtatElement(nouvLieu, attribut, ctx);
         });
       }
 
@@ -189,8 +189,8 @@ export class Generateur {
     joueur.synonymes = [
       new GroupeNominal("", "moi", null)
     ];
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache);
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache, ctx);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact, ctx);
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
     // regarder si on a positionné le joueur dans le monde
@@ -241,7 +241,7 @@ export class Generateur {
       // ajouter attributs du joueur
       if (joueurDansMonde.attributs) {
         joueurDansMonde.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(joueur, attribut);
+          jeu.etats.ajouterEtatElement(joueur, attribut, ctx);
         });
       }
     }
@@ -265,11 +265,11 @@ export class Generateur {
 
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
-        Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats);
+        Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
         // ajouter les états de l'objet définis explicitements
         if (curEle.attributs) {
           curEle.attributs.forEach(attribut => {
-            jeu.etats.ajouterEtatElement(newObjet, attribut);
+            jeu.etats.ajouterEtatElement(newObjet, attribut, ctx);
           });
         }
 
@@ -283,13 +283,13 @@ export class Generateur {
 
         // attributs liés à la quantité d’objets
         if (newObjet.quantite == 1) {
-          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.unique);
+          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.unique, ctx);
         } else {
           // plusieurs exemplaires
-          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.multiple);
+          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.multiple, ctx);
           // quantité illimitée
           if (newObjet.quantite == -1) {
-            jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.illimite);
+            jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.illimite, ctx);
           }
         }
 
@@ -382,7 +382,7 @@ export class Generateur {
               newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.lieu, lieuID);
 
               // vu que l’objet est dans un lieu, il ni porté ni occupé donc il est disponible
-              jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
+              jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
 
               // B) pas de lieu trouvé
             } else {
@@ -394,15 +394,15 @@ export class Generateur {
 
                 // si le contenant est vivant, l’objet est « occupé »
                 if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
-                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.occupe, true);
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.occupe, ctx, true);
                   // sinon l’objet est disponible
                 } else {
-                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, true);
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
                 }
 
                 // si le contenant est le joueur, l’objet est possédé
                 if (contenantSupport === jeu.joueur) {
-                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, true);
+                  jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, ctx, true);
                 }
 
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
@@ -640,14 +640,14 @@ export class Generateur {
    * Atribuer les états par défaut de l’objet sur base de la classe spécifiée.
    * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
    */
-  static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats) {
+  static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats, ctx: ContexteGeneration) {
     // commencer par la classe parent (s’il y en a)
     if (classe.parent) {
-      Generateur.attribuerEtatsParDefaut(classe.parent, ele, etats);
+      Generateur.attribuerEtatsParDefaut(classe.parent, ele, etats, ctx);
     }
     // attribuer les états par défaut de la classe
     classe.etats.forEach(nomEtat => {
-      etats.ajouterEtatElement(ele, nomEtat);
+      etats.ajouterEtatElement(ele, nomEtat, ctx);
     });
   }
 

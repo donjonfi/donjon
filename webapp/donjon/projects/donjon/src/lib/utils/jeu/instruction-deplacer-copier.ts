@@ -215,37 +215,37 @@ export class InstructionDeplacerCopier {
       // si la destination est un lieu
       if (objetDeplace.position.cibleType === EClasseRacine.lieu) {
         // l'objet n'est plus possédé ni porté
-        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, true);
-        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, this.eju, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, this.eju, true);
         // l’objet n’est plus caché (car on n’est pas sensé examiner directement un lieu)
-        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, true);
+        this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, this.eju, true);
         // si la destination est le lieu actuel, l'objet est présent
         if (objetDeplace.position.cibleId === this.eju.curLieu.id) {
-          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, this.eju, true);
           // si c'est un autre lieu, l’objet n'est plus présent.
         } else {
-          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.present, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.present, this.eju, true);
         }
         // l’élément est disponible puisque ni porté ni occupé par un autre vivant
-        this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, true);
+        this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, this.eju, true);
         // si la destination est un objet
       } else {
         // si la destination est le joueur, l'objet est présent, possédé et n’est plus caché.
         if (destination.id === this.jeu.joueur.id) {
-          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, true);
-          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.possede, true);
-          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, this.eju, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.possede, this.eju, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, this.eju, true);
 
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé ni porté
           // TODO: un objet dans un contenant possédé est-il possédé ?
-          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.possede, this.eju, true);
           // TODO: un objet dans un contenant porté est-il porté ?
-          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, true);
+          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.porte, this.eju, true);
           // L’objet est disponible
           // TODO: statut « occupé » si le contenant est un être vivant.
-          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, true);
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, this.eju, true);
           this.eju.majPresenceObjet(objetDeplace);
         }
       }
@@ -266,11 +266,11 @@ export class InstructionDeplacerCopier {
     }
 
     // l’objet source a été modifié
-    this.jeu.etats.ajouterEtatElement(objetSource, EEtatsBase.modifie, true);
+    this.jeu.etats.ajouterEtatElement(objetSource, EEtatsBase.modifie, this.eju, true);
     // l’objet déplacé a été déplacé
-    this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.deplace, true);
+    this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.deplace, this.eju, true);
     // la destination a été modifiée
-    this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie, true);
+    this.jeu.etats.ajouterEtatElement(destination, EEtatsBase.modifie, this.eju, true);
 
     resultat.succes = true;
     return resultat;

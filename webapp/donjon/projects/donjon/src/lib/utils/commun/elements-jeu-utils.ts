@@ -217,7 +217,7 @@ export class ElementsJeuUtils {
     const retVal: Lieu = this.jeu.lieux.find(x => x.id === lieuID);
     if (retVal) {
       // le lieu a été visité par le joueur
-      this.jeu.etats.ajouterEtatElement(retVal, EEtatsBase.visite, true);
+      this.jeu.etats.ajouterEtatElement(retVal, EEtatsBase.visite, this, true);
     } else {
       console.warn("Pas trouvé le curLieu:", lieuID);
     }
@@ -237,9 +237,9 @@ export class ElementsJeuUtils {
     const voisinTrouve = this.curLieu.voisins.find(x => x.type == EClasseRacine.lieu && x.id == lieu.id);
     // adjacent
     if (voisinTrouve) {
-      this.jeu.etats.ajouterEtatElement(lieu, EEtatsBase.adjacent, true);
+      this.jeu.etats.ajouterEtatElement(lieu, EEtatsBase.adjacent, this, true);
     } else {
-      this.jeu.etats.retirerEtatElement(lieu, EEtatsBase.adjacent, true);
+      this.jeu.etats.retirerEtatElement(lieu, EEtatsBase.adjacent, this, true);
     }
   }
 
@@ -253,20 +253,20 @@ export class ElementsJeuUtils {
     // console.log("majPresenceObjet: ", obj.nom);
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
-      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
-      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
     } else if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.obstacle)) {
       // les obstacles adjacents au lieu actuel sont présents
       if (this.curLieu.voisins.some(x => x.id === obj.id)) {
-        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, true);
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
       } else {
-        this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, true);
+        this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, this, true);
       }
     } else {
       // les autres objets ne sont pas présents
-      this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, true);
+      this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, this, true);
     }
   }
 
@@ -1140,7 +1140,7 @@ export class ElementsJeuUtils {
       copie.etats.push(etat);
     });
     // enlever l’état illimité
-    this.jeu.etats.retirerEtatElement(copie, EEtatsBase.illimite, false);
+    this.jeu.etats.retirerEtatElement(copie, EEtatsBase.illimite, this, false);
 
     // copier les capacités
     original.capacites.forEach(cap => {

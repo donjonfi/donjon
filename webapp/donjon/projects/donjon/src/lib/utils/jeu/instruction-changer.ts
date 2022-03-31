@@ -18,6 +18,7 @@ import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { ProprieteElement } from "../../models/commun/propriete-element";
+import { RechercheUtils } from "../commun/recherche-utils";
 import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 
@@ -163,7 +164,7 @@ export class InstructionChanger {
             }
 
             // si suite à la modification de la quantité d’un objet, la quantité atteint 0, effacer l’objet.
-            if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement && propSujetTrouvee.nom === 'quantité') {
+            if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement && RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(propSujetTrouvee.nom) === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité')) {
               if (ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet) && instruction.proprieteSujet.element.quantite === 0) {
                 const indexObjet = this.jeu.objets.indexOf((instruction.proprieteSujet.element as Objet));
                 if (indexObjet !== -1) {
@@ -277,24 +278,24 @@ export class InstructionChanger {
           // NE porte PAS
           if (instruction.negation) {
             // l'objet n’est plus porté
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.enfilable, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.chaussable, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.equipable, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.enfilable, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.chaussable, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.equipable, this.eju, true);
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
             resultat = this.insDeplacerCopier.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, objet.quantite);
             // l'objet est enfilé, porté, chaussé, équipé, porté
             if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.enfilable, this.eju)) {
-              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.enfile, true);
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.enfile, this.eju, true);
             } else if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.chaussable, this.eju)) {
-              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.chausse, true);
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.chausse, this.eju, true);
             } else if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.equipable, this.eju)) {
-              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.equipe, true);
+              this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.equipe, this.eju, true);
             }
             // on met toujours porté
-            this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, true);
+            this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.porte, this.eju, true);
           }
         }
         break;
@@ -307,7 +308,7 @@ export class InstructionChanger {
           if (this.verbeux) {
             console.log("executerJoueur: retirer l’état '", instruction.complement1, "' ele=", this.jeu.joueur);
           }
-          this.jeu.etats.retirerEtatElement(this.jeu.joueur, instruction.complement1);
+          this.jeu.etats.retirerEtatElement(this.jeu.joueur, instruction.complement1, this.eju);
           // est => ajouter un état
         } else {
           if (this.verbeux) {
@@ -316,7 +317,7 @@ export class InstructionChanger {
           // séparer les attributs, les séparateurs possibles sont «, », « et » et « ou ».
           const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
           attributsSepares.forEach(attribut => {
-            this.jeu.etats.ajouterEtatElement(this.jeu.joueur, attribut);
+            this.jeu.etats.ajouterEtatElement(this.jeu.joueur, attribut, this.eju);
           });
         }
         break;
@@ -448,7 +449,7 @@ export class InstructionChanger {
           if (this.verbeux) {
             console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
           }
-          this.jeu.etats.retirerEtatElement(element, instruction.complement1);
+          this.jeu.etats.retirerEtatElement(element, instruction.complement1, this.eju);
           // est => ajouter un état
         } else {
           if (this.verbeux) {
@@ -457,7 +458,7 @@ export class InstructionChanger {
           // séparer les attributs, les séparateurs possibles sont «, », « et ».
           const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
           attributsSepares.forEach(attribut => {
-            this.jeu.etats.ajouterEtatElement(element, attribut);
+            this.jeu.etats.ajouterEtatElement(element, attribut, this.eju);
           });
         }
 
