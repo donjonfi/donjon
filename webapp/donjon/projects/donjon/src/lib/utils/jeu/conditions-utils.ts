@@ -123,38 +123,40 @@ export class ConditionsUtils {
       // ++++++++++++++++++++
       let sujet: ElementJeu | Intitule = null;
 
+      const conditionSujetNomNettoye =  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
+
       if (condition.sujet) {
         // ici
-        if (condition.sujet.nom === 'ici') {
+        if (conditionSujetNomNettoye === 'ici') {
           sujet = this.eju.curLieu;
           // ceci
-        } else if (condition.sujet.nom === 'ceci') {
+        } else if (conditionSujetNomNettoye === 'ceci') {
           sujet = contexteTour.ceci;
           if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
           }
           // cela
-        } else if (condition.sujet.nom === 'cela') {
+        } else if (conditionSujetNomNettoye === 'cela') {
           sujet = contexteTour.cela;
           if (!contexteTour.cela) {
             console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
           }
           // quantitéCeci
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCeci')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCeci')) {
           const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
           sujet = cpt;
           if (!contexteTour.ceci) {
             console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
           }
           // quantitéCela
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCela')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCela')) {
           const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
           sujet = cpt;
           if (!contexteTour.cela) {
             console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
           }
           // quantité de ceci
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de ceci')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de ceci')) {
           if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
           } else {
@@ -162,7 +164,7 @@ export class ConditionsUtils {
             sujet = cpt;
           }
           // quantité de cela
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de cela')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de cela')) {
           if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
             console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
           } else {
@@ -170,38 +172,38 @@ export class ConditionsUtils {
             sujet = cpt;
           }
           // préposition ceci
-        } else if (condition.sujet.nom.match(/préposition (?:de )?ceci/i)) {
+        } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?ceci/i)) {
           sujet = new Intitule(evenement.prepositionCeci, new GroupeNominal(null, evenement.prepositionCeci, null), ClassesRacines.Intitule);
           // préposition cela
-        } else if (condition.sujet.nom.match(/préposition (?:de )?cela/i)) {
+        } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?cela/i)) {
           sujet = new Intitule(evenement.prepositionCela, new GroupeNominal(null, evenement.prepositionCela, null), ClassesRacines.Intitule);
           // origine
-        } else if (condition.sujet.nom === 'origine') {
+        } else if (conditionSujetNomNettoye === 'origine') {
           sujet = contexteTour.origine;
           if (!contexteTour.origine) {
             console.warn("siEstVraiSansLien: le « origine » de la condition est null.");
           }
           // origine
-        } else if (condition.sujet.nom === 'destination') {
+        } else if (conditionSujetNomNettoye === 'destination') {
           sujet = contexteTour.destination;
           if (!contexteTour.destination) {
             console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
           }
           // orientation
-        } else if (condition.sujet.nom === 'orientation') {
+        } else if (conditionSujetNomNettoye === 'orientation') {
           sujet = contexteTour.orientation;
           if (!contexteTour.orientation) {
             console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
           }
           // réponse (au dernier choisir)
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('réponse')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('réponse')) {
           if (!contexteTour.reponse) {
             this.eju.ajouterConseil("Condition sur « réponse » : il n’y a pas de réponse pour ce tour de jeu.")
           } else {
             sujet = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
           }
           // règle
-        } else if (condition.sujet.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('règle')) {
+        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('règle')) {
           if (!declenchements) {
             console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
           } else {
@@ -210,11 +212,11 @@ export class ConditionsUtils {
           }
           // action (c’est à dire l’action liée à l’événement)
           // => infinitif
-        } else if (condition.sujet.nom.match(/infinitif (?:de l(?:'|’))?action/i)) {
+        } else if (conditionSujetNomNettoye.match(/infinitif (?:de l(?:'|’))?action/i)) {
           sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
 
           // sortie/obstacle/porte vers ceci/cela
-        } else if (condition.sujet.nom.match(/(sortie|obstacle|porte) vers/i)) {
+        } else if (conditionSujetNomNettoye.match(/(sortie|obstacle|porte) vers/i)) {
           let locString: string = condition.sujet.epithete;
           if (condition.sujet.epithete == 'ceci') {
             locString = contexteTour.ceci.intitule.nom;
@@ -228,13 +230,13 @@ export class ConditionsUtils {
             // regarder s'il y a une sortie dans la direction indiquée
           } else {
             // sortie vers
-            if (condition.sujet.nom.startsWith("sortie")) {
+            if (conditionSujetNomNettoye.startsWith("sortie")) {
               const voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
               if (voisinID !== -1) {
                 sujet = this.eju.getLieu(voisinID);
               }
               // porte vers
-            } else if (condition.sujet.nom.startsWith("porte")) {
+            } else if (conditionSujetNomNettoye.startsWith("porte")) {
               const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
               if (porteID !== -1) {
                 sujet = this.eju.getObjet(porteID);
@@ -272,7 +274,7 @@ export class ConditionsUtils {
                 }
               }
               // le jeu n’est pas dans les objets mais il est géré plus loin
-            } else if (condition.sujet.nom == 'jeu' && !condition.sujet.epithete) {
+            } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
               // rien à dire ici
             } else {
               console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
