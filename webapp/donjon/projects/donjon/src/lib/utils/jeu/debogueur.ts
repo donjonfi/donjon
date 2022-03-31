@@ -154,11 +154,17 @@ export class Debogueur {
     }
 
     let proprietes = (objet.proprietes.length > 0 ? "" : "(néant)");
+    if(objet.nom){
+      proprietes += '{-nom :-} "' + objet.nom + '"{u}';
+    }
+    if(objet.intitule){
+      proprietes += '{-intitulé :-} "' + objet.intitule + '"{u}';
+    }
     objet.proprietes.forEach(prop => {
       if (prop.type == TypeValeur.mots) {
-        proprietes += prop.nom + " : \"" + prop.valeur + "\"{u}";
+        proprietes += "{-" + prop.nom + " :-} \"" + prop.valeur + "\"{u}";
       } else {
-        proprietes += prop.nom + " : " + prop.valeur + "{u}";
+        proprietes += "{-" + prop.nom + " :-} " + prop.valeur + "{u}";
       }
     });
 

@@ -896,7 +896,7 @@ export class InstructionDire {
 
     let retVal = false;
     let conditionLC = condition.toLowerCase();
-    const resultFois = conditionLC.match(xFois);
+    const resultFois = conditionLC.match(xFois);    
 
     // X-ÈME FOIS
     if (resultFois) {
@@ -1159,7 +1159,7 @@ export class InstructionDire {
       let statut = new StatutCondition(nbAffichage, intact, morceaux, 0);
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
-      let afficherMorceauSuivant = true;
+      let afficherMorceauSuivant = true;      
       // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
       for (let index = 0; index < morceaux.length; index++) {
         statut.curMorceauIndex = index;
@@ -1399,7 +1399,7 @@ export class InstructionDire {
 
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercuSpecifique.forEach(obj => {
-        const apercuCalcule = this.calculerTexteDynamique(obj.apercu, obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
+        const apercuCalcule = this.calculerTexteDynamique(obj.apercu, ++obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
@@ -1492,7 +1492,7 @@ export class InstructionDire {
               if (curPorteObstacle.apercu) {
                 // afficher l'aperçu.
                 if (curPorteObstacle.apercu != '-') {
-                  resultat.sortie += "{U}" + this.calculerTexteDynamique(curPorteObstacle.apercu, curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+                  resultat.sortie += "{U}" + this.calculerTexteDynamique(curPorteObstacle.apercu, ++curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
                 }
                 // si pas d’aperçu défini
               } else {
