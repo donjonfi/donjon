@@ -1,7 +1,8 @@
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
+
 import { ActionsUtils } from "./actions-utils";
 import { CandidatCommande } from "../../models/jouer/candidat-commande";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { MotUtils } from "../commun/mot-utils";
 import { PhraseUtils } from "../commun/phrase-utils";
 
@@ -34,12 +35,12 @@ export class CommandeurDecomposer {
       candidat.isCeciV1 = candidat.els.sujet ? true : false;
       candidat.ceciIntituleV1 = candidat.els.sujet;
       candidat.ceciQuantiteV1 = candidat.isCeciV1 ? (MotUtils.getQuantite(candidat.els.sujet.determinant, (MotUtils.estFormePlurielle(candidat.els.sujet.nom) ? -1 : 1))) : 0;;
-      candidat.correspondCeci = candidat.isCeciV1 ? eju.trouverCorrespondance(candidat.ceciIntituleV1, true, true) : null;
+      candidat.correspondCeci = candidat.isCeciV1 ? eju.trouverCorrespondance(candidat.ceciIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
       // 2e argument
       candidat.isCelaV1 = candidat.els.sujetComplement1 ? true : false;
       candidat.celaIntituleV1 = candidat.els.sujetComplement1;
       candidat.celaQuantiteV1 = candidat.isCelaV1 ? (MotUtils.getQuantite(candidat.els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(candidat.els.sujetComplement1.nom) ? -1 : 1))) : 0;
-      candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, true, true) : null;
+      candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
 
       // 4. ÉTABLISSEMENT DU SCORE DU CANDIDAT
       // 4.1 - SCORE CORRESPONDANCE DES ARGUMENTS

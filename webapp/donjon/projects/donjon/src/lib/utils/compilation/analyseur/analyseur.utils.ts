@@ -32,7 +32,7 @@ export class AnalyseurUtils {
    * @param ctx 
    * @returns l'élément trouvé le plus récent ou undefined si pas trouvé.
    */
-  public static trouverCorrespondanceAvecXGroupeNominal(groupeNominal: RegExpExecArray, ctx: ContexteAnalyse): ElementGenerique | undefined {
+  public static trouverCorrespondanceAvecGroupeNominal(groupeNominal: RegExpExecArray, ctx: ContexteAnalyse): ElementGenerique | undefined {
     // Déterminant(1), Nom(2), Épithète(3)
     const elementConcerneNom = groupeNominal[2].toLowerCase();
     const elementConcerneEpithete = groupeNominal[3] ? groupeNominal[3].toLowerCase() : null;
@@ -144,10 +144,5 @@ export class AnalyseurUtils {
     return retVal;
 
   }
-
-
-  // public static trouverCorrespondanceOuRenvoyerNouvelElement(){
-
-  // }
 
 }

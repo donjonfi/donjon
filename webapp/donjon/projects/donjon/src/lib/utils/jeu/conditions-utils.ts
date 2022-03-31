@@ -1,5 +1,6 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
+import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 
 import { AnalyseurCondition } from '../compilation/analyseur/analyseur.condition';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -10,7 +11,6 @@ import { ConditionMulti } from '../../models/compilateur/condition-multi';
 import { ConditionSolo } from '../../models/compilateur/condition-solo';
 import { ContexteTour } from '../../models/jouer/contexte-tour';
 import { ElementJeu } from '../../models/jeu/element-jeu';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -247,7 +247,7 @@ export class ConditionsUtils {
             }
           }
         } else {
-          const correspondances = this.eju.trouverCorrespondance(condition.sujet, false, false);
+          const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
           if (correspondances.elements.length == 1) {
             sujet = correspondances.elements[0];
           } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
@@ -384,7 +384,7 @@ export class ConditionsUtils {
                 console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", contexteTour.cela);
               }
             } else {
-              const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
+              const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
               if (correspondances.nbCor === 1) {
                 destination = correspondances.elements[0];
               } else if (correspondances.nbCor === 0) {
@@ -538,7 +538,7 @@ export class ConditionsUtils {
                   intitule = cibleSpeciale;
                   // ii) rechercher parmis tous les éléments du jeu
                 } else {
-                  const cor = this.eju.trouverCorrespondance(condition.sujetComplement, false, false);
+                  const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
                   if (cor.nbCor == 1) {
                     intitule = cor.unique;
                   } else {

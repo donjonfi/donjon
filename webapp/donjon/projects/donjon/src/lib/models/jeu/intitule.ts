@@ -7,10 +7,13 @@ export class Intitule {
   /** Mots clés correspondants à l’intitulé (pour effectuer une recherche) */
   private _motsCles: string[];
 
+  /** Nom de l’élément */
+  private _nom: string;
+
   constructor(
 
     /** Nom de l’élément */
-    public nom: string,
+    nom: string,
 
     /**
      * Intitulé de l’élément pour le joueur.
@@ -30,14 +33,24 @@ export class Intitule {
      * - …
      */
     public classe: Classe,
-  ) { }
+  ) {
+    this._nom = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(nom.trim());
+  }
 
   toString() {
     if (this.intitule) {
       return this.intitule.toString();
     } else {
-      return this.nom;
+      return this._nom;
     }
+  }
+
+  /**
+   * Le nom de l’objet.
+   * Il est toujours em minuscules et sans les caractères spéciaux.
+   */
+  get nom() {
+    return this._nom;
   }
 
   /** Transformer l’intitulé en mots clés (afin d’effectuer une recherche) */
@@ -46,7 +59,7 @@ export class Intitule {
       if (this.intitule) {
         this._motsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(this.intitule.nomEpithete);
       } else {
-        this._motsCles = RechercheUtils.nettoyerEtTransformerEnMotsCles(this.nom);
+        this._motsCles = RechercheUtils.transformerEnMotsCles(this._nom);
       }
     }
     return this._motsCles;

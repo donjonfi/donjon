@@ -1,7 +1,8 @@
+import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
+
 import { ClasseUtils } from '../commun/classe-utils';
 import { Compteur } from '../../models/compilateur/compteur';
 import { EClasseRacine } from '../../models/commun/constantes';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Instructions } from './instructions';
 import { Jeu } from '../../models/jeu/jeu';
@@ -37,7 +38,7 @@ export class Debogueur {
       } else if (els.sujet.nom == "états") {
         console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
       } else {
-        const cor = this.eju.trouverCorrespondance(els.sujet, true, true);
+        const cor = this.eju.trouverCorrespondance(els.sujet, TypeSujet.SujetEstIntitule, true, true);
         if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.listes.length !== 0 || cor.localisation !== null) {
           // éléments
           if (cor.elements.length) {
@@ -89,7 +90,7 @@ export class Debogueur {
 
         } else {
           console.warn("#DEB# erreur:", "pas pu trouvé le sujet=", els.sujet);
-          retVal = "pas trouvé > aucune correspondance";
+          retVal = "pas trouvé > aucune correspondance (la recherche se fait sur l’intitulé)";
         }
       }
     }

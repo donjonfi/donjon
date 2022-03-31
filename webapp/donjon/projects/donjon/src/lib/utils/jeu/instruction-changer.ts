@@ -1,11 +1,11 @@
 import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { CompteursUtils } from "./compteurs-utils";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
 import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
@@ -72,7 +72,7 @@ export class InstructionChanger {
           break;
 
         default:
-          let correspondance = this.eju.trouverCorrespondance(instruction.sujet, false, false);
+          let correspondance = this.eju.trouverCorrespondance(instruction.sujet, TypeSujet.SujetEstNom, false, false);
 
           // PAS OBJET, PAS LIEU, PAS COMPTEUR et PAS LISTE
           if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
@@ -393,7 +393,7 @@ export class InstructionChanger {
             intitule = cibleSpeciale;
             // ii) rechercher parmis tous les éléments du jeu
           } else {
-            const cor = this.eju.trouverCorrespondance(instruction.sujetComplement1, false, false);
+            const cor = this.eju.trouverCorrespondance(instruction.sujetComplement1, TypeSujet.SujetEstNom, false, false);
             if (cor.nbCor == 1) {
               intitule = cor.unique;
             } else {

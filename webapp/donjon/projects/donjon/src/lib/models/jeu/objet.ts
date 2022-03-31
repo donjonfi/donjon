@@ -31,8 +31,4 @@ export class Objet extends ElementJeu {
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
   position: PositionObjet = null;
 
-  public static objetIntitule(objet: Objet) {
-    return objet.nom;
-  }
-
 }

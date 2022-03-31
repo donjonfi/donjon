@@ -1,4 +1,5 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 import { Auditeur } from '../../models/jouer/auditeur';
@@ -11,7 +12,6 @@ import { ContexteGeneration } from '../../models/compilateur/contexte-generation
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementJeu } from '../../models/jeu/element-jeu';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
@@ -24,6 +24,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { ProprieteElement } from '../../models/commun/propriete-element';
+import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../models/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
@@ -486,7 +487,7 @@ export class Generateur {
       if (lst.valeursIntitule.length) {
         const eju = new ElementsJeuUtils(jeu, false);
         lst.valeursIntitule.forEach(valeurIntitule => {
-          const cor = eju.trouverCorrespondance(valeurIntitule, false, false);
+          const cor = eju.trouverCorrespondance(valeurIntitule, TypeSujet.SujetEstNom, false, false);
           if (cor.nbCor == 1) {
             curListe.ajouterIntitule(cor.unique);
           } else {
@@ -570,18 +571,18 @@ export class Generateur {
   /**
    * Retrouver un lieu sur base de son intitulé.
    * @param lieux 
-   * @param intituleLieu
+   * @param nomLieu
    * @returns ID du lieu ou -1 si pas trouvée.
    */
-  static getLieuID(lieux: Lieu[], intituleLieu: string, erreurSiPasTrouve: boolean) {
+  static getLieuID(lieux: Lieu[], nomLieu: string, erreurSiPasTrouve: boolean) {
 
     let candidats: Lieu[] = [];
     let retVal = -1;
     // trouver le sujet complet
-    const intituleLieuLower = intituleLieu.toLowerCase();
+    const nomLieuNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(nomLieu.trim());
     lieux.forEach(lieu => {
       // rem: le nom d’un lieu est toujours un minuscule, pas besoin de forcer ici
-      if (lieu.nom == intituleLieuLower) {
+      if (lieu.nom == nomLieuNettoye) {
         candidats.push(lieu);
       }
     });
@@ -593,7 +594,7 @@ export class Generateur {
       let nbFound = 0;
       // trouver un début de sujet
       lieux.forEach(lieu => {
-        if (lieu.nom.startsWith(intituleLieu)) {
+        if (lieu.nom.startsWith(nomLieuNettoye)) {
           candidats.push(lieu);
           nbFound += 1;
         }
@@ -601,10 +602,10 @@ export class Generateur {
       if (nbFound === 1) {
         retVal = candidats[0].id;
       } else if (erreurSiPasTrouve) {
-        console.log("complément position pas trouvé : intituleLieu=", intituleLieu, "lieux=", lieux);
+        console.log("complément position pas trouvé : intituleLieu=", nomLieu, "lieux=", lieux);
       }
     } else if (erreurSiPasTrouve) {
-      console.log("complément position pas trouvé (plusieurs candidats) :", intituleLieu);
+      console.log("complément position pas trouvé (plusieurs candidats) :", nomLieu);
     }
 
     return retVal;
@@ -623,11 +624,11 @@ export class Generateur {
 
     let trouve: Objet = null;
 
-    const nomObjetLower = nomObjet.toLowerCase();
+    const nomObjetNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(nomObjet.trim());
 
     objets.forEach(el => {
       // rem: le nom d’un Objet est toujours en lower case c’est pourquoi on ne le force pas ici.
-      if (el.nom === nomObjetLower) {
+      if (el.nom === nomObjetNettoye) {
         trouve = el;
       }
     });

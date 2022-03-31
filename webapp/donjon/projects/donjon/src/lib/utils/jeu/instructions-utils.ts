@@ -1,3 +1,4 @@
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { ProprieteJeu, TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 
 import { Capacite } from "../../models/commun/capacite";
@@ -7,7 +8,6 @@ import { Compteur } from "../../models/compilateur/compteur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { Intitule } from "../../models/jeu/intitule";
@@ -140,7 +140,7 @@ export class InstructionsUtils {
       }
       // B) retrouver ÉLÉMENT CLASSIQUE
     } else {
-      let correspondanceCompl = eju.trouverCorrespondance(recherche, false, false);
+      let correspondanceCompl = eju.trouverCorrespondance(recherche, TypeSujet.SujetEstNom, false, false);
       // un élément trouvé
       if (correspondanceCompl.elements.length === 1) {
         resultat = correspondanceCompl.elements[0];

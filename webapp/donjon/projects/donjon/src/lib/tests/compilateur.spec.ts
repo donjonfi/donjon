@@ -1,5 +1,7 @@
 import { Compilateur, ExprReg, Generateur } from "../../public-api";
 
+import { RechercheUtils } from "../utils/commun/recherche-utils";
+
 describe('Compilateur − Nettoyer scénario', () => {
 
   it('Nettoyer: 1 phrase simple', () => {
@@ -137,7 +139,7 @@ describe('Compilateur − Nombre de lignes', () => {
 
 describe('Compilateur − Analyser scénario', () => {
 
-  it('Compilation scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
+  it('Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu. ' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre. ' +
@@ -188,7 +190,7 @@ describe('Compilateur − Analyser et Générer le jeu', () => {
 
     const chambre = jeu.lieux.find(x => x.nom == 'chambre');
     expect(chambre).toBeDefined();
-    const chambreACoucher = jeu.lieux.find(x => x.nom == 'chambre à coucher rouge');
+    const chambreACoucher = jeu.lieux.find(x => x.nom == RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('chambre à coucher rouge'));
     expect(chambreACoucher).toBeDefined();
     const sdb = jeu.lieux.find(x => x.nom == 'salle de bain');
     expect(sdb).toBeDefined();

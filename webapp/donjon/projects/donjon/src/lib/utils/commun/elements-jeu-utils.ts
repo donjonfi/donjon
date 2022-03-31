@@ -455,6 +455,41 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
+
+  getLieuAvecNom(recherche: string): Lieu | undefined {
+
+    const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
+
+    // chercher parmis les objets présents
+    const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
+    // console.warn("lieuxAdjacents=", lieuxAdjacents);
+    let lieuTrouve = lieuxAdjacents.find(x => x.nom == rechercheNettoyee);
+
+    // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
+    if (!lieuTrouve) {
+      const lieuxNonAdjacents = this.jeu.lieux.filter(x => !x.etats.includes(this.jeu.etats.adjacentID) && this.curLieu.id != x.id);
+      lieuTrouve = lieuxNonAdjacents.find(x => x.nom == rechercheNettoyee);
+    }
+    return lieuTrouve;
+  }
+
+  getObjetAvecNom(recherche: string): Objet | undefined {
+
+    const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
+
+    const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
+    let objetTrouve = objetsPresents.find(x => x.nom === rechercheNettoyee);
+
+    // si rien trouvé dans les objets présents, chercher dans les autres
+    if (!objetTrouve) {
+      // chercher parmi les objets NON présents
+      const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
+      objetTrouve = objetsNonPresents.find(x => x.nom === rechercheNettoyee);
+    }
+
+    return objetTrouve;
+  }
+
   getObjet(id: number) {
     return this.jeu.objets.find(x => x.id === id);
   }
@@ -470,11 +505,13 @@ export class ElementsJeuUtils {
   /**
    * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
    */
-  trouverCorrespondance(sujet: GroupeNominal, prioriteObjetsPresents: boolean, prioriteLieuxAdjacents: boolean): Correspondance {
+  trouverCorrespondance(sujet: GroupeNominal, typeSujet: TypeSujet, prioriteObjetsPresents: boolean, prioriteLieuxAdjacents: boolean): Correspondance {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
-      cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Intitule);
+      if (typeSujet == TypeSujet.SujetEstIntitule) {
+        cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Intitule);
+      }
       // 1. Chercher dans les directions.
       cor.localisation = ElementsJeuUtils.trouverLocalisation(sujet);
 
@@ -482,8 +519,17 @@ export class ElementsJeuUtils {
         cor.nbCor = 1;
       } else {
         // 2. Chercher dans la liste des lieux.
-        cor.lieux = this.trouverLieu(sujet, prioriteLieuxAdjacents);
-        // ajouter les lieux aux éléments
+        if (typeSujet == TypeSujet.SujetEstIntitule) {
+          cor.lieux = this.trouverLieu(sujet, prioriteLieuxAdjacents);
+        } else {
+          const lieuTrouve = this.getLieuAvecNom(sujet.nomEpithete);
+          if (lieuTrouve) {
+            cor.lieux = [lieuTrouve];
+          } else {
+            cor.lieux = [];
+          }
+        }
+          // ajouter les lieux aux éléments
         if (cor.lieux.length > 0) {
           cor.elements = cor.elements.concat(cor.lieux);
           cor.nbCor += cor.lieux.length;
@@ -494,10 +540,18 @@ export class ElementsJeuUtils {
         // déterminer si le mot à chercher est au pluriel
         const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
 
-        // TODO: comparer score des objets avec score des autres types d’éléments.
-        cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
-        // cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
-
+        if (typeSujet === TypeSujet.SujetEstIntitule) {
+          // TODO: comparer score des objets avec score des autres types d’éléments.
+          cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
+          // cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
+        } else {
+          const objetTrouve = this.getObjetAvecNom(sujet.nomEpithete);
+          if (objetTrouve) {
+            cor.objets = [objetTrouve];
+          } else {
+            cor.objets = [];
+          }
+        }
         // ajouter les objets aux éléments
         if (cor.objets.length > 0) {
           cor.elements = cor.elements.concat(cor.objets);
@@ -1120,4 +1174,9 @@ export class ElementsJeuUtils {
     this.jeu.tamponConseils.push(conseil);
   }
 
+}
+
+export enum TypeSujet {
+  SujetEstNom,
+  SujetEstIntitule
 }

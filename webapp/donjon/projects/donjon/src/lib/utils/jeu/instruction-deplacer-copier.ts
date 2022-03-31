@@ -1,10 +1,10 @@
 import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
 import { ClasseUtils } from "../commun/classe-utils";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
@@ -395,7 +395,7 @@ export class InstructionDeplacerCopier {
           break;
 
         default:
-          let correspondanceSujet = this.eju.trouverCorrespondance(sujet, false, false);
+          let correspondanceSujet = this.eju.trouverCorrespondance(sujet, TypeSujet.SujetEstNom, false, false);
           // un élément trouvé
           if (correspondanceSujet.elements.length === 1) {
             objet = correspondanceSujet.objets[0];
