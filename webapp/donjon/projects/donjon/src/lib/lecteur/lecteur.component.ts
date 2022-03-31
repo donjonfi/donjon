@@ -169,7 +169,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si la commande commencer le jeu existe, commencer le jeu
       if (this.ctx.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
         // exécuter la commande « commencer le jeu »
-        this.executerLaCommande("commencer le jeu", false, true);
+        this.executerLaCommande("commencer le jeu", false, true, false);
         // sinon initialiser les éléments du jeu en fonction de la position du joueur
       } else {
         // définir visibilité des objets initiale
@@ -180,7 +180,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
         if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
           // exécuter la commande « regarder »
-          this.executerLaCommande("regarder", false, true);
+          this.executerLaCommande("regarder", false, true, false);
         } else {
           this.sortieJoueur = "";
         }
@@ -197,7 +197,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si la commande continuer le jeu existe, continuer le jeu
       if (this.ctx.jeu.actions.some(x => x.infinitif == 'continuer' && x.ceci && !x.cela)) {
         // exécuter la commande « continuer le jeu »
-        this.executerLaCommande("continuer le jeu", false, true);
+        this.executerLaCommande("continuer le jeu", false, true, false);
         // sinon, si la commande regarder existe, et s’il y a au moins 1 lieu, l’exécuter
       } else {
         // afficher info suite partie
@@ -205,7 +205,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // regarder
         if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
           // exécuter la commande « regarder »
-          this.executerLaCommande("regarder", false, false);
+          this.executerLaCommande("regarder", false, false, false);
         }
       }
     }
@@ -717,7 +717,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-        this.executerLaCommande(commandeNettoyee, true, false);
+        this.executerLaCommande(commandeNettoyee, true, false, false);
       }
     }
   }
@@ -728,10 +728,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param ajouterCommandeDansHistorique faut-il ajouter la commande à l’historique des commandes du joueur ?
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    */
-  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean) {
+  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
     // VÉREFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
     if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer) /i)) {
+      if (ecrireCommande) {
+        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+      }
       this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
     } else {
       // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
@@ -751,7 +754,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.historiqueCommandesPartie.push(this.commande);
 
       // EXÉCUTION DE LA COMMANDE
-      const sortieCommande = this.ctx.com.executerCommande(commandeNettoyee);
+      const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
+
+      if(ecrireCommande){
+        if (contexteCommande.commandeValidee) {
+          const commandeFinale = contexteCommande.evenement.infinitif + " " + contexteCommande.evenement.prepositionCeci + " " + contexteCommande.evenement.ceci + " " + contexteCommande.evenement.prepositionCela + " " + contexteCommande.evenement.cela;
+          // afficher la commande entrée par le joueur + son interprétation
+          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeFinale ? (' (' + commandeFinale + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+        } else {
+          // afficher la commande entrée par le joueur + son interprétation
+          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+        }
+      }
+
+      const sortieCommande = contexteCommande.sortie;
       if (sortieCommande) {
         // sortie spéciale: auto-triche
         if (sortieCommande == "@auto-triche@") {

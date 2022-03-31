@@ -51,8 +51,7 @@ export class Commandeur {
   }
 
   /** Exécuter la commande */
-  public executerCommande(commande: string): string {
-    let retVal = "";
+  public executerCommande(commande: string): ContexteCommande {
 
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
@@ -100,7 +99,7 @@ export class Commandeur {
       ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
       ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
     }
-    return ctxCmd.sortie;
+    return ctxCmd;
   }
 
   private chercherParmisLesActions(candidatCommande: CandidatCommande, ctx: ContexteCommande): void {
