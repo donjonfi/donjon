@@ -79,9 +79,11 @@ export class StringUtils {
         // transformer caractères spéciaux
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
-        .replace(/(é|è|ê|ë)/g, 'e')
-        .replace(/ï/g, 'i')
-        .replace(/(à|ä)/g, 'a')
+        .replace(/é|è|ê|ë/g, 'e')
+        .replace(/ï|î/g, 'i')
+        .replace(/à|ä|â/g, 'a')
+        .replace(/û|ù/g, 'u')
+        .replace(/ô/g, 'o')
         .replace(/ç/g, 'c')
         // retirer déterminant qui débute la chaîne
         .replace(/^(un |une |des |le |la |l'|l’|les )/, '');
@@ -103,9 +105,11 @@ export class StringUtils {
         // transformer caractères spéciaux
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
-        .replace(/(é|è|ê|ë)/g, 'e')
-        .replace(/ï/g, 'i')
-        .replace(/(à|ä)/g, 'a')
+        .replace(/é|è|ê|ë/g, 'e')
+        .replace(/ï|î/g, 'i')
+        .replace(/à|ä|â/g, 'a')
+        .replace(/û|ù/g, 'u')
+        .replace(/ô/g, 'o')
         .replace(/ç/g, 'c')
         // enlever les espaces en début et fin
         .trim()
