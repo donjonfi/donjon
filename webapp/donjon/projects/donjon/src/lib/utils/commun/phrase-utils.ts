@@ -6,6 +6,7 @@ import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { PositionObjet } from '../../models/jeu/position-objet';
+import { RechercheUtils } from './recherche-utils';
 import { TypeEvenement } from '../../models/jouer/type-evenement';
 
 export class PhraseUtils {
@@ -21,14 +22,14 @@ export class PhraseUtils {
       if (els) {
         const isCeci = els.sujet ? true : false;
         const ceci = els.sujet;
-        const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
+        const ceciNom = (isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
         const ceciClasse = null;
         const prepCeci = els.preposition0;
         const quantiteCeci = 0;
 
         const isCela = els.sujetComplement1 ? true : false;
         const cela = els.sujetComplement1;
-        const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
+        const celaNom = (isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
         const celaClasse = null;
         const prepCela = els.preposition1;
         const quantiteCela = 0;
@@ -53,14 +54,14 @@ export class PhraseUtils {
         if (actImp) {
           const ceci = PhraseUtils.getGroupeNominalDefini(actImp[1], false);
           const isCeci = true;
-          const ceciNom = (isCeci ? ((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).toLocaleLowerCase() : null);
+          const ceciNom = (isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
           const ceciClasse = null;
           const prepCeci = null;
           const quantiteCeci = 0;
 
           const cela = PhraseUtils.getGroupeNominalDefini(actImp[2], false);
           const isCela = cela ? true : false;
-          const celaNom = (isCela ? ((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "").toLocaleLowerCase()) : null);
+          const celaNom = (isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
           const celaClasse = null;
           const prepCela = null;
           const quantiteCela = 0;
