@@ -314,7 +314,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             this.sortieJoueur += '<ul class="no-bullet">';
             for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {
               const curChoix = this.interruptionEnCours.choix[indexChoix];
-              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + curChoix.valeur + '</li>';
+              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeur.toString(), this.ctx.dossierRessourcesComplet) + '</li>';
             }
             this.sortieJoueur += '</ul>'
             if (this.choixPossibles.length > 0) {
