@@ -638,7 +638,7 @@ export class InstructionDire {
       // ===================================================
       if (texteDynamique.includes("[c ")) {
         // retrouver toutes les balises de compteurs [c xxx]
-        const xBaliseGenerique = /\[c (\S+)\]/gi;
+        const xBaliseGenerique = /\[c (.+?)\]/gi;
         const allBalises = texteDynamique.match(xBaliseGenerique);
         // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
@@ -646,7 +646,7 @@ export class InstructionDire {
         balisesUniques.forEach(curBalise => {
           let resultatCurBalise: string = null;
           // retrouver la proppriété et la cible
-          const decoupe = /\[c (\S+)\]/i.exec(curBalise);
+          const decoupe = /\[c (.+?)\]/i.exec(curBalise);
           const compteurString = decoupe[1];
           let compteur: Compteur = null;
           // quantitéCeci
@@ -657,7 +657,7 @@ export class InstructionDire {
             compteur = new Compteur('quantitéCela', evenement.quantiteCela);
             // compteur normal
           } else {
-            compteur = this.jeu.compteurs.find(x => x.nom == compteurString);
+            compteur = this.eju.trouverCompteurAvecNom(compteurString);
           }
 
           if (compteur) {

@@ -211,7 +211,7 @@ export class ElementsJeuUtils {
   }
 
 
-  get curLieu() {
+  get curLieu(): Lieu {
     // TODO: retenir le lieu
     const lieuID = this.getLieuObjet(this.jeu.joueur);
     const retVal: Lieu = this.jeu.lieux.find(x => x.id === lieuID);
@@ -243,13 +243,13 @@ export class ElementsJeuUtils {
     }
   }
 
-  majPresenceDesObjets() {
+  public majPresenceDesObjets(): void {
     this.jeu.objets.forEach(obj => {
       this.majPresenceObjet(obj);
     });
   }
 
-  majPresenceObjet(obj: Objet) {
+  public majPresenceObjet(obj: Objet): void {
     // console.log("majPresenceObjet: ", obj.nom);
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
@@ -271,7 +271,7 @@ export class ElementsJeuUtils {
   }
 
 
-  getLieuObjet(obj: Objet): number {
+  getLieuObjet(obj: Objet): number | null {
     // objet pas positionné
     if (obj.position == null) {
       return null;
@@ -305,7 +305,7 @@ export class ElementsJeuUtils {
    * Retourne null si pas trouvé.
    * @param id 
    */
-  getLieu(id: number) {
+  getLieu(id: number): Lieu | undefined {
     return this.jeu.lieux.find(x => x.id === id);
   }
 
@@ -314,7 +314,7 @@ export class ElementsJeuUtils {
    * @param loc 
    * @param type 
    */
-  getVoisinDirectionID(loc: Localisation | ELocalisation, type: EClasseRacine) {
+  getVoisinDirectionID(loc: Localisation | ELocalisation, type: EClasseRacine): number {
     let voisin: Voisin = null;
     let localisation = (loc instanceof Localisation) ? loc.id : loc;
 
@@ -456,7 +456,92 @@ export class ElementsJeuUtils {
   }
 
 
-  getLieuAvecNom(recherche: string): Lieu | undefined {
+
+  /**
+   * Retrouver un lieu parmis tous les lieux sur base de son intitulé.
+   * Remarque: Il peut y avoir plus d’une correspondance.
+   */
+  trouverLieuSurIntituleAvecScore(recherche: GroupeNominal, prioriteLieuxAdjacents: boolean): [number, Lieu[]] {
+
+    let lieuxTrouvesAdjacents: [number, Lieu[]];
+    let lieuxTrouvesNonAdjacents: [number, Lieu[]];
+
+    // chercher parmis les lieux adjacents
+    const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
+    lieuxTrouvesAdjacents = this.suiteTrouverLieuSurIntituleAvecScore(lieuxAdjacents, recherche);
+
+    // si rien trouvé dans les lieux adjacents ou si pas priorité adjacents, chercher dans les autres
+    if (lieuxTrouvesAdjacents[0] == 0.0 || !prioriteLieuxAdjacents) {
+      const lieuxNonAdjacents = this.jeu.lieux.filter(x => !x.etats.includes(this.jeu.etats.adjacentID) && this.curLieu.id != x.id);
+      lieuxTrouvesNonAdjacents = this.suiteTrouverLieuSurIntituleAvecScore(lieuxNonAdjacents, recherche);
+      // retourner le meilleur score parmis les lieux trouvés
+      if (lieuxTrouvesAdjacents[0] > lieuxTrouvesNonAdjacents[0]) {
+        return lieuxTrouvesAdjacents;
+      } else if (lieuxTrouvesNonAdjacents[0] > lieuxTrouvesNonAdjacents[0] || lieuxTrouvesNonAdjacents[0] == 0.0) {
+        return lieuxTrouvesNonAdjacents;
+      } else {
+        // même score > 0.0 : on combine les 2
+        const tousLesLieuxTrouves = lieuxTrouvesAdjacents[1].concat(lieuxTrouvesNonAdjacents[1]);
+        return [lieuxTrouvesAdjacents[0], tousLesLieuxTrouves];
+      }
+    } else {
+      return lieuxTrouvesAdjacents;
+    }
+  }
+
+  private suiteTrouverLieuSurIntituleAvecScore(lieux: Lieu[], recherche: GroupeNominal): [number, Lieu[]] {
+
+    let meilleursCandidats: Lieu[] = [];
+    let meilleurScore = 0.0;
+
+    if (recherche) {
+
+      lieux.forEach(obj => {
+
+        let intituleOriginal = obj.intitule;
+
+        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles) : 0.0;
+
+        // si on n’a pas une correspondance exacte, essayer les synonymes
+        if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
+          for (const synonyme of obj.synonymes) {
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles);
+            if (scoreSynonyme > meilleurScorePourCetObjet) {
+              meilleurScorePourCetObjet = scoreSynonyme;
+              if (scoreSynonyme == 1.0) {
+                break;
+              }
+            }
+          }
+        }
+
+        // si on a un score > 0
+        if (meilleurScorePourCetObjet != 0) {
+          // si même score que le meilleur score, l’ajouter aux meilleurs candidats
+          if (meilleurScorePourCetObjet == meilleurScore) {
+            meilleursCandidats.push(obj);
+            // si nouveau meilleur score, remplacer les meilleurs candidats par celui-ci
+          } else if (meilleurScorePourCetObjet > meilleurScore) {
+            meilleurScore = meilleurScorePourCetObjet;
+            meilleursCandidats = [obj];
+          }
+        }
+
+      });
+
+      // si on cherche "ici"
+      if (meilleurScore < 1.0 && recherche.motsCles.length == 1 && recherche.motsCles[0] == 'ici') {
+        meilleurScore = 1.0;
+        meilleursCandidats = [this.curLieu]
+      }
+
+    }
+
+    return [meilleurScore, meilleursCandidats];
+
+  }
+
+  trouverLieuAvecNom(recherche: string): Lieu | undefined {
 
     const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
 
@@ -473,7 +558,7 @@ export class ElementsJeuUtils {
     return lieuTrouve;
   }
 
-  getObjetAvecNom(recherche: string): Objet | undefined {
+  trouverObjetAvecNom(recherche: string): Objet | undefined {
 
     const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
 
@@ -494,8 +579,28 @@ export class ElementsJeuUtils {
     return this.jeu.objets.find(x => x.id === id);
   }
 
-  getPrecisionTypeElement(typeElement: string) {
+  /**
+   * Retrouver une liste parmis toutes les listes sur base de son nom.
+   */
+  trouverListeAvecNom(recherche: string): Liste | undefined {
+    let listeTrouvee: Liste | undefined;
+    if (recherche) {
+      const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
+      listeTrouvee = this.jeu.listes.find(x => x.nom === rechercheNettoyee);
+    }
+    return listeTrouvee;
+  }
 
+  /**
+   * Retrouver un compteur parmis tous les compteurs sur base de son nom.
+   */
+  trouverCompteurAvecNom(recherche: string): Compteur | undefined {
+    let compteurTrouve: Compteur | undefined;
+    if (recherche) {
+      const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
+      compteurTrouve = this.jeu.compteurs.find(x => x.nom === rechercheNettoyee);
+    }
+    return compteurTrouve;
   }
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -509,9 +614,8 @@ export class ElementsJeuUtils {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
-      if (typeSujet == TypeSujet.SujetEstIntitule) {
-        cor.intitule = new Intitule(sujet.nom, sujet, ClassesRacines.Intitule);
-      }
+      cor.intitule = new Intitule(sujet.nomEpithete, sujet, ClassesRacines.Intitule);
+
       // 1. Chercher dans les directions.
       cor.localisation = ElementsJeuUtils.trouverLocalisation(sujet);
 
@@ -520,16 +624,17 @@ export class ElementsJeuUtils {
       } else {
         // 2. Chercher dans la liste des lieux.
         if (typeSujet == TypeSujet.SujetEstIntitule) {
-          cor.lieux = this.trouverLieu(sujet, prioriteLieuxAdjacents);
+          // TODO: comparer score des lieux avec score des autres types d’éléments.
+          cor.lieux = this.trouverLieuSurIntituleAvecScore(sujet, prioriteLieuxAdjacents)[1];
         } else {
-          const lieuTrouve = this.getLieuAvecNom(sujet.nomEpithete);
+          const lieuTrouve = this.trouverLieuAvecNom(sujet.nomEpithete);
           if (lieuTrouve) {
             cor.lieux = [lieuTrouve];
           } else {
             cor.lieux = [];
           }
         }
-          // ajouter les lieux aux éléments
+        // ajouter les lieux aux éléments
         if (cor.lieux.length > 0) {
           cor.elements = cor.elements.concat(cor.lieux);
           cor.nbCor += cor.lieux.length;
@@ -542,10 +647,10 @@ export class ElementsJeuUtils {
 
         if (typeSujet === TypeSujet.SujetEstIntitule) {
           // TODO: comparer score des objets avec score des autres types d’éléments.
-          cor.objets = this.trouverObjetAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
+          cor.objets = this.trouverObjetSurIntituleAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
           // cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         } else {
-          const objetTrouve = this.getObjetAvecNom(sujet.nomEpithete);
+          const objetTrouve = this.trouverObjetAvecNom(sujet.nomEpithete);
           if (objetTrouve) {
             cor.objets = [objetTrouve];
           } else {
@@ -558,11 +663,22 @@ export class ElementsJeuUtils {
           cor.nbCor += cor.objets.length;
         }
         // 4. Chercher parmis les compteurs
-        cor.compteurs = this.trouverCompteur(sujet);
-        cor.nbCor += cor.compteurs.length;
+        const compteurTrouve = this.trouverCompteurAvecNom(sujet.nomEpithete);
+        if (compteurTrouve) {
+          cor.nbCor += 1;
+          cor.compteurs = [compteurTrouve];
+        } else {
+          cor.compteurs = [];
+        }
+
         // 5. Chercher parmis les listes
-        cor.listes = this.trouverListe(sujet);
-        cor.nbCor += cor.listes.length;
+        const listeTrouvee = this.trouverListeAvecNom(sujet.nomEpithete);
+        if (listeTrouvee) {
+          cor.nbCor += 1;
+          cor.listes = [listeTrouvee]
+        } else {
+          cor.listes = [];
+        }
       }
       if (this.verbeux) {
         console.log(" >>>> éléments trouvés:", cor.elements);
@@ -710,20 +826,20 @@ export class ElementsJeuUtils {
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
-  trouverObjetAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i): [number, Objet[]] {
+  trouverObjetSurIntituleAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i): [number, Objet[]] {
 
     let objetsTrouvesPresents: [number, Objet[]];
     let objetsTrouvesNonPresents: [number, Objet[]];
 
     // chercher parmi les objets présents
     const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
-    objetsTrouvesPresents = this.nouveauSuiteTrouverObjet(objetsPresents, recherche, nombre);
+    objetsTrouvesPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsPresents, recherche, nombre);
 
     // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
     if (objetsTrouvesPresents[0] == 0.0 || !prioriteObjetsPresents) {
       // chercher parmi les objets NON présents
       const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
-      objetsTrouvesNonPresents = this.nouveauSuiteTrouverObjet(objetsNonPresents, recherche, nombre);
+      objetsTrouvesNonPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsNonPresents, recherche, nombre);
       // retourner le meilleur score parmis les objets trouvés
       if (objetsTrouvesPresents[0] > objetsTrouvesNonPresents[0]) {
         return objetsTrouvesPresents;
@@ -749,7 +865,7 @@ export class ElementsJeuUtils {
    *  - 0.5 : correspondance exacte partielle
    *  - 0.375: correspondance proche partielle
    */
-  private nouveauSuiteTrouverObjet(objets: Objet[], recherche: GroupeNominal, nombre: Nombre): [number, Objet[]] {
+  private suiteTrouverObjetSurIntituleAvecScore(objets: Objet[], recherche: GroupeNominal, nombre: Nombre): [number, Objet[]] {
 
     let meilleursCandidats: Objet[] = [];
     let meilleurScore = 0.0;
@@ -786,6 +902,7 @@ export class ElementsJeuUtils {
           }
         }
 
+        // si on a un score > 0
         if (meilleurScorePourCetObjet != 0) {
           // si même score que le meilleur score, l’ajouter aux meilleurs candidats
           if (meilleurScorePourCetObjet == meilleurScore) {
@@ -845,107 +962,6 @@ export class ElementsJeuUtils {
       }
 
     });
-
-    return retVal;
-  }
-
-  /**
-   * Retrouver un compteur parmis tous les compteurs sur base de son intitulé.
-   * Remarque: Il peut y avoir plus d’une correspondance.
-   */
-  trouverCompteur(sujet: GroupeNominal): Compteur[] {
-
-    let compteursTrouves: Compteur[] = [];
-    const sujetNom = sujet.nom.toLowerCase();
-    const sujetEpithete = sujet.epithete?.toLowerCase();
-
-    // Rechercher dans les compteurs
-    this.jeu.compteurs.forEach(
-      cpt => {
-        if (cpt.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === cpt.intitule.epithete?.toLowerCase())) {
-          compteursTrouves.push(cpt);
-        }
-      }
-    );
-
-    return compteursTrouves;
-  }
-
-  /**
- * Retrouver une liste parmis toutes les listes sur base de son intitulé.
- * Remarque: Il peut y avoir plus d’une correspondance.
- */
-  trouverListe(sujet: GroupeNominal): Liste[] {
-    let listesTrouvees: Liste[] = [];
-
-    if (sujet) {
-      const sujetNom = sujet.nom.toLowerCase();
-      const sujetEpithete = sujet.epithete?.toLowerCase();
-
-      // Rechercher dans les listes
-      this.jeu.listes.forEach(
-        lst => {
-          if (lst.intitule.nom.toLowerCase() === sujetNom && (sujetEpithete === lst.intitule.epithete?.toLowerCase())) {
-            listesTrouvees.push(lst);
-          }
-        }
-      );
-    }
-
-    return listesTrouvees;
-  }
-
-
-  /**
-   * Retrouver un lieu parmis tous les lieux sur base de son intitulé.
-   * Remarque: Il peut y avoir plus d’une correspondance.
-   */
-  trouverLieu(sujet: GroupeNominal, prioriteLieuxAdjacents: boolean): Lieu[] {
-
-    let lieuxTrouves: Lieu[] = null;
-    const sujetNom = sujet.nom.toLowerCase();
-    const sujetEpithete = sujet.epithete?.toLowerCase();
-
-    // chercher parmis les objets présents
-    const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
-    // console.warn("lieuxAdjacents=", lieuxAdjacents);
-    lieuxTrouves = this.suiteTrouverLieu(lieuxAdjacents, sujetNom, sujetEpithete);
-    // console.warn("lieuxTrouves=", lieuxTrouves);
-
-    // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
-    if (lieuxTrouves.length === 0 || !prioriteLieuxAdjacents) {
-      const lieuxNonAdjacents = this.jeu.lieux.filter(x => !x.etats.includes(this.jeu.etats.adjacentID) && this.curLieu.id != x.id);
-      lieuxTrouves = lieuxTrouves.concat(this.suiteTrouverLieu(lieuxNonAdjacents, sujetNom, sujetEpithete));
-      // console.warn("lieuxTrouves=", lieuxTrouves);
-    }
-
-    return lieuxTrouves;
-  }
-
-
-  private suiteTrouverLieu(lieux: Lieu[], sujetNom: string, sujetEpithete: string): Lieu[] {
-
-    let retVal: Lieu[] = [];
-
-    lieux.forEach(li => {
-      // A. regarder dans l'intitulé du lieu
-      if (li.intitule.nom.toLowerCase() === sujetNom && (li.intitule.epithete?.toLowerCase() == sujetEpithete)) {
-        retVal.push(li);
-      } else {
-        // B. Regarder dans les synonymes du lieu
-        if (li.synonymes) {
-          li.synonymes.forEach(synonyme => {
-            if (synonyme.nom.toLowerCase() === sujetNom && (synonyme.epithete?.toLowerCase() == sujetEpithete)) {
-              retVal.push(li);
-            }
-          });
-        }
-      }
-    });
-
-    if (sujetNom == 'ici' && !sujetEpithete) {
-      retVal.push(this.curLieu)
-    }
 
     return retVal;
   }

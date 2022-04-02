@@ -114,17 +114,17 @@ describe('Instructions − Lieux', () => {
 
   it('vérifier trouverLieu', function (this: ThisContext) {
     // trouver la cuisine
-    let resultats = this.eju.trouverLieu(this.cuisine.intitule, false);
-    expect(resultats.length).toBe(1);
-    expect(resultats[0]).toBe(this.cuisine);
+    let resultats = this.eju.trouverLieuSurIntituleAvecScore(this.cuisine.intitule, false);
+    expect(resultats[1].length).toBe(1);
+    expect(resultats[1][0]).toBe(this.cuisine);
     // trouver la salle de bain
-    resultats = this.eju.trouverLieu(this.sdb.intitule, false);
-    expect(resultats.length).toBe(1);
-    expect(resultats[0]).toBe(this.sdb);
+    resultats = this.eju.trouverLieuSurIntituleAvecScore(this.sdb.intitule, false);
+    expect(resultats[1].length).toBe(1);
+    expect(resultats[1][0]).toBe(this.sdb);
     // trouver la chambre à coucher
-    resultats = this.eju.trouverLieu(this.chambre.intitule, false);
-    expect(resultats.length).toBe(1);
-    expect(resultats[0]).toBe(this.chambre);
+    resultats = this.eju.trouverLieuSurIntituleAvecScore(this.chambre.intitule, false);
+    expect(resultats[1].length).toBe(1);
+    expect(resultats[1][0]).toBe(this.chambre);
   });
 
   it('vérifier getLieuObjet(joueur)', function (this: ThisContext) {

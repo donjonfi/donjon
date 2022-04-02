@@ -422,9 +422,9 @@ export class Liste extends Intitule {
       this.valeurs.forEach(valeur => {
         if (premier) {
           premier = false;
-          retVal += "{e}•{e}" + valeur.toString()
+          retVal += "{e}•{e}" + (valeur?.toString() ?? '(problème valeur)')
         } else {
-          retVal += "{n}{e}•{e}" + valeur.toString()
+          retVal += "{n}{e}•{e}" + (valeur?.toString() ?? '(problème valeur)')
         }
       });
     }

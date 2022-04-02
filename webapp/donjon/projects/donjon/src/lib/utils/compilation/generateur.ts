@@ -117,8 +117,7 @@ export class Generateur {
       // mettre majuscule en début d’intitulé (début de Phrase)
       let titre = titreSansAutoMaj[0].toUpperCase() + titreSansAutoMaj.slice(1);
       let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-
-      let nouvLieu = new Lieu(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, titre);
+      let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
       nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
@@ -253,7 +252,7 @@ export class Generateur {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
-        let newObjet = new Objet(jeu.nextID++, (curEle.nom.toLowerCase() + (curEle.epithete ? (" " + curEle.epithete.toLowerCase()) : "")), intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
+        let newObjet = new Objet(jeu.nextID++, intitule.nomEpithete, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
         if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
@@ -333,7 +332,7 @@ export class Generateur {
                 newObjet.intituleS = newObjet.intitule;
               }
             } else {
-              ctx.ajouterErreur("L’intitulé « " + pro.valeur + " » n’est pas supporté (" + pro.nom +" => " + newObjet.nom + ")");
+              ctx.ajouterErreur("L’intitulé « " + pro.valeur + " » n’est pas supporté (" + pro.nom + " => " + newObjet.nom + ")");
             }
             // autres propriétés
           } else {
@@ -457,8 +456,8 @@ export class Generateur {
     // GÉNÉRER LES COMPTEURS
     // *********************
     rc.compteurs.forEach(cpt => {
-      const curCompteur = new Compteur(cpt.nom, 0, new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete), ClassesRacines.Compteur);
-
+      const intitule = new GroupeNominal(cpt.determinant, cpt.nom, cpt.epithete);
+      const curCompteur = new Compteur(intitule.nomEpithete, 0, intitule, ClassesRacines.Compteur);
       // vérifier les attributs du compteur
       cpt.attributs.forEach(curAttribut => {
         // valeur initialisation
@@ -476,7 +475,8 @@ export class Generateur {
     // GÉNÉRER LES LISTES
     // *********************
     rc.listes.forEach(lst => {
-      const curListe = new Liste(lst.nom, new GroupeNominal(lst.determinant, lst.nom, lst.epithete), ClassesRacines.ListeVide);
+      const intitule = new GroupeNominal(lst.determinant, lst.nom, lst.epithete);
+      const curListe = new Liste(intitule.nomEpithete, intitule, ClassesRacines.ListeVide);
 
       if (lst.valeursNombre.length) {
         curListe.ajouterNombres(lst.valeursNombre);

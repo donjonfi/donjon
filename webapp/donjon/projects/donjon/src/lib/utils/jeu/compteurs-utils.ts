@@ -192,13 +192,9 @@ export class CompteursUtils {
         const resultatGN = ExprReg.xGroupeNominalArticleDefini.exec(valeurString);
         if (resultatGN) {
           let gn = new GroupeNominal(resultatGN[1] ?? null, resultatGN[2], resultatGN[3] ?? null);
-          const curCompteur = eju.trouverCompteur(gn);
-          if (curCompteur && curCompteur.length) {
-            if (curCompteur.length == 1) {
-              valeurNum = curCompteur[0].valeur;
-            } else {
-              console.error("intituleValeurVersNombre: plusieurs compteurs trouvés pour ", valeurString);
-            }
+          const curCompteur = eju.trouverCompteurAvecNom(gn.nomEpithete);
+          if (curCompteur) {
+            valeurNum = curCompteur.valeur;
           }
         }
 

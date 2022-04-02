@@ -369,13 +369,9 @@ export class Instructions {
         break;
 
       case 'vider':
-        const liste = this.eju.trouverListe(instruction.sujet);
-        if (liste.length) {
-          if (liste.length == 1) {
-            liste[0].vider();
-          } else {
-            contexteTour.ajouterErreurInstruction(instruction, "vider liste: plusieurs listes trouvées: " + instruction)
-          }
+        const liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
+        if (liste) {
+          liste.vider();
         } else {
           contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction)
         }

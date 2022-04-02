@@ -45,6 +45,7 @@ export class InstructionsUtils {
         case 'cela?':
           cible = contexteTour.cela ? contexteTour.cela as ElementJeu : null;
           break;
+        case 'quantitececi':
         case 'quantitéceci':
           cible = InstructionsUtils.copierElementTemp(contexteTour.ceci as Objet);
           if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
@@ -73,6 +74,7 @@ export class InstructionsUtils {
             }
           }
           break;
+        case 'quantitecela':
         case 'quantitécela':
           cible = InstructionsUtils.copierElementTemp(contexteTour.cela as Objet);
           if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
@@ -193,16 +195,13 @@ export class InstructionsUtils {
   }
 
   public static trouverListe(recherche: GroupeNominal, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): Liste | undefined {
-    const resultats = eju.trouverListe(recherche);
-    if (resultats.length == 1) {
-      return resultats[0];
-    } else if (resultats.length == 0) {
+    const listeTrouvee = eju.trouverListeAvecNom(recherche.nomEpithete);
+    if (listeTrouvee) {
+      return listeTrouvee;
+    } else {
       if (erreurSiPasTrouve) {
         console.error("trouverListe > élément pas trouvé:", recherche);
       }
-      return undefined;
-    } else {
-      console.error("trouverListe > plusieurs correspondances trouvées:", recherche);
       return undefined;
     }
   }
