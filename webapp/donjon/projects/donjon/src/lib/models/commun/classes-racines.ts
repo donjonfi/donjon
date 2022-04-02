@@ -9,6 +9,8 @@ export class ClassesRacines {
 
   /** Il s’agit d’un nombre ayant un intitulé */
   public static Compteur = new Classe(EClasseRacine.compteur, "compteur", ClassesRacines.Intitule, 1, []);
+  /** Il s'agit d'un compteur ayant une unité */
+  public static Ressource = new Classe(EClasseRacine.ressource, "ressource", ClassesRacines.Compteur, 2, []);
 
   /** Il s’agit d’une liste d’éléments (textes, nombres, intitulés, mixte, …)  */
   public static Liste = new Classe(EClasseRacine.liste, "liste", ClassesRacines.Intitule, 1, []);

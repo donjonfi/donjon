@@ -5,6 +5,7 @@ export const versionNum = 402;
 export enum EClasseRacine {
   intitule = 'intitule',
   compteur = 'compteur',
+  ressource = 'ressource',
   liste = 'liste',
   listeVide = 'listevide',
   listeNombre = 'listenombre',
