@@ -18,6 +18,9 @@ export class Jeu {
 
   }
 
+  /** IFID du jeu (identifiant unique) */
+  IFID: string | undefined;
+
   /** Titre du jeu. */
   titre: string | undefined;
 

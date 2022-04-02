@@ -24,6 +24,7 @@ import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
 import { lastValueFrom } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-editeur',
@@ -458,6 +459,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
             // changer l’url pour ne plus inclure le nom du fichier
             this.location.replaceState("/");
             // charger le code source
+            if(nouveau){
+              texte = this.genererIFID() + texte;
+            }
             this.initCodeSource(texte);
           }, erreur => {
             console.error("Fichier modèle pas trouvé:", erreur);
@@ -1124,6 +1128,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
         }
       }, (this.codeEditorElmRef && this.codeEditorElmRef["directiveRef"]?.ace()) ? 0 : 200);
     }
+  }
+
+
+  // =============================================
+  //  IFID
+  // =============================================
+
+  genererIFID(): string {
+    let uuid = 'd0f1' + uuidv4().slice(4);
+    return '-- Idenfifiant unique de votre jeu\nL’IFID du jeu est "' + uuid + '".\n'
   }
 
 }

@@ -70,6 +70,7 @@ export class Generateur {
     // ****************
     const jeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'jeu');
     if (jeuDansMonde) {
+      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === "ifid")?.valeur;
       jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === "auteur")?.valeur;
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === "auteurs")?.valeur;

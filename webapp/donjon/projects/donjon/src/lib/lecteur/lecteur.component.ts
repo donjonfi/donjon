@@ -117,7 +117,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (this.ctx.jeu.version) {
       this.sortieJoueur += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.version) + '</small>');
     }
-    this.sortieJoueur += '</h5><p>Un jeu de ';
+    this.sortieJoueur += '</h5>';
+
+    // inclure le IFID
+    if (this.ctx.jeu.IFID) {
+      this.sortieJoueur += "<p>UUID://" + BalisesHtml.retirerBalisesHtml(this.jeu.IFID) + '//<p>';
+    }
+
+    this.sortieJoueur += '<p>Un jeu de ';
 
     // afficher l’auteur du jeu
     if (this.ctx.jeu.auteur) {
