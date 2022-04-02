@@ -48,7 +48,7 @@ export class RechercheUtils {
    *   - on transforme les majuscules en minuscules
    *   - on transforme les caractères spéciaux (accents, cédilles, ligatures) en leur équivalent simplifié
    *   - on retire les mots trops communs (déterminants, prépositions, …)
-   *   - on retourne les mots restants sous la forme d’une liste.
+   *   => on retourne les mots restants sous la forme d’une liste.
    * @argument expression expression déjà converties en minuscules :
    * les mots trop commun contenants des majuscules ne seront pas retirés.
    */
@@ -59,6 +59,32 @@ export class RechercheUtils {
       motsClesConserves = this.transformerEnMotsCles(expressionNettoyee);
     }
     return motsClesConserves;
+  }
+
+  /** 
+   * L’expression est nettoyée et on retire les déterminants :
+   *   - on transforme les majuscules en minuscules
+   *   - on transforme les caractères spéciaux (accents, cédilles, ligatures) en leur équivalent simplifié
+   *   - on retire les espaces multiples
+   *   - on retire les déterminants
+   *   - on retire les espaces en début et en fin d’expression
+   *   => on retourne les mots restants sous d’une chaîne de caractères.
+   * @argument expression expression déjà converties en minuscules :
+   * les mots trop commun contenants des majuscules ne seront pas retirés.
+   */
+  public static nettoyerEtRetirerDeterminants(expression: string): string {
+    let expressionNettoyee: string = "";
+    if (expression) {
+      // transformer majuscules et accents
+      expressionNettoyee = this.transformerCaracteresSpeciauxEtMajuscules(expression)
+        // enlever les déterminants
+        .replace(this.determinants, '')
+        // enlever les espaces multiples
+        .replace(/( +)/g, " ")
+        // enlever espaces en début/fin de chaîne
+        .trim();
+    }
+    return expressionNettoyee;
   }
 
   /** 
@@ -81,7 +107,8 @@ export class RechercheUtils {
     return motsClesConserves;
   }
 
-  public static readonly motsTropCommuns = /^(le|la|les|l|un|une|du|de|des|d|n|s|a|à|au|aux|et|ou|où|mais|avec|dans|sur|sous|vers)$/
+  public static readonly motsTropCommuns = /^(le|la|les|l|un|une|du|de|des|d|n|s|a|à|au|aux|et|ou|où|mais|avec|dans|sur|sous|vers)$/;
+  public static readonly determinants = /((?:\b(?:le|la|les|un|une|du|de|des)\b)|(?:\bl(?:’|')))/gi;
 
   /**
    * Retourne un nombre décimal compris entre 0.0 et 1.0 correspondant au pourcentage de correspondance

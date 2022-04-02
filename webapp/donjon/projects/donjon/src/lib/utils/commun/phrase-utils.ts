@@ -41,7 +41,7 @@ export class PhraseUtils {
           // ceci
           isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
           // cela
-          isCela, prepCela, quantiteCela, celaNom, celaClasse
+          isCela, prepCela, quantiteCela, celaNom, celaClasse,
         );
 
         retVal.push(ev);
@@ -73,7 +73,7 @@ export class PhraseUtils {
             // ceci
             isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
             // cela
-            isCela, prepCela, quantiteCela, celaNom, celaClasse
+            isCela, prepCela, quantiteCela, celaNom, celaClasse,
           );
 
           retVal.push(ev);

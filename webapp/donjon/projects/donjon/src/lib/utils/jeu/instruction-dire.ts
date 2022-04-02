@@ -26,6 +26,7 @@ import { PhraseUtils } from "../commun/phrase-utils";
 import { ProprieteElement } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
 import { StringUtils } from "../commun/string.utils";
+import { TexteUtils } from "../commun/texte-utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 
@@ -798,10 +799,7 @@ export class InstructionDire {
 
     // retirer toutes les balises de style
     // => cela permet de savoir s’il y a du texte autre que les balises de style.
-    const texteDynamiqueSansBaliseStyle = texteDynamique
-      .replace(/\{\S\}/g, "") // {x}
-      .replace(/\{\S/g, "")   // {x
-      .replace(/\S\}/g, "");   // x}
+    const texteDynamiqueSansBaliseStyle = TexteUtils.enleverBalisesStyleDonjon(texteDynamique);
 
     if (texteDynamique.includes("{N}")) {
       // texte vide

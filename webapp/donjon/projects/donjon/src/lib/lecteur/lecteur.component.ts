@@ -9,6 +9,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { DOCUMENT } from '@angular/common';
 import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
+import { TexteUtils } from '../utils/commun/texte-utils';
 
 @Component({
   selector: 'djn-lecteur',
@@ -713,11 +714,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
-        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+        // this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-        this.executerLaCommande(commandeNettoyee, true, false, false);
+        this.executerLaCommande(commandeNettoyee, true, false, true);
       }
     }
   }
@@ -756,14 +757,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // EXÉCUTION DE LA COMMANDE
       const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
 
-      if(ecrireCommande){
-        if (contexteCommande.commandeValidee) {
-          const commandeFinale = contexteCommande.evenement.infinitif + " " + contexteCommande.evenement.prepositionCeci + " " + contexteCommande.evenement.ceci + " " + contexteCommande.evenement.prepositionCela + " " + contexteCommande.evenement.cela;
+      if (ecrireCommande) {
+        if (contexteCommande.commandeValidee || contexteCommande.evenement?.commandeComprise) {
+          const commandeFinale = contexteCommande.evenement.commandeComprise;
           // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeFinale ? (' (' + commandeFinale + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
         } else {
           // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
         }
       }
 

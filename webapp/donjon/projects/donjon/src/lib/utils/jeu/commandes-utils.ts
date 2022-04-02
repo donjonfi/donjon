@@ -1,3 +1,5 @@
+import { RechercheUtils } from "../commun/recherche-utils";
+
 export class CommandesUtils {
   /** Nettoyer la commmande pour ne pas afficher une erreur en cas de 
    *  faute de frappe… (espaces au début et à la fin, espaces multiples, espaces insécables)
@@ -12,6 +14,12 @@ export class CommandesUtils {
       .trim();
 
     return commandeNettoyee;
+  }
+
+  public static commandesSimilaires(commandeA: string, commandeB: string): boolean {
+    const commandeANettoyee = RechercheUtils.nettoyerEtRetirerDeterminants(commandeA);
+    const commandeBNettoyee = RechercheUtils.nettoyerEtRetirerDeterminants(commandeB);
+    return commandeANettoyee == commandeBNettoyee;
   }
 }
 

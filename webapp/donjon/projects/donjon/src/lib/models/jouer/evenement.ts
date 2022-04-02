@@ -26,6 +26,8 @@ export class Evenement {
     public cela: string = null,
     /** Classe de cela (2e complément) */
     public classeCela: Classe = null,
+    /** La commande correspondant à l’évènement */
+    public commandeComprise: string | undefined = undefined,
   ) { }
 
 }

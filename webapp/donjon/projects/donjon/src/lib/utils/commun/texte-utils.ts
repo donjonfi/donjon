@@ -24,4 +24,12 @@ export class TexteUtils {
     return retVal;
   }
 
+  /** Enlever les balises de style Donjon du texte */
+  static enleverBalisesStyleDonjon(texte: string): string {
+    return texte
+    .replace(/\{\S\}/g, "") // {x}
+    .replace(/\{\S/g, "")   // {x
+    .replace(/\S\}/g, "");   // x}
+  }
+
 }
