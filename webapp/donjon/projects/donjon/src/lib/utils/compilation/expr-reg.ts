@@ -644,7 +644,7 @@ export class ExprReg {
    * choix ("texte"(1)|nombre(2)|intitulé(3)): instructions(4)
    * TODO: gérer float ?
    */
-  static readonly xChoixTexteNombreOuIntitule = /^choix (?:("(?:[^"]+?)")|(0|(?:[1-9]\d*))|([^\d"][^"]*?))\s*:\s*(.+)$/i;
+  static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
 
   /**
    * (autre[s] choix)(1): instructions(2)

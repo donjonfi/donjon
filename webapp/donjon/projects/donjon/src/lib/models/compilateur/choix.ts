@@ -3,11 +3,16 @@ import { StringUtils } from "../../utils/commun/string.utils";
 import { Valeur } from "../jeu/valeur";
 
 export class Choix {
-  public valeurNormalisee: string;
+  public valeursNormalisees: string[];
   constructor(
-    public valeur: Valeur,
+    public valeurs: Valeur[],
     public instructions: Instruction[],
   ) {
-    this.valeurNormalisee = StringUtils.normaliserReponse(valeur.toString());
+    // définir les valeurs normalisées
+    this.valeursNormalisees = [];
+    valeurs.forEach(valeur => {
+      this.valeursNormalisees.push(StringUtils.normaliserReponse(valeur.toString()));
+    });
+
   }
 }

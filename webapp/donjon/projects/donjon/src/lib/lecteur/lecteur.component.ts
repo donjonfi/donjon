@@ -320,7 +320,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             this.sortieJoueur += '<ul class="no-bullet">';
             for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {
               const curChoix = this.interruptionEnCours.choix[indexChoix];
-              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeur.toString(), this.ctx.dossierRessourcesComplet) + '</li>';
+              // pour les QCM: toujours 1 seule valeur par choix !
+              // sinon on s'en sort pas avec les lettres et la gestion des index...
+              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeurs[0].toString(), this.ctx.dossierRessourcesComplet) + '</li>';
             }
             this.sortieJoueur += '</ul>'
             if (this.choixPossibles.length > 0) {
@@ -401,7 +403,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
         // sauvegarder la réponse dans le contexte du tour
-        this.interruptionEnCours.tour.reponse = choix.valeur.toString();
+        // remarques : toujours une seule valeur pour les choix statiques !
+        this.interruptionEnCours.tour.reponse = choix.valeurs[0].toString();
         // terminer l’interruption
         this.terminerInterruption(choix);
       }
@@ -421,10 +424,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     let estAutreChoix = false;
 
     // choix classique
-    let indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == choixNettoye);
+    let indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeursNormalisees.includes(choixNettoye));
     // essayer "autre choix"
     if (indexChoix == -1) {
-      indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeurNormalisee == "autre choix");
+      indexChoix = this.interruptionEnCours.choix.findIndex(x => x.valeursNormalisees.includes("autre choix"));
       estAutreChoix = true;
     }
 
@@ -443,7 +446,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         if (estAutreChoix) {
           this.interruptionEnCours.tour.reponse = choixPasNettoye;
         } else {
-          this.interruptionEnCours.tour.reponse = choix.valeur;
+          // retrouver la valeurs parmis les valeurs possibles
+          const indexValeur = choix.valeursNormalisees.findIndex(x => x == choixNettoye);
+          this.interruptionEnCours.tour.reponse = choix.valeurs[indexValeur];
         }
         // terminer l’interruption
         this.terminerInterruption(choix);
@@ -764,7 +769,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
 
       if (ecrireCommande) {
-        if (contexteCommande.commandeValidee || contexteCommande.evenement?.commandeComprise) {
+        if (contexteCommande.evenement?.commandeComprise) {
           const commandeFinale = contexteCommande.evenement.commandeComprise;
           // afficher la commande entrée par le joueur + son interprétation
           this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')')), this.ctx.dossierRessourcesComplet) + '</span>';

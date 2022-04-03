@@ -366,7 +366,7 @@ export class AnalyseurInstructions {
     //          choix "non":
     //            ....
     //        fin choisir
-    if (premierChoixOuParmis.match(ExprReg.xChoixTexteNombreOuIntitule)) {
+    if (ExprReg.xChoixTexteNombreOuIntitule.test(premierChoixOuParmis)) {
       // console.warn("a. CHOISIR DIRECTEMENT PARMIS LES CHOIX");
 
       // => on remet le reste de l’instruction dans la liste des instructions pour l’interpréter à la prochaine itération.
@@ -409,23 +409,26 @@ export class AnalyseurInstructions {
     // première instruction pour ce choix
     const premiereInstructionChoix = resultChoixIns[2];
     // console.log("premiereInstructionChoix:", premiereInstructionChoix);
-    this.suiteTraiterInstructionChoix(valeurChoix, premiereInstructionChoix, ctx);
+    this.suiteTraiterInstructionChoix([valeurChoix], premiereInstructionChoix, ctx);
   }
 
   /** Traiter un choix (d’une instruction choisir) */
   private static traiterInstructionChoix(resultChoixIns: RegExpExecArray, ctx: ContexteSeparerInstructions) {
-    let valeurChoix: Valeur;
+    let valeursChoix: Valeur[];
     // texte
     if (resultChoixIns[1] !== undefined) {
-      valeurChoix = resultChoixIns[1];
+      // séparer les textes
+      valeursChoix = PhraseUtils.separerListeTextesOu(resultChoixIns[1], true);
       // nombre
     } else if (resultChoixIns[2] !== undefined) {
+      // séparer les nombres
       // TODO: parseFloat ?
-      valeurChoix = Number.parseInt(resultChoixIns[2]);
+      valeursChoix = PhraseUtils.separerListeNombresEntiers(resultChoixIns[2], true);
       // intitulé (aucun choix, autre choix, élément précis, élémentA ou élémentB, …)
-      // TODO: à améliorer ?
     } else {
-      valeurChoix = new Intitule(resultChoixIns[3], undefined, ClassesRacines.Intitule);
+      // TODO: séparer les intitulés
+      // TODO: à améliorer ?
+      valeursChoix = [new Intitule(resultChoixIns[3], undefined, ClassesRacines.Intitule)];
     }
 
     // première instruction pour ce choix
@@ -433,11 +436,11 @@ export class AnalyseurInstructions {
 
     // console.log("premiereInstructionChoix:", premiereInstructionChoix);
 
-    this.suiteTraiterInstructionChoix(valeurChoix, premiereInstructionChoix, ctx);
+    this.suiteTraiterInstructionChoix(valeursChoix, premiereInstructionChoix, ctx);
 
   }
 
-  private static suiteTraiterInstructionChoix(valeurChoix: Valeur, premiereInstructionChoix: string, ctx: ContexteSeparerInstructions) {
+  private static suiteTraiterInstructionChoix(valeursChoix: Valeur[], premiereInstructionChoix: string, ctx: ContexteSeparerInstructions) {
     // s’il ne s’agit PAS du premier choix du bloc choisir
     if (ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].length != 0) {
       // fermer le choix précédent
@@ -455,7 +458,7 @@ export class AnalyseurInstructions {
 
     // ajout du nouveau choix au bloc choisir le plus récent
     let nouvelleListeInstructionsChoix = new Array<Instruction>();
-    ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].push(new Choix(valeurChoix, nouvelleListeInstructionsChoix));
+    ctx.choixBlocsChoisirEnCours[ctx.indexBlocChoisirCommence].push(new Choix(valeursChoix, nouvelleListeInstructionsChoix));
 
     // ajout d’une liste d’instructions pour ce nouveau choix
     ctx.instructionsBlocsChoixEnCours.push(nouvelleListeInstructionsChoix);

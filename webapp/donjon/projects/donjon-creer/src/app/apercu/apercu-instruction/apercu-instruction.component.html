@@ -51,7 +51,7 @@
   <ul>
     <li>Action: choisir</li>
     <li *ngFor="let choix of ins.choix; index as i">
-      Choix {{i+1}} : {{choix.valeur}}
+      Choix {{i+1}} : <span *ngFor="let valeur of choix.valeurs; index as j">{{(j > 0 ? ' ou ' : '') + valeur}}</span>
       <ul>
         <li *ngFor="let ins of choix.instructions; index as k">
           Instruction {{(k+1)}} :

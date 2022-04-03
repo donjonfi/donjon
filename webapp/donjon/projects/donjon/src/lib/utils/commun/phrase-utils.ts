@@ -106,6 +106,62 @@ export class PhraseUtils {
     return retVal;
   }
 
+  /** Obtenir une liste de nombres sur base d'une chaîne de textes séparés par des "," et un "ou" 
+ * @param intitulesString texte à séparer sur les virgules et les et.
+ * @param autoriserVirguleEtOu autoriser ", ou" et ",ou"
+ */
+  public static separerListeNombresEntiers(nombresString: string, autoriserVirguleOu: boolean): number[] {
+    if (nombresString && nombresString.trim() !== '') {
+      let listeNombresEntiersString: string[];
+      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+      if (autoriserVirguleOu) {
+        listeNombresEntiersString = nombresString.trim().split(/(?:",ou "|", ou "|", "|" ou ")+/);
+      } else {
+        listeNombresEntiersString = nombresString.trim().split(/(?:", "|" ou ")+/);
+      }
+      let listeNombresEntiers: number[];
+      listeNombresEntiersString.forEach(nombreEntierString => {
+        listeNombresEntiers.push(Number.parseInt(nombreEntierString));
+      });
+      return listeNombresEntiers;
+    } else {
+      return new Array<number>();
+    }
+  }
+
+  /** Obtenir une liste de textes sur base d'une chaîne de textes séparés par des "," et un "ou".
+   * Remarques : les textes sont entourés de guillemets.
+   * @param intitulesString texte à séparer sur les virgules et les et.
+   * @param autoriserVirguleEtOu autoriser ", ou" et ",ou"
+   */
+  public static separerListeTextesOu(attributsString: string, autoriserVirguleOu: boolean): string[] {
+    if (attributsString && attributsString.trim() !== '') {
+      let textes: string[] = [];
+      // découper les attributs, les séparateurs possibles sont «, », « et » et « ou ».
+      if (autoriserVirguleOu) {
+        textes = attributsString.trim().split(/(?:"(?: )?(?:(?:,ou)|(?:, ou)|(?:,)|(?:ou))(?: )?")/);
+      } else {
+        textes = attributsString.trim().split(/(?:"(?: )?(?:(?:,)|(?:ou))(?: )?")/);
+      }
+      for (let index = 0; index < textes.length; index++) {
+        let texteSansGuillemet = textes[index];
+        // ajouter guillemet avant (sauf si premier élément de la liste)
+        if (index > 0) {
+          texteSansGuillemet = '"' + texteSansGuillemet;
+        }
+        // ajouter guillemet après (sauf si dernier élément de la liste)
+        if (index < (textes.length - 1)) {
+          texteSansGuillemet = texteSansGuillemet + '"';
+        }
+        textes[index] = texteSansGuillemet;
+      }
+      
+      return textes;
+    } else {
+      return new Array<string>();
+    }
+  }
+
   /**
    * Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "et"/"ou" 
    * @param intitulesString texte à séparer sur les virgules et les et/ou.
