@@ -111,6 +111,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     this.verifierTamponErreurs();
 
+    // ajouter le IFID à la page web
+    this.definirIFID();
+
     // afficher le titre et la version du jeu
     this.sortieJoueur += ("<h5>" + (this.ctx.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.ctx.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
@@ -119,10 +122,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.sortieJoueur += '</h5>';
 
-    // inclure le IFID
-    if (this.ctx.jeu.IFID) {
-      this.sortieJoueur += "<p>UUID://" + BalisesHtml.retirerBalisesHtml(this.jeu.IFID) + '//<p>';
-    }
 
     this.sortieJoueur += '<p>Un jeu de ';
 
@@ -898,10 +897,48 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreSecondes;
   }
 
+  /**
+   * Charger IFID dans le header de la page
+   */
+  private definirIFID() {
+    if (this.document) {
+      // si on a un IFID, l'ajouter à la page web
+      if (this.jeu?.IFID) {
+        // récuperer ancienne balise
+        let oldMetaIFID = this.document.querySelector("meta[name='ifid']") as HTMLMetaElement;
+        const metaContent = "UUID://" + BalisesHtml.retirerBalisesHtml(this.jeu.IFID) + "//";
+        // balise déjà présente
+        if (oldMetaIFID) {
+          oldMetaIFID.content = metaContent;
+          // ajouter balise
+        } else {
+          const head = this.document.getElementsByTagName('head')[0];
+          const newMetaIFID = this.document.createElement('meta');
+          newMetaIFID.name = 'ifid';
+          newMetaIFID.content = metaContent;
+          head.appendChild(newMetaIFID);
+        }
+        // si pas d'IFID
+      } else {
+        this.enleverIFID();
+      }
+    }
+  }
+
+  private enleverIFID() {
+    // récuperer ancienne balise
+    let oldMetaIFID = this.document.querySelector("meta[name='ifid']") as HTMLMetaElement;
+    // supprimer l'ancienne balise
+    if (oldMetaIFID) {
+      oldMetaIFID.remove();
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.ctx) {
       this.ctx.unload();
     }
+    this.enleverIFID();
   }
 
 }

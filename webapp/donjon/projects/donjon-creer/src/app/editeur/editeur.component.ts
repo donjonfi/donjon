@@ -1137,7 +1137,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   genererIFID(): string {
     let uuid = 'd0f1' + uuidv4().slice(4);
-    return '-- Idenfifiant unique de votre jeu\nL’IFID du jeu est "' + uuid + '".\n'
+    return '-- Identifiant unique du jeu pour les répertoires de FI.\nL’IFID du jeu est "' + uuid + '".\n'
   }
 
 }
