@@ -276,6 +276,8 @@ export class ConditionsUtils {
               }
               // le jeu n’est pas dans les objets mais il est géré plus loin
             } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
+              // le tirage n'est pas un objet, mais il est géré plus loin
+            } else if (conditionSujetNomNettoye == 'tirage' && !condition.sujet.epithete) {
               // rien à dire ici
             } else {
               console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);

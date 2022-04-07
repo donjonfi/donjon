@@ -3,6 +3,7 @@ import { Interruption, TypeContexte } from '../../models/jeu/interruption';
 
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
+import { AleatoireUtils } from './aleatoire-utils';
 import { CandidatCommande } from '../../models/jouer/candidat-commande';
 import { ClasseUtils } from '../commun/classe-utils';
 import { CommandeurDecomposer } from './commandeur.decomposer';
@@ -192,12 +193,12 @@ export class Commandeur {
 
       if (candidatActionChoisi.ceci?.length > 1) {
         ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-        indexCeci = Math.floor(Math.random() * candidatActionChoisi.ceci.length);
+        indexCeci = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.ceci.length);
         console.log("indexCeci=", indexCeci);
       }
       if (candidatActionChoisi.cela?.length > 1) {
         ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-        indexCela = Math.floor(Math.random() * candidatActionChoisi.cela.length);
+        indexCela = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.cela.length);
         console.log("indexCela=", indexCela);
       }
 

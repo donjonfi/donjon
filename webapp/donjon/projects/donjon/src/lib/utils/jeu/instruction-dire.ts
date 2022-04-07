@@ -3,6 +3,7 @@ import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
 import { Action } from "../../models/compilateur/action";
+import { AleatoireUtils } from "./aleatoire-utils";
 import { AnalyseurCondition } from "../compilation/analyseur/analyseur.condition";
 import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
@@ -910,7 +911,7 @@ export class InstructionDire {
       // compter le nombre de choix
       statut.nbChoix = InstructionDire.calculerNbChoix(statut);
       // choisir un choix au hasard
-      const rand = Math.random();
+      const rand = AleatoireUtils.nombre();
       statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
       retVal = (statut.choixAuHasard == 1);
       // EN BOUCLE

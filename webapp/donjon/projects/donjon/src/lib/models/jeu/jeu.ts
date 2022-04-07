@@ -109,4 +109,7 @@ export class Jeu {
   /** Paramètres spécifiques au jeu */
   parametres: Parametres = new Parametres();
 
+  /** Graine utilisée pour initialiser le générateur de nombres aléatoires. */
+  graine: string | undefined;
+
 }

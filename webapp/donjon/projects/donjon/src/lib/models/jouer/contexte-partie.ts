@@ -40,10 +40,15 @@ export class ContextePartie {
       }
     }
 
-    // TODO: aléatoire si première fois
-    // ou continuer partie avec la même graine.
-    AleatoireUtils.init("zigottau");
-    
+    this.initialiserAleatoire();
+  }
+
+  /** Initialiser le générateur de nombres aléatoires. */
+  private initialiserAleatoire() {
+    if (this.jeu.graine == undefined) {
+      this.jeu.graine = Math.random().toString();
+    }
+    AleatoireUtils.init(this.jeu.graine);
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
