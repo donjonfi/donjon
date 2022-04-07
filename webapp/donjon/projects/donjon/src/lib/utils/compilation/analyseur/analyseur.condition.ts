@@ -6,6 +6,7 @@ import { ElementsPhrase } from "../../../models/commun/elements-phrase";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { LienCondition } from "../../../models/compilateur/lien-condition";
+import { StringUtils } from "../../commun/string.utils";
 
 export class AnalyseurCondition {
 
@@ -263,22 +264,26 @@ export class AnalyseurCondition {
     let resCondNiSoit: RegExpExecArray = null;
     let resConditionAucunPourVers: RegExpExecArray = null;
     let resConditionLaSortieVers: RegExpExecArray = null;
+    let resConditionTirage: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
 
     // A. tester la formulation  [ni ni | soit soit]
     resCondNiSoit = ExprReg.xDebutConditionNiSoit.exec(conditionBrute);
     resCond = resCondNiSoit;
     if (!resCondNiSoit) {
-
-      // C. tester la formulation [la porte|sortie vers xxx est]
+      // B. tester la formulation [la porte|sortie vers xxx est]
       resConditionLaSortieVers = ExprReg.xConditionLaSortieVers.exec(conditionBrute);
       if (!resConditionLaSortieVers) {
-        // D. tester la formulation [aucun pour]
+        // C. tester la formulation [aucun pour]
         resConditionAucunPourVers = ExprReg.xConditionExistePourVers.exec(conditionBrute);
         if (!resConditionAucunPourVers) {
-          // E. tester la formulation simple
-          resCondSimple = ExprReg.xCondition.exec(conditionBrute);
-          resCond = resCondSimple;
+          // D: tester la formulation [un tirage à x chances sur y réussit/échoue]
+          resConditionTirage = ExprReg.xConditionTirage.exec(conditionBrute);
+          if (!resConditionTirage) {
+            // E. tester la formulation simple
+            resCondSimple = ExprReg.xCondition.exec(conditionBrute);
+            resCond = resCondSimple;
+          }
         }
       }
     }
@@ -331,11 +336,26 @@ export class AnalyseurCondition {
       const sujet = (new GroupeNominal(resConditionLaSortieVers[1], resConditionLaSortieVers[2] + " vers", (resConditionLaSortieVers[5] ? resConditionLaSortieVers[5] : resConditionLaSortieVers[4])));
       // ex verbe: est
       const verbe = resConditionLaSortieVers[6]
+      // ex négation: pas, plus
+      const negation = (resConditionLaSortieVers[7] ? resConditionLaSortieVers[7] : null);
       // ex compl: ouverte, innaccessible, verrouillée, …
       const compl = resConditionLaSortieVers[8];
-      // ex pas, plus
-      const negation = (resConditionLaSortieVers[7] ? resConditionLaSortieVers[7] : null);
       els = new ElementsPhrase(null, sujet, verbe, negation, compl);
+    } else if (resConditionTirage) {
+      // si nombre_en_chiffres(1)|nombre_en_lettres(2) tirage[s] à|de|a nombre_en_chiffres(3)|nombre_en_lettres(4) 
+      // chance[s] sur nombre_en_chiffres(5)|nombre_en_lettres(6) (réussi[ssen]t|échoue[nt])(7)
+      const nbTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[1], resConditionTirage[2]);
+      if (nbTirage != 1) {
+        console.error("1 seul tirage est possible actuellement.");
+      }
+      const nbChances = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[3], resConditionTirage[4]);
+      const totalTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[5], resConditionTirage[6]);
+      const reussit = /résussi(?:ssen)?t/i.test(resConditionTirage[7]);
+      const sujet = new GroupeNominal("un ", "tirage");
+      const verbe = "réussit";
+      const negation = reussit ? null : "pas";
+      const complement1 = nbChances + ' chance' + (nbChances > 1 ? 's' : '') + ' sur ' + totalTirage;
+      els = new ElementsPhrase(null, sujet, verbe, negation, complement1);
     }
 
     if (els) {

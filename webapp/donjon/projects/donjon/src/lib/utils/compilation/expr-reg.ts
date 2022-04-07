@@ -610,6 +610,15 @@ export class ExprReg {
    */
   static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici)$/i;
 
+  /** 
+   * si nombre_en_chiffres(1)|nombre_en_lettres(2) tirage[s] à|de|a nombre_en_chiffres(3)|nombre_en_lettres(4) chance]s] sur nombre_en_chiffres(5)|nombre_en_lettres(6) (réussi[ssen]t|échoue[nt])(7)
+   * - un tirage à 1 chance sur 2 réussit
+   * - deux tirages à deux chances sur trois réussissent
+   * - 1 tirage a 9 chances sur 10 échoue
+   * - si 2 tirages de 4 chances sur cinq échouent
+   */
+  static readonly xConditionTirage = /^(?:si )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) tirage(?:s)? (?:à |à |de )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) chance(?:s)? sur (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (réussi(?:ssen)?t|échoue(?:nt)?)$/i;
+
   /**
    * si (condition)(1) (:|,)(2) (instructions)(3)
    */
@@ -789,7 +798,7 @@ export class ExprReg {
     *     - 💥 -1 seconde
     *     - 💥 0 seconde
     */
-   static readonly xSuiteInstructionAttendre = /^(?:(?:(?:une |1 )?(touche)(?: (".+"))?)|(?:((?:(?:[1-9][0-9]*|0)[\.|,][0-9]+)|(?:[1-9][0-9]*)) (seconde(?:s)?)?))$/i;
+  static readonly xSuiteInstructionAttendre = /^(?:(?:(?:une |1 )?(touche)(?: (".+"))?)|(?:((?:(?:[1-9][0-9]*|0)[\.|,][0-9]+)|(?:[1-9][0-9]*)) (seconde(?:s)?)?))$/i;
 
   /**
    * - Manger tomate(2).

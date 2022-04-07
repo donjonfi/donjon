@@ -2,6 +2,7 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 
+import { AleatoireUtils } from './aleatoire-utils';
 import { AnalyseurCondition } from '../compilation/analyseur/analyseur.condition';
 import { ClasseUtils } from '../commun/classe-utils';
 import { ClassesRacines } from '../../models/commun/classes-racines';
@@ -123,7 +124,7 @@ export class ConditionsUtils {
       // ++++++++++++++++++++
       let sujet: ElementJeu | Intitule = null;
 
-      const conditionSujetNomNettoye =  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
+      const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
 
       if (condition.sujet) {
         // ici
@@ -481,9 +482,9 @@ export class ConditionsUtils {
             // remarque: négation appliquée plus loin.
             if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la première fois') {
               retVal = (compteur.valeur === 1);
-            } else if (compteur.nom ===  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la deuxième fois') {
+            } else if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la deuxième fois') {
               retVal = (compteur.valeur === 2);
-            } else if (compteur.nom ===  RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la troisième fois') {
+            } else if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la troisième fois') {
               retVal = (compteur.valeur === 3);
             } else {
               console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
@@ -679,10 +680,37 @@ export class ConditionsUtils {
       } else {
 
         // condition spéciale: le jeu est commencé
+        // remarque: négation appliquée plus loin.
         if (condition.sujet.nom == 'jeu' && !condition.sujet.epithete && condition.verbe == 'est' && condition.complement == 'commencé') {
           // remarque: négation appliquée plus loin
           if (this.jeu.commence) {
             retVal = true;
+          }
+          // condition spéciale : tirage à X chance sur Y réussit
+          // remarque: négation appliquée plus loin.
+        } else if (condition.sujet.nomEpithete == 'tirage') {
+          // le seul verbe autorisé pour un tirage est 'réussit'
+          if (condition.verbe == 'réussit') {
+            const motsClesComplement = condition.complement.split(' ');
+            if (motsClesComplement.length == 4 && motsClesComplement[1].startsWith('chance') && motsClesComplement[2] == 'sur') {
+              const nbChance = Number.parseInt(motsClesComplement[0]);
+              const totalTirage = Number.parseInt(motsClesComplement[3]);
+              if (nbChance > 0 && totalTirage > 0 && nbChance <= totalTirage) {
+                const rand = AleatoireUtils.nombre();
+                const ratio = (1 - (nbChance / totalTirage));
+                if (rand >= ratio) {
+                  retVal = true;
+                } else {
+                  retVal = false;
+                }
+              } else {
+                this.jeu.tamponErreurs.push("condition « un tirage à x chances sur y » : x et y doivent être supérieurs à 0, x ne peut pas dépasser y.");
+              }
+            } else {
+              this.jeu.tamponErreurs.push("condition « un tirage à x chances sur y » : formulation pas supportée: ", condition.toString());
+            }
+          } else {
+            this.jeu.tamponErreurs.push("condition sur un tirage : seuls les verbes 'échouer' et 'réussir' sont pris en charge.");
           }
           // rien trouvé comme sujet
         } else {
@@ -690,7 +718,6 @@ export class ConditionsUtils {
           if (condition.verbe == 'est' || condition.verbe == 'sont') {
             retVal = false;
             console.log("Pas défini donc.");
-
             if (!condition.complement?.startsWith('défini')) {
               this.jeu.tamponConseils.push("le sujet de la condition n’étant pas défini, le résultat est faux: si " + condition + " (" + condition.sujet + ")");
             }

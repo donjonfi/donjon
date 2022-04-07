@@ -31,6 +31,7 @@
     "file-saver": "^2.0.5",
     "ngx-ace-wrapper": "^11.0.1",
     "ngx-bootstrap": "^8.0.0",
+    "rand-seed": "^1.0.1",
     "rxjs": "~7.5.4",
     "tslib": "^2.3.0",
     "uuid": "^8.3.2",

@@ -118,4 +118,41 @@ export class StringUtils {
     }
     return retVal;
   }
+
+  public static getNombreEntierDepuisChiffresOuLettres(chiffres: string, lettres: string): number {
+    if (chiffres) {
+      return Number.parseInt(chiffres.trim());
+    } else if (lettres) {
+      switch (lettres.trim().toLocaleLowerCase()) {
+        case 'un':
+        case 'une':
+          return 1;
+        case 'deux':
+          return 2;
+        case 'trois':
+          return 3;
+        case 'quatre':
+          return 4;
+        case 'cinq':
+          return 5;
+        case 'six':
+          return 6;
+        case 'sept':
+          return 7;
+        case 'huit':
+          return 8;
+        case 'neuf':
+          return 9;
+        case 'dix':
+          return 10;
+        case 'zéro':
+        case 'zero':
+          return 0;
+        default:
+          throw new Error("Seuls les nombres entiers compris entre 0 et 10 sont pris en charge.");
+      }
+    } else {
+      throw new Error("Veuillez spécifier des chiffres ou des lettres.");
+    }
+  }
 }

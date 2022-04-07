@@ -1,3 +1,4 @@
+import { AleatoireUtils } from "../../utils/jeu/aleatoire-utils";
 import { Commandeur } from "../../utils/jeu/commandeur";
 import { Declencheur } from "../../utils/jeu/declencheur";
 import { ElementsJeuUtils } from "../../utils/commun/elements-jeu-utils";
@@ -39,6 +40,10 @@ export class ContextePartie {
       }
     }
 
+    // TODO: aléatoire si première fois
+    // ou continuer partie avec la même graine.
+    AleatoireUtils.init("zigottau");
+    
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
