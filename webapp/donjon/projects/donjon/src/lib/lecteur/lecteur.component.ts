@@ -29,15 +29,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 20;
   /** La sortie affichée au joueur (au format HTML). */
-  sortieJoueur: string = null;
+  public sortieJoueur: string = null;
   /** Commande tapée par le joueur. */
-  commande = "";
+  public commande = "";
   /** Historique des commandes tapées par le joueur. */
-  historiqueCommandes: string[] = [];
+  public historiqueCommandes: string[] = [];
   /** Curseur dans l’historique des commandes */
-  curseurHistorique = -1;
+  private curseurHistorique = -1;
   /** Historique de toutes les commandes utilisées pour la partie en cours. */
-  historiqueCommandesPartie: string[] = null;
+  private historiqueCommandesPartie: string[] = null;
 
   /** 
    * pour remplir automatiquement les commandes joueur
@@ -169,51 +169,48 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.activerParametreAudio = false;
     }
 
-    // ==================
-    // A. NOUVELLE PARTIE
-    // ==================
-    if (!this.ctx.jeu.commence) {
-      // si la commande commencer le jeu existe, commencer le jeu
-      if (this.ctx.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
-        // exécuter la commande « commencer le jeu »
-        this.executerLaCommande("commencer le jeu", false, true, false);
-        // sinon initialiser les éléments du jeu en fonction de la position du joueur
-      } else {
-        // définir visibilité des objets initiale
-        this.ctx.eju.majPresenceDesObjets();
-        // définir adjacence des lieux initiale
-        this.ctx.eju.majAdjacenceLieux();
 
-        // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
-        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
-          // exécuter la commande « regarder »
-          this.executerLaCommande("regarder", false, true, false);
-        } else {
-          this.sortieJoueur = "";
-        }
-      }
-      // le jeu est commencé à moins qu’il ne soit interrompu
-      if (!this.interruptionEnCours) {
-        this.ctx.jeu.commence = true;
-      }
+    // ================
+    //  REPRISE PARTIE
+    // ================
 
-      // ========================
-      // B. REPRISE D’UNE PARTIE
-      // ========================
+    // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
+    if (this.jeu.sauvegarde) {
+      this.autoCommandes = this.jeu.sauvegarde;
+      this.autoTricheActif = true;
+    }
+
+    // =====================
+    //  COMMENCER LA PARTIE
+    // =====================
+
+    // si la commande commencer le jeu existe, commencer le jeu
+    if (this.ctx.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
+      // exécuter la commande « commencer le jeu »
+      this.executerLaCommande("commencer le jeu", false, true, false);
+      // sinon initialiser les éléments du jeu en fonction de la position du joueur
     } else {
-      // si la commande continuer le jeu existe, continuer le jeu
-      if (this.ctx.jeu.actions.some(x => x.infinitif == 'continuer' && x.ceci && !x.cela)) {
-        // exécuter la commande « continuer le jeu »
-        this.executerLaCommande("continuer le jeu", false, true, false);
-        // sinon, si la commande regarder existe, et s’il y a au moins 1 lieu, l’exécuter
+      // définir visibilité des objets initiale
+      this.ctx.eju.majPresenceDesObjets();
+      // définir adjacence des lieux initiale
+      this.ctx.eju.majAdjacenceLieux();
+
+      // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
+      if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
+        // exécuter la commande « regarder »
+        this.executerLaCommande("regarder", false, true, false);
       } else {
-        // afficher info suite partie
-        this.sortieJoueur += "<p><i>(reprise de la partie)</i>";
-        // regarder
-        if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
-          // exécuter la commande « regarder »
-          this.executerLaCommande("regarder", false, false, false);
-        }
+        this.sortieJoueur = "";
+      }
+    }
+    // le jeu est commencé à moins qu’il ne soit interrompu
+    if (!this.interruptionEnCours) {
+      // reprise partie
+      if (this.ctx.jeu.sauvegarde) {
+        this.lancerAutoTriche();
+        // nouvelle partie
+      } else {
+        this.ctx.jeu.commence = true;
       }
     }
 
@@ -685,6 +682,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.ajouterSortieJoueur("<br>(Aucune commande à afficher.)");
     }
+  }
+
+  /** Récupérer la liste de l'ensemble des commandes de la partie. */
+  public getHistoriqueCommandesParties(): string[] {
+    return this.historiqueCommandesPartie;
   }
 
   /** Tabulation: continuer le mot */

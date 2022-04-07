@@ -16,10 +16,10 @@
         <a class="btn btn-sm btn-primary me-2" href="https://donjon.fi" target="_blank" tooltip="Créez votre fiction interactive sur https://donjon.fi [Donjon FI v{{version}}]" container="body"
           placement="bottom"><i class="fas fa-info fa-fw"></i>
         </a>
-        <!-- <button *ngIf="jeu" class="btn btn-sm btn-danger me-2" tooltip="Sauvergarder partie" container="body"
+        <button *ngIf="jeu" class="btn btn-sm btn-danger me-2" tooltip="Sauvergarder partie" container="body"
           placement="bottom" title="Sauvegarder la partie" name="btnSauver" (click)="onSauvegarderJeu()"><i
             class="fas fa-save fa-fw"></i>
-        </button> -->
+        </button>
 
       </form>
     </nav>
@@ -57,7 +57,7 @@
       </div>
 
       <!-- Lecteur -->
-      <djn-lecteur *ngIf="jeu" [jeu]="jeu" [debogueur]="false"></djn-lecteur>
+      <djn-lecteur #lecteur *ngIf="jeu" [jeu]="jeu" [debogueur]="false"></djn-lecteur>
     </div>
   </div>
 

@@ -316,6 +316,7 @@ export class Compilateur {
    * - ajouter des points aux sections
    * - retirer les commentaires
    * - échaper les retours à la ligne
+   * - remplacer les éventuels espaces consécutifs par un simple espace.
    */
   public static nettoyerCodeSource(scenario: string): string {
     // terminer par un « . » les parties, chapitre et scènes.

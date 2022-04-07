@@ -109,7 +109,16 @@ export class Jeu {
   /** Paramètres spécifiques au jeu */
   parametres: Parametres = new Parametres();
 
-  /** Graine utilisée pour initialiser le générateur de nombres aléatoires. */
+  /** 
+   * Graine utilisée pour initialiser le générateur de nombres aléatoires.
+   * Lorsqu'on sauvegarde la partie, au sauvegarde également la graine.
+   */
   graine: string | undefined;
+
+  /** 
+   * Commandes à exécuter à l'intialisation du jeu
+   * afin de rétablir la sauvegarde précédemment chargée
+   */
+  sauvegarde: string[] | undefined;
 
 }
