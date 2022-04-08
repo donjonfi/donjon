@@ -50,6 +50,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    */
   private autoTricheActif = false;
 
+  /** 
+   * Une sauvegarde est-elle en attente de restauration ?
+   */
+  private sauvegardeEnAttente = false;
+
   /**
    * Le système « triche » est-il actif ?
    */
@@ -169,7 +174,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.activerParametreAudio = false;
     }
 
-
     // ================
     //  REPRISE PARTIE
     // ================
@@ -177,7 +181,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
     if (this.jeu.sauvegarde) {
       this.autoCommandes = this.jeu.sauvegarde;
-      this.autoTricheActif = true;
+      this.jeu.sauvegarde = undefined;
+      this.sauvegardeEnAttente = true;
     }
 
     // =====================
@@ -205,12 +210,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
     // le jeu est commencé à moins qu’il ne soit interrompu
     if (!this.interruptionEnCours) {
+      // nouvelle partie
+      this.ctx.jeu.commence = true;
       // reprise partie
-      if (this.ctx.jeu.sauvegarde) {
+      if (this.sauvegardeEnAttente) {
         this.lancerAutoTriche();
-        // nouvelle partie
-      } else {
-        this.ctx.jeu.commence = true;
       }
     }
 
@@ -309,6 +313,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           }
           // focus sur l'entrée de commande
           this.focusCommande();
+          // reprise partie
+          if (this.sauvegardeEnAttente) {
+            this.lancerAutoTriche();
+          }
           break;
         case TypeInterruption.attendreChoix:
           if (this.interruptionEnCours.choix?.length) {
@@ -335,6 +343,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               }
               // focus sur l'entrée de commande
               this.focusCommande();
+              // reprise partie
+              if (this.sauvegardeEnAttente) {
+                this.lancerAutoTriche();
+              }
             }
           } else {
             this.jeu.tamponErreurs.push("interruptions: le joueur doit faire un choix mais il n’y a aucun choix dans la liste");
@@ -351,8 +363,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           this.focusCommande();
 
-          // si on est en auto-triche on n'attend pas !
-          if (this.autoTricheActif) {
+          // si on est en auto-triche où qu'une sauvegarde doit
+          // être restaurée, on n'attend pas !
+          if (this.autoTricheActif || this.sauvegardeEnAttente) {
             this.terminerInterruption(undefined);
           }
 
@@ -363,7 +376,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           this.focusCommande();
           // si auto triche actif, on n'attends pas
-          if (this.autoTricheActif) {
+          // si on est en auto-triche où qu'une sauvegarde doit
+          // être restaurée, on n'attend pas !
+          if (this.autoTricheActif || this.sauvegardeEnAttente) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {
@@ -494,6 +509,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.ctx.jeu.commence) {
         this.ctx.jeu.commence = true;
+        // si une sauvegarde doit être restaurée
+        if (this.sauvegardeEnAttente) {
+          this.lancerAutoTriche();
+        }
       }
 
       // mode triche: afficher commande suivante
@@ -542,10 +561,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private scrollSortie() {
-    // scroll
+    // scrol 1
     setTimeout(() => {
       this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
       this.commandeInputRef.nativeElement.focus();
+      // scrol 2 (afin de prendre en compte temps chargement images)
+      setTimeout(() => {
+        this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
+        this.commandeInputRef.nativeElement.focus();
+      }, 500);
     }, 100);
   }
 
@@ -650,6 +674,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private lancerAutoTriche() {
+    // on a lancé la restauration de la sauvegarde
+    this.sauvegardeEnAttente = false;
+    // s'il y a des commandes à exécuter
     if (this.autoCommandes && this.autoCommandes.length) {
       this.autoTricheActif = true;
       this.autoCommandes.forEach(async curCom => {
@@ -764,8 +791,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
-      // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-      this.historiqueCommandesPartie.push(this.commande);
+      if (ajouterCommandeDansHistorique) {
+        // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+        this.historiqueCommandesPartie.push(this.commande);
+      }
 
       // EXÉCUTION DE LA COMMANDE
       const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
