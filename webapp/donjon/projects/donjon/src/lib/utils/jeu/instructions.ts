@@ -258,6 +258,21 @@ export class Instructions {
         }
         break;
 
+      case 'annuler':
+        if (instruction.sujet.nomEpithete.startsWith("tour")) {
+          resultat.interrompreBlocInstruction = true;
+          resultat.typeInterruption = TypeInterruption.annulerTour;
+          if (instruction.sujet.determinant) {
+            resultat.nbToursAnnuler = StringUtils.getNombreEntierDepuisChiffresOuLettres(undefined, undefined, instruction.sujet.determinant);
+          } else {
+            resultat.nbToursAnnuler = 1;
+          }
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "Annuler: il est seulement possible d'annuler un certain nombre de tours.")
+          resultat.succes = false;
+        }
+        break;
+
       case 'exécuter':
         // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
 

@@ -20,6 +20,9 @@ export class InterruptionsUtils {
         tour.messageAttendre = resultat.messageAttendre;
         tour.nbSecondesAttendre = resultat.nbSecondesAttendre;
         break;
+      case TypeInterruption.annulerTour:
+        tour.nbToursAnnuler = resultat.nbToursAnnuler;
+        break;
     }
   }
 
@@ -39,6 +42,9 @@ export class InterruptionsUtils {
       case TypeInterruption.attendreSecondes:
         resultat.messageAttendre = sousResultat.messageAttendre;
         resultat.nbSecondesAttendre = sousResultat.nbSecondesAttendre;
+        break;
+      case TypeInterruption.annulerTour:
+        resultat.nbToursAnnuler = sousResultat.nbToursAnnuler;
         break;
     }
   }

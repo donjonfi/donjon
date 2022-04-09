@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -23,6 +23,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   @Input() jeu: Jeu;
   @Input() verbeux = false;
   @Input() debogueur = false;
+  /** Annuler un certain nombre de tours */
+  @Output() nouvellePartie = new EventEmitter();
 
   /** Le contexte de la partie en cours (jeu, commandeur, déclencheur, …) */
   private ctx: ContextePartie | undefined;
@@ -81,6 +83,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Index du choix actuellement sélectionné */
   indexChoixPropose: number = undefined;
 
+  /** L'interruption qui a provoqué l'annulation d'un tour de jeu */
+  interruptionEnCoursAvantAnnulation: Interruption | undefined;
+
   constructor(
     @Inject(DOCUMENT) private document: Document
   ) { }
@@ -107,9 +112,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private initialiserJeu() {
     this.sortieJoueur = "";
     this.resteDeLaSortie = [];
-    this.historiqueCommandesPartie = [];
     this.commandeEnCours = false;
     this.interruptionEnCours = undefined;
+
+    // tester si on est occupé a "annuler" un certain nombre de tours de jeux
+    // on sauve les actions à exécuter à nouveau (sauf celles qui doivent être annulées)
+    if (this.interruptionEnCoursAvantAnnulation) {
+      this.jeu.sauvegarde = CommandesUtils.enleverToursDeJeux(this.interruptionEnCours.nbToursAnnuler, this.historiqueCommandes);
+    }
+
+    // encore aucune commande pour cette partie
+    this.historiqueCommandesPartie = [];
 
     // initialiser le contexte de la partie
     this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux);
@@ -386,6 +399,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               this.terminerInterruption(undefined);
             }, nbMillisecondes);
           }
+          break;
+
+        case TypeInterruption.annulerTour:
+          this.interruptionEnCoursAvantAnnulation = this.interruptionEnCoursAvantAnnulation;
+          this.nouvellePartie.emit();
           break;
 
         default:
@@ -687,6 +705,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
     }
+
+    // si on était occupé à annuler des tours de jeu, terminer le tour commencé
+    // avant le début de l'annulation
+    if (this.interruptionEnCoursAvantAnnulation) {
+      this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
+      this.terminerInterruption(undefined);
+    }
+
   }
 
   private lancerTriche() {

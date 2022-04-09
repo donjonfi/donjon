@@ -21,5 +21,13 @@ export class CommandesUtils {
     const commandeBNettoyee = RechercheUtils.nettoyerEtRetirerDeterminants(commandeB);
     return commandeANettoyee == commandeBNettoyee;
   }
+
+  /**
+   * Retourner la liste des commandes à laquelle on a retirer le nombre de tours de jeux demandé.
+   */
+   public static enleverToursDeJeux(nombreDeToursAEnlever: number, commandes: string[]) {
+    return commandes.slice(nombreDeToursAEnlever);
+  }
+
 }
 

@@ -17,6 +17,8 @@ export class Interruption {
   public messageAttendre: string | undefined;
   /** le nombre de secondes à attendre (interruption attendre) */
   public nbSecondesAttendre: number | undefined;
+  /** le nombre de tours à annuler (interruption annuler tour) */
+  public nbToursAnnuler: number | undefined;
 
   constructor(
     /** Type d’interruption (attendre un choix, attendre une touche, attendre X secondes) */
@@ -43,6 +45,8 @@ export enum TypeInterruption {
   attendreChoix = 'c',
   /** Attendre un choix libre */
   attendreChoixLibre = 'l',
+  /** Annuler 1 tour de jeu (ou plus) */
+  annulerTour = 'a',
 }
 
 // export enum TypeChoixInterruption {

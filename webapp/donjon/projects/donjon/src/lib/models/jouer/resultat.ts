@@ -33,5 +33,7 @@ export class Resultat {
   public messageAttendre: string | undefined;
   /** le nombre de secondes à attendre (interruption attendre) */
   public nbSecondesAttendre: number | undefined;
+  /** le nombre de tours à annuler (interruption annuler tour) */
+  public nbToursAnnuler: number | undefined;
 
 }

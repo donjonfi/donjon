@@ -1,3 +1,5 @@
+import { ExprReg } from "../compilation/expr-reg";
+
 export class StringUtils {
 
   /**
@@ -119,13 +121,36 @@ export class StringUtils {
     return retVal;
   }
 
-  public static getNombreEntierDepuisChiffresOuLettres(chiffres: string, lettres: string): number {
+  /**
+   * Obtenir un nombre à partir d'une chaine de caractères
+   * @param chiffres un chaine de chiffres (ex: "1", "38")
+   * @param lettres  une chaine de lettres comprise entre 1 et 10. (ex: "un", "neuf")
+   * @param inconnu une chaine de chiffres, de lettres ou le/la/l' (ex: "32", "un", "six", "3", "le")
+   * @returns un nombre
+   */
+  public static getNombreEntierDepuisChiffresOuLettres(chiffres: string, lettres: string, inconnu: string): number {
+
+    // si on sait pas, tester si il s'agit d'un nombre
+    if (inconnu) {
+      if (ExprReg.xNombreEntier.test(inconnu.trim())) {
+        chiffres = inconnu;
+      } else {
+        lettres = inconnu;
+      }
+    }
+
+    // s'il s'agit de chiffres
     if (chiffres) {
       return Number.parseInt(chiffres.trim());
+      // sinon s'il s'agit de lettres
     } else if (lettres) {
       switch (lettres.trim().toLocaleLowerCase()) {
         case 'un':
         case 'une':
+        case 'l\'':
+        case 'l’':
+        case 'la':
+        case 'le':
           return 1;
         case 'deux':
           return 2;
@@ -152,7 +177,7 @@ export class StringUtils {
           throw new Error("Seuls les nombres entiers compris entre 0 et 10 sont pris en charge.");
       }
     } else {
-      throw new Error("Veuillez spécifier des chiffres ou des lettres.");
+      throw new Error("Veuillez spécifier des chiffres, des lettres ou inconnu.");
     }
   }
 }

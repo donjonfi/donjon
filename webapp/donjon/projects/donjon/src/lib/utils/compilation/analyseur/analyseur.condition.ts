@@ -344,12 +344,12 @@ export class AnalyseurCondition {
     } else if (resConditionTirage) {
       // si nombre_en_chiffres(1)|nombre_en_lettres(2) tirage[s] à|de|a nombre_en_chiffres(3)|nombre_en_lettres(4) 
       // chance[s] sur nombre_en_chiffres(5)|nombre_en_lettres(6) (réussi[ssen]t|échoue[nt])(7)
-      const nbTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[1], resConditionTirage[2]);
+      const nbTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[1], resConditionTirage[2], undefined);
       if (nbTirage != 1) {
         console.error("1 seul tirage est possible actuellement.");
       }
-      const nbChances = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[3], resConditionTirage[4]);
-      const totalTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[5], resConditionTirage[6]);
+      const nbChances = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[3], resConditionTirage[4], undefined);
+      const totalTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[5], resConditionTirage[6], undefined);
       const reussit = /résussi(?:ssen)?t/i.test(resConditionTirage[7]);
       const sujet = new GroupeNominal("un ", "tirage");
       const verbe = "réussit";

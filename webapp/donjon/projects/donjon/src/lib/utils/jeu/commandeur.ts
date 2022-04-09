@@ -488,6 +488,7 @@ export class Commandeur {
     interruption.choix = tour.choix;
     interruption.messageAttendre = tour.messageAttendre;
     interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
+    interruption.nbToursAnnuler = tour.nbToursAnnuler;
     this.jeu.tamponInterruptions.push(interruption);
   }
 
@@ -644,6 +645,5 @@ export class Commandeur {
     const resultat = this.ins.executerInstructions(action.action.instructionsFinales, contexteTour, evenement, undefined);
     return resultat;
   }
-
 
 }
