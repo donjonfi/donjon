@@ -368,10 +368,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.listes = null;
       this.erreurs = [];
       this.compilationEnCours = false;
-      this.compilationTerminee = true;
+      this.compilationTerminee = true; 
     }
   }
 
+  /**
+   * Générer une nouvelle partie à partir du même scénario que précédemment.
+   */
+  onNouvellePartie() {
+    this.onCompiler();
+  }
 
   // =============================================
   //  SAUVEGARDE SCÉNARIO (code source)
@@ -459,7 +465,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
             // changer l’url pour ne plus inclure le nom du fichier
             this.location.replaceState("/");
             // charger le code source
-            if(nouveau){
+            if (nouveau) {
               texte = this.genererIFID() + texte;
             }
             this.initCodeSource(texte);

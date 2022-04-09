@@ -36,12 +36,12 @@ export class JouerComponent implements OnInit {
 
     if (environment.chargementAutoJeu) {
       //essayer de charcher jeu.djn
-      this.onChargerJeuSiteWeb("jeu");
+      this.onChargerFichierSiteWeb("jeu");
     } else {
       const sub = this.route.params.subscribe(params => {
         const fichier = params['fichier'];
         if (fichier) {
-          this.onChargerJeuSiteWeb(fichier);
+          this.onChargerFichierSiteWeb(fichier);
         } else {
           // aucun jeu pré-chargé
         }
@@ -54,7 +54,7 @@ export class JouerComponent implements OnInit {
   }
 
   /** Charger un fichier depuis le site */
-  onChargerJeuSiteWeb(nomJeu: string) {
+  onChargerFichierSiteWeb(nomJeu: string) {
     this.chargement = true;
     const nomFichierJeu = StringUtils.nomDeFichierSecuriseExtensionForcee(nomJeu, "djn");
     if (nomFichierJeu) {
@@ -62,10 +62,10 @@ export class JouerComponent implements OnInit {
         .subscribe({
           next: scenario => {
             this.chargement = false;
-            this.scenario = scenario;
-            // enlever les commentaires afin de réduire un peu la taille du fichier
-            this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
-            this.chargerJeu(this.scenario);
+            // this.scenario = scenario;
+            // // enlever les commentaires afin de réduire un peu la taille du fichier
+            // this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
+            this.analyserContenuFichierJeu(scenario);
           },
           error: erreur => {
             this.chargement = false;
@@ -93,10 +93,11 @@ export class JouerComponent implements OnInit {
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
           this.chargement = false;
-          this.scenario = fileReader.result as string;
-          // enlever les commentaires afin de réduire un peu la taille du fichier
-          this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
-          this.chargerJeu(this.scenario);
+          // this.scenario = fileReader.result as string;
+          // // enlever les commentaires afin de réduire un peu la taille du fichier
+          // this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
+          // this.chargerJeu(this.scenario);
+          this.analyserContenuFichierJeu(fileReader.result as string);
         };
         // lire le fichier
         fileReader.readAsText(file);
@@ -105,42 +106,45 @@ export class JouerComponent implements OnInit {
   }
 
 
-  private chargerJeu(contenuFichier: string) {
+  private analyserContenuFichierJeu(contenuFichier: string) {
 
     this.compilation = true;
     this.erreurs = [];
     if (contenuFichier.trim() !== '') {
 
-      // sauvegarde
+      // sauvegarde => scénario + commandes + graine
       if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
         var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
-        // Analyser le scénario et générer le jeu
-        Compilateur.analyserScenario(sauvegarde.scenario, false, this.http).then(
-          resComp => {
-            // générer le jeu
-            let jeu = Generateur.genererJeu(resComp);
 
+        // enlever les commentaires afin de réduire un peu la taille du fichier
+        this.scenario = Compilateur.nettoyerCodeSource(sauvegarde.scenario);
+
+        // Analyser le scénario et générer le jeu
+        Compilateur.analyserScenario(this.scenario, false, this.http).then(
+          resultatCompilation => {
+            // générer le jeu
+            let jeu = Generateur.genererJeu(resultatCompilation);
             // informer si sauvegarde faite avec version plus récente de Donjon FI.
             if (sauvegarde.version > versionNum) {
               jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
             }
-            
             // rétablir la graine pour le générateur aléatoire
             jeu.graine = sauvegarde.graine;
-
             // exécuter les commandes de la sauvegarde
             jeu.sauvegarde = sauvegarde.commandes;
-
             // lancer le jeu
             this.jeu = jeu;
-
           }
         );
 
-        // scénario
+        // scénario seul
       } else {
+
+        // enlever les commentaires afin de réduire un peu la taille du fichier
+        this.scenario = Compilateur.nettoyerCodeSource(contenuFichier);
+
         // Analyser le scénario et générer le jeu
-        Compilateur.analyserScenario(contenuFichier, false, this.http).then(
+        Compilateur.analyserScenario(this.scenario, false, this.http).then(
           resComp => {
             // générer le jeu
             this.jeu = Generateur.genererJeu(resComp);
@@ -161,7 +165,7 @@ export class JouerComponent implements OnInit {
     // graine pour le générateur de nombres aléatoires
     sauvegarde.graine = this.jeu.graine;
     // commandes du joueur
-    sauvegarde.commandes = this.lecteurRef.getHistoriqueCommandesParties();
+    sauvegarde.commandes = this.lecteurRef.getHistoriqueCommandesPartie();
     // scénario
     sauvegarde.scenario = this.scenario;
 
@@ -171,6 +175,19 @@ export class JouerComponent implements OnInit {
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sav"), { type: "text/plain;charset=utf-8" });
     FileSaver.saveAs(file);
+  }
+
+  /**
+   * Générer une nouvelle partie à partir du même scénario que précédemment.
+   */
+  onNouvellePartie() {
+    // Analyser le scénario et générer le jeu
+    Compilateur.analyserScenario(this.scenario, false, this.http).then(
+      resComp => {
+        // générer le jeu
+        this.jeu = Generateur.genererJeu(resComp);
+      }
+    );
   }
 
   get version() {

@@ -57,7 +57,7 @@
       </div>
 
       <!-- Lecteur -->
-      <djn-lecteur #lecteur *ngIf="jeu" [jeu]="jeu" [debogueur]="false"></djn-lecteur>
+      <djn-lecteur #lecteur *ngIf="jeu" [jeu]="jeu" [debogueur]="false" (nouvellePartie)="onNouvellePartie()"></djn-lecteur>
     </div>
   </div>
 

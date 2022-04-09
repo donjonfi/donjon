@@ -84,7 +84,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   indexChoixPropose: number = undefined;
 
   /** L'interruption qui a provoqué l'annulation d'un tour de jeu */
-  interruptionEnCoursAvantAnnulation: Interruption | undefined;
+  private interruptionEnCoursAvantAnnulation: Interruption | undefined;
+  /** Graine pour le générateur aléatoire avant l'annulation d'un tour de jeu */
+  private graineAvantAnnulation: string;
 
   constructor(
     @Inject(DOCUMENT) private document: Document
@@ -118,7 +120,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // tester si on est occupé a "annuler" un certain nombre de tours de jeux
     // on sauve les actions à exécuter à nouveau (sauf celles qui doivent être annulées)
     if (this.interruptionEnCoursAvantAnnulation) {
-      this.jeu.sauvegarde = CommandesUtils.enleverToursDeJeux(this.interruptionEnCours.nbToursAnnuler, this.historiqueCommandes);
+      this.jeu.sauvegarde = CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
+      this.jeu.graine = this.graineAvantAnnulation;
     }
 
     // encore aucune commande pour cette partie
@@ -188,7 +191,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // ================
-    //  REPRISE PARTIE
+    //  REPRISE PARTIE (sauvegarde ou pour annuler 1 commande)
     // ================
 
     // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
@@ -308,7 +311,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private traiterProchaineInterruption() {
-    // console.warn("+++ traiterInterruptions +++");
 
     // traiter la prochaine interruption
     this.interruptionEnCours = this.jeu.tamponInterruptions.shift();
@@ -402,7 +404,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           break;
 
         case TypeInterruption.annulerTour:
-          this.interruptionEnCoursAvantAnnulation = this.interruptionEnCoursAvantAnnulation;
+          this.interruptionEnCoursAvantAnnulation = this.interruptionEnCours;
+          this.graineAvantAnnulation = this.jeu.graine;
+          // enlever commande en cours + le nombre de commandes à annuler
+          this.historiqueCommandesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this.historiqueCommandesPartie);
           this.nouvellePartie.emit();
           break;
 
@@ -424,7 +429,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-      this.historiqueCommandesPartie.push(this.commande);
+      this.historiqueCommandesPartie.push("Ð" + this.commande);
 
       // effacer la commande
       this.commande = '';
@@ -464,7 +469,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (indexChoix != -1) {
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-      this.historiqueCommandesPartie.push(this.commande);
+      this.historiqueCommandesPartie.push("Ð" + this.commande);
 
       // effacer la commande
       this.commande = '';
@@ -692,24 +697,33 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private lancerAutoTriche() {
-    // on a lancé la restauration de la sauvegarde
-    this.sauvegardeEnAttente = false;
     // s'il y a des commandes à exécuter
     if (this.autoCommandes && this.autoCommandes.length) {
+      // on a lancé la restauration de la sauvegarde
+      this.sauvegardeEnAttente = false;
+
       this.autoTricheActif = true;
       this.autoCommandes.forEach(async curCom => {
         this.commande = curCom;
         this.onKeyDownEnter(null);
       });
       this.autoTricheActif = false;
+      // aucune commande à exécuter
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
+      // si mode restauration sauvegarde, c'est fini
+      if (this.sauvegardeEnAttente) {
+        this.sauvegardeEnAttente = false;
+        // sinon il n'y a pas de solution chargée
+      } else {
+        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
+      }
     }
 
     // si on était occupé à annuler des tours de jeu, terminer le tour commencé
     // avant le début de l'annulation
     if (this.interruptionEnCoursAvantAnnulation) {
       this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
+      this.interruptionEnCoursAvantAnnulation = undefined;
       this.terminerInterruption(undefined);
     }
 
@@ -731,15 +745,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.historiqueCommandesPartie.pop();
     // afficher l’historique des commandes
     if (this.historiqueCommandesPartie.length > 0) {
-      this.sortieJoueur += '<code>' + this.historiqueCommandesPartie.join("<br>") + '</code>';
+      // enlever caractères spécial qui identifie les réponses à des questions
+      const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandes);
+      this.sortieJoueur += '<code>' + historiquePartieNettoye.join("<br>") + '</code>';
     } else {
       this.ajouterSortieJoueur("<br>(Aucune commande à afficher.)");
     }
   }
 
   /** Récupérer la liste de l'ensemble des commandes de la partie. */
-  public getHistoriqueCommandesParties(): string[] {
-    return this.historiqueCommandesPartie;
+  public getHistoriqueCommandesPartie(): string[] {
+    // enlever le caractère spécial qui identifie les réponses et renvoyer 
+    // l'historique de la partie.
+    return CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
   }
 
   /** Tabulation: continuer le mot */

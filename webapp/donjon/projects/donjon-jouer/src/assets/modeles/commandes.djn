@@ -3,7 +3,7 @@ Désactiver les actions de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-03-26-0045
+-- Version: 2022-04-09-0046
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -88,6 +88,15 @@ SCÈNE "aller".
     > {-monter-}
     > {-entrer dans {/la cabane/}-}
     {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
+
+SCÈNE "annuler".
+  -- ============
+  --   ANNULER
+  -- ============
+  annuler est une action.
+  
+  exécuter annuler:
+    annuler 1 tour.
 
 SCÈNE "assommer".
   -- ============
