@@ -194,12 +194,10 @@ export class Commandeur {
       if (candidatActionChoisi.ceci?.length > 1) {
         ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
         indexCeci = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.ceci.length);
-        console.log("indexCeci=", indexCeci);
       }
       if (candidatActionChoisi.cela?.length > 1) {
         ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
         indexCela = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.cela.length);
-        console.log("indexCela=", indexCela);
       }
 
       const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[indexCeci] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[indexCela] : null));
@@ -412,7 +410,7 @@ export class Commandeur {
           if (sousResultatApres.interrompreBlocInstruction) {
             InterruptionsUtils.definirInterruptionSousResultat(resultatApres, sousResultatApres);
             if (declenchementsApres.length > 1) {
-              this.jeu.tamponConseils.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionnel pas correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
+              this.jeu.tamponConseils.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
             }
           }
         } // fin exécution des instructions des règles après

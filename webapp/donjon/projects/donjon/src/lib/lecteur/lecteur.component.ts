@@ -35,7 +35,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Commande tapée par le joueur. */
   public commande = "";
   /** Historique des commandes tapées par le joueur. */
-  public historiqueCommandes: string[] = [];
+  public historiqueDernieresCommandes: string[] = [];
   /** Curseur dans l’historique des commandes */
   private curseurHistorique = -1;
   /** Historique de toutes les commandes utilisées pour la partie en cours. */
@@ -246,10 +246,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (contenu) {
 
-      // en mode auto-triche, on n’attend pas !
-      if (this.autoTricheActif) {
+      // en mode auto-triche ou restauration partie, on n’attend pas !
+      if (this.autoTricheActif || this.sauvegardeEnAttente) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
-        contenu = contenu.replace(/@@attendre touche@@/g, '<p class="t-commande font-italic">Appuyez sur une touche…</p>')
+        contenu = contenu.replace(/@@attendre touche@@/g, '<br><span class="t-commande font-italic">Appuyez sur une touche…</span><br>')
       }
 
       // découper en fonction des pauses
@@ -379,20 +379,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.focusCommande();
 
           // si on est en auto-triche où qu'une sauvegarde doit
-          // être restaurée, on n'attend pas !
+          // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
           if (this.autoTricheActif || this.sauvegardeEnAttente) {
             this.terminerInterruption(undefined);
           }
-
           break;
 
         case TypeInterruption.attendreSecondes:
           let nbMillisecondes = Math.floor(this.interruptionEnCours.nbSecondesAttendre * 1000);
           this.commande = "";
           this.focusCommande();
-          // si auto triche actif, on n'attends pas
           // si on est en auto-triche où qu'une sauvegarde doit
-          // être restaurée, on n'attend pas !
+          // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
           if (this.autoTricheActif || this.sauvegardeEnAttente) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
@@ -631,10 +629,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    */
   onKeyDownArrowUp(event) {
     if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
-      if (this.curseurHistorique < (this.historiqueCommandes.length - 1)) {
+      if (this.curseurHistorique < (this.historiqueDernieresCommandes.length - 1)) {
         this.curseurHistorique += 1;
-        const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
-        this.commande = this.historiqueCommandes[index];
+        const index = (this.historiqueDernieresCommandes.length - this.curseurHistorique - 1);
+        this.commande = this.historiqueDernieresCommandes[index];
         this.focusCommande();
       }
       // proposer le choix précédent
@@ -657,8 +655,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
       if (this.curseurHistorique >= 0) {
         this.curseurHistorique -= 1;
-        const index = (this.historiqueCommandes.length - this.curseurHistorique - 1);
-        this.commande = this.historiqueCommandes[index];
+        const index = (this.historiqueDernieresCommandes.length - this.curseurHistorique - 1);
+        this.commande = this.historiqueDernieresCommandes[index];
         this.focusCommande();
       } else {
         this.commande = "";
@@ -702,11 +700,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // on a lancé la restauration de la sauvegarde
       this.sauvegardeEnAttente = false;
 
+      // désactiver temporairement l'audio
+      const backAudioActif = this.jeu.parametres.activerAudio;
+      this.audioActif = false;
+
       this.autoTricheActif = true;
       this.autoCommandes.forEach(async curCom => {
         this.commande = curCom;
         this.onKeyDownEnter(null);
       });
+
+      // rétablir l'audio
+      this.audioActif = backAudioActif;
+
       this.autoTricheActif = false;
       // aucune commande à exécuter
     } else {
@@ -746,7 +752,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // afficher l’historique des commandes
     if (this.historiqueCommandesPartie.length > 0) {
       // enlever caractères spécial qui identifie les réponses à des questions
-      const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandes);
+      const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
       this.sortieJoueur += '<code>' + historiquePartieNettoye.join("<br>") + '</code>';
     } else {
       this.ajouterSortieJoueur("<br>(Aucune commande à afficher.)");
@@ -816,28 +822,32 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
     // VÉREFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer) /i)) {
+    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
         this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
       }
-      this.sortieJoueur += "<br>Le jeu est terminé.<br>Pour débuter une nouvelle partie veuillez actualiser la page web.</p>";
+      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-nouvelle partie-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.ctx.dossierRessourcesComplet);
     } else {
       // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
       if (ajouterCommandeDansHistorique) {
         // ajouter à l’historique (à condition que différent du précédent)
         // (commande nettoyée)
-        if (this.historiqueCommandes.length === 0 || (this.historiqueCommandes[this.historiqueCommandes.length - 1] !== commandeNettoyee)) {
-          this.historiqueCommandes.push(commandeNettoyee);
-          if (this.historiqueCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
-            this.historiqueCommandes.shift();
+        if (this.historiqueDernieresCommandes.length === 0 || (this.historiqueDernieresCommandes[this.historiqueDernieresCommandes.length - 1] !== commandeNettoyee)) {
+          this.historiqueDernieresCommandes.push(commandeNettoyee);
+          if (this.historiqueDernieresCommandes.length > this.TAILLE_DERNIERES_COMMANDES) {
+            this.historiqueDernieresCommandes.shift();
           }
         }
       }
 
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       if (ajouterCommandeDansHistorique) {
-        // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-        this.historiqueCommandesPartie.push(this.commande);
+        // ne pas inclure la commande déboguer triche à l'historique pour 
+        // éviter les boucles lorsqu'on annule une commande...
+        if (!commandeNettoyee.startsWith('déboguer triche')) {
+          // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
+          this.historiqueCommandesPartie.push(this.commande);
+        }
       }
 
       // EXÉCUTION DE LA COMMANDE
@@ -872,6 +882,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.lancerSauverCommandes();
           // }, 100);
           // sortie normale
+        } else if (sortieCommande == "@nouvelle partie@") {
+          this.nouvellePartie.emit();
         } else {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
         }

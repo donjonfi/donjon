@@ -193,21 +193,25 @@ SCÈNE "chanter".
 
 SCÈNE "commencer".
   -- ======================
-  --   COMMENCER (je jeu)
+  --   COMMENCER (jeu, nouvelle partie)
   -- ======================
   commencer ceci est une action qui concerne un intitulé.
 
   refuser commencer ceci:
-    si ceci n’est pas le jeu, dire "Je peux seulement commencer le jeu.";
+    si ceci n’est ni le jeu ni la nouvelle partie, dire "Je peux seulement commencer le jeu.";
     si ceci est le jeu et si le jeu est commencé, dire "Le jeu a déjà commencé.".
 
   exécuter commencer ceci:
-    si ceci est le jeu:
+    -- début du jeu
+    si ceci vaut le jeu:
       -- déplacer le joueur pour provoquer la mise à jour de 
       -- la présence des objets et de l’adjacence des lieux
       changer le joueur se trouve dans ici;
       -- afficher ce que voit le joueur.
       exécuter la commande "regarder";
+    -- commencer une nouvelle partie (après la fin du jeu par exemple)
+    sinonsi ceci vaut une nouvelle partie:
+      commencer nouvelle partie;
     fin si.
     
 SCÈNE "continuer".

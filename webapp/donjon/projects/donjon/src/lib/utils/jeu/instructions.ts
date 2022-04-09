@@ -268,7 +268,16 @@ export class Instructions {
             resultat.nbToursAnnuler = 1;
           }
         } else {
-          contexteTour.ajouterErreurInstruction(instruction, "Annuler: il est seulement possible d'annuler un certain nombre de tours.")
+          contexteTour.ajouterErreurInstruction(instruction, "Annuler: il est seulement possible d'annuler un certain nombre de tours.");
+          resultat.succes = false;
+        }
+        break;
+
+      case 'commencer':
+        if (instruction.sujet.nomEpithete.toLocaleLowerCase() == "nouvelle partie") {
+          resultat.sortie = "@nouvelle partie@";
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "Commencer: il est seulement possible de commencer une nouvelle partie.");
           resultat.succes = false;
         }
         break;

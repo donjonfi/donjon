@@ -93,10 +93,6 @@ export class JouerComponent implements OnInit {
         // quand lu, l’attribuer au code source
         fileReader.onloadend = (progressEvent) => {
           this.chargement = false;
-          // this.scenario = fileReader.result as string;
-          // // enlever les commentaires afin de réduire un peu la taille du fichier
-          // this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
-          // this.chargerJeu(this.scenario);
           this.analyserContenuFichierJeu(fileReader.result as string);
         };
         // lire le fichier

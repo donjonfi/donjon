@@ -95,6 +95,11 @@ export class Abreviations {
         }
         commande = mots.join(' ').replace(/  /g, ' ');
       }
+
+      if(commande == "nouvelle partie"){
+        commande = "commencer nouvelle partie";
+      }
+
     }
 
     return commande;
