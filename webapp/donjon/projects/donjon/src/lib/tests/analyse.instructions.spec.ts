@@ -13,6 +13,14 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
     expect(result[2]).toEqual("l’action"); // complément
   });
 
+  
+  it('Phrase:  « annuler 1 tour »', () => {
+    const result = ExprReg.xInstruction.exec("annuler 1 tour");
+    expect(result).not.toBeNull();
+    expect(result[1]).toEqual("annuler"); // verbe
+    expect(result[2]).toEqual("1 tour"); // complément
+  });
+
   it('Phrase:  « changer le joueur possède la canne à pèche »', () => {
     const result = ExprReg.xInstruction.exec("changer le joueur possède la canne à pèche");
     expect(result).not.toBeNull();
@@ -205,7 +213,22 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[7]).toBeUndefined(); // épithète 2
   });
 
+  it('Complément:  « une action »', () => {
+    const result = ExprReg.xComplementInstruction1ou2elements.exec("une action");
+    expect(result).not.toBeNull();
+    expect(result[1]).toEqual("une "); // déterminant 1
+    expect(result[2]).toEqual("action"); // nom 1
+    expect(result[3]).toBeUndefined(); // épithète 1
+  });
 
+  it('Complément:  « 1 tour »', () => {
+    const result = ExprReg.xComplementInstruction1ou2elements.exec("1 tour");
+    expect(result).not.toBeNull();
+    expect(result[1]).toEqual("1 "); // déterminant 1
+    expect(result[2]).toEqual("tour"); // nom 1
+    expect(result[3]).toBeUndefined(); // épithète 1
+  });
+  
   it('Complément:  « manger le biscuit » (💥)', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("manger le biscuit");
     expect(result).toBeNull();

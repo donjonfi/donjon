@@ -4,6 +4,8 @@ export class ExprReg {
   // Ƶ et ƶ − commentaire
   static readonly caractereDebutTexte = 'Ƶ';
   static readonly caractereFinTexte = 'ƶ';
+  static readonly caractereReponse = 'Ð';
+  static readonly xCaractereReponse = /Ð/g;
   static readonly xCaracteresCommentaire = /Ƶ|ƶ/g;
   static readonly xCaractereDebutCommentaire = /Ƶ/g;
   static readonly xCaractereFinCommentaire = /ƶ/g;
@@ -94,7 +96,7 @@ export class ExprReg {
   * - Découpage :
   *     - Déterminant(1), Nom(2), Épithète(3)
   **/
-  static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+  static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * Est-ce que le texte commence par une voyelle ?
@@ -811,9 +813,11 @@ export class ExprReg {
    *     - tomate
    *     - le trésor vers le joueur
    *     - l’arc à flèches rouillé avec la flèche rouge
+   *     - 1 action
+   *     - une action
    *     - 💥 manger le biscuit
    */
-  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
+  static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela |\d+ )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 
   /**
    * => valeur1(1) verbeConjugué(2) valeur2(3)
