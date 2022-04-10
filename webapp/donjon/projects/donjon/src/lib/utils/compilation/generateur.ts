@@ -70,11 +70,11 @@ export class Generateur {
     // ****************
     const jeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'jeu');
     if (jeuDansMonde) {
-      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === "ifid")?.valeur;
-      jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === "titre")?.valeur;
-      jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === "auteur")?.valeur;
-      jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === "auteurs")?.valeur;
-      jeu.version = jeuDansMonde.proprietes.find(x => x.nom === "version")?.valeur;
+      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === 'ifid' || x.nom.toLowerCase() == 'identifiant' )?.valeur;
+      jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
+      jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === 'auteur')?.valeur;
+      jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === 'auteurs')?.valeur;
+      jeu.version = jeuDansMonde.proprietes.find(x => x.nom === 'version')?.valeur;
     }
 
     // dossier qui contient les ressources du jeu (./assets/dossier_ressources)

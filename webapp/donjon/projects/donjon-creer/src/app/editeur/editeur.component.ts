@@ -368,7 +368,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.listes = null;
       this.erreurs = [];
       this.compilationEnCours = false;
-      this.compilationTerminee = true; 
+      this.compilationTerminee = true;
     }
   }
 
@@ -460,18 +460,17 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.sectionCodeSourceVisible = "";
       this.chargementFichierEnCours = true;
       this.http.get('assets/modeles/' + nomFichierExemple, { responseType: 'text' })
-        .subscribe(
-          texte => {
+        .subscribe({
+          next: (texte) => {
             // changer l’url pour ne plus inclure le nom du fichier
             this.location.replaceState("/");
             // charger le code source
-            if (nouveau) {
-              texte = this.genererIFID() + texte;
-            }
             this.initCodeSource(texte);
-          }, erreur => {
+          },
+          error: (erreur) => {
             console.error("Fichier modèle pas trouvé:", erreur);
-          });
+          }
+        });
     }
   }
 
@@ -526,6 +525,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Initialiser le code source */
   private initCodeSource(codeSource: string): void {
+    // remplacer la balise @IFID@ par un nouvel identifiant unique
+    codeSource = codeSource.replace('@IFID@', this.genererIFID());
     this.codeSource = codeSource;
     this.sectionCodeSourceVisible = codeSource;
     this.sectionMode = "tout";
@@ -1143,7 +1144,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   genererIFID(): string {
     let uuid = 'd0f1' + uuidv4().slice(4);
-    return '-- Identifiant unique du jeu pour les répertoires de FI.\nL’IFID du jeu est "' + uuid + '".\n'
+    return 'L’identifiant du jeu est "' + uuid + '".';
   }
 
 }

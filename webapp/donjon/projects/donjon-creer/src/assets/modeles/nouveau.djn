@@ -1,6 +1,8 @@
 -- "Informations sur le jeu".
 Le titre du jeu est "Nouveau jeu".
 L’auteur du jeu est "Anonyme".
+@IFID@
+
 -- positionner le joueur dans le jeu
 Le joueur se trouve dans le salon.
 
