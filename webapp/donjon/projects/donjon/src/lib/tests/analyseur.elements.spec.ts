@@ -291,6 +291,35 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[8]).toEqual("labo"); // complément
     expect(result[9]).toBeUndefined(); // ici
   });
+  
+  it('Élément générique positionné: « La baguette est un objet maudit, rouge et magique ici »', () => {
+    const result = ExprReg.xPositionElementGeneriqueDefini.exec("La baguette est un objet maudit, rouge et magique ici");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("La "); // déterminant
+    expect(result[2]).toEqual("baguette"); // nom
+    expect(result[3]).toBeUndefined(); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toEqual("objet"); // classe
+    expect(result[6]).toEqual("maudit, rouge et magique"); // attribut
+    expect(result[7]).toBeUndefined(); // position
+    expect(result[8]).toBeUndefined(); // complément
+    expect(result[9]).toEqual("ici"); // ici
+  });
+
+   
+  it('Élément générique positionné: « La table est un support grand et opaque dans la salle »', () => {
+    const result = ExprReg.xPositionElementGeneriqueDefini.exec("La table est un support grand et opaque dans la salle");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("La "); // déterminant
+    expect(result[2]).toEqual("table"); // nom
+    expect(result[3]).toBeUndefined(); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toEqual("support"); // classe
+    expect(result[6]).toEqual("grand et opaque"); // attribut
+    expect(result[7]).toEqual("dans la "); // position
+    expect(result[8]).toEqual("salle"); // complément
+    expect(result[9]).toBeUndefined(); // ici
+  });
 
 });
 
@@ -393,6 +422,41 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+    // tester l’analyse spécifique
+    const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
+    expect(resultat).toBeNull(); // résultat PAS trouvé.
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+
+  });
+
+  it('Élément sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      "La salon est un lieu. " +
+      "La baguette est un objet maudit, rouge et magique ici."
+    );
+    expect(phrases).toHaveSize(2); // 1 phrase
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    Analyseur.analyserPhrase(phrases[0], ctxAnalyse)
+    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).not.toBe(ResultatAnalysePhrase.elementSansPosition);
+    // tester l’analyse spécifique
+    const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[1], ctxAnalyse);
+    expect(resultat).toBeNull(); // résultat PAS trouvé.
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+
+  });
+
+  
+  it('Élément sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
+    let ctxAnalyse = new ContexteAnalyse();
+    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+      "La table est un support grand et opaque dans la salle."
+    );
+    expect(phrases).toHaveSize(1); // 1 phrase
+    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    // tester l’analyse complète
+    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).not.toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.

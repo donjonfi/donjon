@@ -51,6 +51,16 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(result[5]).toEqual('mauves, odorantes et humides'); // attributs
   });
 
+  it('Attribut élé : « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
+    const result = ExprReg.xElementSimpleAttribut.exec('La baguette est un objet maudit, rouge et magique ici"');
+    expect(result).toEqual(null);
+  });
+  
+  it('Attribut élé : « La table est un support grand et opaque dans la salle » (💥)', () => {
+    const result = ExprReg.xElementSimpleAttribut.exec('La table est un support grand et opaque dans la salle"');
+    expect(result).toEqual(null);
+  });
+
   it('Attribut élé : « Sa réaction est "Bonjour !" » (💥)', () => {
     const result = ExprReg.xElementSimpleAttribut.exec('Sa réaction est "Bonjour !"');
     expect(result).toEqual(null);
