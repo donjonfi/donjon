@@ -634,7 +634,7 @@ export class ExprReg {
   /**
    * choisir (1er choix et 1ère instruction | liste de choix dynamique)(1)
    */
-  static readonly xSeparerChoisirInstructions = /^choisir (.+)$/i;
+  static readonly xSeparerChoisirInstructions = /^choisir(?: *:)? (.+)$/i;
 
   /**
    * choix "texte"(1): instructions(2)
