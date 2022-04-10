@@ -36,7 +36,6 @@ export class Analyseur {
    * @param ctx contexte de l’analyse.
    */
   public static analyserPhrase(phrase: Phrase, ctx: ContexteAnalyse): ResultatAnalysePhrase {
-
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // CODE DESCRIPTIF OU REGLE
@@ -195,7 +194,7 @@ export class Analyseur {
           AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
           elementTrouve = ResultatAnalysePhrase.elementSansPosition;
           if (ctx.verbeux) {
-            console.log("=> trouvé testerElementSimple:", ctx.dernierElementGenerique);
+            console.log("=> trouvé testerElementSansPosition:", ctx.dernierElementGenerique);
           }
         }
       }

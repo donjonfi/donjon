@@ -429,7 +429,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
+  it('Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
     let phrases = Compilateur.convertirCodeSourceEnPhrases(
       "La salon est un lieu. " +
@@ -439,16 +439,22 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     Analyseur.analyserPhrase(phrases[0], ctxAnalyse)
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).not.toBe(ResultatAnalysePhrase.elementSansPosition);
+    const resultatAnalyse = Analyseur.analyserPhrase(phrases[1], ctxAnalyse)
+    expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
-    const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[1], ctxAnalyse);
-    expect(resultat).toBeNull(); // résultat PAS trouvé.
+    const resultat1 = AnalyseurElementSimple.testerElementSansPosition(phrases[1], ctxAnalyse);
+    expect(resultat1).toBeFalsy(); // résultat PAS trouvé.
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+    // tester l’analyse spécifique
+    const resultat2 = AnalyseurElementPosition.testerElementAvecPosition(phrases[1], ctxAnalyse);
+    expect(resultat2).toBeTruthy(); // résultat trouvé.
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
   });
 
   
-  it('Élément sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
+  it('Élément avec/sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
     let phrases = Compilateur.convertirCodeSourceEnPhrases(
       "La table est un support grand et opaque dans la salle."
@@ -456,12 +462,17 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).not.toBe(ResultatAnalysePhrase.elementSansPosition);
+    const resultatAnalyse = Analyseur.analyserPhrase(phrases[0], ctxAnalyse);
+    expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
-    const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
-    expect(resultat).toBeNull(); // résultat PAS trouvé.
+    const resultat1 = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
+    expect(resultat1).toBeFalsy(); // résultat PAS trouvé.
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
-
+    // tester l’analyse spécifique
+    const resultat2 = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
+    expect(resultat2).toBeTruthy(); // résultat trouvé.
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
   });
 
 

@@ -71,7 +71,13 @@ export class AnalyseurElementPosition {
       nom = result[2];
       epithete = result[3],
         intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
-      attributs = (result[6] ? new Array<string>(result[6]) : new Array<string>());
+
+      if (result[6]) {
+        attributs = PhraseUtils.separerListeIntitulesEt(result[6], true);
+      } else {
+        attributs = [];
+      }
+      
       position = null;
 
       // => ici (dernier lieu défini) ou dessus/dedans/dessous (dernier objet défini)
