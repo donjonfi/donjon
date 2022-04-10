@@ -683,9 +683,14 @@ export class ConditionsUtils {
 
         // condition spéciale: le jeu est commencé
         // remarque: négation appliquée plus loin.
-        if (condition.sujet.nom == 'jeu' && !condition.sujet.epithete && condition.verbe == 'est' && condition.complement == 'commencé') {
-          // remarque: négation appliquée plus loin
+        if (condition.sujet.nomEpithete == 'jeu' && condition.verbe == 'est' && condition.complement == 'commencé') {
           if (this.jeu.commence) {
+            retVal = true;
+          }
+          // condition spéciale: le jeu est commencé
+          // remarque: négation appliquée plus loin.
+        } else if (condition.sujet.nomEpithete == 'jeu' && condition.verbe == 'est' && condition.complement == 'terminé') {
+          if (this.jeu.termine) {
             retVal = true;
           }
           // condition spéciale : tirage à X chance sur Y réussit
