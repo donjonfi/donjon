@@ -513,8 +513,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
       // continuer le tour interrompu
       const sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
-      // afficher la sortie du tour
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+
+      // s'il faut lancer une nouvelle partie
+      if (sortieCommande.includes('@nouvelle partie@')) {
+        this.nouvellePartie.emit();
+      // sinon afficher la sortie du tour
+      } else {
+        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+      }
     } else {
       this.jeu.tamponErreurs.push("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
       // l’interruption est terminée
@@ -882,7 +888,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.lancerSauverCommandes();
           // }, 100);
           // sortie normale
-        } else if (sortieCommande == "@nouvelle partie@") {
+        } else if (sortieCommande.includes("@nouvelle partie@")) {
           this.nouvellePartie.emit();
         } else {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));

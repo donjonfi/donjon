@@ -3,7 +3,7 @@ Désactiver les actions de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-04-09-0046
+-- Version: 2022-04-10-0046
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -211,7 +211,18 @@ SCÈNE "commencer".
       exécuter la commande "regarder";
     -- commencer une nouvelle partie (après la fin du jeu par exemple)
     sinonsi ceci vaut une nouvelle partie:
-      commencer nouvelle partie;
+      -- jeu terminé
+      si le jeu est terminé:
+        commencer une nouvelle partie;
+      -- jeu en cours : confirmation
+      sinon
+        dire "Commencer une nouvelle partie ?";
+        choisir 
+          choix "oui":
+            commencer nouvelle partie;
+          choix "non":
+        fin choisir
+      fin si
     fin si.
     
 SCÈNE "continuer".
