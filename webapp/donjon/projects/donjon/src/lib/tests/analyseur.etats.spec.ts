@@ -12,7 +12,7 @@ import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-ph
 describe('Epressions régulières − États (attributs) d’un élément jeu', () => {
 
   it('Attribut ele : « Le bateau est vieux et troué » ', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('Le bateau est vieux et troué');
+    const result = ExprReg.xElementSimpleAttributs.exec('Le bateau est vieux et troué');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Le '); // déterminant
     expect(result[2]).toEqual('bateau'); // nom
@@ -22,7 +22,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
   it('Attribut ele : « Julien est grand » ', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('Julien est grand');
+    const result = ExprReg.xElementSimpleAttributs.exec('Julien est grand');
     expect(result).not.toBeNull();
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual('Julien'); // nom
@@ -32,7 +32,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
   it('Attribut ele : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée » ', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('L’aliance du lac rouge (f, aliances du lac) est petite, fragile, vieille et dorée');
+    const result = ExprReg.xElementSimpleAttributs.exec('L’aliance du lac rouge (f, aliances du lac) est petite, fragile, vieille et dorée');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('L’'); // déterminant
     expect(result[2]).toEqual('aliance du lac'); // nom
@@ -42,7 +42,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
   it('Attribut ele : « Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides » ', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides');
+    const result = ExprReg.xElementSimpleAttributs.exec('Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Les '); // déterminant
     expect(result[2]).toEqual('pommes de terre'); // nom
@@ -52,17 +52,17 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
   it('Attribut élé : « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('La baguette est un objet maudit, rouge et magique ici"');
+    const result = ExprReg.xElementSimpleAttributs.exec('La baguette est un objet maudit, rouge et magique ici"');
     expect(result).toEqual(null);
   });
   
   it('Attribut élé : « La table est un support grand et opaque dans la salle » (💥)', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('La table est un support grand et opaque dans la salle"');
+    const result = ExprReg.xElementSimpleAttributs.exec('La table est un support grand et opaque dans la salle"');
     expect(result).toEqual(null);
   });
 
   it('Attribut élé : « Sa réaction est "Bonjour !" » (💥)', () => {
-    const result = ExprReg.xElementSimpleAttribut.exec('Sa réaction est "Bonjour !"');
+    const result = ExprReg.xElementSimpleAttributs.exec('Sa réaction est "Bonjour !"');
     expect(result).toEqual(null);
   });
 

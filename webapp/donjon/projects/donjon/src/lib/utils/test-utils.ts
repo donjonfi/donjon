@@ -9,9 +9,9 @@ export class TestUtils {
    * @param scenario 
    * @returns 
    */
-  public static genererEtCommencerLeJeu(scenario: string): ContextePartie
+  public static genererEtCommencerLeJeu(scenario: string, verbeux: boolean = false): ContextePartie
   {
-    const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, verbeux);
 
     if(rc.erreurs.length > 0){
       throw new Error("genererEtCommencerLeJeu: il y a une erreur dans le scénario.");

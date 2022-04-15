@@ -138,8 +138,8 @@ export class ExprReg {
   /**
    * 2 compléments simples séparés par une préposition
    */
-
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
+
 
   // ================================================================================================
   //  DÉFINITIONS DES ÉLÉMENTS DU MONDE
@@ -147,15 +147,17 @@ export class ExprReg {
 
   /** élément générique simple
    * - ex1: Le (1) champignon des bois (2) odorant (3) (champignons des bois)(4) est un légume(5) mangeable(6).
-   * - => Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6).
+   * - ex1: Le (1) score (2) est un compteur(5) (initialisé à 100)(7).
+   * - => Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6), Initialisation(7).
    * - Tests unitaires :
    *     - Paris est un lieu
    *     - La table basse est un objet
    *     - L'apprentie sorcière (f) est une personne fatiguée
+   *     - La bourse est un compteur initialisé à 100
    *     - 💥 Ce sont des fruits
    *     - 💥 Le bucheron est une personne ici
    */
-  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?: ((?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)(?:(?:, (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?))*(?: et (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)))?))?$/i;
+  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l’|l')|les |du )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?: ((?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)(?:(?:, (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?))*(?: et (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)))?))?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?$/i;
 
   /** élément générique positionné par rapport à complément
    * - Découpage :
@@ -297,7 +299,7 @@ export class ExprReg {
    *     - L’aliance du lac rouge (f) est petite, fragile, vieille et dorée
    *     - Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides
    */
-  static readonly xElementSimpleAttribut = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
+  static readonly xElementSimpleAttributs = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
 
   /**
    * Synonymes

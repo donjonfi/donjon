@@ -25,6 +25,7 @@ export class AnalyseurElementSimple {
     let intituleClasseNormalise: string;
     let genre: Genre;
     let attributsString: string;
+    let initialiseA: string;
     let attributs: string[];
     let nombre: Nombre;
     let quantite: number;
@@ -68,7 +69,11 @@ export class AnalyseurElementSimple {
       nombre = MotUtils.getNombre(result[1]);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
+      initialiseA = result[7];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
+      if(initialiseA){
+        attributs.push(initialiseA);
+      }
       position = null;
 
       // Pourquoi ajouter un nouveau type ici ?
@@ -97,7 +102,7 @@ export class AnalyseurElementSimple {
 
     } else {
       // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
-      result = ExprReg.xElementSimpleAttribut.exec(phrase.phrase[0]);
+      result = ExprReg.xElementSimpleAttributs.exec(phrase.phrase[0]);
       if (result != null) {
         // (f) / (f, autre forme) / (autre forme)
         let genreSingPlur = result[4];
@@ -153,6 +158,12 @@ export class AnalyseurElementSimple {
           } else {
             nouvelElementGenerique.nomS = autreForme;
           }
+        }
+      } else {
+        // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
+        result = ExprReg.xElementSimpleAttributs.exec(phrase.phrase[0]);
+        if (result != null) {
+
         }
       }
     }
