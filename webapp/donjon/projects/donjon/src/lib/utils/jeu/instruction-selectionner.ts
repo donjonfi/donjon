@@ -30,11 +30,8 @@ export class InstructionSelectionner {
       } else if (min > max) {
         contexteTour.ajouterErreurInstruction(instruction, 'Sélectionner nombre: le nombre maximum ne peut pas être inférieur au nombre mininum.');
       } else {
-        console.log("quantite=", quantite, "min=", min, "max=", max);
         const valeur = AleatoireUtils.nombreEntierPositif(min, max);
         contexteTour.ajouterValeur(intitule, valeur);
-        console.log("contexteTour=", contexteTour);
-
         resultat.succes = true;
       }
     } else {

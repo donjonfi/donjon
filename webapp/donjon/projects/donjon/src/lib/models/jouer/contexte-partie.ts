@@ -45,9 +45,22 @@ export class ContextePartie {
 
   /** Initialiser le générateur de nombres aléatoires. */
   private initialiserAleatoire() {
+    // graine pas encore définie: on en crée une nouvelle
     if (this.jeu.graine == undefined) {
-      this.jeu.graine = Math.random().toString();
+      this.nouvelleGraineAleatoire();
+      // graine déjà définie : on la réutilise
+    } else {
+      AleatoireUtils.init(this.jeu.graine);
     }
+  }
+
+  /** 
+   * Changer la graine pour la générateur de nombres aléatoires.
+   */
+  public nouvelleGraineAleatoire(): void {
+    // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
+    // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
+    this.jeu.graine = Math.random().toString();
     AleatoireUtils.init(this.jeu.graine);
   }
 

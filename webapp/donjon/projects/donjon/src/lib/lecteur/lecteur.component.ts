@@ -517,7 +517,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // s'il faut lancer une nouvelle partie
       if (sortieCommande.includes('@nouvelle partie@')) {
         this.nouvellePartie.emit();
-      // sinon afficher la sortie du tour
+        // sinon afficher la sortie du tour
       } else {
         this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
       }
@@ -715,6 +715,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.commande = curCom;
         this.onKeyDownEnter(null);
       });
+
+      // // nouvelle graine pour l’aléatoire
+      // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
+      // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
+      // this.ctx.nouvelleGraineAleatoire();
 
       // rétablir l'audio
       this.audioActif = backAudioActif;
