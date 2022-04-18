@@ -97,7 +97,7 @@ export class Abreviations {
       }
 
       if(commande == "nouvelle partie"){
-        commande = "commencer nouvelle partie";
+        commande = "recommencer";
       }
 
     }

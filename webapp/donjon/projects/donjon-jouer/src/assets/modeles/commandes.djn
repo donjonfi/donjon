@@ -3,7 +3,7 @@ Désactiver les actions de base.
 PARTIE "informations".
 
 -- Titre: "Commandes de bases pour Donjon IDE"
--- Version: 2022-04-10-0046
+-- Version: 2022-04-18-0047
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -211,18 +211,7 @@ SCÈNE "commencer".
       exécuter la commande "regarder";
     -- commencer une nouvelle partie (après la fin du jeu par exemple)
     sinonsi ceci vaut une nouvelle partie:
-      -- jeu terminé
-      si le jeu est terminé:
-        commencer une nouvelle partie;
-      -- jeu en cours : confirmation
-      sinon
-        dire "Commencer une nouvelle partie ?";
-        choisir 
-          choix "oui":
-            commencer nouvelle partie;
-          choix "non":
-        fin choisir
-      fin si
+      exécuter la commande "recommencer";
     fin si.
     
 SCÈNE "continuer".
@@ -1180,7 +1169,27 @@ SCÈNE "raconter".
   terminer raconter ceci à cela:
     dire "{/Voici une blague :/}";
     dire "{n}[au hasard]Que fait Platon quand ça le démange ?@@attendre touche@@{/Il Socrate./}[ou]Qu’est-ce qu’un rat avec la queue coupée ?@@attendre touche@@{/Un raccourci./}[ou]Comment savoir qu'un rat est content ?@@attendre touche@@{/Il souris./}[ou]Un geek ne s’ennuie pas…@@attendre touche@@Il se fichier.[ou]Que demande un footballeur à son coiffeur ?@@attendre touche@@{/La coupe du monde s’il vous plaît./}[ou]C’est l’histoire d’une fleur qui court, qui court…@@attendre touche@@{/Et qui se plante./}[fin choix]".
-    
+
+SCÈNE "recommencer".
+  -- ============
+  --   RECOMMENCER
+  -- ============
+
+  recommencer est une action.
+
+  exécuter recommencer:
+    -- jeu terminé
+    si le jeu est terminé:
+      commencer une nouvelle partie;
+    -- jeu en cours : confirmation
+    sinon
+      dire "Commencer une nouvelle partie ?";
+      choisir 
+        choix "oui":
+          commencer nouvelle partie;
+        choix "non":
+      fin choisir
+    fin si.
 
 SCÈNE "regarder".
   -- ============

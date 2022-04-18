@@ -832,7 +832,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (ecrireCommande) {
         this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
       }
-      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-nouvelle partie-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.ctx.dossierRessourcesComplet);
+      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.ctx.dossierRessourcesComplet);
     } else {
       // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
       if (ajouterCommandeDansHistorique) {
