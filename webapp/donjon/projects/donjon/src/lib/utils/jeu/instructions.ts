@@ -19,6 +19,7 @@ import { InstructionDeplacerCopier } from './instruction-deplacer-copier';
 import { InstructionDire } from './instruction-dire';
 import { InstructionExecuter } from './instruction-executer';
 import { InstructionJouerArreter } from './instruction-jouer-arreter';
+import { InstructionSelectionner } from './instruction-selectionner';
 import { InstructionsUtils } from './instructions-utils';
 import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
@@ -38,6 +39,7 @@ export class Instructions {
   private insChanger: InstructionChanger;
   private insJouerArreter: InstructionJouerArreter;
   private insCharger: InstructionCharger;
+  private insSelectionner: InstructionSelectionner;
   private insDeplacerCopier: InstructionDeplacerCopier;
 
   constructor(
@@ -55,6 +57,7 @@ export class Instructions {
     this.insChanger.instructionDeplacerCopier = this.insDeplacerCopier;
     this.insJouerArreter = new InstructionJouerArreter(this.jeu);
     this.insCharger = new InstructionCharger(this.jeu, this.document);
+    this.insSelectionner = new InstructionSelectionner(this.verbeux);
   }
 
   get dire() {
@@ -290,10 +293,10 @@ export class Instructions {
           // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
           resultat = this.insExecuter.executerReaction(instruction, contexteTour);
           // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
-        } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterAction)) {
+        } else if (instruction.complement1 && ExprReg.xActionExecuterAction.test(instruction.complement1)) {
           resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
           // EXÉCUTER COMMANDE
-        } else if (instruction.complement1 && instruction.complement1.match(ExprReg.xActionExecuterCommande)) {
+        } else if (instruction.complement1 && ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
           resultat = this.insExecuter.executerCommande(instruction, contexteTour);
         } else {
           console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
@@ -334,6 +337,11 @@ export class Instructions {
       case 'décharger':
       case 'decharger':
         resultat = this.insCharger.executerDecharger(instruction, contexteTour);
+        break;
+
+      case 'sélectionner':
+      case 'selectionner':
+        resultat = this.insSelectionner.executerSelectionner(instruction, contexteTour);
         break;
 
       case 'afficher':

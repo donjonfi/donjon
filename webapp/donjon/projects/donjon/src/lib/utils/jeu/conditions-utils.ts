@@ -251,36 +251,62 @@ export class ConditionsUtils {
             }
           }
         } else {
-          const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
-          if (correspondances.elements.length == 1) {
-            sujet = correspondances.elements[0];
-          } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
-            console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
-          } else if (correspondances.compteurs.length === 1) {
-            sujet = correspondances.compteurs[0];
-          } else if (correspondances.listes.length === 1) {
-            sujet = correspondances.listes[0];
+          // chercher dans les valeurs
+          const valeurTrouvee = contexteTour?.trouverValeur(condition.sujet.nomEpithete);
+
+          // valeur
+          if (valeurTrouvee) {
+
+            switch (typeof valeurTrouvee) {
+              // texte
+              // TODO: texte plutôt que intitulé
+              case 'string':
+                sujet = new Intitule(valeurTrouvee, new GroupeNominal(null, valeurTrouvee, null), ClassesRacines.Intitule);
+                break;
+
+              // nombre
+              case 'number':
+                sujet = new Compteur('valeur', valeurTrouvee)
+                break
+
+              // intiutlé
+              default:
+                sujet = valeurTrouvee;
+                break;
+            }
+            // pas une valeur
           } else {
-            // checher dans les propriétés
-            const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
-            if (proprieteJeu) {
-              const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
-              if (proprieteCible instanceof Compteur) {
-                sujet = proprieteCible;
-              } else {
-                if (proprieteCible.type == TypeValeur.nombre) {
-                  sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
-                } else {
-                  sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
-                }
-              }
-              // le jeu n’est pas dans les objets mais il est géré plus loin
-            } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
-              // le tirage n'est pas un objet, mais il est géré plus loin
-            } else if (conditionSujetNomNettoye == 'tirage' && !condition.sujet.epithete) {
-              // rien à dire ici
+            const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
+            if (correspondances.elements.length == 1) {
+              sujet = correspondances.elements[0];
+            } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
+              console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
+            } else if (correspondances.compteurs.length === 1) {
+              sujet = correspondances.compteurs[0];
+            } else if (correspondances.listes.length === 1) {
+              sujet = correspondances.listes[0];
             } else {
-              console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              // checher dans les propriétés
+              const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
+              if (proprieteJeu) {
+                const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
+                if (proprieteCible instanceof Compteur) {
+                  sujet = proprieteCible;
+                } else {
+                  if (proprieteCible.type == TypeValeur.nombre) {
+                    sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
+                  } else {
+                    sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
+                  }
+                }
+                // le jeu n’est pas dans les objets mais il est géré plus loin
+              } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
+                // le tirage n'est pas un objet, mais il est géré plus loin
+              } else if (conditionSujetNomNettoye == 'tirage' && !condition.sujet.epithete) {
+                // rien à dire ici
+              } else {
+                console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              }
             }
           }
         }

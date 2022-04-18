@@ -92,11 +92,18 @@ export class ExprReg {
   static readonly xGroupeNominalArticleDefini = /^(le |la |l(?:’|')|les )?(?!(?:\d|(?:un|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
-  * Groupe nominal.
+  * Groupe nominal avec article défini ou indéfini.
   * - Découpage :
   *     - Déterminant(1), Nom(2), Épithète(3)
   **/
   static readonly xGroupeNominalArticleDefiniEtIndefini = /^((?:(?:de )?(?:le |la |l(?:’|'))?)|du |des |un |une |les |\d+ )?(?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+
+  /**
+  * Groupe nominal sans article.
+  * - Découpage :
+  *     - Nom(2), Épithète(3)
+  **/
+   static readonly xGroupeNominalSansArticle = /^(?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * Est-ce que le texte commence par une voyelle ?
@@ -787,22 +794,34 @@ export class ExprReg {
   static readonly xSuiteInstructionCharger = /^((?:le )?thème) ([\w\._]*\w)$/i;
 
   /** 
-    * Complément de l’instruction attendre (une touche ou un nombre de secondes)
-    * - Découpage :
-    *     - [1|une] touche(1) ["texte"]\(2) | nombre(3) seconde[s]\(4)
-    * - Exemples :
-    *     - touche
-    *     - 1 touche
-    *     - une touche
-    *     - une touche "Veuillez entrer n’importe quelle touche."
-    *     - 0.5 seconde
-    *     - 0,3 secondes
-    *     - 1 seconde
-    *     - 5 secondes
-    *     - 💥 -1 seconde
-    *     - 💥 0 seconde
-    */
+   * Complément de l’instruction attendre (une touche ou un nombre de secondes)
+   * - Découpage :
+   *    - [1|une] touche(1) ["texte"]\(2) | nombre(3) seconde[s]\(4)
+   * - Exemples :
+   *   - touche
+   *   - 1 touche
+   *   - une touche
+   *   - une touche "Veuillez entrer n’importe quelle touche."
+   *   - 0.5 seconde
+   *   - 0,3 secondes
+   *   - 1 seconde
+   *   - 5 secondes
+   *   - 💥 -1 seconde
+   *   - 💥 0 seconde
+   */
   static readonly xSuiteInstructionAttendre = /^(?:(?:(?:une |1 )?(touche)(?: (".+"))?)|(?:((?:(?:[1-9][0-9]*|0)[\.|,][0-9]+)|(?:[1-9][0-9]*)) (seconde(?:s)?)?))$/i;
+
+  /** 
+   * Un nombre au hasard.
+   * - Découpage :
+   *   - nombre_en_chiffres(1)|nombre_en_lettres(2) nom(3) [épithète(4)] [compris ]entre nombre_en_chiffres(5)|nombre_en_lettres(6) et nombre_en_chiffres(7)|nombre_en_lettres(8)
+   * - Exemples
+   *   - un nombre compris entre 1 et 10
+   *   - 1 nombre compris entre 99 et 1000
+   *   - 2 nombres compris entre 7 et 122
+   *   - trois nombres compris entre un et trois
+   */
+  static readonly xSuiteInstructionSelectionnerNombre = /^(?:([1-9][0-9]*)|(un|une|le|la|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (?:compris(?:e(?:s)?)? )entre ?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) et (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix))$/i;
 
   /**
    * - Manger tomate(2).
@@ -811,13 +830,13 @@ export class ExprReg {
    * - => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
    * 
    * - Tests unitaires :
-   *     - l'action
-   *     - tomate
-   *     - le trésor vers le joueur
-   *     - l’arc à flèches rouillé avec la flèche rouge
-   *     - 1 action
-   *     - une action
-   *     - 💥 manger le biscuit
+   *   - l'action
+   *   - tomate
+   *   - le trésor vers le joueur
+   *   - l’arc à flèches rouillé avec la flèche rouge
+   *   - 1 action
+   *   - une action
+   *   - 💥 manger le biscuit
    */
   static readonly xComplementInstruction1ou2elements = /^(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une |quantitéCeci |quantitéCela |\d+ )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?)|(?:objets (?:dans|sous|sur) \S+))(?:(?: )(\S+))?(?: (à(?: propos)?|au|aux|avec|concernant|dans|de|du|en|et|hors|par|pour|sous|sur|vers)(?: (?:d’|d')*)(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )(\S+))?)?$/i;
 

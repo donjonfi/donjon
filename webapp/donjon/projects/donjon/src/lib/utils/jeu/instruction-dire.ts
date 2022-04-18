@@ -674,6 +674,41 @@ export class InstructionDire {
       }
 
       // ===================================================
+      // Mémoire [mémoire nom de la mémoire]
+      // ===================================================
+      const baliseMemoire = "(mémoire|memoire) (.+?)";
+      const xBaliseMemoireMulti = new RegExp("\\[" + baliseMemoire + "\\]", "gi");
+      const xBaliseMemoireSolo = new RegExp("\\[" + baliseMemoire + "\\]", "i");
+
+      if (xBaliseMemoireMulti.test(texteDynamique)) {
+        // retrouver toutes les balises conjugaison
+        const allBalises = texteDynamique.match(xBaliseMemoireMulti);
+        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+        // parcourir chaque balise trouvée
+        balisesUniques.forEach(curBalise => {
+          // retrouver la préposition et la cible
+          const decoupe = curBalise.match(xBaliseMemoireSolo);
+
+          const memoire = decoupe[1];
+          const intituleValeurOuListe = decoupe[2];
+
+          let valeurMemoire: string;
+
+          const elementTrouve = contexteTour.trouverValeur(intituleValeurOuListe);
+          if (elementTrouve) {
+            valeurMemoire = elementTrouve.toString();
+          } else {
+            valeurMemoire = '(mémoire pas trouvée: ' + intituleValeurOuListe + ')';
+          }
+          // remplacer la balise par le verbe conjugué
+          const expression = `${memoire} ${intituleValeurOuListe}`;
+          const regExp = new RegExp("\\[" + expression + "\\]", "g");
+          texteDynamique = texteDynamique.replace(regExp, valeurMemoire);
+        });
+      }
+
+      // ===================================================
       // CONJUGAISON
       // ===================================================
 
@@ -895,7 +930,7 @@ export class InstructionDire {
 
     let retVal = false;
     let conditionLC = condition.toLowerCase();
-    const resultFois = conditionLC.match(xFois);    
+    const resultFois = conditionLC.match(xFois);
 
     // X-ÈME FOIS
     if (resultFois) {
@@ -1158,7 +1193,7 @@ export class InstructionDire {
       let statut = new StatutCondition(nbAffichage, intact, morceaux, 0);
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
-      let afficherMorceauSuivant = true;      
+      let afficherMorceauSuivant = true;
       // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
       for (let index = 0; index < morceaux.length; index++) {
         statut.curMorceauIndex = index;
@@ -1219,7 +1254,7 @@ export class InstructionDire {
 
     // A) Chercher si une fiche d’aide exacte existe (avec accents)
     let ficheAide = this.jeu.aides.find(x => StringUtils.normaliserMot(x.infinitif) === nomNormalise);
-  
+
     // B) Chercher l’inifitif original de l’action
     if (!ficheAide) {
       let actionOriginaleTrouvee: Action | undefined;

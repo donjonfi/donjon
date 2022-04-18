@@ -1,11 +1,12 @@
 import { Choix } from "../compilateur/choix";
 import { ContexteCommande } from "./contexte-commande";
-import { ElementJeu } from "../jeu/element-jeu";
 import { ElementsPhrase } from "../commun/elements-phrase";
 import { Instruction } from "../compilateur/instruction";
 import { Intitule } from "../jeu/intitule";
 import { Lieu } from "../jeu/lieu";
+import { Liste } from "../jeu/liste";
 import { Localisation } from "../jeu/localisation";
+import { RechercheUtils } from "../../utils/commun/recherche-utils";
 import { Resultat } from "./resultat";
 import { TypeInterruption } from "../jeu/interruption";
 import { Valeur } from "../jeu/valeur";
@@ -44,6 +45,16 @@ export class ContexteTour {
   /** réponse du joueur au dernier choisir */
   public reponse: Valeur;
 
+  /**
+   * Valeurs du tour.
+   */
+  private valeurs = new Map<string, Valeur>();
+  
+  /**
+   * Liste de valeurs du tour.
+   */
+  private listes = new Map<string, Liste>();
+
   constructor(
     /** Ceci */
     public ceci: Intitule | undefined,
@@ -72,6 +83,26 @@ export class ContexteTour {
       console.error(erreur);
     }
     this.erreurs.push(erreur);
+  }
+
+  /**
+   * Ajouter une valeur au tour de jeu.
+   * @param intituleValeur 
+   * @param valeur 
+   */
+  ajouterValeur(intituleValeur: string, valeur: Valeur): void {
+    const intituleNettoye = RechercheUtils.nettoyerEtRetirerDeterminants(intituleValeur);
+    this.valeurs.set(intituleNettoye, valeur);
+  }
+
+  /**
+   * Retrouver une valeur du tour de jeu.
+   * @param intituleValeur 
+   * @returns 
+   */
+  trouverValeur(intituleValeur: string): Valeur | undefined {
+    const intituleNettoye = RechercheUtils.nettoyerEtRetirerDeterminants(intituleValeur);
+    return this.valeurs.get(intituleNettoye);
   }
 
 }

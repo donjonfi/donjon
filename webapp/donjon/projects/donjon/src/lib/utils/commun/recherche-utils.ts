@@ -64,9 +64,9 @@ export class RechercheUtils {
   /** 
    * L’expression est nettoyée et on retire les déterminants :
    *   - on transforme les majuscules en minuscules
+   *   - on retire les déterminants
    *   - on transforme les caractères spéciaux (accents, cédilles, ligatures) en leur équivalent simplifié
    *   - on retire les espaces multiples
-   *   - on retire les déterminants
    *   - on retire les espaces en début et en fin d’expression
    *   => on retourne les mots restants sous d’une chaîne de caractères.
    * @argument expression expression déjà converties en minuscules :
@@ -75,14 +75,27 @@ export class RechercheUtils {
   public static nettoyerEtRetirerDeterminants(expression: string): string {
     let expressionNettoyee: string = "";
     if (expression) {
-      // transformer majuscules et accents
-      expressionNettoyee = this.transformerCaracteresSpeciauxEtMajuscules(expression)
-        // enlever les déterminants
+      // transformer majuscules
+      const expressionNettoyeeAvecDeterminants = this.transformerMajuscules(expression);
+      // enlever les déterminants (on n'a pas encore retiré les accents car "dé" != "de")
+      const expressionNettoyeeSansDeterminant = expressionNettoyeeAvecDeterminants
         .replace(this.determinants, '')
+        .trim();
+
+      // on garde la version sans déterminant à condition qu'il reste quelque chose
+      if (expressionNettoyeeSansDeterminant.length > 1) {
+        expressionNettoyee = expressionNettoyeeSansDeterminant;
+      } else {
+        expressionNettoyee = expressionNettoyeeAvecDeterminants
+      }
+
+      // transformer caractères spéciaux
+      expressionNettoyee = this.transformerCaracteresSpeciaux(expressionNettoyee)
         // enlever les espaces multiples
         .replace(/( +)/g, " ")
         // enlever espaces en début/fin de chaîne
         .trim();
+
     }
     return expressionNettoyee;
   }
