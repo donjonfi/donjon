@@ -2,7 +2,7 @@ import { Analyseur } from "../utils/compilation/analyseur/analyseur";
 import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
-import { Compilateur } from "../utils/compilation/compilateur";
+import { CompilateurBeta } from "../utils/compilation/compilateur-beta";
 import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
 import { EClasseRacine } from "../models/commun/constantes";
 import { ExprReg } from "../utils/compilation/expr-reg";
@@ -337,7 +337,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément sans pos: « La cuisine est un lieu. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La cuisine est un lieu."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -368,7 +368,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément sans pos: « Paris (f) est un lieu gris. "Vous êtes dans Paris.". »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       'Paris (f) est un lieu gris. "Vous êtes dans Paris.".'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -399,7 +399,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément sans pos: « La château du comte est un lieu au nord du village. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -415,7 +415,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément sans pos: « Un lutin est une personne. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Un lutin est une personne."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -431,7 +431,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La salon est un lieu. " +
       "La baguette est un objet maudit, rouge et magique ici."
     );
@@ -456,7 +456,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   
   it('Élément avec/sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La table est un support grand et opaque dans la salle."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -483,7 +483,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément pos: « Le château du comte est un lieu au nord du village. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -515,7 +515,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -547,7 +547,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord de le village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -563,7 +563,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   it('Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "L’abri est un lieu sombre."
     );
     expect(phrases).toHaveSize(1); // 1 phrase

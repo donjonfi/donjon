@@ -1,4 +1,4 @@
-import { Compilateur } from "./compilation/compilateur";
+import { CompilateurBeta } from "./compilation/compilateur-beta";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { Generateur } from "./compilation/generateur";
 
@@ -11,7 +11,7 @@ export class TestUtils {
    */
   public static genererEtCommencerLeJeu(scenario: string, verbeux: boolean = false): ContextePartie
   {
-    const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, verbeux);
+    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, verbeux);
 
     if(rc.erreurs.length > 0){
       throw new Error("genererEtCommencerLeJeu: il y a une erreur dans le scénario.");

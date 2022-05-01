@@ -1,12 +1,11 @@
-import { Nombre } from "../models/commun/nombre.enum";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
-import { Definition } from "../models/compilateur/definition";
-import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 import { Analyseur } from "../utils/compilation/analyseur/analyseur";
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
-import { Compilateur } from "../utils/compilation/compilateur";
+import { CompilateurBeta } from "../utils/compilation/compilateur-beta";
+import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { Definition } from "../models/compilateur/definition";
 import { ExprReg } from "../utils/compilation/expr-reg";
-
+import { Nombre } from "../models/commun/nombre.enum";
+import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ——————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -120,7 +119,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Nouveau type : « Un meuble est un objet. » ', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Un meuble est un objet."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -143,7 +142,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Nouveau type : « Une fée est une personne magique. » ', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Une fée est une personne magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -167,7 +166,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Nouveau type : « Une fée est magique. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Une fée est magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -186,7 +185,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Nouveau type : « La fée est une personne. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "La fée est une personne."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -208,7 +207,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Précision type : « Une statue est fixée. » ', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Une statue est fixée."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -231,7 +230,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Précision type : « Un lutin est bavard, farceur et petit. » ', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Un lutin est bavard, farceur et petit."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
@@ -257,7 +256,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('Précision type : Type défini 2x doit générer erreur', () => {
         let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
             "Un lutin est une personne farceuse. Un lutin est une créature-magique aimable."
         );
         expect(phrases).toHaveSize(2); // 2 phrases

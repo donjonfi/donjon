@@ -1,4 +1,4 @@
-import { Analyseur, AnalyseurElementPosition, AnalyseurUtils, Compilateur, ContexteAnalyse, EClasseRacine, ElementGenerique, Genre, Nombre, PositionSujetString } from "../../public-api";
+import { Analyseur, AnalyseurElementPosition, AnalyseurUtils, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique, Genre, Nombre, PositionSujetString } from "../../public-api";
 
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
@@ -116,7 +116,7 @@ describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
@@ -150,7 +150,7 @@ describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « Le cadenas bleu est un objet. Il se trouve dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet. " +
       "Il se trouve dans le labo. " +
       ""
@@ -176,7 +176,7 @@ describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « Le labo est un lieu. Le cadenas bleu est un objet. Il se trouve ici. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le labo est un lieu. " +
       "Le cadenas bleu est un objet. " +
       "Il se trouve ici. " +
@@ -207,7 +207,7 @@ describe('Analyseur: objets positionnés', () => {
   
   it('Élément pos: « La table est un support. Le cadenas bleu est un objet. Il se trouve sur la table. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +
       "Le cadenas bleu est un objet. \n" +
       "Il se trouve sur la table. \n" +
@@ -237,7 +237,7 @@ describe('Analyseur: objets positionnés', () => {
     
   it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
       "Le coffre est un contenant ici. \n" +
       "L’or est dedans. \n" +
@@ -267,7 +267,7 @@ describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
       "Le coffre est un contenant ici. \n" +
       "L’or est un objet. \n" +
@@ -296,7 +296,7 @@ describe('Analyseur: objets positionnés', () => {
     
   it('Élément pos: « Le coffre est un contenant ici. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le coffre est un contenant ici. \n" +
       ""
     );
@@ -311,7 +311,7 @@ describe('Analyseur: objets positionnés', () => {
       
   it('Élément pos: « Le coffre est dedans. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le coffre est dedans. \n" +
       ""
     );
@@ -325,7 +325,7 @@ describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « a table est un support. Le cadenas bleu est un objet. Il se trouve dessus. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +
       "Le cadenas bleu est un objet. \n" +
       "Il se trouve dessus. \n" +

@@ -1,4 +1,4 @@
-import { Analyseur, Compilateur, EClasseRacine, Genre, Nombre } from "../../public-api";
+import { Analyseur, CompilateurBeta, EClasseRacine, Genre, Nombre } from "../../public-api";
 
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
@@ -117,7 +117,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
   it('Élément sans pos: « Les nombres gagnants sont une liste. Elle contient 7, 21 et 9. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       'Les nombres gagnants sont une liste. Elle contient 7, 21 et 9.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
@@ -143,7 +143,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
   it('Élément sans pos: « Les suspects sont une liste. Ils incluent "Alice" et "Bob". »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       'Les suspects sont une liste. Ils incluent "Alice" et "Bob".'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
@@ -169,7 +169,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
   it('Élément sans pos: « Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       'Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
@@ -195,7 +195,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
   it('Élément sans pos: « X est une liste. Il inclut 1. »', () => {
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       'X est une liste. Il inclut 1.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases

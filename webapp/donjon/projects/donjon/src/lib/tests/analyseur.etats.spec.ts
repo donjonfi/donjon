@@ -1,4 +1,4 @@
-import { Analyseur, Compilateur, ContexteAnalyse, EClasseRacine, ElementGenerique } from "../../public-api";
+import { Analyseur, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique } from "../../public-api";
 
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
@@ -79,7 +79,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Attribut ele : « Le bateau est vieux et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le bateau est vieux et troué. \n" +
       ""
     );
@@ -99,7 +99,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « Le bateau est vieux, et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
@@ -119,7 +119,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « Le bateau est vieux, troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, troué. \n" +
       ""
     );
@@ -140,7 +140,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « Julien est grand » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Julien est grand. \n" +
       ""
     );
@@ -160,7 +160,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « Le bateau est vieux et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
@@ -181,7 +181,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « Le bateau est vieux,et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
@@ -201,7 +201,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. \n" +
       ""
     );
@@ -225,7 +225,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. » ', () => {
 
     let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
       "L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. \n" +
       ""
     );

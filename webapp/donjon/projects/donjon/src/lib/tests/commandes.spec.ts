@@ -1,4 +1,4 @@
-import { ActionsUtils, Compilateur, Generateur } from "../../public-api";
+import { ActionsUtils, CompilateurBeta, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
@@ -37,7 +37,7 @@ describe('Décomposer des commandes', () => {
       'La pomme est un objet mangeable. ' +
       'La table basse est un support ici. ' +
       '';
-    const rc = Compilateur.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     this.ctxPartie = new ContextePartie(jeu);
     this.actionsUtils = new ActionsUtils(jeu, false);

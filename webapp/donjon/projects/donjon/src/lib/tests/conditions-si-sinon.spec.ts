@@ -1,4 +1,4 @@
-import { Compilateur, Generateur } from "../../public-api";
+import { CompilateurBeta, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { TestUtils } from "../utils/test-utils";
