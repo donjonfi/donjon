@@ -98,10 +98,13 @@ export class CompilateurV8Utils {
   
   
   
-              // enlever le "." et remplacer les retours à la ligne par des espaces
+              // - enlever le "."
+              // - remplacer les retours à la ligne par des espaces
+              // - remettre les :
               const phraseNettoyee = phraseBrute
                 .replace(/\.$/, '')
                 .replace(ExprReg.xCaractereRetourLigne, " ")
+                .replace(ExprReg.xCaractereDeuxPoints, ":")
                 .trim();
   
               // nouvelle phrase

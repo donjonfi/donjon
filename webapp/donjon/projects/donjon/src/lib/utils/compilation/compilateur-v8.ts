@@ -1,3 +1,4 @@
+import { Analyseur } from "./analyseur/analyseur";
 import { CompilateurCommunUtils } from "./compilateur-commun-utils";
 import { CompilateurV8Utils } from "./compilateur-v8-utils";
 import { ContexteAnalyse } from "../../models/compilateur/contexte-analyse";
@@ -28,7 +29,7 @@ export class CompilateurV8 {
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
 
     // inclure les commandes de base, sauf si on les a désactivées
-    if (!/d(é|e)sactiver les (commandes|actions) de base(\.|;))/i.test(scenario)) {
+    if (!/d(é|e)sactiver les (commandes|actions) de base(\.|;)/i.test(scenario)) {
       if (actions) {
         try {
           CompilateurV8.analyserCodeSource(actions, ctx.analyse);
@@ -55,17 +56,16 @@ export class CompilateurV8 {
    * @param source Instructions à interpréter.
    * @param contexteAnalyse Analyse existante à compléter.
    */
-  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyse) {
+  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyse): void {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
 
-    
-
+    // ********************************
+    // ANALYSER LES PHRASES
+    // ********************************
+    Analyseur.analyserPhrases(phrases, contexteAnalyse);
 
   }
-
-
-
 
 
 }
