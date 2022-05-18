@@ -4,6 +4,7 @@ import { CompilateurV8Utils } from "./compilateur-v8-utils";
 import { ContexteAnalyse } from "../../models/compilateur/contexte-analyse";
 import { ContexteCompilation } from "../../models/compilateur/contexte-compilation";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
+import { Verificateur } from "./verificateur";
 
 /**
  * Il s’agit du deuxième compilateur Donjon FI.
@@ -48,7 +49,29 @@ export class CompilateurV8 {
     CompilateurCommunUtils.peuplerLeMonde(ctx);
 
     return ctx.resultat;
+  }
 
+  /**
+  * Analyser le scénario d’un jeu et renvoyer le monde correspondant ansi que les actions, règles, fiches d’aide, …
+  * Les commandes de base ne sont pas ajoutées au scénario.
+  * @param scenario scénario de l’auteur
+  * @param verbeux  la sortie avec les remarques doit-elle être plus détaillée ?
+  */
+  public static analyserScenarioSeul(scenario: string, verbeux: boolean): ResultatCompilation {
+
+    // création d’un nouveau contexte pour la compilation
+    let ctx = new ContexteCompilation(verbeux);
+
+    // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
+    CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
+
+    // Interpréter le scénario
+    CompilateurV8.analyserCodeSource(scenario, ctx.analyse);
+
+    // peupler le monde
+    CompilateurCommunUtils.peuplerLeMonde(ctx);
+
+    return ctx.resultat;
   }
 
   /**
@@ -59,6 +82,8 @@ export class CompilateurV8 {
   public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyse): void {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
+
+    Verificateur.verifierBlocs(phrases, contexteAnalyse);
 
     // ********************************
     // ANALYSER LES PHRASES

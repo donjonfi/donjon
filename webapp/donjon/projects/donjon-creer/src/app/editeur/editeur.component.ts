@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, Compilateur, ElementGenerique, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, CompilateurV8, ElementGenerique, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -334,7 +334,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       const sourceCommandes = this.chargerCommandes(false).then(commandes => {
 
         // interpréter le code
-        const resComp = Compilateur.analyserScenarioAvecCommandesFournies(this.codeSource, commandes, verbeux)
+        const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, commandes, verbeux)
         this.monde = resComp.monde;
         this.regles = resComp.regles;
         this.compteurs = resComp.compteurs;

@@ -86,6 +86,7 @@ export * from './lib/utils/compilation/analyseur/analyseur.synonymes';
 export * from './lib/utils/compilation/analyseur/analyseur.type';
 export * from './lib/utils/compilation/analyseur/analyseur.utils';
 export * from './lib/utils/compilation/compilateur-beta';
+export * from './lib/utils/compilation/compilateur-v8';
 export * from './lib/utils/compilation/expr-reg';
 export * from './lib/utils/compilation/generateur';
 
