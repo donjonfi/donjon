@@ -1,8 +1,8 @@
 import { Analyseur } from "./analyseur/analyseur";
 import { CompilateurCommunUtils } from "./compilateur-commun-utils";
 import { CompilateurV8Utils } from "./compilateur-v8-utils";
-import { ContexteAnalyse } from "../../models/compilateur/contexte-analyse";
-import { ContexteCompilation } from "../../models/compilateur/contexte-compilation";
+import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8";
+import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compilation-v8";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { Verificateur } from "./verificateur";
 
@@ -24,7 +24,7 @@ export class CompilateurV8 {
   public static analyserScenarioEtActions(scenario: string, actions: string, verbeux: boolean): ResultatCompilation {
 
     // création d’un nouveau contexte pour la compilation
-    let ctx = new ContexteCompilation(verbeux);
+    let ctx = new ContexteCompilationV8(verbeux);
 
     // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
@@ -60,7 +60,7 @@ export class CompilateurV8 {
   public static analyserScenarioSeul(scenario: string, verbeux: boolean): ResultatCompilation {
 
     // création d’un nouveau contexte pour la compilation
-    let ctx = new ContexteCompilation(verbeux);
+    let ctx = new ContexteCompilationV8(verbeux);
 
     // ajout des éléments spéciaux (joueur, inventaire, jeu, …)
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
@@ -79,7 +79,7 @@ export class CompilateurV8 {
    * @param source Instructions à interpréter.
    * @param contexteAnalyse Analyse existante à compléter.
    */
-  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyse): void {
+  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyseV8): void {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
 

@@ -1,4 +1,5 @@
 import { CompilateurCommunUtils } from "./compilateur-commun-utils";
+import { ERegion } from "../../models/compilateur/region";
 import { ExprReg } from "./expr-reg";
 import { Phrase } from "../../models/compilateur/phrase";
 
@@ -110,7 +111,7 @@ export class CompilateurV8Utils {
               // nouvelle phrase
               if (!phrasePrecedente || phrasePrecedente.finie) {
                 if (phraseNettoyee !== '') {
-                  phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie);
+                  phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, ERegion.inconnue);
                   phrases.push(phrasePrecedente);
                 }
                 // suite de la phrase précédente

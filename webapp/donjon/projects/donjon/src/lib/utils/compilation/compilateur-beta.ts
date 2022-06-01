@@ -2,6 +2,7 @@ import { Analyseur } from './analyseur/analyseur';
 import { CompilateurCommunUtils } from './compilateur-commun-utils';
 import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
 import { ContexteCompilation } from '../../models/compilateur/contexte-compilation';
+import { ERegion } from '../../models/compilateur/region';
 import { ExprReg } from './expr-reg';
 import { HttpClient } from '@angular/common/http';
 import { Phrase } from '../../models/compilateur/phrase';
@@ -228,7 +229,7 @@ export class CompilateurBeta {
             // nouvelle phrase
             if (!phrasePrecedente || phrasePrecedente.finie) {
               if (phraseNettoyee !== '') {
-                phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie);
+                phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, ERegion.inconnue);
                 phrases.push(phrasePrecedente);
               }
               // suite de la phrase précédente
