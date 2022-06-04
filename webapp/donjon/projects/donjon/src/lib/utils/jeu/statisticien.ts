@@ -8,24 +8,34 @@ import { TexteUtils } from "../commun/texte-utils";
 export class Statisticien {
 
 
+  /** Éviter de perdre des statistiques si l’écran (sortie joueur) est effacé. */
+  public static sauverStatistiquesAvantEffacerSortie(ctx: ContextePartie, sortieJoueur: string) {
+    if (sortieJoueur) {
+      const sortieNettoyee = Statisticien.nettoyerTexteSortie(sortieJoueur);
+      ctx.jeu.statistiques.nbCaracteresAffichesAvantEffacement += sortieNettoyee.length;
+      const nbMotsAffiches = Statisticien.compterMotsTexte(sortieNettoyee);
+      ctx.jeu.statistiques.nbMotsAffichesAvantEffacement += nbMotsAffiches;
+    }
+  }
+
   /** Afficher lest statistiques du nombre de mots du scénario et de la partie. */
   public static afficherStatistiques(ctx: ContextePartie, sortieJoueur: string): string {
     let sortie: string = '';
 
     // nombre de caractères du scénario
     sortie += "{p}{_Estimation du nombre de mots_}"
-      + "{n}Scénario du jeu:{n}"
+      + "{n}Scénario du jeu :{n}"
       + "{t}- " + ctx.jeu.statistiques.nbCaracteresScenarioSansCommentaires + " caractères au total (" + ctx.jeu.statistiques.nbCaracteresScenario + " en incluant les commentaires.){n}"
       + "{t}- " + ctx.jeu.statistiques.nbCaracteresAffichables + " caractères affichables{n}"
       + "{t}- {+" + ctx.jeu.statistiques.nbMotsAffichables + " mots affichables+}{n}";
 
-    // nombre de caractères dans la sortie
+    // nombre de caractères dans la sortie + ce qu’on a retenu avant effacement écran éventuel
     const sortieNettoyee = Statisticien.nettoyerTexteSortie(sortieJoueur);
-    const nbMotsAffiches = Statisticien.compterMotsTexte(sortieNettoyee);
-    sortie += "Sortie partie:{n}"
-      + "{t}- " + (sortieNettoyee.length - ctx.jeu.statistiques.nbCaracteresCommandesAffichees) + " caractères affichés (" + sortieNettoyee.length + " en incluant les commandes et erreurs){n}"
+    const nbCaracteresAffiches = sortieNettoyee.length + ctx.jeu.statistiques.nbCaracteresAffichesAvantEffacement;
+    const nbMotsAffiches = Statisticien.compterMotsTexte(sortieNettoyee) + ctx.jeu.statistiques.nbMotsAffichesAvantEffacement;
+    sortie += "Sortie partie :{n}"
+      + "{t}- " + (nbCaracteresAffiches - ctx.jeu.statistiques.nbCaracteresCommandesAffichees) + " caractères affichés (" + nbCaracteresAffiches + " en incluant les commandes et erreurs){n}"
       + "{t}- {+" + (nbMotsAffiches - ctx.jeu.statistiques.nbMotsCommandesAffichees) + " mots affichés+} (" + nbMotsAffiches + " en incluant les commandes et erreurs){n}";
-
     return sortie;
   }
 
@@ -129,6 +139,7 @@ export class Statisticien {
   public static nettoyerTexteAffichable(texte: string): string {
     // enlever les balises conditionnelles
     let texteNettoye = TexteUtils.enleverBalisesConditionnelles(texte);
+    // TODO: remplacer les {n}, {N}, {p}, {u} et {U}  par un espace ?
     // enlever les balises de style
     texteNettoye = TexteUtils.enleverBalisesStyleDonjon(texteNettoye);
     // enlever les guillemets

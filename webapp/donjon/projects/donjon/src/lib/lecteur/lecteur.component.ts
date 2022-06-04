@@ -271,6 +271,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // sinon
         } else {
           // remplacer la sortie du joueur
+          this.effacerEcran();
           this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
         }
         // attendre pour afficher la suite éventuelle
@@ -427,6 +428,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     const affichageCommandeNettoye = Statisticien.nettoyerTexteSortie(texteAIgnorer);
     this.ctx.jeu.statistiques.nbMotsCommandesAffichees += Statisticien.compterMotsTexte(affichageCommandeNettoye);
     this.ctx.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
+  }
+
+  private effacerEcran() {
+    Statisticien.sauverStatistiquesAvantEffacerSortie(this.ctx, this.sortieJoueur);
+    this.sortieJoueur = "";
   }
 
   private traiterChoixStatiqueJoueur() {
@@ -586,6 +592,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // sinon
     } else {
       // remplacer la sortie du joueur
+      this.effacerEcran();
       this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length) + "</p>";
     }
 
@@ -887,13 +894,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         if (contexteCommande.evenement?.commandeComprise) {
           // afficher la commande entrée par le joueur + son interprétation
           const commandeFinale = contexteCommande.evenement.commandeComprise;
-          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'))
+          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
         } else {
-          // commande PAS comprise ou incomplète
+          // commande PAS comprise ou incomplète (ou bien commande spéciale)
           // -> afficher la commande entrée par le joueur + son interprétation
           affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
-          // éviter de comptabiliser le texte d’erreur dans les statistiques
-          this.ajouterTexteAIgnorerAuxStatistiques(contexteCommande.sortie);
         }
         affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.ctx.dossierRessourcesComplet) + '</span>';
         this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
@@ -926,11 +931,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.nouvellePartie.emit();
           // sortie normale
         } else {
-          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+          const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet);
+          // si commande pas comprise, refusée ou spéciale (déboguer), on va ignorer sa sortie pour les statistiques
+          if (!contexteCommande.evenement?.commandeComprise) {
+            this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
+            // ne pas ajouter les commande « afficher aide » aux statistiques
+          } else if (contexteCommande.evenement?.infinitif == 'afficher' && contexteCommande.evenement?.ceci == 'aide') {
+            this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
+          }
+          this.ajouterSortieJoueur(sortieCommandeHtml);
         }
         // aucune sortie
       } else {
-        // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
+        // si on n’a pas été interrompu, informer que la commande n’a rien renvoyé
         if (!this.jeu.tamponInterruptions.length) {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
         }
