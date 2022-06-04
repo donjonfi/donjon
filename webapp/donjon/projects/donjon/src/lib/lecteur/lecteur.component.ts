@@ -10,6 +10,7 @@ import { DOCUMENT } from '@angular/common';
 import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
+import { Statisticien } from '../utils/jeu/statisticien';
 
 @Component({
   selector: 'djn-lecteur',
@@ -416,9 +417,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /** Ajouter le texte spécifié (peut contenir du HTML) au texte à ignorer dans les statistiques. */
+  private ajouterTexteAIgnorerAuxStatistiques(texteAIgnorer: string) {
+    // comptabiliser la commandes dans les statistiques
+    const affichageCommandeNettoye = Statisticien.nettoyerTexteSortie(texteAIgnorer);
+    this.ctx.jeu.statistiques.nbMotsCommandesAffichees += Statisticien.compterMotsTexte(affichageCommandeNettoye);
+    this.ctx.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
+  }
+
   private traiterChoixStatiqueJoueur() {
     this.commande = this.commande?.trim();
-    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+    this.sortieJoueur += affichageCommande;
 
     // choix classique
     let indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
@@ -449,7 +460,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private traiterChoixLibreJoueur() {
     this.commande = this.commande?.trim();
-    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+    this.sortieJoueur += affichageCommande;
 
     const choixPasNettoye = this.commande.trim();
     const choixNettoye = StringUtils.normaliserReponse(this.commande);
@@ -833,7 +846,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
     // VÉREFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|(commencer )?nouvelle partie)\b/i)) {
+    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
         this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
       }
@@ -865,14 +878,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
 
       if (ecrireCommande) {
+        let affichageCommande: string;
+        // commande comprise
         if (contexteCommande.evenement?.commandeComprise) {
+          // afficher la commande entrée par le joueur + son interprétation
           const commandeFinale = contexteCommande.evenement.commandeComprise;
-          // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
+          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'))
         } else {
-          // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
+          // commande PAS comprise ou incomplète
+          // -> afficher la commande entrée par le joueur + son interprétation
+          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
+          // éviter de comptabiliser le texte d’erreur dans les statistiques
+          this.ajouterTexteAIgnorerAuxStatistiques(contexteCommande.sortie);
         }
+        affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.ctx.dossierRessourcesComplet) + '</span>';
+        this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+        this.sortieJoueur += affichageCommande;
       }
 
       const sortieCommande = contexteCommande.sortie;
@@ -889,12 +910,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           }, 100);
           // sortie spéciale: sauver-commandes
         } else if (sortieCommande == "@sauver-commandes@") {
-          // setTimeout(() => {
           this.lancerSauverCommandes();
-          // }, 100);
-          // sortie normale
+          // sortie spéciale: statistiques
+        } else if (sortieCommande == "@statistiques@") {
+          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.ctx, this.sortieJoueur), this.ctx.dossierRessourcesComplet);
+          // éviter de comptabiliser l’affichage des statistiques dans le nombre de mots
+          this.ajouterTexteAIgnorerAuxStatistiques(sortieStatistiques);
+          this.ajouterSortieJoueur(sortieStatistiques);
+          // sortie spéciale: nouvelle partie
         } else if (sortieCommande.includes("@nouvelle partie@")) {
           this.nouvellePartie.emit();
+          // sortie normale
         } else {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
         }

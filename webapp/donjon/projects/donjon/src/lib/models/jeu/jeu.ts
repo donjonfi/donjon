@@ -11,6 +11,7 @@ import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
 import { Regle } from '../compilateur/regle';
+import { Statistiques } from './statistiques';
 
 export class Jeu {
 
@@ -117,8 +118,13 @@ export class Jeu {
 
   /** 
    * Commandes à exécuter à l'intialisation du jeu
-   * afin de rétablir la sauvegarde précédemment chargée
+   * afin de rétablir la sauvegarde précédemment chargée.
    */
   sauvegarde: string[] | undefined;
+
+  /**
+   * Statistiques du jeu et de son scénario.
+   */
+  statistiques: Statistiques | undefined;
 
 }

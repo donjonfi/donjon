@@ -15,6 +15,7 @@ import { Monde } from '../../models/compilateur/monde';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Phrase } from '../../models/compilateur/phrase';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
+import { Statisticien } from '../jeu/statisticien';
 import { StringUtils } from '../commun/string.utils';
 import { lastValueFrom } from 'rxjs';
 
@@ -219,6 +220,9 @@ export class Compilateur {
     // peupler le monde
     Compilateur.peuplerLeMonde(ctx);
 
+    // calculer les stats
+    ctx.resultat.statistiques = Statisticien.calculerStatistiquesScenario(scenario);
+
     return ctx.resultat;
 
   }
@@ -241,6 +245,9 @@ export class Compilateur {
 
     // peupler le monde
     Compilateur.peuplerLeMonde(ctx);
+
+    // calculer les stats
+    ctx.resultat.statistiques = Statisticien.calculerStatistiquesScenario(scenario);
 
     return ctx.resultat;
 
@@ -285,6 +292,9 @@ export class Compilateur {
 
     // peupler le monde
     Compilateur.peuplerLeMonde(ctx);
+
+    // calculer les stats
+    ctx.resultat.statistiques = Statisticien.calculerStatistiquesScenario(scenario);
 
     return ctx.resultat;
 
