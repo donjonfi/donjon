@@ -23,8 +23,8 @@ export class Statisticien {
     const sortieNettoyee = Statisticien.nettoyerTexteSortie(sortieJoueur);
     const nbMotsAffiches = Statisticien.compterMotsTexte(sortieNettoyee);
     sortie += "Sortie partie:{n}"
-      + "{t}- " + (sortieNettoyee.length - ctx.jeu.statistiques.nbCaracteresCommandesAffichees) + " caractères affichés (" + sortieNettoyee.length + " en incluant les commandes et statistiques){n}"
-      + "{t}- {+" + (nbMotsAffiches - ctx.jeu.statistiques.nbMotsCommandesAffichees) + " mots affichés+} (" + nbMotsAffiches + " en incluant les commandes et statistiques){n}";
+      + "{t}- " + (sortieNettoyee.length - ctx.jeu.statistiques.nbCaracteresCommandesAffichees) + " caractères affichés (" + sortieNettoyee.length + " en incluant les commandes et erreurs){n}"
+      + "{t}- {+" + (nbMotsAffiches - ctx.jeu.statistiques.nbMotsCommandesAffichees) + " mots affichés+} (" + nbMotsAffiches + " en incluant les commandes et erreurs){n}";
 
     return sortie;
   }

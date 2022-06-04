@@ -290,7 +290,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
         texteErreurs += '{N}■ ' + erreur + '';
       }
-      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteErreurs = '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
+      this.ajouterTexteAIgnorerAuxStatistiques(texteErreurs);
+      this.sortieJoueur += texteErreurs;
       this.scrollSortie();
     }
 
@@ -301,7 +303,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const conseil = this.ctx.jeu.tamponConseils.shift();
         texteConseils += '{N}💡' + conseil + '';
       }
-      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteConseils = '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      this.ajouterTexteAIgnorerAuxStatistiques(texteConseils);
+      this.sortieJoueur += texteConseils;
       this.scrollSortie();
     }
 
