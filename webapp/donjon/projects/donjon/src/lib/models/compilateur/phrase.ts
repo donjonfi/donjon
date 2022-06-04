@@ -1,7 +1,7 @@
 export class Phrase {
 
   constructor(
-    public phrase: string[],
+    public morceaux: string[],
     public traitee: boolean,
     public sujet: Element,
     public ordre: number,

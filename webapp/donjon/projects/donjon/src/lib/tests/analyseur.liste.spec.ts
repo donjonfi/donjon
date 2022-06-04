@@ -121,8 +121,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
       'Les nombres gagnants sont une liste. Elle contient 7, 21 et 9.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-    expect(phrases[1].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+    expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
@@ -147,8 +147,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
       'Les suspects sont une liste. Ils incluent "Alice" et "Bob".'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-    expect(phrases[1].phrase).toHaveSize(4); // 4 morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+    expect(phrases[1].morceaux).toHaveSize(4); // 4 morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
@@ -173,8 +173,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
       'Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-    expect(phrases[1].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+    expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
@@ -199,8 +199,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
       'X est une liste. Il inclut 1.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
-    expect(phrases[1].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+    expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);

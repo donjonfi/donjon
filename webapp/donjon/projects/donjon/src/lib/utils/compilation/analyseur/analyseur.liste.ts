@@ -19,7 +19,7 @@ export class AnalyseurListe {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom personnel + contenu
-    const result = ExprReg.xPronomPersonnelContenu.exec(phrase.phrase[0]);
+    const result = ExprReg.xPronomPersonnelContenu.exec(phrase.morceaux[0]);
 
     if (result !== null) {
 
@@ -37,9 +37,9 @@ export class AnalyseurListe {
 
         // s’il s’agit de textes, il faut les récupérer
         if (contenuBrut === undefined) {
-          if (phrase.phrase.length > 0) {
-            for (let index = 0; index < phrase.phrase.length; index++) {
-              const morceau = phrase.phrase[index];
+          if (phrase.morceaux.length > 0) {
+            for (let index = 0; index < phrase.morceaux.length; index++) {
+              const morceau = phrase.morceaux[index];
               // nombre impaire => valeur
               if (index % 2) {
                 ctxAnalyse.dernierElementGenerique.valeursTexte.push(TexteUtils.retrouverTexteOriginal(morceau));

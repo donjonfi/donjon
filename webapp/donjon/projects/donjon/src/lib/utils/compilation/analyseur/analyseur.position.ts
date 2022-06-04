@@ -21,7 +21,7 @@ export class AnalyseurPosition {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom personnel attributs
-    const result = ExprReg.xDefinirPositionElement.exec(phrase.phrase[0]);
+    const result = ExprReg.xDefinirPositionElement.exec(phrase.morceaux[0]);
     if (result !== null) {
 
       const elementBrut = result[1];

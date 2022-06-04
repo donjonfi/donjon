@@ -16,11 +16,11 @@ export class AnalyseurSynonymes {
 
     let resultatTrouve = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xAbreviation.exec(phrase.phrase[0]);
+    const result = ExprReg.xAbreviation.exec(phrase.morceaux[0]);
     if (result !== null) {
       const abreviation = result[1];
-      if (phrase.phrase[1]) {
-        const commande = TexteUtils.enleverGuillemets(phrase.phrase[1], false);
+      if (phrase.morceaux[1]) {
+        const commande = TexteUtils.enleverGuillemets(phrase.morceaux[1], false);
         if (commande?.length) {
           ctxAnalyse.abreviations.push(new Abreviation(abreviation, commande));
           resultatTrouve = ResultatAnalysePhrase.abreviation;
@@ -42,7 +42,7 @@ export class AnalyseurSynonymes {
 
     let resultatTrouve = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xSynonymes.exec(phrase.phrase[0]);
+    const result = ExprReg.xSynonymes.exec(phrase.morceaux[0]);
     if (result !== null) {
 
       const synonymesBruts = result[1];

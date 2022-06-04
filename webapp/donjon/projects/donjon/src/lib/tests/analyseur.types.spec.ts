@@ -1,12 +1,11 @@
-import { Nombre } from "../models/commun/nombre.enum";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
-import { Definition } from "../models/compilateur/definition";
-import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 import { Analyseur } from "../utils/compilation/analyseur/analyseur";
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
 import { Compilateur } from "../utils/compilation/compilateur";
+import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { Definition } from "../models/compilateur/definition";
 import { ExprReg } from "../utils/compilation/expr-reg";
-
+import { Nombre } from "../models/commun/nombre.enum";
+import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ——————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -124,7 +123,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "Un meuble est un objet."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
@@ -147,7 +146,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "Une fée est une personne magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
@@ -171,7 +170,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "Une fée est magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique      
@@ -190,7 +189,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "La fée est une personne."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
         // tester l’analyse spécifique
@@ -212,7 +211,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "Une statue est fixée."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
@@ -235,7 +234,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
             "Un lutin est bavard, farceur et petit."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
         expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique

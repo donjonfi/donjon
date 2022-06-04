@@ -10,7 +10,7 @@ export class AnalyseurCapacite {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xCapacite.exec(phrase.phrase[0]);
+    const result = ExprReg.xCapacite.exec(phrase.morceaux[0]);
     if (result) {
       const capacite = new Capacite(result[1], (result[2] ? result[2].trim() : null));
       // ajouter la capacité au dernier élément

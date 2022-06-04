@@ -16,7 +16,7 @@ export class AnalyseurRegle {
    * Tester la phrase afin d’y trouver une règle.
    */
      public static testerPourRegle(phrase: Phrase, ctxAnalyse: ContexteAnalyse) : Regle{
-      let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.phrase[0]);
+      let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.morceaux[0]);
 
       if (resultRegle !== null) {
   
@@ -52,9 +52,9 @@ export class AnalyseurRegle {
         ctxAnalyse.regles.push(nouvelleRegle);
   
         // si phrase morcelée, rassembler les morceaux
-        if (phrase.phrase.length > 1) {
-          for (let index = 1; index < phrase.phrase.length; index++) {
-            nouvelleRegle.instructionsBrutes += phrase.phrase[index];
+        if (phrase.morceaux.length > 1) {
+          for (let index = 1; index < phrase.morceaux.length; index++) {
+            nouvelleRegle.instructionsBrutes += phrase.morceaux[index];
           }
         }
   

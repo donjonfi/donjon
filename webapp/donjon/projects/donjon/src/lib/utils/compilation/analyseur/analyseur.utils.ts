@@ -14,11 +14,11 @@ export class AnalyseurUtils {
    */
   public static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
     // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
-    if (phrase.phrase.length > 1) {
+    if (phrase.morceaux.length > 1) {
       // reconstituer la description et enlever les caractèrs spéciaux
       let description = "";
-      for (let index = 1; index < phrase.phrase.length; index++) {
-        description += TexteUtils.retrouverTexteOriginal(phrase.phrase[index]);
+      for (let index = 1; index < phrase.morceaux.length; index++) {
+        description += TexteUtils.retrouverTexteOriginal(phrase.morceaux[index]);
       }
       // enlever les guillemets autours de la valeur
       description = description.trim().replace(/^\"|\"$/g, '');
