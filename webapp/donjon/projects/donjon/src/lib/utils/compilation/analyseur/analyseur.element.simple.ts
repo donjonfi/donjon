@@ -32,7 +32,7 @@ export class AnalyseurElementSimple {
     let position: PositionSujetString;
 
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
-    let result = ExprReg.xDefinitionElementAvecType.exec(phrase.phrase[0]);
+    let result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
     if (result !== null) {
       let genreSingPlur = result[4];
       let estFeminin = false;
@@ -102,7 +102,7 @@ export class AnalyseurElementSimple {
 
     } else {
       // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
-      result = ExprReg.xElementSimpleAttributs.exec(phrase.phrase[0]);
+      result = ExprReg.xElementSimpleAttributs.exec(phrase.morceaux[0]);
       if (result != null) {
         // (f) / (f, autre forme) / (autre forme)
         let genreSingPlur = result[4];
@@ -161,7 +161,7 @@ export class AnalyseurElementSimple {
         }
       } else {
         // élément simple avec attributs (ex: le champignon est brun et on peut le cueillir)
-        result = ExprReg.xElementSimpleAttributs.exec(phrase.phrase[0]);
+        result = ExprReg.xElementSimpleAttributs.exec(phrase.morceaux[0]);
         if (result != null) {
 
         }

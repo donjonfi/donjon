@@ -21,7 +21,7 @@ export class AnalyseurType {
 
         let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-        const result = ExprReg.xNouveauType.exec(phrase.phrase[0]);
+        const result = ExprReg.xNouveauType.exec(phrase.morceaux[0]);
 
         if (result !== null) {
 
@@ -86,7 +86,7 @@ export class AnalyseurType {
 
         let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-        const result = ExprReg.xPrecisionType.exec(phrase.phrase[0]);
+        const result = ExprReg.xPrecisionType.exec(phrase.morceaux[0]);
 
         if (result !== null) {
 

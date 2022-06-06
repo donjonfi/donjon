@@ -29,7 +29,7 @@ export class Verificateur {
 
   /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
   public static estNouvelleRegion(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const ouvertureBloc = ExprReg.xDebutRegion.exec(phrase.phrase[0]);
+    const ouvertureBloc = ExprReg.xDebutRegion.exec(phrase.morceaux[0]);
 
     // ouverture d’un bloc principal (règle, action, réaction, …)
     if (ouvertureBloc) {
@@ -57,10 +57,10 @@ export class Verificateur {
   /** Est-ce la fin de la d’un bloc région (fin règle, fin action, …) ? */
   public static estFinRegion(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
 
-    console.log("estFinRegion: phrase=", phrase.phrase[0]);
+    console.log("estFinRegion: phrase=", phrase.morceaux[0]);
 
 
-    const fermetureBloc = ExprReg.xFinRegion.exec(phrase.phrase[0])
+    const fermetureBloc = ExprReg.xFinRegion.exec(phrase.morceaux[0])
     // fermeture d’un bloc principal (règle, action, réaction, …)
     if (fermetureBloc) {
       const typeBloc = Region.ParseType(fermetureBloc[1]);

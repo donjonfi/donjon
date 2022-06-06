@@ -1,0 +1,173 @@
+---------------------------------------------------------------------
+-- Un mini jeu réalisé en 1 heure durant la Jam de la loose.
+---------------------------------------------------------------------
+
+Le titre du jeu est "Une plante envahissante".
+L'auteur du jeu est "JG".
+La version du jeu est "1.1".
+
+-- permet de se rappeler certaines étapes que le joueur a déjà franchies
+L'historique est une liste.
+
+-- position initiale du joueur
+Le joueur se trouve dans la serre.
+
+-- introduction du jeu
+avant commencer le jeu:
+  dire "{/Un petit jeu réalisé en 1 heure durant la Jam de la loose. En cas de doute les verbes {-utiliser-} ou {-mettre-} devraient fonctionner !/}{p}";
+  dire "Vous avez malencontreusement renversé de l'engrais +1000 sur votre Drosera Vorace.
+        Elle croit à présent de manière démesurée. Elle vous surplombe d'un air menaçant !
+        Il vous faut rapidement trouver un moyen de la neutraliser ou bien elle finira par défigurer votre village !{p}".
+
+-- LA SERRE
+La serre est un lieu.
+  -- la plante monstrueuse bloque le joueur au début du jeu
+  Sa description est "Vous êtes dans votre serre. Une Drosera Vorace [si l'historique contient "passage"]occupe la majorité de votre serre mais petit trou vous permet de la traverser pour vous rendre ailleurs.[sinon]vous bloque le passage.[fin si]".
+  Les plantes diverses sont des décors dans la serre.
+  La monstre est un vivant dans la serre.
+    Son intitulé est "La Drosera Vorace".
+    Sa description est "Une plante monstrueuse qui prend de plus en plus de place. Il faut la neutraliser.".
+    Interpréter drosera, plante, monstre et drosera vorace comme le monstre.
+  La cisaille est un outil dans la serre. "Une cisaille rouillée.".
+  La bèche est un outil dans la serre. "Une grosse bèche.".
+  La tronçonneuse est un outil dans la serre. "Une grosse tronçonneuse à essence, assez lourde.".
+  interpréter t comme la tronçonneuse.
+  -- au début de jeu la tronçonneuse est encore froide et éteinte
+  Elle est froide et éteinte.
+  
+  -- la cisaille ne fonctionne pas
+  avant utiliser cisaille sur monstre:
+    dire "La cisaille reste coincée, elle est trop rouillée. La plante vous croque un doigt et la cisaille avant que vous ayez eu le temps de réagir.";
+    effacer la cisaille;
+    changer l'historique contient "doigt mangé";
+    arrêter l'action.
+
+  -- la bèche ne fonctionne pas non plus
+  avant utiliser bèche sur monstre:
+    dire "Le manche se désolidarise du fer. Plus très utile ! La plante vous arrache une mèche de cheveux.";
+    effacer la bèche;
+    changer l'historique contient "cheveux en moins";
+    arrêter l'action.
+
+  -- la tronçonneuse fonctionne une fois démarrée
+  avant utiliser tronçonneuse sur monstre:
+    si la tronçonneuse est allumée:
+      dire "Vous vous frayez un passage à travers la Drosera Vorace, vous avez à présent accès à la sortie.";
+      changer l'historique contient "passage";
+    sinon:
+      dire "La tronçonneuse n'est pas démarrée voyons !";
+    fin si;
+    arrêter l'action.
+
+  -- interractions avec le monstre
+  Le joueur peut cueillir la Drosera Vorace:
+    dire "Sérieusement ? La Drosera Vorace vous vole un morceau d'oreille !".
+    
+  Le joueur peut arracher la Drosera Vorace:
+    dire "Il est bien trop tard pour cela, il faut trouver une solution plus radicale !".
+      
+  Le joueur peut découper la Drosera Vorace:
+    dire "Je comprend la commande {-utiliser xxx sur yyy-}.".
+
+  -- allumage de la tronçonneuse
+  Le joueur peut démarrer la tronçonneuse:
+    si la tronçonneuse est froide:
+      changer la tronçonneuse n'est plus froide;
+      dire "Vous tirez sur la ficelle, la tronçonneuse émet un petit vrombissement, puis s'arrête.";
+    sinonsi la tronçonneuse est éteinte:
+      dire "La tronçonneuse démarre enfin !";
+      changer la tronçonneuse est allumée;
+    sinon
+      dire "Elle est déjà démarrée !";
+    fin si.
+  
+  interpréter allumer comme démarrer.
+
+  -- le montre bloque le passage tant qu’on a pas fait un trou
+  avant aller vers le potager ou aller vers la cuisine:
+    si l'historique ne contient pas "passage":
+      dire "La Drosera Vorace vous bloque le passage !";
+      arrêter l'action;
+    fin si.
+
+-- LE POTAGER
+Le potager est un lieu à l'extérieur de la serre.
+  sa description est "Un lopin de terre rempli de patates.".
+  la patate est un objet mangeable dans le potager.
+  son aperçu est "[initialement]Une patate est déjà sortie de terre.[fin choix]".
+  -- éviter que le joueur ne mange la patate
+  avant manger la patate:
+    dire "Vous n'êtes pas bien ? Vous en aurez besoin pour sauver votre vie !";
+    arrêter l'action.
+
+-- LA CUISINE
+La cuisine est un lieu à l'intérieur de la serre.
+  
+  La table est une support dans la cuisine.
+  
+  Le vinaigre est un objet dans la cuisine.
+  Son aperçu est "[Initialement]Une vieille bouteille de vin traine par terre.[fin choix]".
+  Sa description est "Le vin semble avoir tourné.".
+  interpréter bouteille, bouteille de vin, vin, bouteille de vinaigre et vinaigre comme le vinaigre.
+  
+  avant boire vinaigre:
+    dire "Beurk! Il est hyper acide.";
+    arrêter l'action.
+  -- au cas où le joueur veut goûter le vinaigre
+  interpréter gouter comme boire.
+  
+  La recette est un objet sur la table.
+  "Une recette de cuisine ?".
+  Son texte est "{_Désherbant de Mémé_}
+                 Mélanger du vinaigre avec l'eau de cuisson des patates et appliquer généreusement.".
+  
+  Le réchaud est un support dans la cuisine.
+  -- l’eau est bouillante de base, une fois les patates cuites, il s’agit d’eau de cuisson
+  La casserole est un contenant sur le réchaud. "Une casserole d'eau [si l'historique contient "patate"]de cuisson[sinon]bouillante[fin si].".
+  Son intitulé est "La casserole d'eau chaude".
+  -- on place l’eau afin que la casserole ne soit pas vide
+  L'eau bouillante (f) est un objet fixé dans la casserole.
+  interpréter eau comme eau bouillante.
+  -- l’eau est déjà décrite dans la description de la casserole.
+  Son aperçu est "-".
+  interpréter casserole et casserole d'eau comme la casserole.
+
+  -- remplacer texte par défaut quand le joueur tente de prendre l’eau
+  avant prendre eau bouillante:
+    dire "C'est trop chaud !";
+    arrêter action.
+  
+  -- si le joueur tente de cuire la patate, exécuter mettre la patate dans la casserole à la place
+  Le joueur peut cuire la patate:
+    si la patate n'est pas présente:
+      dire "Je ne vois pas de patate.";
+    sinon
+      exécuter la commande "mettre la patate dans la casserole";
+    fin si.
+  
+  -- cuisson de la patate
+  après mettre patate dans la casserole:
+    dire "Vous mettez la patate à chauffer dans l'eau. Vous patientez le temps nécessaire puis vous retirez la patate afin de pouvoir disposer de l'eau de cuisson.";
+    changer l'historique contient "patate";
+    effacer patate;
+    changer la description de la casserole est "Une casserole d'eau de cuisson de patate.".
+  
+  -- quand le joueur prend la casserole avec le désherbant, le jeu se termine.
+  avant prendre la casserole:
+    si l'historique ne contient pas "vinaigre" ou "patate":
+      dire "Le désherbant n'est pas encore prêt.";
+      arrêter l'action;
+    sinon
+      dire "Vous vous emparez du désherbant, vous courez vers la Drosera Vorace et le lui jetez à la tronche.
+            Bravo! Vous vous êtes tiré d'affaire !";
+      terminer le jeu;
+      arrêter l'action;
+    fin si.
+  
+  -- ajout du vinaigre
+  après mettre le vinaigre dans la casserole:
+    dire "Vous ajoutez le vinaigre dans la casserole.";
+    changer l'historique contient "vinaigre".
+  -- si le joueur tente de « verser » le vinaigre dans la casserole
+  interpréter verser comme mettre.
+  

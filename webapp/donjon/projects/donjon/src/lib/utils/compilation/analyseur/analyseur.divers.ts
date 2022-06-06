@@ -21,12 +21,12 @@ export class AnalyseurDivers {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const aide = ExprReg.xAide.exec(phrase.phrase[0]);
+    const aide = ExprReg.xAide.exec(phrase.morceaux[0]);
     if (aide) {
       // reconstituer le texte complet
       let texteAide = "";
-      for (let index = 1; index < phrase.phrase.length; index++) {
-        texteAide += TexteUtils.retrouverTexteOriginal(phrase.phrase[index]);
+      for (let index = 1; index < phrase.morceaux.length; index++) {
+        texteAide += TexteUtils.retrouverTexteOriginal(phrase.morceaux[index]);
       }
       // enlever les guillemets autours du texte
       texteAide = texteAide.trim().replace(/^\"|\"$/g, '');
@@ -49,7 +49,7 @@ export class AnalyseurDivers {
   public static testerSection(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
-    const sectionTrouvee = ExprReg.xSection.test(phrase.phrase[0]);
+    const sectionTrouvee = ExprReg.xSection.test(phrase.morceaux[0]);
     if (sectionTrouvee) {
       elementTrouve = ResultatAnalysePhrase.section;
     }
@@ -66,7 +66,7 @@ export class AnalyseurDivers {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xActiverDesactiver.exec(phrase.phrase[0]);
+    const result = ExprReg.xActiverDesactiver.exec(phrase.morceaux[0]);
 
     if (result) {
       elementTrouve = ResultatAnalysePhrase.activerParametre;

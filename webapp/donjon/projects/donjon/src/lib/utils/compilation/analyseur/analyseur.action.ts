@@ -19,7 +19,7 @@ export class AnalyseurAction {
  */
   public static testerAction(phrase: Phrase, ctxAnalyse: ContexteAnalyse): Action {
 
-    const result = ExprReg.xAction.exec(phrase.phrase[0]);
+    const result = ExprReg.xAction.exec(phrase.morceaux[0]);
     // A. Nouvelle action complète
     if (result !== null) {
       const verbe = result[1].toLocaleLowerCase();
@@ -48,7 +48,7 @@ export class AnalyseurAction {
       return action;
     } else {
       // B. Suite de la description d’une action existante
-      let resultDescriptionAction = ExprReg.xDescriptionAction.exec(phrase.phrase[0]);
+      let resultDescriptionAction = ExprReg.xDescriptionAction.exec(phrase.morceaux[0]);
       if (resultDescriptionAction) {
         const motCle = resultDescriptionAction[1].toLocaleLowerCase();
         const verbe = resultDescriptionAction[2].toLocaleLowerCase();
@@ -56,9 +56,9 @@ export class AnalyseurAction {
         const cela = resultDescriptionAction[4] === 'cela';
         let complement = resultDescriptionAction[5];
         // si phrase morcelée, rassembler les morceaux
-        if (phrase.phrase.length > 1) {
-          for (let index = 1; index < phrase.phrase.length; index++) {
-            complement += phrase.phrase[index];
+        if (phrase.morceaux.length > 1) {
+          for (let index = 1; index < phrase.morceaux.length; index++) {
+            complement += phrase.morceaux[index];
           }
         }
         complement = complement?.trim();
@@ -92,17 +92,17 @@ export class AnalyseurAction {
             if (ctxAnalyse.verbeux) {
               console.error("Action pas trouvée: verbe:", verbe, "ceci:", ceci, "cela:", cela);
             }
-            ctxAnalyse.ajouterErreur(phrase.ligne, "action pas trouvée : " + phrase.phrase);
+            ctxAnalyse.ajouterErreur(phrase.ligne, "action pas trouvée : " + phrase.morceaux);
           }
           // action existante mise à jour
           return action;
         } else {
-          ctxAnalyse.ajouterErreur(phrase.ligne, "complément manquant : " + phrase.phrase);
+          ctxAnalyse.ajouterErreur(phrase.ligne, "complément manquant : " + phrase.morceaux);
           return null; // rien trouvé
         }
         // C. Nouvelle Action Simple
       } else {
-        const resultActionSimple = ExprReg.xActionSimplifiee.exec(phrase.phrase[0]);
+        const resultActionSimple = ExprReg.xActionSimplifiee.exec(phrase.morceaux[0]);
         // Trouvé action simple
         if (resultActionSimple) {
 
@@ -112,9 +112,9 @@ export class AnalyseurAction {
           let complement = resultActionSimple[6];
 
           // si phrase morcelée, rassembler les morceaux
-          if (phrase.phrase.length > 1) {
-            for (let index = 1; index < phrase.phrase.length; index++) {
-              complement += phrase.phrase[index];
+          if (phrase.morceaux.length > 1) {
+            for (let index = 1; index < phrase.morceaux.length; index++) {
+              complement += phrase.morceaux[index];
             }
           }
 

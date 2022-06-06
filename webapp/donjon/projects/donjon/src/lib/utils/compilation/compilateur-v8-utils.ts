@@ -117,7 +117,7 @@ export class CompilateurV8Utils {
                 // suite de la phrase précédente
               } else {
                 if (phraseNettoyee !== '') {
-                  phrasePrecedente.phrase.push(phraseNettoyee);
+                  phrasePrecedente.morceaux.push(phraseNettoyee);
                 }
                 phrasePrecedente.finie = finie;
               }
@@ -161,27 +161,27 @@ export class CompilateurV8Utils {
                 // on est dans un sous-texte:
                 //  ne pas mettre de guillemets (ils sont ajoutés par les blocs qui l’entourent)
                 if (blocActuelEstSousTexte) {
-                  phrasePrecedente.phrase.push(texteNettoye);
+                  phrasePrecedente.morceaux.push(texteNettoye);
                   // on est dans un texte principal:
                   //  on met des guillemets ouvrant et fermant autours du texte
                 } else {
-                  phrasePrecedente.phrase.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
+                  phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
                 }
                 // autre cas:
                 //  le bloc précédent n’est pas un sous texte, on commence par un guillemet ouvrant
                 //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
               } else if (!blocPrecedentEstSousTexte && prochainBlocEstSousTexte) {
-                phrasePrecedente.phrase.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereDebutTexte);
+                phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereDebutTexte);
                 // autre cas:
                 //  le bloc précédent est un sous texte, on commence par un guillemet fermant
                 //  le bloc suivant n’est pas un sous texte, on termine sur un guillemet fermant
               } else if (blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
-                phrasePrecedente.phrase.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereFinTexte);
+                phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereFinTexte);
                 // autre cas:
                 //  le bloc précédent est un sous texte, on commence par un guillemet fermant
                 //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
               } else {
-                phrasePrecedente.phrase.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereDebutTexte);
+                phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereDebutTexte);
               }
   
               // si on est actuellement dans un sous-texte, le prochain bloc suivra un sous-texte.

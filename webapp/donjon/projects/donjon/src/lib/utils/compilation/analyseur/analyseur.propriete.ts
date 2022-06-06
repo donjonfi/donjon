@@ -17,7 +17,7 @@ export class AnalyseurPropriete {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xProprieteReaction.exec(phrase.phrase[0]);
+    const result = ExprReg.xProprieteReaction.exec(phrase.morceaux[0]);
     if (result) {
       let elementCible: ElementGenerique = null;
       let nomProprieteCible: string = null;
@@ -79,12 +79,12 @@ export class AnalyseurPropriete {
           elementCible.proprietes.push(ctxAnalyse.dernierePropriete);
 
           // si phrase en plusieurs morceaux, ajouter valeur (texte) de la propriété
-          if (phrase.phrase.length > 1) {
+          if (phrase.morceaux.length > 1) {
             // reconstituer la valeur et enlever les caractèrs spéciaux
             let valeur = "";
-            for (let index = 1; index < phrase.phrase.length; index++) {
+            for (let index = 1; index < phrase.morceaux.length; index++) {
               // ajouter la description en enlevant les caractères spéciaux
-              valeur += TexteUtils.retrouverTexteOriginal(phrase.phrase[index]);
+              valeur += TexteUtils.retrouverTexteOriginal(phrase.morceaux[index]);
             }
             // enlever les guillemets autours de la valeur
             valeur = valeur.trim().replace(/^\"|\"$/g, '');
@@ -122,9 +122,9 @@ export class AnalyseurPropriete {
   private static retrouverInstructionsBrutes(instructions: string, erreurs: string[], phrase: Phrase) {
     let instructionsBrutes = instructions;
     // si phrase morcelée, rassembler les morceaux (réaction complète)
-    if (phrase.phrase.length > 1) {
-      for (let index = 1; index < phrase.phrase.length; index++) {
-        instructionsBrutes += phrase.phrase[index];
+    if (phrase.morceaux.length > 1) {
+      for (let index = 1; index < phrase.morceaux.length; index++) {
+        instructionsBrutes += phrase.morceaux[index];
       }
     }
     instructionsBrutes = instructionsBrutes.trim();

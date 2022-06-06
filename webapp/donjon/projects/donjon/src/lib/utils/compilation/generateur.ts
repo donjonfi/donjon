@@ -39,6 +39,9 @@ export class Generateur {
 
     let ctx = new ContexteGeneration(false);
 
+    // assigner les statistiques du scénario
+    jeu.statistiques = rc.statistiques;
+
     // DÉFINIR LES CLASSES
     // *******************
     jeu.classes = [];

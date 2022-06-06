@@ -36,7 +36,7 @@ export class AnalyseurElementPosition {
     let position: PositionSujetString;
 
     // élément positionné défini (la, le, les)
-    let result = ExprReg.xPositionElementGeneriqueDefini.exec(phrase.phrase[0]);
+    let result = ExprReg.xPositionElementGeneriqueDefini.exec(phrase.morceaux[0]);
     if (result !== null) {
       // console.log("testerPosition", result);
       genreSingPlur = result[4];
@@ -179,7 +179,7 @@ export class AnalyseurElementPosition {
 
       // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
     } else {
-      result = ExprReg.xPositionElementGeneriqueIndefini.exec(phrase.phrase[0]);
+      result = ExprReg.xPositionElementGeneriqueIndefini.exec(phrase.morceaux[0]);
 
       if (result != null) {
         // selon le type de résultat ("il y a un xxx" ou "un xxx est")
@@ -307,10 +307,10 @@ export class AnalyseurElementPosition {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xPronomPersonnelPosition.exec(phrase.phrase[0]);
+    const result = ExprReg.xPronomPersonnelPosition.exec(phrase.morceaux[0]);
     if (result !== null) {
       // genre de l'élément précédent
-      ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
+      ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.morceaux[0].split(" ")[0], null);
       // attributs de l'élément précédent
       // => position par rapport à un complément (ex: à l’intérieur de la cuisine ou dans le salon)
       if (result[3]) {

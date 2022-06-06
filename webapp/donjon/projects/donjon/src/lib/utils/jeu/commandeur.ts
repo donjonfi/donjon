@@ -608,14 +608,14 @@ export class Commandeur {
   /** Essayer d’exécuter la commande spéciale correspondante */
   private essayercommandeSpeciale(candidatCommande: CandidatCommande, ctx: ContexteCommande): void {
     //   A) commande spéciale : déboguer
-    if (candidatCommande.els.infinitif == "déboguer") {
+    if (candidatCommande.els.infinitif == 'déboguer') {
       // triche (avec fichier auto-commandes)
-      if (candidatCommande.els.sujet?.nom == "triche") {
-        if (candidatCommande.els.sujet.epithete == "auto") {
-          ctx.sortie = "@auto-triche@";
+      if (candidatCommande.els.sujet?.nom == 'triche') {
+        if (candidatCommande.els.sujet.epithete == 'auto') {
+          ctx.sortie = '@auto-triche@';
           ctx.commandeValidee = true; // la commande a été validée et exécutée
         } else {
-          ctx.sortie = "@triche@";
+          ctx.sortie = '@triche@';
           ctx.commandeValidee = true; // la commande a été validée et exécutée
         }
         // déboguer un élément du jeu
@@ -624,12 +624,15 @@ export class Commandeur {
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }
       // B) commande spéciale : sauver les commandes dans un fichier.
-    } else if (candidatCommande.els.infinitif == "sauver" && candidatCommande.els.sujet?.nom == "commandes") {
-      ctx.sortie = "@sauver-commandes@";
+    } else if (candidatCommande.els.infinitif == 'sauver' && candidatCommande.els.sujet?.nom == 'commandes') {
+      ctx.sortie = '@sauver-commandes@';
       ctx.commandeValidee = true; // la commande a été validée et exécutée
       // C) commande spéciale : émettre un son pour que le joueur puisse vérifier ses baffles.
-    } else if (candidatCommande.els.infinitif == "tester" && candidatCommande.els.sujet?.nom == "audio") {
+    } else if (candidatCommande.els.infinitif == 'tester' && candidatCommande.els.sujet?.nom == 'audio') {
       ctx.sortie = this.ins.testerSon().sortie;
+      ctx.commandeValidee = true; // la commande a été validée et exécutée
+    } else if (candidatCommande.els.infinitif == 'nombre' && (candidatCommande.els.sujet?.nom == 'mots' || candidatCommande.els.sujet?.nom == 'caractères')) {
+      ctx.sortie = '@statistiques@';
       ctx.commandeValidee = true; // la commande a été validée et exécutée
     }
   }

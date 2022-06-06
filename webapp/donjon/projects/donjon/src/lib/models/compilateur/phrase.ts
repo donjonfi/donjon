@@ -4,7 +4,7 @@ export class Phrase {
 
   constructor(
     // la phrase est constituée de une ou plusieurs parties.
-    public phrase: string[],
+    public morceaux: string[],
     // la phrase a déjà été traitée
     public traitee: boolean,
     // le sujet de la phrase (utilisé pour retrouvé le sujet cible lorsque le sujet est un pronom)

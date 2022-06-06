@@ -10,6 +10,7 @@ import { DOCUMENT } from '@angular/common';
 import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
+import { Statisticien } from '../utils/jeu/statisticien';
 
 @Component({
   selector: 'djn-lecteur',
@@ -270,6 +271,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // sinon
         } else {
           // remplacer la sortie du joueur
+          this.effacerEcran();
           this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
         }
         // attendre pour afficher la suite éventuelle
@@ -289,7 +291,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const erreur = this.ctx.jeu.tamponErreurs.shift();
         texteErreurs += '{N}■ ' + erreur + '';
       }
-      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteErreurs = '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
+      this.ajouterTexteAIgnorerAuxStatistiques(texteErreurs);
+      this.sortieJoueur += texteErreurs;
       this.scrollSortie();
     }
 
@@ -300,7 +304,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const conseil = this.ctx.jeu.tamponConseils.shift();
         texteConseils += '{N}💡' + conseil + '';
       }
-      this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteConseils = '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      this.ajouterTexteAIgnorerAuxStatistiques(texteConseils);
+      this.sortieJoueur += texteConseils;
       this.scrollSortie();
     }
 
@@ -416,9 +422,24 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /** Ajouter le texte spécifié (peut contenir du HTML) au texte à ignorer dans les statistiques. */
+  private ajouterTexteAIgnorerAuxStatistiques(texteAIgnorer: string) {
+    // comptabiliser la commandes dans les statistiques
+    const affichageCommandeNettoye = Statisticien.nettoyerTexteSortie(texteAIgnorer);
+    this.ctx.jeu.statistiques.nbMotsCommandesAffichees += Statisticien.compterMotsTexte(affichageCommandeNettoye);
+    this.ctx.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
+  }
+
+  private effacerEcran() {
+    Statisticien.sauverStatistiquesAvantEffacerSortie(this.ctx, this.sortieJoueur);
+    this.sortieJoueur = "";
+  }
+
   private traiterChoixStatiqueJoueur() {
     this.commande = this.commande?.trim();
-    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+    this.sortieJoueur += affichageCommande;
 
     // choix classique
     let indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
@@ -449,7 +470,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private traiterChoixLibreJoueur() {
     this.commande = this.commande?.trim();
-    this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+    this.sortieJoueur += affichageCommande;
 
     const choixPasNettoye = this.commande.trim();
     const choixNettoye = StringUtils.normaliserReponse(this.commande);
@@ -569,6 +592,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // sinon
     } else {
       // remplacer la sortie du joueur
+      this.effacerEcran();
       this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length) + "</p>";
     }
 
@@ -833,7 +857,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
     // VÉREFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|(commencer )?nouvelle partie)\b/i)) {
+    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
         this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
       }
@@ -865,14 +889,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
 
       if (ecrireCommande) {
+        let affichageCommande: string;
+        // commande comprise
         if (contexteCommande.evenement?.commandeComprise) {
+          // afficher la commande entrée par le joueur + son interprétation
           const commandeFinale = contexteCommande.evenement.commandeComprise;
-          // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
+          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
         } else {
-          // afficher la commande entrée par le joueur + son interprétation
-          this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')')), this.ctx.dossierRessourcesComplet) + '</span>';
+          // commande PAS comprise ou incomplète (ou bien commande spéciale)
+          // -> afficher la commande entrée par le joueur + son interprétation
+          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
+        affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.ctx.dossierRessourcesComplet) + '</span>';
+        this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
+        this.sortieJoueur += affichageCommande;
       }
 
       const sortieCommande = contexteCommande.sortie;
@@ -889,18 +919,31 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           }, 100);
           // sortie spéciale: sauver-commandes
         } else if (sortieCommande == "@sauver-commandes@") {
-          // setTimeout(() => {
           this.lancerSauverCommandes();
-          // }, 100);
-          // sortie normale
+          // sortie spéciale: statistiques
+        } else if (sortieCommande == "@statistiques@") {
+          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.ctx, this.sortieJoueur), this.ctx.dossierRessourcesComplet);
+          // éviter de comptabiliser l’affichage des statistiques dans le nombre de mots
+          this.ajouterTexteAIgnorerAuxStatistiques(sortieStatistiques);
+          this.ajouterSortieJoueur(sortieStatistiques);
+          // sortie spéciale: nouvelle partie
         } else if (sortieCommande.includes("@nouvelle partie@")) {
           this.nouvellePartie.emit();
+          // sortie normale
         } else {
-          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+          const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet);
+          // si commande pas comprise, refusée ou spéciale (déboguer), on va ignorer sa sortie pour les statistiques
+          if (!contexteCommande.evenement?.commandeComprise) {
+            this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
+            // ne pas ajouter les commande « afficher aide » aux statistiques
+          } else if (contexteCommande.evenement?.infinitif == 'afficher' && contexteCommande.evenement?.ceci == 'aide') {
+            this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
+          }
+          this.ajouterSortieJoueur(sortieCommandeHtml);
         }
         // aucune sortie
       } else {
-        // si on n’a pas été interrompu, informé que la commande n’a rien renvoyé
+        // si on n’a pas été interrompu, informer que la commande n’a rien renvoyé
         if (!this.jeu.tamponInterruptions.length) {
           this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
         }

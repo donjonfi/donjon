@@ -341,7 +341,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "La cuisine est un lieu."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
@@ -372,7 +372,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       'Paris (f) est un lieu gris. "Vous êtes dans Paris.".'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(2); // 2 morceaux
+    expect(phrases[0].morceaux).toHaveSize(2); // 2 morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
@@ -403,7 +403,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "La château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -419,7 +419,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "Un lutin est une personne."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
     // tester l’analyse spécifique
@@ -436,7 +436,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "La baguette est un objet maudit, rouge et magique ici."
     );
     expect(phrases).toHaveSize(2); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     Analyseur.analyserPhrase(phrases[0], ctxAnalyse)
     const resultatAnalyse = Analyseur.analyserPhrase(phrases[1], ctxAnalyse)
@@ -460,7 +460,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "La table est un support grand et opaque dans la salle."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     const resultatAnalyse = Analyseur.analyserPhrase(phrases[0], ctxAnalyse);
     expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
@@ -487,7 +487,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "Le château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -519,7 +519,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "Le cadenas bleu est un objet dans le labo."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -551,7 +551,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "Le château du comte est un lieu au nord de le village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
     // tester l’analyse spécifique
@@ -567,7 +567,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
       "L’abri est un lieu sombre."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    expect(phrases[0].phrase).toHaveSize(1); // 1 morceau
+    expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique

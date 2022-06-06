@@ -84,7 +84,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -104,7 +104,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -124,7 +124,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -145,7 +145,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -165,7 +165,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -186,7 +186,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -206,7 +206,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
@@ -230,7 +230,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
-    expect(phrases[0].phrase).toHaveSize(1); // nombre de morceaux
+    expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur

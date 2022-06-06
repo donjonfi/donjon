@@ -18,7 +18,7 @@ export class AnalyseurAttributs {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom démonstratif (C’est) + type (+ attributs)
-    const result = ExprReg.xPronomDemonstratifTypeAttributs.exec(phrase.phrase[0]);
+    const result = ExprReg.xPronomDemonstratifTypeAttributs.exec(phrase.morceaux[0]);
     if (result !== null) {
 
       const type = result[2];
@@ -54,7 +54,7 @@ export class AnalyseurAttributs {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom personnel attributs
-    const result = ExprReg.xPronomPersonnelAttribut.exec(phrase.phrase[0]);
+    const result = ExprReg.xPronomPersonnelAttribut.exec(phrase.morceaux[0]);
     if (result !== null) {
 
       const attributsBruts = result[1];
@@ -67,7 +67,7 @@ export class AnalyseurAttributs {
         ctxAnalyse.dernierElementGenerique.attributs = ctxAnalyse.dernierElementGenerique.attributs.concat(nouveauAttributs);
       }
       // genre de l'élément précédent
-      ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.phrase[0].split(" ")[0], null);
+      ctxAnalyse.dernierElementGenerique.genre = MotUtils.getGenre(phrase.morceaux[0].split(" ")[0], null);
 
       // résultat
       elementTrouve = ResultatAnalysePhrase.pronomPersonnelAttribut;

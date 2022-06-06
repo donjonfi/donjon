@@ -46,7 +46,7 @@ export class Analyseur {
 
     // 0 - SI PREMIER CARACTÈRE EST UN TIRET (-), NE PAS INTERPRÉTER
     // rem: normalement les commentaires sont déjà retirés du scénario avant d’arriver ici.
-    if (phrase.phrase[0].trim().slice(0, 2) === "--") {
+    if (phrase.morceaux[0].trim().slice(0, 2) === "--") {
       phrase.traitee = true;
       if (ctx.verbeux) {
         console.log("=> commentaire trouvé");
@@ -296,7 +296,7 @@ export class Analyseur {
     // ==========================================================================================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       // résultat
-      ctx.ajouterErreur(phrase.ligne, phrase.phrase[0]);
+      ctx.ajouterErreur(phrase.ligne, phrase.morceaux[0]);
       if (ctx.verbeux) {
         console.warn("=> PAS trouvé de signification.");
       }

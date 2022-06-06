@@ -34,5 +34,5 @@ describe('Compteurs', () => {
     expect(ctx.jeu.compteurs[0].intitule.toString()).toEqual('la bourse');
     expect(ctx.jeu.compteurs[0].valeur).toEqual(100);
   });
-  
+
 });

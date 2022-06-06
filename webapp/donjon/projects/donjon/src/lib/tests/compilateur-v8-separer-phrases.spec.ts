@@ -95,17 +95,17 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases).toHaveSize(3); // 2 phrases
     // [0] action créer
     expect(phrases[0].ligne).toEqual(1);
-    expect(phrases[0].phrase).toHaveSize(1);
-    expect(phrases[0].phrase[0]).toEqual('action créer:');
+    expect(phrases[0].morceaux).toHaveSize(1);
+    expect(phrases[0].morceaux[0]).toEqual('action créer:');
     // [1] exécution
     expect(phrases[1].ligne).toEqual(1);
-    expect(phrases[1].phrase).toHaveSize(1);
-    expect(phrases[1].phrase[0]).toEqual('exécution:');
+    expect(phrases[1].morceaux).toHaveSize(1);
+    expect(phrases[1].morceaux[0]).toEqual('exécution:');
     // [2] dire "C’est fait!"
     expect(phrases[2].ligne).toEqual(1);
-    expect(phrases[2].phrase).toHaveSize(2);
-    expect(phrases[2].phrase[0]).toEqual('dire');
-    expect(phrases[2].phrase[1]).toEqual(ExprReg.caractereDebutTexte + 'C’est fait!' + ExprReg.caractereFinTexte);
+    expect(phrases[2].morceaux).toHaveSize(2);
+    expect(phrases[2].morceaux[0]).toEqual('dire');
+    expect(phrases[2].morceaux[1]).toEqual(ExprReg.caractereDebutTexte + 'C’est fait!' + ExprReg.caractereFinTexte);
   });
 
   it('Phrases: 2 phrases, sur même ligne, avec textes', () => {
@@ -115,32 +115,32 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases).toHaveSize(6); // 2 phrases
     // [0] règle avant aller vers étang
     expect(phrases[0].ligne).toEqual(1);
-    expect(phrases[0].phrase).toHaveSize(1);
-    expect(phrases[0].phrase[0]).toEqual('règle avant aller vers étang:');
+    expect(phrases[0].morceaux).toHaveSize(1);
+    expect(phrases[0].morceaux[0]).toEqual('règle avant aller vers étang:');
     // [1] exécution
     expect(phrases[1].ligne).toEqual(1);
-    expect(phrases[1].phrase).toHaveSize(3);
-    expect(phrases[1].phrase[0]).toEqual('si l’historique contient');
-    expect(phrases[1].phrase[1]).toEqual(ExprReg.caractereDebutTexte + 'natation' + ExprReg.caractereFinTexte);
-    expect(phrases[1].phrase[2]).toEqual(':');
+    expect(phrases[1].morceaux).toHaveSize(3);
+    expect(phrases[1].morceaux[0]).toEqual('si l’historique contient');
+    expect(phrases[1].morceaux[1]).toEqual(ExprReg.caractereDebutTexte + 'natation' + ExprReg.caractereFinTexte);
+    expect(phrases[1].morceaux[2]).toEqual(':');
     // [2] dire "C’est fait!"
     expect(phrases[2].ligne).toEqual(1);
-    expect(phrases[2].phrase).toHaveSize(2);
-    expect(phrases[2].phrase[0]).toEqual('dire');
-    expect(phrases[2].phrase[1]).toEqual(ExprReg.caractereDebutTexte + 'Vous nagez !' + ExprReg.caractereFinTexte);
+    expect(phrases[2].morceaux).toHaveSize(2);
+    expect(phrases[2].morceaux[0]).toEqual('dire');
+    expect(phrases[2].morceaux[1]).toEqual(ExprReg.caractereDebutTexte + 'Vous nagez !' + ExprReg.caractereFinTexte);
     // [3] sinon
     expect(phrases[3].ligne).toEqual(1);
-    expect(phrases[3].phrase).toHaveSize(1);
-    expect(phrases[3].phrase[0]).toEqual('sinon:');
+    expect(phrases[3].morceaux).toHaveSize(1);
+    expect(phrases[3].morceaux[0]).toEqual('sinon:');
     // [4] dire "C’est fait!"
     expect(phrases[4].ligne).toEqual(1);
-    expect(phrases[4].phrase).toHaveSize(2);
-    expect(phrases[4].phrase[0]).toEqual('dire');
-    expect(phrases[4].phrase[1]).toEqual(ExprReg.caractereDebutTexte + 'Vous ne savez pas nager !' + ExprReg.caractereFinTexte);
+    expect(phrases[4].morceaux).toHaveSize(2);
+    expect(phrases[4].morceaux[0]).toEqual('dire');
+    expect(phrases[4].morceaux[1]).toEqual(ExprReg.caractereDebutTexte + 'Vous ne savez pas nager !' + ExprReg.caractereFinTexte);
     // [5] sinon
     expect(phrases[5].ligne).toEqual(1);
-    expect(phrases[5].phrase).toHaveSize(1);
-    expect(phrases[5].phrase[0]).toEqual('fin si');
+    expect(phrases[5].morceaux).toHaveSize(1);
+    expect(phrases[5].morceaux[0]).toEqual('fin si');
 
   });
 
