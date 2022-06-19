@@ -1,4 +1,4 @@
-import { ERegion } from "./region";
+import { EBlocPrincipal } from "./bloc-principal";
 
 export class Phrase {
 
@@ -15,8 +15,8 @@ export class Phrase {
     public ligne: number,
     // utilisé pour découper les blocs d’instructions
     public finie: boolean,
-    // région dans laquelle se trouve la phrase (définition, action, règle, réaction)
-    public region: ERegion,
+    // bloc principal dans lequel se trouve la phrase (action, règle, réaction)
+    public region: EBlocPrincipal,
   ) { }
 
 

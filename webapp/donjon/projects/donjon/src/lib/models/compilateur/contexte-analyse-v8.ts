@@ -1,19 +1,41 @@
+import { BlocPrincipal } from "./bloc-principal";
 import { ContexteAnalyse } from "./contexte-analyse";
-import { Region } from "./region";
 
 export class ContexteAnalyseV8 extends ContexteAnalyse {
 
   /**
-   * Régions composants le code source.
-   * (définitions, règles, actions, réactions)
+   * Blocs principaux présents dans le code source.
+   * (règles, actions, réactions)
    */
-  public regions: Region[] = [];
+  public blocsPrincipaux: BlocPrincipal[] = [];
 
   /**
-   * Récupérer la dernière région
+   * Obtenir le dernier bloc principal
    */
-  get derniereRegion(): Region | undefined {
-    return this.regions?.length ? this.regions[this.regions.length - 1] : undefined;
+  get dernierBlocPrincipal(): BlocPrincipal | undefined {
+    return this.blocsPrincipaux?.length ? this.blocsPrincipaux[this.blocsPrincipaux.length - 1] : undefined;
+  }
+
+  /**
+   * Obtenir le dernier bloc principal encore ouvert ou undefined si le dernier bloc est fermé.
+   */
+  get blocPrincipalOuvert(): BlocPrincipal | undefined {
+    let retVal: BlocPrincipal | undefined;
+    if (this.blocsPrincipaux?.length && this.blocsPrincipaux[this.blocsPrincipaux.length - 1].ouvert) {
+      retVal = this.blocsPrincipaux[this.blocsPrincipaux.length - 1];
+    }
+    return retVal;
+  }
+
+  /**
+   * Obtenir le bloc principal qui inclut la ligne spécifiée ou undefined sa la ligne ne fait pas partie d’un bloc principal.
+   */
+  getBlocPrincipalLigne(ligne: number): BlocPrincipal | undefined {
+    let retVal: BlocPrincipal | undefined;
+    if (this.blocsPrincipaux?.length) {
+      retVal = this.blocsPrincipaux.find(x => x.debut <= ligne && x.fin >= ligne);
+    }
+    return retVal;
   }
 
 }
