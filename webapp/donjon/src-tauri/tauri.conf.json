@@ -1,74 +1,67 @@
 {
+  "$schema": "..\\node_modules/@tauri-apps/cli\\schema.json",
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "http://localhost:4200",
+    "distDir": "../dist/donjon-creer"
+  },
   "package": {
     "productName": "donjon-creer",
     "version": "0.408.0"
   },
-  "build": {
-    "distDir": "../dist/donjon-creer",
-    "devPath": "http://localhost:4200",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": ""
-  },
   "tauri": {
+    "allowlist": {
+      "all": true
+    },
     "bundle": {
       "active": true,
-      "targets": "all",
-      "identifier": "fi.donjon.creer",
+      "category": "DeveloperTool",
+      "copyright": "©2018-2022 Jonathan.claes − donjon.fi",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
-        "icons/icon.png",
+		"icons/icon.png",
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "©2018-2022 Jonathan.claes − donjon.fi",
-      "category": "DeveloperTool",
-      "shortDescription": "Donjon vous permet de créer vos fictions interactives et d’y jouer.",
+      "identifier": "fi.donjon.creer",
       "longDescription": "",
-      "deb": {
-        "depends": [],
-        "useBootstrapper": false
-      },
       "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "useBootstrapper": false,
+        "entitlements": null,
         "exceptionDomain": "",
-        "signingIdentity": null,
+        "frameworks": [],
         "providerShortName": null,
-        "entitlements": null
+        "signingIdentity": null
       },
+      "resources": [],
+      "shortDescription": "Donjon vous permet de créer vos fictions interactives et d’y jouer.",
+      "targets": "all",
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
         "timestampUrl": ""
       }
     },
-    "updater": {
-      "active": false,
-      "endpoints": [
-        "https://donjon.fi/update/donjon-creer.json"
-      ],
-      "dialog": true
+    "security": {
+      "csp": null
     },
-    "allowlist": {
-      "all": true
+    "updater": {
+      "active": false
     },
     "windows": [
       {
-        "title": "Donjon - Créer",
-        "width": 1280,
+        "fullscreen": false,
         "height": 720,
         "resizable": true,
-        "fullscreen": false
+        "title": "Donjon - Creer",
+        "width": 1280
       }
-    ],
-    "security": {
-      "csp": "default-src 'self'",
-      "devCsp": null
-    }
+    ]
   }
 }
