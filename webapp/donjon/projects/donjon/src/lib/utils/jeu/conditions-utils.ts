@@ -107,6 +107,201 @@ export class ConditionsUtils {
     return resultatFinal;
   }
 
+
+  private trouverSujetCondition(condition: ConditionSolo | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): ElementJeu | Intitule | null {
+
+    let sujet: ElementJeu | Intitule | null = null;
+
+    const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
+
+    if (condition.sujet) {
+      // ici
+      if (conditionSujetNomNettoye === 'ici') {
+        sujet = this.eju.curLieu;
+        // ceci
+      } else if (conditionSujetNomNettoye === 'ceci') {
+        sujet = contexteTour.ceci;
+        if (!contexteTour.ceci) {
+          console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
+        }
+        // cela
+      } else if (conditionSujetNomNettoye === 'cela') {
+        sujet = contexteTour.cela;
+        if (!contexteTour.cela) {
+          console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
+        }
+        // quantitéCeci
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCeci')) {
+        const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
+        sujet = cpt;
+        if (!contexteTour.ceci) {
+          console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
+        }
+        // quantitéCela
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCela')) {
+        const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
+        sujet = cpt;
+        if (!contexteTour.cela) {
+          console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
+        }
+        // quantité de ceci
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de ceci')) {
+        if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
+          console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
+        } else {
+          const cpt = new Compteur("quantité de ceci", (contexteTour.ceci as ElementJeu).quantite);
+          sujet = cpt;
+        }
+        // quantité de cela
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de cela')) {
+        if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
+          console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
+        } else {
+          const cpt = new Compteur("quantité de cela", (contexteTour.cela as ElementJeu).quantite);
+          sujet = cpt;
+        }
+        // préposition ceci
+      } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?ceci/i)) {
+        sujet = new Intitule(evenement.prepositionCeci, new GroupeNominal(null, evenement.prepositionCeci, null), ClassesRacines.Intitule);
+        // préposition cela
+      } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?cela/i)) {
+        sujet = new Intitule(evenement.prepositionCela, new GroupeNominal(null, evenement.prepositionCela, null), ClassesRacines.Intitule);
+        // origine
+      } else if (conditionSujetNomNettoye === 'origine') {
+        sujet = contexteTour.origine;
+        if (!contexteTour.origine) {
+          console.warn("siEstVraiSansLien: le « origine » de la condition est null.");
+        }
+        // origine
+      } else if (conditionSujetNomNettoye === 'destination') {
+        sujet = contexteTour.destination;
+        if (!contexteTour.destination) {
+          console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
+        }
+        // orientation
+      } else if (conditionSujetNomNettoye === 'orientation') {
+        sujet = contexteTour.orientation;
+        if (!contexteTour.orientation) {
+          console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
+        }
+        // réponse (au dernier choisir)
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('réponse')) {
+        if (!contexteTour.reponse) {
+          this.eju.ajouterConseil("Condition sur « réponse » : il n’y a pas de réponse pour ce tour de jeu.")
+        } else {
+          sujet = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
+        }
+        // règle
+      } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('règle')) {
+        if (!declenchements) {
+          console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
+        } else {
+          const cpt = new Compteur("déclenchements règle", declenchements);
+          sujet = cpt;
+        }
+        // action (c’est à dire l’action liée à l’événement)
+        // => infinitif
+      } else if (conditionSujetNomNettoye.match(/infinitif (?:de l(?:'|’))?action/i)) {
+        sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
+
+        // sortie/obstacle/porte vers ceci/cela
+      } else if (conditionSujetNomNettoye.match(/(sortie|obstacle|porte) vers/i)) {
+        let locString: string = condition.sujet.epithete;
+        if (condition.sujet.epithete == 'ceci') {
+          locString = contexteTour.ceci.intitule.nom;
+        } else if (condition.sujet.epithete == 'cela') {
+          locString = contexteTour.cela.intitule.nom;
+        }
+        const loc = ElementsJeuUtils.trouverLocalisation(new GroupeNominal(null, locString));
+
+        if (loc == null) {
+          console.error("siEstVraiSansLien: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
+          // regarder s'il y a une sortie dans la direction indiquée
+        } else {
+          // sortie vers
+          if (conditionSujetNomNettoye.startsWith("sortie")) {
+            const voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
+            if (voisinID !== -1) {
+              sujet = this.eju.getLieu(voisinID);
+            }
+            // porte vers
+          } else if (conditionSujetNomNettoye.startsWith("porte")) {
+            const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
+            if (porteID !== -1) {
+              sujet = this.eju.getObjet(porteID);
+            }
+            // obstacle vers
+          } else {
+            const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
+            if (obstacleID !== -1) {
+              sujet = this.eju.getObjet(obstacleID);
+            }
+          }
+        }
+      } else {
+        // chercher dans les valeurs
+        const valeurTrouvee = contexteTour?.trouverValeur(condition.sujet.nomEpithete);
+
+        // valeur
+        if (valeurTrouvee) {
+
+          switch (typeof valeurTrouvee) {
+            // texte
+            // TODO: texte plutôt que intitulé
+            case 'string':
+              sujet = new Intitule(valeurTrouvee, new GroupeNominal(null, valeurTrouvee, null), ClassesRacines.Intitule);
+              break;
+
+            // nombre
+            case 'number':
+              sujet = new Compteur('valeur', valeurTrouvee)
+              break
+
+            // intiutlé
+            default:
+              sujet = valeurTrouvee;
+              break;
+          }
+          // pas une valeur
+        } else {
+          const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
+          if (correspondances.elements.length == 1) {
+            sujet = correspondances.elements[0];
+          } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
+            console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
+          } else if (correspondances.compteurs.length === 1) {
+            sujet = correspondances.compteurs[0];
+          } else if (correspondances.listes.length === 1) {
+            sujet = correspondances.listes[0];
+          } else {
+            // checher dans les propriétés
+            const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
+            if (proprieteJeu) {
+              const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
+              if (proprieteCible instanceof Compteur) {
+                sujet = proprieteCible;
+              } else {
+                if (proprieteCible.type == TypeValeur.nombre) {
+                  sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
+                } else {
+                  sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
+                }
+              }
+              // le jeu n’est pas dans les objets mais il est géré plus loin
+            } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
+              // le tirage n'est pas un objet, mais il est géré plus loin
+            } else if (conditionSujetNomNettoye == 'tirage' && !condition.sujet.epithete) {
+              // rien à dire ici
+            } else {
+              console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+            }
+          }
+        }
+      }
+    }
+    return sujet;
+  }
+
   /**
    * Tester si la condition est vraie.
    * Remarque: le LIEN (et/ou/soit) n'est PAS TESTÉ. La méthode siEstVraiAvecLiens le fait.
@@ -122,196 +317,7 @@ export class ConditionsUtils {
     if (condition) {
       // 1 - Trouver le sujet
       // ++++++++++++++++++++
-      let sujet: ElementJeu | Intitule = null;
-
-      const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
-
-      if (condition.sujet) {
-        // ici
-        if (conditionSujetNomNettoye === 'ici') {
-          sujet = this.eju.curLieu;
-          // ceci
-        } else if (conditionSujetNomNettoye === 'ceci') {
-          sujet = contexteTour.ceci;
-          if (!contexteTour.ceci) {
-            console.warn("siEstVraiSansLien: le « ceci » de la condition est null.");
-          }
-          // cela
-        } else if (conditionSujetNomNettoye === 'cela') {
-          sujet = contexteTour.cela;
-          if (!contexteTour.cela) {
-            console.warn("siEstVraiSansLien: le « cela » de la condition est null.");
-          }
-          // quantitéCeci
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCeci')) {
-          const cpt = new Compteur("quantitéCeci", evenement.quantiteCeci);
-          sujet = cpt;
-          if (!contexteTour.ceci) {
-            console.warn("siEstVraiSansLien: quantitéCeci: le « ceci » de la condition est null.");
-          }
-          // quantitéCela
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantitéCela')) {
-          const cpt = new Compteur("quantitéCela", evenement.quantiteCela);
-          sujet = cpt;
-          if (!contexteTour.cela) {
-            console.warn("siEstVraiSansLien: quantitéCela: le « cela » de la condition est null.");
-          }
-          // quantité de ceci
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de ceci')) {
-          if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
-            console.warn("siEstVraiSansLien: quantité de ceci: le « ceci » de la condition est null.");
-          } else {
-            const cpt = new Compteur("quantité de ceci", (contexteTour.ceci as ElementJeu).quantite);
-            sujet = cpt;
-          }
-          // quantité de cela
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité de cela')) {
-          if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
-            console.warn("siEstVraiSansLien: quantité de cela: le « cela » de la condition n’est pas un élément.");
-          } else {
-            const cpt = new Compteur("quantité de cela", (contexteTour.cela as ElementJeu).quantite);
-            sujet = cpt;
-          }
-          // préposition ceci
-        } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?ceci/i)) {
-          sujet = new Intitule(evenement.prepositionCeci, new GroupeNominal(null, evenement.prepositionCeci, null), ClassesRacines.Intitule);
-          // préposition cela
-        } else if (condition.sujet.nom.match(/pr(?:é|e)position (?:de )?cela/i)) {
-          sujet = new Intitule(evenement.prepositionCela, new GroupeNominal(null, evenement.prepositionCela, null), ClassesRacines.Intitule);
-          // origine
-        } else if (conditionSujetNomNettoye === 'origine') {
-          sujet = contexteTour.origine;
-          if (!contexteTour.origine) {
-            console.warn("siEstVraiSansLien: le « origine » de la condition est null.");
-          }
-          // origine
-        } else if (conditionSujetNomNettoye === 'destination') {
-          sujet = contexteTour.destination;
-          if (!contexteTour.destination) {
-            console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
-          }
-          // orientation
-        } else if (conditionSujetNomNettoye === 'orientation') {
-          sujet = contexteTour.orientation;
-          if (!contexteTour.orientation) {
-            console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
-          }
-          // réponse (au dernier choisir)
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('réponse')) {
-          if (!contexteTour.reponse) {
-            this.eju.ajouterConseil("Condition sur « réponse » : il n’y a pas de réponse pour ce tour de jeu.")
-          } else {
-            sujet = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
-          }
-          // règle
-        } else if (conditionSujetNomNettoye === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('règle')) {
-          if (!declenchements) {
-            console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
-          } else {
-            const cpt = new Compteur("déclenchements règle", declenchements);
-            sujet = cpt;
-          }
-          // action (c’est à dire l’action liée à l’événement)
-          // => infinitif
-        } else if (conditionSujetNomNettoye.match(/infinitif (?:de l(?:'|’))?action/i)) {
-          sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
-
-          // sortie/obstacle/porte vers ceci/cela
-        } else if (conditionSujetNomNettoye.match(/(sortie|obstacle|porte) vers/i)) {
-          let locString: string = condition.sujet.epithete;
-          if (condition.sujet.epithete == 'ceci') {
-            locString = contexteTour.ceci.intitule.nom;
-          } else if (condition.sujet.epithete == 'cela') {
-            locString = contexteTour.cela.intitule.nom;
-          }
-          const loc = ElementsJeuUtils.trouverLocalisation(new GroupeNominal(null, locString));
-
-          if (loc == null) {
-            console.error("siEstVraiSansLien: sortie/porte vers '", sujet.intitule.nom, "': direction inconnue.");
-            // regarder s'il y a une sortie dans la direction indiquée
-          } else {
-            // sortie vers
-            if (conditionSujetNomNettoye.startsWith("sortie")) {
-              const voisinID = this.eju.getVoisinDirectionID(loc, EClasseRacine.lieu);
-              if (voisinID !== -1) {
-                sujet = this.eju.getLieu(voisinID);
-              }
-              // porte vers
-            } else if (conditionSujetNomNettoye.startsWith("porte")) {
-              const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
-              if (porteID !== -1) {
-                sujet = this.eju.getObjet(porteID);
-              }
-              // obstacle vers
-            } else {
-              const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
-              if (obstacleID !== -1) {
-                sujet = this.eju.getObjet(obstacleID);
-              }
-            }
-          }
-        } else {
-          // chercher dans les valeurs
-          const valeurTrouvee = contexteTour?.trouverValeur(condition.sujet.nomEpithete);
-
-          // valeur
-          if (valeurTrouvee) {
-
-            switch (typeof valeurTrouvee) {
-              // texte
-              // TODO: texte plutôt que intitulé
-              case 'string':
-                sujet = new Intitule(valeurTrouvee, new GroupeNominal(null, valeurTrouvee, null), ClassesRacines.Intitule);
-                break;
-
-              // nombre
-              case 'number':
-                sujet = new Compteur('valeur', valeurTrouvee)
-                break
-
-              // intiutlé
-              default:
-                sujet = valeurTrouvee;
-                break;
-            }
-            // pas une valeur
-          } else {
-            const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
-            if (correspondances.elements.length == 1) {
-              sujet = correspondances.elements[0];
-            } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
-              console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
-            } else if (correspondances.compteurs.length === 1) {
-              sujet = correspondances.compteurs[0];
-            } else if (correspondances.listes.length === 1) {
-              sujet = correspondances.listes[0];
-            } else {
-              // checher dans les propriétés
-              const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
-              if (proprieteJeu) {
-                const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
-                if (proprieteCible instanceof Compteur) {
-                  sujet = proprieteCible;
-                } else {
-                  if (proprieteCible.type == TypeValeur.nombre) {
-                    sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
-                  } else {
-                    sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
-                  }
-                }
-                // le jeu n’est pas dans les objets mais il est géré plus loin
-              } else if (conditionSujetNomNettoye == 'jeu' && !condition.sujet.epithete) {
-                // le tirage n'est pas un objet, mais il est géré plus loin
-              } else if (conditionSujetNomNettoye == 'tirage' && !condition.sujet.epithete) {
-                // rien à dire ici
-              } else {
-                console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
-              }
-            }
-          }
-        }
-      }
-
+      let sujet = this.trouverSujetCondition(condition, contexteTour, evenement, declenchements);
 
       // *********************************************
       //  A. ÉLÉMENT DU JEU
@@ -399,6 +405,10 @@ export class ConditionsUtils {
             // retrouver la destination
             // remarque: négation appliquée plus loin.
             let destination: ElementJeu = null;
+
+            const conditionSujetComplementNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujetComplement?.nom);
+
+
             if (condition.sujetComplement?.nom === "ici") {
               destination = this.eju.curLieu;
             } else if (condition.sujetComplement?.nom === "ceci") {
@@ -415,6 +425,24 @@ export class ConditionsUtils {
               } else if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
                 console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", contexteTour.cela);
               }
+              // origine
+            } else if (conditionSujetComplementNomNettoye === 'origine') {
+              destination = contexteTour.origine;
+              if (!contexteTour.origine) {
+                console.warn("siEstVraiSansLien: le « origine » de la condition est null.");
+              }
+              // destination
+            } else if (conditionSujetComplementNomNettoye === 'destination') {
+              destination = contexteTour.destination;
+              if (!contexteTour.destination) {
+                console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
+              }
+            //   // orientation
+            // } else if (conditionSujetComplementNomNettoye === 'orientation') {
+            //   destination = contexteTour.orientation;
+            //   if (!contexteTour.orientation) {
+            //     console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
+            //   }
             } else {
               const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
               if (correspondances.nbCor === 1) {
@@ -427,7 +455,7 @@ export class ConditionsUtils {
             }
 
             // si on a trouvé la cible et la destination
-            // TODO: destination pourrait être un objet !
+            // TODO: destination pourrait être un objet ou une direction !
             if (sujet && destination) {
               // vérifier que la cible se trouve au bon endroit
               if ((sujet as Objet).position.cibleId === destination.id) {
