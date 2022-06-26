@@ -905,12 +905,23 @@ export class ExprReg {
   /** 
    * règle|action|réaction(1)
    */
-  static readonly xDebutRegion = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action) /i;
+  static readonly xDebutBlocPrincipal = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action) /i;
 
   /**
    * fin règle|action|réaction(1)
    */
-  static readonly xFinRegion = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action)/i;
+  static readonly xFinBlocPrincipal = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action)/i;
+
+  
+  /** 
+   * si|choisir(1)
+   */
+   static readonly xDebutBlocSecondaire = /^(si|choisir) /i;
+
+   /**
+    * fin si|choisir(1)
+    */
+   static readonly xFinBlocSecondaire = /^fin (si|choisir)/i;
 
   // ================================================================================================
   //  DIVERS

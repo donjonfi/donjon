@@ -1,7 +1,6 @@
 import { BlocPrincipal, EBlocPrincipal } from "../../models/compilateur/bloc-principal";
 
 import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8";
-import { ETypeBlocPrincipal } from "../../models/compilateur/bloc-ouvert";
 import { ExprReg } from "./expr-reg";
 import { Phrase } from "../../models/compilateur/phrase";
 
@@ -14,11 +13,12 @@ export class Verificateur {
     phrases.forEach(phrase => {
 
       // test: nouveau bloc principal (règles, action, réaction)
-      if (Verificateur.estNouvelleRegion(phrase, ctx)) {
+      if (Verificateur.estNouveauBlocPrincipal(phrase, ctx)) {
 
         // test: fin bloc principal
-      } else if (Verificateur.estFinRegion(phrase, ctx)) {
-
+      } else if (Verificateur.estFinBlocPrincipal(phrase, ctx)) {
+      // } else if (Verificateur.estNouveauBlocSecondaire(phrase, ctx)) {
+      // } else if (Verificateur.estFinBlocSecondaire(phrase, ctx)) {
       } else {
 
       }
@@ -33,8 +33,28 @@ export class Verificateur {
   }
 
   /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
-  public static estNouvelleRegion(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const ouvertureBloc = ExprReg.xDebutRegion.exec(phrase.morceaux[0]);
+  public static estNouveauBlocPrincipal(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
+    const ouvertureBloc = ExprReg.xDebutBlocPrincipal.exec(phrase.morceaux[0]);
+
+    // ouverture d’un bloc principal (règle, action, réaction, …)
+    if (ouvertureBloc) {
+      const typeBloc = BlocPrincipal.ParseType(ouvertureBloc[1]);
+      // si le dernier bloc principal n'est pas encore fermé
+      if (ctx.dernierBlocPrincipal?.ouvert) {
+        // le bloc principal n’a pas été correctement fermé
+        this.forcerFermetureBlocPrincipal(phrase.ligne - 1, ctx);
+      }
+      // ajouter le nouveau bloc principal
+      ctx.blocsPrincipaux.push(new BlocPrincipal(typeBloc, phrase.ligne));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
+  public static estNouveauBlocSecondaire(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
+    const ouvertureBloc = ExprReg.xDebutBlocPrincipal.exec(phrase.morceaux[0]);
 
     // ouverture d’un bloc principal (règle, action, réaction, …)
     if (ouvertureBloc) {
@@ -53,8 +73,8 @@ export class Verificateur {
   }
 
   /** Est-ce la fin de la d’un bloc principal (fin règle, fin action, …) ? */
-  public static estFinRegion(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const fermetureBloc = ExprReg.xFinRegion.exec(phrase.morceaux[0])
+  public static estFinBlocPrincipal(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
+    const fermetureBloc = ExprReg.xFinBlocPrincipal.exec(phrase.morceaux[0])
     // fermeture d’un bloc principal (règle, action, réaction, …)
     if (fermetureBloc) {
       const typeBloc = BlocPrincipal.ParseType(fermetureBloc[1]);

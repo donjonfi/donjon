@@ -11,8 +11,8 @@ describe('Vérificateur - début/fin bloc principal', () => {
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     //  la plante est un objet
-    expect(Verificateur.estNouvelleRegion(phrases[0], new ContexteAnalyseV8())).toBeFalse();
-    expect(Verificateur.estFinRegion(phrases[0], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estFinBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeFalse();
   });
 
   it('Phrases: « action nager: dire "vous nagez" fin action »', () => {
@@ -25,16 +25,16 @@ describe('Vérificateur - début/fin bloc principal', () => {
 
     // action nager
     expect(phrases[0].ligne).toEqual(1);
-    expect(Verificateur.estNouvelleRegion(phrases[0], new ContexteAnalyseV8())).toBeTrue();
-    expect(Verificateur.estFinRegion(phrases[0], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeTrue();
+    expect(Verificateur.estFinBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeFalse();
     // dire "Vous nagez"
     expect(phrases[1].ligne).toEqual(2);
-    expect(Verificateur.estNouvelleRegion(phrases[1], new ContexteAnalyseV8())).toBeFalse();
-    expect(Verificateur.estFinRegion(phrases[1], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[1], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estFinBlocPrincipal(phrases[1], new ContexteAnalyseV8())).toBeFalse();
     // fin action
     expect(phrases[2].ligne).toEqual(3);
-    expect(Verificateur.estNouvelleRegion(phrases[2], new ContexteAnalyseV8())).toBeFalse();
-    expect(Verificateur.estFinRegion(phrases[2], new ContexteAnalyseV8())).toBeTrue();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[2], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estFinBlocPrincipal(phrases[2], new ContexteAnalyseV8())).toBeTrue();
 
   });
 
@@ -47,16 +47,16 @@ describe('Vérificateur - début/fin bloc principal', () => {
     expect(phrases).toHaveSize(3); // 3 phrases
     // règle avant manger ceci:
     expect(phrases[0].ligne).toEqual(1);
-    expect(Verificateur.estNouvelleRegion(phrases[0], new ContexteAnalyseV8())).toBeTrue();
-    expect(Verificateur.estFinRegion(phrases[0], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeTrue();
+    expect(Verificateur.estFinBlocPrincipal(phrases[0], new ContexteAnalyseV8())).toBeFalse();
     // dire "Je n’ai pas faim".
     expect(phrases[1].ligne).toEqual(1);
-    expect(Verificateur.estNouvelleRegion(phrases[1], new ContexteAnalyseV8())).toBeFalse();
-    expect(Verificateur.estFinRegion(phrases[1], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[1], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estFinBlocPrincipal(phrases[1], new ContexteAnalyseV8())).toBeFalse();
     // fin règle.
     expect(phrases[2].ligne).toEqual(1);
-    expect(Verificateur.estNouvelleRegion(phrases[2], new ContexteAnalyseV8())).toBeFalse();
-    expect(Verificateur.estFinRegion(phrases[2], new ContexteAnalyseV8())).toBeTrue();
+    expect(Verificateur.estNouveauBlocPrincipal(phrases[2], new ContexteAnalyseV8())).toBeFalse();
+    expect(Verificateur.estFinBlocPrincipal(phrases[2], new ContexteAnalyseV8())).toBeTrue();
 
   });
 
