@@ -3,6 +3,8 @@ import { ContexteAnalyse } from "./contexte-analyse";
 
 export class ContexteAnalyseV8 extends ContexteAnalyse {
 
+  public indexProchainePhrase = 0;
+
   /**
    * Blocs principaux présents dans le code source.
    * (règles, actions, réactions)
