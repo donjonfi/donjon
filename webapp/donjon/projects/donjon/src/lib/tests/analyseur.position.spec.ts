@@ -1,4 +1,4 @@
-import { Analyseur, AnalyseurElementPosition, AnalyseurUtils, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique, Genre, Nombre, PositionSujetString } from "../../public-api";
+import { AnalyseurBeta, AnalyseurElementPosition, AnalyseurUtils, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique, Genre, Nombre, PositionSujetString } from "../../public-api";
 
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
@@ -122,7 +122,7 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     // tester l’analyse spécifique
@@ -159,8 +159,8 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(1); // nombre d’éléments génériques
@@ -187,9 +187,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(2); // nombre d’éléments génériques
@@ -218,9 +218,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(2); // nombre d’éléments génériques
@@ -248,9 +248,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(3); // nombre d’éléments génériques
@@ -276,10 +276,10 @@ describe('Analyseur: objets positionnés', () => {
     );
     expect(phrases).toHaveSize(4); // nombre de phrases
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[3], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[3], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(3); // nombre d’éléments génériques
@@ -303,7 +303,7 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
 
   });
@@ -318,7 +318,7 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
 
   });
@@ -336,9 +336,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car le cadenas se référence lui-même.
 
   });

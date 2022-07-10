@@ -1,4 +1,4 @@
-import { Analyseur } from './analyseur/analyseur';
+import { AnalyseurBeta } from './analyseur/analyseur-beta';
 import { CompilateurCommunUtils } from './compilateur-commun-utils';
 import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
 import { ContexteCompilation } from '../../models/compilateur/contexte-compilation';
@@ -150,7 +150,7 @@ export class CompilateurBeta {
     // ********************************
     // ANALYSER LES PHRASES
     // ********************************
-    Analyseur.analyserPhrases(phrases, contexteAnalyse);
+    AnalyseurBeta.analyserPhrases(phrases, contexteAnalyse);
 
   }
 

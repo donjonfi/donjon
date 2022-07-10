@@ -1,4 +1,4 @@
-import { Analyseur } from "./analyseur/analyseur";
+import { AnalyseurV8 } from "./analyseur/analyseur-v8";
 import { CompilateurCommunUtils } from "./compilateur-commun-utils";
 import { CompilateurV8Utils } from "./compilateur-v8-utils";
 import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8";
@@ -83,14 +83,13 @@ export class CompilateurV8 {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
 
-    Verificateur.verifierBlocs(phrases, contexteAnalyse);
+    // Verificateur.verifierBlocs(phrases, contexteAnalyse);
 
     // ********************************
     // ANALYSER LES PHRASES
     // ********************************
-    Analyseur.analyserPhrases(phrases, contexteAnalyse);
+    AnalyseurV8.analyserPhrases(phrases, contexteAnalyse);
 
   }
-
 
 }

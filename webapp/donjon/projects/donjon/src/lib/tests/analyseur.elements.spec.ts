@@ -1,4 +1,4 @@
-import { Analyseur } from "../utils/compilation/analyseur/analyseur";
+import { AnalyseurBeta } from "../utils/compilation/analyseur/analyseur-beta";
 import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
@@ -343,7 +343,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -374,7 +374,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(2); // 2 morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -405,7 +405,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.
@@ -421,7 +421,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.
@@ -438,8 +438,8 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(2); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    Analyseur.analyserPhrase(phrases[0], ctxAnalyse)
-    const resultatAnalyse = Analyseur.analyserPhrase(phrases[1], ctxAnalyse)
+    AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)
+    const resultatAnalyse = AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)
     expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -462,7 +462,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    const resultatAnalyse = Analyseur.analyserPhrase(phrases[0], ctxAnalyse);
+    const resultatAnalyse = AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse);
     expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -489,7 +489,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -521,7 +521,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -553,7 +553,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.
@@ -569,7 +569,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.

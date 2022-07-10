@@ -1,4 +1,4 @@
-import { Analyseur, CompilateurBeta, EClasseRacine, Genre, Nombre } from "../../public-api";
+import { AnalyseurBeta, CompilateurBeta, EClasseRacine, Genre, Nombre } from "../../public-api";
 
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
@@ -124,8 +124,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -150,8 +150,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(4); // 4 morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -176,8 +176,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -202,8 +202,8 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();

@@ -36,7 +36,8 @@ export class AnalyseurSynonymes {
   }
 
   /**
-   * Rechecher un synonyme d’action ou d’élment du jeu
+   * Rechecher un synonyme pour une action ou un élément du jeu.
+   * Ex: Interpréter xxx comme le yyy.
    */
   public static testerSynonyme(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
 

@@ -1,4 +1,4 @@
-import { Analyseur, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique } from "../../public-api";
+import { AnalyseurBeta, CompilateurBeta, ContexteAnalyse, EClasseRacine, ElementGenerique } from "../../public-api";
 
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
@@ -86,7 +86,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -106,7 +106,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -126,7 +126,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -147,7 +147,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -167,7 +167,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -188,7 +188,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -208,7 +208,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -232,7 +232,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);

@@ -72,7 +72,7 @@ export * from './lib/utils/commun/phrase-utils';
 export * from './lib/utils/commun/positions-utils';
 export * from './lib/utils/commun/string.utils';
 
-export * from './lib/utils/compilation/analyseur/analyseur';
+export * from './lib/utils/compilation/analyseur/analyseur-beta';
 export * from './lib/utils/compilation/analyseur/analyseur.action';
 export * from './lib/utils/compilation/analyseur/analyseur.attributs';
 export * from './lib/utils/compilation/analyseur/analyseur.capacite';

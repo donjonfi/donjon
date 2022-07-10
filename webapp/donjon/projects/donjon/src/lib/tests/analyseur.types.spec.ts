@@ -1,4 +1,4 @@
-import { Analyseur } from "../utils/compilation/analyseur/analyseur";
+import { AnalyseurBeta } from "../utils/compilation/analyseur/analyseur-beta";
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
 import { CompilateurBeta } from "../utils/compilation/compilateur-beta";
 import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
@@ -125,7 +125,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
@@ -148,7 +148,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
@@ -172,7 +172,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique      
         ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
@@ -191,7 +191,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
@@ -213,7 +213,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
         const resultat = AnalyseurType.testerPrecisionType(phrases[0], ctxAnalyse);
@@ -236,7 +236,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
         // -> raz contexte
         ctxAnalyse = new ContexteAnalyse();
@@ -261,8 +261,8 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         );
         expect(phrases).toHaveSize(2); // 2 phrases
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
-        expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // 1 nouveau type ajouté (et pas 2)
         expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBeTrue(); // type existant retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
