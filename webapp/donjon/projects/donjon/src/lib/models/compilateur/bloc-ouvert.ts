@@ -18,14 +18,3 @@ export enum ETypeBloc {
   /** Bloc « choix » */
   choix = 3,
 }
-
-/**
- * Type de bloc (si, choix)
- */
- export enum ETypeBlocPrincipal {
-  aucun = 0,
-  /** Bloc « action » */
-  action = 1,
-  /** Bloc « règle » */
-  regle = 2,
-}

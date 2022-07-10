@@ -1,8 +1,8 @@
-export class BlocPrincipal {
+export class Routine {
 
   constructor(
-    /** Type de bloc principal (action, règle, …) */
-    public type: EBlocPrincipal,
+    /** Type de routine (routine, action, réaction, règle, …) */
+    public type: ERoutine,
     /** Ligne du scénario contenant le début du bloc */
     public debut: number,
     /** Le bloc est-il toujours ouvert ? */
@@ -15,26 +15,26 @@ export class BlocPrincipal {
   public correctementFini: boolean = false;
 
   /**
-   * Convertir une chaîne de caractères en EBlocPrincipal
+   * Convertir une chaîne de caractères en ERoutine
    */
-  public static ParseType(type: string): EBlocPrincipal | undefined {
+  public static ParseType(type: string): ERoutine | undefined {
     switch (type) {
-      // case 'definition':
-      // case 'définition':
-      //   return EBlocPrincipal.definition
+      
+      case 'routine':
+        return ERoutine.routine
 
       case 'action':
-        return EBlocPrincipal.action
+        return ERoutine.action
 
       case 'règle':
       case 'régle':
       case 'regle':
-        return EBlocPrincipal.regle
+        return ERoutine.regle
 
       case 'réaction':
       case 'rèaction':
       case 'reaction':
-        return EBlocPrincipal.reaction
+        return ERoutine.reaction
 
       default:
         return undefined;
@@ -45,16 +45,19 @@ export class BlocPrincipal {
 /**
  * Bloc dans lequel se trouve la phrase.
  */
-export enum EBlocPrincipal {
+export enum ERoutine {
   /** Inconnu */
   inconnue = 0,
   /** Aucun (définition du monde) */
   aucun = 1,
-  /** Bloc « action » */
-  action = 2,
-  /** Bloc « règle » */
-  regle = 3,
-  /** Bloc « réaction » */
-  reaction = 4,
+  /** Routine */
+  routine = 2,
+  /** Routine « action » */
+  action = 3,
+  /** Routine « règle » */
+  regle = 4,
+  /** Routine « réaction » */
+  reaction = 5,
+
 }
 

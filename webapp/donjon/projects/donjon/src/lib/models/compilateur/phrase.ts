@@ -1,4 +1,4 @@
-import { EBlocPrincipal } from "./bloc-principal";
+import { ERoutine } from "./routine";
 
 export class Phrase {
 
@@ -15,9 +15,8 @@ export class Phrase {
     public ligne: number,
     // utilisé pour découper les blocs d’instructions
     public finie: boolean,
-    // bloc principal dans lequel se trouve la phrase (action, règle, réaction)
-    public region: EBlocPrincipal,
+    // routine dans laquelle se trouve la phrase (routine, action, règle, réaction)
+    public region: ERoutine,
   ) { }
-
 
 }

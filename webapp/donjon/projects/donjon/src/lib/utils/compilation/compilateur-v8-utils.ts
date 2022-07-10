@@ -1,5 +1,5 @@
 import { CompilateurCommunUtils } from "./compilateur-commun-utils";
-import { EBlocPrincipal } from "../../models/compilateur/bloc-principal";
+import { ERoutine } from "../../models/compilateur/routine";
 import { ExprReg } from "./expr-reg";
 import { Phrase } from "../../models/compilateur/phrase";
 
@@ -111,7 +111,7 @@ export class CompilateurV8Utils {
               // nouvelle phrase
               if (!phrasePrecedente || phrasePrecedente.finie) {
                 if (phraseNettoyee !== '') {
-                  phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, EBlocPrincipal.inconnue);
+                  phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, ERoutine.inconnue);
                   phrases.push(phrasePrecedente);
                 }
                 // suite de la phrase précédente

@@ -903,14 +903,14 @@ export class ExprReg {
   // ================================================================================================
 
   /** 
-   * règle|action|réaction(1)
+   * règle|action|réaction|routine(1)
    */
-  static readonly xDebutBlocPrincipal = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action) /i;
+  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action|routine) /i;
 
   /**
-   * fin règle|action|réaction(1)
+   * fin règle|action|réaction|routine(1)
    */
-  static readonly xFinBlocPrincipal = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action)/i;
+  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)/i;
 
   
   /** 
