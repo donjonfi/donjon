@@ -916,12 +916,12 @@ export class ExprReg {
   /** 
    * si|choisir(1)
    */
-   static readonly xDebutBlocSecondaire = /^(si|choisir) /i;
+   static readonly xDebutInstructionControle = /^(si|choisir) /i;
 
    /**
     * fin si|choisir(1)
     */
-   static readonly xFinBlocSecondaire = /^fin (si|choisir)/i;
+   static readonly xFinInstructionControle = /^fin (si|choisir)/i;
 
   // ================================================================================================
   //  DIVERS

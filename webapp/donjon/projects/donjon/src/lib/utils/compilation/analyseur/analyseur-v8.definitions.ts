@@ -4,12 +4,36 @@ import { AnalyseurListe } from "./analyseur.liste";
 import { AnalyseurSynonymes } from "./analyseur.synonymes";
 import { AnalyseurType } from "./analyseur.type";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 
 export class AnalyseurV8Definitions {
 
-  public static TesterDefinition(phrase: Phrase, ctx: ContexteAnalyse): ResultatAnalysePhrase {
+  /**
+   * Traiter la définition qui devrait correspondre à la prochaine phrase.
+   * @returns true si une définition a effectivement été trouvée.
+   */
+  public static traiterDefinition(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
+    let definitionTrouvee: boolean;
+    let elementTrouve: ResultatAnalysePhrase = AnalyseurV8Definitions.testerDefinition(phrase, ctx);
+    if (elementTrouve !== ResultatAnalysePhrase.aucun) {
+      if (ctx.verbeux) {
+        console.log(`[AnalyseurV8] l.${phrase.ligne}: définition trouvée (${phrase})`);
+      }
+      definitionTrouvee = true;
+    } else {
+      if (ctx.verbeux) {
+        console.warn(`[AnalyseurV8] l.${phrase.ligne}: pas trouvé de définition (${phrase})`);
+      }
+      definitionTrouvee = false;
+    }
+    // passer à la phrase suivante
+    ctx.indexProchainePhrase++;
+    return definitionTrouvee;
+  }
+
+  private static testerDefinition(phrase: Phrase, ctx: ContexteAnalyse): ResultatAnalysePhrase {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // Commentaire ou Section (partie, chapitre, ...)

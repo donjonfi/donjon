@@ -34,11 +34,11 @@ export class Verificateur {
 
   /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
   public static estNouvelleRoutine(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const ouvertureBloc = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
+    const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
 
     // ouverture d’une routine (règle, action, réaction, …)
-    if (ouvertureBloc) {
-      const typeBloc = Routine.ParseType(ouvertureBloc[1]);
+    if (ouvertureRoutine) {
+      const typeBloc = Routine.ParseType(ouvertureRoutine[1]);
       // si la dernière routine n'est pas encore fermée
       if (ctx.derniereRoutine?.ouvert) {
         // la routine n’a pas été correctement fermée
@@ -74,10 +74,10 @@ export class Verificateur {
 
   /** Est-ce la fin de la d’une routine (fin règle, fin action, …) ? */
   public static estFinRoutine(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const fermetureBloc = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
+    const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
     // fermeture d’une routine (règle, action, réaction, …)
-    if (fermetureBloc) {
-      const typeBloc = Routine.ParseType(fermetureBloc[1]);
+    if (fermetureRoutine) {
+      const typeBloc = Routine.ParseType(fermetureRoutine[1]);
       // si on ferme le type routine actuellement ouverte
       if (ctx.derniereRoutine?.type === typeBloc) {
         // fermer la routine normalement
@@ -122,7 +122,7 @@ export class Verificateur {
     switch (ctx.derniereRoutine.type) {
 
       // routine déjà débutée
-      case ERoutine.routine:
+      case ERoutine.simple:
         ctx.ajouterErreur(finBloc, "« fin routine » manquant pour la routine débutée en ligne " + ctx.derniereRoutine.debut + " ?");
         break;
 
