@@ -53,8 +53,11 @@ export class AnalyseurV8Routines {
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    // passer à la prochaine phrase
+    ctx.indexProchainePhrase++;
     // trouver le nom de la routine
     const nomRoutine = AnalyseurV8Utils.testerEtiquette('routine', phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    
     // nom trouvé
     if (AnalyseurV8Utils.contientExactement1Mot(nomRoutine)) {
       // B. CORPS et PIED

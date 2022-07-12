@@ -1,3 +1,4 @@
+import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Phrase } from "../../../models/compilateur/phrase";
 
@@ -11,8 +12,17 @@ export class AnalyseurV8Instructions {
     // passer à la phrase suivante
     ctx.indexProchainePhrase++;
     // TODO: analyse de l’instruction
-    
+
     return true;
+  }
+
+  public static retrouverInstruction(phrase: Phrase): string {
+    let resultat = "";
+    phrase.morceaux.forEach(morceau => {
+      resultat += morceau;
+    });
+    resultat = AnalyseurCommunUtils.nettoyerInstruction(resultat);
+    return resultat;
   }
 
 }

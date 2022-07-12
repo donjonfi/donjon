@@ -1,6 +1,7 @@
 import { EInstructionControle, InstructionControle } from "../../../models/compilateur/instruction-controle";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
 
+import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
 
@@ -13,22 +14,25 @@ export class AnalyseurV8Utils {
    *  - sinon
    *  - choix "":
    *  - choisir parmi les couleurs:
+   * 
+   * Tests unitaires: ✔️ (oui)
    * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: routine, sinon, choix, si, …)
    * @returns reste de l’étiquette (ce qui suit le mot clé, sans les «:» finaux)
    */
   public static testerEtiquette(motCle: string, phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let reste: string | undefined;
-    let premierMorceau = phrase.morceaux[0].trim();
+    let instruction = AnalyseurV8Instructions.retrouverInstruction(phrase);
+    let regExp = new RegExp('^' + motCle + "\\b", 'i');
     // si on a retrouvé le mot clé
-    if (premierMorceau.toLocaleLowerCase().startsWith(motCle)) {
+    if (regExp.test(instruction)) {
       // si termine par :
-      if (premierMorceau.endsWith(':')) {
+      if (instruction.endsWith(':')) {
         // retourner le reste de l’étiquette (sans les :)
-        reste = premierMorceau.slice(motCle.length, motCle.length - 1).trim();
+        reste = instruction.slice(motCle.length, instruction.length - 1).trim();
         // sinon si les : ne sont pas obligatoires
       } else if (terminePar2Points == ObligatoireFacultatif.facultatif) {
         // retourner le reste de l’étiquette
-        reste = premierMorceau.slice(motCle.length, motCle.length).trim();
+        reste = instruction.slice(motCle.length, instruction.length).trim();
       }
     }
     return reste;
@@ -36,6 +40,8 @@ export class AnalyseurV8Utils {
 
   /**
    * Est-ce que le mot fourni contient exactement 1 mot ?
+   * 
+   * Tests unitaires: ❌ (non)
    */
   public static contientExactement1Mot(mot: string): boolean {
     return (mot?.indexOf(' ') === -1);

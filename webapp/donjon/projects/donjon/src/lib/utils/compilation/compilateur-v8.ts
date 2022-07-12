@@ -4,6 +4,7 @@ import { CompilateurV8Utils } from "./compilateur-v8-utils";
 import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8";
 import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compilation-v8";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
+import { Statisticien } from "../jeu/statisticien";
 import { Verificateur } from "./verificateur";
 
 /**
@@ -43,10 +44,13 @@ export class CompilateurV8 {
     }
 
     // Interpréter le scénario
-    CompilateurV8.analyserCodeSource(scenario, ctx.analyse);
+    CompilateurV8.analyserCodeSource((scenario + CompilateurCommunUtils.regleInfoDonjon), ctx.analyse);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);
+    
+    // calculer les stats
+    ctx.resultat.statistiques = Statisticien.calculerStatistiquesScenario(scenario);
 
     return ctx.resultat;
   }
