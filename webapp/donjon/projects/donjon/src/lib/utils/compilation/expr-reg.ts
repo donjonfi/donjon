@@ -905,23 +905,23 @@ export class ExprReg {
   /** 
    * règle|action|réaction|routine(1)
    */
-  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action|routine) /i;
+  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)\b/i;
 
   /**
    * fin règle|action|réaction|routine(1)
    */
-  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)/i;
+  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)\b/i;
 
   
   /** 
    * si|choisir(1)
    */
-   static readonly xDebutInstructionControle = /^(si|choisir) /i;
+   static readonly xDebutInstructionControle = /^(si|choisir)\b/i;
 
    /**
     * fin si|choisir(1)
     */
-   static readonly xFinInstructionControle = /^fin (si|choisir)/i;
+   static readonly xFinInstructionControle = /^fin (si|choisir)\b/i;
 
   // ================================================================================================
   //  DIVERS

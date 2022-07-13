@@ -22,7 +22,7 @@ export class AnalyseurV8Utils {
   public static testerEtiquette(motCle: string, phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let reste: string | undefined;
     let instruction = AnalyseurV8Instructions.retrouverInstruction(phrase);
-    let regExp = new RegExp('^' + motCle + "\\b", 'i');
+    let regExp = new RegExp('^' + motCle + '\\b', 'i');
     // si on a retrouvé le mot clé
     if (regExp.test(instruction)) {
       // si termine par :
@@ -40,17 +40,22 @@ export class AnalyseurV8Utils {
 
   /**
    * Est-ce que le mot fourni contient exactement 1 mot ?
-   * 
-   * Tests unitaires: ❌ (non)
+   * Tests unitaires: ✔️ (oui)
    */
   public static contientExactement1Mot(mot: string): boolean {
-    return (mot?.indexOf(' ') === -1);
+    if (mot) {
+      const motNettoye = mot.trim();
+      return (motNettoye.length && motNettoye.indexOf(' ') === -1);
+    } else {
+      return false;
+    }
   }
 
   /**
    * La phrase fournie est est-elle une fin de routine ?
    * @param phrase phrase à analyser
    * @returns le type de fin de routine trouvé ou undefined s’il ne s’agit pas d’une fin de routine.
+   * Tests unitaires: ✔️ (oui)
    */
   public static estFinRoutine(phrase: Phrase): ERoutine | undefined {
     const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
@@ -66,6 +71,8 @@ export class AnalyseurV8Utils {
    * La phrase fournie est est-elle un début de routine ?
    * @param phrase phrase à analyser
    * @returns le type de début de routine trouvé ou undefined s’il ne s’agit pas d’un début de routine.
+   * 
+   * Tests unitaires: ✔️ (oui)
    */
   public static estDebutRoutine(phrase: Phrase): ERoutine | undefined {
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
@@ -81,6 +88,8 @@ export class AnalyseurV8Utils {
    * La phrase fournie est est-elle un début de bloc contrôle ?
    * @param phrase phrase à analyser
    * @returns le type de début de bloc contrôle trouvé ou undefined s’il ne s’agit pas d’un début de bloc contrôle.
+   * 
+   * Tests unitaires: ❌ (non)
    */
   public static estDebutInstructionControle(phrase: Phrase): EInstructionControle | undefined {
     const ouvertureBloc = ExprReg.xDebutInstructionControle.exec(phrase.morceaux[0]);
@@ -96,6 +105,8 @@ export class AnalyseurV8Utils {
    * La phrase fournie est est-elle une fin de bloc contrôle ?
    * @param phrase phrase à analyser
    * @returns le type de fin de bloc contrôle trouvé ou undefined s’il ne s’agit pas d’une fin de bloc contrôle.
+   * 
+   * Tests unitaires: ❌ (non)
    */
   public static estFinInstructionControle(phrase: Phrase): EInstructionControle | undefined {
     const fermetureBloc = ExprReg.xFinInstructionControle.exec(phrase.morceaux[0])

@@ -9,6 +9,8 @@ import { Phrase } from "../../../models/compilateur/phrase";
 
 export class AnalyseurV8Routines {
 
+  public static indexRoutineSansNom = 1;
+
   /**
    * Traiter l'ensemble du bloc qui devrait commencer à la prochaine phrase.
    * @returns true si une routine a effectivement été trouvée.
@@ -56,10 +58,14 @@ export class AnalyseurV8Routines {
     // passer à la prochaine phrase
     ctx.indexProchainePhrase++;
     // trouver le nom de la routine
-    const nomRoutine = AnalyseurV8Utils.testerEtiquette('routine', phraseAnalysee, ObligatoireFacultatif.obligatoire);
-    
-    // nom trouvé
-    if (AnalyseurV8Utils.contientExactement1Mot(nomRoutine)) {
+    let nomRoutine = AnalyseurV8Utils.testerEtiquette('routine', phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
+    if (nomRoutine !== undefined) {
+      // si pas de nom à 1 seul mot trouvé
+      if (!AnalyseurV8Utils.contientExactement1Mot(nomRoutine)) {
+        ctx.ajouterErreur(phraseAnalysee.ligne, "routine: le nom de la routine doit faire exactement un mot. Ex: « routine MaSuperRoutine: »")
+        nomRoutine = ('routineSansNom' + AnalyseurV8Routines.indexRoutineSansNom++);
+      }
       // B. CORPS et PIED
       // parcours de la routine jusqu’à la fin
       while (!routineFinie && ctx.indexProchainePhrase < phrases.length) {
@@ -105,9 +111,11 @@ export class AnalyseurV8Routines {
         }
       }
       // nom trouvé ne fait pas excatement 1 mot, syntaxe nom supportée.
+
     } else {
-      ctx.ajouterErreur(phraseAnalysee.ligne, "routine: le nom de la routine doit faire exactement un mot. Ex: « routine MaSuperRoutine: »")
+      ctx.ajouterErreur(phraseAnalysee.ligne, "routine: étiquette d’entête pas trouvée.");
     }
+
     return retVal;
   }
 
