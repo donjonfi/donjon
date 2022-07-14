@@ -17,6 +17,7 @@ export class AnalyseurV8Definitions {
   public static traiterDefinition(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
     let definitionTrouvee: boolean;
     let elementTrouve: ResultatAnalysePhrase = AnalyseurV8Definitions.testerDefinition(phrase, ctx);
+
     if (elementTrouve !== ResultatAnalysePhrase.aucun) {
       if (ctx.verbeux) {
         console.log(`[AnalyseurV8] l.${phrase.ligne}: définition trouvée (${phrase})`);
@@ -37,22 +38,21 @@ export class AnalyseurV8Definitions {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // Commentaire ou Section (partie, chapitre, ...)
-    this.testerCommentaireEtSection(phrase, ctx, elementTrouve);
+    elementTrouve = this.testerCommentaireEtSection(phrase, ctx, elementTrouve);
     // Aide (action)
-    this.testerAide(phrase, ctx, elementTrouve);
+    elementTrouve = this.testerAide(phrase, ctx, elementTrouve);
     // Synonyme (élément, action) ou Abréviation (commande)
-    this.testerSynonymeEtAbreviation(phrase, ctx, elementTrouve);
+    elementTrouve = this.testerSynonymeEtAbreviation(phrase, ctx, elementTrouve);
     // Type
-    this.testerType(phrase, ctx, elementTrouve);
+    elementTrouve = this.testerType(phrase, ctx, elementTrouve);
     // Paramètre (jeu)
-    this.testerParametre(phrase, ctx, elementTrouve);
+    elementTrouve = this.testerParametre(phrase, ctx, elementTrouve);
     // Élément
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurBeta.testerDefinitionElement(phrase, ctx);
     }
     // Contenu liste
-    this.testerContenuListe(phrase, ctx, elementTrouve);
-
+    elementTrouve = this.testerContenuListe(phrase, ctx, elementTrouve);
     return elementTrouve;
   }
 
@@ -62,7 +62,7 @@ export class AnalyseurV8Definitions {
    *  - Elle contient 8, 9 et 10.
    * 
    */
-  private static testerContenuListe(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerContenuListe(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ==========================================================================================================
     // CONTENU SE RAPPORTANT À UNE LISTE EXISTANTE
@@ -77,6 +77,8 @@ export class AnalyseurV8Definitions {
       }
     }
 
+    return elementTrouve;
+
   }
 
   /** 
@@ -86,7 +88,7 @@ export class AnalyseurV8Definitions {
    *  - chapitre "La maison"
    * 
    */
-  private static testerCommentaireEtSection(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerCommentaireEtSection(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // COMMENTAIRE (-- commentaire)
@@ -111,6 +113,8 @@ export class AnalyseurV8Definitions {
         console.log("=> section trouvée");
       }
     }
+
+    return elementTrouve;
   }
 
   /** 
@@ -118,7 +122,7 @@ export class AnalyseurV8Definitions {
    * Ex: 
    *  - L'aide pour l'action regarder est "{*Regarder*}{n}Permet de regarder autours de vous.".
    */
-  private static testerAide(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerAide(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // AIDE
@@ -129,6 +133,7 @@ export class AnalyseurV8Definitions {
         console.log("=> aide trouvée");
       }
     }
+    return elementTrouve;
   }
 
   /** 
@@ -136,7 +141,7 @@ export class AnalyseurV8Definitions {
    * Ex: 
    *  - Désactiver l'affichage des sorties.
    */
-  private static testerParametre(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerParametre(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // ACTIVER / DÉSACTIVER PARAMÈTRE
@@ -147,6 +152,7 @@ export class AnalyseurV8Definitions {
         console.log("=> trouvé activer/désactiver paramètre.");
       }
     }
+    return elementTrouve;
   }
 
   /**
@@ -156,7 +162,7 @@ export class AnalyseurV8Definitions {
    * - Interpréter pirate et barbu comme le capitaine.
    * - L'abréviation sos correspond à "envoyer sos".
    */
-  private static testerSynonymeEtAbreviation(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerSynonymeEtAbreviation(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // SYNONYMES
@@ -178,6 +184,8 @@ export class AnalyseurV8Definitions {
       }
     }
 
+    return elementTrouve;
+
   }
 
   /**
@@ -186,7 +194,7 @@ export class AnalyseurV8Definitions {
    *  - Un lutin est une personne.
    *  - Un lutin est magique.
    */
-  private static testerType(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): void {
+  private static testerType(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // NOUVEAU TYPE
@@ -207,6 +215,8 @@ export class AnalyseurV8Definitions {
         console.log("=> trouvé précision type");
       }
     }
+
+    return elementTrouve;
   }
 
 

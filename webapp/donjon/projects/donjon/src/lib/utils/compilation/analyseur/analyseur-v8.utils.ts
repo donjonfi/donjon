@@ -57,7 +57,7 @@ export class AnalyseurV8Utils {
    * @returns le type de fin de routine trouvé ou undefined s’il ne s’agit pas d’une fin de routine.
    * Tests unitaires: ✔️ (oui)
    */
-  public static estFinRoutine(phrase: Phrase): ERoutine | undefined {
+  public static chercherFinRoutine(phrase: Phrase): ERoutine | undefined {
     const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureRoutine) {
@@ -74,7 +74,7 @@ export class AnalyseurV8Utils {
    * 
    * Tests unitaires: ✔️ (oui)
    */
-  public static estDebutRoutine(phrase: Phrase): ERoutine | undefined {
+  public static chercherDebutRoutine(phrase: Phrase): ERoutine | undefined {
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
     // ouverture d’une routine (routine, règle, action, réaction, …)
     if (ouvertureRoutine) {
@@ -91,7 +91,7 @@ export class AnalyseurV8Utils {
    * 
    * Tests unitaires: ❌ (non)
    */
-  public static estDebutInstructionControle(phrase: Phrase): EInstructionControle | undefined {
+  public static chercherDebutInstructionControle(phrase: Phrase): EInstructionControle | undefined {
     const ouvertureBloc = ExprReg.xDebutInstructionControle.exec(phrase.morceaux[0]);
     // ouverture d’une routine (routine, règle, action, réaction, …)
     if (ouvertureBloc) {
@@ -108,7 +108,7 @@ export class AnalyseurV8Utils {
    * 
    * Tests unitaires: ❌ (non)
    */
-  public static estFinInstructionControle(phrase: Phrase): EInstructionControle | undefined {
+  public static chercherFinInstructionControle(phrase: Phrase): EInstructionControle | undefined {
     const fermetureBloc = ExprReg.xFinInstructionControle.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureBloc) {

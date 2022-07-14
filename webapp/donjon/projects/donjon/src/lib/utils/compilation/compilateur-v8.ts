@@ -44,7 +44,7 @@ export class CompilateurV8 {
     }
 
     // Interpréter le scénario
-    CompilateurV8.analyserCodeSource((scenario + CompilateurCommunUtils.regleInfoDonjon), ctx.analyse);
+    CompilateurV8.analyserCodeSource((scenario + CompilateurCommunUtils.regleInfoDonjonV8), ctx.analyse);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);

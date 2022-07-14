@@ -1,4 +1,6 @@
-export class Routine {
+import { BlocInstructions } from "./bloc-instructions";
+
+export class Routine extends BlocInstructions {
 
   constructor(
     /** Type de routine (routine, action, réaction, règle, …) */
@@ -7,7 +9,9 @@ export class Routine {
     public debut: number,
     /** Le bloc est-il toujours ouvert ? */
     public ouvert: boolean = true
-  ) { }
+  ) { 
+    super();
+  }
 
   /** Ligne du scénario contenant la fin du bloc */
   public fin: number;
@@ -42,7 +46,7 @@ export class Routine {
   }
 
   /** Afficher le nom du type de routine spécifié. */
-  public static TypeToString(type: ERoutine | undefined) {
+  public static TypeToString(type: ERoutine | undefined): string {
     switch (type) {
       case ERoutine.simple:
         return 'routine';
@@ -55,10 +59,10 @@ export class Routine {
 
       case ERoutine.aucun:
         return '-';
-        
+
       case ERoutine.inconnue:
         return '?';
-        
+
       case undefined:
         return '';
 

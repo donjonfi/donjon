@@ -1,3 +1,4 @@
+import { BlocInstructions } from "./bloc-instructions";
 import { ContexteAnalyse } from "./contexte-analyse";
 import { Routine } from "./routine";
 
@@ -10,6 +11,8 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
    * (règles, actions, réactions)
    */
   public routines: Routine[] = [];
+
+  public dernierBloc: BlocInstructions
 
   /**
    * Obtenir la dernière routine
@@ -39,5 +42,7 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
     }
     return retVal;
   }
+
+
 
 }

@@ -4,7 +4,7 @@ import { Choix } from "../../../models/compilateur/choix";
 import { ClassesRacines } from "../../../models/commun/classes-racines";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ContexteSeparerInstructions } from "../../../models/compilateur/contexte-separer-instructions";
-import { ETypeBloc } from "../../../models/compilateur/bloc-ouvert";
+import { ETypeBloc } from "../../../models/compilateur/bloc-ouvert-beta";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ElementsPhrase } from "../../../models/commun/elements-phrase";
 import { ExprReg } from "../expr-reg";
@@ -47,7 +47,7 @@ export class AnalyseurBetaInstructions {
       const conBruNettoyee = AnalyseurCommunUtils.nettoyerInstruction(curInstruction)
       if (conBruNettoyee) {
         // DÉCOMPOSER INSTRUCTION
-        const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
+        const els = AnalyseurCommunUtils.decomposerInstructionSimple(conBruNettoyee);
         // *****************************************************************************
         //  CAS A > INSTRUCTION SIMPLE
         // *****************************************************************************
@@ -163,24 +163,9 @@ export class AnalyseurBetaInstructions {
   }
 
   /** Traiter une instruction simple */
-  private static traiterInstructionSimple(instruction: ElementsPhrase, ctx: ContexteSeparerInstructions) {
-    if (instruction.complement1) {
-      // si le complément est un Texte (entre " "), garder les retours à la ligne
-      if (instruction.complement1.startsWith('"') && instruction.complement1.endsWith('"')) {
-        instruction.complement1 = instruction.complement1
-          .replace(ExprReg.xCaractereRetourLigne, '\n')
-          // remettre les , et les ; initiaux dans les commentaires
-          .replace(ExprReg.xCaracterePointVirgule, ';')
-          .replace(ExprReg.xCaractereVirgule, ',');
-        // sinon remplacer les retours à la ligne par des espaces
-      } else {
-        instruction.complement1 = instruction.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
-      }
-    }
-    let newInstruction = new Instruction(instruction);
-
-    AnalyseurBetaInstructions.placerInstructionTraiteeAuBonEndroit(newInstruction, ctx);
-
+  private static traiterInstructionSimple(instructionDecomposee: ElementsPhrase, ctx: ContexteSeparerInstructions) {
+    const instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+    AnalyseurBetaInstructions.placerInstructionTraiteeAuBonEndroit(instruction, ctx);
   }
 
   /** Traiter le début d’un bloc si */

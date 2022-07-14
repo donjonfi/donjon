@@ -47,7 +47,7 @@ export class CompilateurBeta {
     }
 
     // interpréter le scénario
-    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjon), ctx.analyse);
+    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjonBeta), ctx.analyse);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);
@@ -73,7 +73,7 @@ export class CompilateurBeta {
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
 
     // interpréter le scénario
-    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjon), ctx.analyse);
+    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjonBeta), ctx.analyse);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);
@@ -120,7 +120,7 @@ export class CompilateurBeta {
     }
 
     // Interpréter le scénario
-    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjon), ctx.analyse);
+    CompilateurBeta.analyserCode((scenario + CompilateurCommunUtils.regleInfoDonjonBeta), ctx.analyse);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);

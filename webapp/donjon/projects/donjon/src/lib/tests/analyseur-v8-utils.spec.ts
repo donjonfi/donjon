@@ -136,7 +136,7 @@ describe('estFinRoutine', () => {
       'fin routine'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.estFinRoutine(phrases[0]);
+    const resultat = AnalyseurV8Utils.chercherFinRoutine(phrases[0]);
     expect(resultat).toBe(ERoutine.simple);
   });
 
@@ -145,7 +145,7 @@ describe('estFinRoutine', () => {
       'fin action.'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.estFinRoutine(phrases[0]);
+    const resultat = AnalyseurV8Utils.chercherFinRoutine(phrases[0]);
     expect(resultat).toBe(ERoutine.action);
   });
 
@@ -157,10 +157,10 @@ describe('estFinRoutine', () => {
     );
     expect(phrases).toHaveSize(3);
     // [0] réaction du pirate concernant le trésor:
-    const resultat0 = AnalyseurV8Utils.estFinRoutine(phrases[0]);
+    const resultat0 = AnalyseurV8Utils.chercherFinRoutine(phrases[0]);
     expect(resultat0).toBeUndefined();
     // [2] fin réaction
-    const resultat2 = AnalyseurV8Utils.estFinRoutine(phrases[2]);
+    const resultat2 = AnalyseurV8Utils.chercherFinRoutine(phrases[2]);
     expect(resultat2).toBe(ERoutine.reaction);
   });
 
@@ -170,10 +170,10 @@ describe('estFinRoutine', () => {
     );
     expect(phrases).toHaveSize(3);
     // [1] dire je le veux
-    const resultat1 = AnalyseurV8Utils.estFinRoutine(phrases[1]);
+    const resultat1 = AnalyseurV8Utils.chercherFinRoutine(phrases[1]);
     expect(resultat1).toBeUndefined();
     // [2] fin règle.
-    const resultat2 = AnalyseurV8Utils.estFinRoutine(phrases[2]);
+    const resultat2 = AnalyseurV8Utils.chercherFinRoutine(phrases[2]);
     expect(resultat2).toBe(ERoutine.regle);
   });
 
@@ -187,7 +187,7 @@ describe('estDebutRoutine', () => {
       'routine cloturerTransaction :'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.estDebutRoutine(phrases[0]);
+    const resultat = AnalyseurV8Utils.chercherDebutRoutine(phrases[0]);
     expect(resultat).toBe(ERoutine.simple);
   });
 
@@ -196,7 +196,7 @@ describe('estDebutRoutine', () => {
       'routine:'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.estDebutRoutine(phrases[0]);
+    const resultat = AnalyseurV8Utils.chercherDebutRoutine(phrases[0]);
     expect(resultat).toBe(ERoutine.simple);
   });
 
@@ -205,7 +205,7 @@ describe('estDebutRoutine', () => {
       'action sauter:'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.estDebutRoutine(phrases[0]);
+    const resultat = AnalyseurV8Utils.chercherDebutRoutine(phrases[0]);
     expect(resultat).toBe(ERoutine.action);
   });
 
@@ -217,13 +217,13 @@ describe('estDebutRoutine', () => {
     );
     expect(phrases).toHaveSize(3);
     // [0] réaction du pirate concernant le trésor:
-    const resultat0 = AnalyseurV8Utils.estDebutRoutine(phrases[0]);
+    const resultat0 = AnalyseurV8Utils.chercherDebutRoutine(phrases[0]);
     expect(resultat0).toBe(ERoutine.reaction);
     // [1] dire "Je le veux!".
-    const resultat1 = AnalyseurV8Utils.estDebutRoutine(phrases[1]);
+    const resultat1 = AnalyseurV8Utils.chercherDebutRoutine(phrases[1]);
     expect(resultat1).toBeUndefined();
     // [2] fin réaction
-    const resultat2 = AnalyseurV8Utils.estDebutRoutine(phrases[2]);
+    const resultat2 = AnalyseurV8Utils.chercherDebutRoutine(phrases[2]);
     expect(resultat2).toBeUndefined();
   });
 
@@ -233,13 +233,13 @@ describe('estDebutRoutine', () => {
     );
     expect(phrases).toHaveSize(3);
     // [0] règle avant aller dans un lieu:
-    const resultat0 = AnalyseurV8Utils.estDebutRoutine(phrases[0]);
+    const resultat0 = AnalyseurV8Utils.chercherDebutRoutine(phrases[0]);
     expect(resultat0).toBe(ERoutine.regle);
     // [1] dire je le veux
-    const resultat1 = AnalyseurV8Utils.estDebutRoutine(phrases[1]);
+    const resultat1 = AnalyseurV8Utils.chercherDebutRoutine(phrases[1]);
     expect(resultat1).toBeUndefined();
     // [2] fin règle.
-    const resultat2 = AnalyseurV8Utils.estDebutRoutine(phrases[2]);
+    const resultat2 = AnalyseurV8Utils.chercherDebutRoutine(phrases[2]);
     expect(resultat2).toBeUndefined();
   });
 

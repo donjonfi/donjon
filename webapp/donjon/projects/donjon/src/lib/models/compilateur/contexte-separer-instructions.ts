@@ -1,6 +1,6 @@
 import { Choix } from "./choix";
 import { ContexteAnalyse } from "./contexte-analyse";
-import { ETypeBloc } from "./bloc-ouvert";
+import { ETypeBloc } from "./bloc-ouvert-beta";
 import { ElementGenerique } from "./element-generique";
 import { Instruction } from "./instruction";
 import { Reaction } from "./reaction";

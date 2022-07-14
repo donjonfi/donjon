@@ -2,7 +2,7 @@ export class InstructionControle {
   /**
    * Convertir une chaîne de caractères en EInstructionControle
    */
-   public static ParseType(type: string): EInstructionControle | undefined {
+  public static ParseType(type: string): EInstructionControle | undefined {
     switch (type) {
 
       case 'si':
@@ -19,7 +19,7 @@ export class InstructionControle {
   /**
    * Afficher le nom du type d’instruction de contrôle spécifié.
    */
-  public static TypeToString(type: EInstructionControle | undefined) {
+  public static TypeToString(type: EInstructionControle | undefined): string {
     switch (type) {
       case EInstructionControle.si:
         return 'si';
@@ -38,9 +38,9 @@ export class InstructionControle {
 /**
  * Bloc dans lequel se trouve la phrase.
  */
- export enum EInstructionControle {
-    /** Bloc « si » */
-    si = 1,
-    /** Bloc « choisir » */
-    choisir = 2,
+export enum EInstructionControle {
+  /** Bloc « si » */
+  si = 1,
+  /** Bloc « choisir » */
+  choisir = 2,
 }

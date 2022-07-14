@@ -18,7 +18,7 @@ export class AnalyseurV8 {
     while (ctx.indexProchainePhrase < phrases.length) {
       const phraseAnalysee = phrases[ctx.indexProchainePhrase];
       // CAS 1: DÉBUT ROUTINE => traiter la routine
-      const debutRoutineTrouve = AnalyseurV8Utils.estDebutRoutine(phraseAnalysee);
+      const debutRoutineTrouve = AnalyseurV8Utils.chercherDebutRoutine(phraseAnalysee);
       if (debutRoutineTrouve) {
         if (ctx.verbeux) {
           console.log(`[AnalyseurV8] l.${phraseAnalysee.ligne}: trouvé début routine (${Routine.TypeToString(debutRoutineTrouve)}) (${phraseAnalysee})`);
@@ -27,19 +27,22 @@ export class AnalyseurV8 {
         // (index de la phrase suivante géré par traiterRoutine)
       } else {
         // CAS 2: FIN ROUTINE => ERREUR
-        const finRoutineTrouvee = AnalyseurV8Utils.estFinRoutine(phraseAnalysee);
+        const finRoutineTrouvee = AnalyseurV8Utils.chercherFinRoutine(phraseAnalysee);
         if (finRoutineTrouvee) {
           ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune routine commencée, le « fin ${Routine.TypeToString(finRoutineTrouvee)} » n’est donc pas attendu ici.`);
           // phrase suivante
           ctx.indexProchainePhrase++;
         } else {
           // CAS 3: FIN INSTRUCTION CONTRÔLE => ERREUR
-          const finInstructionControleTrouvee = AnalyseurV8Utils.estFinInstructionControle(phraseAnalysee);
+          const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
           if (finInstructionControleTrouvee) {
             ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToString(finInstructionControleTrouvee)} » n’est donc pas attendu ici.`);
             // phrase suivante
             ctx.indexProchainePhrase++;
           } else {
+            if (ctx.verbeux) {
+              console.log(`[AnalyseurV8] l.${phraseAnalysee.ligne}: la définition va être traitée…`);
+            }
             // CAS 4: DÉFINITION => traiter la définition
             AnalyseurV8Definitions.traiterDefinition(phraseAnalysee, ctx);
             // (index de la phrase suivante géré par traiterDefinition)
@@ -47,5 +50,9 @@ export class AnalyseurV8 {
         }
       }
     }
+
+    console.warn(">>> phrases:", phrases);
+    console.warn(">>> ContexteAnalyseV8:", ctx);
+
   }
 }

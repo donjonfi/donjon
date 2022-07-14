@@ -1,5 +1,6 @@
 import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
+import { Instruction } from "../../../models/compilateur/instruction";
 import { Phrase } from "../../../models/compilateur/phrase";
 
 export class AnalyseurV8Instructions {
@@ -8,12 +9,23 @@ export class AnalyseurV8Instructions {
    * Traiter l'instruction qui devrait correspondre à la phrochaine phrase.
    * @returns true si une instruction a effectivement été trouvée.
    */
-  public static traiterInstruction(phrases: Phrase[], ctx: ContexteAnalyseV8): boolean {
-    // passer à la phrase suivante
-    ctx.indexProchainePhrase++;
-    // TODO: analyse de l’instruction
+  public static traiterInstruction(phrase: Phrase, instructions: Instruction[]): boolean {
 
-    return true;
+    let retVal: boolean;
+
+    let instructionBrute = this.retrouverInstruction(phrase);
+    let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(instructionBrute);
+
+    // instruction simple a été trouvée
+    if (instructionDecomposee) {
+      let instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+      instructions.push(instruction)
+      retVal = true;
+      // instruction PAS correctement décomposée
+    } else {
+      retVal = false;
+    }
+    return retVal;
   }
 
   public static retrouverInstruction(phrase: Phrase): string {
@@ -23,6 +35,10 @@ export class AnalyseurV8Instructions {
     });
     resultat = AnalyseurCommunUtils.nettoyerInstruction(resultat);
     return resultat;
+  }
+
+  public static ressembleInstruction(instruction: string): boolean {
+    return true;
   }
 
 }
