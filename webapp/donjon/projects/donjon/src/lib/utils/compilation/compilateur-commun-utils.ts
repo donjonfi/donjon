@@ -4,6 +4,7 @@ import { ClasseUtils } from "../commun/classe-utils";
 import { ClassesRacines } from "../../models/commun/classes-racines";
 import { ContexteAnalyse } from "../../models/compilateur/contexte-analyse";
 import { ContexteCompilation } from "../../models/compilateur/contexte-compilation";
+import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compilation-v8";
 import { Definition } from "../../models/compilateur/definition";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementGenerique } from "../../models/compilateur/element-generique";
@@ -11,6 +12,7 @@ import { ExprReg } from "./expr-reg";
 import { Genre } from "../../models/commun/genre.enum";
 import { Monde } from "../../models/compilateur/monde";
 import { Nombre } from "../../models/commun/nombre.enum";
+import { RegleBeta } from "../../models/compilateur/regle-beta";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { StringUtils } from "../commun/string.utils";
 
@@ -119,34 +121,37 @@ export class CompilateurCommunUtils {
       }
     });
 
-    // *************************
-    // SÉPARER LES INSTRUCTIONS
-    // *************************
-    // - DES RÈGLES
-    ctx.analyse.regles.forEach(regle => {
-      if (regle.instructionsBrutes) {
-        regle.instructions = AnalyseurBetaInstructions.separerInstructions(regle.instructionsBrutes, ctx.analyse, -1, regle);
-      }
-      if (ctx.verbeux) {
-        console.log(">>> regle:", regle);
-      }
-    });
-
-    // - DES RÉACTIONS
-    ctx.monde.objets.forEach(objet => {
-      if (objet.reactions && objet.reactions.length > 0) {
-        objet.reactions.forEach(reaction => {
-          // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
-          if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
-            reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
-          }
-          reaction.instructions = AnalyseurBetaInstructions.separerInstructions(reaction.instructionsBrutes, ctx.analyse, -1, null, reaction, objet);
-        });
-        if (ctx.verbeux) {
-          console.log(">>> objet avec réactions :", objet);
+    // **************************************************
+    // SÉPARER LES INSTRUCTIONS (BETA UNIQUEMENT)
+    // **************************************************
+    if (!(ctx instanceof ContexteCompilationV8)) {
+      // - DES RÈGLES
+      (ctx.analyse.regles as RegleBeta[]).forEach(regle => {
+        if (regle.instructionsBrutes) {
+          regle.instructions = AnalyseurBetaInstructions.separerInstructions(regle.instructionsBrutes, ctx.analyse, -1, regle);
         }
-      }
-    });
+        if (ctx.verbeux) {
+          console.log(">>> regle:", regle);
+        }
+      });
+
+      // - DES RÉACTIONS
+      ctx.monde.objets.forEach(objet => {
+        if (objet.reactions && objet.reactions.length > 0) {
+          objet.reactions.forEach(reaction => {
+            // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
+            if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
+              reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
+            }
+            reaction.instructions = AnalyseurBetaInstructions.separerInstructions(reaction.instructionsBrutes, ctx.analyse, -1, null, reaction, objet);
+          });
+          if (ctx.verbeux) {
+            console.log(">>> objet avec réactions :", objet);
+          }
+        }
+      });
+
+    }
 
     // **********************************
     // AFFICHER RÉSULTAT DANS LA CONSOLE

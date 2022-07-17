@@ -3,8 +3,8 @@ import { ContexteAnalyse } from "./contexte-analyse";
 import { ETypeBloc } from "./bloc-ouvert-beta";
 import { ElementGenerique } from "./element-generique";
 import { Instruction } from "./instruction";
-import { Reaction } from "./reaction";
-import { Regle } from "./regle";
+import { ReactionBeta } from "./reaction-beta";
+import { RegleBeta } from "./regle-beta";
 
 export class ContexteSeparerInstructions {
 
@@ -12,8 +12,8 @@ export class ContexteSeparerInstructions {
     instructionsBrutes: string,
     public ctxAnalyse: ContexteAnalyse,
     public ligne: number,
-    public regle: Regle = null,
-    public reaction: Reaction = null,
+    public regle: RegleBeta = null,
+    public reaction: ReactionBeta = null,
     public el: ElementGenerique = null
   ) {
     this.listeInstructions = instructionsBrutes.split(';')

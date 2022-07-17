@@ -1,5 +1,6 @@
-import { AnalyseurAction } from './analyseur.action';
 import { AnalyseurAttributs } from './analyseur.attributs';
+import { AnalyseurBetaAction } from './analyseur-beta.action';
+import { AnalyseurBetaRegle } from './analyseur-beta.regle';
 import { AnalyseurCapacite } from './analyseur.capacite';
 import { AnalyseurDivers } from './analyseur.divers';
 import { AnalyseurElementPosition } from './analyseur.element.position';
@@ -7,7 +8,6 @@ import { AnalyseurElementSimple } from './analyseur.element.simple';
 import { AnalyseurListe } from './analyseur.liste';
 import { AnalyseurPosition } from './analyseur.position';
 import { AnalyseurPropriete } from './analyseur.propriete';
-import { AnalyseurRegle } from './analyseur.regle';
 import { AnalyseurSynonymes } from './analyseur.synonymes';
 import { AnalyseurType } from './analyseur.type';
 import { AnalyseurUtils } from './analyseur.utils';
@@ -75,7 +75,7 @@ export class AnalyseurBeta {
       // RÈGLES
       // ===============================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        const regleTrouvee = AnalyseurRegle.testerPourRegle(phrase, ctx);
+        const regleTrouvee = AnalyseurBetaRegle.testerPourRegle(phrase, ctx);
         if (regleTrouvee !== null) {
           elementTrouve = ResultatAnalysePhrase.regle;
           if (ctx.verbeux) {
@@ -108,7 +108,7 @@ export class AnalyseurBeta {
       // ACTIONS
       // ===============================================
       if (elementTrouve === ResultatAnalysePhrase.aucun) {
-        const actionTrouvee = AnalyseurAction.testerAction(phrase, ctx);
+        const actionTrouvee = AnalyseurBetaAction.testerAction(phrase, ctx);
         if (actionTrouvee) {
           elementTrouve = ResultatAnalysePhrase.action;
           if (ctx.verbeux) {

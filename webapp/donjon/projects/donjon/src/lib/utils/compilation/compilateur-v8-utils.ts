@@ -36,6 +36,12 @@ export class CompilateurV8Utils {
     // que les numéros de lignes de changent pas !
     resultat = resultat.replace(/^((?: *)--(?:.*))$/gm, " ");
 
+    // remplacer regle/régle par règle
+    resultat = resultat.replace(/\bfin (regle|régle)\b/gm, "fin règle");
+    resultat = resultat.replace(/\b(regle|régle)\b(?= (avant|après|apres))/gm, "règle");
+    // remplacer règle aprés|apres par après
+    resultat = resultat.replace(/\brègle (apres|aprés)\b/gm, "règle après");
+
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les deux points par un caractereDeuxPoints suivit des 2 points
     // remplacer les éventuels espaces consécutifs par un simple espace.

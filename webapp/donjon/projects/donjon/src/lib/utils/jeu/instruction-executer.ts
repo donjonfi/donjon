@@ -14,7 +14,7 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
-import { Reaction } from "../../models/compilateur/reaction";
+import { ReactionBeta } from "../../models/compilateur/reaction-beta";
 import { Resultat } from "../../models/jouer/resultat";
 
 export class InstructionExecuter {
@@ -104,7 +104,7 @@ export class InstructionExecuter {
   private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule | undefined) {
 
     let resultat = new Resultat(false, '', 1);
-    let reaction: Reaction = null;
+    let reaction: ReactionBeta = null;
 
     // vérifier que la personne est bien un objet
     if (!personne) {

@@ -4,7 +4,14 @@ import { Instruction } from "./instruction";
 
 export class RoutineSimple extends Routine {
 
+  /**
+   * Le nom de la routine.
+   */
   nom: string;
+
+  /**
+   * Les instructions qui composent la routine.
+   */
   instructions: Instruction[] = [];
 
   /**
@@ -15,6 +22,13 @@ export class RoutineSimple extends Routine {
   public constructor(nom: string, ligneDebut: number) {
     super(ERoutine.simple, ligneDebut, true);
     this.nom = nom;
+  }
+
+  /**
+   * Intitule complet de la routine (utilisé pour les messages d’erreur affichés au créateur).
+   */
+  public override get titre(): string {
+    return `routine « ${this.nom} »`;
   }
 
 }

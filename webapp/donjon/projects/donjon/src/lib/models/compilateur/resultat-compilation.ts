@@ -4,7 +4,7 @@ import { Aide } from '../commun/aide';
 import { ElementGenerique } from './element-generique';
 import { Monde } from './monde';
 import { Parametres } from '../commun/parametres';
-import { Regle } from './regle';
+import { Regle } from '../../interfaces/compilateur/regle';
 import { Statistiques } from '../jeu/statistiques';
 
 export class ResultatCompilation {

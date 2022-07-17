@@ -6,7 +6,7 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ProprieteElement } from "../../../models/commun/propriete-element";
-import { Reaction } from "../../../models/compilateur/reaction";
+import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { TexteUtils } from "../../commun/texte-utils";
 import { TypeValeur } from "../../../models/compilateur/type-valeur";
@@ -66,7 +66,7 @@ export class AnalyseurPropriete {
           // - RETROUVER LES INSTRUCTIONS
           const instructionsBrutes = AnalyseurPropriete.retrouverInstructionsBrutes((valeurBrut), ctxAnalyse.erreurs, phrase);
           // AJOUTER LA RÉACTION
-          ctxAnalyse.derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
+          ctxAnalyse.derniereReaction = new ReactionBeta(listeSujets, instructionsBrutes, null);
           // retrouver l’objet qui réagit et lui ajouter la réaction
           elementCible.reactions.push(ctxAnalyse.derniereReaction);
           // résultat

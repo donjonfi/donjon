@@ -1,17 +1,27 @@
 import { BlocInstructions } from "./bloc-instructions";
 import { ContexteAnalyse } from "./contexte-analyse";
 import { Routine } from "./routine";
+import { RoutineAction } from "./routine-action";
+import { RoutineRegle } from "./routine-regle";
+import { RoutineSimple } from "./routine-simple";
 
 export class ContexteAnalyseV8 extends ContexteAnalyse {
 
   public indexProchainePhrase = 0;
 
   /**
-   * Routines présentes dans le code source.
-   * (règles, actions, réactions)
+   * Routines présentes dans le scénario.
+   * (routines simples, règles, actions, réactions)
    */
   public routines: Routine[] = [];
 
+  /** Les routines simples présentes dans le scénario. */
+  public routinesSimples: RoutineSimple[] = [];
+  /** Les routines « action » présentes dans le scénario. */
+  public routinesAction: RoutineAction[] = [];
+  /** Les routines « règle » présentes dans le scénario. */
+  public routinesRegles: RoutineRegle[] = [];
+  
   public dernierBloc: BlocInstructions
 
   /**

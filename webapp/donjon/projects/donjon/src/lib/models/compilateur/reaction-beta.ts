@@ -1,7 +1,8 @@
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Instruction } from './instruction';
+import { Reaction } from '../../interfaces/compilateur/reaction';
 
-export class Reaction {
+export class ReactionBeta implements Reaction {
 
   constructor(
     public sujets: GroupeNominal[] = null,
@@ -11,9 +12,9 @@ export class Reaction {
 
   public nbAffichageReaction = 0;
 
-  public static reactionIntitule(reaction: Reaction) {
+  public get intitule(): string {
     let retVal = "(aucun sujet)";
-    let sujet = reaction.sujets[0];
+    let sujet = this.sujets[0];
     if (sujet) {
       if (sujet.determinant) {
         retVal = sujet.determinant + sujet.nom;

@@ -16,23 +16,32 @@ export class AnalyseurV8Utils {
    *  - choisir parmi les couleurs:
    * 
    * Tests unitaires: ✔️ (oui)
-   * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: routine, sinon, choix, si, …)
+   * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: routine, sinon, choix, si, …) Il est possible d’en définir plusieurs variantes (avec/sans accent)
    * @returns reste de l’étiquette (ce qui suit le mot clé, sans les «:» finaux)
    */
-  public static testerEtiquette(motCle: string, phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
+  public static testerEtiquette(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let reste: string | undefined;
     let instruction = AnalyseurV8Instructions.retrouverInstruction(phrase);
-    let regExp = new RegExp('^' + motCle + '\\b', 'i');
+    let regExp: RegExp;
+    if (!motCle?.length)
+      throw new Error("testerEtiquette: l’argument motCle doit contenir au moins un mot clé.");
+
+    if (motCle.length == 1) {
+      regExp = new RegExp('^(' + motCle[0] + ')\\b', 'i');
+    } else {
+      regExp = new RegExp('^(' + motCle.join('|') + ')\\b', 'i');
+    }
     // si on a retrouvé le mot clé
-    if (regExp.test(instruction)) {
+    let resultat = regExp.exec(instruction);
+    if (resultat) {
       // si termine par :
       if (instruction.endsWith(':')) {
         // retourner le reste de l’étiquette (sans les :)
-        reste = instruction.slice(motCle.length, instruction.length - 1).trim();
+        reste = instruction.slice(resultat[1].length, instruction.length - 1).trim();
         // sinon si les : ne sont pas obligatoires
       } else if (terminePar2Points == ObligatoireFacultatif.facultatif) {
         // retourner le reste de l’étiquette
-        reste = instruction.slice(motCle.length, instruction.length).trim();
+        reste = instruction.slice(resultat[1].length, instruction.length).trim();
       }
     }
     return reste;

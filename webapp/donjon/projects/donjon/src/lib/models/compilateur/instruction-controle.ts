@@ -19,7 +19,7 @@ export class InstructionControle {
   /**
    * Afficher le nom du type d’instruction de contrôle spécifié.
    */
-  public static TypeToString(type: EInstructionControle | undefined): string {
+  public static TypeToMotCle(type: EInstructionControle | undefined): string {
     switch (type) {
       case EInstructionControle.si:
         return 'si';

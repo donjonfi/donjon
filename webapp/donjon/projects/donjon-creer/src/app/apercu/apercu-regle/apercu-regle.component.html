@@ -20,17 +20,6 @@
           <span *ngIf="curEv.isCela" class="objet"> {{curEv.cela}}</span>
         </span>
       </span>
-
-      <span *ngIf="regle.condition" class="condition">
-        {{regle.typeRegle}}
-        <span class="sujet">
-          {{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ")
-          :""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete :
-          '')}}</span>
-        <span class="infinitif"> {{regle.condition.verbe}}</span>
-        <span class="complement"> {{regle.condition.complement}}</span>
-      </span>
-
     </div>
 
   </div>
@@ -39,17 +28,6 @@
   <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
     <ul>
       <li>Type: <b>{{regle.typeRegle}}</b></li>
-
-      <li *ngIf="regle.condition">Condition :
-        <ul>
-          <li>
-            Sujet :{{regle.condition.sujet.determinant ? ("["+regle.condition.sujet.determinant.trim()+ "] ") :
-            ""}}{{regle.condition.sujet.nom}}{{(regle.condition.sujet.epithete ? regle.condition.sujet.epithete : '')}}
-          </li>
-          <li>Verbe : {{regle.condition.verbe}}</li>
-          <li *ngIf="regle.condition.complement">Complément : {{regle.condition.complement}}</li>
-        </ul>
-      </li>
 
       <li *ngIf="regle.evenements?.length">Événements :
         <ul>

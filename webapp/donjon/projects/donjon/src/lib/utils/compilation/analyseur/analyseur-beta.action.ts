@@ -1,15 +1,13 @@
 import { Action } from "../../../models/compilateur/action";
 import { AnalyseurBetaInstructions } from "./analyseur-beta.instructions";
 import { AnalyseurCondition } from "./analyseur.condition";
-import { AnalyseurUtils } from "./analyseur.utils";
 import { CibleAction } from "../../../models/compilateur/cible-action";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
-import { PhraseUtils } from "../../commun/phrase-utils";
 import { Verification } from "../../../models/compilateur/verification";
 
-export class AnalyseurAction {
+export class AnalyseurBetaAction {
 
   /**
  * Rechercher une description d’action
@@ -72,15 +70,12 @@ export class AnalyseurAction {
           if (action) {
             switch (motCle) {
               case 'refuser':
-                action.verificationsBrutes = complement;
-                action.verifications = AnalyseurAction.testerRefuser(complement, phrase, ctxAnalyse);
+                action.verifications = AnalyseurBetaAction.testerRefuser(complement, phrase, ctxAnalyse);
                 break;
               case 'exécuter':
-                action.instructionsBrutes = complement;
                 action.instructions = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
               case 'terminer':
-                action.instructionsFinalesBrutes = complement;
                 action.instructionsFinales = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
 

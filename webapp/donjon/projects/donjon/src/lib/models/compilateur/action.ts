@@ -21,11 +21,8 @@ export class Action {
   private _infinitifSansAccent: string;
   public cibleCeci: CibleAction = null;
   public cibleCela: CibleAction = null;
-  public verificationsBrutes: string = null;
   public verifications: Verification[] = [];
-  public instructionsBrutes: string = null;
   public instructions: Instruction[] = [];
-  public instructionsFinalesBrutes: string = null;
   public instructionsFinales: Instruction[] = []
   private _synonymes: string[] = [];
   private _synonymesSansAccent: string[] = [];

@@ -6,7 +6,7 @@ import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
 import { ProprieteElement } from '../commun/propriete-element';
-import { Reaction } from './reaction';
+import { ReactionBeta } from './reaction-beta';
 
 export class ElementGenerique implements ElementDonjon {
 
@@ -15,7 +15,7 @@ export class ElementGenerique implements ElementDonjon {
   // public texte: string = null;
   public proprietes = new Array<ProprieteElement>();
   public capacites = new Array<Capacite>();
-  public reactions = new Array<Reaction>();
+  public reactions = new Array<ReactionBeta>();
   public nomS: string = null;
   public nomP: string = null;
   public epitheteS: string = null;

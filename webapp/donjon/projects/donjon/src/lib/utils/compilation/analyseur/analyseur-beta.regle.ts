@@ -1,21 +1,18 @@
-import { AnalyseurUtils } from "./analyseur.utils";
-import { Condition } from "../../../models/compilateur/condition";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
-import { ElementsPhrase } from "../../../models/commun/elements-phrase";
 import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { Regle } from "../../../models/compilateur/regle";
+import { RegleBeta } from "../../../models/compilateur/regle-beta";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
 
-export class AnalyseurRegle {
+export class AnalyseurBetaRegle {
 
     /**
    * Tester la phrase afin d’y trouver une règle.
    */
-     public static testerPourRegle(phrase: Phrase, ctxAnalyse: ContexteAnalyse) : Regle{
+     public static testerPourRegle(phrase: Phrase, ctxAnalyse: ContexteAnalyse) : RegleBeta{
       let resultRegle = ExprReg.rAvantApresRemplacer.exec(phrase.morceaux[0]);
 
       if (resultRegle !== null) {
@@ -26,8 +23,6 @@ export class AnalyseurRegle {
         let instructionsBrutes = resultRegle[3];
 
         let evenements: Evenement[] = null;
-        let condition: Condition = null;
-        let commande: ElementsPhrase = null;
   
         switch (motCle) {
 
@@ -47,7 +42,7 @@ export class AnalyseurRegle {
             break;
         }
   
-        let nouvelleRegle = new Regle(typeRegle, condition, evenements, commande, instructionsBrutes);
+        let nouvelleRegle = new RegleBeta(typeRegle, evenements, instructionsBrutes);
   
         ctxAnalyse.regles.push(nouvelleRegle);
   

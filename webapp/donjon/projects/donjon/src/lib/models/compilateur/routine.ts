@@ -9,7 +9,7 @@ export class Routine extends BlocInstructions {
     public debut: number,
     /** Le bloc est-il toujours ouvert ? */
     public ouvert: boolean = true
-  ) { 
+  ) {
     super();
   }
 
@@ -17,6 +17,13 @@ export class Routine extends BlocInstructions {
   public fin: number;
   /** Le bloc est-il correctement fini (avec un fin bloc) */
   public correctementFini: boolean = false;
+
+  /**
+   * Titre de la routine (utilisé pour les messages d’erreur affichés au créateur).
+   */
+  public get titre(): string {
+    throw new Error("Not implemented. Must be overridden");
+  }
 
   /**
    * Convertir une chaîne de caractères en ERoutine
@@ -45,11 +52,38 @@ export class Routine extends BlocInstructions {
     }
   }
 
-  /** Afficher le nom du type de routine spécifié. */
-  public static TypeToString(type: ERoutine | undefined): string {
+  /** Afficher le mot clé du type de routine spécifié. */
+  public static TypeToMotCle(type: ERoutine | undefined): string {
     switch (type) {
       case ERoutine.simple:
         return 'routine';
+      case ERoutine.action:
+        return 'action';
+      case ERoutine.reaction:
+        return 'réaction';
+      case ERoutine.regle:
+        return 'règle';
+
+      case ERoutine.aucun:
+        return '-';
+
+      case ERoutine.inconnue:
+        return '?';
+
+      case undefined:
+        return '';
+
+      default:
+        return '(type routine inconnu)';
+    }
+  }
+
+
+  /** Afficher le nom du type de routine spécifié. */
+  public static TypeToNom(type: ERoutine | undefined): string {
+    switch (type) {
+      case ERoutine.simple:
+        return 'routine simple';
       case ERoutine.action:
         return 'action';
       case ERoutine.reaction:

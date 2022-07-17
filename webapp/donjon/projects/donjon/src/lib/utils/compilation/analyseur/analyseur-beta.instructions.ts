@@ -12,8 +12,8 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { Intitule } from "../../../models/jeu/intitule";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { Reaction } from "../../../models/compilateur/reaction";
-import { Regle } from "../../../models/compilateur/regle";
+import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
+import { RegleBeta } from "../../../models/compilateur/regle-beta";
 import { Valeur } from "../../../models/jeu/valeur";
 
 export class AnalyseurBetaInstructions {
@@ -28,7 +28,7 @@ export class AnalyseurBetaInstructions {
    * @param el 
    * @returns 
    */
-  public static separerInstructions(instructionsBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
+  public static separerInstructions(instructionsBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: RegleBeta = null, reaction: ReactionBeta = null, el: ElementGenerique = null) {
     if (!instructionsBrutes) {
       throw new Error("separerInstructions: instructionsBrutes doit être défini !");
     }
@@ -482,9 +482,9 @@ export class AnalyseurBetaInstructions {
     if (ctx.ligne > 0) {
       ctx.ctxAnalyse.ajouterErreur(ctx.ligne, "conséquence : " + message);
     } else if (ctx.regle) {
-      ctx.ctxAnalyse.ajouterErreur(0, "règle « " + Regle.regleIntitule(ctx.regle) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "règle « " + ctx.regle.intitule + " » : " + message);
     } else if (ctx.reaction) {
-      ctx.ctxAnalyse.ajouterErreur(0, "élément « " + ctx.el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "élément « " + ctx.el.elIntitule + " » : réaction « " + ctx.reaction.intitule + " » : " + message);
     } else {
       ctx.ctxAnalyse.ajouterErreur(0, "----- : conséquence : " + message);
     }

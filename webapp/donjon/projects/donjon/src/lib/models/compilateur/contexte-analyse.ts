@@ -5,8 +5,8 @@ import { Definition } from "./definition";
 import { ElementGenerique } from "./element-generique";
 import { Parametres } from "../commun/parametres";
 import { ProprieteElement } from "../commun/propriete-element";
-import { Reaction } from "./reaction";
-import { Regle } from "./regle";
+import { ReactionBeta } from "./reaction-beta";
+import { Regle } from "../../interfaces/compilateur/regle";
 
 export class ContexteAnalyse {
   constructor(
@@ -22,7 +22,7 @@ export class ContexteAnalyse {
   ) { }
 
   public dernierePropriete: ProprieteElement = null;
-  public derniereReaction: Reaction = null;
+  public derniereReaction: ReactionBeta = null;
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 

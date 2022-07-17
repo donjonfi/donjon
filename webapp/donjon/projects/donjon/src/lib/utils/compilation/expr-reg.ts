@@ -923,6 +923,14 @@ export class ExprReg {
     */
    static readonly xFinInstructionControle = /^fin (si|choisir)\b/i;
 
+   /** avant|après|remplacer\(1) {évènements}(2)
+   * - avant(1) (aller au nord, aller au sud ou sortir)(2)
+   * - avant commencer le jeu
+   * - avant aller au nord, aller au sud ou sortir
+   */
+  static readonly xRoutineRegleEnonce = /^(avant|après) ((?:.+?)(?:(?:, (?:.+?))*(?: ou (?:.+?)))?)$/i;
+
+
   // ================================================================================================
   //  DIVERS
   // ================================================================================================
