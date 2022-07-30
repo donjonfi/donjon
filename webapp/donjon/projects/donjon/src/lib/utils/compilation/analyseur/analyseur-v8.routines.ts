@@ -1,5 +1,6 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
+import { PhaseAction, RoutineAction } from "../../../models/compilateur/routine-action";
 
 import { AnalyseurV8Controle } from "./analyseur-v8.controle";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
@@ -8,13 +9,14 @@ import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { InstructionControle } from "../../../models/compilateur/instruction-controle";
+import { PhaseTour } from "../../../models/jouer/contexte-tour";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { RoutineAction } from "../../../models/compilateur/routine-action";
 import { RoutineRegle } from "../../../models/compilateur/routine-regle";
 import { RoutineSimple } from "../../../models/compilateur/routine-simple";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
+import { Verification } from "../../../models/compilateur/verification";
 
 export class AnalyseurV8Routines {
 
@@ -215,6 +217,9 @@ export class AnalyseurV8Routines {
   public static traiterRoutineAction(phrases: Phrase[], ctx: ContexteAnalyseV8): RoutineAction | undefined {
     let routine: RoutineAction | undefined;
 
+    // phase par défaut: exécution.
+    let phaseActuelle: PhaseAction = PhaseAction.execution;
+
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
@@ -254,15 +259,53 @@ export class AnalyseurV8Routines {
       // B. CORPS et PIED
       // parcours de la routine jusqu’à la fin
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
-        // phraseAnalysee = phrases[ctx.indexProchainePhrase];
+        phraseAnalysee = phrases[ctx.indexProchainePhrase];
 
         // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À ACTION
-        // (il n’y en a pas)
 
-        // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
-        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
-        this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructions, routine, ctx);
+        // > a. PHASE
+        let etiquettePhase = AnalyseurV8Utils.testerEtiquette(['phase'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+        if (etiquettePhase !== undefined) {
+          const motClePhase = StringUtils.normaliserMot(etiquettePhase);
+          switch (motClePhase) {
+            case 'refus':
+              phaseActuelle = PhaseAction.refus;
+              break;
+            case 'execution':
+              phaseActuelle = PhaseAction.execution;
+              break;
+            case 'epilogue':
+              phaseActuelle = PhaseAction.epilogue;
+              break;
+            default:
+              ctx.ajouterErreur(phraseAnalysee.ligne, "action: seules les phases suivantes sont supportées: refus, exécution et épilogue.");
+              break;
+          }
+          // passer à la phrase suivante
+          ctx.indexProchainePhrase++;
 
+        } else {
+          // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
+          // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
+
+          switch (phaseActuelle) {
+            case PhaseAction.refus:
+              // this.chercherDebutFinRoutineOuInstructionControle(phrases, undefined, routine, ctx);
+              this.chercherConditionRefus(phrases, routine.action.verifications, routine, ctx);
+              break;
+
+            case PhaseAction.execution:
+              this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructions, routine, ctx);
+              break;
+
+            case PhaseAction.epilogue:
+              this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructionsFinales, routine, ctx);
+              break;
+
+            default:
+              throw new Error("phaseActuelle inconnue.");
+          }
+        }
       }
 
       // étiquette pas trouvée (ne devrait jamais arriver)
@@ -281,6 +324,14 @@ export class AnalyseurV8Routines {
     return retVal;
   }
 
+
+  private static chercherConditionRefus(phrases: Phrase[], verifications: Verification[], routine: Routine, ctx: ContexteAnalyseV8): void {
+
+    // TODO: à implémenter
+
+    // pointer la phrase suivante
+    ctx.indexProchainePhrase++;
+  }
 
   /**
    * Chercher début/fin routine ou instruction contrôle.
