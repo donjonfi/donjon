@@ -1,5 +1,4 @@
 import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
-import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { Phrase } from "../../../models/compilateur/phrase";
 
