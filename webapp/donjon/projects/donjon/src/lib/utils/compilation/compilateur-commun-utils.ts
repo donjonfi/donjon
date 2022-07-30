@@ -172,6 +172,9 @@ export class CompilateurCommunUtils {
 
     ctx.resultat = new ResultatCompilation();
     ctx.resultat.monde = ctx.monde;
+    if (ctx instanceof ContexteCompilationV8) {
+      ctx.resultat.routines = ctx.analyse.routinesSimples;
+    }
     ctx.resultat.regles = ctx.analyse.regles;
     ctx.resultat.actions = ctx.analyse.actions;
     ctx.resultat.abreviations = ctx.analyse.abreviations;

@@ -930,6 +930,15 @@ export class ExprReg {
    */
   static readonly xRoutineRegleEnonce = /^(avant|après) ((?:.+?)(?:(?:, (?:.+?))*(?: ou (?:.+?)))?)$/i;
 
+   /** infinitif(1)[[prépositionCeci]\(2) ceci(3) [prépositionCela(4) cela(5)]]
+   * - sauter
+   * - manger ceci
+   * - penser à ceci
+   * - attraper ceci avec cela
+   * - parler avec ceci concernant cela
+   */
+    static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\b\S+\b))? (ceci)(?:(?: (\b\S+\b)) (cela))?)?$/i;
+
 
   // ================================================================================================
   //  DIVERS

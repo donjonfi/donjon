@@ -1,7 +1,6 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
 
-import { Action } from "../../../models/compilateur/action";
 import { AnalyseurV8Controle } from "./analyseur-v8.controle";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
@@ -43,6 +42,8 @@ export class AnalyseurV8Routines {
       case ERoutine.action:
         routine = AnalyseurV8Routines.traiterRoutineAction(phrases, ctx);
         if (routine) {
+          // TODO: garder seulement 1 des 2
+          ctx.routinesAction.push(routine as RoutineAction);
           ctx.actions.push((routine as RoutineAction).action);
         }
         break;
@@ -52,6 +53,8 @@ export class AnalyseurV8Routines {
       case ERoutine.regle:
         routine = AnalyseurV8Routines.traiterRoutineRegle(phrases, ctx);
         if (routine) {
+          // TODO: garder seulement 1 des 2
+          ctx.routinesRegles.push(routine as RoutineRegle);
           ctx.regles.push(routine as RoutineRegle);
         }
         break;
@@ -172,7 +175,7 @@ export class AnalyseurV8Routines {
         // retrouver évènement(s)
         evenements = PhraseUtils.getEvenementsRegle(enonceDecompose[2]);
 
-        if(!evenements.length){
+        if (!evenements.length) {
           ctx.ajouterErreur(phraseAnalysee.ligne, "règle: Cette formulation de l’évènement sensé déclencher la règle n’est pas prise en charge.");
         }
 
@@ -190,7 +193,7 @@ export class AnalyseurV8Routines {
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
         // phraseAnalysee = phrases[ctx.indexProchainePhrase];
 
-        // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À INSTRUCTION SIMPLE
+        // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À RÈGLE
         // (il n’y en a pas)
 
         // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
@@ -210,8 +213,64 @@ export class AnalyseurV8Routines {
    * Traiter la routine (Action)
    */
   public static traiterRoutineAction(phrases: Phrase[], ctx: ContexteAnalyseV8): RoutineAction | undefined {
-    let retVal: RoutineAction | undefined;
-    return retVal;
+    let routine: RoutineAction | undefined;
+
+    // A. ENTÊTE
+    // => ex: « routine MaRoutine: »
+    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    // trouver le nom de la routine
+    let enteteAction = AnalyseurV8Utils.testerEtiquette(['action'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    // pointer la prochaine phrase
+    ctx.indexProchainePhrase++;
+
+    // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
+    if (enteteAction !== undefined) {
+
+      if (ctx.verbeux) {
+        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: entête de l’action: ${enteteAction}.`);
+      }
+      // décomposer l’entête de l’action
+      let enteteDecompose = ExprReg.xRoutineActionEnteteCeciCela.exec(enteteAction);
+      if (enteteDecompose) {
+        const infinitif = enteteDecompose[1];
+        const isCeci = enteteDecompose[3] ? true : false;
+        const isCela = enteteDecompose[5] ? true : false;
+        let prepositionCeci: string | undefined;
+        let prepositionCela: string | undefined;
+        if (isCeci) {
+          prepositionCeci = enteteDecompose[2] ?? undefined;
+          if (isCela) {
+            prepositionCela = enteteDecompose[4] ?? undefined;
+          }
+        }
+        // création de l’action
+        routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
+      } else {
+        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de l’action n’a pas pu être décomposé.");
+        // on crée une action « bidon » afin de tout de même analyser la suite des phrases de la routine.
+        routine = new RoutineAction("tester", undefined, false, undefined, false, phraseAnalysee.ligne);
+      }
+
+      // B. CORPS et PIED
+      // parcours de la routine jusqu’à la fin
+      while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
+        // phraseAnalysee = phrases[ctx.indexProchainePhrase];
+
+        // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À ACTION
+        // (il n’y en a pas)
+
+        // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
+        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
+        this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructions, routine, ctx);
+
+      }
+
+      // étiquette pas trouvée (ne devrait jamais arriver)
+    } else {
+      ctx.ajouterErreur(phraseAnalysee.ligne, "action: étiquette d’entête pas trouvée.");
+    }
+
+    return routine;
   }
 
   /**

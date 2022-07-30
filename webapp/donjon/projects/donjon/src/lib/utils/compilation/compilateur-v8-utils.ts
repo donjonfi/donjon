@@ -23,8 +23,14 @@ export class CompilateurV8Utils {
     // terminer par un « . » les parties, chapitre et scènes.
     let resultat = source.replace(/^(?:[ \t]*)((?:partie|chapitre|scène) (?:.*?))(\.)?$/mig, "$1.");
 
+    // remplacer regle/régle par règle
+    resultat = resultat.replace(/\bfin (regle|régle)\b/gm, "fin règle");
+    resultat = resultat.replace(/\b(regle|régle)\b(?= (avant|après|apres))/gm, "règle");
+    // remplacer règle aprés|apres par après
+    resultat = resultat.replace(/\brègle (apres|aprés)\b/gm, "règle après");
+
     // terminer par un « . » les « fin bloc »
-    resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|choix|choisir)\b)(?!])(\.)?/mig, "$1.");
+    resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|choix|choisir|routine)\b)(?!])(\.)?/mig, "$1.");
     
     // terminer par un « : » les « sinon »
     resultat = resultat.replace(/([ \t]*sinon\b)(:)?(?!])/mig, "$1:");
@@ -35,12 +41,6 @@ export class CompilateurV8Utils {
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
     resultat = resultat.replace(/^((?: *)--(?:.*))$/gm, " ");
-
-    // remplacer regle/régle par règle
-    resultat = resultat.replace(/\bfin (regle|régle)\b/gm, "fin règle");
-    resultat = resultat.replace(/\b(regle|régle)\b(?= (avant|après|apres))/gm, "règle");
-    // remplacer règle aprés|apres par après
-    resultat = resultat.replace(/\brègle (apres|aprés)\b/gm, "règle après");
 
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les deux points par un caractereDeuxPoints suivit des 2 points

@@ -5,11 +5,13 @@ import { ElementGenerique } from './element-generique';
 import { Monde } from './monde';
 import { Parametres } from '../commun/parametres';
 import { Regle } from '../../interfaces/compilateur/regle';
+import { RoutineSimple } from './routine-simple';
 import { Statistiques } from '../jeu/statistiques';
 
 export class ResultatCompilation {
 
     monde: Monde;
+    routines: RoutineSimple[];
     regles: Regle[];
     actions: Action[];
     abreviations: Abreviation[];
