@@ -1,10 +1,9 @@
 [package]
 name = "donjon-creer"
-version = "0.407.0"
+version = "0.408.0"
 description = "Donjon Créer − Édition de fictions interactives."
 authors = ["Jonathan Claes donjon.fi"]
 license = "MIT"
-homepage = "https://donjon.fi"
 repository = "https://github.com/zigotteau/donjon"
 default-run = "donjon-creer"
 edition = "2021"
@@ -13,13 +12,17 @@ rust-version = "1.57"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.0.0-rc.5" }
+tauri-build = { version = "1.0.0", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.0-rc.6", features = [ "api-all" ] }
+tauri = { version = "1.0.0", features = ["api-all"] }
 
 [features]
+# by default Tauri runs in production mode
+# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
 default = [ "custom-protocol" ]
+# this feature is used used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
