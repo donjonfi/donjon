@@ -37,7 +37,7 @@
       <li *ngIf="action.cibleCeci && (action.cibleCeci.determinant == 'deux ' || action.cibleCeci.determinant == '2 ')">
         ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
-      <li>Refus : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
+      <li>Prérequis : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
         <ul *ngIf="action.verifications.length != 0">
           <li *ngFor="let ver of action.verifications; index as k">
             Vérification {{(k+1)}} :

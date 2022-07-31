@@ -268,8 +268,9 @@ export class AnalyseurV8Routines {
         if (etiquettePhase !== undefined) {
           const motClePhase = StringUtils.normaliserMot(etiquettePhase);
           switch (motClePhase) {
-            case 'refus':
-              phaseActuelle = PhaseAction.refus;
+            case 'prerequi':
+            case 'prerequis':
+              phaseActuelle = PhaseAction.prerequis;
               break;
             case 'execution':
               phaseActuelle = PhaseAction.execution;
@@ -278,7 +279,7 @@ export class AnalyseurV8Routines {
               phaseActuelle = PhaseAction.epilogue;
               break;
             default:
-              ctx.ajouterErreur(phraseAnalysee.ligne, "action: seules les phases suivantes sont supportées: refus, exécution et épilogue.");
+              ctx.ajouterErreur(phraseAnalysee.ligne, "action: seules les phases suivantes sont supportées: prérequis, exécution et épilogue.");
               break;
           }
           // passer à la phrase suivante
@@ -289,9 +290,9 @@ export class AnalyseurV8Routines {
           // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
 
           switch (phaseActuelle) {
-            case PhaseAction.refus:
+            case PhaseAction.prerequis:
               // this.chercherDebutFinRoutineOuInstructionControle(phrases, undefined, routine, ctx);
-              this.chercherConditionRefus(phrases, routine.action.verifications, routine, ctx);
+              this.chercherPrerequis(phrases, routine.action.verifications, routine, ctx);
               break;
 
             case PhaseAction.execution:
@@ -325,7 +326,7 @@ export class AnalyseurV8Routines {
   }
 
 
-  private static chercherConditionRefus(phrases: Phrase[], verifications: Verification[], routine: Routine, ctx: ContexteAnalyseV8): void {
+  private static chercherPrerequis(phrases: Phrase[], verifications: Verification[], routine: Routine, ctx: ContexteAnalyseV8): void {
 
     // TODO: à implémenter
 

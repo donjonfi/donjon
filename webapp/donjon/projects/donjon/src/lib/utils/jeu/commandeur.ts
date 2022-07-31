@@ -297,20 +297,20 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « refuser » du tour. */
-  private executerPhaseRefuser(tour: ContexteTour) {
-    // console.warn("@@ phase refuser @@");
-    // PHASE REFUSER (vérifier l'action)
+  /** Exécuter la phase « prérequis » (refuser) du tour. */
+  private executerPhasePrerequis(tour: ContexteTour) {
+    // console.warn("@@ phase prérequis @@");
+    // PHASE PRÉREQUIS (vérifier l'action)
     let refus = false;
-    let resultatRefuser: Resultat | undefined;
+    let resultatPrerequis: Resultat | undefined;
     if (tour.commande.actionChoisie.action.verifications) {
       // parcourir les vérifications
       tour.commande.actionChoisie.action.verifications.forEach(verif => {
         if (verif.conditions.length == 1) {
           if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
             // console.warn("> commande vérifie cela:", verif);
-            resultatRefuser = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
-            tour.commande.sortie += resultatRefuser.sortie;
+            resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
+            tour.commande.sortie += resultatPrerequis.sortie;
             refus = true;
           }
         } else {
@@ -326,8 +326,8 @@ export class Commandeur {
     }
 
     // si le déroulement a été interrompu
-    if (resultatRefuser?.interrompreBlocInstruction) {
-      InterruptionsUtils.definirInterruptionTour(tour, resultatRefuser);
+    if (resultatPrerequis?.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(tour, resultatPrerequis);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -532,12 +532,12 @@ export class Commandeur {
       // AVANT
       case PhaseTour.avant:
       case PhaseTour.avant_interrompu:
-        // passer à la phase « refuser »
-        tour.phase = PhaseTour.refuser;
-        this.executerPhaseRefuser(tour);
+        // passer à la phase « prérequis » (refuser)
+        tour.phase = PhaseTour.prerequis;
+        this.executerPhasePrerequis(tour);
         break;
-      // REFUSER
-      case PhaseTour.refuser:
+      // PRÉREQUIS (REFUSER)
+      case PhaseTour.prerequis:
         // passer à la phase « exécuter »
         tour.phase = PhaseTour.executer;
         this.executerPhaseExecuter(tour);

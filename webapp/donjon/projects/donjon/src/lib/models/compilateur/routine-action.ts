@@ -30,8 +30,8 @@ export class RoutineAction extends Routine {
  * Les différentes phases d’une action.
  */
 export enum PhaseAction {
-  /** phase refus: cette phase peut entrainer le refus de l’exécution de l’action. */
-  refus = 1,
+  /** phase prérequis: cette phase peut empècher l’exécution de l’action si certains conditions sont remplies. */
+  prerequis = 1,
   /** phase exécution: cette phase permet de modifier le jeu suite à l’exécution de l’action. */
   execution = 2,
   /** phase épilogue: cette phase informe le joueur du résultat de l’exécution de l’action. */

@@ -16,8 +16,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var builtinFunctions = (
       "attendre|changer|continuer|copier|déplacer|déverrouiller|"
-      + "dire|effacer|exécuter|fermer|ouvrir|remplacer|"
-      + "sauver|stopper|terminer|verrouiller|"
+      + "dire|effacer|exécuter|remplacer|"
+      + "sauver|stopper|terminer|"
       + "jouer|arrêter|afficher|décharger|charger|déterminer|"
       + "vider"
     );
@@ -65,7 +65,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "désactiver|activer|" +
             "si|sinon|sinonsi|" +
             "(autre )?choix|choisir( parmis)?|" +
-            "routine|règle" +
+            "phase (prérequis|exécution|épilogue)|" +
             "quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|" +
             "refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
             "interpréter|comme)\\b" +
@@ -73,7 +73,9 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction|avant|après|si|choix|choisir|règle|routine)|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
-            "action\\b(?!;|\.)"
+            "action\\b(?!;|\.)|" +
+            "(^( )*(ceci|cela)(?=( )*:))|" +
+            "(^( )*(action|règle|routine) (?=.+:()*$))"
           ,
           caseInsensitive: true
         },
