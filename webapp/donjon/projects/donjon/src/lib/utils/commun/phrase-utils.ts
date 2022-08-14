@@ -155,7 +155,7 @@ export class PhraseUtils {
         }
         textes[index] = texteSansGuillemet;
       }
-      
+
       return textes;
     } else {
       return new Array<string>();
@@ -363,7 +363,10 @@ export class PhraseUtils {
     let retVal: CandidatCommande[] = [];
 
     resultats.forEach(els => {
-      retVal.push(new CandidatCommande(els));
+      // un verbe (instruction) n’est pas un nom de sujet valide
+      if (!els.sujet?.nom?.match(/^changer|déplacer|effacer|vider$/)) {
+        retVal.push(new CandidatCommande(els));
+      }
     });
 
     return retVal;

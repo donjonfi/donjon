@@ -4,6 +4,7 @@ import { Interruption, TypeContexte } from '../../models/jeu/interruption';
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
 import { AleatoireUtils } from './aleatoire-utils';
+import { AnalyseurCommunUtils } from '../compilation/analyseur/analyseur-commun-utils';
 import { CandidatCommande } from '../../models/jouer/candidat-commande';
 import { ClasseUtils } from '../commun/classe-utils';
 import { CommandeurDecomposer } from './commandeur.decomposer';
@@ -37,6 +38,7 @@ export class Commandeur {
     private ins: Instructions,
     private dec: Declencheur,
     private verbeux: boolean,
+    private debogueurActif: boolean = false,
   ) {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
@@ -86,7 +88,28 @@ export class Commandeur {
       } else {
         this.jeu.tamponErreurs.push("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
       }
+      // débogueur: changer le monde (uniquement si le débogueur est actif)
+      // } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /) && this.debogueurActif) {
+    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /)) {
 
+      let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(commande.slice('déboguer'.length).trim());
+
+      // instruction simple a été trouvée
+      if (instructionDecomposee?.infinitif.match(/^(changer|déplacer|effacer|vider)/)) {
+        let instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+        let sousContexteTour = new ContexteTour(undefined, undefined);
+        const resultat = this.ins.executerInstructions([instruction], sousContexteTour, undefined, undefined);
+        if (resultat.succes) {
+          ctxCmd.sortie = "Instruction appliquée.\n";
+        } else {
+          ctxCmd.sortie = "L’instruction n’a pas pu être appliquée.\n";
+          sousContexteTour.erreurs.forEach(erreur => {
+            ctxCmd.sortie += `{+${erreur}+}{n}`;
+          });
+        }
+      } else {
+        ctxCmd.sortie = "Désolé, cette instruction n’est pas prise en charge.\n";
+      }
       // la commande n’a pas pu être décomposée
     } else {
       ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
