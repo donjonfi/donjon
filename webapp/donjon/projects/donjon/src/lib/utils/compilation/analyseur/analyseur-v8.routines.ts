@@ -280,14 +280,19 @@ export class AnalyseurV8Routines {
               break;
             default:
               ctx.ajouterErreur(phraseAnalysee.ligne, "action: seules les phases suivantes sont supportées: prérequis, exécution et épilogue.");
+              phaseActuelle = PhaseAction.execution;
               break;
           }
           // passer à la phrase suivante
           ctx.indexProchainePhrase++;
 
-        } else {
+          // > b. CECI/CELA
+
+          
+
           // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
           // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
+        } else {
 
           switch (phaseActuelle) {
             case PhaseAction.prerequis:
