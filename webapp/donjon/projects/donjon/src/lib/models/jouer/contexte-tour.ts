@@ -14,7 +14,7 @@ import { Valeur } from "../jeu/valeur";
 export class ContexteTour {
 
   // erreurs
-  private erreurs: string[] = [];
+  private _erreurs: string[] = [];
 
   public phase: PhaseTour;
 
@@ -76,13 +76,17 @@ export class ContexteTour {
 
   // 
 
+  get erreurs(): readonly string[]{
+    return this._erreurs;
+  }
+
   ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {
     if (instruction) {
       console.error(erreur, "\ninstruction: ", instruction);
     } else {
       console.error(erreur);
     }
-    this.erreurs.push(erreur);
+    this._erreurs.push(erreur);
   }
 
   /**
