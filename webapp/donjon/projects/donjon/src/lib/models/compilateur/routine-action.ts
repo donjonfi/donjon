@@ -1,10 +1,11 @@
 import { Action } from "./action";
+import { CibleAction } from "./cible-action";
 import { ERoutine, Routine } from "./routine";
 
 export class RoutineAction extends Routine {
 
   public action: Action;
-
+ 
   /**
    * Nouvelle routine action
    * @param ligneDebut ligne du scénario contenant le début du bloc
@@ -12,6 +13,14 @@ export class RoutineAction extends Routine {
   public constructor(infinitif: string, prepositionCeci: string, ceci: boolean, prepositionCela: string, cela: boolean, ligneDebut: number) {
     super(ERoutine.action, ligneDebut, true);
     this.action = new Action(infinitif, prepositionCeci, ceci, prepositionCela, cela);
+
+    // par défaut, ceci et cela pointent chacun un objet visible
+    if (this.action.ceci) {
+      this.action.cibleCeci = new CibleAction('un', 'objet', 'visible');
+      if (this.action.cela) {
+        this.action.cibleCela = new CibleAction('un', 'objet', 'visible');
+      }
+    }
   }
 
   /**
