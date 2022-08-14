@@ -201,10 +201,6 @@ export class InstructionChanger {
     let resultat = new Resultat(false, '', 1);
 
     switch (instruction.verbe.toLowerCase()) {
-      // DÉPLACER LE JOUEUR
-      case 'se trouve':
-        resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, contexteTour);
-        break;
 
       // AJOUTER UN OBJET A L'INVENTAIRE
       case 'possède':
@@ -300,26 +296,12 @@ export class InstructionChanger {
         }
         break;
 
+      // VERBES COMMUNS À N’IMPORTE QUEL OBJET
+      case 'se trouve':
+      case 'se trouvent':
       case 'est':
       case 'sont':
-        const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
-        // n'est pas => retirer un état
-        if (nEstPas) {
-          if (this.verbeux) {
-            console.log("executerJoueur: retirer l’état '", instruction.complement1, "' ele=", this.jeu.joueur);
-          }
-          this.jeu.etats.retirerEtatElement(this.jeu.joueur, instruction.complement1, this.eju);
-          // est => ajouter un état
-        } else {
-          if (this.verbeux) {
-            console.log("executerJoueur: ajouter l’état '", instruction.complement1, "'");
-          }
-          // séparer les attributs, les séparateurs possibles sont «, », « et » et « ou ».
-          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
-          attributsSepares.forEach(attribut => {
-            this.jeu.etats.ajouterEtatElement(this.jeu.joueur, attribut, this.eju);
-          });
-        }
+        resultat = this.changerElementJeu(this.jeu.joueur, instruction);
         break;
 
       default:
@@ -452,21 +434,27 @@ export class InstructionChanger {
           this.jeu.etats.retirerEtatElement(element, instruction.complement1, this.eju);
           // est => ajouter un état
         } else {
-          if (this.verbeux) {
-            console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+          // s’il s’agit en réalité d’un déplacement
+          if (instruction.complement1.match(/^\b(ici|sous|sur|dans)\b/)) {
+            this.eju.ajouterConseil('Instruction « changer » : Pour modifier la position d’un objet il est conseillé d’utiliser le verbe « se trouver » plutôt que « être » (ex: « changer le ballon se trouve sur la table. ») ou encore l’instruction « déplacer ». (ex: « déplacer le joueur vers la cuisine. »)');
+            resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, undefined);
+            // sinon ajouter l’état
+          } else {
+            if (this.verbeux) {
+              console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+            }
+            // séparer les attributs, les séparateurs possibles sont «, », « et ».
+            const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
+            attributsSepares.forEach(attribut => {
+              this.jeu.etats.ajouterEtatElement(element, attribut, this.eju);
+            });
           }
-          // séparer les attributs, les séparateurs possibles sont «, », « et ».
-          const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
-          attributsSepares.forEach(attribut => {
-            this.jeu.etats.ajouterEtatElement(element, attribut, this.eju);
-          });
         }
-
         break;
 
       case 'se trouve':
       case 'se trouvent':
-        resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1, instruction.sujetComplement1, undefined);
+        resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, undefined);
         break;
 
       default:
