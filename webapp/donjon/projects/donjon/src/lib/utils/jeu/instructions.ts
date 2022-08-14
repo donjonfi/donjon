@@ -250,12 +250,17 @@ export class Instructions {
           resultat.sortie = "@@effacer écran@@";
         } else {
           const cible = InstructionsUtils.trouverObjetCible(instruction.sujet.nom, instruction.sujet, contexteTour, this.eju, this.jeu);
-          if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
-            sousResultat = this.executerEffacer(cible as Objet);
-            resultat.succes = sousResultat.succes;
+          if (cible) {
+            if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
+              sousResultat = this.executerEffacer(cible as Objet);
+              resultat.succes = sousResultat.succes;
+            } else {
+              console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
+              resultat.sortie = "{+[Seuls les objets ou l’écran peuvent être effacés]+}";
+              resultat.succes = false;
+            }
           } else {
-            console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
-            resultat.sortie = "{+[Seuls les objets ou l’écran peuvent être effacés]+}";
+            contexteTour.ajouterErreurInstruction(instruction, "L’objet à effacer n’a pas été trouvé.");
             resultat.succes = false;
           }
         }
