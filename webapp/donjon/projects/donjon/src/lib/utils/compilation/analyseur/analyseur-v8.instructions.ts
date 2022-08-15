@@ -12,8 +12,8 @@ export class AnalyseurV8Instructions {
 
     let retVal: boolean;
 
-    let instructionBrute = this.retrouverInstruction(phrase);
-    let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(instructionBrute);
+    let phraseBrute = Phrase.retrouverPhraseBrute(phrase);
+    let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(phraseBrute);
 
     // instruction simple a été trouvée
     if (instructionDecomposee) {
@@ -25,15 +25,6 @@ export class AnalyseurV8Instructions {
       retVal = false;
     }
     return retVal;
-  }
-
-  public static retrouverInstruction(phrase: Phrase): string {
-    let resultat = "";
-    phrase.morceaux.forEach(morceau => {
-      resultat += morceau;
-    });
-    resultat = AnalyseurCommunUtils.nettoyerInstruction(resultat);
-    return resultat;
   }
 
   public static ressembleInstruction(instruction: string): boolean {

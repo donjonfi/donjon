@@ -11,7 +11,7 @@ describe('testerEtiquette', () => {
       'La table est un support grand et opaque dans la salle.'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
     expect(resultat).toBeUndefined();
   });
 
@@ -20,7 +20,7 @@ describe('testerEtiquette', () => {
       'sinon'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('');
   });
@@ -30,7 +30,7 @@ describe('testerEtiquette', () => {
       'sinon:'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[0], ObligatoireFacultatif.facultatif);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('');
   });
@@ -41,7 +41,7 @@ describe('testerEtiquette', () => {
     );
     // (les « : » sont rajoutés automatiquements après le sinon lors de la conversion en phrases)
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[0], ObligatoireFacultatif.obligatoire);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[0], ObligatoireFacultatif.obligatoire);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('');
   });
@@ -51,7 +51,7 @@ describe('testerEtiquette', () => {
       'sinon:'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[0], ObligatoireFacultatif.obligatoire);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[0], ObligatoireFacultatif.obligatoire);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('');
   });
@@ -63,7 +63,7 @@ describe('testerEtiquette', () => {
     expect(phrases).toHaveSize(4); // 4 phrases
     // [2] sinon => sinon: (les : sont ajoutés automatiquement par convertirCodeSourceEnPhrases)
     expect(phrases[2].morceaux[0]).toEqual('sinon:');
-    const resultat = AnalyseurV8Utils.testerEtiquette(['sinon'], phrases[2], ObligatoireFacultatif.facultatif);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['sinon'], phrases[2], ObligatoireFacultatif.facultatif);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('');
   });
@@ -75,7 +75,7 @@ describe('testerEtiquette', () => {
     expect(phrases).toHaveSize(2); // 2 phrases
     // [0] Routine MaSuperRoutine:
     expect(phrases[0].morceaux[0]).toEqual('Routine MaSuperRoutine:');
-    const resultat = AnalyseurV8Utils.testerEtiquette(['routine'], phrases[0], ObligatoireFacultatif.obligatoire);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['routine'], phrases[0], ObligatoireFacultatif.obligatoire);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('MaSuperRoutine');
   });
@@ -94,7 +94,7 @@ describe('testerEtiquette', () => {
     // [1] choix "voiture":
     expect(phrases[1].morceaux[0]).toEqual('choix');
     expect(phrases[1].morceaux[1]).toEqual(`${ExprReg.caractereDebutTexte}voiture${ExprReg.caractereFinTexte}`);
-    const resultat1 = AnalyseurV8Utils.testerEtiquette(['choix'], phrases[1], ObligatoireFacultatif.obligatoire);
+    const resultat1 = AnalyseurV8Utils.chercherEtiquetteEtReste(['choix'], phrases[1], ObligatoireFacultatif.obligatoire);
     expect(resultat1).toBeDefined();
     expect(resultat1).toEqual('"voiture"');
     // [3] choix "vélo" ou "moto":
@@ -102,7 +102,7 @@ describe('testerEtiquette', () => {
     expect(phrases[3].morceaux[1]).toEqual(`${ExprReg.caractereDebutTexte}vélo${ExprReg.caractereFinTexte}`);
     expect(phrases[3].morceaux[2]).toEqual(`ou`);
     expect(phrases[3].morceaux[3]).toEqual(`${ExprReg.caractereDebutTexte}moto${ExprReg.caractereFinTexte}`);
-    const resultat3 = AnalyseurV8Utils.testerEtiquette(['choix'], phrases[3], ObligatoireFacultatif.obligatoire);
+    const resultat3 = AnalyseurV8Utils.chercherEtiquetteEtReste(['choix'], phrases[3], ObligatoireFacultatif.obligatoire);
     expect(resultat3).toBeDefined();
     expect(resultat3).toEqual('"vélo" ou "moto"');
   });
@@ -113,7 +113,7 @@ describe('testerEtiquette', () => {
     );
     // (les « : » sont rajoutés automatiquements après le sinon lors de la conversion en phrases)
     expect(phrases).toHaveSize(1); // 1 phrase
-    const resultat = AnalyseurV8Utils.testerEtiquette(['règle'], phrases[0], ObligatoireFacultatif.obligatoire);
+    const resultat = AnalyseurV8Utils.chercherEtiquetteEtReste(['règle'], phrases[0], ObligatoireFacultatif.obligatoire);
     expect(resultat).toBeDefined();
     expect(resultat).toEqual('après manger le poulet');
   });

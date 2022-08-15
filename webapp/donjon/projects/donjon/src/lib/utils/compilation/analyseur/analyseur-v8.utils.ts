@@ -19,12 +19,12 @@ export class AnalyseurV8Utils {
    * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: routine, sinon, choix, si, …) Il est possible d’en définir plusieurs variantes (avec/sans accent)
    * @returns reste de l’étiquette (ce qui suit le mot clé, sans les «:» finaux)
    */
-  public static testerEtiquette(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
+  public static chercherEtiquetteEtReste(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let reste: string | undefined;
-    let instruction = AnalyseurV8Instructions.retrouverInstruction(phrase);
+    let instruction = Phrase.retrouverPhraseBrute(phrase);
     let regExp: RegExp;
     if (!motCle?.length)
-      throw new Error("testerEtiquette: l’argument motCle doit contenir au moins un mot clé.");
+      throw new Error("testerEtiquetteEtArgument: l’argument motCle doit contenir au moins un mot clé.");
 
     if (motCle.length == 1) {
       regExp = new RegExp('^(' + motCle[0] + ')\\b', 'i');
@@ -45,6 +45,44 @@ export class AnalyseurV8Utils {
       }
     }
     return reste;
+  }
+
+  /** 
+   * Retrouver une étiquette dans la phrase.
+   * ex:
+   *  - ceci:
+   *  - cela:
+   * 
+   * Tests unitaires: ❌ (non)
+   * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: ceci, cela, …) Il est possible d’en définir plusieurs différents.
+   * @returns étiquette trouvée parmi les propositions ou undefined si aucune étiquette correspondante trouvée.
+   */
+  public static chercherEtiquetteParmiListe(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
+    let motCleTrouve: string | undefined;
+    let phraseBrute = Phrase.retrouverPhraseBrute(phrase);
+    let regExp: RegExp;
+    if (!motCle?.length)
+      throw new Error("testerParmiEtiquette: l’argument motCle doit contenir au moins un mot clé.");
+
+    if (motCle.length == 1) {
+      regExp = new RegExp('^(' + motCle[0] + ')\\b', 'i');
+    } else {
+      regExp = new RegExp('^(' + motCle.join('|') + ')\\b', 'i');
+    }
+    // si on a retrouvé le mot clé
+    let resultat = regExp.exec(phraseBrute);
+    if (resultat) {
+      // si termine par :
+      if (phraseBrute.endsWith(':')) {
+        // retourner le reste de l’étiquette (sans les :)
+        motCleTrouve = resultat[1];
+        // sinon si les : ne sont pas obligatoires
+      } else if (terminePar2Points == ObligatoireFacultatif.facultatif) {
+        // retourner le reste de l’étiquette
+        motCleTrouve = resultat[1];
+      }
+    }
+    return motCleTrouve;
   }
 
   /**

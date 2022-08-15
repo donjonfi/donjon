@@ -5,7 +5,7 @@ import { ERoutine, Routine } from "./routine";
 export class RoutineAction extends Routine {
 
   public action: Action;
- 
+
   /**
    * Nouvelle routine action
    * @param ligneDebut ligne du scénario contenant le début du bloc
@@ -38,11 +38,15 @@ export class RoutineAction extends Routine {
 /**
  * Les différentes phases d’une action.
  */
-export enum PhaseAction {
+export enum EtiquetteAction {
   /** phase prérequis: cette phase peut empècher l’exécution de l’action si certains conditions sont remplies. */
-  prerequis = 1,
+  phasePrerequis = 1,
   /** phase exécution: cette phase permet de modifier le jeu suite à l’exécution de l’action. */
-  execution = 2,
+  phaseExecution = 2,
   /** phase épilogue: cette phase informe le joueur du résultat de l’exécution de l’action. */
-  epilogue = 3
+  phaseEpilogue = 3,
+  /** ceci: complément direct */
+  ceci = 4,
+  /** cela: complément indirect */
+  cela = 5,
 }

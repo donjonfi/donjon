@@ -1,9 +1,10 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
-import { PhaseAction, RoutineAction } from "../../../models/compilateur/routine-action";
+import { EtiquetteAction, RoutineAction } from "../../../models/compilateur/routine-action";
 
 import { AnalyseurV8Controle } from "./analyseur-v8.controle";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
+import { CibleAction } from "../../../models/compilateur/cible-action";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
@@ -92,7 +93,7 @@ export class AnalyseurV8Routines {
     // => ex: « routine MaRoutine: »
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
     // trouver le nom de la routine
-    let nomRoutine = AnalyseurV8Utils.testerEtiquette(['routine'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    let nomRoutine = AnalyseurV8Utils.chercherEtiquetteEtReste(['routine'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
     // pointer la prochaine phrase
     ctx.indexProchainePhrase++;
 
@@ -119,9 +120,15 @@ export class AnalyseurV8Routines {
         // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À INSTRUCTION SIMPLE
         // (il n’y en a pas)
 
-        // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
-        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
-        this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.instructions, routine, ctx);
+        // B. CHERCHER DÉBUT/FIN ROUTINE
+        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
+        const debutFinRoutineTrouve = this.chercherDebutFinRoutine(phrases, routine, ctx);
+
+        // C. CHERCHER INSTRUCTION ou BLOC CONTRÔLE
+        // (l’index de la phrochaine phrase est géré par chercherInstructionOuBlocControle)
+        if (!debutFinRoutineTrouve) {
+          this.chercherInstructionOuBlocControle(phrases, routine.instructions, routine, ctx);
+        }
 
       }
       // étiquette pas trouvée (ne devrait jamais arriver)
@@ -144,7 +151,7 @@ export class AnalyseurV8Routines {
     // => ex: « règle après une action quelconque : »
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
     // trouver le nom de la routine
-    let enonceRegle = AnalyseurV8Utils.testerEtiquette(['règle'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    let enonceRegle = AnalyseurV8Utils.chercherEtiquetteEtReste(['règle'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
 
     // pointer la prochaine phrase
     ctx.indexProchainePhrase++;
@@ -178,14 +185,14 @@ export class AnalyseurV8Routines {
         evenements = PhraseUtils.getEvenementsRegle(enonceDecompose[2]);
 
         if (!evenements.length) {
-          ctx.ajouterErreur(phraseAnalysee.ligne, "règle: Cette formulation de l’évènement sensé déclencher la règle n’est pas prise en charge.");
+          ctx.ajouterErreur(phraseAnalysee.ligne, "règle: Cette formulation de l’évènement sensé déclencher la règle n’est pas prise en charge. Exemple d’entête : « règle après prendre l’épée: ».");
         }
 
         // création de la routine
         routine = new RoutineRegle(typeRegle, evenements, phraseAnalysee.ligne);
 
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, "L’énoncé de la règle n’a pas pu être décomposé.");
+        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de la règle n’a pas pu être décomposé. Exemple d’entête : « règle avant prendre un objet: ».");
         // on crée une routine « bidon » afin de tout de même analyser la suite des phrases de la routine.
         routine = new RoutineRegle(typeRegle, evenements, phraseAnalysee.ligne);
       }
@@ -198,14 +205,19 @@ export class AnalyseurV8Routines {
         // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À RÈGLE
         // (il n’y en a pas)
 
-        // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
-        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
-        this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.instructions, routine, ctx);
+        // B. CHERCHER DÉBUT/FIN ROUTINE
+        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
+        const debutFinRoutineTrouve = this.chercherDebutFinRoutine(phrases, routine, ctx);
 
+        // C. CHERCHER INSTRUCTION ou BLOC CONTRÔLE
+        // (l’index de la phrochaine phrase est géré par chercherInstructionOuBlocControle)
+        if (!debutFinRoutineTrouve) {
+          this.chercherInstructionOuBlocControle(phrases, routine.instructions, routine, ctx);
+        }
       }
     } else {
       // étiquette pas trouvée (ne devrait jamais arriver)
-      ctx.ajouterErreur(phraseAnalysee.ligne, "routine: étiquette d’entête pas trouvée.");
+      ctx.ajouterErreur(phraseAnalysee.ligne, "règle: étiquette d’entête pas trouvée.");
     }
 
     return routine;
@@ -218,13 +230,13 @@ export class AnalyseurV8Routines {
     let routine: RoutineAction | undefined;
 
     // phase par défaut: exécution.
-    let phaseActuelle: PhaseAction = PhaseAction.execution;
+    let etiquetteActuelle: EtiquetteAction = EtiquetteAction.phaseExecution;
 
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
     // trouver le nom de la routine
-    let enteteAction = AnalyseurV8Utils.testerEtiquette(['action'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    let enteteAction = AnalyseurV8Utils.chercherEtiquetteEtReste(['action'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
     // pointer la prochaine phrase
     ctx.indexProchainePhrase++;
 
@@ -240,6 +252,13 @@ export class AnalyseurV8Routines {
         const infinitif = enteteDecompose[1];
         const isCeci = enteteDecompose[3] ? true : false;
         const isCela = enteteDecompose[5] ? true : false;
+        // éviter que l’auteur s’emmêle les pinceaux entre ceci et cela.
+        if (enteteDecompose[3] == 'cela') {
+          ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${infinitif} »: utilisation de cela au lieu de ceci: le complément direct doit toujours être nommé « ceci », le complément indirect sera nommé « cela ». Exemple: « action ouvrir ceci avec cela ».`);
+        }
+        if (enteteDecompose[5] == 'ceci') {
+          ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${infinitif} »: utilisation de ceci au lieu de cela: le complément indirect doit toujours être nommé « cela ».`);
+        }
         let prepositionCeci: string | undefined;
         let prepositionCela: string | undefined;
         if (isCeci) {
@@ -251,9 +270,9 @@ export class AnalyseurV8Routines {
         // création de l’action
         routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de l’action n’a pas pu être décomposé.");
+        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : « action ouvrir ceci avec cela: ».");
         // on crée une action « bidon » afin de tout de même analyser la suite des phrases de la routine.
-        routine = new RoutineAction("tester", undefined, false, undefined, false, phraseAnalysee.ligne);
+        routine = new RoutineAction("(sans entête)", undefined, false, undefined, false, phraseAnalysee.ligne);
       }
 
       // B. CORPS et PIED
@@ -264,53 +283,96 @@ export class AnalyseurV8Routines {
         // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À ACTION
 
         // > a. PHASE
-        let etiquettePhase = AnalyseurV8Utils.testerEtiquette(['phase'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+        let etiquettePhase = AnalyseurV8Utils.chercherEtiquetteEtReste(['phase'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
         if (etiquettePhase !== undefined) {
           const motClePhase = StringUtils.normaliserMot(etiquettePhase);
           switch (motClePhase) {
             case 'prerequi':
             case 'prerequis':
-              phaseActuelle = PhaseAction.prerequis;
+              etiquetteActuelle = EtiquetteAction.phasePrerequis;
               break;
             case 'execution':
-              phaseActuelle = PhaseAction.execution;
+              etiquetteActuelle = EtiquetteAction.phaseExecution;
               break;
             case 'epilogue':
-              phaseActuelle = PhaseAction.epilogue;
+              etiquetteActuelle = EtiquetteAction.phaseEpilogue;
               break;
             default:
-              ctx.ajouterErreur(phraseAnalysee.ligne, "action: seules les phases suivantes sont supportées: prérequis, exécution et épilogue.");
-              phaseActuelle = PhaseAction.execution;
+              ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : seules les phases suivantes sont supportées: prérequis, exécution et épilogue.`);
+              etiquetteActuelle = EtiquetteAction.phaseExecution;
               break;
           }
           // passer à la phrase suivante
           ctx.indexProchainePhrase++;
 
           // > b. CECI/CELA
-
-          
-
-          // B. CHERCHER DÉBUT/FIN ROUTINE OU INSTRUCTION CONTRÔLE
-          // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutineOuInstructionControle())
         } else {
+          let etiquetteCeciCela = AnalyseurV8Utils.chercherEtiquetteParmiListe(['ceci', 'cela'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+          if (etiquetteCeciCela) {
 
-          switch (phaseActuelle) {
-            case PhaseAction.prerequis:
-              // this.chercherDebutFinRoutineOuInstructionControle(phrases, undefined, routine, ctx);
-              this.chercherPrerequis(phrases, routine.action.verifications, routine, ctx);
-              break;
+            switch (etiquetteCeciCela) {
+              case 'ceci':
+                etiquetteActuelle = EtiquetteAction.ceci;
+                if (!routine.action.ceci) {
+                  ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : étiquette « ceci: » trouvée mais l’entête de l’action n’inclut pas d’argument « ceci ».`);
+                  routine.action.cibleCeci = new CibleAction('un', 'objet', 'visible');
+                }
+                break;
 
-            case PhaseAction.execution:
-              this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructions, routine, ctx);
-              break;
+              case 'cela':
+                etiquetteActuelle = EtiquetteAction.cela;
+                if (!routine.action.cela) {
+                  ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : étiquette « cela: » trouvée mais l’entête de l’action n’inclut pas d’argument « cela ».`);
+                  routine.action.cibleCela = new CibleAction('un', 'objet', 'visible');
+                }
+                break;
 
-            case PhaseAction.epilogue:
-              this.chercherDebutFinRoutineOuInstructionControle(phrases, routine.action.instructionsFinales, routine, ctx);
-              break;
+              default:
+                throw new Error("Étiquette inconnue: " + etiquetteCeciCela);
+            }
 
-            default:
-              throw new Error("phaseActuelle inconnue.");
+            // passer à la phrase suivante
+            ctx.indexProchainePhrase++;
+
+            // B. CHERCHER DÉBUT/FIN ROUTINE
+            // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
+          } else {
+
+            const debutFinRoutineTrouve = this.chercherDebutFinRoutine(phrases, routine, ctx);
+
+            // C. CHERCHER PRÉREQUIS, INSTRUCTION ou DÉFINITION
+            // (l’index de la phrochaine phrase est géré par chercherPrerequis, chercherInstructionOuBlocControle et chercherInfosComplement)
+            if (!debutFinRoutineTrouve) {
+              switch (etiquetteActuelle) {
+                case EtiquetteAction.phasePrerequis:
+                  // this.chercherDebutFinRoutineOuInstructionControle(phrases, undefined, routine, ctx);
+                  this.chercherPrerequis(phrases, routine.action.verifications, routine, ctx);
+                  break;
+
+                case EtiquetteAction.phaseExecution:
+                  this.chercherInstructionOuBlocControle(phrases, routine.action.instructions, routine, ctx);
+                  break;
+
+                case EtiquetteAction.phaseEpilogue:
+                  this.chercherInstructionOuBlocControle(phrases, routine.action.instructionsFinales, routine, ctx);
+                  break;
+
+                case EtiquetteAction.ceci:
+                  this.chercherDefinitionComplement(phrases, routine.action.cibleCeci, routine, ctx);
+                  break;
+
+                case EtiquetteAction.cela:
+                  this.chercherDefinitionComplement(phrases, routine.action.cibleCela, routine, ctx);
+                  break;
+
+                default:
+                  throw new Error("phaseActuelle inconnue.");
+              }
+
+            }
           }
+
+
         }
       }
 
@@ -333,22 +395,48 @@ export class AnalyseurV8Routines {
 
   private static chercherPrerequis(phrases: Phrase[], verifications: Verification[], routine: Routine, ctx: ContexteAnalyseV8): void {
 
+    // phrase à analyser
+    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+
     // TODO: à implémenter
+    console.warn("todo: chercherPrerequis", phraseAnalysee);
 
     // pointer la phrase suivante
     ctx.indexProchainePhrase++;
   }
 
-  /**
-   * Chercher début/fin routine ou instruction contrôle.
-   * Le cas échéant on traite le bloc de contrôle ou on ferme la routine.
-   */
-  private static chercherDebutFinRoutineOuInstructionControle(phrases: Phrase[], instructions: Instruction[], routine: Routine, ctx: ContexteAnalyseV8): void {
+  private static chercherDefinitionComplement(phrases: Phrase[], complement: CibleAction, routine: Routine, ctx: ContexteAnalyseV8): void {
+
     // phrase à analyser
     let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+
+    // TODO: à implémenter
+    console.warn("todo: chercherInfosComplement", phraseAnalysee);
+
+    // pointer la phrase suivante
+    ctx.indexProchainePhrase++;
+  }
+
+
+  /**
+   * Chercher début/fin routine.
+   * Le cas échéant on ferme la routine actuelle.
+   * @return true si début/fin routine trouvé.
+   */
+  private static chercherDebutFinRoutine(phrases: Phrase[], routine: Routine, ctx: ContexteAnalyseV8): boolean {
+
+    // on n’a pas encore trouvé de début ou fin routine.
+    let debutFinRoutineTrouve = false;
+
+    // phrase à analyser
+    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+
+    console.log("@@@@@ chercherDebutFinRoutine > ", phraseAnalysee.toString());
+
     // CAS 1: FIN ROUTINE => on finit la routine
     const finRoutineTrouve = AnalyseurV8Utils.chercherFinRoutine(phraseAnalysee);
     if (finRoutineTrouve) {
+      debutFinRoutineTrouve = true;
       if (ctx.verbeux) {
         console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${Routine.TypeToMotCle(routine.type)} trouvé.`);
       }
@@ -361,54 +449,75 @@ export class AnalyseurV8Routines {
       // pointer la phrase suivante
       ctx.indexProchainePhrase++;
     } else {
-      // CAS 2: DÉBUT AUTRE ROUTINE => ERREUR et on termine la routine précédente.
+      // CAS 2: DÉBUT AUTRE ROUTINE => ERREUR (et on termine la routine précédente.)
       const debutRoutineTrouve = AnalyseurV8Utils.chercherDebutRoutine(phraseAnalysee);
       if (debutRoutineTrouve) {
+        debutFinRoutineTrouve = true;
         if (ctx.verbeux) {
           console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: début routine (${Routine.TypeToMotCle(routine.type)}) trouvé alors que routine précédente pas terminée.`);
         }
         routine.ouvert = false;
         routine.correctementFini = false;
-        ctx.ajouterErreur(phraseAnalysee.ligne, `(${routine.titre}): un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu avant le début « ${Routine.TypeToMotCle(debutRoutineTrouve)} ».`);
+        ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu avant le prochain début « ${Routine.TypeToMotCle(debutRoutineTrouve)} ».`);
         // ne PAS pointer la phrase suivante car la phrase actuelle va être analysée à nouveau.
+      }
+    }
+
+    return debutFinRoutineTrouve;
+  }
+
+  /**
+   * Chercher une instruction ou un bloc de contrôle.
+   * Le cas échéant on traite le bloc de contrôle.
+   */
+  private static chercherInstructionOuBlocControle(phrases: Phrase[], instructions: Instruction[], routine: Routine, ctx: ContexteAnalyseV8): boolean {
+
+    // par défaut on part du principe qu’on va trouver
+    let instructionTrouvee = true;
+
+    // phrase à analyser
+    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+
+    console.log("@@@@@ chercherInstructionOuBlocControle > ", phraseAnalysee.toString());
+
+    // CAS 1: DÉBUT INSTRUCTION CONTRÔLE => on traite le nouveau bloc contrôle
+    const debutInstructionControleTrouve = AnalyseurV8Utils.chercherDebutInstructionControle(phraseAnalysee);
+    if (debutInstructionControleTrouve) {
+      AnalyseurV8Controle.traiterBlocControle(phrases, ctx);
+      // (index de la phrase suivante géré par traiterBlocControle)
+    } else {
+      // CAS 2: FIN INSTRUCTION CONTRÔLE => ERREUR (et on continue avec la suite)
+      const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
+      if (finInstructionControleTrouvee) {
+        if (ctx.verbeux) {
+          console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} trouvé alors que pas attendu ici.`);
+        }
+        ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » n’est donc pas attendu ici.`);
+        // pointer la phrase suivante
+        ctx.indexProchainePhrase++;
       } else {
-        // CAS 3: DÉBUT INSTRUCTION CONTRÔLE => on traite le nouveau bloc contrôle
-        const debutInstructionControleTrouve = AnalyseurV8Utils.chercherDebutInstructionControle(phraseAnalysee);
-        if (debutInstructionControleTrouve) {
-          AnalyseurV8Controle.traiterBlocControle(phrases, ctx);
-          // (index de la phrase suivante géré par traiterBlocControle)
-        } else {
-          // CAS 4: FIN INSTRUCTION CONTRÔLE => ERREUR on continue avec la suite
-          const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
-          if (finInstructionControleTrouvee) {
-            if (ctx.verbeux) {
-              console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} trouvé alors que pas attendu ici.`);
-            }
-            ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » n’est donc pas attendu ici.`);
-            // pointer la phrase suivante
-            ctx.indexProchainePhrase++;
-          } else {
-            // CAS 5: INSTRUCTION SIMPLE
-            const instructionSimpleTrouvee = AnalyseurV8Instructions.traiterInstruction(phraseAnalysee, instructions);
-            if (instructionSimpleTrouvee) {
-              if (ctx.verbeux) {
-                console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple trouvée.`);
-              }
-              // pointer la phrase suivante
-              ctx.indexProchainePhrase++;
-              // CAS 6: RIEN TROUVÉ
-            } else {
-              if (ctx.verbeux) {
-                console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple NON trouvée.`);
-              }
-              ctx.ajouterErreur(phraseAnalysee.ligne, `Une instruction ou un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu ici.`);
-              // pointer la phrase suivante
-              ctx.indexProchainePhrase++;
-            }
+        // CAS 3: INSTRUCTION SIMPLE
+        const instructionSimpleTrouvee = AnalyseurV8Instructions.traiterInstruction(phraseAnalysee, instructions);
+        if (instructionSimpleTrouvee) {
+          if (ctx.verbeux) {
+            console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple trouvée.`);
           }
+          // pointer la phrase suivante
+          ctx.indexProchainePhrase++;
+          // CAS 4: RIEN TROUVÉ
+        } else {
+          // on n’a pas trouvé d’instruction
+          instructionTrouvee = false;
+          if (ctx.verbeux) {
+            console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple NON trouvée.`);
+          }
+          ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: Une instruction ou un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu ici.`);
+          // pointer la phrase suivante
+          ctx.indexProchainePhrase++;
         }
       }
     }
+    return instructionTrouvee;
   }
 
 }

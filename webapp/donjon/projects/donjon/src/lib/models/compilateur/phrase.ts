@@ -1,4 +1,6 @@
+import { AnalyseurCommunUtils } from "../../utils/compilation/analyseur/analyseur-commun-utils";
 import { ERoutine } from "./routine";
+import { PhraseUtils } from "../../utils/commun/phrase-utils";
 
 export class Phrase {
 
@@ -18,5 +20,18 @@ export class Phrase {
     // routine dans laquelle se trouve la phrase (routine, action, règle, réaction)
     public region: ERoutine,
   ) { }
+
+  public static retrouverPhraseBrute(phrase: Phrase): string {
+    let phraseBrute = "";
+    phrase.morceaux.forEach(morceau => {
+      phraseBrute += morceau;
+    });
+    phraseBrute = AnalyseurCommunUtils.nettoyerInstruction(phraseBrute);
+    return phraseBrute;
+  }
+
+  toString() {
+    return Phrase.retrouverPhraseBrute(this);
+  }
 
 }

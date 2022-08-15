@@ -937,7 +937,7 @@ export class ExprReg {
    * - attraper ceci avec cela
    * - parler avec ceci concernant cela
    */
-    static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\b\S+\b))? (ceci)(?:(?: (\b\S+\b)) (cela))?)?$/i;
+    static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\b\S+\b))? (ceci|cela)(?:(?: (\b\S+\b)) (cela|ceci))?)?$/i;
 
 
   // ================================================================================================
