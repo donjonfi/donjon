@@ -194,8 +194,8 @@ export class InstructionExecuter {
         let sousContexteTour = new ContexteTour(actionCeci, actionCela);
 
         let action = resChercherCandidats.candidatsEnLice[0];
-        const sousResExecuter = this.ins.executerInstructions(action.instructions, sousContexteTour, evenement, declenchements);
-        const sousResTerminer = this.ins.executerInstructions(action.instructionsFinales, sousContexteTour, evenement, declenchements);
+        const sousResExecuter = this.ins.executerInstructions(action.phaseExecution, sousContexteTour, evenement, declenchements);
+        const sousResTerminer = this.ins.executerInstructions(action.phaseEpilogue, sousContexteTour, evenement, declenchements);
         res.sortie = res.sortie + sousResExecuter.sortie + sousResTerminer.sortie;
         res.succes = sousResExecuter.succes && sousResTerminer.succes;
         res.nombre = 1 + sousResExecuter.nombre + sousResTerminer.nombre;

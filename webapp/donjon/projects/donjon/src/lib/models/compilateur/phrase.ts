@@ -21,6 +21,12 @@ export class Phrase {
     public region: ERoutine,
   ) { }
 
+  /**
+   * Retrouver la phrase brute à partir de la phrase décomposée.
+   * 
+   * @param phrase 
+   * @returns 
+   */
   public static retrouverPhraseBrute(phrase: Phrase): string {
     let phraseBrute = "";
     phrase.morceaux.forEach(morceau => {

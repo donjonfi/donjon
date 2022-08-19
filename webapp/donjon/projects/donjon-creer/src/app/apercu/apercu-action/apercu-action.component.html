@@ -37,47 +37,28 @@
       <li *ngIf="action.cibleCeci && (action.cibleCeci.determinant == 'deux ' || action.cibleCeci.determinant == '2 ')">
         ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
-      <li>Prérequis : <i *ngIf="action.verifications.length == 0">(aucune vérification)</i>
-        <ul *ngIf="action.verifications.length != 0">
-          <li *ngFor="let ver of action.verifications; index as k">
-            Vérification {{(k+1)}} :
-            <ul>
-              <li>
-                Conditions :
-                <ul>
-                  <li *ngFor="let cond of ver.conditions; index as j">
-                    Condition {{(j+1)}} :
-                    <app-apercu-condition [condition]="cond"></app-apercu-condition>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                Resultats :
-                <ul>
-                  <li *ngFor="let ins of ver.resultats; index as i">
-                    Instruction {{(i+1)}} :
-                    <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+      <li>Phase prérequis : <i *ngIf="action.phasePrerequis.length == 0">(aucun prérequis)</i>
+        <ul>
+          <li *ngFor="let ins of action.phasePrerequis; index as i">
+            Instruction {{(i+1)}} :
+            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
           </li>
         </ul>
       </li>
-      <li>Exécution :
+      <li>phase exécution :
         <ul>
-          <li *ngFor="let ins of action.instructions; index as i">
+          <li *ngFor="let ins of action.phaseExecution; index as i">
             Instruction {{(i+1)}} :
             <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
           </li>
         </ul>
       </li>
 
-      <li>Finalisation : <i *ngIf="action.instructionsFinales.length == 0">(aucune instruction)</i>
-        <ul *ngIf="action.instructionsFinales.length != 0">
+      <li>phase épilogue : <i *ngIf="action.phaseEpilogue.length == 0">(aucune instruction)</i>
+        <ul *ngIf="action.phaseEpilogue.length != 0">
           <li>Instructions :
             <ul>
-              <li *ngFor="let ins of action.instructionsFinales; index as i">
+              <li *ngFor="let ins of action.phaseEpilogue; index as i">
                 Instruction {{(i+1)}} :
                 <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
               </li>

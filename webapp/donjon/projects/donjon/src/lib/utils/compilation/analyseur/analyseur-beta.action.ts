@@ -70,13 +70,13 @@ export class AnalyseurBetaAction {
           if (action) {
             switch (motCle) {
               case 'refuser':
-                action.verifications = AnalyseurBetaAction.testerRefuser(complement, phrase, ctxAnalyse);
+                action.verificationsBeta = AnalyseurBetaAction.testerRefuser(complement, phrase, ctxAnalyse);
                 break;
               case 'exécuter':
-                action.instructions = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
+                action.phaseExecution = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
               case 'terminer':
-                action.instructionsFinales = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
+                action.phaseEpilogue = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
                 break;
 
               default:
@@ -118,7 +118,7 @@ export class AnalyseurBetaAction {
             action.cibleCeci = new CibleAction(resultActionSimple[3], resultActionSimple[4], resultActionSimple[5]);
           }
 
-          action.instructions = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
+          action.phaseExecution = AnalyseurBetaInstructions.separerInstructions(complement, ctxAnalyse, phrase.ligne);
           action.simplifiee = true;
           ctxAnalyse.actions.push(action);
           // Renvoyer la nouvelle action

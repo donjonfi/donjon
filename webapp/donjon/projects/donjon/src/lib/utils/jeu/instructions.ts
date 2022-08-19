@@ -158,14 +158,22 @@ export class Instructions {
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        const complement = instruction.complement1.trim();
-        let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.insDire.calculerTexteDynamique(contenu, nbExecutions, undefined, contexteTour, evenement, declenchements);
-        resultat.sortie += contenu;
-        // console.warn("--- complement:", complement);
-        // console.warn("------ contenu:", contenu);
-        // console.warn("------ resultat.sortie:", resultat.sortie);
+        const complementDire = instruction.complement1.trim();
+        let contenuDire = complementDire.slice(1, complementDire.length - 1).trim();
+        contenuDire = this.insDire.calculerTexteDynamique(contenuDire, nbExecutions, undefined, contexteTour, evenement, declenchements);
+        resultat.sortie += contenuDire;
         break;
+
+      case 'refuser':
+        // refuser l’exécution de l’action + raison
+        // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
+        const complementRepondre = instruction.complement1.trim();
+        let contenuRepondre = complementRepondre.slice(1, complementRepondre.length - 1).trim();
+        contenuRepondre = this.insDire.calculerTexteDynamique(contenuRepondre, nbExecutions, undefined, contexteTour, evenement, declenchements);
+        resultat.sortie += contenuRepondre;
+        resultat.refuse = true;
+        break;
+
       case 'changer':
         sousResultat = this.insChanger.executerChanger(instruction, contexteTour, evenement, declenchements);
         resultat.sortie += sousResultat.sortie;

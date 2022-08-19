@@ -6,7 +6,10 @@ import { PhraseUtils } from "../../commun/phrase-utils";
 
 export class AnalyseurCommunUtils {
 
-  /** Nettoyer l’instruction (guillemets, espaces multiples, point, …) */
+  /** 
+   * Nettoyer l’instruction (guillemets, espaces multiples, point, …)
+   * Remarque: les virgule et point-virgule qui ont été échapés dans les textes ne seront pas restaurés ici.
+   */
   public static nettoyerInstruction(instruction: string): string {
     // NETTOYER INSTRUCTION
     let insBruNettoyee = instruction

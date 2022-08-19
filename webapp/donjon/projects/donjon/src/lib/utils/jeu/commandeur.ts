@@ -326,9 +326,9 @@ export class Commandeur {
     // PHASE PRÉREQUIS (vérifier l'action)
     let refus = false;
     let resultatPrerequis: Resultat | undefined;
-    if (tour.commande.actionChoisie.action.verifications) {
+    if (tour.commande.actionChoisie.action.verificationsBeta) {
       // parcourir les vérifications
-      tour.commande.actionChoisie.action.verifications.forEach(verif => {
+      tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
         if (verif.conditions.length == 1) {
           if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
             // console.warn("> commande vérifie cela:", verif);
@@ -370,7 +370,7 @@ export class Commandeur {
     }
 
     // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
-    const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.instructions, tour, tour.commande.evenement, undefined);
+    const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.phaseExecution, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatExecuter.sortie;
 
     // si le déroulement a été interrompu
@@ -666,7 +666,7 @@ export class Commandeur {
   // }
 
   private finaliserAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, contexteTour, evenement, undefined);
+    const resultat = this.ins.executerInstructions(action.action.phaseEpilogue, contexteTour, evenement, undefined);
     return resultat;
   }
 
