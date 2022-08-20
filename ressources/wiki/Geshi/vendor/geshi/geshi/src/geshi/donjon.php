@@ -45,8 +45,8 @@ $language_data = array (
     'KEYWORDS' => array(
     /* Statements */
         1 => array(
-			'attendre', 'changer', 'chercher', 'continuer(?!\:)', 'dire', 'déplacer',
-			'effacer', 'stopper', 'terminer',
+			'attendre', 'changer', 'chercher', 'continuer(?!\:)', 'dire', 'refuser',
+			'déplacer', 'effacer', 'stopper', 'terminer',
 			'activer', 'désactiver', 'exécuter',
 			'affecter', 'afficher', 'jouer', 'arrêter'
             ),
@@ -63,8 +63,9 @@ $language_data = array (
 			
             ),
         3 => array(
-            'si', 'sinon', 'sinonsi', 'choix', 'choisir', 'remplacer', 'exécuter(?! la)', 'refuser', 'terminer', 
+            'si', 'sinon', 'sinonsi', 'choix', 'choisir', 'remplacer', 
 			'avant', 'après', 'règle', 'action', 'routine',
+			'phase', 'prérequis', 'exécution', 'épilogue',
 			'définition', 'définitions',
 			'peut', 'est', 'sont', 'pas', 'plus',
 			'possède', 'possèdent', 'contient', 'contiennent', 'réagit', 'réagissent',
