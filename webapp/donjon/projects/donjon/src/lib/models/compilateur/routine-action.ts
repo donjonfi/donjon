@@ -27,10 +27,7 @@ export class RoutineAction extends Routine {
    * Intitule de l’action (utilisé pour les messages d’erreur affichés au créateur).
    */
   public override get titre(): string {
-    return `action « ${this.action.infinitif}
-      ${this.action.ceci ? (this.action.prepositionCeci ? (this.action.prepositionCeci + 'ceci') : '') : ''}
-      ${this.action.cela ? (this.action.prepositionCela ? (this.action.prepositionCela + 'cela') : '') : ''}
-       »`;
+    return `action « ${this.action.infinitif}${this.action.ceci ? (this.action.prepositionCeci ? (` ${this.action.prepositionCeci} ceci`) : ' ceci') : ''}${this.action.cela ? (this.action.prepositionCela ? (` ${this.action.prepositionCela} cela`) : ' cela') : ''} »`;
   }
 
 }

@@ -326,20 +326,29 @@ export class Commandeur {
     // PHASE PRÉREQUIS (vérifier l'action)
     let refus = false;
     let resultatPrerequis: Resultat | undefined;
+
+    // version BETA
     if (tour.commande.actionChoisie.action.verificationsBeta) {
-      // parcourir les vérifications
-      tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
-        if (verif.conditions.length == 1) {
-          if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
-            // console.warn("> commande vérifie cela:", verif);
-            resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
-            tour.commande.sortie += resultatPrerequis.sortie;
-            refus = true;
+      if (tour.commande.actionChoisie.action.verificationsBeta.length) {
+        // parcourir les vérifications
+        tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
+          if (verif.conditions.length == 1) {
+            if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
+              // console.warn("> commande vérifie cela:", verif);
+              resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
+              tour.commande.sortie += resultatPrerequis.sortie;
+              refus = true;
+            }
+          } else {
+            console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
           }
-        } else {
-          console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
-        }
-      });
+        });
+      }
+      // version V8
+    } else if (tour.commande.actionChoisie.action.phasePrerequis.length) {
+      resultatPrerequis = this.ins.executerInstructions(tour.commande.actionChoisie.action.phasePrerequis, tour, tour.commande.evenement, undefined);
+      tour.commande.sortie += resultatPrerequis.sortie;
+      refus = resultatPrerequis.refuse;
     }
 
     // si la commande est refusée, terminer le tour
@@ -358,8 +367,8 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « exécuter » du tour. */
-  private executerPhaseExecuter(tour: ContexteTour) {
+  /** Exécuter la phase « exécution » du tour. */
+  private executerPhaseExecution(tour: ContexteTour) {
     // console.warn("@@ phase exécuter @@");
     // PHASE EXÉCUTER l’action
 
@@ -370,12 +379,12 @@ export class Commandeur {
     }
 
     // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
-    const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.phaseExecution, tour, tour.commande.evenement, undefined);
-    tour.commande.sortie += resultatExecuter.sortie;
+    const resultatExecution = this.ins.executerInstructions(tour.commande.actionChoisie.action.phaseExecution, tour, tour.commande.evenement, undefined);
+    tour.commande.sortie += resultatExecution.sortie;
 
     // si le déroulement a été interrompu
-    if (resultatExecuter.interrompreBlocInstruction) {
-      InterruptionsUtils.definirInterruptionTour(tour, resultatExecuter);
+    if (resultatExecution.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(tour, resultatExecution);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -476,8 +485,8 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « terminer » du tour. */
-  private executerPhaseTerminer(tour: ContexteTour) {
+  /** Exécuter la phase « épilogue » (terminer) du tour. */
+  private executerPhaseEpilogue(tour: ContexteTour) {
     // console.warn("@@ phase terminer @@");
 
     // PHASE TERMINER l'action (sans règle « après »)
@@ -526,7 +535,9 @@ export class Commandeur {
 
     if (tour.phase == PhaseTour.avant_interrompu && resultatReste.arreterApresRegle) {
       tour.phase = PhaseTour.fin;
-    } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle && !resultatReste.terminerApresRegle) {
+    } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle) {
+      tour.phase = PhaseTour.fin;
+    } else if(tour.phase == PhaseTour.prerequis && resultatReste.refuse){
       tour.phase = PhaseTour.fin;
     }
 
@@ -562,11 +573,11 @@ export class Commandeur {
       // PRÉREQUIS (REFUSER)
       case PhaseTour.prerequis:
         // passer à la phase « exécuter »
-        tour.phase = PhaseTour.executer;
-        this.executerPhaseExecuter(tour);
+        tour.phase = PhaseTour.execution;
+        this.executerPhaseExecution(tour);
         break;
-      // EXÉCUTER
-      case PhaseTour.executer:
+      // EXÉCUTION (EXÉCUTER)
+      case PhaseTour.execution:
         // passer à la phase « après »
         tour.phase = PhaseTour.apres;
         this.executerPhaseApres(tour);
@@ -575,21 +586,21 @@ export class Commandeur {
       case PhaseTour.apres:
       case PhaseTour.apres_interrompu:
         // passer à la phase « terminer »
-        tour.phase = PhaseTour.terminer;
-        this.executerPhaseTerminer(tour);
+        tour.phase = PhaseTour.epilogue;
+        this.executerPhaseEpilogue(tour);
         break;
       case PhaseTour.apres_a_traiter_apres_terminer:
         // passer à la phase « terminer »
         tour.phase = PhaseTour.terminer_avant_traiter_apres;
-        this.executerPhaseTerminer(tour);
+        this.executerPhaseEpilogue(tour);
         break;
       case PhaseTour.continuer_apres:
       case PhaseTour.continuer_apres_interrompu:
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
-      // TERMINER
-      case PhaseTour.terminer:
+      // ÉPLILOGUE (TERMINER)
+      case PhaseTour.epilogue:
         // case PhaseTour.terminer_avant_sortie_apres:
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;

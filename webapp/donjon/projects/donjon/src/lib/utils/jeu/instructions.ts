@@ -84,6 +84,7 @@ export class Instructions {
       resultat.arreterApresRegle = resultat.arreterApresRegle || sousResultat.arreterApresRegle;
       resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
       resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
+      resultat.refuse = resultat.refuse || sousResultat.refuse;
 
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
@@ -96,6 +97,10 @@ export class Instructions {
         } else {
           resultat.reste = instructions.slice(indexInstruction + 1);
         }
+        break;
+      }
+      // si instruction refusée: on arrête tout
+      if (resultat.refuse) {
         break;
       }
     }

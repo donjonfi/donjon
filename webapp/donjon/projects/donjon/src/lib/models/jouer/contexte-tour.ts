@@ -117,11 +117,11 @@ export enum PhaseTour {
   avant = 1,
   avant_interrompu = 2, // prochain: refuser sauf si on arrête dans la dernière partie de la règle avant
   prerequis = 3,
-  executer = 4,
+  execution = 4,
   apres = 5,
   apres_interrompu = 6, // prochain: fin sauf si on continue dans la dernière partie de la règle après
   apres_a_traiter_apres_terminer = 7,
-  terminer = 8,
+  epilogue = 8,
   terminer_avant_traiter_apres = 9,
   continuer_apres = 10,
   continuer_apres_interrompu = 11,
