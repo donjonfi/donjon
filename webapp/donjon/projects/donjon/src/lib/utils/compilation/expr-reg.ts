@@ -921,7 +921,12 @@ export class ExprReg {
    /**
     * fin si|choisir(1)
     */
-   static readonly xFinInstructionControle = /^fin (si|choisir)\b/i;
+   static readonly xFinInstructionControle = /^fin (si|choisir)$/i;
+
+   /** 
+    * fin xxxxxxx(1)
+    */
+   static readonly xFinBlocErrone = /^fin (?!:si|choisir|choix|r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)(\S+)$/i;
 
    /** avant|après|remplacer\(1) {évènements}(2)
    * - avant(1) (aller au nord, aller au sud ou sortir)(2)

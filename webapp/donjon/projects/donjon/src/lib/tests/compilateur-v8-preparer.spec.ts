@@ -88,7 +88,7 @@ describe('Compilateur V8 − Préparer code source', () => {
       'sinon' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
       ' dire "Ok pour cette fois!".' + ExprReg.caractereRetourLigne +
       'fin si.' + ExprReg.caractereRetourLigne +
-      'dire "bla bla"' + ExprReg.caractereRetourLigne
+      'dire "bla bla".' + ExprReg.caractereRetourLigne
     );
   });
 
@@ -98,18 +98,18 @@ describe('Compilateur V8 − Préparer code source', () => {
       'dire "Boire ou conduire, il faut choisir !"\n' +
       'choisir\n' +
       '  choix "boire":\n' +
-      '    dire "Vous ne conduirez donc pas !\n'+
+      '    dire "Vous ne conduirez donc pas !"\n'+
       '  choix "conduire":\n' +
       '    dire "Vous ne boirez donc pas !"\n' +
       'fin choisir'
     );
     expect(scenarioPrepare).toEqual(
-      'dire "Boire ou conduire, il faut choisir !"' + ExprReg.caractereRetourLigne +
+      'dire "Boire ou conduire, il faut choisir !".' + ExprReg.caractereRetourLigne +
       'choisir' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
       ' choix "boire"' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
-      ' dire "Vous ne conduirez donc pas !' + ExprReg.caractereRetourLigne +
+      ' dire "Vous ne conduirez donc pas !".' + ExprReg.caractereRetourLigne +
       ' choix "conduire"' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
-      ' dire "Vous ne boirez donc pas !"' + ExprReg.caractereRetourLigne +
+      ' dire "Vous ne boirez donc pas !".' + ExprReg.caractereRetourLigne +
       'fin choisir.'
     );
   });

@@ -165,6 +165,17 @@ export class AnalyseurV8Utils {
     }
   }
 
+  /**
+   * La phrase fournie est est-elle une fin de bloc inconnu ?
+   * @param phrase phrase à analyser
+   * @returns true si un fin xxxx a été trouvé.
+   * 
+   * Tests unitaires: ❌ (non)
+   */
+   public static chercherFinBlocInconnu(phrase: Phrase): boolean {
+    const fermetureBloc = ExprReg.xFinBlocErrone.test(phrase.morceaux[0])
+    return fermetureBloc;
+  }
 
 }
 

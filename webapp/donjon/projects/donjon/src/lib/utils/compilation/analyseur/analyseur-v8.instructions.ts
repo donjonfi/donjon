@@ -1,3 +1,5 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
 import { AnalyseurV8Controle } from "./analyseur-v8.controle";
 import { AnalyseurV8Utils } from "./analyseur-v8.utils";
@@ -51,7 +53,21 @@ export class AnalyseurV8Instructions {
           if (ctx.verbeux) {
             console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple NON trouvée.`);
           }
-          ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: Une instruction ou un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu ici.`);
+          // CAS 4b: TROUVÉ FIN BLOC ERRONÉ
+          if (AnalyseurV8Utils.chercherFinBlocInconnu(phraseAnalysee)) {
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.syntaxeRoutine, CodeMessage.finBlocInconnu,
+              "fin bloc inconnu",
+              `Il y a probablement une faute de frappe ici.`,
+            );
+          } else {
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.structureRoutine, CodeMessage.finBlocManquant,
+              `fin ${Routine.TypeToMotCle(routine.type)} attendu`,
+              `Une instruction ou un {@fin ${Routine.TypeToMotCle(routine.type)}@} est attendu ici.`,
+            );
+          }
+
           // pointer la phrase suivante
           ctx.indexProchainePhrase++;
         }

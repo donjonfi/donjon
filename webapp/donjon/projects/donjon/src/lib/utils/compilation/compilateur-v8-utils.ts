@@ -31,12 +31,17 @@ export class CompilateurV8Utils {
 
     // terminer par un « . » les « fin bloc »
     resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|choix|choisir|routine)\b)(?!])(\.)?/mig, "$1.");
+    // terminer par un « . » les « fin erreur » s’ils sont seuls sur la ligne
+    resultat = resultat.replace(/^([ \t]*fin [\wéèêà]+)(?!\.|])(\.)?[ \t]*$/ig, "$1.");
     
     // terminer par un « : » les « sinon »
     resultat = resultat.replace(/([ \t]*sinon\b)(:)?(?!])/mig, "$1:");
 
     // terminer par un « : » les « choisir » directement suivis d’un choix.
     resultat = resultat.replace(/([ \t]*choisir)\b(?:[ \t]*)(?!parmis|librement)(:)?([ \t\n]*)(?=choix)/mig, "$1:$3");
+
+    // terminer par un « . » les « dire "bla bla" » et les refuser "".
+    resultat = resultat.replace(/((dire|refuser) "[\S\s]*?") *\.*/mig, "$1.");
 
     // on retire les commentaire mais pas les lignes car il faut
     // que les numéros de lignes de changent pas !
@@ -87,6 +92,7 @@ export class CompilateurV8Utils {
           // bloc instruction, séparer les phrases (sur les '.')
           if (blocSuivantEstInstruction && !prochainBlocEstSousTexte) {
             // séparer sur les points (.) qui terminent un mot et les doubles points (:)
+            // TODO: prendre en charge le point-virgule (;) ?
             const phrasesBrutes = bloc.split(/(?:\.|:)(?!\w|_)/);
             for (let k = 0; k < phrasesBrutes.length; k++) {
               const phraseBrute = phrasesBrutes[k];
