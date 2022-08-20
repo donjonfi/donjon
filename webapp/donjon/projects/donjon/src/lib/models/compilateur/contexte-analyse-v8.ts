@@ -1,5 +1,8 @@
+import { CategorieMessage, CodeMessage, EMessageAnalyse, MessageAnalyse } from "./message-analyse";
+
 import { BlocInstructions } from "./bloc-instructions";
 import { ContexteAnalyse } from "./contexte-analyse";
+import { Phrase } from "./phrase";
 import { Routine } from "./routine";
 import { RoutineAction } from "./routine-action";
 import { RoutineRegle } from "./routine-regle";
@@ -21,8 +24,13 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
   public routinesAction: RoutineAction[] = [];
   /** Les routines « règle » présentes dans le scénario. */
   public routinesRegles: RoutineRegle[] = [];
-  
+
   public dernierBloc: BlocInstructions
+
+  /** 
+   * Message destinés à aider l’utilisateur à résoudre les problèmes dans son scénario.
+   */
+  public readonly messages: MessageAnalyse[] = [];
 
   /**
    * Obtenir la dernière routine
@@ -53,6 +61,83 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
     return retVal;
   }
 
+  /**
+   * Ajouter un message de type « erreur Donjon » à destination de l’auteur du scénario.
+   * @param phrase Phrase du scénario concernée
+   * @param categorie Catégorie du message
+   * @param code Code du message
+   * @param titre Titre du message
+   * @param corps Corps du message
+   * @param routine Routine liée au message
+   */
+   erreur(phrase: Phrase, routine: Routine | undefined, 
+    categorie: CategorieMessage, code: CodeMessage,
+    titre: string, corps: string,
+  ): void {
+    this.ajouterMessage(EMessageAnalyse.erreur, phrase, categorie, code, titre, corps, routine);
+  }
 
+  /**
+   * Ajouter un message de type « conseil scénario » à destination de l’auteur du scénario.
+   * @param phrase Phrase du scénario concernée
+   * @param categorie Catégorie du message
+   * @param code Code du message
+   * @param titre Titre du message
+   * @param corps Corps du message
+   * @param routine Routine liée au message
+   */
+   conseil(phrase: Phrase, routine: Routine | undefined,
+     categorie: CategorieMessage, code: CodeMessage,
+    titre: string, corps: string,
+  ): void {
+    this.ajouterMessage(EMessageAnalyse.conseil, phrase, categorie, code, titre, corps, routine);
+  }
+
+  /**
+   * Ajouter un message de type « problème scénario » à destination de l’auteur du scénario.
+   * @param phrase Phrase du scénario concernée
+   * @param categorie Catégorie du message
+   * @param code Code du message
+   * @param titre Titre du message
+   * @param corps Corps du message
+   * @param routine Routine liée au message
+   */
+  probleme(phrase: Phrase, routine: Routine | undefined,
+    categorie: CategorieMessage, code: CodeMessage,
+    titre: string, corps: string, 
+  ): void {
+    this.ajouterMessage(EMessageAnalyse.probleme, phrase, categorie, code, titre, corps, routine);
+  }
+
+  /**
+   * Ajouter un message à destination de l’auteur du scénario.
+   * @param type Type de message (conseil, probleme, erreur)
+   * @param phrase Phrase du scénario concernée
+   * @param categorie Catégorie du message
+   * @param code Code du message
+   * @param titre Titre du message
+   * @param corps Corps du message
+   * @param routine Routine liée au message
+   */
+  private ajouterMessage(
+    type: EMessageAnalyse, phrase: Phrase, categorie: CategorieMessage, code: CodeMessage,
+    titre: string, corps: string, routine: Routine | undefined = undefined,
+  ): void {
+    const message = new MessageAnalyse(type, phrase, categorie, code, titre, corps, routine);
+    this.messages.push(message);
+    // écrire l’erreur dans la console
+    switch (message.type) {
+      case EMessageAnalyse.conseil:
+        console.info("CON:", message);
+        break;
+      case EMessageAnalyse.probleme:
+        console.warn("PRO:", message);
+        break;
+      case EMessageAnalyse.erreur:
+      default:
+        console.error("ERR:", message);
+        break;
+    }
+  }
 
 }

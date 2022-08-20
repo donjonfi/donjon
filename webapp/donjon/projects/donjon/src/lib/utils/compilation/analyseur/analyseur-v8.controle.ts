@@ -1,4 +1,5 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { EInstructionControle, InstructionControle } from "../../../models/compilateur/instruction-controle";
 
 import { AnalyseurCondition } from "./analyseur.condition";
@@ -36,7 +37,11 @@ export class AnalyseurV8Controle {
     if (instruction) {
       instructions.push(instruction);
     } else {
-      ctx.ajouterErreur(phrases[sauvegardeIndexPhraseInitial].ligne, `Une instruction de contrôle ${InstructionControle.TypeToMotCle(debutInstructionControleTrouve)} était attendue mais n’a finalement pas été trouvée.`);
+      ctx.probleme(phrases[sauvegardeIndexPhraseInitial], routine,
+        CategorieMessage.syntaxeControle, CodeMessage.instructionControleIntrouvable,
+        "instruction de contrôle attendue",
+        `Une instruction de contrôle « ${InstructionControle.TypeToMotCle(debutInstructionControleTrouve)} » était attendue mais n’a finalement pas été trouvée.`
+      );
       // pointer la prochaine phrase
       ctx.indexProchainePhrase++;
     }
@@ -71,7 +76,11 @@ export class AnalyseurV8Controle {
         consequenceBruteSeule = resultSiCondIns[3];
         // si , pas trouvée, erreure
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: instruction si: il ne s’agit ni d’un « bloc si » (exemple: « si condition: conséquences. fin si ») ni d’un « si rapide » (exemple: « si condition, conséquence. »).`);
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeControle, CodeMessage.InstructionSiIntrouvable,
+          "condition pas comprise",
+          `L’instruction [+si+] n’a pas été correctement formulée.`,
+        );
       }
     }
 
@@ -127,7 +136,12 @@ export class AnalyseurV8Controle {
               ctx.indexProchainePhrase++;
               // sinon c’est une erreur
             } else {
-              ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: L’instruction de contrôle commencée est un « si » mais un « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » a été trouvé. Probablement qu’un « fin si » est manquant.`);
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.structureBloc, CodeMessage.finBlocDifferent,
+                "fin bloc différent",
+                `L’instruction de contrôle commencée est un {@si@} mais un {@fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} @} a été trouvé. Probablement qu’un {@fin si@} est manquant.`,
+              );
+
               // on termine tout de même le bloc
               finBlocAtteinte = true;
               // => on ne pointe PAS la phrase suivante: on pourra ainsi éventuellement fermer le bloc parent.
@@ -137,7 +151,12 @@ export class AnalyseurV8Controle {
             const debutFinRoutineTrouve = this.chercherDebutFinRoutine(phraseAnalysee);
             if (debutFinRoutineTrouve) {
               // on ne s’attend pas à trouver un début/fin routine ici!
-              ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: Une instruction ou un « fin si » est attendu ici.`);
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.structureBloc, CodeMessage.finBlocManquant,
+                "fin si manquant",
+                `Un {@fin si@} est attendu avant la fin de la ${Routine.TypeToMotCle(routine.type)}.`,
+              );
+
               // => on ferme le bloc en cours et on n’avance pas à la phrase suivante
               //    afin qu’elle soit analysée à nouveau
               finBlocAtteinte = true;
@@ -160,7 +179,11 @@ export class AnalyseurV8Controle {
                   if (instructionSinonSi) {
                     instruction.instructionsSiConditionPasVerifiee.push(instructionSinonSi);
                   } else {
-                    ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: le sinonsi n’a pas pu être correctement interprété.`);
+                    ctx.probleme(phraseAnalysee, routine,
+                      CategorieMessage.syntaxeControle, CodeMessage.InstructionSiIntrouvable,
+                      "condition pas comprise",
+                      `L’instruction [+sinonsi+] n’a pas été correctement formulée.`,
+                    );
                   }
                   break;
 
@@ -182,6 +205,8 @@ export class AnalyseurV8Controle {
    */
   public static traiterInstructionChoisir(phrases: Phrase[], routine: Routine, ctx: ContexteAnalyseV8): Instruction | undefined {
     let instruction: Instruction | undefined;
+
+    
 
     return instruction;
   }

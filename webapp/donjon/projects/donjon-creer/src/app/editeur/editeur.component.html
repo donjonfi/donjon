@@ -338,10 +338,10 @@
                   <div class="text-warning" *ngIf="monde.lieux.length == 0">
                     🙄 Je n’ai pas trouvé les lieux à visiter !
                   </div>
-                  <div class="text-success" *ngIf="erreurs.length == 0">
+                  <div class="text-success" *ngIf="erreurs.length == 0 && messages.length == 0">
                     😀 Super ! Je pense que j’ai tout compris !
                   </div>
-                  <div class="text-warning" *ngIf="erreurs.length > 0">
+                  <div class="text-warning" *ngIf="erreurs.length > 0 || messages.length > 0">
                     😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
                   </div>
                 </ng-container>
@@ -351,6 +351,32 @@
                       {{err}}<br>
                   </span>
                 </code>
+                <ul class="list-group mt-2">
+                  <li class="list-group-item p-1" *ngFor="let message of messages">
+
+                    <div class="d-flex mb-0">
+
+                      <div class="pe-1">
+                        <i *ngIf="message.type == EMessageAnalyse.conseil" class="fa-solid fa-circle-info me-2 text-info"></i>
+                        <span *ngIf="message.type == EMessageAnalyse.probleme" class="me-1">🤔</span>
+                        <i *ngIf="message.type == EMessageAnalyse.erreur" class="fa-solid fa-square-xmark me-2 text-danger"></i>  
+                        <b>{{message.titre}}</b>
+                      </div>
+                      <div class="ps-1 pe-1"> <small *ngIf="message.routine">→ {{message.routine.titre}}</small></div>
+                    </div>
+
+                    <div>
+                      <span class="pe-1"><button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.phrase.ligne)">{{message.ligne}}</button>&nbsp;</span>
+                      <small class="t-code">{{message.phrase.toString()}}</small>
+                    </div>
+
+                    <p class="mb-0">
+                      <span [innerHTML]="message.htmlCorps"></span>
+                      <a class="ms-2" [href]="'https://donjon.fi/doc/v2/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
+                    </p>
+                  </li>
+                </ul>
+              
               </div>
             </div>
           </div>

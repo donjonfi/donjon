@@ -181,6 +181,9 @@ export class CompilateurCommunUtils {
     ctx.resultat.compteurs = ctx.compteurs;
     ctx.resultat.listes = ctx.listes;
     ctx.resultat.erreurs = ctx.analyse.erreurs;
+    if (ctx instanceof ContexteCompilationV8) {
+      ctx.resultat.messages = ctx.analyse.messages;
+    }
     ctx.resultat.aides = ctx.analyse.aides;
     ctx.resultat.parametres = ctx.analyse.parametres;
 

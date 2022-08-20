@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, CompilateurV8, ElementGenerique, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -44,7 +44,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
-
+  EMessageAnalyse = EMessageAnalyse;
+  
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario';
 
   nbLignesCode = 30;
@@ -95,6 +96,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   listes: ElementGenerique[] = null;
   aides: Aide[] = null;
   erreurs: string[] = null;
+  messages: MessageAnalyse[] = null;
   jeu: Jeu = null;
 
   selPartieIndex: number = null;
@@ -344,6 +346,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         ));
         this.aides = resComp.aides;
         this.erreurs = resComp.erreurs;
+        this.messages = resComp.messages;
         // générer le jeu
         this.jeu = Generateur.genererJeu(resComp);
 
@@ -351,7 +354,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.compilationTerminee = true;
 
         // si aucune erreur, passer au mode jouer
-        if (this.erreurs.length == 0) {
+        if (this.erreurs.length == 0 && this.messages.length == 0) {
           this.showTab('jeu');
         }
 
@@ -370,6 +373,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.compilationEnCours = false;
       this.compilationTerminee = true;
     }
+  }
+
+  referenceCode(ligne: number) {
+    this.showTab('scenario');
+    this.codeEditorElmRef["directiveRef"].ace().scrollToLine(ligne, true, true, function () {});
+    this.codeEditorElmRef["directiveRef"].ace().gotoLine(ligne, 0, true);
+    this.codeEditorElmRef["directiveRef"].ace().focus();
   }
 
   /**

@@ -34,6 +34,7 @@ export * from './lib/models/compilateur/element-donjon';
 export * from './lib/models/compilateur/element-generique';
 export * from './lib/models/compilateur/instruction';
 export * from './lib/models/compilateur/lien-condition';
+export * from './lib/models/compilateur/message-analyse';
 export * from './lib/models/compilateur/monde';
 export * from './lib/models/compilateur/phrase';
 export * from './lib/models/compilateur/position-sujet';

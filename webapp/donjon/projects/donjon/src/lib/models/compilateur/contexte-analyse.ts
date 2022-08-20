@@ -26,7 +26,10 @@ export class ContexteAnalyse {
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 
-  /** Ajouter une nouvelle erreur. */
+  /** 
+   * (beta) Ajouter une nouvelle erreur.
+   * @deprecated Utiliser la nouvelle méthode ajouterMessage à la place.
+   */
   public ajouterErreur(ligne: number, erreur: string) {
     let index: number;
     if (ligne) {

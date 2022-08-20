@@ -1,4 +1,5 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
 import { EtiquetteAction, RoutineAction } from "../../../models/compilateur/routine-action";
 
@@ -13,7 +14,6 @@ import { RoutineRegle } from "../../../models/compilateur/routine-regle";
 import { RoutineSimple } from "../../../models/compilateur/routine-simple";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
-import { Verification } from "../../../models/compilateur/verification";
 
 export class AnalyseurV8Routines {
 
@@ -186,7 +186,12 @@ export class AnalyseurV8Routines {
         routine = new RoutineRegle(typeRegle, evenements, phraseAnalysee.ligne);
 
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de la règle n’a pas pu être décomposé. Exemple d’entête : « règle avant prendre un objet: ».");
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeRoutine, CodeMessage.RegleIntrouvable,
+          "règle pas comprise",
+          `L’entête de la règle n’a pas pu être décomposé.`,
+        );
+
         // on crée une routine « bidon » afin de tout de même analyser la suite des phrases de la routine.
         routine = new RoutineRegle(typeRegle, evenements, phraseAnalysee.ligne);
       }

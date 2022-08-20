@@ -66,7 +66,6 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "si|sinon|sinonsi|" +
             "(autre )?choix|choisir( parmis)?|" +
             "phase (prérequis|exécution|épilogue)|" +
-            "quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|" +
             "(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
             "interpréter|comme)\\b" +
             ")|" +
@@ -75,7 +74,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "(\\b(partie|chapitre|scène) )|" +
             "action\\b(?!;|\.)|" +
             "(^( )*(ceci|cela)(?=( )*:))|" +
-            "(^( )*(action|règle|routine) (?=.+:()*$))"
+            "(^( )*(action|règle (avant|après)|routine) (?=.+:()*$))"
           ,
           caseInsensitive: true
         },
