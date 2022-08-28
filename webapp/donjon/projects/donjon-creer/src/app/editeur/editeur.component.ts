@@ -461,7 +461,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   onChargerFichierCloud(nouveau: boolean = false): void {
     let nomFichierExemple: string;
     if (nouveau) {
-      nomFichierExemple = "nouveau.djn";
+      nomFichierExemple = "exemple.djn";
     } else {
       nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(this.nomExemple, "djn");
     }
@@ -1009,24 +1009,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   public async chargerCommandes(forcerMaj: boolean): Promise<string | null> {
 
-    let sourceCommandes: string | null = sessionStorage.getItem("commandes");
+    let sourceActions: string | null = sessionStorage.getItem("actions");
 
-    if (!sourceCommandes || forcerMaj) {
+    if (!sourceActions || forcerMaj) {
       this.problemeChargementFichierActions = undefined;
       try {
         this.chargementCommandesEnCours = true;
-        sourceCommandes = await lastValueFrom(this.http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
-        sessionStorage.setItem("commandes", sourceCommandes);
+        sourceActions = await lastValueFrom(this.http.get('assets/modeles/actions.djn', { responseType: 'text' }));
+        sessionStorage.setItem("commandes", sourceActions);
         this.problemeChargementFichierActions = false;
       } catch (error) {
         this.problemeChargementFichierActions = true;
-        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+        console.error("Fichier « assets/modeles/actions.djn » pas trouvé. Commandes de base pas importées.");
       } finally {
         this.chargementCommandesEnCours = false;
       }
     }
 
-    return sourceCommandes;
+    return sourceActions;
 
   }
 

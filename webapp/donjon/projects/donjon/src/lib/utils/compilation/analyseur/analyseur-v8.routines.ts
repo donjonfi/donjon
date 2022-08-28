@@ -17,6 +17,8 @@ import { TypeRegle } from "../../../models/compilateur/type-regle";
 
 export class AnalyseurV8Routines {
 
+  private static pileRoutine = 0;
+
   public static indexRoutineSansNom = 1;
 
   /**
@@ -24,6 +26,8 @@ export class AnalyseurV8Routines {
    * @returns true si une routine a effectivement été trouvée.
    */
   public static traiterRoutine(debutRoutineTrouve: ERoutine, phrases: Phrase[], ctx: ContexteAnalyseV8): boolean {
+
+    console.log("### DÉBUT traiter ROUTINE", ++this.pileRoutine);
 
     let retVal = false;
     let routine: Routine | undefined;
@@ -65,7 +69,7 @@ export class AnalyseurV8Routines {
       if (routine.ouvert) {
         routine.ouvert = false;
         routine.correctementFini = false;
-        ctx.ajouterErreur(phrases[ctx.indexProchainePhrase - 1].ligne, `Un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu ici.`);
+        ctx.ajouterErreur(phrases[ctx.indexProchainePhrase - 1].ligne, `Un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu ici.`);
       }
       retVal = true;
     } else {
@@ -73,6 +77,8 @@ export class AnalyseurV8Routines {
       // pointer la prochaine phrase
       ctx.indexProchainePhrase++;
     }
+
+    console.log("### FIN traiter ROUTINE", this.pileRoutine--);
 
     return retVal;
   }
@@ -306,7 +312,8 @@ export class AnalyseurV8Routines {
 
           // > ii. CECI/CELA
         } else {
-          let etiquetteCeciCela = AnalyseurV8Utils.chercherEtiquetteParmiListe(['ceci', 'cela'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+          // let etiquetteCeciCela = AnalyseurV8Utils.chercherEtiquetteParmiListe(['ceci', 'cela'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+          let etiquetteCeciCela = AnalyseurV8Utils.chercherEtiquetteEtReste(['définition', 'définitions'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
           if (etiquetteCeciCela) {
 
             switch (etiquetteCeciCela) {
@@ -437,13 +444,13 @@ export class AnalyseurV8Routines {
     if (finRoutineTrouve) {
       debutFinRoutineTrouve = true;
       if (ctx.verbeux) {
-        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${Routine.TypeToMotCle(routine.type)} trouvé.`);
+        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${Routine.TypeToMotCle(routine.type, false)} trouvé.`);
       }
       if (finRoutineTrouve === routine.type) {
         routine.ouvert = false;
         routine.correctementFini = true;
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, `(${routine.titre}): un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu à la place du « fin ${Routine.TypeToMotCle(finRoutineTrouve)} ».`);
+        ctx.ajouterErreur(phraseAnalysee.ligne, `(${routine.titre}): un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu à la place du « fin ${Routine.TypeToMotCle(finRoutineTrouve, false)} ».`);
       }
       // pointer la phrase suivante
       ctx.indexProchainePhrase++;
@@ -453,11 +460,11 @@ export class AnalyseurV8Routines {
       if (debutRoutineTrouve) {
         debutFinRoutineTrouve = true;
         if (ctx.verbeux) {
-          console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: début routine (${Routine.TypeToMotCle(routine.type)}) trouvé alors que routine précédente pas terminée.`);
+          console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: début routine (${Routine.TypeToMotCle(routine.type, false)}) trouvé alors que routine précédente pas terminée.`);
         }
         routine.ouvert = false;
         routine.correctementFini = false;
-        ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: un « fin ${Routine.TypeToMotCle(routine.type)} » est attendu avant le prochain début « ${Routine.TypeToMotCle(debutRoutineTrouve)} ».`);
+        ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu avant le prochain début « ${Routine.TypeToMotCle(debutRoutineTrouve, false)} ».`);
         // ne PAS pointer la phrase suivante car la phrase actuelle va être analysée à nouveau.
       }
     }

@@ -108,6 +108,7 @@ export class AnalyseurV8Utils {
     const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureRoutine) {
+      console.log("chercher FIN Routine > YES: ", phrase.toString());
       return Routine.ParseType(fermetureRoutine[1]);
     } else {
       return undefined;
@@ -125,6 +126,7 @@ export class AnalyseurV8Utils {
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
     // ouverture d’une routine (routine, règle, action, réaction, …)
     if (ouvertureRoutine) {
+      console.log("chercher DEBUT Routine > YES: ", phrase.toString());
       return Routine.ParseType(ouvertureRoutine[1]);
     } else {
       return undefined;
@@ -132,7 +134,7 @@ export class AnalyseurV8Utils {
   }
 
   /**
-   * La phrase fournie est est-elle un début de bloc contrôle ?
+   * La phrase fournie est est-elle un début de bloc contrôle (si, choisir) ?
    * @param phrase phrase à analyser
    * @returns le type de début de bloc contrôle trouvé ou undefined s’il ne s’agit pas d’un début de bloc contrôle.
    * 
@@ -140,7 +142,7 @@ export class AnalyseurV8Utils {
    */
   public static chercherDebutInstructionControle(phrase: Phrase): EInstructionControle | undefined {
     const ouvertureBloc = ExprReg.xDebutInstructionControle.exec(phrase.morceaux[0]);
-    // ouverture d’une routine (routine, règle, action, réaction, …)
+    // ouverture d’un bloc de contrôle (si, choisir)
     if (ouvertureBloc) {
       return InstructionControle.ParseType(ouvertureBloc[1]);
     } else {
@@ -159,6 +161,7 @@ export class AnalyseurV8Utils {
     const fermetureBloc = ExprReg.xFinInstructionControle.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureBloc) {
+      console.log("chercherFinInstructionControle > YES: ", phrase.toString());
       return InstructionControle.ParseType(fermetureBloc[1]);
     } else {
       return undefined;

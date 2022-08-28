@@ -1,0 +1,35 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Nouveau jeu".
+L’auteur du jeu est "Anonyme".
+@IFID@
+
+-- positionner le joueur dans le jeu
+Le joueur se trouve dans le salon.
+
+-- LE SALON
+Le salon est un lieu.
+Sa description est "Vous êtes dans un salon.".
+
+La table basse est un support dans le salon.
+Sa description est "Il s'agit d'une table basse en bois clair.".
+interpréter la table comme la table basse.
+
+La pomme est un objet mangeable sur la table basse.
+Sa description est "Vous avez envie de croquer dedans.".
+interpréter croquer comme manger.
+
+Le magazine est un objet dans le salon.
+Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
+Sa description est "Il s'agit des programmes TV de la semaine dernière.".
+Le texte du magazine est "Ils repassent un film de Noël ce soir.".
+
+-- règle: sortie spécifique la 1ère et 2e fois que le joueur prend la pomme.
+règle après prendre la pomme:
+  si la règle se déclenche pour la première fois:
+    dire "D’un geste royal, vous prenez la pomme !".
+  sinonsi la règle se déclenche pour la deuxième fois:
+    dire "Avec toujours autant de manières, vous prenez la pomme.".
+  sinon
+    continuer l’action.
+  fin si
+fin règle

@@ -1,0 +1,51 @@
+-- Titre: "Actions de base pour Donjon FI"
+-- Version: 2022-08-28 2.0.0 beta 1
+-- Auteur: Jonathan Claes (https://donjon.fi)
+-- Licence: Ce fichier est offert sous licence
+--   "Creative Commons Attribution 4.0 International License".
+--   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
+
+désactiver les actions de base.
+
+action afficher ceci:
+
+  définition ceci:
+    C’est un intitulé.
+
+  phase exécution:
+    si ceci est l’aide:
+      dire "{_Quelques commandes utiles_}
+        {e}- {-aide {/parler/}-} : afficher l’aide d’une commande
+        {e}- {-aller {/nord/}-} : aller vers le nord
+        {e}- {-regarder-} : regarder autour de vous
+        {e}- {-examiner {/table/}-} : examiner un élément pour trouver des objets ou des informations
+        {e}- {-prendre {/épée/}-} : prendre un objet
+        {e}- {-inventaire-} : afficher le contenu de votre inventaire
+        {e}- {-parler à {/magicienne/}-} : parler à un personnage
+        {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
+        {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée".
+    --sinonsi ceci est l’inventaire:
+--      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+--    sinonsi ceci est les sorties ou la sortie:
+--      dire "[sorties ici]".
+    fin si.
+    dire "Ok".
+
+  phase épilogue:
+    si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
+
+fin action
+
+action afficher ceci pour cela:
+
+  définition ceci:
+    C’est un intitulé.
+
+  définition cela:
+    C’est un intitulé.
+    Il est prioritairement possédé.
+
+  phase exécution:
+    si ceci est l’aide, dire "[aide cela]".
+
+fin action

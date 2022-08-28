@@ -53,16 +53,16 @@ export class Routine extends BlocInstructions {
   }
 
   /** Afficher le mot clé du type de routine spécifié. */
-  public static TypeToMotCle(type: ERoutine | undefined): string {
+  public static TypeToMotCle(type: ERoutine | undefined, determinantDefini: boolean): string {
     switch (type) {
       case ERoutine.simple:
-        return 'routine';
+        return (determinantDefini ? 'la ' : '') + 'routine';
       case ERoutine.action:
-        return 'action';
+        return (determinantDefini ? 'l’' : '') + 'action';
       case ERoutine.reaction:
-        return 'réaction';
+        return (determinantDefini ? 'la ' : '') + 'réaction';
       case ERoutine.regle:
-        return 'règle';
+        return (determinantDefini ? 'la ' : '') + 'règle';
 
       case ERoutine.aucun:
         return '-';

@@ -28,6 +28,7 @@ export class AnalyseurV8Instructions {
     // CAS 1: DÉBUT INSTRUCTION CONTRÔLE => on traite le nouveau bloc contrôle
     const debutInstructionControleTrouve = AnalyseurV8Utils.chercherDebutInstructionControle(phraseAnalysee);
     if (debutInstructionControleTrouve) {
+      // tester si on a affaire à un si court
       AnalyseurV8Controle.traiterBlocControle(debutInstructionControleTrouve, phrases, routine, instructions, ctx);
       // (index de la phrase suivante géré par traiterBlocControle)
     } else {
@@ -63,8 +64,8 @@ export class AnalyseurV8Instructions {
           } else {
             ctx.probleme(phraseAnalysee, routine,
               CategorieMessage.structureRoutine, CodeMessage.finBlocManquant,
-              `fin ${Routine.TypeToMotCle(routine.type)} attendu`,
-              `Une instruction ou un {@fin ${Routine.TypeToMotCle(routine.type)}@} est attendu ici.`,
+              `fin ${Routine.TypeToMotCle(routine.type, false)} attendu`,
+              `Une instruction ou un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu ici.`,
             );
           }
 

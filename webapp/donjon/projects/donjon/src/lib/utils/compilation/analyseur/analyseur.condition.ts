@@ -231,16 +231,16 @@ export class AnalyseurCondition {
           retVal.condition = AnalyseurCondition.obetenirConditionSoloDebut(conditionDecomposee.conditionBrute);
           // si condition pas trouvée
           if (!retVal.condition) {
-            console.error("Condition solo (début) pas trouvée pour", conditionDecomposee.conditionBrute);
-            retVal.erreurs.push("Début de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            console.error(`Condition solo (début) pas trouvée pour « ${conditionDecomposee.conditionBrute} »`);
+            retVal.erreurs.push(`Début de la condition pas trouvé : « ${conditionDecomposee.conditionBrute} »`);
             retVal.nbErreurs += 1;
           }
         } else {
           retVal.condition = AnalyseurCondition.obetenirConditionSoloSuite(conditionDecomposee.conditionBrute);
           // si simple condition pas trouvée
           if (!retVal.condition) {
-            console.error("Condition solo (suite) pas trouvée pour", conditionDecomposee.conditionBrute);
-            retVal.erreurs.push("Fin de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            console.error(`Condition solo (suite) pas trouvée pour « ${conditionDecomposee.conditionBrute} »`);
+            retVal.erreurs.push(`Fin de la condition pas trouvé : « ${conditionDecomposee.conditionBrute} »`);
             retVal.nbErreurs += 1;
           }
         }

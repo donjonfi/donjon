@@ -1,3 +1,5 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { AnalyseurV8Definitions } from "./analyseur-v8.definitions";
 import { AnalyseurV8Routines } from "./analyseur-v8.routines";
 import { AnalyseurV8Utils } from "./analyseur-v8.utils";
@@ -21,7 +23,7 @@ export class AnalyseurV8 {
       const debutRoutineTrouve = AnalyseurV8Utils.chercherDebutRoutine(phraseAnalysee);
       if (debutRoutineTrouve) {
         if (ctx.verbeux) {
-          console.log(`[AnalyseurV8] l.${phraseAnalysee.ligne}: trouvé début routine (${Routine.TypeToMotCle(debutRoutineTrouve)}) (${phraseAnalysee})`);
+          console.log(`[AnalyseurV8] l.${phraseAnalysee.ligne}: trouvé début routine (${Routine.TypeToMotCle(debutRoutineTrouve, false)}) (${phraseAnalysee})`);
         }
         AnalyseurV8Routines.traiterRoutine(debutRoutineTrouve, phrases, ctx);
         // (index de la phrase suivante géré par traiterRoutine)
@@ -29,14 +31,22 @@ export class AnalyseurV8 {
         // CAS 2: FIN ROUTINE => ERREUR
         const finRoutineTrouvee = AnalyseurV8Utils.chercherFinRoutine(phraseAnalysee);
         if (finRoutineTrouvee) {
-          ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune routine commencée, le « fin ${Routine.TypeToMotCle(finRoutineTrouvee)} » n’est donc pas attendu ici.`);
+          ctx.probleme(phraseAnalysee, undefined,
+            CategorieMessage.structureRoutine, CodeMessage.finRoutinePasAttendu,
+            `fin ${Routine.TypeToMotCle(finRoutineTrouvee, false)} pas attendu ici`,
+            `Aucune ${Routine.TypeToMotCle(finRoutineTrouvee, false)} commencée, le {@fin ${Routine.TypeToMotCle(finRoutineTrouvee, false)}@} n’est donc pas attendu ici.`,
+          );
           // phrase suivante
           ctx.indexProchainePhrase++;
         } else {
           // CAS 3: FIN INSTRUCTION CONTRÔLE => ERREUR
           const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
           if (finInstructionControleTrouvee) {
-            ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » n’est donc pas attendu ici.`);
+            ctx.probleme(phraseAnalysee, undefined,
+              CategorieMessage.syntaxeControle, CodeMessage.finBlocPasAttendu,
+              `fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} pas attendu ici`,
+              `Aucune routine commencée, le {@fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)}@}, qui ferme une instruction de contrôle, n’est donc pas attendu ici.`,
+            );
             // phrase suivante
             ctx.indexProchainePhrase++;
           } else {

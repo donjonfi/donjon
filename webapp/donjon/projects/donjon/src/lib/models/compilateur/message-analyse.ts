@@ -64,6 +64,14 @@ export enum CodeMessage {
   finBlocDifferent = "structure_bloc/fin_bloc_different",
   /** structure: fin bloc différent de celui attendu (ex: fin choix au lieu de fin si) */
   finBlocManquant = "structure_bloc/fin_bloc_manquant",
+  /** structure: sinonsi se trouve après un sinon */
+  sinonsiSuitSinon = "structure_bloc/sinonsi_suit_sinon",
+  /** structure: sinon se trouve après un sinon */
+  sinonSuitSinon = "structure_bloc/sinon_suit_sinon",
+  /** structure: fin routine pas attendu ici (car pas démarrée) */
+  finRoutinePasAttendu = "structure_bloc/fin_routine_pas_attendu",
+  /** structure: fin bloc de contrôle pas attendu ici (aucun bloc commencé) */
+  finBlocPasAttendu = "structure_bloc/fin_bloc_pas_attendu",
   /** fin de bloc mal écrit (ex: fin sii) */
   finBlocInconnu = "syntaxe_controle/fin_bloc_inconnu",
   /** bloc attendu pas trouvé => problème de syntaxe dans l’entête */
