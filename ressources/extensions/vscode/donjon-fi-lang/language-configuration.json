@@ -30,8 +30,8 @@
   // symbols that can be used to surround a selection
   "surroundingPairs": [
     [
-      "avant",
-      "."
+      "règle",
+      "finrègle"
     ],
     [
       "après",
@@ -56,7 +56,7 @@
   ],
   "indentationRules": {
     "increaseIndentPattern": "^.*(\\:|sinon)\\s*$",
-    "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*(fin si|sinon|sinonsi)$"
+    "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*(fin si|fin routine|fin règle|fin action|sinon|sinonsi)$"
   }
   // ,
   // "folding": {
