@@ -267,6 +267,8 @@ export class AnalyseurCondition {
     let resConditionTirage: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
 
+    // console.log(">>>>>>>>>> CONDITION:", conditionBrute);
+    
     // A. tester la formulation  [ni ni | soit soit]
     resCondNiSoit = ExprReg.xDebutConditionNiSoit.exec(conditionBrute);
     resCond = resCondNiSoit;
@@ -416,6 +418,7 @@ export class AnalyseurCondition {
     morceauConditionBrute = morceauConditionBrute.trim();
 
     // enlever éventuellement le « si » qui commence la condition
+    // TODO: enlever également le sinonsi ?
     if (morceauConditionBrute.match(/^si /i)) {
       morceauConditionBrute = morceauConditionBrute.slice(3);
     }

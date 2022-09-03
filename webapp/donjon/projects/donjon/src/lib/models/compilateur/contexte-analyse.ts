@@ -28,7 +28,7 @@ export class ContexteAnalyse {
 
   /** 
    * (beta) Ajouter une nouvelle erreur.
-   * @deprecated Utiliser la nouvelle méthode ajouterMessage à la place.
+   * @deprecated Utiliser une des méthode conseil(), probleme() ou erreur() à la place.
    */
   public ajouterErreur(ligne: number, erreur: string) {
     let index: number;

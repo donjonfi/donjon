@@ -68,12 +68,20 @@ export class AnalyseurV8Routines {
       // vérifier si la routine est bien fermée
       if (routine.ouvert) {
         routine.ouvert = false;
-        routine.correctementFini = false;
-        ctx.ajouterErreur(phrases[ctx.indexProchainePhrase - 1].ligne, `Un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu ici.`);
+        ctx.probleme(phrases[ctx.indexProchainePhrase - 1], routine,
+          CategorieMessage.structureRoutine, CodeMessage.finRoutineManquant,
+          `fin ${Routine.TypeToMotCle(routine.type, false)} manquant.`,
+          `Un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu ici.`,
+        );
       }
       retVal = true;
     } else {
-      ctx.ajouterErreur(phrases[sauvegardeIndexPhraseInitial].ligne, `Une ${Routine.TypeToNom(debutRoutineTrouve)} était attendue mais n’a finalement pas été trouvée.`);
+      // routine pas trouvée
+      ctx.probleme(phrases[sauvegardeIndexPhraseInitial], undefined,
+        CategorieMessage.syntaxeRoutine, CodeMessage.routineIntrouvable,
+        `${Routine.TypeToNom(debutRoutineTrouve)} introuvable.`,
+        `Une ${Routine.TypeToNom(debutRoutineTrouve)} était attendue mais n’a finalement pas été trouvée.`,
+      );
       // pointer la prochaine phrase
       ctx.indexProchainePhrase++;
     }
@@ -109,7 +117,11 @@ export class AnalyseurV8Routines {
 
       // si pas de nom à 1 seul mot trouvé
       if (!AnalyseurV8Utils.contientExactement1Mot(nomRoutine)) {
-        ctx.ajouterErreur(phraseAnalysee.ligne, "routine: le nom de la routine doit faire exactement un mot. Ex: « routine MaSuperRoutine: »")
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+          'nom routine simple incorrect',
+          `Le nom de la routine simple doit faire exactement un mot. Ex: {@routine MaSuperRoutine:@}`,
+        );
         nomRoutine = ('routineSansNom' + AnalyseurV8Routines.indexRoutineSansNom++);
       }
       // B. CORPS et PIED
@@ -133,7 +145,11 @@ export class AnalyseurV8Routines {
       }
       // étiquette pas trouvée (ne devrait jamais arriver)
     } else {
-      ctx.ajouterErreur(phraseAnalysee.ligne, "routine: étiquette d’entête pas trouvée.");
+      ctx.erreur(phraseAnalysee, routine,
+        CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
+        'étiquette d’entête pas trouvée',
+        `L’étiquette d’entête de le routine simple n’a pas été trouvée.`,
+      );
     }
 
     return routine;
@@ -177,7 +193,11 @@ export class AnalyseurV8Routines {
             typeRegle = TypeRegle[motCleTypeRegle];
             break;
           default:
-            ctx.ajouterErreur(phraseAnalysee.ligne, "règle: Seules les règles de type « avant » et « après » sont prises en charge.");
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.syntaxeRegle, CodeMessage.typeRegleInconnu,
+              "type de règle inconnu",
+              `Seules les règles de type {@avant@} et {@après@} sont prises en charge.`,
+            );
             typeRegle = TypeRegle.inconnu;
             break;
         }
@@ -185,7 +205,11 @@ export class AnalyseurV8Routines {
         evenements = PhraseUtils.getEvenementsRegle(enonceDecompose[2]);
 
         if (!evenements.length) {
-          ctx.ajouterErreur(phraseAnalysee.ligne, "règle: Cette formulation de l’évènement sensé déclencher la règle n’est pas prise en charge. Exemple d’entête : « règle après prendre l’épée: ».");
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeRegle, CodeMessage.formulationEvenementReglePasComprise,
+            'formulation évènement pas comprise',
+            `La formulation de l’évènement qui doit déclencher la règle n’a pas été comprise. Exemple d’entête : {@règle après prendre l’épée: @}`,
+          );
         }
 
         // création de la routine
@@ -193,7 +217,7 @@ export class AnalyseurV8Routines {
 
       } else {
         ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeRoutine, CodeMessage.RegleIntrouvable,
+          CategorieMessage.syntaxeRoutine, CodeMessage.regleIntrouvable,
           "règle pas comprise",
           `L’entête de la règle n’a pas pu être décomposé.`,
         );
@@ -222,7 +246,11 @@ export class AnalyseurV8Routines {
       }
     } else {
       // étiquette pas trouvée (ne devrait jamais arriver)
-      ctx.ajouterErreur(phraseAnalysee.ligne, "règle: étiquette d’entête pas trouvée.");
+      ctx.erreur(phraseAnalysee, routine,
+        CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
+        "étiquette d’entête pas trouvée",
+        `L’étiquette d’entête de la règle n’a pas été trouvée.`,
+      );
     }
 
     return routine;
@@ -259,10 +287,18 @@ export class AnalyseurV8Routines {
         const isCela = enteteDecompose[5] ? true : false;
         // éviter que l’auteur s’emmêle les pinceaux entre ceci et cela.
         if (enteteDecompose[3] == 'cela') {
-          ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${infinitif} »: utilisation de cela au lieu de ceci: le complément direct doit toujours être nommé « ceci », le complément indirect sera nommé « cela ». Exemple: « action ouvrir ceci avec cela ».`);
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
+            'complément direct nommé cela',
+            `action « ${infinitif} »: utilisation de {@cela@} au lieu de {@ceci@}: le complément direct doit toujours être nommé {@ceci@}, le complément indirect sera nommé {@cela@}. Exemple: {@action ouvrir ceci avec cela@}.`,
+          );
         }
         if (enteteDecompose[5] == 'ceci') {
-          ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${infinitif} »: utilisation de ceci au lieu de cela: le complément indirect doit toujours être nommé « cela ».`);
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
+            'complément indirect nommé ceci',
+            `action « ${infinitif} »: utilisation de {@ceci@} au lieu de {@cela@}: le complément indirect doit toujours être nommé {@cela@}, le complément direct sera nommé {@ceci@}. Exemple: {@action ouvrir ceci avec cela@}.`,
+          );
         }
         let prepositionCeci: string | undefined;
         let prepositionCela: string | undefined;
@@ -275,7 +311,11 @@ export class AnalyseurV8Routines {
         // création de l’action
         routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, "L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : « action ouvrir ceci avec cela: ».");
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeAction, CodeMessage.actionIntrouvable,
+          "action pas comprise",
+          `L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : {@action ouvrir ceci avec cela: @}`,
+        );
         // on crée une action « bidon » afin de tout de même analyser la suite des phrases de la routine.
         routine = new RoutineAction("(sans entête)", undefined, false, undefined, false, phraseAnalysee.ligne);
       }
@@ -303,7 +343,12 @@ export class AnalyseurV8Routines {
               etiquetteActuelle = EtiquetteAction.phaseEpilogue;
               break;
             default:
-              ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : seules les phases suivantes sont supportées: prérequis, exécution et épilogue.`);
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.syntaxeAction, CodeMessage.phaseActionInconnue,
+                'phase inconnue',
+                `Seules les phases suivantes sont supportées: {@prérequis@}, {@exécution@} et {@épilogue@}.`,
+              );
+
               etiquetteActuelle = EtiquetteAction.phaseExecution;
               break;
           }
@@ -320,7 +365,12 @@ export class AnalyseurV8Routines {
               case 'ceci':
                 etiquetteActuelle = EtiquetteAction.ceci;
                 if (!routine.action.ceci) {
-                  ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : étiquette « ceci: » trouvée mais l’entête de l’action n’inclut pas d’argument « ceci ».`);
+                  ctx.probleme(phraseAnalysee, routine,
+                    CategorieMessage.syntaxeAction, CodeMessage.complementActionInexistant,
+                    'complément direct (ceci) inexistant',
+                    `Étiquette {@ceci:@} trouvée mais l’entête de l’action n’inclut pas de complément direct {@ceci@}.`,
+                  );
+                  // définir ceci par défaut
                   routine.action.cibleCeci = new CibleAction('un', 'objet', 'visible');
                 }
                 break;
@@ -328,7 +378,12 @@ export class AnalyseurV8Routines {
               case 'cela':
                 etiquetteActuelle = EtiquetteAction.cela;
                 if (!routine.action.cela) {
-                  ctx.ajouterErreur(phraseAnalysee.ligne, `action « ${routine.action.infinitif} » : étiquette « cela: » trouvée mais l’entête de l’action n’inclut pas d’argument « cela ».`);
+                  ctx.probleme(phraseAnalysee, routine,
+                    CategorieMessage.syntaxeAction, CodeMessage.complementActionInexistant,
+                    'complément indirect (cela) inexistant',
+                    `Étiquette {@cela:@} trouvée mais l’entête de l’action n’inclut pas de complément indirect {@cela@}.`,
+                  );
+                  // définir cela par défaut
                   routine.action.cibleCela = new CibleAction('un', 'objet', 'visible');
                 }
                 break;
@@ -384,7 +439,11 @@ export class AnalyseurV8Routines {
 
       // étiquette pas trouvée (ne devrait jamais arriver)
     } else {
-      ctx.ajouterErreur(phraseAnalysee.ligne, "action: étiquette d’entête pas trouvée.");
+      ctx.erreur(phraseAnalysee, routine,
+        CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
+        "étiquette d’entête pas trouvée",
+        `L’étiquette d’entête de l’action n’a pas été trouvée.`,
+      );
     }
 
     return routine;
@@ -443,14 +502,19 @@ export class AnalyseurV8Routines {
     const finRoutineTrouve = AnalyseurV8Utils.chercherFinRoutine(phraseAnalysee);
     if (finRoutineTrouve) {
       debutFinRoutineTrouve = true;
+        routine.ouvert = false;
       if (ctx.verbeux) {
         console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${Routine.TypeToMotCle(routine.type, false)} trouvé.`);
       }
       if (finRoutineTrouve === routine.type) {
-        routine.ouvert = false;
         routine.correctementFini = true;
       } else {
-        ctx.ajouterErreur(phraseAnalysee.ligne, `(${routine.titre}): un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu à la place du « fin ${Routine.TypeToMotCle(finRoutineTrouve, false)} ».`);
+        routine.correctementFini = false;
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.structureRoutine, CodeMessage.finRoutineDifferent,
+          'fin routine différent',
+          `Un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu à la place du {@fin ${Routine.TypeToMotCle(finRoutineTrouve, false)}@}.`,
+        );
       }
       // pointer la phrase suivante
       ctx.indexProchainePhrase++;
@@ -464,7 +528,11 @@ export class AnalyseurV8Routines {
         }
         routine.ouvert = false;
         routine.correctementFini = false;
-        ctx.ajouterErreur(phraseAnalysee.ligne, `${routine.titre}: un « fin ${Routine.TypeToMotCle(routine.type, false)} » est attendu avant le prochain début « ${Routine.TypeToMotCle(debutRoutineTrouve, false)} ».`);
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.structureRoutine, CodeMessage.finRoutineManquant,
+          'routine pas finie',
+          `Un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu avant le prochain début {@${Routine.TypeToMotCle(debutRoutineTrouve, false)}@}.`,
+        );
         // ne PAS pointer la phrase suivante car la phrase actuelle va être analysée à nouveau.
       }
     }

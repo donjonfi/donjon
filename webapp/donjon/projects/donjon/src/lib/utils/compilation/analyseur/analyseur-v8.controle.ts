@@ -90,7 +90,7 @@ export class AnalyseurV8Controle {
         // sinon erreur
       } else {
         ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeControle, CodeMessage.InstructionSiIntrouvable,
+          CategorieMessage.syntaxeControle, CodeMessage.instructionSiIntrouvable,
           "condition pas comprise",
           `La condition n’a pas été correctement formulée.`,
         );
@@ -105,7 +105,7 @@ export class AnalyseurV8Controle {
 
       if (condition.erreurs.length) {
         ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeControle, CodeMessage.InstructionSiIntrouvable,
+          CategorieMessage.syntaxeControle, CodeMessage.instructionSiIntrouvable,
           "condition pas comprise",
           `Cette condition n’a pas été correctement formulée.`,
         );
@@ -146,7 +146,7 @@ export class AnalyseurV8Controle {
 
             if (etiquetteActuelle === EtiquetteSi.sinon) {
               ctx.probleme(phraseAnalysee, routine,
-                CategorieMessage.structureBloc, CodeMessage.finBlocDifferent,
+                CategorieMessage.structureBloc, CodeMessage.sinonsiSuitSinon,
                 "sinon pas attendu ici",
                 `L’étiquette {@sinon@} ne peut pas appraître plus d’une fois par condition.`,
               );
@@ -227,7 +227,7 @@ export class AnalyseurV8Controle {
                     instruction.instructionsSiConditionPasVerifiee.push(instructionSinonSi);
                   } else {
                     ctx.probleme(phraseAnalysee, routine,
-                      CategorieMessage.syntaxeControle, CodeMessage.InstructionSiIntrouvable,
+                      CategorieMessage.syntaxeControle, CodeMessage.instructionSiIntrouvable,
                       "condition pas comprise",
                       `L’instruction {@sinonsi@} n’a pas été correctement formulée.`,
                     );

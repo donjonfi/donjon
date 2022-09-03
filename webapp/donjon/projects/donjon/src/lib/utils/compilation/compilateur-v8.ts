@@ -61,7 +61,7 @@ export class CompilateurV8 {
   * @param scenario scénario de l’auteur
   * @param verbeux  la sortie avec les remarques doit-elle être plus détaillée ?
   */
-  public static analyserScenarioSeul(scenario: string, verbeux: boolean): ResultatCompilation {
+  public static analyserScenarioSeul(scenario: string, verbeux: boolean = false): ResultatCompilation {
 
     // création d’un nouveau contexte pour la compilation
     let ctx = new ContexteCompilationV8(verbeux);

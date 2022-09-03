@@ -11,17 +11,29 @@ import { Statistiques } from '../jeu/statistiques';
 
 export class ResultatCompilation {
 
-    monde: Monde;
-    routines: RoutineSimple[];
-    regles: Regle[];
-    actions: Action[];
-    abreviations: Abreviation[];
-    aides: Aide[];
-    compteurs: ElementGenerique[]
-    listes: ElementGenerique[]
-    erreurs: string[];
-    messages: MessageAnalyse[];
-    parametres: Parametres;
-    statistiques: Statistiques;
+  /** Le monde généré. */
+  monde: Monde;
+  /** Les routines simples trouvées. */
+  routines: RoutineSimple[];
+  /** Les règles trouvées. */
+  regles: Regle[];
+  /** Les actions trouvées. */
+  actions: Action[];
+  /** Les abréviations trouvées. */
+  abreviations: Abreviation[];
+  /** Les fiches d’aide trouvées. */
+  aides: Aide[];
+  /** Les compteurs trouvés. */
+  compteurs: ElementGenerique[]
+  /** Les listes trouvées. */
+  listes: ElementGenerique[]
+  /** @deprecated: Les erreurs trouvées. */
+  erreurs: string[];
+  /** Les messages émis lors de l’analyse (conseils, problèmes, erreurs). */
+  messages: MessageAnalyse[];
+  /** Les paramètres définis pour le jeu. */
+  parametres: Parametres;
+  /** Les statistiques de l’analyse. */
+  statistiques: Statistiques;
 
 }

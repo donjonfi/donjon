@@ -1,3 +1,4 @@
+import { CodeMessage } from "../models/compilateur/message-analyse";
 import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 
 describe('Compilateur V8 − Analyser scénario', () => {
@@ -53,18 +54,20 @@ describe('Compilateur V8 − Analyser scénario', () => {
       'routine afficherScore:\n' +
       '  dire "Votre score: [c score]".\n'
 
-    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
+    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario);
 
     expect(resultatCompilation).toBeDefined();
-    console.log("erreurs:", resultatCompilation.erreurs);
-
-    expect(resultatCompilation.erreurs.length).toEqual(1); // 1 erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(1); //
-    expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
-    expect(resultatCompilation.regles.length).toEqual(0);
-    expect(resultatCompilation.routines.length).toEqual(1);
-    expect(resultatCompilation.actions.length).toEqual(0);
-    expect(resultatCompilation.listes.length).toEqual(0);
+    // 1 message: routine pas finie
+    expect(resultatCompilation.messages).toHaveSize(1);
+    const message = resultatCompilation.messages[0];
+    expect(message.code).toBe(CodeMessage.finRoutineManquant);
+    // la routine est tout de même ajoutée
+    expect(resultatCompilation.monde.lieux).toHaveSize(1);
+    expect(resultatCompilation.monde.objets).toHaveSize(3); // le joueur + les autres objets
+    expect(resultatCompilation.regles).toHaveSize(0);
+    expect(resultatCompilation.routines).toHaveSize(1);
+    expect(resultatCompilation.actions).toHaveSize(0);
+    expect(resultatCompilation.listes).toHaveSize(0);
   });
 
   it('Analyser scénario avec 1 lieu, 2 objets et 1 règle.', function () {
@@ -77,7 +80,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
       '  dire "Début de la partie !".\n' +
       'fin règle';
 
-    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
+    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario);
 
     expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
     expect(resultatCompilation.monde.lieux.length).toEqual(1); //
@@ -101,7 +104,9 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
 
-    expect(resultatCompilation.erreurs.length).toEqual(2); // erreur
+    expect(resultatCompilation.messages).toHaveSize(1); // erreur
+    const message = resultatCompilation.messages[0];
+    expect(message.code).toBe(CodeMessage.finRoutineDifferent);
     expect(resultatCompilation.monde.lieux.length).toEqual(1); //
     expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
     expect(resultatCompilation.regles.length).toEqual(1);
@@ -124,7 +129,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
       '  dire "Début de la partie !".\n' +
       'fin règle';
 
-    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
+    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario);
 
     expect(resultatCompilation).toBeDefined();
     console.log("erreurs:", resultatCompilation.erreurs);
