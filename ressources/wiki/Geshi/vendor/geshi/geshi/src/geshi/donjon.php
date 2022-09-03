@@ -64,7 +64,7 @@ $language_data = array (
             ),
         3 => array(
             'si', 'sinon', 'sinonsi', 'choix', 'choisir', 'remplacer', 
-			'avant', 'après', 'règle', 'action', 'routine',
+			'avant', 'après', 'règle', 'action', 'réaction', 'réactions', 'basique', 'concernant', 'routine',
 			'phase', 'prérequis', 'exécution', 'épilogue',
 			'définition', 'définitions',
 			'peut', 'est', 'sont', 'pas', 'plus',
