@@ -108,7 +108,6 @@ export class AnalyseurV8Utils {
     const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureRoutine) {
-      console.log("chercher FIN Routine > YES: ", phrase.toString());
       return Routine.ParseType(fermetureRoutine[1]);
     } else {
       return undefined;
@@ -126,7 +125,6 @@ export class AnalyseurV8Utils {
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
     // ouverture d’une routine (routine, règle, action, réaction, …)
     if (ouvertureRoutine) {
-      console.log("chercher DEBUT Routine > YES: ", phrase.toString());
       return Routine.ParseType(ouvertureRoutine[1]);
     } else {
       return undefined;
@@ -161,7 +159,6 @@ export class AnalyseurV8Utils {
     const fermetureBloc = ExprReg.xFinInstructionControle.exec(phrase.morceaux[0])
     // fermeture d’une routine (routine, règle, action, réaction, …)
     if (fermetureBloc) {
-      console.log("chercherFinInstructionControle > YES: ", phrase.toString());
       return InstructionControle.ParseType(fermetureBloc[1]);
     } else {
       return undefined;

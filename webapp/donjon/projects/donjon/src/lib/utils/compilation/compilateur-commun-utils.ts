@@ -21,7 +21,8 @@ export class CompilateurCommunUtils {
   public static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2022 Jonathan Claes − https://donjon.fi";
   // rem: l’espace+point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
   public static readonly regleInfoDonjonBeta = " .\naprès afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\"; terminer l’action avant.";
-  public static readonly regleInfoDonjonV8 = " .\nrègle après afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\". Terminer l’action avant. fin règle";
+  
+  public static readonly regleInfoDonjonV8 = "règle après afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\". Terminer l’action avant. fin règle";
 
   /** Ajouter les éléments spéciaux au scénario (joueur, inventaire, jeu, ressources, …) */
   public static ajouterElementsSpeciaux(ctxAnalyse: ContexteAnalyse) {

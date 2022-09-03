@@ -5,7 +5,6 @@ import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8"
 import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compilation-v8";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { Statisticien } from "../jeu/statisticien";
-import { Verificateur } from "./verificateur";
 
 /**
  * Il s’agit du deuxième compilateur Donjon FI.
@@ -34,7 +33,7 @@ export class CompilateurV8 {
     if (!/d(é|e)sactiver les (commandes|actions) de base(\.|;)/i.test(scenario)) {
       if (actions) {
         try {
-          CompilateurV8.analyserCodeSource(actions, ctx.analyse);
+          CompilateurV8.analyserCodeSource(actions, ctx.analyse, true);
         } catch (error) {
           console.error("Une erreur s’est produite lors de l’analyse des commandes de base :", error);
         }
@@ -44,7 +43,10 @@ export class CompilateurV8 {
     }
 
     // Interpréter le scénario
-    CompilateurV8.analyserCodeSource((scenario + CompilateurCommunUtils.regleInfoDonjonV8), ctx.analyse);
+    CompilateurV8.analyserCodeSource(scenario, ctx.analyse, false);
+
+    // ajouter règle « info Donjon FI » pour l’action « afficher aide »
+    CompilateurV8.analyserCodeSource(CompilateurCommunUtils.regleInfoDonjonV8, ctx.analyse, false);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);
@@ -70,7 +72,7 @@ export class CompilateurV8 {
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
 
     // Interpréter le scénario
-    CompilateurV8.analyserCodeSource(scenario, ctx.analyse);
+    CompilateurV8.analyserCodeSource(scenario, ctx.analyse, false);
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);
@@ -82,8 +84,9 @@ export class CompilateurV8 {
    * Interpréter le code source fourni et ajouter le résultat à l’analyse fournie.
    * @param source Instructions à interpréter.
    * @param contexteAnalyse Analyse existante à compléter.
+   * @param fichierActions S’agit-il du fichier contenant les actions de base ?
    */
-  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyseV8): void {
+  public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyseV8, fichierActions: boolean): void {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
 
@@ -92,7 +95,7 @@ export class CompilateurV8 {
     // ********************************
     // ANALYSER LES PHRASES
     // ********************************
-    AnalyseurV8.analyserPhrases(phrases, contexteAnalyse);
+    AnalyseurV8.analyserPhrases(phrases, contexteAnalyse, fichierActions);
 
   }
 

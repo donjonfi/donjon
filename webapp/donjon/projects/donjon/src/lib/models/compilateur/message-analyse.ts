@@ -31,6 +31,8 @@ export class MessageAnalyse {
     public corps: string,
     /** Routine liée au message */
     routine: Routine | undefined = undefined,
+    /** La phrase provient-elle du fichier avec les actions de base ? */
+    public fichierAction: boolean,
   ) {
     this.numeroLigne = phrase.ligne;
     this.phrase = phrase.toString();

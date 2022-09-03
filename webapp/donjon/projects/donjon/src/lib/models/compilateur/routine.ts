@@ -43,8 +43,11 @@ export class Routine extends BlocInstructions {
         return ERoutine.regle
 
       case 'réaction':
-      case 'rèaction':
+      case 'réactions':
       case 'reaction':
+      case 'reactions':
+      case 'rèaction':
+      case 'rèactions':
         return ERoutine.reaction
 
       default:

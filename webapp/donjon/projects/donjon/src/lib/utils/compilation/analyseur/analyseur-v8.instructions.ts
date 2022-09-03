@@ -21,13 +21,12 @@ export class AnalyseurV8Instructions {
     let instructionTrouvee = true;
 
     // phrase à analyser
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
-
-    console.log("@@@@@ chercherInstructionOuBlocControle > ", phraseAnalysee.toString());
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
     // CAS 1: DÉBUT INSTRUCTION CONTRÔLE => on traite le nouveau bloc contrôle
     const debutInstructionControleTrouve = AnalyseurV8Utils.chercherDebutInstructionControle(phraseAnalysee);
     if (debutInstructionControleTrouve) {
+      ctx.logResultatOk(`instruction contrôle (${InstructionControle.TypeToMotCle(debutInstructionControleTrouve)})`)
       // tester si on a affaire à un si court
       AnalyseurV8Controle.traiterBlocControle(debutInstructionControleTrouve, phrases, routine, instructions, ctx);
       // (index de la phrase suivante géré par traiterBlocControle)
@@ -35,33 +34,36 @@ export class AnalyseurV8Instructions {
       // CAS 2: FIN INSTRUCTION CONTRÔLE => ERREUR (et on continue avec la suite, on n’était pas dans un bloc)
       const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
       if (finInstructionControleTrouvee) {
-        ctx.ajouterErreur(phraseAnalysee.ligne, `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » a été ignoré.`);
+        ctx.logResultatOk(`fin bloc ${InstructionControle.TypeToMotCle(debutInstructionControleTrouve)} inattendu (pas dans un bloc)`)
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeRoutine, CodeMessage.finBlocInconnu,
+          `fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} inattendu`,
+          `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » a été ignoré.`,
+        );
         // pointer la phrase suivante
         ctx.indexProchainePhrase++;
       } else {
         // CAS 3: INSTRUCTION SIMPLE
         const instructionSimpleTrouvee = AnalyseurV8Instructions.traiterInstructionSimple(phraseAnalysee, instructions);
         if (instructionSimpleTrouvee) {
-          if (ctx.verbeux) {
-            console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple trouvée.`);
-          }
+          ctx.logResultatOk("instruction simple trouvée")
           // pointer la phrase suivante
           ctx.indexProchainePhrase++;
           // CAS 4: RIEN TROUVÉ
         } else {
           // on n’a pas trouvé d’instruction
           instructionTrouvee = false;
-          if (ctx.verbeux) {
-            console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: instuction simple NON trouvée.`);
-          }
           // CAS 4b: TROUVÉ FIN BLOC ERRONÉ
           if (AnalyseurV8Utils.chercherFinBlocInconnu(phraseAnalysee)) {
+            ctx.logResultatKo("fin bloc inconnu")
+
             ctx.probleme(phraseAnalysee, routine,
               CategorieMessage.syntaxeRoutine, CodeMessage.finBlocInconnu,
               "fin bloc inconnu",
               `Il y a probablement une faute de frappe ici.`,
             );
           } else {
+            ctx.logResultatKo("pas trouvé d’instruction simple")
             ctx.probleme(phraseAnalysee, routine,
               CategorieMessage.structureRoutine, CodeMessage.finBlocManquant,
               `fin ${Routine.TypeToMotCle(routine.type, false)} attendu`,

@@ -26,9 +26,6 @@ export class AnalyseurV8Routines {
    * @returns true si une routine a effectivement été trouvée.
    */
   public static traiterRoutine(debutRoutineTrouve: ERoutine, phrases: Phrase[], ctx: ContexteAnalyseV8): boolean {
-
-    console.log("### DÉBUT traiter ROUTINE", ++this.pileRoutine);
-
     let retVal = false;
     let routine: Routine | undefined;
     const sauvegardeIndexPhraseInitial = ctx.indexProchainePhrase;
@@ -85,9 +82,6 @@ export class AnalyseurV8Routines {
       // pointer la prochaine phrase
       ctx.indexProchainePhrase++;
     }
-
-    console.log("### FIN traiter ROUTINE", this.pileRoutine--);
-
     return retVal;
   }
 
@@ -99,7 +93,7 @@ export class AnalyseurV8Routines {
 
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     // trouver le nom de la routine
     let nomRoutine = AnalyseurV8Utils.chercherEtiquetteEtReste(['routine'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
     // pointer la prochaine phrase
@@ -108,9 +102,7 @@ export class AnalyseurV8Routines {
     // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
     if (nomRoutine !== undefined) {
 
-      if (ctx.verbeux) {
-        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: nom de la routine: ${nomRoutine}.`);
-      }
+      ctx.logResultatOk(`trouvé entête routine (${nomRoutine})`);
 
       // création de la routine
       routine = new RoutineSimple(nomRoutine, phraseAnalysee.ligne);
@@ -127,7 +119,7 @@ export class AnalyseurV8Routines {
       // B. CORPS et PIED
       // parcours de la routine jusqu’à la fin
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
-        // phraseAnalysee = phrases[ctx.indexProchainePhrase];
+        //let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
         // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À INSTRUCTION SIMPLE
         // (il n’y en a pas)
@@ -165,7 +157,7 @@ export class AnalyseurV8Routines {
     // A. ENTÊTE
     // => ex: « règle avant manger la pomme : »
     // => ex: « règle après une action quelconque : »
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     // trouver le nom de la routine
     let enonceRegle = AnalyseurV8Utils.chercherEtiquetteEtReste(['règle'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
 
@@ -229,7 +221,7 @@ export class AnalyseurV8Routines {
       // B. CORPS et PIED
       // parcours de la routine jusqu’à la fin
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
-        // phraseAnalysee = phrases[ctx.indexProchainePhrase];
+        // let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
         // a. CHERCHER ÉTIQUETTES SPÉCIFIQUES À RÈGLE
         // (il n’y en a pas)
@@ -267,7 +259,7 @@ export class AnalyseurV8Routines {
 
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     // trouver le nom de la routine
     let enteteAction = AnalyseurV8Utils.chercherEtiquetteEtReste(['action'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
     // pointer la prochaine phrase
@@ -275,10 +267,7 @@ export class AnalyseurV8Routines {
 
     // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
     if (enteteAction !== undefined) {
-
-      if (ctx.verbeux) {
-        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: entête de l’action: ${enteteAction}.`);
-      }
+      ctx.logResultatOk(`entête action: ${enteteAction}`)
       // décomposer l’entête de l’action
       let enteteDecompose = ExprReg.xRoutineActionEnteteCeciCela.exec(enteteAction);
       if (enteteDecompose) {
@@ -323,7 +312,7 @@ export class AnalyseurV8Routines {
       // B. CORPS et PIED
       // parcours de la routine jusqu’à la fin
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
-        phraseAnalysee = phrases[ctx.indexProchainePhrase];
+        phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
         // a) CHERCHER ÉTIQUETTES SPÉCIFIQUES À ACTION
 
@@ -335,14 +324,18 @@ export class AnalyseurV8Routines {
             case 'prerequi':
             case 'prerequis':
               etiquetteActuelle = EtiquetteAction.phasePrerequis;
+              ctx.logResultatOk("🎫 étiquette: phase prérequis");
               break;
             case 'execution':
               etiquetteActuelle = EtiquetteAction.phaseExecution;
+              ctx.logResultatOk("🎫 étiquette: phase exécution");
               break;
             case 'epilogue':
               etiquetteActuelle = EtiquetteAction.phaseEpilogue;
+              ctx.logResultatOk("🎫 étiquette: phase épilogue");
               break;
             default:
+              ctx.logResultatKo("🎫 étiquette: phase: inconnue");
               ctx.probleme(phraseAnalysee, routine,
                 CategorieMessage.syntaxeAction, CodeMessage.phaseActionInconnue,
                 'phase inconnue',
@@ -364,11 +357,14 @@ export class AnalyseurV8Routines {
             switch (etiquetteCeciCela) {
               case 'ceci':
                 etiquetteActuelle = EtiquetteAction.ceci;
-                if (!routine.action.ceci) {
+                if (routine.action.ceci) {
+                  ctx.logResultatOk("🎫 étiquette: définition ceci");
+                } else {
+                  ctx.logResultatKo("🎫 étiquette: définition ceci: argument absent de l’entête");
                   ctx.probleme(phraseAnalysee, routine,
                     CategorieMessage.syntaxeAction, CodeMessage.complementActionInexistant,
-                    'complément direct (ceci) inexistant',
-                    `Étiquette {@ceci:@} trouvée mais l’entête de l’action n’inclut pas de complément direct {@ceci@}.`,
+                    'ceci absent de l’entête de l’action',
+                    `Étiquette {@définition ceci:@} trouvée mais l’entête de l’action n’inclut pas de complément direct {@ceci@}.`,
                   );
                   // définir ceci par défaut
                   routine.action.cibleCeci = new CibleAction('un', 'objet', 'visible');
@@ -377,11 +373,14 @@ export class AnalyseurV8Routines {
 
               case 'cela':
                 etiquetteActuelle = EtiquetteAction.cela;
-                if (!routine.action.cela) {
+                if (routine.action.cela) {
+                  ctx.logResultatOk("🎫 étiquette: définition cela");
+                } else {
+                  ctx.logResultatKo("🎫 étiquette: définition cela: argument absent de l’entête");
                   ctx.probleme(phraseAnalysee, routine,
                     CategorieMessage.syntaxeAction, CodeMessage.complementActionInexistant,
-                    'complément indirect (cela) inexistant',
-                    `Étiquette {@cela:@} trouvée mais l’entête de l’action n’inclut pas de complément indirect {@cela@}.`,
+                    'cela absent de l’entête de l’action',
+                    `Étiquette {@définition cela:@} trouvée mais l’entête de l’action n’inclut pas de complément indirect {@cela@}.`,
                   );
                   // définir cela par défaut
                   routine.action.cibleCela = new CibleAction('un', 'objet', 'visible');
@@ -389,7 +388,8 @@ export class AnalyseurV8Routines {
                 break;
 
               default:
-                throw new Error("Étiquette inconnue: " + etiquetteCeciCela);
+                ctx.logResultatKo(`🎫 étiquette inconnue`);
+                throw new Error(`Étiquette inconnue: etiquetteCeciCela`);
             }
 
             // passer à la phrase suivante
@@ -461,7 +461,7 @@ export class AnalyseurV8Routines {
   // private static chercherEtTraiterPrerequis(phrases: Phrase[], verifications: Verification[], routine: Routine, ctx: ContexteAnalyseV8): void {
 
   //   // phrase à analyser
-  //   let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+  //   let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
   //   // TODO: à implémenter
   //   console.warn("todo: chercherPrerequis", phraseAnalysee);
@@ -473,7 +473,7 @@ export class AnalyseurV8Routines {
   private static chercherEtTraiterDefinitionComplement(phrases: Phrase[], complement: CibleAction, routine: Routine, ctx: ContexteAnalyseV8): void {
 
     // phrase à analyser
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
     // TODO: à implémenter
     console.warn("todo: chercherInfosComplement", phraseAnalysee);
@@ -494,22 +494,20 @@ export class AnalyseurV8Routines {
     let debutFinRoutineTrouve = false;
 
     // phrase à analyser
-    let phraseAnalysee = phrases[ctx.indexProchainePhrase];
-
-    console.log("@@@@@ chercherDebutFinRoutine > ", phraseAnalysee.toString());
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
     // CAS 1: FIN ROUTINE => on finit la routine
     const finRoutineTrouve = AnalyseurV8Utils.chercherFinRoutine(phraseAnalysee);
     if (finRoutineTrouve) {
       debutFinRoutineTrouve = true;
-        routine.ouvert = false;
-      if (ctx.verbeux) {
-        console.log(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: fin ${Routine.TypeToMotCle(routine.type, false)} trouvé.`);
-      }
+      routine.ouvert = false;
+
       if (finRoutineTrouve === routine.type) {
         routine.correctementFini = true;
+        ctx.logResultatOk(`🟧 fin ${Routine.TypeToMotCle(routine.type, false)}`);
       } else {
         routine.correctementFini = false;
+        ctx.logResultatKo(`fin ${Routine.TypeToMotCle(routine.type, false)} trouvé (pas celui attendu)`);
         ctx.probleme(phraseAnalysee, routine,
           CategorieMessage.structureRoutine, CodeMessage.finRoutineDifferent,
           'fin routine différent',
@@ -523,9 +521,7 @@ export class AnalyseurV8Routines {
       const debutRoutineTrouve = AnalyseurV8Utils.chercherDebutRoutine(phraseAnalysee);
       if (debutRoutineTrouve) {
         debutFinRoutineTrouve = true;
-        if (ctx.verbeux) {
-          console.warn(`[AnalyseurV8.routines] l.${phraseAnalysee.ligne}: début routine (${Routine.TypeToMotCle(routine.type, false)}) trouvé alors que routine précédente pas terminée.`);
-        }
+        ctx.logResultatKo(`début ${Routine.TypeToMotCle(debutRoutineTrouve, false)} inattendu (${Routine.TypeToMotCle(routine.type, false)}@} déjà en cours.)`);
         routine.ouvert = false;
         routine.correctementFini = false;
         ctx.probleme(phraseAnalysee, routine,

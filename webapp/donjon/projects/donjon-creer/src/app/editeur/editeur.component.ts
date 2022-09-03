@@ -45,7 +45,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
   EMessageAnalyse = EMessageAnalyse;
-  
+
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario';
 
   nbLignesCode = 30;
@@ -66,6 +66,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Faut-il désactiver la mise en forme dans l'éditeur de texte (pour lecteur d'écran) ? */
   sansMiseEnForme = false;
+
+  /** Faut-il activer le mode verbeux du compilateur Donjon FI ? */
+  compilateurVerbeux = false;
 
   public config: AceConfigInterface = {
     // mode: 'text',
@@ -200,6 +203,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
       }
     }
 
+    // - active le mode verbeux du compilateur Donjon FI
+    retVal = localStorage.getItem('CompilateurVerbeux');
+    if (retVal) {
+      if (retVal == '1') {
+        this.compilateurVerbeux = true;
+      } else {
+        this.compilateurVerbeux = false;
+      }
+    }
+
     // - désactive la mise en forme (désactive ace) pour lecteur écran
     retVal = localStorage.getItem('SansMiseEnForme');
     if (retVal) {
@@ -298,7 +311,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
 
-    let verbeux = false;
+    let verbeux = this.compilateurVerbeux;
 
     this.showTab('analyse');
     // sauver le code et mettre à jour les sections
@@ -377,7 +390,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   referenceCode(ligne: number) {
     this.showTab('scenario');
-    this.codeEditorElmRef["directiveRef"].ace().scrollToLine(ligne, true, true, function () {});
+    this.codeEditorElmRef["directiveRef"].ace().scrollToLine(ligne, true, true, function () { });
     this.codeEditorElmRef["directiveRef"].ace().gotoLine(ligne, 0, true);
     this.codeEditorElmRef["directiveRef"].ace().focus();
   }
@@ -1106,6 +1119,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Désactiver la mise en forme de l'éditeur de scénario (pour lecteur d'écran) */
   onChangerSansMiseEnForme(): void {
     localStorage.setItem('SansMiseEnForme', (this.sansMiseEnForme ? '1' : '0'));
+  }
+
+  /** Activer le mode verbeux du compilateur Donjon FI (pour le débogage de Donjon FI) */
+  onChangerCompilateurVerbeux(): void {
+    localStorage.setItem('CompilateurVerbeux', (this.compilateurVerbeux ? '1' : '0'));
   }
 
   /** Changer le thème de mise en surbrillance du code source. */

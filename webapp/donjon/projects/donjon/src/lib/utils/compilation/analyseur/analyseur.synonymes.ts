@@ -46,6 +46,8 @@ export class AnalyseurSynonymes {
     const result = ExprReg.xSynonymes.exec(phrase.morceaux[0]);
     if (result !== null) {
 
+      resultatTrouve = ResultatAnalysePhrase.synonyme;
+
       const synonymesBruts = result[1];
       const listeSynonymesBruts = PhraseUtils.separerListeIntitulesEtOu(synonymesBruts, true);
       const originalBrut = result[2];
@@ -69,7 +71,6 @@ export class AnalyseurSynonymes {
                 // ajouter le synonyme à l’action
                 action.ajouterSynonyme(synonyme);
               });
-              resultatTrouve = ResultatAnalysePhrase.synonyme;
 
               // vérifier si ce synonyme n’a pas déjà été utilisé pour une autre action
               let listeAutresSynonymes: string[] = [];
@@ -128,7 +129,6 @@ export class AnalyseurSynonymes {
                 ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
               }
             });
-            resultatTrouve = ResultatAnalysePhrase.synonyme;
 
             // AUCUN élément trouvé
           } else if (elementsTrouves.length === 0) {

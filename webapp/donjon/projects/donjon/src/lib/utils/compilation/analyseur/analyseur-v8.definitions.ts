@@ -19,14 +19,9 @@ export class AnalyseurV8Definitions {
     let elementTrouve: ResultatAnalysePhrase = AnalyseurV8Definitions.testerDefinition(phrase, ctx);
 
     if (elementTrouve !== ResultatAnalysePhrase.aucun) {
-      if (ctx.verbeux) {
-        console.log(`[AnalyseurV8] l.${phrase.ligne}: définition trouvée (${phrase})`);
-      }
       definitionTrouvee = true;
     } else {
-      if (ctx.verbeux) {
-        console.warn(`[AnalyseurV8] l.${phrase.ligne}: pas trouvé de définition (${phrase})`);
-      }
+      ctx.logResultatKo(`pas trouvé définition`);
       definitionTrouvee = false;
     }
     // passer à la phrase suivante
@@ -34,7 +29,7 @@ export class AnalyseurV8Definitions {
     return definitionTrouvee;
   }
 
-  private static testerDefinition(phrase: Phrase, ctx: ContexteAnalyse): ResultatAnalysePhrase {
+  private static testerDefinition(phrase: Phrase, ctx: ContexteAnalyseV8): ResultatAnalysePhrase {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // Commentaire ou Section (partie, chapitre, ...)
@@ -88,7 +83,7 @@ export class AnalyseurV8Definitions {
    *  - chapitre "La maison"
    * 
    */
-  private static testerCommentaireEtSection(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
+  private static testerCommentaireEtSection(phrase: Phrase, ctx: ContexteAnalyseV8, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // COMMENTAIRE (-- commentaire)
@@ -98,9 +93,7 @@ export class AnalyseurV8Definitions {
       if (phrase.morceaux[0].trim().slice(0, 2) === "--") {
         phrase.traitee = true;
         elementTrouve = ResultatAnalysePhrase.commentaire;
-        if (ctx.verbeux) {
-          console.log("=> commentaire trouvé");
-        }
+        ctx.logResultatOk(`commentaire trouvé`);
       }
     }
 
@@ -109,8 +102,8 @@ export class AnalyseurV8Definitions {
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurDivers.testerSection(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.section) {
-        console.log("=> section trouvée");
+      if (elementTrouve === ResultatAnalysePhrase.section) {
+        ctx.logResultatOk(`section trouvée`);
       }
     }
 
@@ -122,15 +115,15 @@ export class AnalyseurV8Definitions {
    * Ex: 
    *  - L'aide pour l'action regarder est "{*Regarder*}{n}Permet de regarder autours de vous.".
    */
-  private static testerAide(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
+  private static testerAide(phrase: Phrase, ctx: ContexteAnalyseV8, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // AIDE
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurDivers.testerAide(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.aide) {
-        console.log("=> aide trouvée");
+      if (elementTrouve === ResultatAnalysePhrase.aide) {
+        ctx.logResultatOk(`fiche aide trouvée`);
       }
     }
     return elementTrouve;
@@ -141,15 +134,15 @@ export class AnalyseurV8Definitions {
    * Ex: 
    *  - Désactiver l'affichage des sorties.
    */
-  private static testerParametre(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
+  private static testerParametre(phrase: Phrase, ctx: ContexteAnalyseV8, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // ACTIVER / DÉSACTIVER PARAMÈTRE
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurDivers.testerActiverDesactiverParametre(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.activerParametre) {
-        console.log("=> trouvé activer/désactiver paramètre.");
+      if (elementTrouve === ResultatAnalysePhrase.activerParametre) {
+        ctx.logResultatOk("trouvé (dé)activation paramètre");
       }
     }
     return elementTrouve;
@@ -162,15 +155,15 @@ export class AnalyseurV8Definitions {
    * - Interpréter pirate et barbu comme le capitaine.
    * - L'abréviation sos correspond à "envoyer sos".
    */
-  private static testerSynonymeEtAbreviation(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
+  private static testerSynonymeEtAbreviation(phrase: Phrase, ctx: ContexteAnalyseV8, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // SYNONYMES
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurSynonymes.testerSynonyme(phrase, ctx)
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.synonyme) {
-        console.log("=> trouvé synonyme(s)");
+      if (elementTrouve === ResultatAnalysePhrase.synonyme) {
+        ctx.logResultatOk("trouvé synonyme(s)");
       }
     }
 
@@ -179,8 +172,8 @@ export class AnalyseurV8Definitions {
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurSynonymes.testerAbreviation(phrase, ctx)
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.abreviation) {
-        console.log("=> trouvé abréviation");
+      if (elementTrouve === ResultatAnalysePhrase.abreviation) {
+        ctx.logResultatOk("trouvé abrévitation");
       }
     }
 
@@ -194,15 +187,15 @@ export class AnalyseurV8Definitions {
    *  - Un lutin est une personne.
    *  - Un lutin est magique.
    */
-  private static testerType(phrase: Phrase, ctx: ContexteAnalyse, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
+  private static testerType(phrase: Phrase, ctx: ContexteAnalyseV8, elementTrouve: ResultatAnalysePhrase): ResultatAnalysePhrase {
 
     // ===============================================
     // NOUVEAU TYPE
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurType.testerNouveauType(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.type) {
-        console.log("=> trouvé type");
+      if (elementTrouve === ResultatAnalysePhrase.type) {
+        ctx.logResultatOk("trouvé type");
       }
     }
 
@@ -211,8 +204,8 @@ export class AnalyseurV8Definitions {
     // ===============================================
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = AnalyseurType.testerPrecisionType(phrase, ctx);
-      if (ctx.verbeux && elementTrouve === ResultatAnalysePhrase.precisionType) {
-        console.log("=> trouvé précision type");
+      if (elementTrouve === ResultatAnalysePhrase.precisionType) {
+        ctx.logResultatOk("trouvé précision type");
       }
     }
 

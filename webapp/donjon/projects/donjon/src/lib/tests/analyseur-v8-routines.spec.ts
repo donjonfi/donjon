@@ -128,7 +128,6 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
-
   it('routine avec 1 condition dont le fin routine est manquant', function () {
     let scenario =
       'routine maRoutine:\n' +
@@ -145,6 +144,7 @@ describe('Traiter routine', () => {
     expect(res.messages).toHaveSize(1);
     const message = res.messages[0];
     expect(message.code).toBe(CodeMessage.finRoutineManquant);
+    expect(res.actions).toHaveSize(0);
     // la routine a tout de même pu être créée
     expect(res.routines).toHaveSize(1);
     const maRoutine = res.routines[0];
@@ -155,7 +155,6 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionVerifiee).toHaveSize(1);
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
-
 
   it('action avec 1 condition dont le fin action est différent', function () {
     let scenario =
@@ -186,4 +185,33 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
+  it('action avec 1 condition dont le fin action est différent', function () {
+    let scenario =
+      'action sauter:\n' +
+      '  si le joueur est présent:\n' +
+      '    dire "Vous sautez!"\n' +
+      '  sinon\n' +
+      '    dire "Le joueur est absent!"\n' +
+      '  fin si\n' +
+      'fin routine\n' +
+      '\n' +
+      '';
+
+    const res = CompilateurV8.analyserScenarioSeul(scenario);
+    // erreur fin bloc manquant
+    expect(res.messages).toHaveSize(1);
+    const message = res.messages[0];
+    expect(message.code).toBe(CodeMessage.finRoutineDifferent);
+    expect(res.routines).toHaveSize(0);
+    // l’action a tout de même pu être créée
+    expect(res.actions).toHaveSize(1);
+    const monAction = res.actions[0];
+    expect(monAction.infinitif).toEqual('sauter');
+    expect(monAction.phaseExecution).toHaveSize(1);
+    const condition = monAction.phaseExecution[0];
+    expect(condition.condition).toBeDefined();
+    expect(condition.instructionsSiConditionVerifiee).toHaveSize(1);
+    expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
+  });
+  
 });

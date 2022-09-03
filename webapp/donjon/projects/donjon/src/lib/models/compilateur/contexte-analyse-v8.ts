@@ -12,6 +12,9 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
 
   public indexProchainePhrase = 0;
 
+  /** Est on occupé à analyser le fichier contenant les actions de base ? */
+  public analyseFichierActionsEnCours = false;
+
   /**
    * Routines présentes dans le scénario.
    * (routines simples, règles, actions, réactions)
@@ -70,7 +73,7 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
    * @param corps Corps du message
    * @param routine Routine liée au message
    */
-   erreur(phrase: Phrase, routine: Routine | undefined, 
+  erreur(phrase: Phrase, routine: Routine | undefined,
     categorie: CategorieMessage, code: CodeMessage,
     titre: string, corps: string,
   ): void {
@@ -86,8 +89,8 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
    * @param corps Corps du message
    * @param routine Routine liée au message
    */
-   conseil(phrase: Phrase, routine: Routine | undefined,
-     categorie: CategorieMessage, code: CodeMessage,
+  conseil(phrase: Phrase, routine: Routine | undefined,
+    categorie: CategorieMessage, code: CodeMessage,
     titre: string, corps: string,
   ): void {
     this.ajouterMessage(EMessageAnalyse.conseil, phrase, categorie, code, titre, corps, routine);
@@ -104,7 +107,7 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
    */
   probleme(phrase: Phrase, routine: Routine | undefined,
     categorie: CategorieMessage, code: CodeMessage,
-    titre: string, corps: string, 
+    titre: string, corps: string,
   ): void {
     this.ajouterMessage(EMessageAnalyse.probleme, phrase, categorie, code, titre, corps, routine);
   }
@@ -123,21 +126,56 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
     type: EMessageAnalyse, phrase: Phrase, categorie: CategorieMessage, code: CodeMessage,
     titre: string, corps: string, routine: Routine | undefined = undefined,
   ): void {
-    const message = new MessageAnalyse(type, phrase, categorie, code, titre, corps, routine);
+    const message = new MessageAnalyse(type, phrase, categorie, code, titre, corps, routine, this.analyseFichierActionsEnCours);
     this.messages.push(message);
     // écrire l’erreur dans la console
     switch (message.type) {
       case EMessageAnalyse.conseil:
-        console.info("CON:", message);
+        console.info("CONS:", message);
         break;
       case EMessageAnalyse.probleme:
-        console.warn("PRO:", message);
+        console.warn("PROB:", message);
         break;
       case EMessageAnalyse.erreur:
       default:
-        console.error("ERR:", message);
+        console.error("ERRE:", message);
         break;
     }
   }
 
+  private indexDernierePhraseanalysee = -1;
+
+  /** 
+   * Obtenir la prochaine phrase (en se basant sur indexProchainePhrase, celui-ci ne sera pas modifié).
+   * La phrase sera copiée dans les logs du navigateur si le mode verbeux est actif et si elle a changé depuis le dernier appel.
+  */
+  public getPhraseAnalysee(phrases: Phrase[]): Phrase {
+    const phraseAnalysee = phrases[this.indexProchainePhrase];
+    // phrase différente depuis le dernier appel ?
+    if(this.indexDernierePhraseanalysee !== this.indexProchainePhrase){
+      this.indexDernierePhraseanalysee = this.indexProchainePhrase;
+      this.logPhrase(phraseAnalysee);
+    }
+    return phraseAnalysee;
+  }
+
+  /** Écrire la phrase dans les logs du navigateur si le mode verbeux est actif. */
+  public logPhrase(phraseAnalysee: Phrase) {
+    if (this.verbeux) {
+      console.log(`—————————————————————————————————————`);
+      console.log(`[${this.analyseFichierActionsEnCours ? 'A' : 'S'}−${phraseAnalysee.ligne}] ${phraseAnalysee.toString()}`);
+    }
+  }
+
+  public logResultatOk(message: string) {
+    if (this.verbeux) {
+      console.log(`✔️ ${message}`);
+    }
+  }
+
+  public logResultatKo(message: string) {
+    if (this.verbeux) {
+      console.log(`❌ ${message}`);
+    }
+  }
 }
