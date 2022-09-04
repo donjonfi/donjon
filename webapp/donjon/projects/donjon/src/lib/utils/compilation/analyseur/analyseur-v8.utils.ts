@@ -7,6 +7,49 @@ import { Phrase } from "../../../models/compilateur/phrase";
 
 export class AnalyseurV8Utils {
 
+  /**
+   * Déterminer si la phrase correspond exactement à l’étiquette spécifiée.
+   * @param etiquette étiquette à rechercher doit être définie en minuscules. Il est possible d’en définir plusieurs variantes (avec/sans accent)
+   * @returns true si la phrase correspond exactement à l’étiquette spécifiée. 
+   */
+  public static chercherEtiquetteExacte(etiquette: string[], phrase: Phrase | string, terminePar2Points: ObligatoireFacultatif): boolean {
+    let instruction: string;
+    if (phrase instanceof Phrase) {
+      instruction = Phrase.retrouverPhraseBrute(phrase);
+    } else {
+      instruction = phrase;
+    }
+
+    if (!etiquette?.length)
+      throw new Error("chercherEtiquetteExacte: l’argument etiquette doit contenir au moins une étiquette.");
+    let regExp: RegExp;
+    let intituleEtiquette: string;
+    let deuxPoints: string;
+    if (etiquette.length == 1) {
+      intituleEtiquette = etiquette[0];
+    } else {
+      intituleEtiquette = '(' + etiquette.join('|') + ')';
+      // regExp = new RegExp('^(' + etiquette.join('|') + ')', 'i');
+    }
+
+    if (terminePar2Points == ObligatoireFacultatif.facultatif) {
+      deuxPoints = '(?:( )*\\:)?';
+    } else {
+      deuxPoints = '(?:( )*\\:)';
+    }
+
+    regExp = new RegExp('^' + intituleEtiquette + deuxPoints, 'i');
+
+    let resultat = regExp.exec(instruction);
+
+    if (resultat) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
   /** 
    * Retrouver une étiquette dans la phrase.
    * ex:
@@ -19,13 +62,18 @@ export class AnalyseurV8Utils {
    * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: routine, sinon, choix, si, …) Il est possible d’en définir plusieurs variantes (avec/sans accent)
    * @returns reste de l’étiquette (ce qui suit le mot clé, sans les «:» finaux)
    */
-  public static chercherEtiquetteEtReste(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
+  public static chercherEtiquetteEtReste(motCle: string[], phrase: Phrase | string, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let reste: string | undefined;
-    let instruction = Phrase.retrouverPhraseBrute(phrase);
-    let regExp: RegExp;
-    if (!motCle?.length)
-      throw new Error("testerEtiquetteEtArgument: l’argument motCle doit contenir au moins un mot clé.");
+    let instruction: string;
+    if (phrase instanceof Phrase) {
+      instruction = Phrase.retrouverPhraseBrute(phrase);
+    } else {
+      instruction = phrase;
+    }
 
+    if (!motCle?.length)
+      throw new Error("chercherEtiquetteEtReste: l’argument motCle doit contenir au moins un mot clé.");
+    let regExp: RegExp;
     if (motCle.length == 1) {
       regExp = new RegExp('^(' + motCle[0] + ')\\b', 'i');
     } else {
@@ -57,12 +105,19 @@ export class AnalyseurV8Utils {
    * @param motCle mot clé qui débute l’étiquette. Il doit être défini en minuscules.  (ex: ceci, cela, …) Il est possible d’en définir plusieurs différents.
    * @returns étiquette trouvée parmi les propositions ou undefined si aucune étiquette correspondante trouvée.
    */
-  public static chercherEtiquetteParmiListe(motCle: string[], phrase: Phrase, terminePar2Points: ObligatoireFacultatif): string | undefined {
+  public static chercherEtiquetteParmiListe(motCle: string[], phrase: Phrase | string, terminePar2Points: ObligatoireFacultatif): string | undefined {
     let motCleTrouve: string | undefined;
-    let phraseBrute = Phrase.retrouverPhraseBrute(phrase);
+    let phraseBrute: string
+
+    if (phrase instanceof Phrase) {
+      phraseBrute = Phrase.retrouverPhraseBrute(phrase);
+    } else {
+      phraseBrute = phrase;
+    }
+
     let regExp: RegExp;
     if (!motCle?.length)
-      throw new Error("testerParmiEtiquette: l’argument motCle doit contenir au moins un mot clé.");
+      throw new Error("chercherEtiquetteParmiListe: l’argument motCle doit contenir au moins un mot clé.");
 
     if (motCle.length == 1) {
       regExp = new RegExp('^(' + motCle[0] + ')\\b', 'i');
@@ -172,7 +227,7 @@ export class AnalyseurV8Utils {
    * 
    * Tests unitaires: ❌ (non)
    */
-   public static chercherFinBlocInconnu(phrase: Phrase): boolean {
+  public static chercherFinBlocInconnu(phrase: Phrase): boolean {
     const fermetureBloc = ExprReg.xFinBlocErrone.test(phrase.morceaux[0])
     return fermetureBloc;
   }

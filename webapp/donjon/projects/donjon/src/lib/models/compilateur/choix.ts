@@ -6,7 +6,7 @@ export class Choix {
   public valeursNormalisees: string[];
   constructor(
     public valeurs: Valeur[],
-    public instructions: Instruction[],
+    public instructions: Instruction[] = [],
   ) {
     // définir les valeurs normalisées
     this.valeursNormalisees = [];

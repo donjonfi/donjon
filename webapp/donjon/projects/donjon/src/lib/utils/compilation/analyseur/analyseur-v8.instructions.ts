@@ -36,7 +36,7 @@ export class AnalyseurV8Instructions {
       if (finInstructionControleTrouvee) {
         ctx.logResultatOk(`fin bloc ${InstructionControle.TypeToMotCle(debutInstructionControleTrouve)} inattendu (pas dans un bloc)`)
         ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeRoutine, CodeMessage.finBlocInconnu,
+          CategorieMessage.syntaxeRoutine, CodeMessage.finBlocPasAttendu,
           `fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} inattendu`,
           `Aucune instruction de contrôle commencée, le « fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} » a été ignoré.`,
         );
@@ -67,7 +67,7 @@ export class AnalyseurV8Instructions {
             ctx.probleme(phraseAnalysee, routine,
               CategorieMessage.structureRoutine, CodeMessage.finBlocManquant,
               `fin ${Routine.TypeToMotCle(routine.type, false)} attendu`,
-              `Une instruction ou un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu ici.`,
+              `Une instruction, une étiquette ou un {@fin ${Routine.TypeToMotCle(routine.type, false)}@} est attendu ici.`,
             );
           }
 

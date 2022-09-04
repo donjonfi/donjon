@@ -13,7 +13,7 @@ export class ExprReg {
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
   static readonly xCaractereRetourLigneDebutPhrase = /^(([ \t]*)Ʒ)+/g;
-  //   ʔ − deux points (:) dans les comentaires
+  //   ƻ − deux points (:) dans les comentaires
   static readonly caractereDeuxPoints = 'ƻ';
   static readonly xCaractereDeuxPoints = /ƻ/g;
   //   ʔ − virgule dans les comentaires
@@ -668,6 +668,11 @@ export class ExprReg {
    * TODO: gérer float ?
    */
   static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
+
+  /** liste de textes, nombres ou intitilués 
+   *  => "texte1", "texte2" ou "texte3"(1)|nombre1, nombre2 ou nombre3(2)|intitulé1, intitulé2 ou intitulé3(3) 
+   */
+  static readonly xListeTextesNombresOuIntitules = /^(?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*$/i;
 
   /**
    * (autre[s] choix)(1): instructions(2)

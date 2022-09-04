@@ -1,15 +1,21 @@
 import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
+import { BlocInstructions, EtiquetteSi, TypeChoisir } from "../../../models/compilateur/bloc-instructions";
 import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { EInstructionControle, InstructionControle } from "../../../models/compilateur/instruction-controle";
 
 import { AnalyseurCondition } from "./analyseur.condition";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
+import { Choix } from "../../../models/compilateur/choix";
+import { ClassesRacines } from "../../../models/commun/classes-racines";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
-import { EtiquetteSi } from "../../../models/compilateur/bloc-instructions";
 import { ExprReg } from "../expr-reg";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Instruction } from "../../../models/compilateur/instruction";
+import { Intitule } from "../../../models/jeu/intitule";
 import { Phrase } from "../../../models/compilateur/phrase";
+import { PhraseUtils } from "../../commun/phrase-utils";
 import { Routine } from "../../../models/compilateur/routine";
+import { Valeur } from "../../../models/jeu/valeur";
 
 export class AnalyseurV8Controle {
 
@@ -256,11 +262,220 @@ export class AnalyseurV8Controle {
   public static traiterInstructionChoisir(phrases: Phrase[], routine: Routine, ctx: ContexteAnalyseV8): Instruction | undefined {
     let instruction: Instruction | undefined;
 
+    // A. ENTÊTE
+    // => ex: « choisir[:] » (choisir parmis les choix statiques)
+    // => ex: « choisir librement[:] » (choisir librement)
+    // => ex: « choisir parmis les couleurs disponibles[:] » (choisir parmis une liste dynamique)
+    let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    // trouver le type d’instruction choisir (statique, dynamique, libre)
+    const typeChoisir = this.trouverTypeChoisir(phraseAnalysee, routine, ctx);
+    // pointer la prochaine phrase
+    ctx.indexProchainePhrase++;
+    // entête ok
+    if (typeChoisir) {
+      ctx.logResultatOk(`🔷 début bloc choisir (${BlocInstructions.typeChoisirToString(typeChoisir)})`);
 
+      instruction = new Instruction(undefined, []);
+      instruction.typeChoisir = typeChoisir;
 
+      let finBlocAtteinte = false;
+
+      let choixEnCours: Choix | undefined;
+
+      // B. CORPS et PIED
+      // parcours du bloc jusqu’à la fin
+      while (!finBlocAtteinte && ctx.indexProchainePhrase < phrases.length) {
+        phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+
+        // a) CHERCHER ÉTIQUETTES SPÉCIFIQUES AU BLOC CHOISIR
+        let estEtiquetteAutreChoix = AnalyseurV8Utils.chercherEtiquetteExacte(['autre choix', 'autres choix'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+        console.log("autre choix? => ", estEtiquetteAutreChoix);
+
+        if (estEtiquetteAutreChoix) {
+          let valeurAutreChoix: Valeur = new Intitule("autre choix", new GroupeNominal(null, "autre choix", null), ClassesRacines.Intitule);
+          choixEnCours = new Choix([valeurAutreChoix]);
+          instruction.choix.push(choixEnCours);
+          // pointer la prochaine phrase
+          ctx.indexProchainePhrase++;
+        } else {
+          let resteEtiquetteChoix = AnalyseurV8Utils.chercherEtiquetteEtReste(['choix'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+          if (resteEtiquetteChoix) {
+            const listeChoix = ExprReg.xListeTextesNombresOuIntitules.exec(resteEtiquetteChoix);
+            if (listeChoix) {
+              let valeursChoix: Valeur[];
+              // texte
+              if (listeChoix[1] !== undefined) {
+                // séparer les textes
+                valeursChoix = PhraseUtils.separerListeTextesOu(listeChoix[1], true);
+                // nombre
+              } else if (listeChoix[2] !== undefined) {
+                // séparer les nombres
+                // TODO: parseFloat ?
+                valeursChoix = PhraseUtils.separerListeNombresEntiers(listeChoix[2], true);
+                // intitulé (aucun choix, autre choix, élément précis, élémentA ou élémentB, …)
+              } else {
+                // TODO: séparer les intitulés
+                // TODO: à améliorer ?
+                valeursChoix = [new Intitule(listeChoix[3], undefined, ClassesRacines.Intitule)];
+              }
+              ctx.logResultatOk(`valeurs choix trouvées (${valeursChoix})`);
+              choixEnCours = new Choix(valeursChoix);
+              instruction.choix.push(choixEnCours);
+            } else {
+              ctx.logResultatOk(`valeurs choix pas trouvées`);
+              choixEnCours = undefined;
+            }
+            // pointer la prochaine phrase
+            ctx.indexProchainePhrase++;
+          }
+        }
+
+        // b) CHERCHER FIN INSTRUCTION CONTRÔLE
+        const finInstructionControleTrouvee = AnalyseurV8Utils.chercherFinInstructionControle(phraseAnalysee);
+        if (finInstructionControleTrouvee) {
+          // si il s’agit de la fin contrôle attendue
+          if (finInstructionControleTrouvee == EInstructionControle.choisir) {
+            ctx.logResultatOk(`🟦 fin bloc choisir`);
+            finBlocAtteinte = true;
+            // pointer la phrase suivante
+            ctx.indexProchainePhrase++;
+            // sinon c’est une erreur
+          } else {
+            ctx.logResultatKo(`⬜ {@fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} @} inatendu (fin choisir était attendu)`);
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.structureBloc, CodeMessage.finBlocDifferent,
+              "fin bloc différent",
+              `L’instruction de contrôle commencée est un {@choisir@} mais un {@fin ${InstructionControle.TypeToMotCle(finInstructionControleTrouvee)} @} a été trouvé. Probablement qu’un {@fin choisir@} est manquant.`,
+            );
+            // on termine tout de même le bloc
+            finBlocAtteinte = true;
+            // => on ne pointe PAS la phrase suivante: on pourra ainsi éventuellement fermer le bloc parent.
+          }
+        } else {
+          // c) CHERCHER DÉBUT/FIN ROUTINE (erreur)
+          const debutFinRoutineTrouve = this.chercherDebutFinRoutine(phraseAnalysee);
+          if (debutFinRoutineTrouve) {
+            // on ne s’attend pas à trouver un début/fin routine ici!
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.structureBloc, CodeMessage.finBlocManquant,
+              "fin choisir manquant",
+              `Un {@fin choisir@} est attendu avant la fin de ${Routine.TypeToMotCle(routine.type, true)}.`,
+            );
+
+            // => on ferme le bloc en cours et on n’avance pas à la phrase suivante
+            //    afin qu’elle soit analysée à nouveau
+            finBlocAtteinte = true;
+
+            // c) CHERCHER INSTRUCTION ou BLOC CONTRÔLE
+            // (l’index de la phrochaine phrase est géré par chercherInstructionOuBlocControle)
+          } else {
+            if (choixEnCours) {
+              AnalyseurV8Instructions.chercherEtTraiterInstructionSimpleOuControle(phrases, choixEnCours.instructions, routine, ctx);
+            } else {
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.structureBloc, CodeMessage.finBlocManquant,
+                'choix ou fin choisir attendu',
+                `Un {@choix:@} ou un {@fin choisir@} est attendu ici.`,
+              );
+              ctx.logResultatKo("instruction alors que pas de choix");
+              // pointer la prochaine phrase
+              ctx.indexProchainePhrase++;
+            }
+          }
+        }
+
+      }
+
+      // entête ko
+    } else {
+      ctx.logResultatKo(`entête du bloc choisir pas comprise.`);
+    }
     return instruction;
   }
 
+  /** Retrouver le type d’instruction de contrôle choisir (statique, dynamique, libre) */
+  private static trouverTypeChoisir(phraseAnalysee: Phrase, routine: Routine, ctx: ContexteAnalyseV8): TypeChoisir | undefined {
+    let typeChoisir: TypeChoisir | undefined;
+    const phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
+
+    // a. CHOISIR seul => choisir statique
+    if (/^choisir( )*\:$/.test(phraseBrute)) {
+      typeChoisir = TypeChoisir.statique;
+      ctx.logResultatOk('choisir statique');
+    } else {
+      const resPremierChoixOuParmis = ExprReg.xSeparerChoisirInstructions.exec(phraseBrute);
+      if (resPremierChoixOuParmis) {
+        const premierChoixOuParmis = resPremierChoixOuParmis[1];
+        // a bis. CHOISIR PARMIS LES CHOIX STATIQUES
+        //    ex: choisir
+        //          choix "oui":
+        //            .......
+        //          choix "non":
+        //            ....
+        //        fin choisir
+        const etiquetteChoix = AnalyseurV8Utils.chercherEtiquetteEtReste(['choix'], premierChoixOuParmis, ObligatoireFacultatif.obligatoire);
+        if (etiquetteChoix) {
+          typeChoisir = TypeChoisir.statique;
+          ctx.logResultatOk('choisir statique');
+        } else {
+          // b. CHOISIR LIBREMENT
+          //    ex: choisir librement[:]
+          //          choix "mlkjmlkj":
+          //            ....
+          //          autre choix:
+          //            ...
+          //         fin choisir
+          const resLibrement = /^librement\s*(:$|(\s*(autre )?choix))/i.exec(premierChoixOuParmis);
+          if (resLibrement) {
+            typeChoisir = TypeChoisir.libre;
+            ctx.logResultatOk('choisir libre');
+
+            // c. CHOISIR PARMIS UNE LISTE DYNAMIQUE
+            //    ex: choisir parmis les couleurs disponibles
+            //          choix rose:
+            //            .......
+            //          choix jaune:
+            //            ....
+            //        fin choisir
+          } else {
+            const etiquetteParmis = AnalyseurV8Utils.chercherEtiquetteEtReste(['parmis'], premierChoixOuParmis, ObligatoireFacultatif.obligatoire);
+            if (etiquetteParmis) {
+              typeChoisir = TypeChoisir.dynamique;
+              ctx.logResultatOk('choisir dynamique');
+
+              ctx.logResultatKo('choisir dynamique pas encore pris en charge.');
+              // => retrouver la liste dynamique (ex: les couleurs disponibles)
+              // TODO: gestion des listes de choix dynamiques
+
+              // d. INCONNU
+            } else {
+              typeChoisir = undefined;
+              ctx.logResultatKo('entête choisir pas comprise');
+
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.syntaxeControle, CodeMessage.instructionControleIntrouvable,
+                'étiquette d’entête pas comprise',
+                `L’étiquette d’entête du bloc choisir n’a pas été comprise.`,
+              );
+            }
+          }
+        }
+      } else {
+
+
+        // (NE DEVRAIS PAS ARRIVER) => on avait pré-vérifié l’instruction…
+        ctx.logResultatKo('entête choisir pas trouvée.');
+        ctx.erreur(phraseAnalysee, routine,
+          CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
+          'étiquette d’entête pas trouvée',
+          `L’étiquette d’entête du bloc choisir n’a pas été trouvée.`,
+        );
+
+      }
+
+    }
+    return typeChoisir;
+  }
   /**
    * Chercher si la prochaine phrase est un début ou un fin de rountine.
    */

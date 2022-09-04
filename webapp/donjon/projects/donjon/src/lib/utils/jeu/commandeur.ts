@@ -328,24 +328,22 @@ export class Commandeur {
     let resultatPrerequis: Resultat | undefined;
 
     // version BETA
-    if (tour.commande.actionChoisie.action.verificationsBeta) {
-      if (tour.commande.actionChoisie.action.verificationsBeta.length) {
-        // parcourir les vérifications
-        tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
-          if (verif.conditions.length == 1) {
-            if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
-              // console.warn("> commande vérifie cela:", verif);
-              resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
-              tour.commande.sortie += resultatPrerequis.sortie;
-              refus = true;
-            }
-          } else {
-            console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
+    if (tour.commande.actionChoisie.action.verificationsBeta?.length) {
+      // parcourir les vérifications
+      tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
+        if (verif.conditions.length == 1) {
+          if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
+            // console.warn("> commande vérifie cela:", verif);
+            resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
+            tour.commande.sortie += resultatPrerequis.sortie;
+            refus = true;
           }
-        });
-      }
+        } else {
+          console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
+        }
+      });
       // version V8
-    } else if (tour.commande.actionChoisie.action.phasePrerequis.length) {
+    } else if (tour.commande.actionChoisie.action.phasePrerequis?.length) {
       resultatPrerequis = this.ins.executerInstructions(tour.commande.actionChoisie.action.phasePrerequis, tour, tour.commande.evenement, undefined);
       tour.commande.sortie += resultatPrerequis.sortie;
       refus = resultatPrerequis.refuse;
@@ -537,7 +535,7 @@ export class Commandeur {
       tour.phase = PhaseTour.fin;
     } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle) {
       tour.phase = PhaseTour.fin;
-    } else if(tour.phase == PhaseTour.prerequis && resultatReste.refuse){
+    } else if (tour.phase == PhaseTour.prerequis && resultatReste.refuse) {
       tour.phase = PhaseTour.fin;
     }
 

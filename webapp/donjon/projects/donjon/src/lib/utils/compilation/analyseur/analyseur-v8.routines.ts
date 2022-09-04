@@ -140,7 +140,7 @@ export class AnalyseurV8Routines {
       ctx.erreur(phraseAnalysee, routine,
         CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
         'étiquette d’entête pas trouvée',
-        `L’étiquette d’entête de le routine simple n’a pas été trouvée.`,
+        `L’étiquette d’entête de la routine simple n’a pas été trouvée.`,
       );
     }
 

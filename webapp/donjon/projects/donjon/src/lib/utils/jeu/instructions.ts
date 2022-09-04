@@ -29,6 +29,7 @@ import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { StringUtils } from '../commun/string.utils';
 import { TexteUtils } from '../commun/texte-utils';
+import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
 
 export class Instructions {
@@ -133,7 +134,7 @@ export class Instructions {
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
-        resultat.typeInterruption = instruction.choixLibre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
+        resultat.typeInterruption = instruction.typeChoisir == TypeChoisir.libre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
         resultat.choix = instruction.choix;
       } else {
         this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")

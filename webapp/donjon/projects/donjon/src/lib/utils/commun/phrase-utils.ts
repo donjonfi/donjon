@@ -119,9 +119,14 @@ export class PhraseUtils {
       } else {
         listeNombresEntiersString = nombresString.trim().split(/(?:", "|" ou ")+/);
       }
-      let listeNombresEntiers: number[];
+      let listeNombresEntiers = new Array<number>();
       listeNombresEntiersString.forEach(nombreEntierString => {
-        listeNombresEntiers.push(Number.parseInt(nombreEntierString));
+        const nombreEntier = Number.parseInt(nombreEntierString);
+        if (nombreEntier) {
+          listeNombresEntiers.push(nombreEntier);
+        } else {
+          throw new Error("separerListeNombresEntiers: pas pu retrouver le nombre suivant:" + nombreEntierString);
+        }
       });
       return listeNombresEntiers;
     } else {
