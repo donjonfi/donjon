@@ -1,0 +1,52 @@
+{
+  "si": {
+    "prefix": "sif",
+    "body": [
+      "si ${1:condition}:",
+      "\t${2:conséquences}",
+      "fin si"
+    ],
+    "description": "bloc de code si finsi"
+  },
+
+  "sisinon": {
+    "prefix": "sis",
+    "body": [
+      "si ${1:condition}:",
+      "\t${2:conséquences}",
+      "sinon",
+      "\t${3:conséquences}",
+      "fin si"
+    ],
+    "description": "bloc de code si sinon finsi"
+  },
+
+  "action": {
+    "prefix": ["act", "action"],
+    "body": [
+      "action ${1:infinitif}:",
+      "",
+      "\tphase prérequis:",
+      "\t\t$2",
+      "\tphase exécution:",
+      "\t\t$3",
+      "\tphase épilogue:",
+      "\t\t$4",
+      "fin action"
+    ],
+    "description": "bloc de code si sinon finsi"
+  },
+
+  "fiche aide": {
+    "prefix": "aid",
+    "body": [
+      "L’aide pour l’action ${1:infinitif} est \"{*${1:infinitif}*}",
+      "${2:explication}",
+      "{+exemples+} :",
+      "> {-${1:infinitif}-}",
+      "{+raccourci+} : {-${4:abc}-}\"."
+    ],
+    "description": "fiche d’aide d’une action"
+  }
+
+}
