@@ -3,11 +3,13 @@ import { CategorieMessage, CodeMessage } from "../../../models/compilateur/messa
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
 import { EtiquetteAction, RoutineAction } from "../../../models/compilateur/routine-action";
 
+import { AnalyseurCondition } from "./analyseur.condition";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { CibleAction } from "../../../models/compilateur/cible-action";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
+import { MotUtils } from "../../commun/mot-utils";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { RoutineRegle } from "../../../models/compilateur/routine-regle";
@@ -402,7 +404,7 @@ export class AnalyseurV8Routines {
             const debutFinRoutineTrouve = this.chercherTraiterDebutFinRoutine(phrases, routine, ctx);
 
             // c) CHERCHER PRÉREQUIS, INSTRUCTION ou DÉFINITION
-            // (l’index de la phrochaine phrase est géré par chercherPrerequis, chercherInstructionOuBlocControle et chercherInfosComplement)
+            // (l’index de la phrochaine phrase est géré par chercherPrerequis, chercherInstructionOuBlocControle et chercherEtTraiterDefinitionSimpleComplement)
             if (!debutFinRoutineTrouve) {
               switch (etiquetteActuelle) {
                 case EtiquetteAction.phasePrerequis:
@@ -419,11 +421,11 @@ export class AnalyseurV8Routines {
                   break;
 
                 case EtiquetteAction.ceci:
-                  this.chercherEtTraiterDefinitionComplement(phrases, routine.action.cibleCeci, routine, ctx);
+                  this.chercherEtTraiterDefinitionSimpleComplement(phrases, routine.action.cibleCeci, etiquetteActuelle, routine, ctx);
                   break;
 
                 case EtiquetteAction.cela:
-                  this.chercherEtTraiterDefinitionComplement(phrases, routine.action.cibleCela, routine, ctx);
+                  this.chercherEtTraiterDefinitionSimpleComplement(phrases, routine.action.cibleCela, etiquetteActuelle, routine, ctx);
                   break;
 
                 default:
@@ -432,7 +434,6 @@ export class AnalyseurV8Routines {
 
             }
           }
-
 
         }
       }
@@ -470,18 +471,156 @@ export class AnalyseurV8Routines {
   //   ctx.indexProchainePhrase++;
   // }
 
-  private static chercherEtTraiterDefinitionComplement(phrases: Phrase[], complement: CibleAction, routine: Routine, ctx: ContexteAnalyseV8): void {
+  private static chercherEtTraiterDefinitionComplexeComplement(phrases: Phrase[], complement: CibleAction, etiquetteActuelle: EtiquetteAction, routine: Routine, ctx: ContexteAnalyseV8): void {
+
+    // TODO: PRENDRE EN CHARGE DÉFINITION COMPLEXE
+    // (PAS ENCORE UTILISÉ CAR PAS FONCTIONNEL.)
 
     // phrase à analyser
     const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    let phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
 
-    // TODO: à implémenter
-    console.warn("todo: chercherInfosComplement", phraseAnalysee);
+    let estSoitNiPasTrouve = ExprReg.rComplementActionEstSoitNiPas.exec(phraseBrute);
+    let argCeciCela = estSoitNiPasTrouve[1]?.toLowerCase() ?? undefined;
+    let argSoitNiPas = estSoitNiPasTrouve[2]?.toLowerCase() ?? undefined;
+    let argSuite = estSoitNiPasTrouve[3].toLocaleLowerCase();
+
+    // on a trouvé une définition de complément d’action
+    if (estSoitNiPasTrouve) {
+
+      // vérifier si le sujet éventuel correspond à l’étiquette qui précède la phrase
+      // CECI
+      if (etiquetteActuelle == EtiquetteAction.ceci) {
+        if (argCeciCela == 'cela') {
+          ctx.logResultatKo(`définition de cela hors étiquette cela.`);
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.definitionComplementAction,
+            'défitition de cela pas attendue ici',
+            `Cette définition de {@cela@} suit une étiquette {@ceci:@}.`,
+          );
+        }
+        // CELA
+      } else {
+        if (argCeciCela == 'ceci') {
+          ctx.logResultatKo(`définition de ceci hors étiquette ceci.`);
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.definitionComplementAction,
+            'défitition de ceci pas attendue ici',
+            `Cette définition de {@ceci@} suit une étiquette {@cela:@}.`,
+          );
+        }
+      }
+
+      // TODO: gérer des phrases plus complexes (soit, ni, pas, …)
+
+      // let condition = AnalyseurCondition.getConditionMulti(phraseBrute);
+
+      // // ctx.logResultatTemp('Condition:' + condition);
+      // // console.log('condition:', condition);
+
+      // découper les affirmations et retrouver leur type
+      let estNegation: boolean;
+      let estMultiple: boolean;
+      let affirmations: string[] = [];
+
+      switch (argSoitNiPas) {
+        case 'soit':
+          estMultiple = true;
+          estNegation = false;
+          affirmations = argSuite.split('soit');
+          break;
+
+        case 'ni':
+          estMultiple = true;
+          estNegation = true;
+          affirmations = argSuite.split('ni');
+          break;
+
+        case 'pas':
+          estMultiple = false;
+          estNegation = true;
+          break;
+
+        default:
+          estMultiple = false;
+          estNegation = false;
+          break;
+      }
+
+      if (estMultiple) {
+        ctx.logResultatKo(`Définition multiple de complément d’action pas encore prise en charge.`);
+      } else if (estNegation) {
+        ctx.logResultatKo(`Définition négative de complément d’action pas encore prise en charge.`);
+      } else {
+        ctx.logResultatOk(`Trouvé définition complément.`);
+      }
+
+
+      // on n’a rien trouvé
+    } else {
+      ctx.logResultatKo(`fin ${Routine.TypeToMotCle(routine.type, false)} trouvé (pas celui attendu)`);
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeAction, CodeMessage.definitionComplementAction,
+        `définition de ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'} attendue`,
+        `Une définition de ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'} est attendue ici.`,
+      );
+    }
 
     // pointer la phrase suivante
     ctx.indexProchainePhrase++;
   }
 
+  private static chercherEtTraiterDefinitionSimpleComplement(phrases: Phrase[], complement: CibleAction, etiquetteActuelle: EtiquetteAction, routine: Routine, ctx: ContexteAnalyseV8): void {
+
+    // phrase à analyser
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    const phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
+
+    const typeEtatsTrouve = ExprReg.rComplementActionTypeEtats.exec(phraseBrute);
+    // on a trouvé un type (+ états)
+    if (typeEtatsTrouve) {
+      ctx.logResultatOk(`complément action: ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'}: trouvé un type`);
+      const determinantType = typeEtatsTrouve[1];
+      const type = typeEtatsTrouve[2];
+      const etatsRequis = typeEtatsTrouve[3] ?? undefined;
+      const etatsPrioritaires = typeEtatsTrouve[4] ?? undefined;
+      complement.determinant = determinantType;
+      complement.nom = type;
+      complement.epithete = etatsRequis;
+      complement.priorite = etatsPrioritaires;
+    } else {
+      const elementJeuTrouve = ExprReg.rComplementActionElementJeu.exec(phraseBrute);
+      // on a trouvé un élément du jeu
+      if (elementJeuTrouve) {
+        let groupeNominal = PhraseUtils.getGroupeNominalDefini(elementJeuTrouve[1], false);
+        if (groupeNominal) {
+        ctx.logResultatOk(`complément action: ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'}: trouvé un élément jeu`);
+          complement.determinant = groupeNominal.determinant;
+          complement.nom = groupeNominal.nom;
+          complement.epithete = groupeNominal.epithete;
+        } else {
+          ctx.logResultatKo(`complément action: élément jeu: pas un groupe nominal.`);
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.definitionComplementAction,
+            `définition de ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'} pas comprise`,
+            `La définition de ceci n’a pas été comprise. Un groupe nominal était attendu.`,
+          );  
+        }
+        // on n’a rien trouvé
+      } else {
+        ctx.logResultatKo(`fin ${Routine.TypeToMotCle(routine.type, false)} trouvé (pas celui attendu)`);
+        ctx.probleme(phraseAnalysee, routine,
+          CategorieMessage.syntaxeAction, CodeMessage.definitionComplementAction,
+          `définition de ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'} attendue`,
+          `Une définition de ${etiquetteActuelle == EtiquetteAction.ceci ? 'ceci' : 'cela'} est attendue ici.`,
+        );
+      }
+    }
+
+    // pointer la phrase suivante
+    ctx.indexProchainePhrase++;
+
+  }
 
   /**
    * Chercher début/fin routine.

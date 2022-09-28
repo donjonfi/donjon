@@ -14,11 +14,11 @@ export class RoutineAction extends Routine {
     super(ERoutine.action, ligneDebut, true);
     this.action = new Action(infinitif, prepositionCeci, ceci, prepositionCela, cela);
 
-    // par défaut, ceci et cela pointent chacun un objet visible
+    // par défaut, ceci et cela pointent chacun un objet visible et accessible
     if (this.action.ceci) {
-      this.action.cibleCeci = new CibleAction('un', 'objet', 'visible');
+      this.action.cibleCeci = new CibleAction('un', 'objet', 'visible et accessible');
       if (this.action.cela) {
-        this.action.cibleCela = new CibleAction('un', 'objet', 'visible');
+        this.action.cibleCela = new CibleAction('un', 'objet', 'visible et accessible');
       }
     }
   }

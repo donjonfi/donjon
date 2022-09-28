@@ -204,7 +204,7 @@ export class PhraseUtils {
   }
 
   /** Obtenir une liste d’intitulés sur base d'une chaîne d’intitulés séparés par des "," et un "ou" 
-   * @param intitulesString texte à séparer sur les virgules et les et.
+   * @param intitulesString texte à séparer sur les virgules ou les ou.
    * @param autoriserVirguleEtOu autoriser ", ou" et ",ou"
    */
   public static separerListeIntitulesOu(attributsString: string, autoriserVirguleOu: boolean): string[] {

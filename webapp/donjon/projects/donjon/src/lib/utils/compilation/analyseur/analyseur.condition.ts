@@ -417,11 +417,12 @@ export class AnalyseurCondition {
     // enlever les espaces avant et après
     morceauConditionBrute = morceauConditionBrute.trim();
 
-    // enlever éventuellement le « si » qui commence la condition
-    // TODO: enlever également le sinonsi ?
+    // enlever éventuellement le « si » ou le « sinonsi » qui commence la condition
     if (morceauConditionBrute.match(/^si /i)) {
       morceauConditionBrute = morceauConditionBrute.slice(3);
-    }
+    } else if (morceauConditionBrute.match(/^sinonsi /i)) {
+      morceauConditionBrute = morceauConditionBrute.slice(8);
+    } 
 
     retVal.conditionBrute = morceauConditionBrute;
     retVal.lien = lien;

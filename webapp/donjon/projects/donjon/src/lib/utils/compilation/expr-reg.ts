@@ -442,6 +442,44 @@ export class ExprReg {
    */
   static readonly rActionQuelconque = /^(?:une )?action quelconque$/i;
 
+  /**
+   * définition complément d’une action
+   * - Découpage : - {ceci|cela}(1) {n’|n'}est {soit|ni|pas}(2) suite(3)
+   * - Tests unitaires :
+   *     - Ceci est un lieu
+   *     - Cela est un objet visible et accessible
+   *     - est soit un lieu soit un objet visible et accessible
+   *     - n’est ni un bijou ni buvable
+   *     - n’est pas Jean-Louis
+   */
+  static readonly rComplementActionEstSoitNiPas = /^(c’|c'|il |ce |ceci |cela )?(?:n’|n')?est(?: (soit|ni|pas))? (.+)$/i;
+
+  /**
+   * définition d’un complément d’une action: type et états
+   * - Découpage : 
+   *   - (C’est|Il s’agit d’) (un|une)(1) type(2) {étatsRequis}(3) {prioritairement étatsPrioritaires}(3)
+   * - Exemples :
+   *   - C’est un objet possédé
+   *   - C’est un objet possédé ou disponible prioritairement visible
+   *   - Il s’agit d’un lieu
+   *   - Il s’agit d’une licorne petite et mignone prioritairement gentille ou amicale
+   */
+  static readonly rComplementActionTypeEtats = /^(?:C’est |Il s’agit (?:d’|d'))(un|une) (\S+)(?: (.+?))?(?: prioritairement (.+))?$/i;
+
+  /**
+   * définition d’un complément d’une action: élément du jeu
+   * - Découpage : 
+   *   -  (C’est {le}|Il s’agit de) (élément du jeu)(1)
+   * - Exemples :
+   *   - Il s’agit de Jonathan
+   *   - Il s’agit des étoiles
+   *   - Il s’agit d’Elrik
+   *   - C’est le capitaine
+   *   - C’est le comte du bois dormant
+   *   - C’est Petit Nez
+   */
+   static readonly rComplementActionElementJeu = /^(?:C’est (?:le |la |les |l’|l')?|Il s’agit (?:de |du |des |d’|d'))(?!un|une)(.+)?$/i;
+
   // ================================================================================================
   //  COMMANDES
   // ================================================================================================

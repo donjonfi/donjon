@@ -178,4 +178,10 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
       console.log(`❌ ${message}`);
     }
   }
+  
+  public logResultatTemp(message: string) {
+    if (this.verbeux) {
+      console.log(`⏳ ${message}`);
+    }
+  }
 }

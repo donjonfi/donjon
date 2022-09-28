@@ -1,11 +1,15 @@
 -- Titre: "Actions de base pour Donjon FI"
--- Version: 2022-08-28 2.0.0 beta 1
+-- Version: 2022-09-28 2.0.0 beta 1
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
 --   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
 
 désactiver les actions de base.
+
+-- =========================================
+--   AFFICHER (AIDE, INVENTAIRE et SORTIES)
+-- =========================================
 
 action afficher ceci:
 
@@ -24,12 +28,11 @@ action afficher ceci:
         {e}- {-parler à {/magicienne/}-} : parler à un personnage
         {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
         {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée".
-    --sinonsi ceci est l’inventaire:
---      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
---    sinonsi ceci est les sorties ou la sortie:
---      dire "[sorties ici]".
+    sinonsi ceci est l’inventaire:
+     dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+    sinonsi ceci est les sorties ou la sortie:
+     dire "[sorties ici]".
     fin si.
-    dire "Ok".
 
   phase épilogue:
     si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
@@ -43,9 +46,391 @@ action afficher ceci pour cela:
 
   définition cela:
     C’est un intitulé.
-    Il est prioritairement possédé.
 
   phase exécution:
     si ceci est l’aide, dire "[aide cela]".
 
+  phase épilogue:
+    si ceci n’est pas l’aide, dire "Je peux afficher l’aide d’une commande.{n}Ex: {-aide parler-}".
+
 fin action
+
+L'aide pour l'action afficher est "{*Afficher*}
+  Permet d’afficher certains éléments du jeu.
+  {+exemples+} :
+  > {-afficher {/aide/}-}
+  > {-afficher {/sorties/}-}
+  > {-afficher {/inventaire/}-}
+  {+raccourcis+} : {-aide-}, {-sor-}, {-i-}".
+
+-- ================================
+--   ALLER (vers direction, lieu)
+-- ================================
+
+action aller vers ceci:
+
+  définition ceci:
+    C’est un intitulé.
+    C’est la destination du déplacement du joueur.
+    C’est vers ceci que le joueur est déplacé.
+
+  phase prérequis:
+    si le joueur se trouve dans ceci, refuser "Vous y êtes déjà.".
+    si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
+    si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
+    si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas aller par là.".
+
+  phase exécution:
+    déplacer le joueur vers ceci.
+
+  phase épilogue:
+    exécuter l’action regarder.
+
+fin action
+
+L'aide pour l'action aller est "{*Aller*}
+  Permet de d’aller vers la direction indiquée.
+  {+exemples+} :
+  > {-aller vers {/le nord/}-}
+  > {-sud-}
+  > {-monter-}
+  > {-entrer dans {/la cabane/}-}
+  {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
+
+-- ============
+--   ANNULER
+-- ============
+
+action annuler:
+
+  phase exécution:
+    annuler 1 tour.
+
+fin action
+
+
+-- ============
+--   ASSOMMER
+-- ============
+
+action assommer ceci:
+
+  phase prérequis:
+    si ceci est le joueur, refuser "Il doit y avoir un autre moyen de résoudre votre problème.".
+    si ceci n’est pas un vivant, refuser "[Pronom ceci] [v vivre ipr pas ceci].".
+
+  phase épilogue:
+    dire "Je suis contre la violence.".
+
+fin action
+
+-- ============
+--   ATTENDRE
+-- ============
+
+action attendre:
+
+  phase épilogue:
+    dire "Vous attendez.".
+
+fin action
+
+-- ============
+--   BOIRE
+-- ============
+
+action boire ceci:
+
+  définition ceci:
+    Il est prioritairement possédé.
+
+  phase prérequis:
+    si ceci est un vivant mais pas buvable, refuser "Vous avez de drôles d’idées.".
+    si ceci n’est pas buvable, refuser "Ça ne se boit pas voyons !".
+      -- on veut en mannger 0…
+    si quantitéCeci vaut 0, refuser "Je n’en bois donc aucun[e ceci].".
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
+
+  phase exécution:
+    -- diminuer la quantité de ceci en fonction de ce qu’on a bu.
+    -- rem: si la quantité atteint 0, l’objet est automatiquement supprimé
+    changer la quantité de ceci diminue de quantitéCeci.
+
+  phase épilogue:
+    si ceci est unique:
+      dire "Je [l’ ceci]ai bu[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
+    sinon
+      dire "J’ai bu [intitulé quantitéCeci].".
+    fin si.
+
+fin action
+
+
+
+ -- ============
+  --   EXAMINER
+  -- ============
+
+action examiner ceci:
+
+  définition ceci:
+    C’est un intitulé.
+
+  phase prérequis:
+    si ceci n’est ni un élément ni une direction, refuser "Je ne comprend pas ce que vous voulez examiner.".
+    si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
+    si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
+
+  phase exécution:
+        -- objet
+        si ceci est un objet:
+          -- > description de l’objet
+          dire "[description ceci]".
+          -- > statut de l’objet
+          si ceci est une porte ou un contenant,
+            dire "[statut ceci]".
+          -- > contenu de l’objet
+          -- >> contenant ouvert
+          si ceci est un contenant et ouvert :
+            dire "[décrire objets dans ceci]".
+          -- >> contenant fermé mais transparent
+          sinonsi ceci est un contenant et fermé et transparent :
+            dire "[décrire objets dans ceci]".
+          -- >> support
+          sinonsi ceci est un support :
+            si la préposition de ceci est sous:
+              dire "[décrire objets sous ceci]".
+            sinon
+              dire "[décrire objets sur ceci]".
+            fin si
+          fin si
+          -- >> ojbet pas accessible
+          si ceci n'est ni accessible ni l’inventaire, 
+            dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
+          -- >> inventaire
+          si ceci est l’inventaire,
+            dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+        -- lieu
+        sinonsi ceci est un lieu :
+          -- > lieu actuel
+          si le joueur se trouve dans ceci:
+            exécuter l’action regarder.
+          -- > lieu adjacent
+          sinon
+            -- >> avec aperçu
+            si un aperçu existe pour ceci:
+              dire "[aperçu ceci]".
+            -- >> sans aperçu, déjà visité
+            sinonsi ceci est visité:
+              dire "Il faudrait y retourner.".
+            -- >> sans aperçu, pas encore visité
+            sinon
+              dire "Pour en savoir plus, il faut s’y rendre.".
+            fin si
+          fin si
+        -- direction
+        sinonsi ceci est une direction:
+          -- s’il n’y a rien dans cette direction
+          si aucune sortie n’existe vers ceci:
+            dire "Il n’y a rien dans cette direction.".
+          -- s’il y a un lieu avec un aperçu dans cette direction
+          sinonsi un aperçu existe pour ceci:
+            dire "[aperçu ceci]".
+          -- s’il y a un lieu sans aperçu dans cette direction
+          sinon
+            dire "Le mieux est de se rendre vers [intitulé ceci].".
+          fin si
+        -- inventaire
+        sinonsi ceci est l’inventaire:
+          dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+        -- inconnu
+        sinon
+          dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.".
+        fin si    
+    
+fin action
+
+
+interpréter fouiller comme examiner.
+
+L'aide pour l'action examiner est "{*Examiner*}
+  Permet d'examiner un élément du jeu pour avoir des détails ou trouver un objet.
+  {+exemples+} :
+  > {-examiner {/l'arbre/}-}
+  > {-examiner {/l'épée/}}
+  {+raccourci+} : {-ex-}".
+
+
+-- ===========
+--   MANGER
+-- ===========
+
+action manger ceci:
+
+  définition ceci:
+    C’est un élément visible prioritairement possédé.
+
+  phase prérequis:
+    si ceci est un lieu, refuser "Ça ne se mange pas voyons !".
+    si ceci n’est pas accessible, refuser "Je n’y ai pas accès.".
+    si ceci est un vivant mais pas mangeable, refuser "Vous avez de drôles d’idées.".
+    si ceci n’est pas mangeable, refuser "Ça ne se mange pas voyons !".
+    -- on veut en mannger 0…
+    si quantitéCeci vaut 0, refuser "Je n’en mange donc aucun[e ceci].".
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
+
+  phase exécution:
+    -- diminuer la quantité de ceci en fonction de ce qu’on a mangé.
+    -- rem: si la quantité atteint 0, l’objet est automatiquement supprimé
+    changer la quantité de ceci diminue de quantitéCeci.
+
+  phase épilogue:
+    si ceci est unique:
+      dire "Je [l’ ceci]ai mangé[es ceci]. Maintenant je ne [l’ ceci]ai plus.".
+    sinon
+      dire "J’ai mangé [intitulé quantitéCeci].".
+    fin si.
+
+fin action
+
+interpréter engloutir, ingérer et avaler comme manger.
+
+  -- ===========
+  --   PRENDRE
+  -- ===========
+
+action prendre ceci:
+
+  définition ceci:
+    C’est un objet visible et accessible prioritairement disponible.
+
+  phase prérequis:
+    si ceci est possédé, refuser "Vous [l’ ceci]avez déjà.".
+    si ceci est le joueur, refuser "Pardon ?".
+    si ceci est une personne ou un animal, refuser "Ça ne me parait pas très prudent.".
+    si ceci est un décor ou décoratif, refuser "Je préfère ne pas m’encombrer avec ça.".
+    si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+    -- on veut en prendre 0…
+    si quantitéCeci vaut 0, refuser "Je n’en prends donc aucun.".
+    -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
+    si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
+
+  phase exécution:
+    -- unique => déplacement
+    si ceci est unique:
+      déplacer ceci vers joueur.
+    -- multiple limité => déplacement
+    sinonsi ceci est multiple mais pas illimité:
+      déplacer quantitéCeci ceci vers joueur.
+    -- multiple illimité => copie
+    sinon
+      copier quantitéCeci ceci vers joueur.
+    fin si
+
+  phase épilogue:
+    --  si ceci est illimité et dénombrable:
+    --    dire "[Singulier ceci] a été ajouté[e ceci] à votre inventaire.".
+    --  sinon
+    --    dire "[Intitulé ceci] [v être ipac ceci] ajouté[es ceci] à votre inventaire.".
+    --  fin si.
+    dire "[Intitulé quantitéCeci] [v être ipac quantitéCeci] ajouté[es quantitéCeci] à votre inventaire.".
+
+fin action
+
+L'aide pour l'action prendre est "{*Prendre*}
+Permet de prendre un objet accessible pour le mettre dans votre inventaire.
+{+exemples+} :
+> {-prendre {/l'épée/}-}
+> {-prendre {/le bouquet de fleurs/}-}
+{+raccourci+} : {-p-}".
+
+  -- ============
+  --   REGARDER
+  -- ============
+  
+  -- a) regarder
+  action regarder:
+  
+    phase exécution:
+      dire "{_{*[titre ici]*}_}".
+      si l'infinitif de l'action est examiner:
+        dire "{n}[description ici][décrire objets ici]".
+      sinon
+        dire "{n}[description ici][décrire objets ici sauf cachés]".
+      fin si.
+      
+    phase épilogue:
+      dire "{P}[sorties ici]".
+  
+  fin action
+  
+    
+    -- b) regarder ceci
+  action regarder ceci:
+    
+    phase prérequis:
+      si ceci n’est ni un élément ni une direction, dire "Je ne comprend pas ce que vous voulez regarder.".
+      si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, dire "Je ne [le ceci] vois pas actuellement.".
+      
+    phase exécution:
+      si ceci est une personne:
+        dire "[description ceci]".
+      sinon
+        exécuter la commande "examiner [préposition ceci] [intitulé ceci]".
+      fin si.
+  
+  fin action
+  
+  L'aide pour l'action regarder est "{*Regarder*}
+    Permet de regarder autour de vous pour en savoir plus sur le lieu où vous vous trouvez.
+    {+exemple+} :
+    > {-regarder-}
+    {+raccourci+} : {-re-}".
+    
+  interpréter observer comme regarder.
+  
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x:
+
+--   phase prérequis:
+
+--   phase exécution:
+
+--   phase épilogue:
+
+-- fin action
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x:
+
+--   phase épilogue:
+
+-- fin action
+
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x ceci:
+
+--   définition ceci:
+
+--   phase prérequis:
+
+--   phase exécution:
+
+--   phase épilogue:
+
+-- fin action
+
