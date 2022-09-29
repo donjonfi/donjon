@@ -90,17 +90,21 @@ export class Commandeur {
       }
       // débogueur: changer le monde (uniquement si le débogueur est actif)
       // } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /) && this.debogueurActif) {
-    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /)) {
+    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /)) {
 
       let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(commande.slice('déboguer'.length).trim());
 
       // instruction simple a été trouvée
-      if (instructionDecomposee?.infinitif.match(/^(changer|déplacer|effacer|vider)/)) {
+      if (instructionDecomposee?.infinitif.match(/^(changer|déplacer|effacer|vider|dire)/)) {
         let instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
         let sousContexteTour = new ContexteTour(undefined, undefined);
         const resultat = this.ins.executerInstructions([instruction], sousContexteTour, undefined, undefined);
         if (resultat.succes) {
-          ctxCmd.sortie = "Instruction appliquée.\n";
+          if (resultat.sortie?.length) {
+            ctxCmd.sortie = resultat.sortie;
+          } else {
+            ctxCmd.sortie = "Instruction appliquée.\n";
+          }
         } else {
           ctxCmd.sortie = "L’instruction n’a pas pu être appliquée.\n";
           sousContexteTour.erreurs.forEach(erreur => {

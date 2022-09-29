@@ -369,7 +369,7 @@ export class PhraseUtils {
 
     resultats.forEach(els => {
       // un verbe (instruction) n’est pas un nom de sujet valide
-      if (!els.sujet?.nom?.match(/^changer|déplacer|effacer|vider$/)) {
+      if (!els.sujet?.nom?.match(/^changer|déplacer|effacer|vider|dire$/)) {
         retVal.push(new CandidatCommande(els));
       }
     });
