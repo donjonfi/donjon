@@ -32,7 +32,7 @@ action afficher ceci:
      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     sinonsi ceci est les sorties ou la sortie:
      dire "[sorties ici]".
-    fin si.
+    fin si
 
   phase épilogue:
     si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
@@ -204,7 +204,7 @@ action examiner ceci:
           dire "[décrire objets sur ceci]".
         fin si
       fin si
-      -- >> ojbet pas accessible
+      -- >> objet pas accessible
       si ceci n'est ni accessible ni l’inventaire, 
         dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
       -- >> inventaire
@@ -245,7 +245,7 @@ action examiner ceci:
       dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     -- inconnu
     sinon
-      dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.".
+      dire "Hum ceci ([intitulé ceci]) n’est ni un objet ni un lieu. Je ne connais pas.".
     fin si    
 fin action
 
