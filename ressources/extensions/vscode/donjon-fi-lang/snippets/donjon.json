@@ -26,12 +26,14 @@
     "body": [
       "action ${1:infinitif}:",
       "",
-      "\tphase prérequis:",
+      "\tdéfinitions:",
       "\t\t$2",
-      "\tphase exécution:",
+      "\tphase prérequis:",
       "\t\t$3",
-      "\tphase épilogue:",
+      "\tphase exécution:",
       "\t\t$4",
+      "\tphase épilogue:",
+      "\t\t$5",
       "fin action"
     ],
     "description": "bloc de code si sinon finsi"
