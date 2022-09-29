@@ -165,11 +165,127 @@ action boire ceci:
 
 fin action
 
+  -- ===========
+  --   BRÛLER
+  -- ===========
+
+action brûler ceci:
+
+  phase prérequis:
+    si ceci est le joueur, refuser "Ça ne va pas ?".
+    si ceci est un vivant, refuser "Vous avez de drôles d’idées.".  
+
+  phase épilogue:
+    dire "Ça peut encore servir.".
+    
+fin action
+
+-- ===========
+--   CASSER
+-- ===========
+
+action casser:
+
+  phase prérequis:
+    si ceci est le joueur, refuser "Ça ne va pas ?".
+    si ceci est un vivant, refuser "Vous avez de drôles d’idées.".
+
+  phase épilogue:
+    dire "Ça peut encore servir.".
+
+fin action
+
+interpréter déchirer et détruire comme casser.
+
+-- ===========
+--   CHANTER
+-- ===========
+action chanter:
+  dire "Vous entonnez une chanson joyeuse.".
+fin action.
+
+-- ======================
+--   COMMENCER (jeu, nouvelle partie)
+-- ======================
+action commencer ceci:
+
+  définitions:
+    ceci est un intitulé.
+    
+  phase prérequis:
+    si ceci n’est ni le jeu ni la nouvelle partie, refuser "Je peux seulement commencer le jeu.".
+    si ceci est le jeu et si le jeu est commencé, refuser "Le jeu a déjà commencé.".
+    
+  phase exécution:
+    -- début du jeu
+    si ceci vaut le jeu:
+      -- déplacer le joueur pour provoquer la mise à jour de 
+      -- la présence des objets et de l’adjacence des lieux
+      changer le joueur se trouve dans ici.
+      -- afficher ce que voit le joueur.
+      exécuter la commande "regarder".
+    -- commencer une nouvelle partie (après la fin du jeu par exemple)
+    sinonsi ceci vaut une nouvelle partie:
+      exécuter la commande "recommencer".
+    fin si
+    
+fin action
+
+-- ======================
+--   CONTINUER (le jeu)
+-- ======================
+action continuer ceci:
+
+  définitions:
+    ceci est un intitulé.
+    
+  phase prérequis:
+    si ceci n’est pas le jeu, refuser "Je peux seulement continuer le jeu.".
+    si ceci est le jeu et si le jeu n’est pas commencé, refuser "Le jeu n’a pas encore commencé.".
+    
+  phase exécution:
+    si ceci est le jeu:
+      dire "{/{+(reprise de la partie)+}/}{N}".
+      -- afficher ce que voit le joueur.
+      exécuter la commande "regarder".
+    fin si
+    
+fin action
+
+-- ============
+--   CRIER
+-- ============
+action crier:
+  phase épilogue:
+  dire "Vous criez un bon coup.".
+fin action
+
+action crier sur ceci:
+   
+  phase prérequis:
+    si ceci est le joueur, refuser "Vous vous criez dessus. (Ça va passer…)".
+
+  phase épilogue:
+    dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
+
+fin action
+
+-- ===========
+--   DANSER
+-- ===========
+action danser:
+  phase épilogue:
+    dire "Vous réalisez une petite danse.".
+fin action
+
+-- ==============
+--   DEMANDER
+-- ==============
 
 
- -- ============
-  --   EXAMINER
-  -- ============
+-- ============
+--   EXAMINER
+-- ============
 
 action examiner ceci:
 
@@ -245,7 +361,7 @@ action examiner ceci:
       dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     -- inconnu
     sinon
-      dire "Hum ceci ([intitulé ceci]) n’est ni un objet ni un lieu. Je ne connais pas.".
+      dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
     fin si    
 fin action
 
