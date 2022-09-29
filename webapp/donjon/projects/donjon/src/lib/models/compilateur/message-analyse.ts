@@ -115,8 +115,8 @@ export enum CodeMessage {
   phaseActionInconnue = "syntaxe_action/phase_inconnue",
   /** syntaxe action: utilisation de l’étiquette ceci/cela alors que le complément n’est pas présent dans l’entête de l’action. */
   complementActionInexistant = "syntaxe_action/complement_inexistant",
-  /** syntaxe action: une définition de ceci/cela est attendue après l’étiquette ceci/cela. */
-  definitionComplementAction = "syntaxe_action/definition_complement_action",
+  /** syntaxe action: une définition de ceci/cela/déplacement est attendue après l’étiquette définitions. */
+  definitionAction = "syntaxe_action/definition_action",
 
   /** syntaxe contrôle: fin de bloc mal écrit (ex: fin sii) */
   finBlocInconnu = "syntaxe_controle/fin_bloc_inconnu",

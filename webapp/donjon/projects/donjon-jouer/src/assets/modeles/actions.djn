@@ -13,8 +13,8 @@ désactiver les actions de base.
 
 action afficher ceci:
 
-  définition ceci:
-    C’est un intitulé.
+  définitions:
+    Ceci est un intitulé.
 
   phase exécution:
     si ceci est l’aide:
@@ -41,11 +41,9 @@ fin action
 
 action afficher ceci pour cela:
 
-  définition ceci:
-    C’est un intitulé.
-
-  définition cela:
-    C’est un intitulé.
+  définitions:
+    ceci est un intitulé.
+    cela est un intitulé.
 
   phase exécution:
     si ceci est l’aide, dire "[aide cela]".
@@ -69,10 +67,10 @@ L'aide pour l'action afficher est "{*Afficher*}
 
 action aller vers ceci:
 
-  définition ceci:
-    C’est un intitulé.
-    C’est la destination du déplacement du joueur.
-    C’est vers ceci que le joueur est déplacé.
+  définitions:
+    ceci est un intitulé.
+    Le joueur est déplacé vers ceci.
+    L’action déplace le joueur vers ceci.
 
   phase prérequis:
     si le joueur se trouve dans ceci, refuser "Vous y êtes déjà.".
@@ -142,8 +140,8 @@ fin action
 
 action boire ceci:
 
-  définition ceci:
-    Il est prioritairement possédé.
+  définitions:
+    Ceci est prioritairement possédé.
 
   phase prérequis:
     si ceci est un vivant mais pas buvable, refuser "Vous avez de drôles d’idées.".
@@ -175,8 +173,8 @@ fin action
 
 action examiner ceci:
 
-  définition ceci:
-    C’est un intitulé.
+  définitions:
+    Ceci est un intitulé.
 
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprend pas ce que vous voulez examiner.".
@@ -184,72 +182,71 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
-        -- objet
-        si ceci est un objet:
-          -- > description de l’objet
-          dire "[description ceci]".
-          -- > statut de l’objet
-          si ceci est une porte ou un contenant,
-            dire "[statut ceci]".
-          -- > contenu de l’objet
-          -- >> contenant ouvert
-          si ceci est un contenant et ouvert :
-            dire "[décrire objets dans ceci]".
-          -- >> contenant fermé mais transparent
-          sinonsi ceci est un contenant et fermé et transparent :
-            dire "[décrire objets dans ceci]".
-          -- >> support
-          sinonsi ceci est un support :
-            si la préposition de ceci est sous:
-              dire "[décrire objets sous ceci]".
-            sinon
-              dire "[décrire objets sur ceci]".
-            fin si
-          fin si
-          -- >> ojbet pas accessible
-          si ceci n'est ni accessible ni l’inventaire, 
-            dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
-          -- >> inventaire
-          si ceci est l’inventaire,
-            dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
-        -- lieu
-        sinonsi ceci est un lieu :
-          -- > lieu actuel
-          si le joueur se trouve dans ceci:
-            exécuter l’action regarder.
-          -- > lieu adjacent
-          sinon
-            -- >> avec aperçu
-            si un aperçu existe pour ceci:
-              dire "[aperçu ceci]".
-            -- >> sans aperçu, déjà visité
-            sinonsi ceci est visité:
-              dire "Il faudrait y retourner.".
-            -- >> sans aperçu, pas encore visité
-            sinon
-              dire "Pour en savoir plus, il faut s’y rendre.".
-            fin si
-          fin si
-        -- direction
-        sinonsi ceci est une direction:
-          -- s’il n’y a rien dans cette direction
-          si aucune sortie n’existe vers ceci:
-            dire "Il n’y a rien dans cette direction.".
-          -- s’il y a un lieu avec un aperçu dans cette direction
-          sinonsi un aperçu existe pour ceci:
-            dire "[aperçu ceci]".
-          -- s’il y a un lieu sans aperçu dans cette direction
-          sinon
-            dire "Le mieux est de se rendre vers [intitulé ceci].".
-          fin si
-        -- inventaire
-        sinonsi ceci est l’inventaire:
-          dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
-        -- inconnu
+    -- objet
+    si ceci est un objet:
+      -- > description de l’objet
+      dire "[description ceci]".
+      -- > statut de l’objet
+      si ceci est une porte ou un contenant,
+        dire "[statut ceci]".
+      -- > contenu de l’objet
+      -- >> contenant ouvert
+      si ceci est un contenant et ouvert :
+        dire "[décrire objets dans ceci]".
+      -- >> contenant fermé mais transparent
+      sinonsi ceci est un contenant et fermé et transparent :
+        dire "[décrire objets dans ceci]".
+      -- >> support
+      sinonsi ceci est un support :
+        si la préposition de ceci est sous:
+          dire "[décrire objets sous ceci]".
         sinon
-          dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.".
-        fin si    
-    
+          dire "[décrire objets sur ceci]".
+        fin si
+      fin si
+      -- >> ojbet pas accessible
+      si ceci n'est ni accessible ni l’inventaire, 
+        dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
+      -- >> inventaire
+      si ceci est l’inventaire,
+        dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+    -- lieu
+    sinonsi ceci est un lieu :
+      -- > lieu actuel
+      si le joueur se trouve dans ceci:
+        exécuter l’action regarder.
+      -- > lieu adjacent
+      sinon
+        -- >> avec aperçu
+        si un aperçu existe pour ceci:
+          dire "[aperçu ceci]".
+        -- >> sans aperçu, déjà visité
+        sinonsi ceci est visité:
+          dire "Il faudrait y retourner.".
+        -- >> sans aperçu, pas encore visité
+        sinon
+          dire "Pour en savoir plus, il faut s’y rendre.".
+        fin si
+      fin si
+    -- direction
+    sinonsi ceci est une direction:
+      -- s’il n’y a rien dans cette direction
+      si aucune sortie n’existe vers ceci:
+        dire "Il n’y a rien dans cette direction.".
+      -- s’il y a un lieu avec un aperçu dans cette direction
+      sinonsi un aperçu existe pour ceci:
+        dire "[aperçu ceci]".
+      -- s’il y a un lieu sans aperçu dans cette direction
+      sinon
+        dire "Le mieux est de se rendre vers [intitulé ceci].".
+      fin si
+    -- inventaire
+    sinonsi ceci est l’inventaire:
+      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+    -- inconnu
+    sinon
+      dire "Hum ceci n’est ni un objet ni un lieu. Je ne connais pas.".
+    fin si    
 fin action
 
 
@@ -269,8 +266,8 @@ L'aide pour l'action examiner est "{*Examiner*}
 
 action manger ceci:
 
-  définition ceci:
-    C’est un élément visible prioritairement possédé.
+  définitions:
+    Ceci est prioritairement possédé.
 
   phase prérequis:
     si ceci est un lieu, refuser "Ça ne se mange pas voyons !".
@@ -304,8 +301,8 @@ interpréter engloutir, ingérer et avaler comme manger.
 
 action prendre ceci:
 
-  définition ceci:
-    C’est un objet visible et accessible prioritairement disponible.
+  définitions:
+    ceci est un objet visible et accessible prioritairement disponible.
 
   phase prérequis:
     si ceci est possédé, refuser "Vous [l’ ceci]avez déjà.".
@@ -424,7 +421,7 @@ Permet de prendre un objet accessible pour le mettre dans votre inventaire.
 
 -- action x ceci:
 
---   définition ceci:
+--   définitions:
 
 --   phase prérequis:
 

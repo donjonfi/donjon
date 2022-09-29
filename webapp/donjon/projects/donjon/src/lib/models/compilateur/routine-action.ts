@@ -42,8 +42,20 @@ export enum EtiquetteAction {
   phaseExecution = 2,
   /** phase épilogue: cette phase informe le joueur du résultat de l’exécution de l’action. */
   phaseEpilogue = 3,
-  /** ceci: complément direct */
-  ceci = 4,
-  /** cela: complément indirect */
-  cela = 5,
+  /** définitions actions: ceci, cela, déplacement, … */
+  definitions = 4,
+}
+
+export enum SujetDefinitionAction {
+  autre = 0,
+  ceci = 1,
+  cela = 2,
+}
+
+export enum TypeResultatDefinitionAction {
+  aucun = 0,
+  typeEtats = 1,
+  etatsPrioritaires = 2,
+  elementJeu = 3,
+  destinationDeplacement = 4,
 }

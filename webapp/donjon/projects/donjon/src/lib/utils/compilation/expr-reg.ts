@@ -451,34 +451,55 @@ export class ExprReg {
    *     - est soit un lieu soit un objet visible et accessible
    *     - n’est ni un bijou ni buvable
    *     - n’est pas Jean-Louis
+   *  (PAS ENCORE UTILISÉ)
    */
   static readonly rComplementActionEstSoitNiPas = /^(c’|c'|il |ce |ceci |cela )?(?:n’|n')?est(?: (soit|ni|pas))? (.+)$/i;
 
   /**
-   * définition d’un complément d’une action: type et états
+   * définition action: compléments ceci/cela: type et états
    * - Découpage : 
-   *   - (C’est|Il s’agit d’) (un|une)(1) type(2) {étatsRequis}(3) {prioritairement étatsPrioritaires}(3)
-   * - Exemples :
-   *   - C’est un objet possédé
-   *   - C’est un objet possédé ou disponible prioritairement visible
-   *   - Il s’agit d’un lieu
-   *   - Il s’agit d’une licorne petite et mignone prioritairement gentille ou amicale
+   *   - (Ceci|Cela)(1) est (un|une)(2) type(3) {étatsRequis}(4) {prioritairement étatsPrioritaires}(5)
+   * - Tests unitaies :
+   *   - Ceci est un objet possédé
+   *   - ceci est un objet possédé ou disponible prioritairement visible
+   *   - 💥 cela est de l’eau
+   *   - cela est un lieu
+   *   - Cela est une licorne petite et mignone prioritairement gentille ou amicale
    */
-  static readonly rComplementActionTypeEtats = /^(?:C’est |Il s’agit (?:d’|d'))(un|une) (\S+)(?: (.+?))?(?: prioritairement (.+))?$/i;
+  static readonly rDefinitionComplementActionTypeEtat = /^(Ceci|Cela) (?:est|sont) (un|une) (\S+)(?: (.+?))?(?: prioritairement (.+))?$/i;
 
   /**
-   * définition d’un complément d’une action: élément du jeu
+   * définition action: compléments ceci/cela: états prioritaires
    * - Découpage : 
-   *   -  (C’est {le}|Il s’agit de) (élément du jeu)(1)
-   * - Exemples :
-   *   - Il s’agit de Jonathan
-   *   - Il s’agit des étoiles
-   *   - Il s’agit d’Elrik
-   *   - C’est le capitaine
-   *   - C’est le comte du bois dormant
-   *   - C’est Petit Nez
+   *   - (Ceci|Cela)(1) (est|sont) prioritairement étatsPrioritaires(2)
+   * - Tests unitaies :
+   *   - ceci est prioritairement déplacé ou fixé
+   *   - Cela est prioritairement disponible
+   *   - 💥 ceci est ouvert
    */
-   static readonly rComplementActionElementJeu = /^(?:C’est (?:le |la |les |l’|l')?|Il s’agit (?:de |du |des |d’|d'))(?!un|une)(.+)?$/i;
+   static readonly rDefinitionComplementActionEtatPrioritaire = /^(ceci|cela) (?:est|sont) prioritairement (.+)?$/i;
+
+  /**
+   * définition action: compléments ceci/cela: élément du jeu
+   * - Découpage : 
+   *   -  (Ceci|Cela)(1) est (élément du jeu)(2)
+   * - Exemples :
+   *   - Ceci est Jonathan
+   *   - Cela sont les étoiles
+   *   - ceci est Elrik
+   *   - cela est le capitaine
+   *   - Ceci est le comte du bois dormant
+   *   - Cela est Petit Nez
+   *   - cela est de l’eau
+   *   - 💥 cela est un contenant
+
+   */
+  static readonly rDefinitionComplementActionElementJeu = /^(ceci|cela) (?:est|sont) (?:le |la |les |l’|l'|du |des |de la |de l'|de l’)?(?!un|une)(.+)?$/i;
+
+  /**
+   * définitions action: déplacement du joueur
+   */
+  static readonly rDefinitionActionDeplacementJoueur = /^(?:Le joueur est d(?:é|e|è)plac(?:é|e|è) vers|L(?:’|')action d(?:é|e|è)place le joueur vers) (.+)$/i  
 
   // ================================================================================================
   //  COMMANDES
@@ -955,37 +976,37 @@ export class ExprReg {
    */
   static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)\b/i;
 
-  
+
   /** 
    * si|choisir(1)
    */
-   static readonly xDebutInstructionControle = /^(si|choisir)\b/i;
+  static readonly xDebutInstructionControle = /^(si|choisir)\b/i;
 
-   /**
-    * fin si|choisir(1)
-    */
-   static readonly xFinInstructionControle = /^fin (si|choisir)$/i;
-
-   /** 
-    * fin xxxxxxx(1)
-    */
-   static readonly xFinBlocErrone = /^fin (?!:si|choisir|choix|r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)(\S+)$/i;
-
-   /** avant|après|remplacer\(1) {évènements}(2)
-   * - avant(1) (aller au nord, aller au sud ou sortir)(2)
-   * - avant commencer le jeu
-   * - avant aller au nord, aller au sud ou sortir
+  /**
+   * fin si|choisir(1)
    */
+  static readonly xFinInstructionControle = /^fin (si|choisir)$/i;
+
+  /** 
+   * fin xxxxxxx(1)
+   */
+  static readonly xFinBlocErrone = /^fin (?!:si|choisir|choix|r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)(\S+)$/i;
+
+  /** avant|après|remplacer\(1) {évènements}(2)
+  * - avant(1) (aller au nord, aller au sud ou sortir)(2)
+  * - avant commencer le jeu
+  * - avant aller au nord, aller au sud ou sortir
+  */
   static readonly xRoutineRegleEnonce = /^(avant|après) ((?:.+?)(?:(?:, (?:.+?))*(?: ou (?:.+?)))?)$/i;
 
-   /** infinitif(1)[[prépositionCeci]\(2) ceci(3) [prépositionCela(4) cela(5)]]
-   * - sauter
-   * - manger ceci
-   * - penser à ceci
-   * - attraper ceci avec cela
-   * - parler avec ceci concernant cela
-   */
-    static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\b\S+\b))? (ceci|cela)(?:(?: (\b\S+\b)) (cela|ceci))?)?$/i;
+  /** infinitif(1)[[prépositionCeci]\(2) ceci(3) [prépositionCela(4) cela(5)]]
+  * - sauter
+  * - manger ceci
+  * - penser à ceci
+  * - attraper ceci avec cela
+  * - parler avec ceci concernant cela
+  */
+  static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\b\S+\b))? (ceci|cela)(?:(?: (\b\S+\b)) (cela|ceci))?)?$/i;
 
 
   // ================================================================================================
