@@ -48,12 +48,12 @@ export class CompilateurV8Utils {
     resultat = resultat.replace(/^((?: *)--(?:.*))$/gm, " ");
 
     // remplacer les retours à la ligne par un caractereRetourLigne.
-    // remplacer les deux points par un caractereDeuxPoints suivit des 2 points
+    // remplacer les deux points par un caractereDeuxPointsDouble (en effet lors de la découpe en phrases, on va perdre le caractère « : » mais on souhaite le garder)
     // remplacer les éventuels espaces consécutifs par un simple espace.
     // retirer les espaces avant et après le bloc de texte.
     resultat = resultat
       .replace(/(\r\n|\r|\n)/g, ExprReg.caractereRetourLigne)
-      .replace(/(:)/g, ExprReg.caractereDeuxPoints + ":")
+      .replace(/(:)/g, ExprReg.caractereDeuxPointsDouble)
       .replace(/( +)/g, " ")
       .trim();
 

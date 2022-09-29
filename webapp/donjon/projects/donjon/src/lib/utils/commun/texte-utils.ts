@@ -6,11 +6,16 @@ export class TexteUtils {
    * Remplacer les caractères d’échapement dans le texte par ceux d’origine.
    */
   static retrouverTexteOriginal(texteEncode: string): string {
-    return texteEncode?.replace(ExprReg.xCaractereDebutCommentaire, ' "')
+    return texteEncode
+      // remettre les guillemets
+      ?.replace(ExprReg.xCaractereDebutCommentaire, ' "')
       .replace(ExprReg.xCaractereFinCommentaire, '" ')
+      // remettre les retours à la ligne
       .replace(ExprReg.xCaractereRetourLigne, '\n')
+      // remettre les virgules, point virgules et deux points initiaux dans les textes
       .replace(ExprReg.xCaracterePointVirgule, ';')
       .replace(ExprReg.xCaractereVirgule, ',')
+      .replace(ExprReg.xCaractereDeuxPointsDouble, ':');
   }
 
   /**

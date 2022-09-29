@@ -15,7 +15,9 @@ export class ExprReg {
   static readonly xCaractereRetourLigneDebutPhrase = /^(([ \t]*)Ʒ)+/g;
   //   ƻ − deux points (:) dans les comentaires
   static readonly caractereDeuxPoints = 'ƻ';
+  static readonly caractereDeuxPointsDouble = 'ƻ:';
   static readonly xCaractereDeuxPoints = /ƻ/g;
+  static readonly xCaractereDeuxPointsDouble = /ƻ:/g;
   //   ʔ − virgule dans les comentaires
   static readonly caractereVirgule = 'ʔ';
   static readonly xCaractereVirgule = /ʔ/g;

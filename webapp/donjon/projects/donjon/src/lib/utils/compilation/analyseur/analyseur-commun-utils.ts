@@ -8,7 +8,7 @@ export class AnalyseurCommunUtils {
 
   /** 
    * Nettoyer l’instruction (guillemets, espaces multiples, point, …)
-   * Remarque: les virgule et point-virgule qui ont été échapés dans les textes ne seront pas restaurés ici.
+   * Remarque: les virgule, point-virgule et deux points qui ont été échapés dans les textes ne seront pas restaurés ici.
    */
   public static nettoyerInstruction(instruction: string): string {
     // NETTOYER INSTRUCTION
@@ -217,10 +217,12 @@ export class AnalyseurCommunUtils {
       // si le complément est un Texte (entre " "), garder les retours à la ligne
       if (instruction.complement1.startsWith('"') && instruction.complement1.endsWith('"')) {
         instruction.complement1 = instruction.complement1
+          // remettre les retours à la ligne
           .replace(ExprReg.xCaractereRetourLigne, '\n')
-          // remettre les , et les ; initiaux dans les commentaires
+          // remettre les virgules, point virgules et deux points initiaux dans les textes
           .replace(ExprReg.xCaracterePointVirgule, ';')
-          .replace(ExprReg.xCaractereVirgule, ',');
+          .replace(ExprReg.xCaractereVirgule, ',')
+          .replace(ExprReg.xCaractereDeuxPointsDouble, ':');
         // sinon remplacer les retours à la ligne par des espaces
       } else {
         instruction.complement1 = instruction.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
