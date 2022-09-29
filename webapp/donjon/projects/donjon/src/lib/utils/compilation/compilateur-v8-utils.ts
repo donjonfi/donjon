@@ -113,7 +113,7 @@ export class CompilateurV8Utils {
   
               // - enlever le "."
               // - remplacer les retours à la ligne par des espaces
-              // - remettre les :
+              // - remettre les « : » restants (le doublon a déjà été retiré)
               const phraseNettoyee = phraseBrute
                 .replace(/\.$/, '')
                 .replace(ExprReg.xCaractereRetourLigne, " ")
@@ -154,7 +154,6 @@ export class CompilateurV8Utils {
               .replace(/ !/g, " !")
               // .replace(/ :/g, " :") // pose un souci avec les si/sinon
               .replace(/\.\.\.(?!:\.)/g, "…");
-  
   
             // le texte concerne toujours la phrase précédente (s'il y en a une)
             if (phrasePrecedente) {

@@ -77,7 +77,8 @@ export class AnalyseurV8Controle {
     let consequenceBruteSeule: string | undefined;
     // s’il s’agit de l’entête d’un bloc si (« si condition: conséquences finsi »)
     if (phraseConditionBrute.endsWith(':')) {
-      conditionBruteSeule = phraseConditionBrute;
+      // retirer le « : » final de la condition
+      conditionBruteSeule = phraseConditionBrute.slice(0, phraseConditionBrute.length - 1);
       if (estSinonSi) {
         ctx.logResultatOk(`🔹 début bloc sinonsi`);
       } else {
