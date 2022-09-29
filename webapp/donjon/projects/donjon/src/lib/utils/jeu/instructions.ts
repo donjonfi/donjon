@@ -121,9 +121,6 @@ export class Instructions {
     // instruction conditionnelle
     if (instruction.condition) {
       const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
-      if (this.verbeux) {
-        console.log("estVrai=", estVrai);
-      }
       if (estVrai) {
         resultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, contexteTour, evenement, declenchements);
       } else {

@@ -16,4 +16,21 @@ export class ConditionMulti {
   nbErreurs = 0;
   /** Erreurs trouvées lors de l’analyse de la condition */
   erreurs: string[] = [];
+
+  toString(): string {
+    if (this.condition) {
+      return this.condition.toString();
+    } else {
+      let retCond = "(";
+      for (let index = 0; index < this.sousConditions.length; index++) {
+        retCond += this.sousConditions[index].toString();
+        if (index < this.sousConditions.length - 2) {
+          retCond += this.typeLienSousConditions.toUpperCase() + " ";
+        }
+        index++;
+      }
+      retCond += ")";
+      return retCond;
+    }
+  }
 }
