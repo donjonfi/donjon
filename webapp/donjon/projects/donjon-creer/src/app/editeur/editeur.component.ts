@@ -153,7 +153,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   focusOutEnCours = false;
   compilationEnCours = false;
   compilationTerminee = false;
-  chargementCommandesEnCours = false;
+  chargementActionsEnCours = false;
 
   constructor(
     private http: HttpClient,
@@ -345,11 +345,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.codeEditorElmRef["directiveRef"].ace().resize();
 
 
-      // vérifier si on a déjà le fichier commandes
-      const sourceCommandes = this.chargerCommandes(false).then(commandes => {
+      // vérifier si on a déjà le fichier actions.djn
+      const sourceActions = this.chargerActions(false).then(actions => {
 
         // interpréter le code
-        const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, commandes, verbeux)
+        const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
         this.monde = resComp.monde;
         this.regles = resComp.regles;
         this.compteurs = resComp.compteurs;
@@ -1016,26 +1016,57 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  GESTION DES ACTIONS
   // =============================================
 
-  onRafraichirCommandes(): void {
-    this.chargerCommandes(true);
+  /** Charger un fichier personnalisé avec des actions de base plutôt que l’original. */
+  onChargerFichierActionsLocal(et: EventTarget): void {
+    const hie = et as HTMLInputElement;
+    if (hie?.files?.length) {
+      // fichier choisi par l’utilisateur
+      const file = hie.files[0];
+      if (file) {
+        this.problemeChargementFichierActions = undefined;
+        try {
+          this.chargementActionsEnCours = true;
+          console.warn("chargement de ", file.name);
+          const fileReader = new FileReader();
+          // quand lu, sauver son contenu
+          fileReader.onloadend = (progressEvent) => {
+            this.problemeChargementFichierActions = false;
+            sessionStorage.setItem('actions', fileReader.result as string);
+            sessionStorage.setItem('actionsPersonnalisees', '1');
+          };
+          // lire le fichier
+          fileReader.readAsText(file);
+        } catch {
+          this.problemeChargementFichierActions = true;
+          console.error("Fichier actions personnalisé pas trouvé. Actions de base pas importées.");
+        } finally {
+          this.chargementActionsEnCours = false;
+        }
+      }
+    }
   }
 
-  public async chargerCommandes(forcerMaj: boolean): Promise<string | null> {
+  onRafraichirActions(): void {
+    this.chargerActions(true);
+  }
+
+  public async chargerActions(forcerMaj: boolean): Promise<string | null> {
 
     let sourceActions: string | null = sessionStorage.getItem("actions");
 
     if (!sourceActions || forcerMaj) {
       this.problemeChargementFichierActions = undefined;
       try {
-        this.chargementCommandesEnCours = true;
+        this.chargementActionsEnCours = true;
         sourceActions = await lastValueFrom(this.http.get('assets/modeles/actions.djn', { responseType: 'text' }));
-        sessionStorage.setItem("commandes", sourceActions);
+        sessionStorage.setItem('actions', sourceActions);
+        sessionStorage.setItem('actionsPersonnalisees', '0');
         this.problemeChargementFichierActions = false;
       } catch (error) {
         this.problemeChargementFichierActions = true;
-        console.error("Fichier « assets/modeles/actions.djn » pas trouvé. Commandes de base pas importées.");
+        console.error("Fichier « assets/modeles/actions.djn » pas trouvé. Actions de base pas importées.");
       } finally {
-        this.chargementCommandesEnCours = false;
+        this.chargementActionsEnCours = false;
       }
     }
 
@@ -1045,8 +1076,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   get statutActions(): string {
     let retVal: string;
-    const commandes = sessionStorage.getItem("commandes");
-    if (commandes) {
+    const actions = sessionStorage.getItem('actions');
+    if (actions) {
       retVal = "✔️ fichier chargé en mémoire.";
     } else {
       retVal = "❌ fichier pas encore téléchargé.";
@@ -1057,13 +1088,19 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   get versionActions(): string {
     let retVal: string;
-    const commandes = sessionStorage.getItem("commandes");
-    if (commandes) {
-      const resultat = commandes.match(/-- Version: (\S+)/i);
+    const actions = sessionStorage.getItem('actions');
+    const actionsPersonnalisees = sessionStorage.getItem('actionsPersonnalisees');
+    if (actions) {
+      const resultat = actions.match(/-- Version: (\S+)/i);
       if (resultat) {
         retVal = resultat[1];
       } else {
         retVal = "Inconnue";
+      }
+      if(actionsPersonnalisees === '1'){
+        retVal += " (fichier personnalisé)";
+      }else{
+        retVal += " (fichier original)";
       }
     } else {
       retVal = "-"
