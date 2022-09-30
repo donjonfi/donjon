@@ -17,8 +17,6 @@ import { TypeRegle } from "../../../models/compilateur/type-regle";
 
 export class AnalyseurV8Routines {
 
-  private static pileRoutine = 0;
-
   public static indexRoutineSansNom = 1;
 
   /**
@@ -341,14 +339,14 @@ export class AnalyseurV8Routines {
                 'phase inconnue',
                 `Seules les phases suivantes sont supportées: {@prérequis@}, {@exécution@} et {@épilogue@}.`,
               );
-
               etiquetteActuelle = EtiquetteAction.phaseExecution;
               break;
           }
           // passer à la phrase suivante
           ctx.indexProchainePhrase++;
+          continue;
 
-          // > ii. CECI/CELA
+          // > ii. DÉFINITIONS (ceci, cela, déplacement, …)
         } else {
 
           let etiquetteDefinitions = AnalyseurV8Utils.chercherEtiquetteExacte(['définitions', 'definitions', 'définition', 'definition'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
@@ -361,7 +359,8 @@ export class AnalyseurV8Routines {
 
             // passer à la phrase suivante
             ctx.indexProchainePhrase++;
-
+            continue;
+            
             // b) CHERCHER DÉBUT/FIN ROUTINE
             // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
           } else {

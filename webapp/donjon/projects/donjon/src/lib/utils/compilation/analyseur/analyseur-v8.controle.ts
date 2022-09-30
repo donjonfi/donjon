@@ -161,6 +161,7 @@ export class AnalyseurV8Controle {
               etiquetteActuelle = EtiquetteSi.sinon;
               // pointer la prochaine phrase
               ctx.indexProchainePhrase++;
+              continue;
             }
             // ii. sinonsi
           } else {
@@ -178,6 +179,7 @@ export class AnalyseurV8Controle {
                 etiquetteActuelle = EtiquetteSi.sinonsi;
                 // => ne PAS pointer la prochaine phrase (car on doit encore analyser la condition)
               }
+              continue;
             }
           }
 
@@ -290,14 +292,16 @@ export class AnalyseurV8Controle {
 
         // a) CHERCHER ÉTIQUETTES SPÉCIFIQUES AU BLOC CHOISIR
         let estEtiquetteAutreChoix = AnalyseurV8Utils.chercherEtiquetteExacte(['autre choix', 'autres choix'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
-        console.log("autre choix? => ", estEtiquetteAutreChoix);
-
+        // AUTRE CHOIX
         if (estEtiquetteAutreChoix) {
+          ctx.logResultatOk(`autre choix`);
           let valeurAutreChoix: Valeur = new Intitule("autre choix", new GroupeNominal(null, "autre choix", null), ClassesRacines.Intitule);
           choixEnCours = new Choix([valeurAutreChoix]);
           instruction.choix.push(choixEnCours);
           // pointer la prochaine phrase
           ctx.indexProchainePhrase++;
+          continue;
+        // CHOIX XXX
         } else {
           let resteEtiquetteChoix = AnalyseurV8Utils.chercherEtiquetteEtReste(['choix'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
           if (resteEtiquetteChoix) {
@@ -328,6 +332,7 @@ export class AnalyseurV8Controle {
             }
             // pointer la prochaine phrase
             ctx.indexProchainePhrase++;
+            continue;
           }
         }
 
