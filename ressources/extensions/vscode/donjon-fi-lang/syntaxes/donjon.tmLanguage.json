@@ -34,7 +34,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b"
+          "match": "\\b(refuser|attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b(?!\\.)"
         },
         {
           "name": "support.constant",
@@ -62,7 +62,7 @@
       "patterns": [
         {
           "name": "variable.language",
-          "match": "\\b((C|c)eci|(C|c)eci|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)\\b"
+          "match": "\\b((C|c)eci|(C|c)ela|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)\\b"
         },
         {
           "name": "variable.parameter",
@@ -74,11 +74,11 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "((?i)\\b(désactiver|activer|routine|action|phase (prérequis|exécution|épilogue)|définition(s)?|règle (avant|après)|si|sinon|sinonsi|(autre )?choix|chFoisir( parmis)?|quand|refuser|(exécuter|terminer)(?= (\\w)+(er|re|ir))|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|règle|routine|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|(\\baction\\b(?!;|\\.))"
+          "match": "((?i)\\b(désactiver|activer|routine|action|phase (prérequis|exécution|épilogue)|définition(s)?|règle (avant|après)|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|règle|routine|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|(\\baction\\b(?!;|\\.))"
         },
         {
           "name": "keyword.operator",
-          "match": "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|existe|possède(nt)?|porte(nt)?(?! (de|d'|d’|comme)\\b)|réagi(ssen)?t|peu(ven)?t))\\b"
+          "match": "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|existe|possède(nt)?|porte(nt)?(?! (de|d'|d’|comme)\\b)|réagi(ssen)?t|peu(ven)?t))( pas| plus)?\\b"
         }
       ]
     },

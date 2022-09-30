@@ -25,7 +25,6 @@
     "prefix": ["act", "action"],
     "body": [
       "action ${1:infinitif}:",
-      "",
       "\tdéfinitions:",
       "\t\t$2",
       "\tphase prérequis:",
