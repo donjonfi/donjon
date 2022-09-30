@@ -38,7 +38,7 @@ export class CompilateurV8Utils {
     resultat = resultat.replace(/([ \t]*sinon\b)(:)?(?!])/mig, "$1:");
 
     // terminer par un « : » les « choisir » directement suivis d’un choix.
-    resultat = resultat.replace(/([ \t]*choisir)\b(?:[ \t]*)(?!parmis|librement)(:)?([ \t\n]*)(?=choix)/mig, "$1:$3");
+    resultat = resultat.replace(/([ \t]*choisir)\b(?:\s*?)(:)?(\s+choix)/mig, "$1:$3");
 
     // terminer par un « . » les « dire "bla bla" » et les refuser "".
     resultat = resultat.replace(/((dire|refuser) "[\S\s]*?") *\.*/mig, "$1.");

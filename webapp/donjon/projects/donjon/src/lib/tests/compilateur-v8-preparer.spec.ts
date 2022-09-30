@@ -105,13 +105,15 @@ describe('Compilateur V8 − Préparer code source', () => {
     );
     expect(scenarioPrepare).toEqual(
       'dire "Boire ou conduire, il faut choisir !".' + ExprReg.caractereRetourLigne +
-      'choisir' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
-      ' choix "boire"' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
+      'choisir' + ExprReg.caractereDeuxPointsDouble + ExprReg.caractereRetourLigne +
+      ' choix "boire"' + ExprReg.caractereDeuxPointsDouble + ExprReg.caractereRetourLigne +
       ' dire "Vous ne conduirez donc pas !".' + ExprReg.caractereRetourLigne +
-      ' choix "conduire"' + ExprReg.caractereDeuxPoints + ':' + ExprReg.caractereRetourLigne +
+      ' choix "conduire"' + ExprReg.caractereDeuxPointsDouble + ExprReg.caractereRetourLigne +
       ' dire "Vous ne boirez donc pas !".' + ExprReg.caractereRetourLigne +
       'fin choisir.'
     );
   });
+
+  
 
 });

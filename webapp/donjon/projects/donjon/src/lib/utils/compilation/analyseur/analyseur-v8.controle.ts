@@ -177,9 +177,8 @@ export class AnalyseurV8Controle {
               } else {
                 ctx.logResultatOk("🎫 étiquette sinonsi");
                 etiquetteActuelle = EtiquetteSi.sinonsi;
-                // => ne PAS pointer la prochaine phrase (car on doit encore analyser la condition)
               }
-              continue;
+              // => ne PAS pointer la prochaine phrase (car on doit encore analyser la condition)
             }
           }
 
