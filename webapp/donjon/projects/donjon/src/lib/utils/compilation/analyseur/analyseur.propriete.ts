@@ -1,5 +1,8 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { AnalyseurUtils } from "./analyseur.utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
@@ -102,18 +105,26 @@ export class AnalyseurPropriete {
 
 
   /** Retrouver les sujets (pour les réactions) */
-  private static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
+  public static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
     const listeSujetsBruts = PhraseUtils.separerListeIntitulesEtOu(sujets, true);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
-      const resultGn = ExprReg.xGroupeNominalArticleDefini.exec(sujetBrut);
+      const resultGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(sujetBrut);
       if (resultGn) {
         // on met en minuscules d’office pour éviter les soucis lors des comparaisons
         const sujetNom = resultGn[2]?.toLocaleLowerCase();
         const sujetEpithete = resultGn[3]?.toLowerCase();
         listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
       } else {
-        ctxAnalyse.ajouterErreur(phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        if (ctxAnalyse instanceof ContexteAnalyseV8) {
+          ctxAnalyse.erreur(phrase, undefined,
+            CategorieMessage.syntaxeReaction, CodeMessage.sujetIntrouvable,
+            "format du sujet pas pris en charge",
+            `Les sujets de la réaction doivent être des groupes nominaux. Sujet pas compris: ${sujetBrut}`,
+          );
+        } else {
+          ctxAnalyse.ajouterErreur(phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        }
       }
     });
     return listeSujets;

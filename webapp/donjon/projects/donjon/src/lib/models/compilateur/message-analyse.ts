@@ -41,7 +41,7 @@ export class MessageAnalyse {
 
   /** Numéro de la ligne mis en forme. */
   get numeroLigneFormate(): string {
-    if(this._numeroLigneFormate === undefined){
+    if (this._numeroLigneFormate === undefined) {
       this._numeroLigneFormate = ("    " + this.numeroLigne).slice(-5);
     }
     return this._numeroLigneFormate;
@@ -79,6 +79,7 @@ export enum CategorieMessage {
   syntaxeControle = "syntaxe_controle",
   syntaxeRegle = "syntaxe_regle",
   syntaxeRoutine = "syntaxe_routine",
+  syntaxeReaction = "syntaxe_reaction",
 
   erreurDonjon = "erreur_donjon",
 
@@ -129,6 +130,11 @@ export enum CodeMessage {
   typeRegleInconnu = "syntaxe_regle/type_regle_inconnu",
   /** syntaxe règle: la formulation de l’évènement qui doit déclancher la règle n’a pas été comprise. */
   formulationEvenementReglePasComprise = "syntaxe_regle/formulation_evenement_pas_comprise",
+
+  /** syntaxe réaction: l’interlocuteur n’a pas été trouvé dans ctx analyse. */
+  interlocuteurIntrouvable = "syntaxe_reaction/interlocuteur_introuvable",
+  /** syntaxe réaction: le sujet doit être un groupe nominal ou une liste de GN. */
+  sujetIntrouvable = "syntaxe_reaction/sujet_introuvable",
 
   /** syntaxe routine: la routine n’a pas été trouvée =>  */
   routineIntrouvable = "syntaxe_routine/routine_introuvable",

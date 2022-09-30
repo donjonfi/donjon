@@ -30,7 +30,7 @@ export class CompilateurV8Utils {
     resultat = resultat.replace(/\brègle (apres|aprés)\b/gm, "règle après");
 
     // terminer par un « . » les « fin bloc »
-    resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|choix|choisir|routine)\b)(?!])(\.)?/mig, "$1.");
+    resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|r(?:é|e|è)action(?:s)?|choix|choisir|routine)\b)(?!])(\.)?/mig, "$1.");
     // terminer par un « . » les « fin erreur » s’ils sont seuls sur la ligne
     resultat = resultat.replace(/^([ \t]*fin [\wéèêà]+)(?!\.|])(\.)?[ \t]*$/ig, "$1.");
     

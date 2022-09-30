@@ -16,12 +16,12 @@ export class RoutineReaction extends Routine implements Reaction {
    * @param ligneDebut ligne du scénario contenant le début du bloc
    */
   public constructor(sujets: GroupeNominal[], ligneDebut: number) {
-    super(ERoutine.action, ligneDebut, true);
+    super(ERoutine.reaction, ligneDebut, true);
     this.sujets = sujets;
   }
 
   /**
-   * Intitule de l’action (utilisé pour les messages d’erreur affichés au créateur).
+   * Intitule de la réaction (utilisé pour les messages d’erreur affichés au créateur).
    */
   public override get titre(): string {
     return `réaction concernant « ${this.intitule} »`;
@@ -43,4 +43,16 @@ export class RoutineReaction extends Routine implements Reaction {
     return retVal;
   }
 
+}
+
+/**
+ * Les différentes phases d’une action.
+ */
+ export enum EtiquetteReaction {
+  /** Réaction basique (par défaut) */
+  basique = 1,
+  /** Réaction à un sujet inconnu */
+  sujetInconnu = 2,
+  /** Réaction concernant un sujet spécifique */
+  sujetSpecifique = 3,
 }

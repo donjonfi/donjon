@@ -2,6 +2,7 @@ import { CategorieMessage, CodeMessage, EMessageAnalyse, MessageAnalyse } from "
 
 import { BlocInstructions } from "./bloc-instructions";
 import { ContexteAnalyse } from "./contexte-analyse";
+import { ElementGenerique } from "./element-generique";
 import { Phrase } from "./phrase";
 import { Routine } from "./routine";
 import { RoutineAction } from "./routine-action";
@@ -152,7 +153,7 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
   public getPhraseAnalysee(phrases: Phrase[]): Phrase {
     const phraseAnalysee = phrases[this.indexProchainePhrase];
     // phrase différente depuis le dernier appel ?
-    if(this.indexDernierePhraseanalysee !== this.indexProchainePhrase){
+    if (this.indexDernierePhraseanalysee !== this.indexProchainePhrase) {
       this.indexDernierePhraseanalysee = this.indexProchainePhrase;
       this.logPhrase(phraseAnalysee);
     }
@@ -178,10 +179,24 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
       console.log(`❌ ${message}`);
     }
   }
-  
+
   public logResultatTemp(message: string) {
     if (this.verbeux) {
       console.log(`⏳ ${message}`);
     }
   }
+
+  public trouverElementGenerique(nom: string, epithete: string): ElementGenerique {
+    let retVal: ElementGenerique;
+    const elementConcerneNom = nom.toLowerCase();
+    const elementConcerneEpithete = epithete ? epithete.toLowerCase() : null;
+    const elementsTrouves = this.elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom && x.epithete?.toLowerCase() == elementConcerneEpithete);
+    if (elementsTrouves.length === 1) {
+      retVal = elementsTrouves[0];
+    } else {
+      this.logResultatKo(`trouverElement: plusieurs résultats trouvés pour « ${nom}${epithete ? (' ' + epithete) : ''} »`);
+    }
+    return retVal;
+  }
+
 }

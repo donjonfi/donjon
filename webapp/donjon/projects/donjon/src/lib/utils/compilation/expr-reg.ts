@@ -971,12 +971,12 @@ export class ExprReg {
   /** 
    * règle|action|réaction|routine(1)
    */
-  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)\b/i;
+  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
 
   /**
    * fin règle|action|réaction|routine(1)
    */
-  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)\b/i;
+  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
 
 
   /** 

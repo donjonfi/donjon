@@ -2,14 +2,22 @@ import { AnalyseurV8Utils, ObligatoireFacultatif } from "./analyseur-v8.utils";
 import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { ERoutine, Routine } from "../../../models/compilateur/routine";
 import { EtiquetteAction, RoutineAction, SujetDefinitionAction, TypeResultatDefinitionAction } from "../../../models/compilateur/routine-action";
+import { EtiquetteReaction, RoutineReaction } from "../../../models/compilateur/routine-reaction";
 
+import { AnalyseurPropriete } from "./analyseur.propriete";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { CibleAction } from "../../../models/compilateur/cible-action";
+import { ClassesRacines } from "../../../models/commun/classes-racines";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
+import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
+import { Genre } from "../../../models/commun/genre.enum";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
+import { Nombre } from "../../../models/commun/nombre.enum";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
+import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
 import { RoutineRegle } from "../../../models/compilateur/routine-regle";
 import { RoutineSimple } from "../../../models/compilateur/routine-simple";
 import { StringUtils } from "../../commun/string.utils";
@@ -360,7 +368,7 @@ export class AnalyseurV8Routines {
             // passer à la phrase suivante
             ctx.indexProchainePhrase++;
             continue;
-            
+
             // b) CHERCHER DÉBUT/FIN ROUTINE
             // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
           } else {
@@ -413,11 +421,118 @@ export class AnalyseurV8Routines {
   /**
    * Traiter la routine  (Réaction)
    */
-  public static traiterRoutineReaction(phrases: Phrase[], ctx: ContexteAnalyseV8): Routine | undefined {
-    let retVal: Routine | undefined;
-    return retVal;
-  }
+  public static traiterRoutineReaction(phrases: Phrase[], ctx: ContexteAnalyseV8): RoutineReaction | undefined {
+    let routine: RoutineReaction | undefined;
+    // par défaut: on est dans la réaction « basique »
+    let etiquetteActuelle: EtiquetteReaction = EtiquetteReaction.basique;
+    let interlocuteur: ElementGenerique | undefined;
+    let reactionActuelle: ReactionBeta;
 
+    // A. ENTÊTE
+    // => ex: « routine MaRoutine: »
+    let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    // trouver le nom de la routine
+    let enteteReaction = AnalyseurV8Utils.chercherEtiquetteEtReste(['réaction', 'réactions', 'reaction', 'reactions'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    // pointer la prochaine phrase
+    ctx.indexProchainePhrase++;
+
+    // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
+    if (enteteReaction !== undefined) {
+      // RETROUVER NOM INTERLOCUTEUR
+      // retirer du/de/des qui débute le reste
+      let sansDeterminant = enteteReaction.replace(/^(du |des |de (?:la |les )?|d’|d')/, "");
+      let nomInterlocuteur = PhraseUtils.getGroupeNominalDefiniOuIndefini(sansDeterminant, false);
+      if (nomInterlocuteur) {
+        ctx.logResultatOk(`interlocuteur: ${nomInterlocuteur}`);
+        // RETROUVER INTERLOCUTEUR
+        interlocuteur = ctx.trouverElementGenerique(nomInterlocuteur.nom, nomInterlocuteur.epithete);
+        if (interlocuteur) {
+          ctx.logResultatOk(`interlocuteur trouvé.`);
+        } else {
+          ctx.logResultatKo(`interlocuteur pas trouvé.`);
+          ctx.erreur(phraseAnalysee, routine,
+            CategorieMessage.syntaxeReaction, CodeMessage.interlocuteurIntrouvable,
+            "interlocuteur introuvable",
+            `L’interlocuteur de la réaction n’a pas été trouvé. Il faut le définir avant de définir sa réaction.`,
+          );
+        }
+      } else {
+        ctx.logResultatKo(`interlocuteur n’est pas un groupe nominal.`);
+        ctx.erreur(phraseAnalysee, routine,
+          CategorieMessage.syntaxeReaction, CodeMessage.interlocuteurIntrouvable,
+          "nom de l’interlocuteur pas pris en charge",
+          `Le nom de l’interlocuteur doit être un groupe nominal.`,
+        );
+      }
+      // étiquette pas trouvée (ne devrait jamais arriver)
+    } else {
+      ctx.erreur(phraseAnalysee, routine,
+        CategorieMessage.erreurDonjon, CodeMessage.etiquetteEnteteIntrouvable,
+        "étiquette d’entête pas trouvée",
+        `L’étiquette d’entête de la réaction n’a pas été trouvée.`,
+      );
+    }
+
+    // si on n’a pas d’interlocuteur: on va tout de même continuer l’analyse
+    // mais du coup la réaction est ajoutée à un interlocuteur "bidon"
+    if (!interlocuteur) {
+      interlocuteur = new ElementGenerique("l’", "interlocuteur", "temporaire", "personne", ClassesRacines.Personne, undefined, Genre.m, Nombre.s, 1, []);
+    }
+
+    routine = new RoutineReaction([], phraseAnalysee.ligne);
+
+    // B. CORPS et PIED
+    // parcours de la routine jusqu’à la fin
+    while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
+      phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+
+      // a) CHERCHER ÉTIQUETTES SPÉCIFIQUES À RÉACTION
+      // > i. BASIQUE
+      let etiquetteBasique = AnalyseurV8Utils.chercherEtiquetteExacte(['basique'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+      if (etiquetteBasique) {
+        ctx.logResultatOk("🎫 étiquette: réaction basique");
+        etiquetteActuelle = EtiquetteReaction.basique;
+        const listeSujets = [new GroupeNominal(null, "aucun", "sujet")];
+        reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+        interlocuteur.reactions.push(reactionActuelle);
+      // passer à la phrase suivante
+        ctx.indexProchainePhrase++;
+        continue;
+      }
+      // > ii. CONCERNANT
+      let etiquetteConcernant = AnalyseurV8Utils.chercherEtiquetteEtReste(['concernant'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+      if (etiquetteConcernant) {
+        const sujetsBruts = etiquetteConcernant;
+        ctx.logResultatOk(`🎫 étiquette: concernant « ${sujetsBruts} »`);
+        const listeSujets = AnalyseurPropriete.retrouverSujets(sujetsBruts, ctx, phraseAnalysee);
+        reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+        interlocuteur.reactions.push(reactionActuelle);
+        // passer à la phrase suivante
+        ctx.indexProchainePhrase++;
+        continue;
+      }
+
+      // b) CHERCHER DÉBUT/FIN ROUTINE
+      // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
+      const debutFinRoutineTrouve = this.chercherTraiterDebutFinRoutine(phrases, routine, ctx);
+
+      // c) CHERCHER INSTRUCTION
+      // (l’index de la phrochaine phrase est géré par chercherPrerequis, chercherInstructionOuBlocControle et chercherEtTraiterDefinitionSimpleComplement)
+      if (!debutFinRoutineTrouve) {
+
+        // si on ne se trouve pas encore dans une réaction, créer la réaction basique
+        if (!reactionActuelle) {
+          const listeSujets = [new GroupeNominal(null, "aucun", "sujet")];
+          reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+          interlocuteur.reactions.push(reactionActuelle);
+        }
+
+        // chercher l’instruction
+        AnalyseurV8Instructions.chercherEtTraiterInstructionSimpleOuControle(phrases, reactionActuelle.instructions, routine, ctx);
+      }
+    }
+    return routine;
+  }
   /**
    * Chercher la définition d’une action (ceci, cela, déplacement, …)
    * @param phrases 
