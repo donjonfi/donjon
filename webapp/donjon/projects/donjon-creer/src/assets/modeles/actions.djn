@@ -1077,7 +1077,7 @@ action recommencer:
           commencer nouvelle partie.
         choix "non":
       fin choisir
-    fin si.
+    fin si
 fin action
 
 -- ============
@@ -1098,6 +1098,8 @@ fin action
     
 -- b) regarder ceci
 action regarder ceci:
+  définitions:
+    ceci est un intitulé.
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprend pas ce que vous voulez regarder.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
