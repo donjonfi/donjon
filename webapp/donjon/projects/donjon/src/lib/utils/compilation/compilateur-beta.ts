@@ -150,7 +150,7 @@ export class CompilateurBeta {
     // ********************************
     // ANALYSER LES PHRASES
     // ********************************
-    AnalyseurBeta.analyserPhrases(phrases, contexteAnalyse);
+    // AnalyseurBeta.analyserPhrases(phrases, contexteAnalyse);
 
   }
 

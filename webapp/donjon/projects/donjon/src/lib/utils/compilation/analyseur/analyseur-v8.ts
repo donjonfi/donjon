@@ -22,7 +22,7 @@ export class AnalyseurV8 {
     ctx.indexProchainePhrase = 0;
 
     while (ctx.indexProchainePhrase < phrases.length) {
-      
+
       const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
 
       // CAS 1: DÉBUT ROUTINE => traiter la routine
@@ -66,8 +66,10 @@ export class AnalyseurV8 {
       }
     }
 
-    console.warn(">>> phrases:", phrases);
-    console.warn(">>> ContexteAnalyseV8:", ctx);
+    if (ctx.verbeux) {
+      console.warn(">>> phrases:", phrases);
+      console.warn(">>> ContexteAnalyseV8:", ctx);
+    }
 
   }
 }

@@ -1,5 +1,7 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { Abreviation } from "../../../models/compilateur/abreviation";
-import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
@@ -12,7 +14,7 @@ export class AnalyseurSynonymes {
   /**
    * Rechecher une abréviation de commande
    */
-  public static testerAbreviation(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerAbreviation(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let resultatTrouve = ResultatAnalysePhrase.aucun;
 
@@ -39,7 +41,7 @@ export class AnalyseurSynonymes {
    * Rechecher un synonyme pour une action ou un élément du jeu.
    * Ex: Interpréter xxx comme le yyy.
    */
-  public static testerSynonyme(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerSynonyme(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let resultatTrouve = ResultatAnalysePhrase.aucun;
 
@@ -92,14 +94,21 @@ export class AnalyseurSynonymes {
                 });
                 message = message.slice(0, message.length - 2);
                 message += " et " + originalBrut + "), cela ne fonctionnera pas.";
-                ctxAnalyse.ajouterErreur(phrase.ligne, message);
+                ctxAnalyse.probleme(phrase, undefined, 
+                  CategorieMessage.synonyme, CodeMessage.synonymeDefiniPourPlusieursVerbes,
+                  "Synonyme déjà utilisé pour une autre action",
+                  message);
               }
             } else {
               ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
             }
           });
         } else {
-          ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : action originale pas trouvée : " + infinitif);
+          // ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : action originale pas trouvée : " + infinitif);
+          ctxAnalyse.probleme(phrase, undefined, 
+            CategorieMessage.synonyme, CodeMessage.synonymeDefiniPourPlusieursVerbes,
+            "Synonyme d’une action inexistante",
+            `L’action originale « ${infinitif} » n’a pas été trouvée pour le synonyme « ${synonymesBruts} ».`);
         }
       } else {
         // tester si l’original est un GROUPE NOMINAL

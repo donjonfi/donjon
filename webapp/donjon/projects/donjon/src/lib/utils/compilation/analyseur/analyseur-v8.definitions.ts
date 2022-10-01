@@ -1,3 +1,5 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { AnalyseurBeta } from "./analyseur-beta";
 import { AnalyseurDivers } from "./analyseur.divers";
 import { AnalyseurListe } from "./analyseur.liste";
@@ -23,6 +25,11 @@ export class AnalyseurV8Definitions {
     } else {
       ctx.logResultatKo(`pas trouvé définition`);
       definitionTrouvee = false;
+      ctx.probleme(phrase, undefined, 
+        CategorieMessage.syntaxeDefinition, CodeMessage.definitionAction, 
+        "Définition attendue",
+        `Une définition est attendue ici mais la phrase ne ressemble pas à une formulation de définition connue.`
+        );
     }
     // passer à la phrase suivante
     ctx.indexProchainePhrase++;

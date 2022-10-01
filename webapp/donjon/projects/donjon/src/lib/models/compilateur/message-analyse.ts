@@ -83,6 +83,9 @@ export enum CategorieMessage {
 
   erreurDonjon = "erreur_donjon",
 
+  syntaxeDefinition = "syntaxe_definition",
+  synonyme = "synonyme",
+
 }
 
 /**
@@ -145,5 +148,13 @@ export enum CodeMessage {
 
   /** erreur Donjon: étiquette introuvable alors qu’elle devrait avoir été pré-validée */
   etiquetteEnteteIntrouvable = "erreur_donjon/etiquette_entete_introuvable",
+
+  /** Le même mot est utilisé comme synonyme de plusieurs vebres différents. */
+  synonymeDefiniPourPlusieursVerbes = "synonyme/utilise_pour_plusieurs_verbes",
+
+  /** Une définition était attendue mais on n’a pas pur interpréter cette phrase comme une définition */
+  definitionAttendue = "syntaxe_definition/definition_attendue",
+
+
 
 }
