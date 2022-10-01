@@ -74,7 +74,7 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "((?i)\\b(désactiver|activer|routine|action|phase (prérequis|exécution|épilogue)|définition(s)?|règle (avant|après)|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|règle|routine|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|(\\baction\\b(?!;|\\.))"
+          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|règle|routine|si|choix|choisir)|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE)\\b)|(\\baction\\b(?!;|\\.))|((?i)^(\\s)*(réaction(s)?|action|règle (avant|après)|routine|concernant) (?=.+:))|((?i)^\\s*(phase (prérequis|exécution|épilogue)|définition(s)?|basique)\\s*:)"
         },
         {
           "name": "keyword.operator",
