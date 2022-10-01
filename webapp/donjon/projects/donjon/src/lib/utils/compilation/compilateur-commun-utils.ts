@@ -1,4 +1,3 @@
-import { AnalyseurBetaInstructions } from "./analyseur/analyseur-beta.instructions";
 import { Classe } from "../../models/commun/classe";
 import { ClasseUtils } from "../commun/classe-utils";
 import { ClassesRacines } from "../../models/commun/classes-racines";
@@ -8,11 +7,9 @@ import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compila
 import { Definition } from "../../models/compilateur/definition";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementGenerique } from "../../models/compilateur/element-generique";
-import { ExprReg } from "./expr-reg";
 import { Genre } from "../../models/commun/genre.enum";
 import { Monde } from "../../models/compilateur/monde";
 import { Nombre } from "../../models/commun/nombre.enum";
-import { RegleBeta } from "../../models/compilateur/regle-beta";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { StringUtils } from "../commun/string.utils";
 
@@ -21,7 +18,7 @@ export class CompilateurCommunUtils {
   public static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2022 Jonathan Claes − https://donjon.fi";
   // rem: l’espace+point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
   public static readonly regleInfoDonjonBeta = " .\naprès afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\"; terminer l’action avant.";
-  
+
   public static readonly regleInfoDonjonV8 = "règle après afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\". Terminer l’action avant. fin règle";
 
   /** Ajouter les éléments spéciaux au scénario (joueur, inventaire, jeu, ressources, …) */
@@ -122,37 +119,49 @@ export class CompilateurCommunUtils {
       }
     });
 
-    // **************************************************
-    // SÉPARER LES INSTRUCTIONS (BETA UNIQUEMENT)
-    // **************************************************
-    if (!(ctx instanceof ContexteCompilationV8)) {
-      // - DES RÈGLES
-      (ctx.analyse.regles as RegleBeta[]).forEach(regle => {
-        if (regle.instructionsBrutes) {
-          regle.instructions = AnalyseurBetaInstructions.separerInstructions(regle.instructionsBrutes, ctx.analyse, -1, regle);
-        }
-        if (ctx.verbeux) {
-          console.log(">>> regle:", regle);
-        }
-      });
+    // // **************************************************
+    // // SÉPARER LES INSTRUCTIONS (BETA UNIQUEMENT)
+    // // **************************************************
+    // if (!(ctx instanceof ContexteCompilationV8)) {
+    //   // - DES RÈGLES
+    //   (ctx.analyse.regles as RegleBeta[]).forEach(regle => {
+    //     if (regle.instructionsBrutes) {
+    //       regle.instructions = AnalyseurBetaInstructions.separerInstructions(regle.instructionsBrutes, ctx.analyse, -1, regle);
+    //     }
+    //     if (ctx.verbeux) {
+    //       console.log(">>> regle:", regle);
+    //     }
+    //   });
 
-      // - DES RÉACTIONS
-      ctx.monde.objets.forEach(objet => {
-        if (objet.reactions && objet.reactions.length > 0) {
-          objet.reactions.forEach(reaction => {
-            // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
-            if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
-              reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
-            }
-            reaction.instructions = AnalyseurBetaInstructions.separerInstructions(reaction.instructionsBrutes, ctx.analyse, -1, null, reaction, objet);
-          });
-          if (ctx.verbeux) {
-            console.log(">>> objet avec réactions :", objet);
-          }
-        }
-      });
+    //   // - DES RÉACTIONS
+    //   ctx.monde.objets.forEach(objet => {
+    //     if (objet.reactions && objet.reactions.length > 0) {
+    //       objet.reactions.forEach(reaction => {
+    //         // si instructions brutes commencent par une chaîne, ajouter « dire » devant.
+    //         if (reaction.instructionsBrutes.startsWith(ExprReg.caractereDebutTexte)) {
+    //           reaction.instructionsBrutes = "dire " + reaction.instructionsBrutes;
+    //         }
+    //         reaction.instructions = AnalyseurBetaInstructions.separerInstructions(reaction.instructionsBrutes, ctx.analyse, -1, null, reaction, objet);
+    //       });
+    //       if (ctx.verbeux) {
+    //         console.log(">>> objet avec réactions :", objet);
+    //       }
+    //     }
+    //   });
 
-    }
+    // }
+
+    // // RÉACTIONS (PROPRIÉTÉ)
+    // // support des réactions sous la forme d’un simple texte comme propriété
+    // if (!(ctx instanceof ContexteCompilationV8)) {
+    //   ctx.monde.objets.forEach(objet => {
+    //     if (objet.reactions?.length) {
+    //       objet.reactions.forEach(reaction => {
+    //         if(reaction.)
+    //       });
+    //     }
+    //   });
+    // }
 
     // **********************************
     // AFFICHER RÉSULTAT DANS LA CONSOLE
@@ -174,7 +183,7 @@ export class CompilateurCommunUtils {
     ctx.resultat = new ResultatCompilation();
     ctx.resultat.monde = ctx.monde;
     if (ctx instanceof ContexteCompilationV8) {
-      ctx.resultat.routines = ctx.analyse.routinesSimples;
+      ctx.resultat.routinesSimples = ctx.analyse.routinesSimples;
     }
     ctx.resultat.regles = ctx.analyse.regles;
     ctx.resultat.actions = ctx.analyse.actions;

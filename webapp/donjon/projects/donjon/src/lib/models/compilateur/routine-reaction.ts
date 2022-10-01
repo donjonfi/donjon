@@ -11,6 +11,8 @@ export class RoutineReaction extends Routine implements Reaction {
   sujets: GroupeNominal[];
   instructions: Instruction[];
 
+  public nbAffichageReaction = 0;
+
   /**
    * Nouvelle routine action
    * @param ligneDebut ligne du scénario contenant le début du bloc
@@ -48,7 +50,7 @@ export class RoutineReaction extends Routine implements Reaction {
 /**
  * Les différentes phases d’une action.
  */
- export enum EtiquetteReaction {
+export enum EtiquetteReaction {
   /** Réaction basique (par défaut) */
   basique = 1,
   /** Réaction à un sujet inconnu */

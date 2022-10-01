@@ -62,10 +62,10 @@ describe('Epressions régulières − Synonymes', () => {
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 describe('Synonymes − Scénario synonyme action)', () => {
 
-  it('courrir comme marcher', () => {
+  it('courir comme marcher', () => {
     const scenario = '' +
-      'Marcher est une action. ' +
-      'Sauter est une action. ' +
+      'action marcher: fin action ' +
+      'action sauter: fin action ' +
       'Interpréter courir comme marcher. ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
@@ -80,8 +80,8 @@ describe('Synonymes − Scénario synonyme action)', () => {
 
   it('jumper et plonger comme sauter', () => {
     const scenario = '' +
-      'Marcher est une action. ' +
-      'Sauter est une action. ' +
+      'action marcher: fin action ' +
+      'action sauter: fin action ' +
       'Interpréter jumper et plonger comme sauter. ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);

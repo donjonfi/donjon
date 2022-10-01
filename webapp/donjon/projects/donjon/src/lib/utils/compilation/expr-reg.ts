@@ -408,11 +408,13 @@ export class ExprReg {
   static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
-
-  /** L’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
+  
+  /** Exécuter la routine: la routine nomRoutine(1)  */
+  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)$/i;
+  /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
-  /** La commande "commande(1)" */
-  static readonly xActionExecuterCommande = /^(?:la commande) \"(.+)\"$/i;
+  /** Exécuter la commande: la commande "commande(1)" */
+  static readonly xActionExecuterCommande = /^(?:(?:la )?commande) \"(.+)\"$/i;
 
   /** condition -> si(1) {condition}(2), {instruction}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;

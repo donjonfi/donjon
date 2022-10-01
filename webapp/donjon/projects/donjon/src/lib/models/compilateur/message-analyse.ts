@@ -138,6 +138,8 @@ export enum CodeMessage {
   interlocuteurIntrouvable = "syntaxe_reaction/interlocuteur_introuvable",
   /** syntaxe réaction: le sujet doit être un groupe nominal ou une liste de GN. */
   sujetIntrouvable = "syntaxe_reaction/sujet_introuvable",
+  /** réaction simple: seul dire est supporté. */
+  reactionSimpleUniquement = "syntaxe_reaction/reaction_simple_uniquement",
 
   /** syntaxe routine: la routine n’a pas été trouvée =>  */
   routineIntrouvable = "syntaxe_routine/routine_introuvable",

@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -94,6 +94,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   monde: Monde = null;
   regles: Regle[] = null;
+  routinesSimples : RoutineSimple[] = null;
   actions: Action[] = null;
   compteurs: ElementGenerique[] = null;
   listes: ElementGenerique[] = null;
@@ -352,6 +353,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
         this.monde = resComp.monde;
         this.regles = resComp.regles;
+        this.routinesSimples = resComp.routinesSimples;
         this.compteurs = resComp.compteurs;
         this.listes = resComp.listes;
         this.actions = resComp.actions.sort((a: Action, b: Action) => (

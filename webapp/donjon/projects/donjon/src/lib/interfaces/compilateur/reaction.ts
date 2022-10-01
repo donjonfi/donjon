@@ -12,4 +12,8 @@ export interface Reaction {
   /** Intitulé de la réaction (utilisé pour les erreurs affichées au créateur) */
   get intitule(): string;
 
+  /** Nombre d’affichages de la réaciton */
+  nbAffichageReaction: number;
+
+
 }

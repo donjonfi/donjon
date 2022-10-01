@@ -91,8 +91,8 @@ describe('Traiter routine', () => {
     const res = CompilateurV8.analyserScenarioSeul(scenario);
 
     expect(res.messages).toHaveSize(0);
-    expect(res.routines).toHaveSize(1);
-    const maRoutine = res.routines[0];
+    expect(res.routinesSimples).toHaveSize(1);
+    const maRoutine = res.routinesSimples[0];
     expect(maRoutine.nom).toEqual('maRoutine');
     expect(maRoutine.instructions).toHaveSize(1);
     const condition = maRoutine.instructions[0];
@@ -118,8 +118,8 @@ describe('Traiter routine', () => {
     const message = res.messages[0];
     expect(message.code).toBe(CodeMessage.finBlocManquant);
     // la routine a tout de même pu être créée
-    expect(res.routines).toHaveSize(1);
-    const maRoutine = res.routines[0];
+    expect(res.routinesSimples).toHaveSize(1);
+    const maRoutine = res.routinesSimples[0];
     expect(maRoutine.nom).toEqual('maRoutine');
     expect(maRoutine.instructions).toHaveSize(1);
     const condition = maRoutine.instructions[0];
@@ -146,8 +146,8 @@ describe('Traiter routine', () => {
     expect(message.code).toBe(CodeMessage.finRoutineManquant);
     expect(res.actions).toHaveSize(0);
     // la routine a tout de même pu être créée
-    expect(res.routines).toHaveSize(1);
-    const maRoutine = res.routines[0];
+    expect(res.routinesSimples).toHaveSize(1);
+    const maRoutine = res.routinesSimples[0];
     expect(maRoutine.nom).toEqual('maRoutine');
     expect(maRoutine.instructions).toHaveSize(1);
     const condition = maRoutine.instructions[0];
@@ -173,7 +173,7 @@ describe('Traiter routine', () => {
     expect(res.messages).toHaveSize(1);
     const message = res.messages[0];
     expect(message.code).toBe(CodeMessage.finRoutineDifferent);
-    expect(res.routines).toHaveSize(0);
+    expect(res.routinesSimples).toHaveSize(0);
     // l’action a tout de même pu être créée
     expect(res.actions).toHaveSize(1);
     const monAction = res.actions[0];
@@ -202,7 +202,7 @@ describe('Traiter routine', () => {
     expect(res.messages).toHaveSize(1);
     const message = res.messages[0];
     expect(message.code).toBe(CodeMessage.finRoutineDifferent);
-    expect(res.routines).toHaveSize(0);
+    expect(res.routinesSimples).toHaveSize(0);
     // l’action a tout de même pu être créée
     expect(res.actions).toHaveSize(1);
     const monAction = res.actions[0];

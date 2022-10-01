@@ -1,4 +1,4 @@
-import { CompilateurBeta, ExprReg, Generateur } from "../../public-api";
+import { CompilateurBeta, CompilateurV8, CompilateurV8Utils, ExprReg, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
@@ -135,7 +135,7 @@ describe('Décomposer commande parler', () => {
     const scenario =
       ' ' +
       '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
 
@@ -159,7 +159,7 @@ describe('Décomposer commande parler', () => {
   it('commande « parler avec le fermier à propos du baton »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler avec le fermier à propos du baton');
@@ -183,7 +183,7 @@ describe('Décomposer commande parler', () => {
   it('commande « parler du baton avec le fermier »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler du baton avec le fermier');
@@ -206,7 +206,7 @@ describe('Décomposer commande parler', () => {
   it('commande « parler du poisson rouge avec le pécheur énervé »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler du poisson rouge avec le pécheur énervé');
@@ -232,7 +232,7 @@ describe('Décomposer commande parler', () => {
   it('commande « parler de la couronne magique avec le sorcier enflammé »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler de la couronne magique avec le sorcier enflammé');
@@ -259,7 +259,7 @@ describe('Décomposer commande parler', () => {
   it('commande « discuter de la table à manger avec le comte du bois »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('discuter de la table à manger avec le comte du bois');
@@ -286,7 +286,7 @@ describe('Décomposer commande parler', () => {
   it('commande « parler au marchand ambulant concernant l’argent perdu »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler au marchand ambulant concernant l’argent perdu');
@@ -314,7 +314,7 @@ describe('Décomposer commande parler', () => {
   it('commande «  discuter avec le coq au vin à propos de l’assaisonement »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('discuter avec le coq au vin à propos de l’assaisonement');
@@ -340,7 +340,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande «  parler à pigeon intelligent concernant miettes de pain rassies »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler à pigeon intelligent concernant miettes de pain rassies');
@@ -364,7 +364,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande «  parler avec le capitaine à propos de carte aux trésors »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler avec le capitaine à propos de carte aux trésors');
@@ -388,7 +388,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande «  discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée');
@@ -414,7 +414,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande «  interroger le fermier concernant la poule »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('interroger le fermier concernant la poule');
@@ -440,7 +440,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « questionner le fermier géant à propos de la poule rousse »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('questionner le fermier géant à propos de la poule rousse');
@@ -466,7 +466,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « questionner le boulanger sur de la farine grise »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('questionner le boulanger sur de la farine grise');
@@ -492,7 +492,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « questionner le marchand d’armes concernant une épée magique »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('questionner le marchand d\'armes concernant une épée magique');
@@ -518,7 +518,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « interroger elf sur de l’eau douce »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('interroger elf sur de l’eau douce');
@@ -544,7 +544,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques');
@@ -570,7 +570,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « questionner les lutins concernant du bois à brûler »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('questionner les lutins concernant du bois à brûler');
@@ -596,7 +596,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « interroger Dracula à propos d’une fiole »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('interroger Dracula à propos d’une fiole');
@@ -623,7 +623,7 @@ describe('Décomposer commande parler', () => {
   it('commande «  montrer poisson au chat »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
 
@@ -652,7 +652,7 @@ describe('Décomposer commande parler', () => {
   it('commande «  montrer poisson au chat »', function () {
 
     const scenario = 'Le poisson au chat est un animal. ';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
 
@@ -679,7 +679,7 @@ describe('Décomposer commande parler', () => {
   it('commande «  donner la pièce du trésor maudit à la princesse aux souhaits énervée »', function () {
 
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
 
@@ -707,7 +707,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « donner une pièce à la princesse »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('donner une pièce à la princesse');
@@ -748,7 +748,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « demander de la nourriture à l’aubergiste »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('demander de la nourriture à l’aubergiste');
@@ -775,7 +775,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « commander poison à vendeur ambulant »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('commander poison à vendeur ambulant');
@@ -802,7 +802,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler du somnifère au magicien »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler du somnifère au magicien');
@@ -830,7 +830,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler du somnifère au magicien »', function () {
     const scenario = 'Le somnifère au magicien est un objet.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler du somnifère au magicien');
@@ -854,7 +854,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler d’une fiole de poison au magicien maléfique »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler d’une fiole de poison au magicien maléfique');
@@ -881,7 +881,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler magicien à propos d’une fiole »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler magicien à propos d’une fiole');
@@ -907,7 +907,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « donner saucisse à griller à vendeur »', function () {
     const scenario = 'La saucisse à griller est un objet.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('donner saucisse à griller à vendeur');
@@ -935,7 +935,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « montrer saucisse à griller à vendeur à viande »', function () {
     const scenario = 'La saucisse à griller est un objet.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('montrer saucisse à griller à vendeur à viande');
@@ -962,7 +962,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler de manger à l’aubergiste »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler de manger à l’aubergiste');
@@ -990,7 +990,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « demander à manger à l’aubergiste »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('demander à manger à l’aubergiste');
@@ -1014,7 +1014,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « demander à boire au tavernier »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('demander à boire au tavernier');
@@ -1039,7 +1039,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « demander à dormir longtemps à l’aubergiste cupide »', function () {
     const scenario = '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('demander à dormir longtemps à l’aubergiste cupide');
@@ -1066,7 +1066,7 @@ describe('Décomposer commande parler', () => {
   it('commande « demander à l’aubergiste à dormir »', function () {
     const scenario = 'demander ceci à cela est une action. ' +
       'L\'aubergiste est une personne. ';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('demander à l’aubergiste à dormir');
@@ -1093,7 +1093,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler à mousse de mat »', function () {
     const scenario = 'Le mousse est une personne.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler à mousse de mat');
@@ -1120,7 +1120,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler avec la magicienne étourdie du sort raté »', function () {
     const scenario = 'Le magicien est une personne.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler avec la magicienne étourdie du sort raté');
@@ -1146,7 +1146,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « discuter avec Jean-Paul de Jason »', function () {
     const scenario = 'Jean-Paul est une personne. ';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('discuter avec Jean-Paul de Jason');
@@ -1173,7 +1173,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler au magicien de la potion de vie »', function () {
     const scenario = 'Le magicien est une personne.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler au magicien de la potion de vie');
@@ -1201,7 +1201,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « parler au magicien du bois de la potion magique »', function () {
     const scenario = 'Le magicien du bois est une personne.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('parler au magicien du bois de la potion magique');
@@ -1228,7 +1228,7 @@ describe('Décomposer commande parler', () => {
 
   it('commande « discuter avec le comte Dracula de la tournure inatendue »', function () {
     const scenario = 'Le magicien du bois est une personne.';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     const ctxCom = ctxPartie.com.decomposerCommande('discuter avec le comte Dracula de la tournure inatendue');
@@ -1261,7 +1261,7 @@ describe('Décomposer commande parler', () => {
       'La table à langer est un support. ' +
       'Les parents sont des personnes. ' +
       '';
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, false);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
 

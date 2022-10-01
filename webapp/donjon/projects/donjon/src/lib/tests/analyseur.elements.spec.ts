@@ -2,8 +2,11 @@ import { AnalyseurBeta } from "../utils/compilation/analyseur/analyseur-beta";
 import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
+import { AnalyseurV8Definitions } from "../utils/compilation/analyseur/analyseur-v8.definitions";
 import { CompilateurBeta } from "../utils/compilation/compilateur-beta";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
+import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
+import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { EClasseRacine } from "../models/commun/constantes";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { Genre } from "../models/commun/genre.enum";
@@ -336,14 +339,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   // =========================================================
 
   it('Élément sans pos: « La cuisine est un lieu. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La cuisine est un lieu."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -367,14 +370,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément sans pos: « Paris (f) est un lieu gris. "Vous êtes dans Paris.". »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Paris (f) est un lieu gris. "Vous êtes dans Paris.".'
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(2); // 2 morceaux
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -398,14 +401,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément sans pos: « La château du comte est un lieu au nord du village. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.
@@ -414,14 +417,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément sans pos: « Un lutin est une personne. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Un lutin est une personne."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementSimple.testerElementSansPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.
@@ -430,16 +433,16 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La salon est un lieu. " +
       "La baguette est un objet maudit, rouge et magique ici."
     );
     expect(phrases).toHaveSize(2); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)
-    const resultatAnalyse = AnalyseurBeta.analyserPhrase(phrases[1], ctxAnalyse)
+    AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)
+    const resultatAnalyse = AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)
     expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -455,14 +458,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   
   it('Élément avec/sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support grand et opaque dans la salle."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    const resultatAnalyse = AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse);
+    const resultatAnalyse = AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse);
     expect(resultatAnalyse).not.toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(resultatAnalyse).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
@@ -482,14 +485,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
 
   it('Élément pos: « Le château du comte est un lieu au nord du village. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord du village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -514,14 +517,14 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     // tester l’analyse spécifique
     const el = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse); // analyser phrase
     expect(el).not.toBeNull(); // élément trouvé
@@ -546,30 +549,30 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord de le village."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.aucun);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
-    expect(resultat).toBeNull(); // résultat PAS trouvé.
-    expect(ctxAnalyse.erreurs).toHaveSize(1); // aucune erreur
+    expect(resultat).toBeFalsy(); // résultat PAS trouvé.
+    expect(ctxAnalyse.messages).toHaveSize(1); // aucune erreur
   });
 
 
   it('Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "L’abri est un lieu sombre."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(AnalyseurBeta.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     // tester l’analyse spécifique
     const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeNull(); // résultat PAS trouvé.

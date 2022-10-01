@@ -29,7 +29,7 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
   /** Les routines « règle » présentes dans le scénario. */
   public routinesRegles: RoutineRegle[] = [];
 
-  public dernierBloc: BlocInstructions
+  public dernierBloc: BlocInstructions;
 
   /** 
    * Message destinés à aider l’utilisateur à résoudre les problèmes dans son scénario.

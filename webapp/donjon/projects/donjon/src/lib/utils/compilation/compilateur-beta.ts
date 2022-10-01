@@ -1,5 +1,6 @@
 import { AnalyseurBeta } from './analyseur/analyseur-beta';
 import { CompilateurCommunUtils } from './compilateur-commun-utils';
+import { CompilateurV8Utils } from './compilateur-v8-utils';
 import { ContexteAnalyse } from '../../models/compilateur/contexte-analyse';
 import { ContexteCompilation } from '../../models/compilateur/contexte-compilation';
 import { ERoutine } from '../../models/compilateur/routine';
@@ -145,7 +146,7 @@ export class CompilateurBeta {
     // *****************************************
     // CONVERTIR LE SCÉNARIO BRUT EN PHRASES
     // *****************************************
-    let phrases = CompilateurBeta.convertirCodeSourceEnPhrases(source);
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
 
     // ********************************
     // ANALYSER LES PHRASES
@@ -186,7 +187,7 @@ export class CompilateurBeta {
    */
   public static convertirCodeSourceEnPhrases(scenario: string): Phrase[] {
 
-    const scenarioNettoye = CompilateurBeta.nettoyerCodeSource(scenario);
+    const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(scenario);
 
     // séparer les chaines de caractères (entre " ") du code
     const blocsInstructionEtTexte = scenarioNettoye.split('"');

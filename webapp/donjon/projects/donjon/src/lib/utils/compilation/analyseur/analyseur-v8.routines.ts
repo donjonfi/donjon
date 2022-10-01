@@ -17,7 +17,6 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Nombre } from "../../../models/commun/nombre.enum";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
 import { RoutineRegle } from "../../../models/compilateur/routine-regle";
 import { RoutineSimple } from "../../../models/compilateur/routine-simple";
 import { StringUtils } from "../../commun/string.utils";
@@ -426,7 +425,7 @@ export class AnalyseurV8Routines {
     // par défaut: on est dans la réaction « basique »
     let etiquetteActuelle: EtiquetteReaction = EtiquetteReaction.basique;
     let interlocuteur: ElementGenerique | undefined;
-    let reactionActuelle: ReactionBeta;
+    let reactionActuelle: RoutineReaction;
 
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
@@ -493,7 +492,7 @@ export class AnalyseurV8Routines {
         ctx.logResultatOk("🎫 étiquette: réaction basique");
         etiquetteActuelle = EtiquetteReaction.basique;
         const listeSujets = [new GroupeNominal(null, "aucun", "sujet")];
-        reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+        reactionActuelle = new RoutineReaction(listeSujets, phraseAnalysee.ligne);
         interlocuteur.reactions.push(reactionActuelle);
       // passer à la phrase suivante
         ctx.indexProchainePhrase++;
@@ -505,7 +504,7 @@ export class AnalyseurV8Routines {
         const sujetsBruts = etiquetteConcernant;
         ctx.logResultatOk(`🎫 étiquette: concernant « ${sujetsBruts} »`);
         const listeSujets = AnalyseurPropriete.retrouverSujets(sujetsBruts, ctx, phraseAnalysee);
-        reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+        reactionActuelle = new RoutineReaction(listeSujets, phraseAnalysee.ligne);
         interlocuteur.reactions.push(reactionActuelle);
         // passer à la phrase suivante
         ctx.indexProchainePhrase++;
@@ -523,7 +522,7 @@ export class AnalyseurV8Routines {
         // si on ne se trouve pas encore dans une réaction, créer la réaction basique
         if (!reactionActuelle) {
           const listeSujets = [new GroupeNominal(null, "aucun", "sujet")];
-          reactionActuelle = new ReactionBeta(listeSujets, undefined, []);
+          reactionActuelle = new RoutineReaction(listeSujets, phraseAnalysee.ligne);
           interlocuteur.reactions.push(reactionActuelle);
         }
 

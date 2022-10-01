@@ -11,6 +11,7 @@ import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
 import { RegleBeta } from '../compilateur/regle-beta';
+import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
 
 export class Jeu {
@@ -100,6 +101,9 @@ export class Jeu {
 
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];
+
+  /** Routines simples ajoutées au  jeu */
+  routines: RoutineSimple[] = [];
 
   /** Les abréviations pour les commandes du jeu */
   abreviations: Abreviation[] = [];

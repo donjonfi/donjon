@@ -14,7 +14,7 @@ export class ResultatCompilation {
   /** Le monde généré. */
   monde: Monde;
   /** Les routines simples trouvées. */
-  routines: RoutineSimple[];
+  routinesSimples: RoutineSimple[];
   /** Les règles trouvées. */
   regles: Regle[];
   /** Les actions trouvées. */

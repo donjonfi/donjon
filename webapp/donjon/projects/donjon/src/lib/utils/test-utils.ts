@@ -1,7 +1,8 @@
+import { CompilateurV8, Jeu } from "../../public-api";
+
 import { CompilateurBeta } from "./compilation/compilateur-beta";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { Generateur } from "./compilation/generateur";
-import { Jeu } from "../../public-api";
 
 export class TestUtils {
 
@@ -31,10 +32,18 @@ export class TestUtils {
  * @returns 
  */
   public static genererLeJeu(scenario: string, verbeux: boolean = false): Jeu {
-    const rc = CompilateurBeta.analyserScenarioSansChargerCommandes(scenario, verbeux);
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, verbeux);
 
     if (rc.erreurs.length > 0) {
-      throw new Error("genererEtCommencerLeJeu: il y a une erreur dans le scénario.");
+      throw new Error("genererEtCommencerLeJeu: il y a une erreur dans le scénario:" + rc.erreurs);
+    }
+    if (rc.messages.length > 0) {
+      let messages = "";
+      rc.messages.forEach(message => {
+        messages += message.titre;
+      });
+
+      throw new Error("genererEtCommencerLeJeu: il y a un message suite à l’analyse du scénario:" + messages);
     }
 
     const jeu = Generateur.genererJeu(rc);

@@ -22,7 +22,6 @@ export class ContexteAnalyse {
   ) { }
 
   public dernierePropriete: ProprieteElement = null;
-  public derniereReaction: ReactionBeta = null;
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 

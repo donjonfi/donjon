@@ -557,9 +557,9 @@ export class ActionsUtils {
         }
       }
     });
-    if (this.verbeux) {
-      console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
-    }
+    // if (this.verbeux) {
+    //   console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
+    // }
     return new ResultatChercherCandidats(verbeConnu, candidatsEnLice, candidatsRefuses);
   }
 

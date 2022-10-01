@@ -304,16 +304,26 @@ export class Instructions {
       case 'exécuter':
         // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
 
-        // EXÉCUTER RÉACTION
-        if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
-          // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
-          resultat = this.insExecuter.executerReaction(instruction, contexteTour);
-          // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
-        } else if (instruction.complement1 && ExprReg.xActionExecuterAction.test(instruction.complement1)) {
-          resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
-          // EXÉCUTER COMMANDE
-        } else if (instruction.complement1 && ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
-          resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+        if (instruction.complement1) {
+          // EXÉCUTER RÉACTION
+          if (instruction.complement1.startsWith('réaction ')) {
+            // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
+            resultat = this.insExecuter.executerReaction(instruction, contexteTour);
+            // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
+          } else if (ExprReg.xActionExecuterAction.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
+            // EXÉCUTER COMMANDE
+          } else if (ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+            // EXÉCUTER ROUTINE
+          } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
+          } else {
+            // INCONNU
+            contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" » ou « la routine xxx » pas pris en charge.");
+            resultat.succes = false;
+          }
+          // SANS COMPLÉMENT
         } else {
           console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
