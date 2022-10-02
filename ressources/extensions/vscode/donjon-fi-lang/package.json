@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Syntax highligthing and snippets for Donjon FI lang",
-  "version": "0.99.3",
+  "version": "2.0.0",
   "icon": "donjon128.png",
   "preview": true,
   "engines": {
