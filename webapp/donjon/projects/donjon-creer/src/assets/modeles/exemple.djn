@@ -16,7 +16,10 @@ interpréter la table comme la table basse.
 
 La pomme est un objet mangeable sur la table basse.
 Sa description est "Vous avez envie de croquer dedans.".
-interpréter croquer comme manger.
+action croquer la pomme:
+  effacer la pomme.
+  dire "Vous n’en avez fait qu’une bouchée !".
+fin action
 
 Le magazine est un objet dans le salon.
 Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".

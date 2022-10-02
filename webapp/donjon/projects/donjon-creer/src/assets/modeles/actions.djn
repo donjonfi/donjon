@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI"
--- Version: 2022-09-30-0200.beta1
+-- Version: 2022-10-02-0200.beta.1
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1068,7 +1068,7 @@ action recommencer:
   phase exécution:
     -- jeu terminé
     si le jeu est terminé:
-      commencer une nouvelle partie.
+      commencer nouvelle partie.
     -- jeu en cours : confirmation
     sinon
       dire "Commencer une nouvelle partie ?".
