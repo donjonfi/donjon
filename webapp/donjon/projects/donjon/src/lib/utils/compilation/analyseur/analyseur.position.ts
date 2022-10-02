@@ -1,5 +1,7 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { AnalyseurUtils } from "./analyseur.utils";
-import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
@@ -15,7 +17,7 @@ export class AnalyseurPosition {
    * @param ctxAnalyse 
    * @returns 
    */
-  public static testerPositionElement(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerPositionElement(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
@@ -35,14 +37,14 @@ export class AnalyseurPosition {
         morceauxPosition.forEach(morceauPosition => {
           let curPositionBrut: string;
           // de le => du
-          if(elementEtAutreElement[1].toLocaleLowerCase().startsWith("le ")){
+          if (elementEtAutreElement[1].toLocaleLowerCase().startsWith("le ")) {
             curPositionBrut = morceauPosition + ' du ' + elementEtAutreElement[1].slice(3);
-          // autres
-          }else{
+            // autres
+          } else {
             curPositionBrut = morceauPosition + ' de ' + elementEtAutreElement[1];
           }
-          
-          elementTrouve = this.testerPositionRelative(elementEtAutreElement[0], curPositionBrut , phrase, ctxAnalyse);
+
+          elementTrouve = this.testerPositionRelative(elementEtAutreElement[0], curPositionBrut, phrase, ctxAnalyse);
         });
       } else {
         // il peut y avoir plusieurs positions relatives
@@ -57,7 +59,7 @@ export class AnalyseurPosition {
     return elementTrouve;
   }
 
-  private static testerPositionRelative(elementConcerneBrut: string, positionBrut: string, phrase: Phrase, ctxAnalyse: ContexteAnalyse) {
+  private static testerPositionRelative(elementConcerneBrut: string, positionBrut: string, phrase: Phrase, ctxAnalyse: ContexteAnalyseV8) {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -108,7 +110,11 @@ export class AnalyseurPosition {
               elementTrouve = ResultatAnalysePhrase.positionElement;
 
             } else {
-              ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : le nom de l'autre élément n'est pas supporté : " + autreElementBrut)
+              ctxAnalyse.probleme(phrase, undefined,
+                CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+                'Nom pas supporté',
+                `Position relative: le nom de l’autre élément n’est pas un groupe nominal: « ${autreElementBrut} »`
+              );
             }
           } else {
 
@@ -137,13 +143,26 @@ export class AnalyseurPosition {
 
           }
         } else {
-          ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : la position de l’élément n'est pas supportée : " + positionBrut)
+          ctxAnalyse.probleme(phrase, undefined,
+            CategorieMessage.referenceElementGenerique, CodeMessage.positionElementCiblePasSupportee,
+            'Position pas supportée',
+            `Position relative: la position de l’autre élément n’est pas supportée: « ${positionBrut} »`
+          );
         }
       } else {
-        ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : l'élément concerné n'a pas été trouvé : " + elementConcerneBrut);
+        ctxAnalyse.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          'Élément cible pas trouvé',
+          `Position relative: l’élément concerné n’a pas été trouvé : « ${elementConcerneBrut} ».`
+        );
       }
     } else {
       ctxAnalyse.ajouterErreur(phrase.ligne, "Position relative : le nom de l’élément n'est pas supporté : " + elementConcerneBrut)
+      ctxAnalyse.probleme(phrase, undefined,
+        CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+        'Nom pas supporté',
+        `Position relative: le nom de l’élément n’est pas un groupe nominal: « ${elementConcerneBrut} »`
+      );
     }
 
     return elementTrouve;

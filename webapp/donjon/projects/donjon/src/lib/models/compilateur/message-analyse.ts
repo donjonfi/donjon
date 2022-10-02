@@ -86,6 +86,8 @@ export enum CategorieMessage {
   syntaxeDefinition = "syntaxe_definition",
   synonyme = "synonyme",
 
+  referenceElementGenerique = "reference_element_generique",
+
 }
 
 /**
@@ -157,6 +159,13 @@ export enum CodeMessage {
   /** Une définition était attendue mais on n’a pas pur interpréter cette phrase comme une définition */
   definitionAttendue = "syntaxe_definition/definition_attendue",
 
-
+  /** Référence élément générique: élément ciblé pas trouvé */
+  elementCiblePasTrouve = "reference_element_generique/element_cible_pas_trouve",
+  /** Référence élément générique: nom de l’élément pas supporté */
+  nomElementPasSupporte = "reference_element_generique/nom_element_pas_supporte",
+  /** Référence élément générique: nom de l’autre élément pas supporté */
+  nomElementCiblePasSupporte = "reference_element_generique/nom_element_cible_pas_supporte",
+  /** Référence élément générique: position de l’autre élément pas supportée */
+  positionElementCiblePasSupportee = "reference_element_generique/position_element_cible_pas_supportee",
 
 }

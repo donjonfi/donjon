@@ -1053,9 +1053,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   public async chargerActions(forcerMaj: boolean): Promise<string | null> {
-
     let sourceActions: string | null = sessionStorage.getItem("actions");
-
     if (!sourceActions || forcerMaj) {
       this.problemeChargementFichierActions = undefined;
       try {
@@ -1071,9 +1069,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.chargementActionsEnCours = false;
       }
     }
-
     return sourceActions;
-
   }
 
   get statutActions(): string {

@@ -1,9 +1,9 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
 import { Aide } from "../../../models/commun/aide";
-import { AnalyseurUtils } from "./analyseur.utils";
-import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
-import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { StringUtils } from "../../commun/string.utils";
 import { TexteUtils } from "../../commun/texte-utils";
@@ -17,7 +17,7 @@ export class AnalyseurDivers {
    * @param ctxAnalyse 
    * @returns 
    */
-  public static testerAide(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerAide(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -46,7 +46,7 @@ export class AnalyseurDivers {
    * @param ctxAnalyse 
    * @returns 
    */
-  public static testerSection(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerSection(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
     const sectionTrouvee = ExprReg.xSection.test(phrase.morceaux[0]);
@@ -62,7 +62,7 @@ export class AnalyseurDivers {
    * @param ctxAnalyse 
    * @returns 
    */
-  public static testerActiverDesactiverParametre(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerActiverDesactiverParametre(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -113,7 +113,11 @@ export class AnalyseurDivers {
           break;
 
         default:
-          ctxAnalyse.ajouterErreur(phrase.ligne, "Activer/Désactiver : paramètre inconnu : « " + parametre + " »")
+          ctxAnalyse.probleme(phrase, undefined,
+            CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+            'Paramètre inconnu',
+            `Activer/Désactiver: ce paramètre n’existe pas : « ${parametre} ».`
+          );
           break;
       }
 
