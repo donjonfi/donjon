@@ -71,12 +71,13 @@ export class AnalyseurPropriete {
           }
           // - RETROUVER L’INSRTRUCTION
           let instructionBrute = AnalyseurPropriete.retrouverInstructionsBrutes((valeurBrut), ctxAnalyse.erreurs, phrase);
+          let instructionBruteNettoyee = AnalyseurCommunUtils.nettoyerInstruction(instructionBrute);
           // transformer forme rapide en instruction dire
-          if (instructionBrute.startsWith('"') && instructionBrute.endsWith('"')) {
-            instructionBrute = 'dire ' + instructionBrute;
+          if (instructionBruteNettoyee.startsWith('"') && instructionBruteNettoyee.endsWith('"')) {
+            instructionBruteNettoyee = 'dire ' + instructionBruteNettoyee;
           }
 
-          let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(instructionBrute);
+          let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(instructionBruteNettoyee);
           // instruction simple a été trouvée
           if (instructionDecomposee) {
             let instructionDire = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
@@ -84,7 +85,7 @@ export class AnalyseurPropriete {
             if (instructionDire?.instruction?.infinitif == 'dire') {
               // - AJOUTER LA RÉACTION
               const reaction = new RoutineReaction(listeSujets, phrase.ligne);
-              reaction.instructions.push(instructionDire);
+              reaction.instructions = [instructionDire];
               // retrouver l’objet qui réagit et lui ajouter la réaction
               elementCible.reactions.push(reaction);
               // résultat
