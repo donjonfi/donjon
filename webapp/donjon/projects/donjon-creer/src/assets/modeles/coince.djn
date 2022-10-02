@@ -1,7 +1,7 @@
 PARTIE "Informations sur le jeu".
   Le titre du jeu est "Coincé".
   L’auteur du jeu est "Jonathan Claes".
-  La version du jeu est "1.11".
+  La version du jeu est "2.00".
   L’identifiant du jeu est "d0f14d91-78ef-499d-890c-be88dd8f9a5d".
   Le titre de la licence est "CC BY 4.0".
   Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
@@ -59,12 +59,13 @@ PARTIE "Description du monde".
       -- anneau
       L'anneau est un objet portable dans le coffre. "C'est un anneau doré. Il est probablement magique.".
         
-      après mettre l’anneau:
+      règle après mettre l’anneau:
         si la règle se déclenche pour la première fois:
-          dire "Vous sentez une force puissante vous envahir!";
+          dire "Vous sentez une force puissante vous envahir!".
         fin si
         terminer l’action avant.
-
+      fin règle
+      
       -- porte
       La porte secrète est une porte fermée, verrouillée et invisible au nord du salon.
       Interpréter porte comme la porte secrète.
@@ -87,45 +88,58 @@ PARTIE "Description du monde".
       -- ===========
 
       -- > POUSSER/DÉPLACER FAUTEUIL
-      avant pousser le fauteuil ou déplacer le fauteuil:
+      règle avant pousser le fauteuil ou déplacer le fauteuil:
       -- modifier le déroulement normal des actions pousser et déplacer le fauteuil
         si le fauteuil n'est pas déplacé:
-          dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.";
-          changer le coffre n’est plus invisible;
-          changer le fauteuil est déplacé;
+          dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.".
+          changer le coffre n’est plus invisible.
+          changer le fauteuil est déplacé.
         sinon
-          dire "Ce n'est plus nécessaire.";
+          dire "Ce n'est plus nécessaire.".
         fin si
         arrêter l'action.
+      fin règle.
         
       -- > SOULEVER ou PRENDRE ou JETER le FAUTEUIL
       -- création de l’action soulever le fauteuil
-      Le joueur peut soulever le fauteuil:
-        dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
+      action soulever ceci:
+        définitions:
+          Ceci est le fauteuil.
+        phase exécution:
+          dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
+      fin action
+    
       -- empêcher le déroulement normal des actions prendre et jeter le fauteuil
-      avant prendre le fauteuil ou jeter le fauteuil:
-        dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.";
+      règle avant prendre le fauteuil ou jeter le fauteuil:
+        dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
         arrêter l’action.
-        
+      fin règle
+      
       -- > JETER BILLE SUR LUCARNE
-      après jeter la bille vers la lucarne:
+      règle après jeter la bille vers la lucarne:
         dire "[au hasard]Vous atteignez la lucarne avec la bille, ça fait << poc >> puis la bille retombe.[ou]Raté.[ou]Bien essayé.[fin choix]".
+      fin règle
 
       -- > TAPER CODE
-      taper ceci est une action qui concerne un intitulé.
+      action taper ceci:
+      
+        définitions:
+          Ceci est un intitulé.
 
-      refuser taper ceci:
-        si le coffre n’est pas présent, dire "Il n'y a pas de clavier ici.";
-        si le coffre n'est pas visible, dire "Je ne vois pas de clavier.".
-        
-      exécuter taper ceci:
-        si ceci vaut "anneau":
-          dire "Le coffre émet un déclic.";
-          changer le coffre est déverrouillé;
-        sinon
-          dire "Rien ne se passe. Ce n'est pas le bon code.";
-        fin si.
+        phase prérequis:
+          si le coffre n’est pas présent, refuser "Il n'y a pas de clavier ici.".
+          si le coffre n'est pas visible, refuser "Je ne vois pas de clavier.".
+          
+        phase exécution:
+          si ceci vaut "anneau":
+            dire "Le coffre émet un déclic.".
+            changer le coffre est déverrouillé.
+          sinon
+            dire "Rien ne se passe. Ce n'est pas le bon code.".
+          fin si
 
+      fin action
+      
       -- ajout de la page d’aide pour l’action « taper »
       L’aide pour l'action taper est "{*taper*}
         Cette commande permet de taper un mot de passe pour déverrouiller le coffre.
@@ -134,14 +148,20 @@ PARTIE "Description du monde".
       ".
 
       -- > DÉCROCHER TABLEAU
-      Le joueur peut décrocher le tableau:
-        si le tableau se trouve sur le mur:
-          dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.";
-          changer le bouton n’est plus couvert;
-          changer le tableau se trouve dans le salon;
-        sinon
-          dire "Le taleau n'est pas accroché.";
-        fin si.
+      action décrocher ceci:
+        définitions:
+          ceci est le tableau.
+        
+        phase exécution:
+          si le tableau se trouve sur le mur:
+            dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.".
+            changer le bouton n’est plus couvert.
+            changer le tableau se trouve dans le salon.
+          sinon
+            dire "Le taleau n'est pas accroché.".
+          fin si
+          
+      fin action
 
     scène "les règles"
       -- ==========
@@ -149,23 +169,25 @@ PARTIE "Description du monde".
       -- ==========
 
       -- > AVANT − PRENDRE, ENLEVER ou JETER le TABLEAU
-      avant prendre le tableau, enlever le tableau ou jeter le tableau:
+      règle avant prendre le tableau, enlever le tableau ou jeter le tableau:
         si le tableau se trouve sur le mur:
-          changer le bouton n’est plus couvert;
-          changer le tableau se trouve dans le salon;
-          dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.";
+          changer le bouton n’est plus couvert.
+          changer le tableau se trouve dans le salon.
+          dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.".
         sinon
-          dire "Vous avez déjà enlevé le tableau du mur.";
+          dire "Vous avez déjà enlevé le tableau du mur.".
         fin si
         arrêter l’action.
-
-      après pousser le bouton ou utiliser le bouton:
-        dire "Vous entendez un déclic.";
+      fin règle
+      
+      règle après pousser le bouton ou utiliser le bouton:
+        dire "Vous entendez un déclic.".
         si la porte secrète est fermée:
-          dire "Une porte s'ouvre dans le mur nord de la pièce.";
-          changer la porte secrète est ouverte;
-          changer la porte secrète n'est plus invisible;
-        fin si.
+          dire "Une porte s'ouvre dans le mur nord de la pièce.".
+          changer la porte secrète est ouverte.
+          changer la porte secrète n'est plus invisible.
+        fin si
+      fin règle
 
   CHAPITRE "Le cabinet".
     -- ///////////////////////
@@ -186,28 +208,35 @@ PARTIE "Description du monde".
       interpréter araignées, araignée, toile et toiles comme les toiles d’araignées.
 
     SCÈNE "la magicienne".
-      La magicienne est une femme dans le cabinet. "la magicienne vous observe.".
+      La magicienne est une femme dans le cabinet. "La magicienne vous observe.".
 
       -- les conversations avec la magicienne
-      Sa réaction est "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
-      Sa réaction concernant l'anneau est "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
-      Sa réaction concernant la sortie est "<< Grâce à mon anneau, je pourrai nous faire sortir d’ici >>".
-      Sa réaction concernant uaenna est "<< Oh ! Vous savez parler en verlan ! >>".
-      Sa réaction concernant un sujet inconnu est:
-        dire "<< L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. >>".
+      réactions de la magicienne:
+        basique:
+          dire "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
+        concernant l’anneau:
+          dire "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
+        concernant la sortie:
+          dire "<< Grâce à mon anneau, je pourrai nous faire sortir d’ici.".
+        concernant uaenna:
+          dire "<< Oh ! Vous savez parler en verlan ! >>".
+        concernant un sujet inconnu:
+          dire "<< L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. >>".
+      fin réaction
 
       -- les actions avec la magicienne
-      après donner pièce à la magicienne:
+      règle après donner pièce à la magicienne:
         dire "<< Elle ne semble pas magique malheureusement. >>".
+      fin règle
         
-      avant donner anneau à la magicienne ou montrer anneau à la magicienne:
+      règle avant donner anneau à la magicienne ou montrer anneau à la magicienne:
         dire "<< Mon héro! >>
-              La magicienne tend la main et un éclair vous aveugle.";
-        attendre touche;
+              La magicienne tend la main et un éclair vous aveugle.".
+        attendre touche.
         dire "Vous êtes de retour chez vous!
               
-              {+Bravo! Vous avez gagné !+}";
+              {+Bravo! Vous avez gagné !+}".
         -- la partie est terminée car on a gagné
-        terminer le jeu;
+        terminer le jeu.
         arrêter l’action.
-
+      fin règle

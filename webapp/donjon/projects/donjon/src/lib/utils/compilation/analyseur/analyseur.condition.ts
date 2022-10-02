@@ -231,16 +231,16 @@ export class AnalyseurCondition {
           retVal.condition = AnalyseurCondition.obetenirConditionSoloDebut(conditionDecomposee.conditionBrute);
           // si condition pas trouvée
           if (!retVal.condition) {
-            console.error("Condition solo (début) pas trouvée pour", conditionDecomposee.conditionBrute);
-            retVal.erreurs.push("Début de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            console.error(`Condition solo (début) pas trouvée pour « ${conditionDecomposee.conditionBrute} »`);
+            retVal.erreurs.push(`Début de la condition pas trouvé : « ${conditionDecomposee.conditionBrute} »`);
             retVal.nbErreurs += 1;
           }
         } else {
           retVal.condition = AnalyseurCondition.obetenirConditionSoloSuite(conditionDecomposee.conditionBrute);
           // si simple condition pas trouvée
           if (!retVal.condition) {
-            console.error("Condition solo (suite) pas trouvée pour", conditionDecomposee.conditionBrute);
-            retVal.erreurs.push("Fin de la condition pas trouvé : " + conditionDecomposee.conditionBrute);
+            console.error(`Condition solo (suite) pas trouvée pour « ${conditionDecomposee.conditionBrute} »`);
+            retVal.erreurs.push(`Fin de la condition pas trouvé : « ${conditionDecomposee.conditionBrute} »`);
             retVal.nbErreurs += 1;
           }
         }
@@ -267,6 +267,8 @@ export class AnalyseurCondition {
     let resConditionTirage: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
 
+    // console.log(">>>>>>>>>> CONDITION:", conditionBrute);
+    
     // A. tester la formulation  [ni ni | soit soit]
     resCondNiSoit = ExprReg.xDebutConditionNiSoit.exec(conditionBrute);
     resCond = resCondNiSoit;
@@ -415,10 +417,12 @@ export class AnalyseurCondition {
     // enlever les espaces avant et après
     morceauConditionBrute = morceauConditionBrute.trim();
 
-    // enlever éventuellement le « si » qui commence la condition
+    // enlever éventuellement le « si » ou le « sinonsi » qui commence la condition
     if (morceauConditionBrute.match(/^si /i)) {
       morceauConditionBrute = morceauConditionBrute.slice(3);
-    }
+    } else if (morceauConditionBrute.match(/^sinonsi /i)) {
+      morceauConditionBrute = morceauConditionBrute.slice(8);
+    } 
 
     retVal.conditionBrute = morceauConditionBrute;
     retVal.lien = lien;

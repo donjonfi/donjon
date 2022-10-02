@@ -14,7 +14,7 @@ import { Valeur } from "../jeu/valeur";
 export class ContexteTour {
 
   // erreurs
-  private erreurs: string[] = [];
+  private _erreurs: string[] = [];
 
   public phase: PhaseTour;
 
@@ -76,13 +76,17 @@ export class ContexteTour {
 
   // 
 
+  get erreurs(): readonly string[]{
+    return this._erreurs;
+  }
+
   ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {
     if (instruction) {
       console.error(erreur, "\ninstruction: ", instruction);
     } else {
       console.error(erreur);
     }
-    this.erreurs.push(erreur);
+    this._erreurs.push(erreur);
   }
 
   /**
@@ -112,12 +116,12 @@ export enum PhaseTour {
   debut = 0,
   avant = 1,
   avant_interrompu = 2, // prochain: refuser sauf si on arrête dans la dernière partie de la règle avant
-  refuser = 3,
-  executer = 4,
+  prerequis = 3,
+  execution = 4,
   apres = 5,
   apres_interrompu = 6, // prochain: fin sauf si on continue dans la dernière partie de la règle après
   apres_a_traiter_apres_terminer = 7,
-  terminer = 8,
+  epilogue = 8,
   terminer_avant_traiter_apres = 9,
   continuer_apres = 10,
   continuer_apres_interrompu = 11,

@@ -10,7 +10,8 @@ import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
-import { Regle } from '../compilateur/regle';
+import { RegleBeta } from '../compilateur/regle-beta';
+import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
 
 export class Jeu {
@@ -90,7 +91,7 @@ export class Jeu {
   auditeurs: Auditeur[] = [];
 
   /** Règles ajoutées au jeu. */
-  regles: Regle[] = [];
+  regles: RegleBeta[] = [];
 
   /** Compteurs ajoutés au jeu */
   compteurs: Compteur[] = [];
@@ -100,6 +101,9 @@ export class Jeu {
 
   /** Actions ajoutées au jeu. */
   actions: Action[] = [];
+
+  /** Routines simples ajoutées au  jeu */
+  routines: RoutineSimple[] = [];
 
   /** Les abréviations pour les commandes du jeu */
   abreviations: Abreviation[] = [];

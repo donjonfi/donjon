@@ -29,6 +29,7 @@ import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { StringUtils } from '../commun/string.utils';
 import { TexteUtils } from '../commun/texte-utils';
+import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
 
 export class Instructions {
@@ -84,6 +85,7 @@ export class Instructions {
       resultat.arreterApresRegle = resultat.arreterApresRegle || sousResultat.arreterApresRegle;
       resultat.terminerAvantRegle = resultat.terminerAvantRegle || sousResultat.terminerAvantRegle;
       resultat.terminerApresRegle = resultat.terminerApresRegle || sousResultat.terminerApresRegle;
+      resultat.refuse = resultat.refuse || sousResultat.refuse;
 
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
@@ -96,6 +98,10 @@ export class Instructions {
         } else {
           resultat.reste = instructions.slice(indexInstruction + 1);
         }
+        break;
+      }
+      // si instruction refusée: on arrête tout
+      if (resultat.refuse) {
         break;
       }
     }
@@ -115,9 +121,6 @@ export class Instructions {
     // instruction conditionnelle
     if (instruction.condition) {
       const estVrai = this.cond.siEstVrai(null, instruction.condition, contexteTour, evenement, declenchements);
-      if (this.verbeux) {
-        console.log("estVrai=", estVrai);
-      }
       if (estVrai) {
         resultat = this.executerInstructions(instruction.instructionsSiConditionVerifiee, contexteTour, evenement, declenchements);
       } else {
@@ -128,7 +131,7 @@ export class Instructions {
       if (instruction.choix.length > 0) {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
-        resultat.typeInterruption = instruction.choixLibre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
+        resultat.typeInterruption = instruction.typeChoisir == TypeChoisir.libre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
         resultat.choix = instruction.choix;
       } else {
         this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")
@@ -158,14 +161,22 @@ export class Instructions {
     switch (instruction.infinitif.toLowerCase()) {
       case 'dire':
         // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        const complement = instruction.complement1.trim();
-        let contenu = complement.slice(1, complement.length - 1).trim();
-        contenu = this.insDire.calculerTexteDynamique(contenu, nbExecutions, undefined, contexteTour, evenement, declenchements);
-        resultat.sortie += contenu;
-        // console.warn("--- complement:", complement);
-        // console.warn("------ contenu:", contenu);
-        // console.warn("------ resultat.sortie:", resultat.sortie);
+        const complementDire = instruction.complement1.trim();
+        let contenuDire = complementDire.slice(1, complementDire.length - 1).trim();
+        contenuDire = this.insDire.calculerTexteDynamique(contenuDire, nbExecutions, undefined, contexteTour, evenement, declenchements);
+        resultat.sortie += contenuDire;
         break;
+
+      case 'refuser':
+        // refuser l’exécution de l’action + raison
+        // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
+        const complementRepondre = instruction.complement1.trim();
+        let contenuRepondre = complementRepondre.slice(1, complementRepondre.length - 1).trim();
+        contenuRepondre = this.insDire.calculerTexteDynamique(contenuRepondre, nbExecutions, undefined, contexteTour, evenement, declenchements);
+        resultat.sortie += contenuRepondre;
+        resultat.refuse = true;
+        break;
+
       case 'changer':
         sousResultat = this.insChanger.executerChanger(instruction, contexteTour, evenement, declenchements);
         resultat.sortie += sousResultat.sortie;
@@ -250,12 +261,17 @@ export class Instructions {
           resultat.sortie = "@@effacer écran@@";
         } else {
           const cible = InstructionsUtils.trouverObjetCible(instruction.sujet.nom, instruction.sujet, contexteTour, this.eju, this.jeu);
-          if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
-            sousResultat = this.executerEffacer(cible as Objet);
-            resultat.succes = sousResultat.succes;
+          if (cible) {
+            if (ClasseUtils.heriteDe(cible.classe, EClasseRacine.objet)) {
+              sousResultat = this.executerEffacer(cible as Objet);
+              resultat.succes = sousResultat.succes;
+            } else {
+              console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
+              resultat.sortie = "{+[Seuls les objets ou l’écran peuvent être effacés]+}";
+              resultat.succes = false;
+            }
           } else {
-            console.error("Exécuter infinitif: Seuls les objets ou l’écran peuvent être effacés.");
-            resultat.sortie = "{+[Seuls les objets ou l’écran peuvent être effacés]+}";
+            contexteTour.ajouterErreurInstruction(instruction, "L’objet à effacer n’a pas été trouvé.");
             resultat.succes = false;
           }
         }
@@ -288,16 +304,26 @@ export class Instructions {
       case 'exécuter':
         // rem: instruction spéciale où le sujet et les compléments ne sont pas analysés !
 
-        // EXÉCUTER RÉACTION
-        if (instruction.complement1 && instruction.complement1.startsWith('réaction ')) {
-          // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
-          resultat = this.insExecuter.executerReaction(instruction, contexteTour);
-          // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
-        } else if (instruction.complement1 && ExprReg.xActionExecuterAction.test(instruction.complement1)) {
-          resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
-          // EXÉCUTER COMMANDE
-        } else if (instruction.complement1 && ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
-          resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+        if (instruction.complement1) {
+          // EXÉCUTER RÉACTION
+          if (instruction.complement1.startsWith('réaction ')) {
+            // console.log("executerInfinitif >> executerReaction", instruction, ceci, cela);
+            resultat = this.insExecuter.executerReaction(instruction, contexteTour);
+            // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
+          } else if (ExprReg.xActionExecuterAction.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
+            // EXÉCUTER COMMANDE
+          } else if (ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+            // EXÉCUTER ROUTINE
+          } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
+          } else {
+            // INCONNU
+            contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" » ou « la routine xxx » pas pris en charge.");
+            resultat.succes = false;
+          }
+          // SANS COMPLÉMENT
         } else {
           console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;

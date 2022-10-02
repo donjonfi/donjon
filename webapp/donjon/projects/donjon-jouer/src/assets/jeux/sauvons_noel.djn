@@ -1,8 +1,8 @@
 PARTIE "Informations sur le jeu".
+
   Le titre du jeu est "Sauvons Noël !".
   L’auteur du jeu est "JG".
-  La version du jeu est "1.11".
-  L’IFID du jeu est "d0f1a8cd-8d3d-4940-884f-4bb67088ab87".
+  La version du jeu est "2.00".
   Le titre de la licence est "CC BY 4.0".
   Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
 
@@ -28,27 +28,30 @@ PARTIE "Description du monde".
       Grattepot est un lutin sur le chemin.
       Sa description est "Votre lutin, habillé de vert, prêt à vous aider.".
       interpréter G et lutin comme Grattepot.
-      Sa réaction est :
-        si l’historique contient "lettre trouvée":
-          dire "<< Pouvez-vous me donner la lettre à présent ? >>";
-        sinonsi l’historique contient "clé trouvée":
-          dire "<< Vous devriez pouvoir ouvrir la boîte aux lettre à présent.";
-        sinon
-          dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>";
-          si le joueur ne porte pas le pantalon:
-            dire "{n}<< Ha ha ! Vous ne portez pas de pantalon ! >>";
-          fin si
-        fin si.
-        
-      Sa réaction concernant la clé est :
-        si l'historique contient "clé trouvée" :
-          dire "<< Je suis heureux que vous l'ayez retrouvée. Vous pouvez ouvrir la boîte aux lettres à présent. >>";
-        sinon
-          dire "<< Vous savez-bien, c'est la clé en forme de Bretzel. >>";
-        fin si.
-        
-      Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
-      Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "C’est important de bien vous couvrir pour sortir dehors.".
+
+      réactions Grattepot:
+        basique:
+          si l’historique contient "lettre trouvée":
+            dire "<< Pouvez-vous me donner la lettre à présent ? >>".
+          sinonsi l’historique contient "clé trouvée":
+            dire "<< Vous devriez pouvoir ouvrir la boîte aux lettre à présent.".
+          sinon
+            dire "<< C'est terrible j'ai perdu la clé de la boite aux lettres. Des enfants ne vont pas recevoir leur jouet. >>".
+            si le joueur ne porte pas le pantalon:
+              dire "{n}<< Ha ha ! Vous ne portez pas de pantalon ! >>".
+            fin si
+          fin si.
+        concernant la clé:
+          si l'historique contient "clé trouvée" :
+            dire "<< Je suis heureux que vous l'ayez retrouvée. Vous pouvez ouvrir la boîte aux lettres à présent. >>".
+          sinon
+            dire "<< Vous savez-bien, c'est la clé en forme de Bretzel. >>".
+          fin si.
+        concernant la lettre:
+          dire "Donnez-là moi et je m'occuperai du dernier cadeau.".
+        concernant le pantalon, la veste, le bonnet ou les bottes:
+          dire "C’est important de bien vous couvrir pour sortir dehors.".
+      fin réactions
 
     SCÈNE "Volebougie (chambre)"
       -- Volebougie
@@ -56,14 +59,19 @@ PARTIE "Description du monde".
       Sa description est "Votre lutin, habillé de bleu, prêt à vous aider.".
       interpréter V et lutin comme Volebougie.
 
-      Sa réaction est :
-        si le joueur ne porte ni la veste ni le pantalon, dire "<< Ha ha ha ! Vous êtes tout nu ! >>";
-        si le joueur porte soit la veste soit le pantalon, dire "<< Ha ha ha ! Il vous manque encore quelque chose ! >>";
-        si le joueur porte la veste et le pantalon, dire "<< Vous avez bien fait de vous habiller ! [si le joueur porte le bonnet]Vous allez pouvoir sortir à présent.[sinon]D'ailleurs vous devriez couvrir votre tête : il fait vraiment froid.[fin si] >>".
+      réactions de Volebougie:
+        basique:
+          si le joueur ne porte ni la veste ni le pantalon, dire "<< Ha ha ha ! Vous êtes tout nu ! >>".
+          si le joueur porte soit la veste soit le pantalon, dire "<< Ha ha ha ! Il vous manque encore quelque chose ! >>".
+          si le joueur porte la veste et le pantalon, dire "<< Vous avez bien fait de vous habiller ! [si le joueur porte le bonnet]Vous allez pouvoir sortir à présent.[sinon]D'ailleurs vous devriez couvrir votre tête : il fait vraiment froid.[fin si] >>".
           
-      Sa réaction concernant la clé est "<< C'est Grattepot qui l'a perdu ![si l'historique contient "clé trouvée"] Heureusement que vous l'avez retrouvée.[fin si] >>".
-      Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
-      Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Bien rangé, vite retrouvé !".
+        concernant la clé:
+          dire "<< C'est Grattepot qui l'a perdu ![si l'historique contient "clé trouvée"] Heureusement que vous l'avez retrouvée.[fin si] >>".
+        concernant la lettre:
+          dire "Donnez-là moi et je m'occuperai du dernier cadeau.".
+        concernant le pantalon, la veste, le bonnet ou les bottes:
+          dire "Bien rangé, vite retrouvé !".
+      fin réactions
 
     SCÈNE "Chipesaucisse (atelier)".
       -- Chipesaucisse
@@ -71,12 +79,17 @@ PARTIE "Description du monde".
       Sa description est "Votre lutin, habillé de rouge, prêt à vous aider.".
       interpréter C et lutin comme Chipesaucisse.
 
-      Sa réaction est "<< Il nous reste très peu de temps pour charger le traîneau.[si l'historique ne contient pas "clé trouvée"] Il faut nous aider à retrouver la clé de la boite aux lettres.[fin si] >>[si le joueur ne porte pas le pantalon]{n}<< Ha ha ! Vous ne portez pas de pantalon ![fin si] >>".
-      Sa réaction concernant la clé est "<< J'ai toujours eu envie de croquer dedans ! >>".
-
-      Sa réaction concernant la lettre est "Donnez-là moi et je m'occuperai du dernier cadeau.".
-      Sa réaction concernant le pantalon, la veste, le bonnet ou les bottes est "Il faut que vous arrêtiez de jeter vos affaires n’importe où.".
-
+      réactions de Chipesaucisse:
+        basique:
+          dire "<< Il nous reste très peu de temps pour charger le traîneau.[si l'historique ne contient pas "clé trouvée"] Il faut nous aider à retrouver la clé de la boite aux lettres.[fin si] >>[si le joueur ne porte pas le pantalon]{n}<< Ha ha ! Vous ne portez pas de pantalon ![fin si] >>".
+        concernant la clé:
+          dire "<< J'ai toujours eu envie de croquer dedans ! >>".
+        concernant la lettre:
+          dire "Donnez-là moi et je m'occuperai du dernier cadeau.".
+        concernant le pantalon, la veste, le bonnet ou les bottes:
+          dire "Il faut que vous arrêtiez de jeter vos affaires n’importe où.".
+      fin réactions
+      
   CHAPITRE "le hall".
 
     Un vêtement est un objet portable.
@@ -92,11 +105,12 @@ PARTIE "Description du monde".
       Elle est fermée et ouvrable.
       Sa description est "Cette porte conçue par vos lutins dans votre atelier vous protège efficacement du froid.".
       interpréter porte comme porte d'entrée.
-      avant ouvrir porte d'entrée:
+      règle avant ouvrir porte d'entrée:
         si le joueur ne porte pas la veste ou le pantalon ou le bonnet ou les bottes :
-          dire "Vous n'êtes pas suffisamment équipé pour le froid[si le joueur ne porte pas le pantalon] et de toute manière vous ne pouvez pas sortir dans cette tenue[fin si].";
-          stopper l'action;
+          dire "Vous n'êtes pas suffisamment équipé pour le froid[si le joueur ne porte pas le pantalon] et de toute manière vous ne pouvez pas sortir dans cette tenue[fin si].".
+          stopper l'action.
         fin si.
+      fin règle
 
   CHAPITRE " la chambre".
     -- La chambre
@@ -107,9 +121,10 @@ PARTIE "Description du monde".
     Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
     Son aperçu est "Votre lit trône au centre de la pièce.".
 
-    avant dormir, dormir dans le lit ou mettre le joueur dans le lit :
-      dire "Vous êtes encore fatigué mais vous n'avez vraiment plus le temps de roupiller !";
+    règle avant dormir, dormir dans le lit ou mettre le joueur dans le lit :
+      dire "Vous êtes encore fatigué mais vous n'avez vraiment plus le temps de roupiller !".
       stopper l'action.
+    fin règle
 
     -- > L'édredon
     L'édredon est un objet décoratif sur le lit. "Ce patchwork est avant tout un souvenir sentimental. C'est votre préféré, malgré son état."
@@ -126,10 +141,11 @@ PARTIE "Description du monde".
     Elle est fermée et ouvrable.
     interpréter la porte comme la porte de la chambre.
 
-    après ouvrir la porte de la chambre :
-    --  changer Grattepot se trouve sur le chemin;
-    --  changer Chipesaucisse se trouve dans l'atelier;
+    règle après ouvrir la porte de la chambre :
+    --  changer Grattepot se trouve sur le chemin.
+    --  changer Chipesaucisse se trouve dans l'atelier.
       continuer action.
+    fin règle
 
     -- > Le bout de bois
     Le bout de bois est dans la chambre. "C'est un morceau de votre porte.".
@@ -137,33 +153,40 @@ PARTIE "Description du monde".
     Son aperçu est "Il y a un bout de bois[initialement] au pied de votre porte.[fin choix]".
     interpréter bois comme bout de bois.
 
-    après donner bout de bois à un lutin:
+    règle après donner bout de bois à un lutin:
       dire "[Intitulé cela] s'encourt avec le bout de bois [si cela se trouve dans la chambre]par le trou dans la porte [fin si] et revient un peu plus tard avec [au hasard]un mini sapin en bois surmonté d'une petite étoile qui clignote ![ou]une mini automobile en bois qui roule vraiment ![ou]une mini tortue en bois trop mimi ![fin choix]{n}Ce trésor sera distribué ce soir avec les autres cadeaux.".
+    fin règle
       
-    avant mettre bout de bois dans porte:
-      dire "C’est cassé, autant l’utiliser à autre chose.";
+    règle avant mettre bout de bois dans porte:
+      dire "C’est cassé, autant l’utiliser à autre chose.".
       stopper l’action.
+    fin règle
 
-    avant jeter bout de bois dans le feu ou mettre bout de bois dans le feu:
-      dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)";
-      effacer bout de bois;
+    règle avant jeter bout de bois dans le feu ou mettre bout de bois dans le feu:
+      dire "Vous regardez brûler votre morceau de porte. (Heureusement vos lutins ne sont pas là pour voir comment vous avez gaspillé ce beau morceau de bois.)".
+      effacer bout de bois.
       stopper l'action.
+    fin règle
 
-    avant jeter joueur sur le lit:
-      dire "C’est tentant mais on n’a pas le temps pour ça !";
+    règle avant jeter joueur sur le lit:
+      dire "C’est tentant mais on n’a pas le temps pour ça !".
       stopper l’action.
+    fin règle
 
-    avant jeter joueur dans le feu ou mettre joueur dans le feu:
-      dire "Ça ne va pas ?";
+    règle avant jeter joueur dans le feu ou mettre joueur dans le feu:
+      dire "Ça ne va pas ?".
       stopper l'action.
+    fin règle
 
-    avant jeter un vêtement dans le feu ou mettre un vêtement dans le feu:
-      dire "[au hasard]On ne vous reconnaîtrait plus sans [lui ceci] ![ou]Et vous comptez sortir comment ensuite ?[ou]Vous ne roulez pas sur l'or vous savez ?[ou][Il ceci] [v avoir ipr ceci] une valeur sentimentale.[fin choix]";
+    règle avant jeter un vêtement dans le feu ou mettre un vêtement dans le feu:
+      dire "[au hasard]On ne vous reconnaîtrait plus sans [lui ceci] ![ou]Et vous comptez sortir comment ensuite ?[ou]Vous ne roulez pas sur l'or vous savez ?[ou][Il ceci] [v avoir ipr ceci] une valeur sentimentale.[fin choix]".
       stopper l'action.
+    fin règle
 
-    avant donner clé à un lutin:
-      dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>";
+    règle avant donner clé à un lutin:
+      dire "<< Je préfère que vous l'ouvriez vous-même, c'est moins risqué. >>".
       stopper l'action.
+    fin règle
 
   CHAPITRE " le séjour".
     -- Le séjour
@@ -177,8 +200,9 @@ PARTIE "Description du monde".
     Le feu est un décor dans le séjour. "Un grand feu brule dans le cheminée.[1ère fois]{n}Sa chaleur vous fait du bien.{n}Vous prenez le temps de humer son odeur.{n}Vous appréciez le crépitement du bois.[fin choix]".
     Son apeçu est "Un feu brûle dans le cheminée.".
     interpréter la cheminée comme le feu.
-    le joueur peut toucher le feu:
+    action toucher le feu:
       dire "Je ne me ferai pas avoir.".
+    fin action
 
     -- Le fauteuil
     Le fauteuil est un support dans le séjour. "C'est un fauteuil en cuir vert bien patiné. Vous l'avez placé près du feu. Là où il fait bon de se reposer.".
@@ -201,36 +225,40 @@ PARTIE "Description du monde".
       interpréter la boite, la boîte et la boite aux lettres comme la boîte.
       Elle est fermée, ouvrable et verrouillée.
 
-      avant mettre clé dans boîte:
-        dire "Ca, ce n'était pas très malin ! Maintenant que vous avez perdu la clé dans la boîte aux lettres, des enfants n'auront pas leur cadeau de Noël cette année.";
-        dire "{n}{+Vous avez perdu+}";
-        terminer jeu;
+      règle avant mettre clé dans boîte:
+        dire "Ca, ce n'était pas très malin ! Maintenant que vous avez perdu la clé dans la boîte aux lettres, des enfants n'auront pas leur cadeau de Noël cette année.".
+        dire "{n}{+Vous avez perdu+}".
+        terminer jeu.
         stopper l'action.
+      fin règle
 
-      avant ouvrir boîte, ouvrir boîte avec clé ou déverrouiller boîte avec clé:
+      règle avant ouvrir boîte, ouvrir boîte avec clé ou déverrouiller boîte avec clé:
         si le joueur possède la clé:
-          dire "Vous ouvrez la boîte avec la clé.";
-          changer la boîte est ouverte;
-          changer la boite est déverrouillée;
-          stopper l'action;
+          dire "Vous ouvrez la boîte avec la clé.".
+          changer la boîte est ouverte.
+          changer la boite est déverrouillée.
+          stopper l'action.
         fin si.
+      fin règle
 
     scène "la lettre"
       -- La lettre
       La lettre est un objet dans la boîte. "Il s'agit d'une lettre manuscrite.".
       Son texte est "[1ère fois]Vous lisez la lettre à l'écriture enfantine: {n}<< Cher Père Noël, {n}J'ai été très sage cette année. {n}J'aimerais recevoir une caserne de pompiers. Merci! {n}Tom >>[puis] La lettre indique que Tom aimerait recevoir une caserne de pompiers.[fin choix]".
 
-      après prendre lettre:
-        changer l'historique contient "lettre trouvée";
+      règle après prendre lettre:
+        changer l'historique contient "lettre trouvée".
         continuer l'action.
+      fin règle
         
-      après donner lettre à un lutin:
+      règle après donner lettre à un lutin:
         dire "[si cela se trouve dans l’atelier][Intitulé cela] se lance dans la préparation de la caserne de pompiers.[sinon][Intitulé cela] s'encourt vers l'atelier avec la lettre afin de préparer la caserne de pompiers.[fin si]
         Vous profitez de ce répit pour vous servir un dernier verre de vin chaud.
         Une fois le jouet sur le traineau, vous montez sur votre siège et vous débutez une nouvelle tournée magique.
         Grâce à vous tous les enfants seront heureux demain matin en se levant pour découvrir ce que vous leur avez apporté.
-        Bravo ! Vous avez sauvé Noël !";
+        Bravo ! Vous avez sauvé Noël !".
         terminer le jeu.
+      fin règle
       
     CHAPITRE " l’atelier".
       -- ==========
@@ -244,38 +272,44 @@ PARTIE "Description du monde".
         Son aperçu est "Un train électrique miniature fait le tour de l'atelier en dégageant de la vapeur.".
         interpréter le train électrique comme le train.
 
-        avant prendre train:
-          dire "Rien ne vous empêche de l'examiner de plus près sans mettre fin à ce beau spectacle.";
+        règle avant prendre train:
+          dire "Rien ne vous empêche de l'examiner de plus près sans mettre fin à ce beau spectacle.".
           stopper action.
+        fin règle
 
-        le joueur peut arrêter le train:
+        action arrêter le train:
           dire "Vous n'avez pas le cœur à ça.".
+        fin action
 
-        le joueur peut arrêter la locomotive:
+        action arrêter la locomotive:
           dire "Vous n'avez pas le cœur à ça.".
+        fin action
 
         interpréter arreter et stopper comme arrêter.
 
         --> La clé
         La clé est un objet caché sur le train. "C'est une clé dorée dont la tête est en forme de Bretzel.". Son aperçu est "[initialement]Quelque chose brille dans la locomotive.[puis]Vous voyez une clé.[fin choix]".
-        après prendre clé:
-          changer l'historique contient "clé trouvée";
+        règle après prendre clé:
+          changer l'historique contient "clé trouvée".
           dire "Vous trouvez une clé dorée dont la tête est en forme de Bretzel.".
+        fin règle
         interpréter chose brillante et objet brillant comme la clé.
 
-        avant manger clé:
+        règle avant manger clé:
           dire "Vous vous goinffrez avec la clé la boite aux lettres.
                 Malheureusement vous n’avez pas pu sauver noël.
 
-                Vous avez perdu.";
-          terminer le jeu;
+                Vous avez perdu.".
+          terminer le jeu.
           stopper l’action.
+        fin règle
 
         --> La locomotive
         La locomotive est un objet caché dans l'atelier. "L'objet brillant est en fait une clé.".
-        avant prendre locomotive:
-          dire "[1ère fois]Vous n'allez quand même pas arrêter ce train en marche ?![2e fois]Vous risqueriez de faire dérailler le train.[puis]Rien ne vous empêche de l'examiner de plus près sans mettre fin à ce beau spectacle.[fin choix]";
+        règle avant prendre locomotive:
+          dire "[1ère fois]Vous n'allez quand même pas arrêter ce train en marche ?![2e fois]Vous risqueriez de faire dérailler le train.[puis]Rien ne vous empêche de l'examiner de plus près sans mettre fin à ce beau spectacle.[fin choix]".
           stopper action.
+        fin règle
         interpréter loco comme locomotive.
 
       SCÈNE "le sapin et co.".
@@ -285,56 +319,62 @@ PARTIE "Description du monde".
         -- les boules
         Les boules sont des objets décoratifs sur le sapin. "Elles sont fragiles. Faites attention !".
         interpréter boule comme boules.
-        avant prendre boules:
-          dire "Ma femme va me gronder, je préfère ne pas y toucher.";
+        règle avant prendre boules:
+          dire "Ma femme va me gronder, je préfère ne pas y toucher.".
           stopper action.
+        fin règle
 
         -- les guirlandes
         Les guirlandes sont des objets décoratifs sur le sapin. "Elle brilles de partout c'est trop beau !".
         interpréter guirlande comme guirlandes.
-        avant prendre guirlandes:
-          dire "Ça pourra servir pour le nouvel an mais ce n'est pas le sujet actuellement.";
+        règle avant prendre guirlandes:
+          dire "Ça pourra servir pour le nouvel an mais ce n'est pas le sujet actuellement.".
           stopper action.
+        fin règle
 
 
 PARTIE "Règles".
 
   CHAPITRE "début du jeu".
-    avant commencer le jeu:
-      attendre touche;
-      dire "{/CRAC !/}";
-      attendre 0.3 seconde;
-      dire "{/Pif !/}";
-      attendre 1 seconde;
-      dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.";
-      attendre 1,5 secondes;
-      dire"{p}<< Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>";
-      attendre 1,5 secondes;
-      dire "{p}Vous vous levez tant bien que mal.
-            Vous avez froid. C'est normal, vous êtes en slip !";
+    règle avant commencer le jeu:
       attendre touche.
+      dire "{/CRAC !/}".
+      attendre 0.3 seconde.
+      dire "{/Pif !/}".
+      attendre 1 seconde.
+      dire "Vous ouvrez les yeux et découvrez Volebougie − un de vos lutins − qui est tombé à travers un trou dans la porte de  votre chambre.".
+      attendre 1,5 secondes.
+      dire"{p}<< Père Noël, c'est terrible ! Je n'ai pas réussi à vous réveiller ! >>".
+      attendre 1,5 secondes.
+      dire "{p}Vous vous levez tant bien que mal.
+            Vous avez froid. C'est normal, vous êtes en slip !".
+      attendre touche.
+    fin règle
 
   CHAPITRE "morts idiotes".
-    après enlever veste:
+    règle après enlever veste:
       si le joueur se trouve sur le chemin:
         dire "Ces quelques minutes sans veste vous ont fait attraper un rhume carabiné. Vous passez le reste de la soirée dans votre lit au lieu de distribuer les cadeaux aux enfants.
         {n}Vous n'avez pas pu sauver Noël.
-        {n}Vous avez perdu.";
-        terminer le jeu;
+        {n}Vous avez perdu.".
+        terminer le jeu.
       fin si.
+    fin règle
 
-    après enlever pantalon:
+    règle après enlever pantalon:
       si le joueur se trouve sur le chemin:
         dire "Vous ne savez plus trop ce qui vous a pris. Lorsque vous vous réveillez, Noël est passé depuis longtemps. Vous avez manqué la distribution des cadeaux.
         {n}Vous n'avez pas pu sauver Noël.
-        {n}Vous avez perdu.";
-        terminer le jeu;
+        {n}Vous avez perdu.".
+        terminer le jeu.
       fin si.
+    fin règle
 
-      après enlever bottes:
+      règle après enlever bottes:
       si le joueur se trouve sur le chemin:
         dire "Malheureusement vous glissez sur la glace. Vous voilà immobilisé pour plusieurs jours dans votre lit.
         {n}Vous n'avez pas pu sauver Noël.
-        {n}Vous avez perdu.";
-        terminer le jeu;
+        {n}Vous avez perdu.".
+        terminer le jeu.
       fin si.
+      fin règle

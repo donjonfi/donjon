@@ -1,6 +1,3 @@
-import { Compilateur, Generateur } from "../../public-api";
-
-import { ContextePartie } from "../models/jouer/contexte-partie";
 import { TestUtils } from "../utils/test-utils";
 
 describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
@@ -9,8 +6,9 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
     const scenario =
       'le salon est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
-      '  si le joueur se trouve dans le salon, changer le joueur est saloné.' +
+      'action tester: ' +
+      '  si le joueur se trouve dans le salon, changer le joueur est saloné. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -26,10 +24,11 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
-      '  fin si.' +
+      '    changer le joueur est saloné. ' +
+      '  fin si ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -44,10 +43,11 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
-      '  fin si.' +
+      '    changer le joueur est chambré. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -62,12 +62,13 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
+      '    changer le joueur est saloné. ' +
       '  sinon' +
-      '    changer le joueur est chambré;' +
-      '  fin si.' +
+      '    changer le joueur est chambré. ' +
+      '  fin si ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -83,12 +84,13 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
-      '  SI le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
-      '  sinon' +
-      '    changer le joueur est chambré;' +
-      '  fin si.' +
+      'action tester: ' +
+      '  SI le joueur se trouve dans le salon: ' +
+      '    changer le joueur est saloné. ' +
+      '  sinon ' +
+      '    changer le joueur est chambré. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -104,12 +106,13 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  sinon' +
-      '    changer le joueur est saloné;' +
-      '  fin si.' +
+      '    changer le joueur est saloné. ' +
+      '  fin si ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -125,12 +128,13 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  Sinon' +
-      '    changer le joueur est saloné;' +
-      '  fin si.' +
+      '    changer le joueur est saloné. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -146,12 +150,13 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  SI le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  SINON' +
-      '    changer le joueur est saloné;' +
-      '  FIN SI.' +
+      '    changer le joueur est saloné. ' +
+      '  FIN SI. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -168,14 +173,15 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'la chambre est un lieu. ' +
       'la cuisine est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
+      '    changer le joueur est saloné. ' +
       '  sinonsi le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  sinon' +
-      '    changer le joueur est cuisiné;' +
-      '  fin si.' +
+      '    changer le joueur est cuisiné. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -193,14 +199,15 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'la chambre est un lieu. ' +
       'la cuisine est un lieu. ' +
       'le joueur se trouve dans la chambre. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
+      '    changer le joueur est saloné. ' +
       '  sinonsi le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  sinon' +
-      '    changer le joueur est cuisiné;' +
-      '  fin si.' +
+      '    changer le joueur est cuisiné. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -217,14 +224,15 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'la chambre est un lieu. ' +
       'la cuisine est un lieu. ' +
       'le joueur se trouve dans la cuisine. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
+      '    changer le joueur est saloné. ' +
       '  sinonsi le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  sinon' +
-      '    changer le joueur est cuisiné;' +
-      '  fin si.' +
+      '    changer le joueur est cuisiné. ' +
+      '  fin si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
@@ -241,14 +249,15 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       'la chambre est un lieu. ' +
       'la cuisine est un lieu. ' +
       'le joueur se trouve dans la cuisine. ' +
-      'le joueur peut tester: ' +
+      'action tester: ' +
       '  Si le joueur se trouve dans le salon:' +
-      '    changer le joueur est saloné;' +
+      '    changer le joueur est saloné.' +
       '  SinonSi le joueur se trouve dans la chambre:' +
-      '    changer le joueur est chambré;' +
+      '    changer le joueur est chambré. ' +
       '  Sinon' +
-      '    changer le joueur est cuisiné;' +
-      '  Fin Si.' +
+      '    changer le joueur est cuisiné. ' +
+      '  Fin Si. ' +
+      'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 

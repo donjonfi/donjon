@@ -54,16 +54,24 @@
           </div>
 
           <ng-container *ngIf="tab == 'analyse' && jeu">
+            <!-- jeu -->
             <br>
             <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu"
               tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
+            <!-- aperçu -->
             <br>
             <button class="btn btn-danger mt-4 px-2" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
               tooltip="Aperçu" placement="right">
               <i class="fas fa-fw fa-sitemap fa-lg"></i>
             </button>
+            <!-- wiki -->
+            <br>
+            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v2/" target="_blank" tooltip="Wiki"
+              placement="right" container="body">
+              <i class="fas fa-fw fa-question fa-lg"></i>
+            </a>
           </ng-container>
 
           <ng-container *ngIf="tab == 'scenario'">
@@ -83,7 +91,7 @@
 
             <!-- wiki -->
             <br>
-            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/wiki/creer/" target="_blank" tooltip="Wiki"
+            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v2/" target="_blank" tooltip="Wiki"
               placement="right" container="body">
               <i class="fas fa-fw fa-question fa-lg"></i>
             </a>
@@ -193,6 +201,16 @@
                       </div>
                     </div>
                   </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="compilateurVerbeux"
+                          (change)="onChangerCompilateurVerbeux()" id="ckCompilateurVerbeux">
+                        <label class="form-check-label" for="ckCompilateurVerbeux">Compilateur verbeux (utile au débogage de Donjon FI)</label>
+                      </div>
+                    </div>
+                  </div>
                 </ng-container>
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
@@ -265,20 +283,34 @@
           <!-- TAB: ACTIONS (COMMANDES) -->
           <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
             <h3>Actions de base</h3>
+            <p>Ces actions sont chargées automatiquement avant votre scénario afin que vous puissiez disposer d’actions de base pour votre jeu.</p>
             <ul>
               <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
               <li>Version chargée : <b>{{versionActions}}</b></li>
               <li>Dernière tentative : <b>{{derniereTentativeFichierCommande}}</b></li>
             </ul>
             
-            <button class="btn btn-primary ms-1" (click)="onRafraichirCommandes()"><i class="fas fa-rotate"></i> Rafraîchir fichier actions</button>
+            <!-- charger actions.djn distant -->
+            <h4 class="mt-4">Actions originales</h4>
+            <button class="btn btn-primary ms-1" (click)="onRafraichirActions()"><i class="fas fa-rotate me-2"></i>Utiliser fichier actions original</button>
 
-            
+            <!-- charger actions.djn local -->
+            <h4 class="mt-4">Actions personnalisées</h4>
+            <p>Vous pouvez utiliser votre propre fichier à la place du fichier original.
+              Vous pouvez ainsi avoir vos propres actions de base pour l’ensemble de vos jeux.
+              <br>Vous pouvez récupérer le fichier <code>actions.djn</code> original à l’adresse <a href="https:donjon.fi/creer/actions" target="_blank">donjon.fi/creer/actions</a> afin de l’adapter.
+            </p>
+            <p>Important: si vous utilisez votre propre fichier d’actions de base, pensez à remplacer le fichier <code>actions.djn</code> original par le vôtre lorsque vous publiez votre jeu sur un site web.</p>
+            <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
+              <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
+                title="Charger un scénario existant">Utiliser mon propre fichier actions</span><input type="file" accept=".djn,.txt"
+                style="display: none;" (change)="onChargerFichierActionsLocal($event.target)" onclick="this.value=null">
+            </label>
           </div>
 
           <!-- TAB: TESTER LE JEU -->
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="false" [debogueur]="true" (nouvellePartie)="onNouvellePartie()"></djn-lecteur>
+            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartie)="onNouvellePartie()"></djn-lecteur>
           </div>
 
           <!-- TAB: APERÇU ÉLÉMENTS -->
@@ -306,16 +338,16 @@
           <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">
             <div class="card-body">
 
-              <div *ngIf="chargementCommandesEnCours">
-                <p>Chargement des commandes …
+              <div *ngIf="chargementActionsEnCours">
+                <p>Chargement des actions…
                 </p>
                 <div class="spinner-border text-primary" role="status">
                   <span class="sr-only">Loading...</span>
                 </div>
               </div>
 
-              <div *ngIf="compilationEnCours && !chargementCommandesEnCours">
-                <p>Analyse en cours …
+              <div *ngIf="compilationEnCours && !chargementActionsEnCours">
+                <p>Analyse en cours…
                 </p>
                 <div class="spinner-border text-primary" role="status">
                   <span class="sr-only">Loading...</span>
@@ -338,10 +370,10 @@
                   <div class="text-warning" *ngIf="monde.lieux.length == 0">
                     🙄 Je n’ai pas trouvé les lieux à visiter !
                   </div>
-                  <div class="text-success" *ngIf="erreurs.length == 0">
+                  <div class="text-success" *ngIf="erreurs.length == 0 && messages.length == 0">
                     😀 Super ! Je pense que j’ai tout compris !
                   </div>
-                  <div class="text-warning" *ngIf="erreurs.length > 0">
+                  <div class="text-warning" *ngIf="erreurs.length > 0 || messages.length > 0">
                     😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
                   </div>
                 </ng-container>
@@ -351,6 +383,37 @@
                       {{err}}<br>
                   </span>
                 </code>
+                <ul class="list-group mt-2">
+                  <li class="list-group-item p-1" *ngFor="let message of messages">
+
+                    <div class="d-flex mb-0">
+
+                      <div class="pe-1">
+                        <i *ngIf="message.type == EMessageAnalyse.conseil" class="fa-solid fa-circle-info me-2 text-info"></i>
+                        <span *ngIf="message.type == EMessageAnalyse.probleme" class="me-1">🤔</span>
+                        <i *ngIf="message.type == EMessageAnalyse.erreur" class="fa-solid fa-square-xmark me-2 text-danger"></i>  
+                        <b>{{message.titre}}</b>
+                      </div>
+                      <div class="ps-1 pe-1"> <small *ngIf="message.titreRoutine">→ {{message.titreRoutine}}</small></div>
+                    </div>
+
+                    <div *ngIf="!message.fichierAction">
+                      <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.numeroLigne)">{{message.numeroLigneFormate}}</button>&nbsp;</span>
+                      <small class="t-code">{{message.phrase.toString()}}</small>
+                    </div>
+
+                    <div *ngIf="message.fichierAction">
+                      <span class="pe-1">🚶‍♂️ {{message.numeroLigneFormate}}</span>
+                      <small class="t-code">{{message.phrase.toString()}}</small>
+                    </div>
+
+                    <p class="mb-0">
+                      <span [innerHTML]="message.htmlCorps"></span>
+                      <a class="ms-2" [href]="'https://donjon.fi/doc/v2/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
+                    </p>
+                  </li>
+                </ul>
+              
               </div>
             </div>
           </div>

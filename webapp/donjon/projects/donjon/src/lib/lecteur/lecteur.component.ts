@@ -23,6 +23,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() jeu: Jeu;
   @Input() verbeux = false;
+  /** Le débogueur est il actif ? */
   @Input() debogueur = false;
   /** Annuler un certain nombre de tours */
   @Output() nouvellePartie = new EventEmitter();
@@ -129,7 +130,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.historiqueCommandesPartie = [];
 
     // initialiser le contexte de la partie
-    this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux);
+    this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
 
     this.verifierTamponErreurs();
 

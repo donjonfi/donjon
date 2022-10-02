@@ -9,9 +9,9 @@ Vous pouvez utiliser Donjon FI directement sur le site [donjon.fi](https://donjo
 
 ## Documentation et site officiel Donjon FI
 
-<a href="https://donjon.fi" target="_blank">Site officiel</a> avec éditeur en ligne et exemples de jeux\
+<a href="https://donjon.fi/" target="_blank">Site officiel</a> avec éditeur en ligne et exemples de jeux\
 <a href="https://vimeo.com/channels/1676422" target="_blank">Chaîne vidéo</a>  avec tutoriels\
-<a href="https://donjon.fi/wiki" target="_blank">Wiki</a> avec documentation complète
+<a href="https://donjon.fi/doc/v2/" target="_blank">Wiki</a> avec documentation complète
 
 ## Publier votre jeu
 

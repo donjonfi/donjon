@@ -7,6 +7,7 @@ Cette extension permet d’activer la mise en forme des scénarios Donjon FI (*.
 - Coloration syntaxique des éléments du scénario.
 - Indentation automatique des règles et conditions.
 - Déplier/Replier les parties indentées.
+- Fragments de code.
 
 ## Pour plus d'informations
 

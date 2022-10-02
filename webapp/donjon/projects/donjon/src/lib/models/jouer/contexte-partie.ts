@@ -21,7 +21,9 @@ export class ContextePartie {
     /** Le document (pour le thème) */
     public document: Document | undefined = undefined,
     /** Faut-il afficher un maximum de messages d’erreurs ? */
-    public verbeux: boolean = false
+    public verbeux: boolean = false,
+    /** Le débogueur est-il actif ? */
+    public debogueur: boolean = false,
   ) {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.ins = new Instructions(this.jeu, this.eju, this.document, this.verbeux);

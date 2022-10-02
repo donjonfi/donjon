@@ -13,6 +13,11 @@ export class ExprReg {
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
   static readonly xCaractereRetourLigneDebutPhrase = /^(([ \t]*)Ʒ)+/g;
+  //   ƻ − deux points (:) dans les comentaires
+  static readonly caractereDeuxPoints = 'ƻ';
+  static readonly caractereDeuxPointsDouble = 'ƻ:';
+  static readonly xCaractereDeuxPoints = /ƻ/g;
+  static readonly xCaractereDeuxPointsDouble = /ƻ:/g;
   //   ʔ − virgule dans les comentaires
   static readonly caractereVirgule = 'ʔ';
   static readonly xCaractereVirgule = /ʔ/g;
@@ -103,7 +108,7 @@ export class ExprReg {
   * - Découpage :
   *     - Nom(2), Épithète(3)
   **/
-   static readonly xGroupeNominalSansArticle = /^(?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
+  static readonly xGroupeNominalSansArticle = /^(?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
   /**
    * Est-ce que le texte commence par une voyelle ?
@@ -403,11 +408,13 @@ export class ExprReg {
   static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
-
-  /** L’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
+  
+  /** Exécuter la routine: la routine nomRoutine(1)  */
+  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)$/i;
+  /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
-  /** La commande "commande(1)" */
-  static readonly xActionExecuterCommande = /^(?:la commande) \"(.+)\"$/i;
+  /** Exécuter la commande: la commande "commande(1)" */
+  static readonly xActionExecuterCommande = /^(?:(?:la )?commande) \"(.+)\"$/i;
 
   /** condition -> si(1) {condition}(2), {instruction}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
@@ -438,6 +445,65 @@ export class ExprReg {
    * une action quelconque
    */
   static readonly rActionQuelconque = /^(?:une )?action quelconque$/i;
+
+  /**
+   * définition complément d’une action
+   * - Découpage : - {ceci|cela}(1) {n’|n'}est {soit|ni|pas}(2) suite(3)
+   * - Tests unitaires :
+   *     - Ceci est un lieu
+   *     - Cela est un objet visible et accessible
+   *     - est soit un lieu soit un objet visible et accessible
+   *     - n’est ni un bijou ni buvable
+   *     - n’est pas Jean-Louis
+   *  (PAS ENCORE UTILISÉ)
+   */
+  static readonly rComplementActionEstSoitNiPas = /^(c’|c'|il |ce |ceci |cela )?(?:n’|n')?est(?: (soit|ni|pas))? (.+)$/i;
+
+  /**
+   * définition action: compléments ceci/cela: type et états
+   * - Découpage : 
+   *   - (Ceci|Cela)(1) est (un|une)(2) type(3) {étatsRequis}(4) {prioritairement étatsPrioritaires}(5)
+   * - Tests unitaies :
+   *   - Ceci est un objet possédé
+   *   - ceci est un objet possédé ou disponible prioritairement visible
+   *   - 💥 cela est de l’eau
+   *   - cela est un lieu
+   *   - Cela est une licorne petite et mignone prioritairement gentille ou amicale
+   */
+  static readonly rDefinitionComplementActionTypeEtat = /^(Ceci|Cela) (?:est|sont) (un|une) (\S+)(?: (.+?))?(?: prioritairement (.+))?$/i;
+
+  /**
+   * définition action: compléments ceci/cela: états prioritaires
+   * - Découpage : 
+   *   - (Ceci|Cela)(1) (est|sont) prioritairement étatsPrioritaires(2)
+   * - Tests unitaies :
+   *   - ceci est prioritairement déplacé ou fixé
+   *   - Cela est prioritairement disponible
+   *   - 💥 ceci est ouvert
+   */
+   static readonly rDefinitionComplementActionEtatPrioritaire = /^(ceci|cela) (?:est|sont) prioritairement (.+)?$/i;
+
+  /**
+   * définition action: compléments ceci/cela: élément du jeu
+   * - Découpage : 
+   *   -  (Ceci|Cela)(1) est (élément du jeu)(2)
+   * - Exemples :
+   *   - Ceci est Jonathan
+   *   - Cela sont les étoiles
+   *   - ceci est Elrik
+   *   - cela est le capitaine
+   *   - Ceci est le comte du bois dormant
+   *   - Cela est Petit Nez
+   *   - cela est de l’eau
+   *   - 💥 cela est un contenant
+
+   */
+  static readonly rDefinitionComplementActionElementJeu = /^(ceci|cela) (?:est|sont) (?:le |la |les |l’|l'|du |des |de la |de l'|de l’)?(?!un|une)(.+)?$/i;
+
+  /**
+   * définitions action: déplacement du joueur
+   */
+  static readonly rDefinitionActionDeplacementJoueur = /^(?:Le joueur est d(?:é|e|è)plac(?:é|e|è) vers|L(?:’|')action d(?:é|e|è)place le joueur vers) (.+)$/i  
 
   // ================================================================================================
   //  COMMANDES
@@ -559,7 +625,7 @@ export class ExprReg {
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4))|(ceci|cela))(1) verbe(5) [pas|plus(6)] complément(7)
    */
-  static readonly xCondition = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contien(?:nen)?t|inclu(?:en)?t|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
+  static readonly xCondition = /^(?:si|sinonsi )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:(?:n(?:'|’)|ne )?((?:se \S+)|est|sont|vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt|possède(?:nt)?|porte(?:nt)?|contien(?:nen)?t|inclu(?:en)?t|commence|réagit|déclenche)(?: (pas|plus))?)(?: (.+))?$/i;
 
   /**
    * - La valeur de ceci vaut 3
@@ -583,7 +649,7 @@ export class ExprReg {
    * - La valeur du portefeuille augmente du prix de l’aubergine 💥
    * - La taille de la pomme rouge diminue de 10 💥
    */
-  static readonly xConditionPropriete = /^(?:si )?(.+?) (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))? (.+)$/i;
+  static readonly xConditionPropriete = /^(?:si|sinonsi )?(.+?) (?:ne |n(?:'|’))?(est|sont|vaut|valent|augmente(?:nt)?|diminue(?:nt)?|dépasse(?:nt)?|attei(?:gne)?nt)(?: (pas|plus))? (.+)$/i;
 
   /**
    * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)
@@ -592,18 +658,18 @@ export class ExprReg {
    * - si la porte vers l’ouest est verrouillée
    * - si la porte vers ceci n’est pas ouverte
    */
-  static readonly xConditionLaSortieVers = /^(?:si )?(la )(sortie|porte) (vers) (ceci|cela|(?:(?:le |l’|l')?(ouest|est|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?|haut|bas|dedans|dehors|intérieur|extérieur))) (?:n’|n')?(est) (?:(pas|plus) )?(\S+)$/i;
+  static readonly xConditionLaSortieVers = /^(?:si|sinonsi )?(la )(sortie|porte) (vers) (ceci|cela|(?:(?:le |l’|l')?(ouest|est|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?|haut|bas|dedans|dehors|intérieur|extérieur))) (?:n’|n')?(est) (?:(pas|plus) )?(\S+)$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) (ne|n’) verbe(5) (ni|soit)(6) complément1(7) (ni|soit)(8) complément2(9) [(ni|soit) complément3(10)] [(ni|soit) complément3(11)]
    * - le joueur ne possède ni le chat ni le chien ni l’autruche ni la poule
    */
-  static readonly xConditionNiSoit = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
+  static readonly xConditionNiSoit = /^(?:si|sinonsi )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (ni|soit) )(?:(.+?))(?: (\6) )(.+?)(?:(?: \6 )(.+?))?(?:(?: \6 )(.+?))?$/i;
 
   /**
    *  [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5)( pas| )(6)complément1(7) (et|ou)(8) complément2(9) [(et|ou) complément3(10)]  [(et|ou) complément3(11)]
    */
-  static readonly xConditionOuEt = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
+  static readonly xConditionOuEt = /^(?:si|sinonsi )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient) (pas(?: ))?(.+?)(?: (et|ou) )(.+?)(?:(?: \8 )(.+?))?(?:(?: \8 )(.+?))?$/i;
 
   /**
    * [si] (le|la|les|…(2) xxx(3) yyy(4)|(ceci|cela))(1) verbe(5) [pas]\(6) complément1(7) (ainsi que|ou bien|(mais pas|plus|bien))(8) complément2(9)
@@ -614,12 +680,12 @@ export class ExprReg {
    * - Si l’inventaire contient le sucre et la farine
    * - le joueur possède le chat ou le chien ou l’autruche ou la poule
    */
-  static readonly xConditionMaisPasEtOu = /^(?:si )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
+  static readonly xConditionMaisPasEtOu = /^(?:si|sinonsi )?((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici) (?:n(?:'|’)|ne )?(est|vaut|dépasse|atteint|possède|porte|contient)(?: (pas))? (?:(.+?)) (et|ou|mais (?:pas|plus|bien)) (.+?)$/i;
 
   /** 
    * si aucun(1) complément(2) attribut(3) (pour|vers)(4) (le|la|les|...(6) xxx(7) yyy(8))|(ceci|cela|ici)(5)
    */
-  static readonly xConditionExistePourVers = /^(?:si )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici)$/i;
+  static readonly xConditionExistePourVers = /^(?:si|sinonsi )?((?:auc)?un(?:e)?) (\S+)(?: (?!n’|n'|existe)(\S+))? (?:(?:n’|n')?existe )?(pour|vers) ((?:(le |la |les |l'|l’|du |de (?:la|l’|l')|des |un |une )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)|ceci|cela|ici)$/i;
 
   /** 
    * si nombre_en_chiffres(1)|nombre_en_lettres(2) tirage[s] à|de|a nombre_en_chiffres(3)|nombre_en_lettres(4) chance]s] sur nombre_en_chiffres(5)|nombre_en_lettres(6) (réussi[ssen]t|échoue[nt])(7)
@@ -628,12 +694,12 @@ export class ExprReg {
    * - 1 tirage a 9 chances sur 10 échoue
    * - si 2 tirages de 4 chances sur cinq échouent
    */
-  static readonly xConditionTirage = /^(?:si )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) tirage(?:s)? (?:à |à |de )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) chance(?:s)? sur (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (réussi(?:ssen)?t|échoue(?:nt)?)$/i;
+  static readonly xConditionTirage = /^(?:si|sinonsi )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) tirage(?:s)? (?:à |à |de )?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) chance(?:s)? sur (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (réussi(?:ssen)?t|échoue(?:nt)?)$/i;
 
   /**
    * si (condition)(1) (:|,)(2) (instructions)(3)
    */
-  static readonly xSeparerSiConditionInstructions = /^si (.+?)(?: )?(:|alors|,)(?: )?(.+)$/i;
+  static readonly xSeparerSiConditionInstructions = /^(?:si )(.+?)(?: )?(:|alors|,)(?: )?(.+)$/i;
 
   /**
    * (sinonsi|sinon)(1) :|, ({condition}instructions)(2)
@@ -665,6 +731,11 @@ export class ExprReg {
    * TODO: gérer float ?
    */
   static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
+
+  /** liste de textes, nombres ou intitilués 
+   *  => "texte1", "texte2" ou "texte3"(1)|nombre1, nombre2 ou nombre3(2)|intitulé1, intitulé2 ou intitulé3(3) 
+   */
+  static readonly xListeTextesNombresOuIntitules = /^(?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*$/i;
 
   /**
    * (autre[s] choix)(1): instructions(2)
@@ -894,6 +965,52 @@ export class ExprReg {
    * - Le nombre de pièces possédées
    */
   static readonly xNombreDeClasseEtatPosition = /^(?:le)? nombre (?:de |d’|d')(\S+)(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?(?:(?: (?:et )?)(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?(?: ((?:dans |sur |sous )(?:la |le |les |l’|l')?)(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?$/i;
+
+  // ================================================================================================
+  //  DÉBUT / FIN BLOCS
+  // ================================================================================================
+
+  /** 
+   * règle|action|réaction|routine(1)
+   */
+  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+
+  /**
+   * fin règle|action|réaction|routine(1)
+   */
+  static readonly xFinRoutine = /^fin (r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+
+
+  /** 
+   * si|choisir(1)
+   */
+  static readonly xDebutInstructionControle = /^(si|choisir)\b/i;
+
+  /**
+   * (fin si|fin choisir|finsi|finchoisir)(1)
+   */
+  static readonly xFinInstructionControle = /^fin(?: )?(si|choisir)$/i;
+
+  /** 
+   * fin xxxxxxx(1)
+   */
+  static readonly xFinBlocErrone = /^fin (?!:si|choisir|choix|r(?:è|e|é)gle|(?:ré|rè|re|)action|routine)(\S+)$/i;
+
+  /** avant|après|remplacer\(1) {évènements}(2)
+  * - avant(1) (aller au nord, aller au sud ou sortir)(2)
+  * - avant commencer le jeu
+  * - avant aller au nord, aller au sud ou sortir
+  */
+  static readonly xRoutineRegleEnonce = /^(avant|après) ((?:.+?)(?:(?:, (?:.+?))*(?: ou (?:.+?)))?)$/i;
+
+  /** infinitif(1)[[prépositionCeci]\(2) ceci(3) [prépositionCela(4) cela(5)]]
+  * - sauter
+  * - manger ceci
+  * - penser à ceci
+  * - attraper ceci avec cela
+  * - parler avec ceci concernant cela
+  */
+  static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\S+))? (ceci|cela)(?:(?: (\S+)) (cela|ceci))?)?$/i;
 
 
   // ================================================================================================

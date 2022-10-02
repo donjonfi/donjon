@@ -132,17 +132,25 @@ export class InstructionDire {
       // ================================================================================
       // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|origine|destination|ceci|cela|inventaire]
       // ================================================================================
-      if (texteDynamique.includes("[lister objets ") || texteDynamique.includes("[décrire objets ")) {
-        // retrouver toutes les balises de contenu [objets {sur|dans|sous} ceci|cela|ici|inventaire]
-        const xBaliseContenu = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?\]/gi;
-        const allBalises = texteDynamique.match(xBaliseContenu);
+
+      const baliseListerDecrireContenu = "(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?";
+      const xBaliseListerDecrireContenuMulti = new RegExp("\\[" + baliseListerDecrireContenu + "\\]", "gi");
+      const xBaliseListerDecrireContenuSolo = new RegExp("\\[" + baliseListerDecrireContenu + "\\]", "i");
+
+
+      // if (texteDynamique.includes("[lister objets ") || texteDynamique.includes("[décrire objets ")) {
+      if (xBaliseListerDecrireContenuMulti.test(texteDynamique)) {
+
+        // retrouver toutes les balises lister/décrire
+        const allBalises = texteDynamique.match(xBaliseListerDecrireContenuMulti);
+
         // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
 
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
           // retrouver la préposition et la cible
-          const decoupe = /\[(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?\]/i.exec(curBalise);
+          const decoupe = xBaliseListerDecrireContenuSolo.exec(curBalise);
 
           const ListerDecrireString = decoupe[1];
           let isLister = ListerDecrireString.toLowerCase() == 'lister';

@@ -4,7 +4,7 @@ import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionObjet } from './position-objet';
-import { Reaction } from '../compilateur/reaction';
+import { RoutineReaction } from '../compilateur/routine-reaction';
 
 export class Objet extends ElementJeu {
 
@@ -26,7 +26,7 @@ export class Objet extends ElementJeu {
   /** ID de l’objet dont celui-ci est une copie. */
   idOriginal: number;
 
-  reactions: Reaction[] = null;
+  reactions: RoutineReaction[] = null;
 
   /** Position de l’objet par rapport à un lieu ou à un autre objet */
   position: PositionObjet = null;

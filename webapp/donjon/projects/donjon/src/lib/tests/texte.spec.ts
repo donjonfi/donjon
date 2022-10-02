@@ -38,7 +38,7 @@ describe('Textes dynamiques', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    expect(ctx.jeu.objets).toHaveSize(3);
+    expect(ctx.jeu.objets).toHaveSize(3); // l’inventaire, le joueur + 1
     expect(ctx.jeu.objets[2].intitule.toString()).toEqual('la pomme');
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[aperçu pomme]', 0, undefined, undefined, undefined, undefined);

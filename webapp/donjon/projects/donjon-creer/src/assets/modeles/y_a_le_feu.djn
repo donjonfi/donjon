@@ -1,0 +1,98 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Y a le feu!".
+L’auteur du jeu est "Zigotteau".
+La version du jeu est "2.00".
+L’identifiant du jeu est "d0f181b2-41bf-458b-bf68-173fa97a74dd".
+
+-- on va utiliser du son
+activer l’audio.
+
+ -- positionner le joueur dans le jeu
+Le joueur se trouve dans le vaisseau.
+
+-- introduction
+règle avant commencer le jeu:
+  attendre touche.
+  dire "Votre vaisseau est en feu ! Vous avez enfilé votre combinaison pour survivre dans l’espace le temps qu’on vous récupère.
+        Vous devez atteindre le {+gros bouton rouge+} afin de vous éjecter !".
+  jouer le son alarme.mp3 3 fois.
+  --attendre 1 seconde.
+  dire "XZ8 vous barre la route.{p}".
+fin règle
+
+-- le vaisseau
+Le vaisseau est un lieu.
+  Sa description est "Vous vous trouvez à bord de votre vaisseau qui est la proie des flammes.".
+  
+  -- le robot
+  Le robot est une machine fixé et parlant dans le vaisseau.
+  Son intitulé est "XZ8".
+  Interpréter robot comme le robot.
+  La description du robot est "XZ8 est devenu fou ! [si le robot n’est pas désactivé]Il vous bloque l’accès à votre tableau de bord.[sinon]Heureusement vous l’avez désactivé.[fin si]".
+
+  Réaction du robot:
+    dire "Vous demandez au robot de se désactiver.".
+    dire "{/Zut! L’ingénieur a protégé cette fonction à l’aide d’une énigme…/}".
+    -- Q1
+    dire "Pleine de trous je retiens l’eau, qui suis-je ?".
+    choisir librement:
+      choix "éponge" ou "une éponge":
+          -- Q2
+          dire "{/Bien joué!
+                  Oh non! Encore une…/}".
+          dire "Toujours à l’abris, je suis pourtant toujours mouillée. Qui suis-je ?".
+          choisir librement:
+            choix "langue", "la langue" ou "une langue":
+              dire "Vous avez réussi à désactiver le robot!".
+              dire "Le robot tombe en arrière et brise le cube en plexiglas puis s’effondre par terre.".
+              effacer le cube.
+              déplacer le bouton rouge sur le tableau de bord.
+              changer le robot est désactivé.
+            autre choix:
+              dire "Biiiiip ! {/Raté./}".
+          fin choisir
+      autre choix:
+        dire "Biiiiip ! {/C’est pas ça./}".
+    fin choisir
+  fin réaction
+  
+  Le tableau de bord est un support ici.
+  "Votre poste de commandes."
+
+  Le clavier est un objet fixé sur le tableau de bord.
+  "Le clavier permet d’interagir avec l’ordinateur de bord. Il est hors d’usage à cause de la chaleur.".
+
+  Le cube est un contenant fermé, transparent et fixé sur le tableau de bord.
+  "Un cube en plexiglas de qualité.".
+
+  Le bouton rouge est un objet fixé dans le cube.
+  "Le bouton qui vous permettra de vous éjecter de votre vaisseau.".
+  Interpréter bouton, gros bouton, gros rouge, gros et rouge comme bouton rouge.
+
+action désactiver une machine:
+  exécuter la commande "parler au robot".
+fin action
+
+action taper:
+  dire "Le clavier est hors d’usage".
+fin action
+
+action taper le clavier:
+  dire "Le clavier est hors d’usage".
+fin action
+
+règle avant pousser le bouton rouge:
+    dire "Vous enfoncez le bouton in extremis !
+          Le vaisseau vous éjecte à l’autre bout de la galaxie…
+          Félicitations! Vous avez gagnez !".
+    terminer le jeu.
+    arrêter l’action.
+fin règle
+
+-- Le robot empèche le joueur de réaliser la majorité des actions
+règle avant une action quelconque:
+  si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher ni désactiver ni parler ni examiner et si le robot n’est pas désactivé:
+      dire "XZ8 est devenu fou ! Il vous barre la route.".
+      arrêter l’action.
+  fin si
+fin règle

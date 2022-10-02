@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver';
 
-import { Action, Aide, Compilateur, ElementGenerique, Generateur, Jeu, LecteurComponent, Monde, Regle, StringUtils } from '@donjon/core';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -44,6 +44,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
 
+  EMessageAnalyse = EMessageAnalyse;
 
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario';
 
@@ -65,6 +66,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Faut-il désactiver la mise en forme dans l'éditeur de texte (pour lecteur d'écran) ? */
   sansMiseEnForme = false;
+
+  /** Faut-il activer le mode verbeux du compilateur Donjon FI ? */
+  compilateurVerbeux = false;
 
   public config: AceConfigInterface = {
     // mode: 'text',
@@ -90,11 +94,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   monde: Monde = null;
   regles: Regle[] = null;
+  routinesSimples : RoutineSimple[] = null;
   actions: Action[] = null;
   compteurs: ElementGenerique[] = null;
   listes: ElementGenerique[] = null;
   aides: Aide[] = null;
   erreurs: string[] = null;
+  messages: MessageAnalyse[] = null;
   jeu: Jeu = null;
 
   selPartieIndex: number = null;
@@ -148,7 +154,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   focusOutEnCours = false;
   compilationEnCours = false;
   compilationTerminee = false;
-  chargementCommandesEnCours = false;
+  chargementActionsEnCours = false;
 
   constructor(
     private http: HttpClient,
@@ -195,6 +201,16 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.corrigerPoint = false;
       } else {
         this.corrigerPoint = true;
+      }
+    }
+
+    // - active le mode verbeux du compilateur Donjon FI
+    retVal = localStorage.getItem('CompilateurVerbeux');
+    if (retVal) {
+      if (retVal == '1') {
+        this.compilateurVerbeux = true;
+      } else {
+        this.compilateurVerbeux = false;
       }
     }
 
@@ -296,7 +312,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.compilationEnCours = true;
     this.compilationTerminee = false;
 
-    let verbeux = false;
+    let verbeux = this.compilateurVerbeux;
 
     this.showTab('analyse');
     // sauver le code et mettre à jour les sections
@@ -330,13 +346,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.codeEditorElmRef["directiveRef"].ace().resize();
 
 
-      // vérifier si on a déjà le fichier commandes
-      const sourceCommandes = this.chargerCommandes(false).then(commandes => {
+      // vérifier si on a déjà le fichier actions.djn
+      const sourceActions = this.chargerActions(false).then(actions => {
 
         // interpréter le code
-        const resComp = Compilateur.analyserScenarioAvecCommandesFournies(this.codeSource, commandes, verbeux)
+        const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
         this.monde = resComp.monde;
         this.regles = resComp.regles;
+        this.routinesSimples = resComp.routinesSimples;
         this.compteurs = resComp.compteurs;
         this.listes = resComp.listes;
         this.actions = resComp.actions.sort((a: Action, b: Action) => (
@@ -344,6 +361,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         ));
         this.aides = resComp.aides;
         this.erreurs = resComp.erreurs;
+        this.messages = resComp.messages;
         // générer le jeu
         this.jeu = Generateur.genererJeu(resComp);
 
@@ -351,7 +369,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.compilationTerminee = true;
 
         // si aucune erreur, passer au mode jouer
-        if (this.erreurs.length == 0) {
+        if (this.erreurs.length == 0 && this.messages.length == 0) {
           this.showTab('jeu');
         }
 
@@ -370,6 +388,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.compilationEnCours = false;
       this.compilationTerminee = true;
     }
+  }
+
+  referenceCode(ligne: number) {
+    this.showTab('scenario');
+    this.codeEditorElmRef["directiveRef"].ace().scrollToLine(ligne, true, true, function () { });
+    this.codeEditorElmRef["directiveRef"].ace().gotoLine(ligne, 0, true);
+    this.codeEditorElmRef["directiveRef"].ace().focus();
   }
 
   /**
@@ -451,7 +476,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   onChargerFichierCloud(nouveau: boolean = false): void {
     let nomFichierExemple: string;
     if (nouveau) {
-      nomFichierExemple = "nouveau.djn";
+      nomFichierExemple = "exemple.djn";
     } else {
       nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(this.nomExemple, "djn");
     }
@@ -993,37 +1018,64 @@ export class EditeurComponent implements OnInit, OnDestroy {
   //  GESTION DES ACTIONS
   // =============================================
 
-  onRafraichirCommandes(): void {
-    this.chargerCommandes(true);
+  /** Charger un fichier personnalisé avec des actions de base plutôt que l’original. */
+  onChargerFichierActionsLocal(et: EventTarget): void {
+    const hie = et as HTMLInputElement;
+    if (hie?.files?.length) {
+      // fichier choisi par l’utilisateur
+      const file = hie.files[0];
+      if (file) {
+        this.problemeChargementFichierActions = undefined;
+        try {
+          this.chargementActionsEnCours = true;
+          console.warn("chargement de ", file.name);
+          const fileReader = new FileReader();
+          // quand lu, sauver son contenu
+          fileReader.onloadend = (progressEvent) => {
+            this.problemeChargementFichierActions = false;
+            sessionStorage.setItem('actions', fileReader.result as string);
+            sessionStorage.setItem('actionsPersonnalisees', '1');
+          };
+          // lire le fichier
+          fileReader.readAsText(file);
+        } catch {
+          this.problemeChargementFichierActions = true;
+          console.error("Fichier actions personnalisé pas trouvé. Actions de base pas importées.");
+        } finally {
+          this.chargementActionsEnCours = false;
+        }
+      }
+    }
   }
 
-  public async chargerCommandes(forcerMaj: boolean): Promise<string | null> {
+  onRafraichirActions(): void {
+    this.chargerActions(true);
+  }
 
-    let sourceCommandes: string | null = sessionStorage.getItem("commandes");
-
-    if (!sourceCommandes || forcerMaj) {
+  public async chargerActions(forcerMaj: boolean): Promise<string | null> {
+    let sourceActions: string | null = sessionStorage.getItem("actions");
+    if (!sourceActions || forcerMaj) {
       this.problemeChargementFichierActions = undefined;
       try {
-        this.chargementCommandesEnCours = true;
-        sourceCommandes = await lastValueFrom(this.http.get('assets/modeles/commandes.djn', { responseType: 'text' }));
-        sessionStorage.setItem("commandes", sourceCommandes);
+        this.chargementActionsEnCours = true;
+        sourceActions = await lastValueFrom(this.http.get('assets/modeles/actions.djn', { responseType: 'text' }));
+        sessionStorage.setItem('actions', sourceActions);
+        sessionStorage.setItem('actionsPersonnalisees', '0');
         this.problemeChargementFichierActions = false;
       } catch (error) {
         this.problemeChargementFichierActions = true;
-        console.error("Fichier « assets/modeles/commandes.djn » pas trouvé. Commandes de base pas importées.");
+        console.error("Fichier « assets/modeles/actions.djn » pas trouvé. Actions de base pas importées.");
       } finally {
-        this.chargementCommandesEnCours = false;
+        this.chargementActionsEnCours = false;
       }
     }
-
-    return sourceCommandes;
-
+    return sourceActions;
   }
 
   get statutActions(): string {
     let retVal: string;
-    const commandes = sessionStorage.getItem("commandes");
-    if (commandes) {
+    const actions = sessionStorage.getItem('actions');
+    if (actions) {
       retVal = "✔️ fichier chargé en mémoire.";
     } else {
       retVal = "❌ fichier pas encore téléchargé.";
@@ -1034,13 +1086,19 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   get versionActions(): string {
     let retVal: string;
-    const commandes = sessionStorage.getItem("commandes");
-    if (commandes) {
-      const resultat = commandes.match(/-- Version: (\S+)/i);
+    const actions = sessionStorage.getItem('actions');
+    const actionsPersonnalisees = sessionStorage.getItem('actionsPersonnalisees');
+    if (actions) {
+      const resultat = actions.match(/-- Version: (\S+)/i);
       if (resultat) {
         retVal = resultat[1];
       } else {
         retVal = "Inconnue";
+      }
+      if(actionsPersonnalisees === '1'){
+        retVal += " (fichier personnalisé)";
+      }else{
+        retVal += " (fichier original)";
       }
     } else {
       retVal = "-"
@@ -1096,6 +1154,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Désactiver la mise en forme de l'éditeur de scénario (pour lecteur d'écran) */
   onChangerSansMiseEnForme(): void {
     localStorage.setItem('SansMiseEnForme', (this.sansMiseEnForme ? '1' : '0'));
+  }
+
+  /** Activer le mode verbeux du compilateur Donjon FI (pour le débogage de Donjon FI) */
+  onChangerCompilateurVerbeux(): void {
+    localStorage.setItem('CompilateurVerbeux', (this.compilateurVerbeux ? '1' : '0'));
   }
 
   /** Changer le thème de mise en surbrillance du code source. */

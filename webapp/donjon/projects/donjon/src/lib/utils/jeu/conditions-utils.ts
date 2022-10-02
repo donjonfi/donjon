@@ -104,6 +104,16 @@ export class ConditionsUtils {
       console.error("siEstVrai > condition et/ou sous-conditions non trouvées");
     }
 
+    if (this.verbeux) {
+      if (conditionBrute) {
+        console.log("🔀 « " + conditionBrute + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + ( contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
+      } else if (conditionMulti) {
+        console.log("🔀 « " + conditionMulti.toString() + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + ( contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
+      } else {
+        console.error("🔀 ni conditionBrute ni conditionMulti ici ! ")
+      }
+    }
+
     return resultatFinal;
   }
 
@@ -437,12 +447,12 @@ export class ConditionsUtils {
               if (!contexteTour.destination) {
                 console.warn("siEstVraiSansLien: le « destination » de la condition est null.");
               }
-            //   // orientation
-            // } else if (conditionSujetComplementNomNettoye === 'orientation') {
-            //   destination = contexteTour.orientation;
-            //   if (!contexteTour.orientation) {
-            //     console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
-            //   }
+              //   // orientation
+              // } else if (conditionSujetComplementNomNettoye === 'orientation') {
+              //   destination = contexteTour.orientation;
+              //   if (!contexteTour.orientation) {
+              //     console.warn("siEstVraiSansLien: le « orientation » de la condition est null.");
+              //   }
             } else {
               const correspondances = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
               if (correspondances.nbCor === 1) {

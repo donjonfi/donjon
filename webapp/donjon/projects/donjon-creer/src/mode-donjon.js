@@ -16,8 +16,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var builtinFunctions = (
       "attendre|changer|continuer|copier|déplacer|déverrouiller|"
-      + "dire|effacer|exécuter|fermer|ouvrir|remplacer|"
-      + "sauver|stopper|terminer|verrouiller|"
+      + "dire|effacer|exécuter|remplacer|"
+      + "refuser|sauver|stopper|terminer|"
       + "jouer|arrêter|afficher|décharger|charger|déterminer|"
       + "vider"
     );
@@ -65,14 +65,15 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "désactiver|activer|" +
             "si|sinon|sinonsi|" +
             "(autre )?choix|choisir( parmis)?|" +
-            "quand|avant(?!\\;|\\.)|après(?!\\;|\\.)|" +
-            "refuser|(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
+            "phase (prérequis|exécution|épilogue)|" +
+            "(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
             "interpréter|comme)\\b" +
             ")|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|avant|après|si|choix|choisir)|finsi|finchoisir|finchoix)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
-            "action\\b(?!;|\.)"
+            "(^( )*(définition(s)?|basique)(?=( )*:))|" +
+            "(^( )*(réaction(s)?|action|règle (avant|après)|routine|concernant) (?=.+:$))"
           ,
           caseInsensitive: true
         },

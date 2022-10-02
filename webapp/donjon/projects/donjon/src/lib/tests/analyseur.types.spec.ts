@@ -1,7 +1,7 @@
-import { Analyseur } from "../utils/compilation/analyseur/analyseur";
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
-import { Compilateur } from "../utils/compilation/compilateur";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { AnalyseurV8Definitions } from "../utils/compilation/analyseur/analyseur-v8.definitions";
+import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
+import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { Definition } from "../models/compilateur/definition";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { Nombre } from "../models/commun/nombre.enum";
@@ -118,16 +118,16 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     // =========================================================
 
     it('Nouveau type : « Un meuble est un objet. » ', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un meuble est un objet."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
-        ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
+        ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.type); // trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
@@ -141,16 +141,16 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     });
 
     it('Nouveau type : « Une fée est une personne magique. » ', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une fée est une personne magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
-        ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
+        ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.type); // trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
@@ -165,16 +165,16 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     });
 
     it('Nouveau type : « Une fée est magique. » (💥)', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une fée est magique."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique      
-        ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
+        ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.aucun); // pas trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(0); // pas de nouveau type ajouté
@@ -184,16 +184,16 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
 
     it('Nouveau type : « La fée est une personne. » (💥)', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "La fée est une personne."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
         // tester l’analyse spécifique
-        ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
+        ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.aucun); // pas trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(0); // pas de nouveau type ajouté
@@ -206,16 +206,16 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     // =========================================================
 
     it('Précision type : « Une statue est fixée. » ', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une statue est fixée."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
-        ctxAnalyse = new ContexteAnalyse(); // (raz contexte)
+        ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerPrecisionType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.precisionType); // trouvé un nouveau type
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
@@ -229,17 +229,17 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     });
 
     it('Précision type : « Un lutin est bavard, farceur et petit. » ', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un lutin est bavard, farceur et petit."
         );
         expect(phrases).toHaveSize(1); // 1 phrase
         expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
         // -> raz contexte
-        ctxAnalyse = new ContexteAnalyse();
+        ctxAnalyse = new ContexteAnalyseV8();
         // -> pré-remplir avec le type « lutin » qui hérite de personne
         ctxAnalyse.typesUtilisateur.set('lutin', new Definition('lutin', 'personne', Nombre.s, ['gentil']));
         const resultat = AnalyseurType.testerPrecisionType(phrases[0], ctxAnalyse);
@@ -255,14 +255,14 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     });
 
     it('Précision type : Type défini 2x doit générer erreur', () => {
-        let ctxAnalyse = new ContexteAnalyse();
-        let phrases = Compilateur.convertirCodeSourceEnPhrases(
+        let ctxAnalyse = new ContexteAnalyseV8();
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un lutin est une personne farceuse. Un lutin est une créature-magique aimable."
         );
         expect(phrases).toHaveSize(2); // 2 phrases
         // tester l’analyse complète
-        expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
-        expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
+        expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // 1 nouveau type ajouté (et pas 2)
         expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBeTrue(); // type existant retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé

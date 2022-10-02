@@ -44,6 +44,18 @@
   color: #AA5555;
 }
 
+.t-code-couleur{
+  font-family: Consolas,"courier new";
+  color: #000000;
+  // border: 1px solid #668899;
+  background-color: rgb(252, 237, 217);
+}
+
+.t-code{
+  font-family: Consolas,"courier new";
+  color: #000000;
+}
+
 /* invite de commandes */
 #txtCommande {
   /* texte de l’invite de commandes */

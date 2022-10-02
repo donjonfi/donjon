@@ -1,0 +1,52 @@
+Conversion Donjon FI v1 vers Donjon FI v2
+
+==================================
+1) Màj des règles:
+==================================
+- recherche:
+^((?: |\t)*)((?:avant |après )(?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))
+- remplacement:
+$1règle $2\n$1fin règle
+
+==================================
+2) Màj des actions rapides:
+==================================
+- recherche:
+^((?: |\t)*)(?:Le joueur peut )((?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))
+- remplacement:
+$1action $2\n$1fin action
+
+==================================
+3) Mise à jour des point-virgules
+==================================
+- recherche:
+(;)$
+- remplacement:
+.
+
+==================================
+4) adaptation « Sa réaction concernant sujet est "bla bla" » (facultatif)
+==================================
+- recherche 1:
+^((?: |\t)*)Sa réaction concernant (.+) est *:(?:\n)*((?: |\t)*)"
+- remplacement:
+$1  concernant $2:\n$1    dire "
+
+- recherche 2 :
+^((?: |\t)*)Sa réaction concernant (.+) est *:"
+- remplacement:
+$1  concernant $2:"
+	
+==================================
+5) adaptation « Sa réaction est: » (facultatif)
+==================================
+- recherche 1:
+^((?: |\t)*)Sa réaction est *:(?:\n)*((?: |\t)*)"
+- remplacement:
+$1  basique:\n$1    dire "
+
+- recherche 2:
+^((?: |\t)*)Sa réaction est *:
+- remplacement:
+$1  basique:
+

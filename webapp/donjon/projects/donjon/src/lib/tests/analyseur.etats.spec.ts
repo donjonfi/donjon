@@ -1,5 +1,11 @@
-import { Analyseur, Compilateur, ContexteAnalyse, EClasseRacine, ElementGenerique } from "../../public-api";
+import {
+  AnalyseurV8Definitions,
+  CompilateurV8Utils,
+  EClasseRacine,
+  ElementGenerique
+} from "../../public-api";
 
+import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
@@ -55,7 +61,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     const result = ExprReg.xElementSimpleAttributs.exec('La baguette est un objet maudit, rouge et magique ici"');
     expect(result).toEqual(null);
   });
-  
+
   it('Attribut élé : « La table est un support grand et opaque dans la salle » (💥)', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('La table est un support grand et opaque dans la salle"');
     expect(result).toEqual(null);
@@ -78,15 +84,15 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
   it('Attribut ele : « Le bateau est vieux et troué » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le bateau est vieux et troué. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -98,15 +104,15 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
   it('Analyse : « Le bateau est vieux, et troué » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -118,15 +124,15 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
   it('Analyse : « Le bateau est vieux, troué » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, troué. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -139,15 +145,15 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
   it('Analyse : « Julien est grand » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Julien est grand. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -156,18 +162,18 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs).toHaveSize(1);
     expect(ctxAnalyse.dernierElementGenerique.attributs[0]).toEqual("grand");
   });
-  
+
   it('Analyse : « Le bateau est vieux et troué » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -177,18 +183,18 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[1]).toEqual("troué");
   });
 
-    
+
   it('Analyse : « Le bateau est vieux,et troué » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le bateau est vieux, et troué. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -200,15 +206,15 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
   it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);
@@ -221,18 +227,18 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[3]).toEqual("dorée");
   });
 
-  
+
   it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. » ', () => {
 
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // pas d’erreur
     // tester l’élément généré et ses attributs
     expect(ctxAnalyse.dernierElementGenerique).toBeInstanceOf(ElementGenerique);

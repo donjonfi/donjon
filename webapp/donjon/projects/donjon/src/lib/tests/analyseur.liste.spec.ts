@@ -1,8 +1,12 @@
-import { Analyseur, Compilateur, EClasseRacine, Genre, Nombre } from "../../public-api";
+import {
+  AnalyseurV8Definitions,
+  CompilateurV8Utils,
+  EClasseRacine,
+  Genre,
+  Nombre
+} from "../../public-api";
 
-import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
-import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
-import { ContexteAnalyse } from "../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
@@ -116,16 +120,16 @@ describe('Epressions régulières − Contenu d’une liste', () => {
 describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
   it('Élément sans pos: « Les nombres gagnants sont une liste. Elle contient 7, 21 et 9. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les nombres gagnants sont une liste. Elle contient 7, 21 et 9.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -142,16 +146,16 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
   });
 
   it('Élément sans pos: « Les suspects sont une liste. Ils incluent "Alice" et "Bob". »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les suspects sont une liste. Ils incluent "Alice" et "Bob".'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(4); // 4 morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -168,16 +172,16 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
   });
 
   it('Élément sans pos: « Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();
@@ -194,16 +198,16 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
   });
 
   it('Élément sans pos: « X est une liste. Il inclut 1. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'X est une liste. Il inclut 1.'
     );
     expect(phrases).toHaveSize(2); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     expect(phrases[1].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.pronomPersonnelContenuListe);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
     // contrôler dernier élément générique trouvé
     expect(ctxAnalyse.dernierElementGenerique).not.toBeNull();

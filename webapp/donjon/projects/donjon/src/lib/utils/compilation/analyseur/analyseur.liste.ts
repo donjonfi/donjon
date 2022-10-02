@@ -10,7 +10,7 @@ import { TexteUtils } from "../../commun/texte-utils";
 export class AnalyseurListe {
 
   /**
-   * Ajouter la phrase fournie pour y trouver le contenu d’une liste.
+   * Analyser la phrase fournie pour y trouver le contenu d’une liste.
    * @param phrase phrase à analyser.
    * @param ctx contexte de l’analyse.
    */
@@ -19,9 +19,9 @@ export class AnalyseurListe {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
     // pronom personnel + contenu
-    const result = ExprReg.xPronomPersonnelContenu.exec(phrase.morceaux[0]);
+    const resultatPronomPersonnel = ExprReg.xPronomPersonnelContenu.exec(phrase.morceaux[0]);
 
-    if (result !== null) {
+    if (resultatPronomPersonnel !== null) {
 
       // vérifier qu’il y a une liste avant le pronom
       if (ctxAnalyse.dernierElementGenerique && ctxAnalyse.dernierElementGenerique.classeIntitule == 'liste') {
@@ -33,7 +33,7 @@ export class AnalyseurListe {
 
       if (elementTrouve == ResultatAnalysePhrase.pronomPersonnelContenuListe) {
 
-        const contenuBrut = result[1];
+        const contenuBrut = resultatPronomPersonnel[1];
 
         // s’il s’agit de textes, il faut les récupérer
         if (contenuBrut === undefined) {

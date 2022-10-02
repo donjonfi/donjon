@@ -20,6 +20,8 @@ export class Resultat {
   public terminerAvantRegleGenerique: boolean = false;
   /** il faut terminer l’action (après la sortie de la règle générique) */
   public terminerApresRegleGenerique: boolean = false;
+  /** l’exécution de l’action a été refusée car les prérequis ne sont pas remplis */
+  public refuse: boolean = false;
 
   /** le bloc d’instruction est interrompu (le temps que l’utilisateur fasse un choix ou appuie sur une touche) */
   public interrompreBlocInstruction: boolean = false;
@@ -35,5 +37,6 @@ export class Resultat {
   public nbSecondesAttendre: number | undefined;
   /** le nombre de tours à annuler (interruption annuler tour) */
   public nbToursAnnuler: number | undefined;
+
 
 }

@@ -9,6 +9,7 @@ import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
+import { PhraseUtils } from "../commun/phrase-utils";
 import { ResultatChercherCandidats } from "../../models/jeu/resultat-chercher-candidats";
 import { ResultatVerifierCandidat } from "../../models/jeu/resultat-verifier-candidat";
 import { StringUtils } from "../commun/string.utils";
@@ -128,52 +129,6 @@ export class ActionsUtils {
             // expliquer refu cela
             raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
           }
-          // }
-          //   // plusieurs candidats
-          // } else {
-          //   raisonRefu = "Je sais :";
-          //   resCherCand.candidatsEnLice.forEach(candidat => {
-          //     // détaillé commande trouvée
-          //     let curRaisonRefu = "{n}{t}- " + this.afficherCandidatAction(candidat);
-
-          //     // refu ceci
-          //     if (ceciToujoursRefuse) {
-          //       // expliquer refu CECI + CELA
-          //       if (celaToujoursRefuse) {
-          //         curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
-          //         curRaisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
-          //         // expliquer refu CECI
-          //       } else {
-          //         if (argumentUnique) {
-          //           curRaisonRefu = (this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
-          //         } else {
-          //           curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
-          //         }
-          //       }
-          //       // expliquer refu CELA
-          //     } else if (celaToujoursRefuse) {
-          //       // expliquer refu cela
-          //       curRaisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
-          //     }
-
-          //     raisonRefu += "{n}{t}- " + curRaisonRefu;
-
-          //     // // refu ceci
-          //     // if (ceciToujoursRefuse) {
-          //     //   // expliquer refu ceci
-          //     //   raisonRefu += ("{n}{t}{t}" + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCeci, ceciCommande, 'ceci', argumentUnique));
-          //     // }
-          //     // // refu cela
-          //     // if (celaToujoursRefuse) {
-          //     //   // expliquer refu cela
-          //     //   raisonRefu += ("{n}{t}{t}" + this.expliquerRefuClasseOuEtatArgument(candidat.cibleCela, celaCommande, 'cela', argumentUnique));
-          //     // }
-
-
-
-
-          //   });
-          // }
 
           // CECI et CELA sont OK à certains moments
           // => combinaison refusée
@@ -339,8 +294,12 @@ export class ActionsUtils {
       if (commandeCeci.nbCor === 0) {
         retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
       } else {
-        // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
-        retVal = "Cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        if (argumentUnique) {
+          // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
+          retVal = "Cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        } else {
+          retVal = "cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
       }
     }
 
@@ -412,7 +371,8 @@ export class ActionsUtils {
 
         case EEtatsBase.possede:
           if (argumentUnique) {
-            retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
+            // retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
+            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/.}";
           } else {
             retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
           }
@@ -601,9 +561,9 @@ export class ActionsUtils {
         }
       }
     });
-    if (this.verbeux) {
-      console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
-    }
+    // if (this.verbeux) {
+    //   console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
+    // }
     return new ResultatChercherCandidats(verbeConnu, candidatsEnLice, candidatsRefuses);
   }
 
@@ -738,11 +698,13 @@ export class ActionsUtils {
         if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom))) {
 
           // s’il n’y a pas d’état requis ou si l’état est respecté
-          if (!candidatCeciCelaAction.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.epithete, this.eju)) {
+          // if (!candidatCeciCelaAction.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.epithete, this.eju)) {
+          if (this.controllerEtatsElement(ele, candidatCeciCelaAction.epithete)) {
             let curScore = 125;
             // si priorité respectée, score augmente
             if (candidatCeciCelaAction.priorite) {
-              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
+              // if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
+              if (this.controllerEtatsElement(ele, candidatCeciCelaAction.priorite)) {
                 curScore += 75; // prioritaire
               }
             }
@@ -785,7 +747,8 @@ export class ActionsUtils {
             let curScore = 1000;
             // si priorité respectée, score augmente
             if (candidatCeciCelaAction.priorite) {
-              if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
+              // if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
+              if (this.controllerEtatsElement(ele, candidatCeciCelaAction.priorite)) {
                 curScore += 500; // prioritaire
               }
             }
@@ -854,6 +817,37 @@ export class ActionsUtils {
     return new ResultatVerifierCandidat(retVal, meilleurScore);
   }
 
-
+  /**
+   * Contrôler si l’élément possède les états spécifiés ou non.
+   * Si la liste d’états est vide, le résultat sera vrai.
+   * Si la liste d’états contient plusieurs éléments, il doivent êtres séparés par des virgules et enfin de liste un « et » ou un « ou ».
+   */
+  private controllerEtatsElement(element: ElementJeu, listeEtats: string) {
+    let etats: string[];
+    // s’il y a des états à vérifire
+    if (listeEtats) {
+      let estListeEt = listeEtats.match(/\bet\b/);
+      etats = PhraseUtils.separerListeIntitulesEtOu(listeEtats, true);
+      let unEtatPasVerifie = false;
+      let unEtatVerifie = false;
+      etats.forEach(etat => {
+        if (this.jeu.etats.possedeEtatElement(element, etat, this.eju)) {
+          unEtatVerifie = true;
+        } else {
+          unEtatPasVerifie = true;
+        }
+      });
+      // et => il faut tout vérifier
+      if (estListeEt && !unEtatPasVerifie) {
+        return true;
+        // ou => il faut vérifier 1 seul état
+      } else {
+        return unEtatVerifie;
+      }
+      // rien à vérifier
+    } else {
+      return true;
+    }
+  }
 
 }

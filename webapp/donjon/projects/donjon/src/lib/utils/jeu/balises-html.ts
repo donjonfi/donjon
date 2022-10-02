@@ -43,7 +43,9 @@ export class BalisesHtml {
     // texte COMMANDE {-texte-}
     retVal = retVal.replace(/\{-/g, '<span class="t-commande">');
     retVal = retVal.replace(/-\}/g, '</span>');
-
+    // italique: CODE {@code@}
+    retVal = retVal.replace(/\{@/g, '<span class="t-code-couleur">');
+    retVal = retVal.replace(/@\}/g, '</span>');
 
     // font
     // - 0) sans-serif (police par défaut)

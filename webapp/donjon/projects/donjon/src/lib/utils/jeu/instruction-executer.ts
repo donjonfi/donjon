@@ -14,8 +14,9 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
-import { Reaction } from "../../models/compilateur/reaction";
+import { ReactionBeta } from "../../models/compilateur/reaction-beta";
 import { Resultat } from "../../models/jouer/resultat";
+import { RoutineReaction } from "../../models/compilateur/routine-reaction";
 
 export class InstructionExecuter {
 
@@ -104,7 +105,7 @@ export class InstructionExecuter {
   private suiteExecuterReaction(personne: ElementJeu, sujet: Intitule | undefined) {
 
     let resultat = new Resultat(false, '', 1);
-    let reaction: Reaction = null;
+    let reaction: RoutineReaction = null;
 
     // vérifier que la personne est bien un objet
     if (!personne) {
@@ -194,8 +195,8 @@ export class InstructionExecuter {
         let sousContexteTour = new ContexteTour(actionCeci, actionCela);
 
         let action = resChercherCandidats.candidatsEnLice[0];
-        const sousResExecuter = this.ins.executerInstructions(action.instructions, sousContexteTour, evenement, declenchements);
-        const sousResTerminer = this.ins.executerInstructions(action.instructionsFinales, sousContexteTour, evenement, declenchements);
+        const sousResExecuter = this.ins.executerInstructions(action.phaseExecution, sousContexteTour, evenement, declenchements);
+        const sousResTerminer = this.ins.executerInstructions(action.phaseEpilogue, sousContexteTour, evenement, declenchements);
         res.sortie = res.sortie + sousResExecuter.sortie + sousResTerminer.sortie;
         res.succes = sousResExecuter.succes && sousResTerminer.succes;
         res.nombre = 1 + sousResExecuter.nombre + sousResTerminer.nombre;
@@ -213,6 +214,30 @@ export class InstructionExecuter {
 
     return res;
   }
+
+  /** Exécuter l’instruction « Exécuter routine nomRoutine » */
+  public executerRoutine(instruction: ElementsPhrase, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement, declenchements: number): Resultat {
+
+    let res = new Resultat(true, "", 1);
+
+    // décomposer le complément
+    const tokens = ExprReg.xActionExecuterRoutine.exec(instruction.complement1);
+    if (tokens) {
+      const nomRoutine = tokens[1];
+      const routineTrouvee = this.jeu.routines.filter(x => x.nom == nomRoutine);
+      if (routineTrouvee) {
+      } else {
+        contexteTour.ajouterErreurInstruction(instruction, `La routine simple n’a pas été trouvée: ${instruction.complement1}`);
+        res.succes = false;  
+      }
+    } else {
+      contexteTour.ajouterErreurInstruction(instruction, `Le nom de la routine n’est pas dans un format supporté: ${instruction.complement1}`);
+      res.succes = false;
+    }
+
+    return res;
+  }
+
 
 
   /** Exécuter l’instruction « Exécuter commande "xxxx…" */

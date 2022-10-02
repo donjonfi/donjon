@@ -1,9 +1,10 @@
+import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
 import { AnalyseurCondition } from "./analyseur.condition";
 import { Choix } from "../../../models/compilateur/choix";
 import { ClassesRacines } from "../../../models/commun/classes-racines";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ContexteSeparerInstructions } from "../../../models/compilateur/contexte-separer-instructions";
-import { ETypeBloc } from "../../../models/compilateur/bloc-ouvert";
+import { ETypeBloc } from "../../../models/compilateur/bloc-ouvert-beta";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ElementsPhrase } from "../../../models/commun/elements-phrase";
 import { ExprReg } from "../expr-reg";
@@ -11,11 +12,11 @@ import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Instruction } from "../../../models/compilateur/instruction";
 import { Intitule } from "../../../models/jeu/intitule";
 import { PhraseUtils } from "../../commun/phrase-utils";
-import { Reaction } from "../../../models/compilateur/reaction";
-import { Regle } from "../../../models/compilateur/regle";
+import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
+import { RegleBeta } from "../../../models/compilateur/regle-beta";
 import { Valeur } from "../../../models/jeu/valeur";
 
-export class AnalyseurInstructions {
+export class AnalyseurBetaInstructions {
 
   /**
    * Séparer les instructions d’une règle, d’une réaction, d’une action, d’une condition ou d’un choix.
@@ -27,7 +28,7 @@ export class AnalyseurInstructions {
    * @param el 
    * @returns 
    */
-  public static separerInstructions(instructionsBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: Regle = null, reaction: Reaction = null, el: ElementGenerique = null) {
+  public static separerInstructions(instructionsBrutes: string, ctxAnalyse: ContexteAnalyse, ligne: number, regle: RegleBeta = null, reaction: ReactionBeta = null, el: ElementGenerique = null) {
     if (!instructionsBrutes) {
       throw new Error("separerInstructions: instructionsBrutes doit être défini !");
     }
@@ -43,10 +44,10 @@ export class AnalyseurInstructions {
       const curInstruction = ctx.listeInstructions[ctx.indexCurInstruction];
 
       // nettoyer l’instruction
-      const conBruNettoyee = AnalyseurInstructions.nettoyerInstruction(curInstruction)
+      const conBruNettoyee = AnalyseurCommunUtils.nettoyerInstruction(curInstruction)
       if (conBruNettoyee) {
         // DÉCOMPOSER INSTRUCTION
-        const els = PhraseUtils.decomposerInstruction(conBruNettoyee);
+        const els = AnalyseurCommunUtils.decomposerInstructionSimple(conBruNettoyee);
         // *****************************************************************************
         //  CAS A > INSTRUCTION SIMPLE
         // *****************************************************************************
@@ -62,7 +63,7 @@ export class AnalyseurInstructions {
 
           // CAS B.1 >> DÉBUT BLOC SI
           if (resultSiCondIns) {
-            AnalyseurInstructions.traiterInstructionSi(resultSiCondIns, ctx);
+            AnalyseurBetaInstructions.traiterInstructionSi(resultSiCondIns, ctx);
 
           } else {
             // CAS B.2 >> SINON / SINONSI (sinon si)
@@ -102,7 +103,7 @@ export class AnalyseurInstructions {
                     //  CAS D > RIEN TROUVÉ
                     // *****************************************************************************
                   } else {
-                    AnalyseurInstructions.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), ctx);
+                    AnalyseurBetaInstructions.afficherErreurBloc(("pas compris: « " + conBruNettoyee + " »"), ctx);
                   }
                 }
               }
@@ -114,36 +115,18 @@ export class AnalyseurInstructions {
 
     // vérifier bloc conditionnel pas fermé
     if (ctx.indexBlocCondCommence != -1) {
-      AnalyseurInstructions.afficherErreurBloc("fin si manquant (" + (ctx.indexBlocCondCommence + 1) + ").", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("fin si manquant (" + (ctx.indexBlocCondCommence + 1) + ").", ctx);
     }
     // vérifier si bloc choix pas fermé
     if (ctx.indexBlocChoixCommence != -1) {
-      AnalyseurInstructions.afficherErreurBloc("fin choix manquant (" + (ctx.indexBlocChoixCommence + 1) + ").", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("fin choix manquant (" + (ctx.indexBlocChoixCommence + 1) + ").", ctx);
     }
     // vérifier si bloc choisir pas fermé
     if (ctx.indexBlocChoisirCommence != -1) {
-      AnalyseurInstructions.afficherErreurBloc("fin choisir manquant (" + (ctx.indexBlocChoisirCommence + 1) + ").", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("fin choisir manquant (" + (ctx.indexBlocChoisirCommence + 1) + ").", ctx);
     }
 
     return ctx.instructionsPrincipales;
-  }
-
-  /** Nettoyer l’instruction (guillemets, espaces multiples, point, …) */
-  private static nettoyerInstruction(instruction: string): string {
-    // NETTOYER INSTRUCTION
-    let insBruNettoyee = instruction
-      .trim()
-      // convertir marque commentaire
-      .replace(ExprReg.xCaractereDebutCommentaire, ' "')
-      .replace(ExprReg.xCaractereFinCommentaire, '" ')
-      // enlever les espaces multiples
-      .replace(/( +)/g, " ");
-    // enlever le point final ou le point virgule final)
-    if (insBruNettoyee.endsWith(';') || insBruNettoyee.endsWith('.')) {
-      insBruNettoyee = insBruNettoyee.slice(0, insBruNettoyee.length - 1);
-    }
-
-    return insBruNettoyee;
   }
 
   private static placerInstructionTraiteeAuBonEndroit(instructionTraitee: Instruction, ctx: ContexteSeparerInstructions) {
@@ -180,24 +163,9 @@ export class AnalyseurInstructions {
   }
 
   /** Traiter une instruction simple */
-  private static traiterInstructionSimple(instruction: ElementsPhrase, ctx: ContexteSeparerInstructions) {
-    if (instruction.complement1) {
-      // si le complément est un Texte (entre " "), garder les retours à la ligne
-      if (instruction.complement1.startsWith('"') && instruction.complement1.endsWith('"')) {
-        instruction.complement1 = instruction.complement1
-          .replace(ExprReg.xCaractereRetourLigne, '\n')
-          // remettre les , et les ; initiaux dans les commentaires
-          .replace(ExprReg.xCaracterePointVirgule, ';')
-          .replace(ExprReg.xCaractereVirgule, ',');
-        // sinon remplacer les retours à la ligne par des espaces
-      } else {
-        instruction.complement1 = instruction.complement1.replace(ExprReg.xCaractereRetourLigne, ' ');
-      }
-    }
-    let newInstruction = new Instruction(instruction);
-
-    AnalyseurInstructions.placerInstructionTraiteeAuBonEndroit(newInstruction, ctx);
-
+  private static traiterInstructionSimple(instructionDecomposee: ElementsPhrase, ctx: ContexteSeparerInstructions) {
+    const instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+    AnalyseurBetaInstructions.placerInstructionTraiteeAuBonEndroit(instruction, ctx);
   }
 
   /** Traiter le début d’un bloc si */
@@ -222,7 +190,7 @@ export class AnalyseurInstructions {
     // UN SI RAPIDE EST EN COURS
     if (ctx.prochaineInstructionAttenduePourSiRapide) {
       ctx.prochaineInstructionAttenduePourSiRapide = null;
-      AnalyseurInstructions.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("Un si rapide (,) ne peut pas avoir un autre si pour conséquence.", ctx);
       // UN BLOC SI EST COMMENCÉ
     } else if (ctx.indexBlocCondCommence != -1) {
       // console.log("ctx.prochainSiEstSinonSi=", ctx.prochainSiEstSinonSi);
@@ -230,7 +198,7 @@ export class AnalyseurInstructions {
       // >>> CAS SINONSI (sinon si)
       if (ctx.prochainSiEstSinonSi) {
         if (ctx.dansBlocSinon[ctx.indexBlocCondCommence]) {
-          AnalyseurInstructions.afficherErreurBloc("Un sinonsi peut suivre un si ou un autre sinonsi mais pas un sinon car le sinon doit être le dernier cas.", ctx);
+          AnalyseurBetaInstructions.afficherErreurBloc("Un sinonsi peut suivre un si ou un autre sinonsi mais pas un sinon car le sinon doit être le dernier cas.", ctx);
         } else {
           // on va ajouter l’instruction sinonsi dans le sinon de l’instruction conditionnelle ouverte
           ctx.instructionsBlocsCondEnCoursSinon[ctx.indexBlocCondCommence].push(newInstruction);
@@ -256,7 +224,7 @@ export class AnalyseurInstructions {
       // >>> SINONSI ORPHELIN
       if (ctx.prochainSiEstSinonSi) {
         ctx.prochainSiEstSinonSi = false;
-        AnalyseurInstructions.afficherErreurBloc("sinonsi orphelin.", ctx);
+        AnalyseurBetaInstructions.afficherErreurBloc("sinonsi orphelin.", ctx);
 
         // >>> CAS NORMAL
       } else {
@@ -322,7 +290,7 @@ export class AnalyseurInstructions {
 
       // sinon il est orphelin
     } else {
-      AnalyseurInstructions.afficherErreurBloc("sinon orphelin.", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("sinon orphelin.", ctx);
     }
 
   }
@@ -332,7 +300,7 @@ export class AnalyseurInstructions {
     // si pas de si ouvert, erreur
     // if (ctx.indexBlocCondCommence < 0) {
     if (!ctx.blocsOuverts.length || ctx.blocsOuverts[ctx.blocsOuverts.length - 1] != ETypeBloc.si) {
-      AnalyseurInstructions.afficherErreurBloc("fin si orphelin.", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("fin si orphelin.", ctx);
       // si bloc conditionnel ouvert => le fermer
     } else {
       ctx.indexBlocCondCommence -= 1;
@@ -474,7 +442,7 @@ export class AnalyseurInstructions {
     // si pas de choisir ouvert, erreur
     // if (ctx.indexBlocChoisirCommence < 0) {
     if (!ctx.blocsOuverts.length) {
-      AnalyseurInstructions.afficherErreurBloc("fin choisir orphelin.", ctx);
+      AnalyseurBetaInstructions.afficherErreurBloc("fin choisir orphelin.", ctx);
       // si bloc choisir (et dernier choix) ouvert => le fermer
     } else {
       // 1. fermer le bloc choix le plus récent
@@ -491,17 +459,17 @@ export class AnalyseurInstructions {
           ctx.choixBlocsChoisirEnCours.pop();
           ctx.indexBlocChoisirCommence -= 1;
         } else {
-          AnalyseurInstructions.afficherErreurBloc("fin choisir: bloc précédent mal fini.", ctx);
+          AnalyseurBetaInstructions.afficherErreurBloc("fin choisir: bloc précédent mal fini.", ctx);
         }
         //  2b. fermer le bloc choisir le plus récent
         // => il n’y a aucun choix dans le bloc choisir
       } else if (premierBlocFerme == ETypeBloc.choisir) {
-        AnalyseurInstructions.afficherErreurBloc("fin choisir: bloc choisir sans choix.", ctx);
+        AnalyseurBetaInstructions.afficherErreurBloc("fin choisir: bloc choisir sans choix.", ctx);
         // enlever les choix du bloc choisir fermé
         ctx.choixBlocsChoisirEnCours.pop();
         ctx.indexBlocChoisirCommence -= 1;
       } else {
-        AnalyseurInstructions.afficherErreurBloc("fin choisir: bloc précédent mal fini.", ctx);
+        AnalyseurBetaInstructions.afficherErreurBloc("fin choisir: bloc précédent mal fini.", ctx);
       }
     }
   }
@@ -514,9 +482,9 @@ export class AnalyseurInstructions {
     if (ctx.ligne > 0) {
       ctx.ctxAnalyse.ajouterErreur(ctx.ligne, "conséquence : " + message);
     } else if (ctx.regle) {
-      ctx.ctxAnalyse.ajouterErreur(0, "règle « " + Regle.regleIntitule(ctx.regle) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "règle « " + ctx.regle.intitule + " » : " + message);
     } else if (ctx.reaction) {
-      ctx.ctxAnalyse.ajouterErreur(0, "élément « " + ctx.el.elIntitule + " » : réaction « " + Reaction.reactionIntitule(ctx.reaction) + " » : " + message);
+      ctx.ctxAnalyse.ajouterErreur(0, "élément « " + ctx.el.elIntitule + " » : réaction « " + ctx.reaction.intitule + " » : " + message);
     } else {
       ctx.ctxAnalyse.ajouterErreur(0, "----- : conséquence : " + message);
     }

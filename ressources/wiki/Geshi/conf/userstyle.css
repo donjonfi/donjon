@@ -1,0 +1,20 @@
+/* donjon overrides */
+.code.donjon .br0 { color: #000000; }
+.code.donjon .co1 { color: #7a7566;font-style: italic; }/* brun gris */
+.code.donjon .co2 { color: #7a7566;font-style: italic; }/* brun gris */
+.code.donjon .co3 { color: #668899;font-style: normal;}/* bleu */
+.code.donjon .co4 { color: #668899;font-style: normal;}/* bleu */
+.code.donjon .co5 { color: #668899;font-style: normal;}/* bleu */
+.code.donjon .co6 { color: #668899;font-style: normal;}/* bleu */
+.code.donjon .coMULTI { color: #ff0000; font-style: italic; }
+.code.donjon .es0 { color: #ff0000; font-weight: bold; } 
+.code.donjon .kw1 { color: #000000; font-weight: bold; } /* noir */
+.code.donjon .kw2 { color: #3a693c; font-weight: bold; } /* vert */
+.code.donjon .kw3 { color: #DD8855; font-weight: bold; } /* orange */
+.code.donjon .kw4 { color: #AA5555; font-weight: bold; } /* rouge */
+.code.donjon .kw5 { color: #674296; font-weight: bold; } /* violet */
+.code.donjon .me1 { color: #00eeff; }
+.code.donjon .me2 { color: #00eeff; }
+.code.donjon .nu0 { color: #0000dd; }
+.code.donjon .st0 { color: #668899; } /* bleu */
+.code.donjon .sy0 { color: #000000; }

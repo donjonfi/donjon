@@ -4,6 +4,7 @@ import { Interruption, TypeContexte } from '../../models/jeu/interruption';
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
 import { AleatoireUtils } from './aleatoire-utils';
+import { AnalyseurCommunUtils } from '../compilation/analyseur/analyseur-commun-utils';
 import { CandidatCommande } from '../../models/jouer/candidat-commande';
 import { ClasseUtils } from '../commun/classe-utils';
 import { CommandeurDecomposer } from './commandeur.decomposer';
@@ -37,6 +38,7 @@ export class Commandeur {
     private ins: Instructions,
     private dec: Declencheur,
     private verbeux: boolean,
+    private debogueurActif: boolean = false,
   ) {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
@@ -86,7 +88,32 @@ export class Commandeur {
       } else {
         this.jeu.tamponErreurs.push("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
       }
+      // débogueur: changer le monde (uniquement si le débogueur est actif)
+      // } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /) && this.debogueurActif) {
+    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /)) {
 
+      let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(commande.slice('déboguer'.length).trim());
+
+      // instruction simple a été trouvée
+      if (instructionDecomposee?.infinitif.match(/^(changer|déplacer|effacer|vider|dire)/)) {
+        let instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+        let sousContexteTour = new ContexteTour(undefined, undefined);
+        const resultat = this.ins.executerInstructions([instruction], sousContexteTour, undefined, undefined);
+        if (resultat.succes) {
+          if (resultat.sortie?.length) {
+            ctxCmd.sortie = resultat.sortie;
+          } else {
+            ctxCmd.sortie = "Instruction appliquée.\n";
+          }
+        } else {
+          ctxCmd.sortie = "L’instruction n’a pas pu être appliquée.\n";
+          sousContexteTour.erreurs.forEach(erreur => {
+            ctxCmd.sortie += `{+${erreur}+}{n}`;
+          });
+        }
+      } else {
+        ctxCmd.sortie = "Désolé, cette instruction n’est pas prise en charge.\n";
+      }
       // la commande n’a pas pu être décomposée
     } else {
       ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
@@ -297,26 +324,33 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « refuser » du tour. */
-  private executerPhaseRefuser(tour: ContexteTour) {
-    // console.warn("@@ phase refuser @@");
-    // PHASE REFUSER (vérifier l'action)
+  /** Exécuter la phase « prérequis » (refuser) du tour. */
+  private executerPhasePrerequis(tour: ContexteTour) {
+    // console.warn("@@ phase prérequis @@");
+    // PHASE PRÉREQUIS (vérifier l'action)
     let refus = false;
-    let resultatRefuser: Resultat | undefined;
-    if (tour.commande.actionChoisie.action.verifications) {
+    let resultatPrerequis: Resultat | undefined;
+
+    // version BETA
+    if (tour.commande.actionChoisie.action.verificationsBeta?.length) {
       // parcourir les vérifications
-      tour.commande.actionChoisie.action.verifications.forEach(verif => {
+      tour.commande.actionChoisie.action.verificationsBeta.forEach(verif => {
         if (verif.conditions.length == 1) {
           if (!refus && this.cond.siEstVrai(null, verif.conditions[0], tour, tour.commande.evenement, null)) {
             // console.warn("> commande vérifie cela:", verif);
-            resultatRefuser = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
-            tour.commande.sortie += resultatRefuser.sortie;
+            resultatPrerequis = this.ins.executerInstructions(verif.resultats, tour, tour.commande.evenement, null);
+            tour.commande.sortie += resultatPrerequis.sortie;
             refus = true;
           }
         } else {
           console.error("action.verification: 1 et 1 seule condition possible par vérification. Mais plusieurs vérifications possibles par action.");
         }
       });
+      // version V8
+    } else if (tour.commande.actionChoisie.action.phasePrerequis?.length) {
+      resultatPrerequis = this.ins.executerInstructions(tour.commande.actionChoisie.action.phasePrerequis, tour, tour.commande.evenement, undefined);
+      tour.commande.sortie += resultatPrerequis.sortie;
+      refus = resultatPrerequis.refuse;
     }
 
     // si la commande est refusée, terminer le tour
@@ -326,8 +360,8 @@ export class Commandeur {
     }
 
     // si le déroulement a été interrompu
-    if (resultatRefuser?.interrompreBlocInstruction) {
-      InterruptionsUtils.definirInterruptionTour(tour, resultatRefuser);
+    if (resultatPrerequis?.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(tour, resultatPrerequis);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -335,8 +369,8 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « exécuter » du tour. */
-  private executerPhaseExecuter(tour: ContexteTour) {
+  /** Exécuter la phase « exécution » du tour. */
+  private executerPhaseExecution(tour: ContexteTour) {
     // console.warn("@@ phase exécuter @@");
     // PHASE EXÉCUTER l’action
 
@@ -347,12 +381,12 @@ export class Commandeur {
     }
 
     // const resultatExecuter = this.executerAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
-    const resultatExecuter = this.ins.executerInstructions(tour.commande.actionChoisie.action.instructions, tour, tour.commande.evenement, undefined);
-    tour.commande.sortie += resultatExecuter.sortie;
+    const resultatExecution = this.ins.executerInstructions(tour.commande.actionChoisie.action.phaseExecution, tour, tour.commande.evenement, undefined);
+    tour.commande.sortie += resultatExecution.sortie;
 
     // si le déroulement a été interrompu
-    if (resultatExecuter.interrompreBlocInstruction) {
-      InterruptionsUtils.definirInterruptionTour(tour, resultatExecuter);
+    if (resultatExecution.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(tour, resultatExecution);
       this.executerInterruption(tour);
     } else {
       // sinon on passe à la phase suivante du tour.
@@ -453,8 +487,8 @@ export class Commandeur {
     }
   }
 
-  /** Exécuter la phase « terminer » du tour. */
-  private executerPhaseTerminer(tour: ContexteTour) {
+  /** Exécuter la phase « épilogue » (terminer) du tour. */
+  private executerPhaseEpilogue(tour: ContexteTour) {
     // console.warn("@@ phase terminer @@");
 
     // PHASE TERMINER l'action (sans règle « après »)
@@ -503,7 +537,9 @@ export class Commandeur {
 
     if (tour.phase == PhaseTour.avant_interrompu && resultatReste.arreterApresRegle) {
       tour.phase = PhaseTour.fin;
-    } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle && !resultatReste.terminerApresRegle) {
+    } else if (tour.phase == PhaseTour.apres_interrompu && !resultatReste.terminerApresRegle) {
+      tour.phase = PhaseTour.fin;
+    } else if (tour.phase == PhaseTour.prerequis && resultatReste.refuse) {
       tour.phase = PhaseTour.fin;
     }
 
@@ -532,18 +568,18 @@ export class Commandeur {
       // AVANT
       case PhaseTour.avant:
       case PhaseTour.avant_interrompu:
-        // passer à la phase « refuser »
-        tour.phase = PhaseTour.refuser;
-        this.executerPhaseRefuser(tour);
+        // passer à la phase « prérequis » (refuser)
+        tour.phase = PhaseTour.prerequis;
+        this.executerPhasePrerequis(tour);
         break;
-      // REFUSER
-      case PhaseTour.refuser:
+      // PRÉREQUIS (REFUSER)
+      case PhaseTour.prerequis:
         // passer à la phase « exécuter »
-        tour.phase = PhaseTour.executer;
-        this.executerPhaseExecuter(tour);
+        tour.phase = PhaseTour.execution;
+        this.executerPhaseExecution(tour);
         break;
-      // EXÉCUTER
-      case PhaseTour.executer:
+      // EXÉCUTION (EXÉCUTER)
+      case PhaseTour.execution:
         // passer à la phase « après »
         tour.phase = PhaseTour.apres;
         this.executerPhaseApres(tour);
@@ -552,21 +588,21 @@ export class Commandeur {
       case PhaseTour.apres:
       case PhaseTour.apres_interrompu:
         // passer à la phase « terminer »
-        tour.phase = PhaseTour.terminer;
-        this.executerPhaseTerminer(tour);
+        tour.phase = PhaseTour.epilogue;
+        this.executerPhaseEpilogue(tour);
         break;
       case PhaseTour.apres_a_traiter_apres_terminer:
         // passer à la phase « terminer »
         tour.phase = PhaseTour.terminer_avant_traiter_apres;
-        this.executerPhaseTerminer(tour);
+        this.executerPhaseEpilogue(tour);
         break;
       case PhaseTour.continuer_apres:
       case PhaseTour.continuer_apres_interrompu:
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
-      // TERMINER
-      case PhaseTour.terminer:
+      // ÉPLILOGUE (TERMINER)
+      case PhaseTour.epilogue:
         // case PhaseTour.terminer_avant_sortie_apres:
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
@@ -643,7 +679,7 @@ export class Commandeur {
   // }
 
   private finaliserAction(action: ActionCeciCela, contexteTour: ContexteTour, evenement: Evenement) {
-    const resultat = this.ins.executerInstructions(action.action.instructionsFinales, contexteTour, evenement, undefined);
+    const resultat = this.ins.executerInstructions(action.action.phaseEpilogue, contexteTour, evenement, undefined);
     return resultat;
   }
 

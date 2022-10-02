@@ -21,12 +21,15 @@ export class Action {
   private _infinitifSansAccent: string;
   public cibleCeci: CibleAction = null;
   public cibleCela: CibleAction = null;
-  public verificationsBrutes: string = null;
-  public verifications: Verification[] = [];
-  public instructionsBrutes: string = null;
-  public instructions: Instruction[] = [];
-  public instructionsFinalesBrutes: string = null;
-  public instructionsFinales: Instruction[] = []
+
+  public verificationsBeta: Verification[] = [];
+
+  /** instructions phase « prérequis » */
+  public phasePrerequis: Instruction[] = [];
+  /** instructions phase « exécution » */
+  public phaseExecution: Instruction[] = [];
+  /** instructinos phase « épilogue » */
+  public phaseEpilogue: Instruction[] = []
   private _synonymes: string[] = [];
   private _synonymesSansAccent: string[] = [];
 

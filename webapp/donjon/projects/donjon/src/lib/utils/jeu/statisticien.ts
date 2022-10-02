@@ -1,5 +1,5 @@
 import { BalisesHtml } from "./balises-html";
-import { Compilateur } from "../compilation/compilateur";
+import { CompilateurV8Utils } from "../compilation/compilateur-v8-utils";
 import { ContextePartie } from "../../models/jouer/contexte-partie";
 import { ExprReg } from "../compilation/expr-reg";
 import { Statistiques } from "../../models/jeu/statistiques";
@@ -102,7 +102,7 @@ export class Statisticien {
 
     let textes: string[] = []
 
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(scenario);
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
     phrases.forEach(phrase => {
 
       let texteCommence: string | undefined;

@@ -1,4 +1,4 @@
-export class BlocOuvert {
+export class BlocOuvertBeta {
 
   constructor(
     public type: ETypeBloc,

@@ -1,3 +1,4 @@
+import { AnalyseurCommunUtils } from "../utils/compilation/analyseur/analyseur-commun-utils";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { GroupeNominal } from "../models/commun/groupe-nominal";
 import { PhraseUtils } from "../utils/commun/phrase-utils";
@@ -252,7 +253,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   // - un/une(1) nouveauType(2) est un/une typeParent(3) {attributs}(4)
 
   it('Instruction :  « continuer l’action »', () => {
-    const result = PhraseUtils.decomposerInstruction("continuer l’action");
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple("continuer l’action");
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("continuer");
     expect(result.sujet.determinant).toEqual("l’");
@@ -267,7 +268,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
 
 
   it('Instruction :  « changer le joueur possède la canne à pèche »', () => {
-    const result = PhraseUtils.decomposerInstruction("changer le joueur possède la canne à pèche");
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple("changer le joueur possède la canne à pèche");
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("changer");
     expect(result.sujet).toEqual(new GroupeNominal("le ", "joueur"));
@@ -280,7 +281,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « changer la liste des suspects contient "Alice" »', () => {
-    const result = PhraseUtils.decomposerInstruction('changer la liste des suspects contient "Alice"');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('changer la liste des suspects contient "Alice"');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("changer");
     expect(result.sujet).toEqual(new GroupeNominal('la ', 'liste des suspects'));
@@ -293,7 +294,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « afficher l’image donjon.png »', () => {
-    const result = PhraseUtils.decomposerInstruction('afficher l’image donjon.png');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher l’image donjon.png');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('afficher');
     expect(result.sujet).toEqual(new GroupeNominal('l’', 'image'));
@@ -307,7 +308,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « afficher image mon_image.gif »', () => {
-    const result = PhraseUtils.decomposerInstruction('afficher image mon_image.gif');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher image mon_image.gif');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('afficher');
     expect(result.sujet).toEqual(new GroupeNominal(undefined, 'image'));
@@ -322,7 +323,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
 
 
   it('Instruction :  « jouer le son epee »', () => {
-    const result = PhraseUtils.decomposerInstruction('jouer le son epee');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son epee');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('jouer');
     expect(result.sujet).toEqual(new GroupeNominal('le ', 'son'));
@@ -336,7 +337,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « charger le thème néon.css »', () => {
-    const result = PhraseUtils.decomposerInstruction('charger le thème neon.css');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('charger le thème neon.css');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('charger');
     expect(result.sujet).toEqual(new GroupeNominal('le ', 'thème'));
@@ -350,7 +351,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « jouer le son coup_d_epee.flac »', () => {
-    const result = PhraseUtils.decomposerInstruction('jouer le son coup_d_epee.flac');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son coup_d_epee.flac');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('jouer');
     expect(result.sujet).toEqual(new GroupeNominal('le ', 'son'));
@@ -364,7 +365,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « jouer le son coup_d_epee.wav 3 fois »', () => {
-    const result = PhraseUtils.decomposerInstruction('jouer le son coup_d_epee.wav 3 fois');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son coup_d_epee.wav 3 fois');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
     expect(result.sujet).toEqual(new GroupeNominal('le ', 'son'));
@@ -378,7 +379,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « jouer la musique musique_classique.ogg »', () => {
-    const result = PhraseUtils.decomposerInstruction('jouer la musique musique_classique.ogg');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer la musique musique_classique.ogg');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
     expect(result.sujet).toEqual(new GroupeNominal('la ', 'musique'));
@@ -392,7 +393,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « jouer la musique musique_classique.mp3 en boucle »', () => {
-    const result = PhraseUtils.decomposerInstruction('jouer la musique musique_classique.mp3 en boucle');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer la musique musique_classique.mp3 en boucle');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
     expect(result.sujet).toEqual(new GroupeNominal('la ', 'musique'));
@@ -407,7 +408,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
 
   
   it('Instruction :  « attendre touche "Il faut appuyer à présent!" »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre touche "Il faut appuyer à présent!"');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche "Il faut appuyer à présent!"');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.toString()).toEqual('une touche');
@@ -418,7 +419,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre touche »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre touche');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.toString()).toEqual('une touche');
@@ -429,7 +430,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre 1 touche »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 1 touche');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 1 touche');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.toString()).toEqual('une touche');
@@ -440,7 +441,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre touche "Veuillez entrer n’importe quelle touche." »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre touche "Veuillez entrer n’importe quelle touche."');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche "Veuillez entrer n’importe quelle touche."');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.toString()).toEqual('une touche');
@@ -451,7 +452,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre 0.5 seconde »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 0.5 seconde');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0.5 seconde');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.determinant).toEqual('0.5');
@@ -464,7 +465,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
 
   
   it('Instruction :  « attendre 0,3 secondes »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 0,3 secondes');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0,3 secondes');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.determinant).toEqual('0,3');
@@ -476,7 +477,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre 1 seconde »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 1 seconde');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 1 seconde');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.determinant).toEqual('1');
@@ -488,7 +489,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre 5 secondes »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 5 secondes');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 5 secondes');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
     expect(result.sujet.determinant).toEqual('5');
@@ -500,12 +501,12 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   it('Instruction :  « attendre -1 seconde »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre -1 seconde');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre -1 seconde');
     expect(result).toBeNull();
   });
 
   it('Instruction :  « attendre 0 seconde »', () => {
-    const result = PhraseUtils.decomposerInstruction('attendre 0 seconde');
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0 seconde');
     expect(result).toBeNull();
   });
 

@@ -1,19 +1,25 @@
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
+
+import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
 import { AnalyseurUtils } from "./analyseur.utils";
+import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ProprieteElement } from "../../../models/commun/propriete-element";
-import { Reaction } from "../../../models/compilateur/reaction";
+import { ReactionBeta } from "../../../models/compilateur/reaction-beta";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { RoutineReaction } from "../../../models/compilateur/routine-reaction";
 import { TexteUtils } from "../../commun/texte-utils";
 import { TypeValeur } from "../../../models/compilateur/type-valeur";
 
 export class AnalyseurPropriete {
 
-  public static testerPourProprieteReaction(phrase: Phrase, ctxAnalyse: ContexteAnalyse): ResultatAnalysePhrase {
+  public static testerPourProprieteReaction(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
@@ -63,15 +69,37 @@ export class AnalyseurPropriete {
           if (listeSujets.length === 0) {
             listeSujets.push(new GroupeNominal(null, "aucun", "sujet"));
           }
-          // - RETROUVER LES INSTRUCTIONS
-          const instructionsBrutes = AnalyseurPropriete.retrouverInstructionsBrutes((valeurBrut), ctxAnalyse.erreurs, phrase);
-          // AJOUTER LA RÉACTION
-          ctxAnalyse.derniereReaction = new Reaction(listeSujets, instructionsBrutes, null);
-          // retrouver l’objet qui réagit et lui ajouter la réaction
-          elementCible.reactions.push(ctxAnalyse.derniereReaction);
-          // résultat
-          elementTrouve = ResultatAnalysePhrase.reaction;
+          // - RETROUVER L’INSRTRUCTION
+          let instructionBrute = AnalyseurPropriete.retrouverInstructionsBrutes((valeurBrut), ctxAnalyse.erreurs, phrase);
+          let instructionBruteNettoyee = AnalyseurCommunUtils.nettoyerInstruction(instructionBrute);
+          // transformer forme rapide en instruction dire
+          if (instructionBruteNettoyee.startsWith('"') && instructionBruteNettoyee.endsWith('"')) {
+            instructionBruteNettoyee = 'dire ' + instructionBruteNettoyee;
+          }
 
+          let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(instructionBruteNettoyee);
+          // instruction simple a été trouvée
+          if (instructionDecomposee) {
+            let instructionDire = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+
+            if (instructionDire?.instruction?.infinitif == 'dire') {
+              // - AJOUTER LA RÉACTION
+              const reaction = new RoutineReaction(listeSujets, phrase.ligne);
+              reaction.instructions.push(instructionDire);
+              // retrouver l’objet qui réagit et lui ajouter la réaction
+              elementCible.reactions.push(reaction);
+              // résultat
+              elementTrouve = ResultatAnalysePhrase.reaction;
+            } else {
+              ctxAnalyse.erreur(phrase, undefined,
+                CategorieMessage.syntaxeReaction, CodeMessage.reactionSimpleUniquement,
+                "instruction pas prise en charge ici",
+                `Veuillez utiliser un bloc « réactions » si vous souhaitez une réaction plus compliquée qu’un simple « dire ».`,
+              );
+            }
+          } else {
+
+          }
           // B) PROPRIÉTÉ
         } else {
           ctxAnalyse.dernierePropriete = new ProprieteElement(nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
@@ -90,30 +118,38 @@ export class AnalyseurPropriete {
             valeur = valeur.trim().replace(/^\"|\"$/g, '');
             ctxAnalyse.dernierePropriete.valeur = valeur;
           }
+          // résultat
+          elementTrouve = ResultatAnalysePhrase.propriete;
         }
+      // élément cible pas trouvé
+      } else {
 
-        // résultat
-        elementTrouve = ResultatAnalysePhrase.propriete;
       }
     }
     return elementTrouve;
-
   }
 
-
   /** Retrouver les sujets (pour les réactions) */
-  private static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
+  public static retrouverSujets(sujets: string, ctxAnalyse: ContexteAnalyse, phrase: Phrase) {
     const listeSujetsBruts = PhraseUtils.separerListeIntitulesEtOu(sujets, true);
     let listeSujets: GroupeNominal[] = [];
     listeSujetsBruts.forEach(sujetBrut => {
-      const resultGn = ExprReg.xGroupeNominalArticleDefini.exec(sujetBrut);
+      const resultGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(sujetBrut);
       if (resultGn) {
         // on met en minuscules d’office pour éviter les soucis lors des comparaisons
         const sujetNom = resultGn[2]?.toLocaleLowerCase();
         const sujetEpithete = resultGn[3]?.toLowerCase();
         listeSujets.push(new GroupeNominal(null, sujetNom, sujetEpithete));
       } else {
-        ctxAnalyse.ajouterErreur(phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        if (ctxAnalyse instanceof ContexteAnalyseV8) {
+          ctxAnalyse.erreur(phrase, undefined,
+            CategorieMessage.syntaxeReaction, CodeMessage.sujetIntrouvable,
+            "format du sujet pas pris en charge",
+            `Les sujets de la réaction doivent être des groupes nominaux. Sujet pas compris: ${sujetBrut}`,
+          );
+        } else {
+          ctxAnalyse.ajouterErreur(phrase.ligne, "réaction : les sujets doivent être des groupes nominaux: " + sujetBrut);
+        }
       }
     });
     return listeSujets;

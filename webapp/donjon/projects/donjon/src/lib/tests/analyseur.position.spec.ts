@@ -1,5 +1,16 @@
-import { Analyseur, AnalyseurElementPosition, AnalyseurUtils, Compilateur, ContexteAnalyse, EClasseRacine, ElementGenerique, Genre, Nombre, PositionSujetString } from "../../public-api";
+import {
+  AnalyseurElementPosition,
+  AnalyseurUtils,
+  AnalyseurV8Definitions,
+  CompilateurV8Utils,
+  EClasseRacine,
+  ElementGenerique,
+  Genre,
+  Nombre,
+  PositionSujetString
+} from "../../public-api";
 
+import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
 
@@ -115,14 +126,14 @@ describe('Epressions régulières − Définition position d’un élément', ()
 describe('Analyseur: objets positionnés', () => {
 
   it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
     );
     expect(phrases).toHaveSize(1); // 1 phrase
     expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     // tester l’analyse spécifique
@@ -149,8 +160,8 @@ describe('Analyseur: objets positionnés', () => {
   });
 
   it('Élément pos: « Le cadenas bleu est un objet. Il se trouve dans le labo. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet. " +
       "Il se trouve dans le labo. " +
       ""
@@ -159,8 +170,8 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(1); // nombre d’éléments génériques
@@ -175,8 +186,8 @@ describe('Analyseur: objets positionnés', () => {
   });
 
   it('Élément pos: « Le labo est un lieu. Le cadenas bleu est un objet. Il se trouve ici. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le labo est un lieu. " +
       "Le cadenas bleu est un objet. " +
       "Il se trouve ici. " +
@@ -187,9 +198,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(2); // nombre d’éléments génériques
@@ -204,10 +215,10 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  
+
   it('Élément pos: « La table est un support. Le cadenas bleu est un objet. Il se trouve sur la table. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +
       "Le cadenas bleu est un objet. \n" +
       "Il se trouve sur la table. \n" +
@@ -218,9 +229,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(2); // nombre d’éléments génériques
@@ -234,10 +245,10 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-    
+
   it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
       "Le coffre est un contenant ici. \n" +
       "L’or est dedans. \n" +
@@ -248,9 +259,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(3); // nombre d’éléments génériques
@@ -266,8 +277,8 @@ describe('Analyseur: objets positionnés', () => {
   });
 
   it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
       "Le coffre est un contenant ici. \n" +
       "L’or est un objet. \n" +
@@ -276,10 +287,10 @@ describe('Analyseur: objets positionnés', () => {
     );
     expect(phrases).toHaveSize(4); // nombre de phrases
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[3], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[3], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
 
     expect(ctxAnalyse.elementsGeneriques).toHaveSize(3); // nombre d’éléments génériques
@@ -293,39 +304,39 @@ describe('Analyseur: objets positionnés', () => {
     expect(ctxAnalyse.dernierLieu.elIntitule).toBe('grotte'); // dernier lieu
 
   });
-    
+
   it('Élément pos: « Le coffre est un contenant ici. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le coffre est un contenant ici. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
 
   });
 
-      
+
   it('Élément pos: « Le coffre est dedans. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le coffre est dedans. \n" +
       ""
     );
     expect(phrases).toHaveSize(1); // nombre de phrases
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
 
   });
 
   it('Élément pos: « a table est un support. Le cadenas bleu est un objet. Il se trouve dessus. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyse();
-    let phrases = Compilateur.convertirCodeSourceEnPhrases(
+    let ctxAnalyse = new ContexteAnalyseV8();
+    let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +
       "Le cadenas bleu est un objet. \n" +
       "Il se trouve dessus. \n" +
@@ -336,9 +347,9 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[1].morceaux).toHaveSize(1); // nombre de morceaux
     expect(phrases[2].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
-    expect(Analyseur.analyserPhrase(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
-    expect(Analyseur.analyserPhrase(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
+    expect(AnalyseurV8Definitions.testerDefinition(phrases[2], ctxAnalyse)).toBe(ResultatAnalysePhrase.positionElement);
     expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car le cadenas se référence lui-même.
 
   });
