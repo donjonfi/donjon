@@ -20,6 +20,7 @@ export class RoutineReaction extends Routine implements Reaction {
   public constructor(sujets: GroupeNominal[], ligneDebut: number) {
     super(ERoutine.reaction, ligneDebut, true);
     this.sujets = sujets;
+    this.instructions = [];
   }
 
   /**

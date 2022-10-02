@@ -85,7 +85,7 @@ export class AnalyseurPropriete {
             if (instructionDire?.instruction?.infinitif == 'dire') {
               // - AJOUTER LA RÉACTION
               const reaction = new RoutineReaction(listeSujets, phrase.ligne);
-              reaction.instructions = [instructionDire];
+              reaction.instructions.push(instructionDire);
               // retrouver l’objet qui réagit et lui ajouter la réaction
               elementCible.reactions.push(reaction);
               // résultat
