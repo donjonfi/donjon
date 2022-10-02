@@ -193,5 +193,49 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
   });
 
+  it('Analyser scénario avec 1 lieu, 3 objets, 2 actions, 1 personne.', function () {
+    let scenario =
+      'La cuisine est un lieu.\n' +
+      'La table est dans la cuisine.\n' +
+      'Le truc est ici.\n' +
+      'La chaise est dans la cuisine.\n' +
+      'action tester la chaise:\n' +
+      '  dire "Elle semble costaud."\n' +
+      'fin action\n' +
+      'action tester ceci avec la chaise:\n' +
+      '  dire "La chaise a permis de tester [intitulé ceci]".\n' +
+      'fin action\n' +
+      'le robot est une personne ici.\n' +
+      'Sa description est "Un robot qui traine.".\n' +
+      'Sa réaction est "Bip bip!".\n' +
+      '\n' +
+      '';
+    const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
+
+    expect(resultatCompilation).toBeDefined();
+
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(1); // cuisine
+    expect(resultatCompilation.monde.objets).toHaveSize(5); // joueur + 4 objets
+    expect(resultatCompilation.monde.objets[3].nom).toEqual('chaise');
+    expect(resultatCompilation.monde.objets[3].reactions).toHaveSize(0);
+    expect(resultatCompilation.monde.objets[4].nom).toEqual('robot');
+    expect(resultatCompilation.monde.objets[4].reactions).toHaveSize(1);
+    expect(resultatCompilation.actions).toHaveSize(2); // 2 actions
+    expect(resultatCompilation.actions[0].infinitif).toEqual('tester');
+    expect(resultatCompilation.actions[0].ceci).toBeTrue();
+    expect(resultatCompilation.actions[0].cibleCeci.nom).toEqual('chaise');
+    expect(resultatCompilation.actions[0].cela).toBeFalse();
+    expect(resultatCompilation.actions[1].infinitif).toEqual('tester');
+    expect(resultatCompilation.actions[1].ceci).toBeTrue();
+    expect(resultatCompilation.actions[1].cibleCeci.nom).toEqual('objet');
+    expect(resultatCompilation.actions[1].cibleCeci.epithete).toEqual('visible et accessible');
+    expect(resultatCompilation.actions[1].cela).toBeTrue();
+    expect(resultatCompilation.actions[1].cibleCela.nom).toEqual('chaise');
+    expect(resultatCompilation.regles).toHaveSize(0); // aucune règle
+    expect(resultatCompilation.listes).toHaveSize(0); // aucune liste
+
+  });
+
 });
 
