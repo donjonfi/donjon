@@ -132,7 +132,6 @@ describe('Compilateur V8 − Analyser scénario', () => {
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario);
 
     expect(resultatCompilation).toBeDefined();
-    console.log("erreurs:", resultatCompilation.erreurs);
 
     expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
     expect(resultatCompilation.monde.lieux).toHaveSize(1); //
@@ -157,7 +156,6 @@ describe('Compilateur V8 − Analyser scénario', () => {
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
 
     expect(resultatCompilation).toBeDefined();
-    console.log("erreurs:", resultatCompilation.erreurs);
 
     expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
     expect(resultatCompilation.monde.lieux).toHaveSize(3); // les 3 lieux
@@ -185,7 +183,6 @@ describe('Compilateur V8 − Analyser scénario', () => {
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
 
     expect(resultatCompilation).toBeDefined();
-    console.log("erreurs:", resultatCompilation.erreurs);
 
     expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
     expect(resultatCompilation.monde.lieux).toHaveSize(3); // les 3 lieux

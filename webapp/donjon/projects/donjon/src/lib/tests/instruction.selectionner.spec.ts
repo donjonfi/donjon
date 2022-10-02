@@ -6,7 +6,7 @@ describe('Instructions - Sélectionner', () => {
     const scenario =
       'le salon est un lieu. ' +
       'action tester: ' +
-      '  sélectionner un nombre compris entre 3 et 3; ' +
+      '  sélectionner un nombre compris entre 3 et 3. ' +
       '  dire "[mémoire nombre]". ' +
       'fin action ' +
       '';

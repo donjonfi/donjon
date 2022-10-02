@@ -158,7 +158,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
       'fin action ' +
       '';
 
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, true);
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
     expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
