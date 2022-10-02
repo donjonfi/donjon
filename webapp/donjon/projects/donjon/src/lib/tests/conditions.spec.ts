@@ -72,7 +72,7 @@ describe('Conditions − Décomposer conditions', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('(a ou (b et c)) et d ou (e et f ou (d et c)) ou g et f');
     expect(result).not.toBeNull();
     expect(result.sousConditions).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(3); // 3 sous-conditions
+    expect(result.sousConditions).toHaveSize(3); // 3 sous-conditions
     expect(result.estDebutCondition).toBeTrue();
     expect(result.estFrereCadet).toBeFalse();
 
@@ -126,7 +126,7 @@ describe('Conditions − Décomposer conditions', () => {
   it('Décomposer : « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
     expect(result).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
     expect(result.estDebutCondition).toBeTrue();
     expect(result.estFrereCadet).toBeFalse();
 
@@ -135,13 +135,13 @@ describe('Conditions − Décomposer conditions', () => {
     expect(result.sousConditions[0].estDebutCondition).toBeTrue();
     expect(result.sousConditions[0].estFrereCadet).toBeFalse();
     expect(result.sousConditions[0].conditionBrute).toEqual("le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu");
-    expect(result.sousConditions[0].sousConditions.length).toEqual(3); // 3 sous-conditions
+    expect(result.sousConditions[0].sousConditions).toHaveSize(3); // 3 sous-conditions
     //  ==> le ruban est rouge ou vert
     expect(result.sousConditions[0].sousConditions[0].lien).toEqual(LienCondition.aucun);
     expect(result.sousConditions[0].sousConditions[0].estDebutCondition).toBeTrue();
     expect(result.sousConditions[0].sousConditions[0].estFrereCadet).toBeFalse();
     expect(result.sousConditions[0].sousConditions[0].conditionBrute).toEqual("le ruban est rouge ou vert");
-    expect(result.sousConditions[0].sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].sousConditions[0].sousConditions).toHaveSize(2); // 2 sous-conditions
     //   ===> le ruban est rouge
     expect(result.sousConditions[0].sousConditions[0].sousConditions[0].lien).toEqual(LienCondition.aucun)
     expect(result.sousConditions[0].sousConditions[0].sousConditions[0].estDebutCondition).toBeTrue();
@@ -167,7 +167,7 @@ describe('Conditions − Décomposer conditions', () => {
     expect(result.sousConditions[0].sousConditions[2].estDebutCondition).toBeFalse();
     expect(result.sousConditions[0].sousConditions[2].estFrereCadet).toBeTrue();
     expect(result.sousConditions[0].sousConditions[2].conditionBrute).toEqual("usé ou décousu");
-    expect(result.sousConditions[0].sousConditions[2].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].sousConditions[2].sousConditions).toHaveSize(2); // 2 sous-conditions
 
     //   ===> usé
     expect(result.sousConditions[0].sousConditions[2].sousConditions[0].lien).toEqual(LienCondition.aucun)
@@ -220,7 +220,7 @@ describe('Conditions − Générer condition multi', () => {
     expect(result.condition).toBeNull();
     expect(result.lienFrereAine).toEqual(LienCondition.aucun);
     expect(result.sousConditions).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
     expect(result.typeLienSousConditions).toEqual(LienCondition.et) // et si => et
 
     // => le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu
@@ -229,7 +229,7 @@ describe('Conditions − Générer condition multi', () => {
     expect(result.sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
     expect(result.sousConditions[0].condition).toBeNull();
     expect(result.sousConditions[0].sousConditions).not.toBeNull();
-    expect(result.sousConditions[0].sousConditions.length).toEqual(3); // 3 sous conditions
+    expect(result.sousConditions[0].sousConditions).toHaveSize(3); // 3 sous conditions
     expect(result.sousConditions[0].typeLienSousConditions).toEqual(LienCondition.et) // ainsi que, mais pas => et
 
 
@@ -239,7 +239,7 @@ describe('Conditions − Générer condition multi', () => {
     expect(result.sousConditions[0].sousConditions[0].lienFrereAine).toEqual(LienCondition.aucun);
     expect(result.sousConditions[0].sousConditions[0].condition).toBeNull();
     expect(result.sousConditions[0].sousConditions[0].sousConditions).not.toBeNull();
-    expect(result.sousConditions[0].sousConditions[0].sousConditions.length).toEqual(2); // 2 sous conditions
+    expect(result.sousConditions[0].sousConditions[0].sousConditions).toHaveSize(2); // 2 sous conditions
     expect(result.sousConditions[0].sousConditions[0].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
     //   ===> le ruban est rouge
     expect(result.sousConditions[0].sousConditions[0].sousConditions[0]).not.toBeNull();
@@ -287,7 +287,7 @@ describe('Conditions − Générer condition multi', () => {
     expect(result.sousConditions[0].sousConditions[2].lienFrereAine).toEqual(LienCondition.maisPas);
     expect(result.sousConditions[0].sousConditions[2].condition).toBeNull();
     expect(result.sousConditions[0].sousConditions[2].sousConditions).not.toBeNull();
-    expect(result.sousConditions[0].sousConditions[2].sousConditions.length).toEqual(2); // 2 sous conditions
+    expect(result.sousConditions[0].sousConditions[2].sousConditions).toHaveSize(2); // 2 sous conditions
     expect(result.sousConditions[0].sousConditions[2].typeLienSousConditions).toEqual(LienCondition.ou) // ou => ou
 
     //   ===> usé
@@ -344,7 +344,7 @@ describe('Conditions − Get condition multi', () => {
     expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
     expect(result.condition).toBeNull();
     expect(result.sousConditions).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
     expect(result.typeLienSousConditions).toEqual(LienCondition.soit);
 
     // => (a dépasse b)
@@ -386,13 +386,13 @@ describe('Conditions − Get condition multi', () => {
     expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
     expect(result.condition).toBeNull();
     expect(result.sousConditions).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
 
     // => (x est a) ou (x est b)
     expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
     expect(result.sousConditions[0].condition).toBeNull();
     expect(result.sousConditions[0].sousConditions).not.toBeNull();
-    expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].sousConditions).toHaveSize(2); // 2 sous-conditions
     expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
 
     //  ==> (x est a)
@@ -443,13 +443,13 @@ describe('Conditions − Get condition multi', () => {
     expect(result.nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
     expect(result.condition).toBeNull();
     expect(result.sousConditions).not.toBeNull();
-    expect(result.sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
 
     // => (x possède a) et (x possède b)
     expect(result.sousConditions[0].nbErreurs).toEqual(0); // aucune erreur ne devrait avoir été trouvée
     expect(result.sousConditions[0].condition).toBeNull();
     expect(result.sousConditions[0].sousConditions).not.toBeNull();
-    expect(result.sousConditions[0].sousConditions.length).toEqual(2); // 2 sous-conditions
+    expect(result.sousConditions[0].sousConditions).toHaveSize(2); // 2 sous-conditions
     expect(result.sousConditions[0].lienFrereAine).toBe(LienCondition.aucun);
 
     //  ==> (x possède a)

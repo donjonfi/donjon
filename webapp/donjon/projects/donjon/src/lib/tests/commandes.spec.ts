@@ -1,4 +1,4 @@
-import { ActionsUtils, CompilateurBeta, CompilateurV8, Generateur } from "../../public-api";
+import { ActionsUtils, CompilateurV8, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
@@ -12,15 +12,15 @@ describe('Décomposer des commandes', () => {
   beforeEach(function (this: ThisContext) {
 
     const scenario =
-      'chanter est une action. ' +
-      'aller vers ceci est une action qui concerne un intitulé. ' +
-      'utiliser ceci est une action qui concerne un objet visible. ' +
-      'utiliser ceci sur cela est une action qui concerne deux objets visibles. ' +
-      'ouvrir ceci est une action qui concerne un objet visible. ' +
-      'ouvrir ceci avec cela est une action qui concerne deux objets visibles. ' +
-      'tâcher est une action. ' +
-      'tacher est une action. ' +
-      'pêcher est une action. ' +
+      'action chanter: fin action ' +
+      'action aller vers ceci: définitions: ceci est un intitulé. fin action ' +
+      'action utiliser ceci: définitions: ceci est un objet visible. fin action ' +
+      'action utiliser ceci sur cela : définitions: ceci est un objet visible. cela est un objet visible. fin action ' +
+      'action ouvrir ceci: définitions: ceci est un objet visible. fin action ' +
+      'action ouvrir ceci avec cela : définitions: ceci est un objet visible. cela est un objet visible. fin action ' +
+      'action tâcher: fin action ' +
+      'action tacher: fin action ' +
+      'action pêcher: fin action ' +
       'Le bateau est un lieu. ' +
       'Le capitaine est une personne ici. ' +
       'La clé est un objet ici. ' +
@@ -46,7 +46,7 @@ describe('Décomposer des commandes', () => {
   it('commande « chanter »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('chanter');
     expect(ctxCom.brute).toEqual('chanter');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('chanter');
     // préposition0
@@ -62,7 +62,7 @@ describe('Décomposer des commandes', () => {
   it('commande « aller au nord »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller au nord');
     expect(ctxCom.brute).toEqual('aller au nord');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('aller');
     // préposition0: au
@@ -79,7 +79,7 @@ describe('Décomposer des commandes', () => {
   it('commande « aller dans salle de bain »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller dans salle de bain');
     expect(ctxCom.brute).toEqual('aller dans salle de bain');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     // infinitif: aller
     expect(ctxCom.candidats[0].els.infinitif).toEqual('aller');
     // préposition0
@@ -96,7 +96,7 @@ describe('Décomposer des commandes', () => {
   it('commande « aller salle à manger »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller salle à manger');
     expect(ctxCom.brute).toEqual('aller salle à manger');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('aller');
     // préposition0
@@ -113,7 +113,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé sur le coffre');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('utiliser');
     // pas de préposition0
@@ -132,7 +132,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé sur le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé sur le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé sur le coffre du capitaine');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -168,7 +168,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé avec le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé avec le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé avec le coffre du capitaine');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('utiliser');
@@ -188,7 +188,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé du capitaine sur le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé du capitaine sur le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé du capitaine sur le coffre du capitaine');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('utiliser');
     // préposition0
@@ -206,7 +206,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé du capitaine sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé du capitaine sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé du capitaine sur le coffre');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -240,7 +240,7 @@ describe('Décomposer des commandes', () => {
   it('commande « utiliser la clé de bronze sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé de bronze sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé de bronze sur le coffre');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -274,7 +274,7 @@ describe('Décomposer des commandes', () => {
   it('commande « parler au comte de berlin de la salle de bain »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au comte de berlin de la salle de bain');
     expect(ctxCom.brute).toEqual('parler au comte de berlin de la salle de bain');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('parler');
@@ -294,7 +294,7 @@ describe('Décomposer des commandes', () => {
   it('commande « parler de berlin au comte de berlin »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler de berlin au comte de berlin');
     expect(ctxCom.brute).toEqual('parler de berlin au comte de berlin');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -327,7 +327,7 @@ describe('Décomposer des commandes', () => {
   it('commande « parler au comte de berlin de berlin »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au comte de berlin de berlin');
     expect(ctxCom.brute).toEqual('parler au comte de berlin de berlin');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -360,7 +360,7 @@ describe('Décomposer des commandes', () => {
   it('commande « parler au capitaine du bateau »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au capitaine du bateau');
     expect(ctxCom.brute).toEqual('parler au capitaine du bateau');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -393,7 +393,7 @@ describe('Décomposer des commandes', () => {
   it('commande « parler du bateau au capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler du bateau au capitaine');
     expect(ctxCom.brute).toEqual('parler du bateau au capitaine');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -427,7 +427,7 @@ describe('Décomposer des commandes', () => {
   it('commande « ouvrir boite aux lettres »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('ouvrir boite aux lettres');
     expect(ctxCom.brute).toEqual('ouvrir boite aux lettres');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
     expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
     // infinitif
@@ -460,7 +460,7 @@ describe('Décomposer des commandes', () => {
 
   it('commande « poser une question »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('poser une question');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('poser');
@@ -478,7 +478,7 @@ describe('Décomposer des commandes', () => {
 
   it('commande « commander une pomme rouge »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('commander une pomme rouge');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('commander');
@@ -497,7 +497,7 @@ describe('Décomposer des commandes', () => {
   it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la cerise');
     // la tarte à la cerise n’existe pas
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('offrir');
@@ -517,7 +517,7 @@ describe('Décomposer des commandes', () => {
   it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
     // la tarte à la crème existe
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la crème');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('offrir');
@@ -534,7 +534,7 @@ describe('Décomposer des commandes', () => {
 
   it('commande « mettre la pomme sur la table basse »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('mettre la pomme sur la table basse');
-    expect(ctxCom.candidats.length).toEqual(2);
+    expect(ctxCom.candidats).toHaveSize(2);
 
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('mettre');
@@ -553,21 +553,21 @@ describe('Décomposer des commandes', () => {
 
   it('commande « tacher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('tacher');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('tacher');
   });
 
   it('commande « tâcher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('tâcher');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('tâcher');
   });
 
   it('commande « pêcher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('pêcher');
-    expect(ctxCom.candidats.length).toEqual(1);
+    expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('pêcher');
   });

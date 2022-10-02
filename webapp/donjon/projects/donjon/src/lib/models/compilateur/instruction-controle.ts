@@ -3,7 +3,7 @@ export class InstructionControle {
    * Convertir une chaîne de caractères en EInstructionControle
    */
   public static ParseType(type: string): EInstructionControle | undefined {
-    switch (type) {
+    switch (type.toLocaleLowerCase()) {
 
       case 'si':
         return EInstructionControle.si

@@ -150,15 +150,15 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
       'L’historique est une liste. ' +
       'action tester: ' +
       '  changer l’historique contient "Métro". ' +
-      'fin action '
+      'fin action ' +
       'action vérifier: ' +
       '  si l’historique contient "Métro": ' +
       '    changer le joueur est vérifié. ' +
       '  finsi ' +
-      'fin action'
+      'fin action ' +
       '';
 
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, true);
 
     expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
@@ -183,7 +183,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
       'L’historique est une liste. ' +
       'action tester: ' +
       '  changer l’historique contient "métro". ' +
-      'fin action '
+      'fin action ' +
       'La description du métro est "[si l’historique contient "métro"]métro trouvé[sinon]Pas de métro[finsi]". ' +
       '';
 
@@ -213,7 +213,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
       'L’historique est une liste. ' +
       'action tester: ' +
       '  changer l’historique contient "Métro". ' +
-      'fin action '
+      'fin action ' +
       'La description du métro est "[si l’historique contient "Métro"]Métro trouvé[sinon]Pas de Métro[finsi]". ' +
       '';
 

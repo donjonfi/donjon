@@ -1,13 +1,10 @@
 import {
   AnalyseurV8Definitions,
-  CompilateurBeta,
-  CompilateurV8,
   CompilateurV8Utils,
   EClasseRacine,
   ElementGenerique
 } from "../../public-api";
 
-import { CompilateurCommunUtils } from "../utils/compilation/compilateur-commun-utils";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";

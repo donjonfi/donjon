@@ -1,6 +1,3 @@
-import { CompilateurBeta, Generateur } from "../../public-api";
-
-import { ContextePartie } from "../models/jouer/contexte-partie";
 import { TestUtils } from "../utils/test-utils";
 
 describe('Conditions: si/sinonsi/sinon durant le jeu', () => {

@@ -987,9 +987,9 @@ export class ExprReg {
   static readonly xDebutInstructionControle = /^(si|choisir)\b/i;
 
   /**
-   * fin si|choisir(1)
+   * (fin si|fin choisir|finsi|finchoisir)(1)
    */
-  static readonly xFinInstructionControle = /^fin (si|choisir)$/i;
+  static readonly xFinInstructionControle = /^fin(?: )?(si|choisir)$/i;
 
   /** 
    * fin xxxxxxx(1)

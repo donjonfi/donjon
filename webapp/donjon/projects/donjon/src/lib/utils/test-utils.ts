@@ -1,6 +1,5 @@
 import { CompilateurV8, Jeu } from "../../public-api";
 
-import { CompilateurBeta } from "./compilation/compilateur-beta";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { Generateur } from "./compilation/generateur";
 

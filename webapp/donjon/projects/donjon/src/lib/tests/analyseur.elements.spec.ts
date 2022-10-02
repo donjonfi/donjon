@@ -3,8 +3,6 @@ import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyse
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";
 import { AnalyseurV8Definitions } from "../utils/compilation/analyseur/analyseur-v8.definitions";
-import { CompilateurBeta } from "../utils/compilation/compilateur-beta";
-import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { EClasseRacine } from "../models/commun/constantes";
@@ -549,7 +547,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   it('Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
-    let ctxAnalyse = new ContexteAnalyseV8();
+    let ctxAnalyse = new ContexteAnalyseV8(true);
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord de le village."
     );
@@ -560,7 +558,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     // tester l’analyse spécifique
     const resultat = AnalyseurElementPosition.testerElementAvecPosition(phrases[0], ctxAnalyse);
     expect(resultat).toBeFalsy(); // résultat PAS trouvé.
-    expect(ctxAnalyse.messages).toHaveSize(1); // aucune erreur
+    expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
   });
 
 

@@ -77,14 +77,14 @@ export class Verificateur {
     const fermetureRoutine = ExprReg.xFinRoutine.exec(phrase.morceaux[0])
     // fermeture d’une routine (règle, action, réaction, …)
     if (fermetureRoutine) {
-      const typeBloc = Routine.ParseType(fermetureRoutine[1]);
+      const typeRoutine = Routine.ParseType(fermetureRoutine[1]);
       // si on ferme le type routine actuellement ouverte
-      if (ctx.derniereRoutine?.type === typeBloc) {
+      if (ctx.derniereRoutine?.type === typeRoutine) {
         // fermer la routine normalement
         this.fermerRoutine(phrase.ligne, ctx);
         // sinon le fin routine n'est pas prévu
       } else {
-        ctx.ajouterErreur(phrase.ligne, "Le fin " + typeBloc + 'n’est pas attendu ici.');
+        ctx.ajouterErreur(phrase.ligne, "Le fin " + Routine.TypeToNom(typeRoutine) + ' n’est pas attendu ici.');
       }
       return true;
     } else {

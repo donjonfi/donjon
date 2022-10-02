@@ -29,7 +29,7 @@ export class Routine extends BlocInstructions {
    * Convertir une chaîne de caractères en ERoutine
    */
   public static ParseType(type: string): ERoutine | undefined {
-    switch (type) {
+    switch (type.toLocaleLowerCase()) {
 
       case 'routine':
         return ERoutine.simple

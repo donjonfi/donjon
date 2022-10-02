@@ -14,12 +14,12 @@ describe('Compilateur V8 − Analyser scénario', () => {
       ;
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
     expect(resultatCompilation).toBeDefined();
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(3); // les 3 lieux
-    expect(resultatCompilation.monde.objets.length).toEqual(2); // le joueur + l’alligator
-    expect(resultatCompilation.regles.length).toEqual(0); // aucune règle
-    expect(resultatCompilation.actions.length).toEqual(0); // aucune action
-    expect(resultatCompilation.listes.length).toEqual(1); // liste historique
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(3); // les 3 lieux
+    expect(resultatCompilation.monde.objets).toHaveSize(2); // le joueur + l’alligator
+    expect(resultatCompilation.regles).toHaveSize(0); // aucune règle
+    expect(resultatCompilation.actions).toHaveSize(1); // 1 action
+    expect(resultatCompilation.listes).toHaveSize(1); // liste historique
 
   });
 
@@ -35,13 +35,13 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
 
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(1); //
-    expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
-    expect(resultatCompilation.regles.length).toEqual(0);
-    expect(resultatCompilation.routinesSimples.length).toEqual(1);
-    expect(resultatCompilation.actions.length).toEqual(0);
-    expect(resultatCompilation.listes.length).toEqual(0);
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(1); //
+    expect(resultatCompilation.monde.objets).toHaveSize(3); // le joueur + les autres objets
+    expect(resultatCompilation.regles).toHaveSize(0);
+    expect(resultatCompilation.routinesSimples).toHaveSize(1);
+    expect(resultatCompilation.actions).toHaveSize(0);
+    expect(resultatCompilation.listes).toHaveSize(0);
   });
 
 
@@ -82,13 +82,13 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario);
 
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(1); //
-    expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
-    expect(resultatCompilation.regles.length).toEqual(1);
-    expect(resultatCompilation.routinesSimples.length).toEqual(0);
-    expect(resultatCompilation.actions.length).toEqual(0);
-    expect(resultatCompilation.listes.length).toEqual(0);
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(1); //
+    expect(resultatCompilation.monde.objets).toHaveSize(3); // le joueur + les autres objets
+    expect(resultatCompilation.regles).toHaveSize(1);
+    expect(resultatCompilation.routinesSimples).toHaveSize(0);
+    expect(resultatCompilation.actions).toHaveSize(0);
+    expect(resultatCompilation.listes).toHaveSize(0);
   });
 
 
@@ -107,12 +107,12 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation.messages).toHaveSize(1); // erreur
     const message = resultatCompilation.messages[0];
     expect(message.code).toBe(CodeMessage.finRoutineDifferent);
-    expect(resultatCompilation.monde.lieux.length).toEqual(1); //
-    expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
-    expect(resultatCompilation.regles.length).toEqual(1);
-    expect(resultatCompilation.routinesSimples.length).toEqual(0);
-    expect(resultatCompilation.actions.length).toEqual(0);
-    expect(resultatCompilation.listes.length).toEqual(0);
+    expect(resultatCompilation.monde.lieux).toHaveSize(1); //
+    expect(resultatCompilation.monde.objets).toHaveSize(3); // le joueur + les autres objets
+    expect(resultatCompilation.regles).toHaveSize(1);
+    expect(resultatCompilation.routinesSimples).toHaveSize(0);
+    expect(resultatCompilation.actions).toHaveSize(0);
+    expect(resultatCompilation.listes).toHaveSize(0);
   });
 
   it('Analyser scénario avec 1 lieu, 2 objets, 1 routine et 1 règle.', function () {
@@ -134,13 +134,13 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation).toBeDefined();
     console.log("erreurs:", resultatCompilation.erreurs);
 
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(1); //
-    expect(resultatCompilation.monde.objets.length).toEqual(3); // le joueur + les autres objets
-    expect(resultatCompilation.regles.length).toEqual(1);
-    expect(resultatCompilation.routinesSimples.length).toEqual(1);
-    expect(resultatCompilation.actions.length).toEqual(0);
-    expect(resultatCompilation.listes.length).toEqual(0);
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(1); //
+    expect(resultatCompilation.monde.objets).toHaveSize(3); // le joueur + les autres objets
+    expect(resultatCompilation.regles).toHaveSize(1);
+    expect(resultatCompilation.routinesSimples).toHaveSize(1);
+    expect(resultatCompilation.actions).toHaveSize(0);
+    expect(resultatCompilation.listes).toHaveSize(0);
   });
 
   it('Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
@@ -159,12 +159,12 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation).toBeDefined();
     console.log("erreurs:", resultatCompilation.erreurs);
 
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(3); // les 3 lieux
-    expect(resultatCompilation.monde.objets.length).toEqual(2); // le joueur + l’alligator
-    expect(resultatCompilation.actions.length).toEqual(1); // action sauter
-    expect(resultatCompilation.regles.length).toEqual(0); // aucune règle
-    expect(resultatCompilation.listes.length).toEqual(1); // liste historique
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(3); // les 3 lieux
+    expect(resultatCompilation.monde.objets).toHaveSize(2); // le joueur + l’alligator
+    expect(resultatCompilation.actions).toHaveSize(1); // action sauter
+    expect(resultatCompilation.regles).toHaveSize(0); // aucune règle
+    expect(resultatCompilation.listes).toHaveSize(1); // liste historique
 
   });
 
@@ -179,7 +179,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
       'fin action ' +
       'règle avant sauter: ' +
       '  dire "Vous allez sauter". ' +
-      'fin action ' +
+      'fin règle ' +
       'L’historique est une liste. '
       ;
     const resultatCompilation = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -187,12 +187,12 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation).toBeDefined();
     console.log("erreurs:", resultatCompilation.erreurs);
 
-    expect(resultatCompilation.erreurs.length).toEqual(0); // aucune erreur
-    expect(resultatCompilation.monde.lieux.length).toEqual(3); // les 3 lieux
-    expect(resultatCompilation.monde.objets.length).toEqual(2); // le joueur + l’alligator
-    expect(resultatCompilation.actions.length).toEqual(1); // action sauter
-    expect(resultatCompilation.regles.length).toEqual(0); // règle avant sauter
-    expect(resultatCompilation.listes.length).toEqual(1); // liste historique
+    expect(resultatCompilation.messages).toHaveSize(0); // aucune erreur
+    expect(resultatCompilation.monde.lieux).toHaveSize(3); // les 3 lieux
+    expect(resultatCompilation.monde.objets).toHaveSize(2); // joueur + l’alligator
+    expect(resultatCompilation.actions).toHaveSize(1); // action sauter
+    expect(resultatCompilation.regles).toHaveSize(1); // règle avant sauter
+    expect(resultatCompilation.listes).toHaveSize(1); // liste historique
 
   });
 

@@ -272,7 +272,7 @@ describe('Traiter les compléments d’une action', () => {
       '\n' +
       '';
 
-    const res = CompilateurV8.analyserScenarioSeul(scenario, true);
+    const res = CompilateurV8.analyserScenarioSeul(scenario);
     // vérifier si on a bien créé l’action
     expect(res.messages).toHaveSize(0);
     expect(res.actions).toHaveSize(1);
