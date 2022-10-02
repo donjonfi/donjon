@@ -294,8 +294,12 @@ export class ActionsUtils {
       if (commandeCeci.nbCor === 0) {
         retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
       } else {
-        // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
-        retVal = "Cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        if (argumentUnique) {
+          // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
+          retVal = "Cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        } else {
+          retVal = "cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
       }
     }
 

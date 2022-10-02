@@ -273,21 +273,23 @@ export class AnalyseurV8Routines {
     // si l’étiquette a bien été retrouvée (devrait toujours être le cas…)
     if (enteteAction !== undefined) {
       ctx.logResultatOk(`entête action: ${enteteAction}`)
+
+      // i. CECI/CELA
       // décomposer l’entête de l’action
-      let enteteDecompose = ExprReg.xRoutineActionEnteteCeciCela.exec(enteteAction);
-      if (enteteDecompose) {
-        const infinitif = enteteDecompose[1];
-        const isCeci = enteteDecompose[3] ? true : false;
-        const isCela = enteteDecompose[5] ? true : false;
+      let enteteDecomposeCeciCela = ExprReg.xRoutineActionEnteteCeciCela.exec(enteteAction);
+      if (enteteDecomposeCeciCela) {
+        const infinitif = enteteDecomposeCeciCela[1];
+        const isCeci = enteteDecomposeCeciCela[3] ? true : false;
+        const isCela = enteteDecomposeCeciCela[5] ? true : false;
         // éviter que l’auteur s’emmêle les pinceaux entre ceci et cela.
-        if (enteteDecompose[3] == 'cela') {
+        if (enteteDecomposeCeciCela[3]?.toLocaleLowerCase() == 'cela') {
           ctx.probleme(phraseAnalysee, routine,
             CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
             'complément direct nommé cela',
             `action « ${infinitif} »: utilisation de {@cela@} au lieu de {@ceci@}: le complément direct doit toujours être nommé {@ceci@}, le complément indirect sera nommé {@cela@}. Exemple: {@action ouvrir ceci avec cela@}.`,
           );
         }
-        if (enteteDecompose[5] == 'ceci') {
+        if (enteteDecomposeCeciCela[5]?.toLocaleLowerCase() == 'ceci') {
           ctx.probleme(phraseAnalysee, routine,
             CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
             'complément indirect nommé ceci',
@@ -297,21 +299,88 @@ export class AnalyseurV8Routines {
         let prepositionCeci: string | undefined;
         let prepositionCela: string | undefined;
         if (isCeci) {
-          prepositionCeci = enteteDecompose[2] ?? undefined;
+          prepositionCeci = enteteDecomposeCeciCela[2] ?? undefined;
           if (isCela) {
-            prepositionCela = enteteDecompose[4] ?? undefined;
+            prepositionCela = enteteDecomposeCeciCela[4] ?? undefined;
           }
         }
         // création de l’action
         routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
       } else {
-        ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeAction, CodeMessage.actionIntrouvable,
-          "action pas comprise",
-          `L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : {@action ouvrir ceci avec cela: @}`,
-        );
-        // on crée une action « bidon » afin de tout de même analyser la suite des phrases de la routine.
-        routine = new RoutineAction("(sans entête)", undefined, false, undefined, false, phraseAnalysee.ligne);
+        // ii. COMPLÉMENT DIRECT, COMPLÉMENT INDIRECT
+        let enteteDecomposeCommande = ExprReg.xCommandeInfinitif.exec(enteteAction);
+        if (enteteDecomposeCommande) {
+
+          const infinitif = enteteDecomposeCommande[1];
+          const isCeci = enteteDecomposeCommande[4] ? true : false;
+          const isCela = enteteDecomposeCommande[9] ? true : false;
+          const prepositionCeci = enteteDecomposeCommande[2] ?? undefined;
+          const prepositionCela = enteteDecomposeCommande[7] ?? undefined;
+
+          // création de l’action
+          routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
+
+          if (isCeci) {
+            const determinantCeci = enteteDecomposeCommande[3] ?? undefined;
+            const nomCeci = enteteDecomposeCommande[4];
+            const epitheteCeci = enteteDecomposeCommande[5] ?? undefined;
+            // j. COMPLÉMENT DIRECT CECI
+            if (nomCeci.toLocaleLowerCase() == 'ceci') {
+              // (C’est la valeur par défaut, rien à préciser ici.)
+              // jj. COMPLÉMENT DIRECT CELA à la place de CECI
+            } else if (nomCeci.toLocaleLowerCase() == 'cela') {
+              // (C’est la valeur par défaut, rien à préciser ici.)
+              // éviter que l’auteur s’emmêle les pinceaux entre ceci et cela.
+              ctx.probleme(phraseAnalysee, routine,
+                CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
+                'complément direct nommé cela',
+                `action « ${infinitif} »: utilisation de {@cela@} au lieu de {@ceci@}: le complément direct doit toujours être nommé {@ceci@}, le complément indirect sera nommé {@cela@}. Exemple: {@action ouvrir ceci avec la clé@}.`,
+              );
+              // jjj. COMPLÉMENT DIRECT SPÉCIFIQUE
+            } else {
+              const cibleCeci = new CibleAction(determinantCeci, nomCeci, epitheteCeci);
+              routine.action.cibleCeci = cibleCeci;
+            }
+
+            if (isCela) {
+              const determinantCela = enteteDecomposeCommande[8] ?? undefined;
+              const nomCela = enteteDecomposeCommande[9];
+              const epitheteCela = enteteDecomposeCommande[10] ?? undefined;
+
+              // k. COMPLÉMENT INDIRECT CELA
+              if (nomCela.toLocaleLowerCase() == 'cela') {
+                // (C’est la valeur par défaut, rien à préciser ici.)
+                // kk. COMPLÉMENT INDIRECT CECI à la place de CELAf
+              } else if (nomCela.toLocaleLowerCase() == 'ceci') {
+                // (C’est la valeur par défaut, rien à préciser ici.)
+                // éviter que l’auteur s’emmêle les pinceaux entre ceci et cela.
+                ctx.probleme(phraseAnalysee, routine,
+                  CategorieMessage.syntaxeAction, CodeMessage.nommageComplementsAction,
+                  'complément indirect nommé ceci',
+                  `action « ${infinitif} »: utilisation de {@ceci@} au lieu de {@cela@}: le complément indirect doit toujours être nommé {@cela@}, le complément direct sera nommé {@ceci@}. Exemple: {@action ouvrir la porte avec cela@}.`,
+                );
+                // kkk. COMPLÉMENT DIRECT SPÉCIFIQUE
+              } else {
+                const cibleCela = new CibleAction(determinantCela, nomCela, epitheteCela);
+                routine.action.cibleCela = cibleCela;
+                }
+            }
+          } else {
+            ctx.probleme(phraseAnalysee, routine,
+              CategorieMessage.syntaxeAction, CodeMessage.actionIntrouvable,
+              "action pas comprise",
+              `L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : {@action ouvrir ceci avec la clé: @}`,
+            );
+          }
+        } else {
+          ctx.probleme(phraseAnalysee, routine,
+            CategorieMessage.syntaxeAction, CodeMessage.actionIntrouvable,
+            "action pas comprise",
+            `L’entête de l’action n’a pas pu être décomposé. Voici un exemple d’entête valide : {@action ouvrir ceci avec cela: @}`,
+          );
+          // on crée une action « bidon » afin de tout de même analyser la suite des phrases de la routine.
+          routine = new RoutineAction("(sans entête)", undefined, false, undefined, false, phraseAnalysee.ligne);
+        }
       }
 
       // B. CORPS et PIED
@@ -494,7 +563,7 @@ export class AnalyseurV8Routines {
         const listeSujets = [new GroupeNominal(null, "aucun", "sujet")];
         reactionActuelle = new RoutineReaction(listeSujets, phraseAnalysee.ligne);
         interlocuteur.reactions.push(reactionActuelle);
-      // passer à la phrase suivante
+        // passer à la phrase suivante
         ctx.indexProchainePhrase++;
         continue;
       }
