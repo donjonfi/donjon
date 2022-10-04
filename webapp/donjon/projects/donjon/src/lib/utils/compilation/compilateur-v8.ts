@@ -8,7 +8,7 @@ import { Statisticien } from "../jeu/statisticien";
 
 /**
  * Il s’agit du deuxième compilateur Donjon FI.
- * Il est utilisé depuis la version 1.0 de Donjon FI.
+ * Il est utilisé depuis la version 2.0 de Donjon FI.
  */
 export class CompilateurV8 {
 
@@ -82,6 +82,7 @@ export class CompilateurV8 {
 
   /**
    * Interpréter le code source fourni et ajouter le résultat à l’analyse fournie.
+   * Cette méthode est utilisée en interne ou bien à des fins de tests unitaires.
    * @param source Instructions à interpréter.
    * @param contexteAnalyse Analyse existante à compléter.
    * @param fichierActions S’agit-il du fichier contenant les actions de base ?
@@ -96,7 +97,6 @@ export class CompilateurV8 {
     // ANALYSER LES PHRASES
     // ********************************
     AnalyseurV8.analyserPhrases(phrases, contexteAnalyse, fichierActions);
-
   }
 
 }

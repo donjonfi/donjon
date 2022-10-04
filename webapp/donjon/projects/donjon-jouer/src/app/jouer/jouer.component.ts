@@ -1,11 +1,12 @@
 import * as FileSaver from 'file-saver';
 
-import { Compilateur, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from '@donjon/core';
+import { CompilateurV8, CompilateurV8Utils, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from '@donjon/core';
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-jouer',
@@ -62,9 +63,6 @@ export class JouerComponent implements OnInit {
         .subscribe({
           next: scenario => {
             this.chargement = false;
-            // this.scenario = scenario;
-            // // enlever les commentaires afin de réduire un peu la taille du fichier
-            // this.scenario = Compilateur.nettoyerCodeSource(this.scenario);
             this.analyserContenuFichierJeu(scenario);
           },
           error: erreur => {
@@ -108,48 +106,47 @@ export class JouerComponent implements OnInit {
     this.erreurs = [];
     if (contenuFichier.trim() !== '') {
 
-      // sauvegarde => scénario + commandes + graine
-      if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
-        var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
+      // vérifier si on a déjà le fichier actions.djn
+      this.chargerActions(false).then(actions => {
 
-        // enlever les commentaires afin de réduire un peu la taille du fichier
-        this.scenario = Compilateur.nettoyerCodeSource(sauvegarde.scenario);
+        // A. sauvegarde => scénario + commandes + graine
+        if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
+          var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
 
-        // Analyser le scénario et générer le jeu
-        Compilateur.analyserScenario(this.scenario, false, this.http).then(
-          resultatCompilation => {
-            // générer le jeu
-            let jeu = Generateur.genererJeu(resultatCompilation);
-            // informer si sauvegarde faite avec version plus récente de Donjon FI.
-            if (sauvegarde.version > versionNum) {
-              jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
-            }
-            // rétablir la graine pour le générateur aléatoire
-            jeu.graine = sauvegarde.graine;
-            // exécuter les commandes de la sauvegarde
-            jeu.sauvegarde = sauvegarde.commandes;
-            // lancer le jeu
-            this.jeu = jeu;
+          // enlever les commentaires afin de réduire un peu la taille du fichier
+          this.scenario = CompilateurV8Utils.retirerCommentaires(sauvegarde.scenario);
+
+          // Analyser le scénario et générer le jeu
+          const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
+
+          // générer le jeu
+          let jeu = Generateur.genererJeu(resultatCompilation);
+          // informer si sauvegarde faite avec version plus récente de Donjon FI.
+          if (sauvegarde.version > versionNum) {
+            jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
           }
-        );
+          // rétablir la graine pour le générateur aléatoire
+          jeu.graine = sauvegarde.graine;
+          // exécuter les commandes de la sauvegarde
+          jeu.sauvegarde = sauvegarde.commandes;
+          // lancer le jeu
+          this.jeu = jeu;
 
-        // scénario seul
-      } else {
+          // B. Scénario seul
+        } else {
+          // enlever les commentaires afin de réduire un peu la taille du fichier
+          this.scenario = CompilateurV8Utils.retirerCommentaires(contenuFichier);
+          // Analyser le scénario et générer le jeu
+          const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
+          // générer et lancer le jeu
+          this.jeu = Generateur.genererJeu(resultatCompilation);
+        }
+      });
 
-        // enlever les commentaires afin de réduire un peu la taille du fichier
-        this.scenario = Compilateur.nettoyerCodeSource(contenuFichier);
-
-        // Analyser le scénario et générer le jeu
-        Compilateur.analyserScenario(this.scenario, false, this.http).then(
-          resComp => {
-            // générer le jeu
-            this.jeu = Generateur.genererJeu(resComp);
-          }
-        );
-      }
     } else {
       this.erreurs = ["Pas de code source dans le fichier."];
     }
+
     this.compilation = false;
   }
 
@@ -177,17 +174,36 @@ export class JouerComponent implements OnInit {
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
   onNouvellePartie() {
-    // Analyser le scénario et générer le jeu
-    Compilateur.analyserScenario(this.scenario, false, this.http).then(
-      resComp => {
-        // générer le jeu
-        this.jeu = Generateur.genererJeu(resComp);
-      }
-    );
+    this.erreurs = [];
+    // vérifier si on a déjà le fichier actions.djn
+    this.chargerActions(false).then(actions => {
+      // Analyser le scénario et les actions
+      const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
+      // générer et lancer le jeu
+      this.jeu = Generateur.genererJeu(resultatCompilation);
+    });
   }
 
   get version() {
     return version;
+  }
+
+  /** Charger le fichier contenant les actions de base. */
+  public async chargerActions(forcerMaj: boolean): Promise<string | null> {
+    let sourceActions: string | null = sessionStorage.getItem("actions");
+    if (!sourceActions || forcerMaj) {
+      try {
+        // this.chargementActionsEnCours = true;
+        sourceActions = await lastValueFrom(this.http.get('assets/modeles/actions.djn', { responseType: 'text' }));
+        sessionStorage.setItem('actions', sourceActions);
+        sessionStorage.setItem('actionsPersonnalisees', '0');
+      } catch (error) {
+        console.error("Fichier « assets/modeles/actions.djn » pas trouvé. Actions de base pas importées.");
+        this.erreurs.push("Fichier « assets/modeles/actions.djn » pas trouvé. Actions de base pas importées.");
+      } finally {
+      }
+    }
+    return sourceActions;
   }
 
 
