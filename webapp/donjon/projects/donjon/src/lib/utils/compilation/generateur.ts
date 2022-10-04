@@ -458,6 +458,12 @@ export class Generateur {
       jeu.actions.push(action);
     });
 
+    // GÉNÉRER LES ROUTINES
+    // ********************
+    rc.routinesSimples.forEach(routineSimple =>{
+      jeu.routines.push(routineSimple);
+    });
+
     // GÉNÉRER LES COMPTEURS
     // *********************
     rc.compteurs.forEach(cpt => {

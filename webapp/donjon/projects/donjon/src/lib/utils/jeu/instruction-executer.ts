@@ -225,7 +225,8 @@ export class InstructionExecuter {
     if (tokens) {
       const nomRoutine = tokens[1];
       const routineTrouvee = this.jeu.routines.filter(x => x.nom == nomRoutine);
-      if (routineTrouvee) {
+      if (routineTrouvee?.length) {
+        res = this.ins.executerInstructions(routineTrouvee[0].instructions, undefined, undefined, undefined);
       } else {
         contexteTour.ajouterErreurInstruction(instruction, `La routine simple n’a pas été trouvée: ${instruction.complement1}`);
         res.succes = false;  

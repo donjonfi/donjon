@@ -172,6 +172,9 @@ export class CompilateurCommunUtils {
       console.log("ctx.monde:", ctx.monde);
       console.log("règles:", ctx.analyse.regles);
       console.log("actions:", ctx.analyse.actions);
+      if (ctx instanceof ContexteCompilationV8) {
+        console.log("routines simples:", ctx.analyse.routinesSimples);
+      }
       console.log("abréviations:", ctx.analyse.abreviations);
       console.log("compteurs:", ctx.compteurs);
       console.log("listes:", ctx.listes);
