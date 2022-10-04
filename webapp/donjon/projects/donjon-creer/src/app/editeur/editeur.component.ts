@@ -53,6 +53,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Afficher les préférences ou non */
   afficherPreferences = false;
+
+  /** Afficher convertisseur V1 => V2 ou non */
+  afficherConvertisseur = false;
+
   /** Afficher les sections ou non */
   afficherSections = false;
 
@@ -94,7 +98,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   monde: Monde = null;
   regles: Regle[] = null;
-  routinesSimples : RoutineSimple[] = null;
+  routinesSimples: RoutineSimple[] = null;
   actions: Action[] = null;
   compteurs: ElementGenerique[] = null;
   listes: ElementGenerique[] = null;
@@ -144,16 +148,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Fichier d'exemple par défaut. */
   nomExemple = "coince";
 
-
   /** L’application est-elle incluse dans Electron ou dans un navigateur classique ? */
   electronActif = false;
-
-  private problemeChargementFichierActions: boolean | undefined;
 
   @ViewChild('editeurTabs', { static: false }) editeurTabs: TabsetComponent;
   focusOutEnCours = false;
   compilationEnCours = false;
   compilationTerminee = false;
+
+  private problemeChargementFichierActions: boolean | undefined;
   chargementActionsEnCours = false;
 
   constructor(
@@ -347,23 +350,23 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
 
       // vérifier si on a déjà le fichier actions.djn
-      const sourceActions = this.chargerActions(false).then(actions => {
+      this.chargerActions(false).then(actions => {
 
         // interpréter le code
-        const resComp = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
-        this.monde = resComp.monde;
-        this.regles = resComp.regles;
-        this.routinesSimples = resComp.routinesSimples;
-        this.compteurs = resComp.compteurs;
-        this.listes = resComp.listes;
-        this.actions = resComp.actions.sort((a: Action, b: Action) => (
+        const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
+        this.monde = resultatCompilation.monde;
+        this.regles = resultatCompilation.regles;
+        this.routinesSimples = resultatCompilation.routinesSimples;
+        this.compteurs = resultatCompilation.compteurs;
+        this.listes = resultatCompilation.listes;
+        this.actions = resultatCompilation.actions.sort((a: Action, b: Action) => (
           (a.infinitif === b.infinitif ? (a.ceci === b.ceci ? (a.cela === b.cela ? 0 : (a.cela ? 1 : -1)) : (a.ceci ? 1 : -1)) : (a.infinitif > b.infinitif ? 1 : -1))
         ));
-        this.aides = resComp.aides;
-        this.erreurs = resComp.erreurs;
-        this.messages = resComp.messages;
+        this.aides = resultatCompilation.aides;
+        this.erreurs = resultatCompilation.erreurs;
+        this.messages = resultatCompilation.messages;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(resComp);
+        this.jeu = Generateur.genererJeu(resultatCompilation);
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -1052,6 +1055,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     this.chargerActions(true);
   }
 
+  /** Charger le fichier contenant les actions de base. */
   public async chargerActions(forcerMaj: boolean): Promise<string | null> {
     let sourceActions: string | null = sessionStorage.getItem("actions");
     if (!sourceActions || forcerMaj) {
@@ -1095,9 +1099,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
       } else {
         retVal = "Inconnue";
       }
-      if(actionsPersonnalisees === '1'){
+      if (actionsPersonnalisees === '1') {
         retVal += " (fichier personnalisé)";
-      }else{
+      } else {
         retVal += " (fichier original)";
       }
     } else {
@@ -1134,6 +1138,41 @@ export class EditeurComponent implements OnInit, OnDestroy {
   onChangerAfficherPreferences(): void {
     this.afficherPreferences = !this.afficherPreferences;
     this.majTailleAce();
+  }
+
+  onChangerAfficherConvertisseur(): void {
+    this.afficherConvertisseur = !this.afficherConvertisseur;
+    this.majTailleAce();
+  }
+
+  onConversionEtape1() {
+    console.log("Ça marche!");
+    console.log("\nAVANT:\n", this.sectionCodeSourceVisible );
+    
+    // règles
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)((?:avant |après )(?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1règle $2\n$1fin règle');
+    // actions rapides
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)(?:Le joueur peut )((?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1action $2\n$1fin action');
+    // points virgules
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/(;)$/gm, '.');
+    console.log("\nAPRÈS:\n", this.sectionCodeSourceVisible );
+  }
+
+  onConversionEtape2() {
+    console.log("Ça marche!");
+    console.log("\nAVANT:\n", this.sectionCodeSourceVisible );
+
+    // sa réaction concernant abc est …
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est\s*"/igm, '$1  concernant $2:\n$1    dire "');
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:(?:\n)*((?: |\t)*)"/igm, '$1  concernant $2:\n$1    dire "');
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:/igm, '$1  concernant $2:');
+    // sa réaction est …
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est\s*"/igm, '$1  basique:\n$1    dire "');
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est *:(?:\n)*((?: |\t)*)"/igm, '$1  basique:\n$1    dire "');
+    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est *:/igm, '$1  basique:');
+
+    console.log("\nAPRÈS:\n", this.sectionCodeSourceVisible );
+
   }
 
   /** Changer correction auto de « sinon si » en « sinonsi ». */

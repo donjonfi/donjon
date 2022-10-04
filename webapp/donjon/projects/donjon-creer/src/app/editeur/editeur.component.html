@@ -103,6 +103,13 @@
               <i class="fas fa-fw fa-sliders-h fa-lg"></i>
             </button>
 
+            <!-- conversion -->
+            <br>
+            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherConvertisseur()" tooltip="V1 => V2"
+              placement="right" title="Convertir votre scénario V1 vers V2">
+              <i class="fas fa-fw fa-rotate fa-lg"></i>
+            </button>
+
             <!-- sections -->
             <br>
             <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
@@ -211,6 +218,44 @@
                       </div>
                     </div>
                   </div>
+
+                </ng-container>
+
+                <ng-container *ngIf="afficherConvertisseur">
+
+                  <h5 class="mt-3">Conversion Donjon V1 → V2</h5>
+                  <p>Cet outil vous aide à adapter vos anciens scénarios Donjon (de la version 0.4xx vers la version 2.0)
+                    <br><b>Important :</b> Pensez à prévoir au préalable une sauvegarde de votre scénario au cas où.
+                  </p>
+                  <div class="row">
+                    <div class="col-5">
+                      <h6>Étape 1 (automatique)</h6>
+                      Cette étape adapte automatiquement les éléments suivants:
+                        <ul>
+                          <li>Format des <b>règles avant/après</b></li>
+                          <li>Format des <b>actions simples</b> (celles qui commencent par « <code>le joueur peut …</code> »)</li>
+                          <li><b>Points virgules</b> en fin de ligne remplacés par des points.</li>
+                        </ul>
+                    </div>
+
+                    <div class= "col-7">
+                      <h6>Étape 2 (semi-automatique)</h6>
+                      <ul>
+                        <li>Cette étape adapte au nouveau format certaines des <b>réactions</b> des personnes néammoins une partie manuelle reste à faire.</li>
+                        <li>Seules les phrases commençant par « <code>sa réaction est</code> » et « <code>sa réaction concernant (sujet) est</code> » seront modifiées. Il faudra encore entourer les réactions des balises « <code>réactions de (personne):</code> » (…) « <code>fin réactions</code> ».)</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class= "col-5">
+                      <button class="btn btn-primary ms-1" (click)="onConversionEtape1()"><i class="fas fa-rotate me-2"></i>Appliquer étape 1</button>
+                    </div>
+                    <div class= "col-7">
+                      <button class="btn btn-primary ms-1" (click)="onConversionEtape2()"><i class="fas fa-rotate me-2"></i>Appliquer étape 2</button>
+                    </div>
+                  </div>
+
                 </ng-container>
 
                 <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
@@ -276,7 +321,6 @@
                   </textarea>
                 </div>
               </ng-container>
-
             </div>
           </div>
 
