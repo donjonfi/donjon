@@ -89,9 +89,7 @@ export class Commandeur {
         this.jeu.tamponErreurs.push("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
       }
       // débogueur: changer le monde (uniquement si le débogueur est actif)
-      // } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider) /) && this.debogueurActif) {
-    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /)) {
-
+    } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /) && this.debogueurActif) {
       let instructionDecomposee = AnalyseurCommunUtils.decomposerInstructionSimple(commande.slice('déboguer'.length).trim());
 
       // instruction simple a été trouvée

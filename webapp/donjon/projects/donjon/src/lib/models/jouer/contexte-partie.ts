@@ -28,7 +28,7 @@ export class ContextePartie {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.ins = new Instructions(this.jeu, this.eju, this.document, this.verbeux);
     this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
-    this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux);
+    this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux, this.debogueur);
     // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
     this.ins.commandeur = this.com;
 
