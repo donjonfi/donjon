@@ -177,13 +177,12 @@
                     </div>
                   </div>
 
-                  <div *ngIf="false" class="row mb-1">
+                  <div class="row mb-1">
                     <div class="col-12">
                       <div class="form-check">
                         <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint"
                           (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
-                        <label class="form-check-label" for="ckCorrigerPoint">Essayer de corriger les « . » et « ; »
-                          manquants.</label>
+                        <label class="form-check-label" for="ckCorrigerPoint">Corriger automatiquement les « ; » en « . » en fin de ligne.</label>
                       </div>
                     </div>
                   </div>

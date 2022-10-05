@@ -333,9 +333,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
         }
       }
 
-      // essayer de corriger les « . » et « ; » manquants
+      // remplacer les ";" en fin de ligne par des "."
       if (this.corrigerPoint) {
-        // TODO: essayer de corriger les points manqants.
+        this.codeSource = this.codeSource.replace(/(;)$/gm, '.');
+        if (this.sectionMode == 'tout') {
+          this.sectionCodeSourceVisible = this.codeSource;
+        } else {
+          this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/sinon si/ig, 'sinonsi');
+        }
       }
 
       // // tester les erreurs
@@ -375,7 +380,6 @@ export class EditeurComponent implements OnInit, OnDestroy {
         if (this.erreurs.length == 0 && this.messages.length == 0) {
           this.showTab('jeu');
         }
-
 
       });
 
@@ -1146,33 +1150,31 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   onConversionEtape1() {
-    console.log("Ça marche!");
-    console.log("\nAVANT:\n", this.sectionCodeSourceVisible );
-    
-    // règles
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)((?:avant |après )(?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1règle $2\n$1fin règle');
-    // actions rapides
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)(?:Le joueur peut )((?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1action $2\n$1fin action');
-    // points virgules
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/(;)$/gm, '.');
-    console.log("\nAPRÈS:\n", this.sectionCodeSourceVisible );
+    if (this.sectionMode == 'tout') {
+      // règles
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)((?:avant |après )(?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1règle $2\n$1fin règle');
+      // actions rapides
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)(?:Le joueur peut )((?:(?:(?:[^"])|(?:"[^"]*"))(?:\n)*)*?(?:\.$))/igm, '$1action $2\n$1fin action');
+      // points virgules
+      this.codeSource = this.codeSource.replace(/(;)$/gm, '.');
+      // màj affichage
+      this.sectionCodeSourceVisible = this.codeSource;
+    }
   }
 
   onConversionEtape2() {
-    console.log("Ça marche!");
-    console.log("\nAVANT:\n", this.sectionCodeSourceVisible );
-
-    // sa réaction concernant abc est …
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est\s*"/igm, '$1  concernant $2:\n$1    dire "');
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:(?:\n)*((?: |\t)*)"/igm, '$1  concernant $2:\n$1    dire "');
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:/igm, '$1  concernant $2:');
-    // sa réaction est …
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est\s*"/igm, '$1  basique:\n$1    dire "');
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est *:(?:\n)*((?: |\t)*)"/igm, '$1  basique:\n$1    dire "');
-    this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/^((?: |\t)*)Sa réaction est *:/igm, '$1  basique:');
-
-    console.log("\nAPRÈS:\n", this.sectionCodeSourceVisible );
-
+    if (this.sectionMode == 'tout') {
+      // sa réaction concernant abc est …
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction concernant (.+) est\s*"/igm, '$1  concernant $2:\n$1    dire "');
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:(?:\n)*((?: |\t)*)"/igm, '$1  concernant $2:\n$1    dire "');
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction concernant (.+) est *:/igm, '$1  concernant $2:');
+      // sa réaction est …
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction est\s*"/igm, '$1  basique:\n$1    dire "');
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction est *:(?:\n)*((?: |\t)*)"/igm, '$1  basique:\n$1    dire "');
+      this.codeSource = this.codeSource.replace(/^((?: |\t)*)Sa réaction est *:/igm, '$1  basique:');
+      // màj affichage
+      this.sectionCodeSourceVisible = this.codeSource;
+    }
   }
 
   /** Changer correction auto de « sinon si » en « sinonsi ». */
@@ -1180,7 +1182,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     localStorage.setItem('CorrigerSinonSi', (this.corrigerSinonSi ? '1' : '0'));
   }
 
-  /** Changer correction des « . » et « ; » manquants. */
+  /** Changer correction des « ; » en « . » en fin de ligne. */
   onChangerCorrectionPoint(): void {
     localStorage.setItem('CorrigerPoint', (this.corrigerPoint ? '1' : '0'));
   }
