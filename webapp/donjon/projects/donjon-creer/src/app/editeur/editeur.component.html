@@ -180,9 +180,8 @@
                   <div class="row mb-1">
                     <div class="col-12">
                       <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint"
-                          (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
-                        <label class="form-check-label" for="ckCorrigerPoint">Corriger automatiquement les « ; » en « . » en fin de ligne.</label>
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint" (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
+                        <label class="form-check-label" for="ckCorrigerPoint">Corriger automatiquement les « ; » en « . » en fin de ligne<br>Ajouter automatiquement un « . » lorsque la ligne se termine par « " »</label>
                       </div>
                     </div>
                   </div>
@@ -190,8 +189,7 @@
                   <div class="row mb-1">
                     <div class="col-12">
                       <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="afficherNumerosLigne"
-                          (change)="onChangerAfficherNumerosLigne()" id="ckNumeroLigne">
+                        <input type="checkbox" class="form-check-input" [(ngModel)]="afficherNumerosLigne" (change)="onChangerAfficherNumerosLigne()" id="ckNumeroLigne">
                         <label class="form-check-label" for="ckNumeroLigne">Afficher les numéros de ligne</label>
                       </div>
                     </div>

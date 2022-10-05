@@ -334,12 +334,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
       }
 
       // remplacer les ";" en fin de ligne par des "."
+      // ajouter un point lorsque la ligne se termine par "
       if (this.corrigerPoint) {
         this.codeSource = this.codeSource.replace(/(;)$/gm, '.');
+        this.codeSource = this.codeSource.replace(/(")$/gm, '".');
         if (this.sectionMode == 'tout') {
           this.sectionCodeSourceVisible = this.codeSource;
-        } else {
-          this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/sinon si/ig, 'sinonsi');
+        }else{
+          this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/(;)$/gm, '.').replace(/(")$/gm, '".');
         }
       }
 
