@@ -184,6 +184,7 @@ export class Commandeur {
 
       // Renvoyer l’explication du refu.
       const ctxRefu = new ContexteTour(ceciRefuse, celaRefuse);
+      ctx.commandeValidee = false;
       ctx.sortie = this.ins.dire.calculerTexteDynamique(explicationRefu, 0, undefined, ctxRefu, undefined, undefined);
 
       // regarder si de l’aide existe pour cet infinitif
@@ -197,6 +198,7 @@ export class Commandeur {
       // C. PLUSIEURS ACTIONS SE DÉMARQUENT (on ne sait pas les départager)
       // =============================================================================
     } else if (actionsCeciCela.length > 1) {
+      ctx.commandeValidee = false;
 
       // ce candidat de commande ne peut pas être exécuté.
       ctx.sortie = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + candidatCommande.els.infinitif + ").+}";

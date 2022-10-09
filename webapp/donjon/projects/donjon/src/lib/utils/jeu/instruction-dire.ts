@@ -47,6 +47,11 @@ export class InstructionDire {
    * Calculer le texte dynamique en tenant compte des balises conditionnelles et des états actuels.
    */
   public calculerTexteDynamique(texteDynamiqueOriginal: string, nbAffichage: number, intact: boolean | undefined, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
+    if (texteDynamiqueOriginal === undefined) {
+      throw new Error("texteDynamiqueOriginal n’est pas défini.");
+    } else if (texteDynamiqueOriginal === null) {
+      throw new Error("texteDynamiqueOriginal est null.");
+    }
 
     let texteDynamique = texteDynamiqueOriginal;
 
