@@ -919,7 +919,7 @@ export class ActionsUtils {
       let estListeEt = /\bet\b/.test(listeEtats);
       etats = PhraseUtils.separerListeIntitulesEtOu(listeEtats, true);
 
-      console.log(">>>> etats:", etats);
+      // console.log(">>>> etats:", etats);
 
       let unEtatPasVerifie = false;
       let unEtatVerifie = false;
@@ -931,9 +931,9 @@ export class ActionsUtils {
         }
       });
 
-      console.log(">>>>> estListeEt:", estListeEt);
-      console.log(">>>>>> unEtatPasVerifie:", unEtatPasVerifie);
-      console.log(">>>>>> unEtatVerifie:", unEtatVerifie);
+      // console.log(">>>>> estListeEt:", estListeEt);
+      // console.log(">>>>>> unEtatPasVerifie:", unEtatPasVerifie);
+      // console.log(">>>>>> unEtatVerifie:", unEtatVerifie);
 
 
       // et => il faut tout vérifier
