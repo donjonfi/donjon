@@ -1,6 +1,46 @@
 import { ActionsUtils, CompilateurV8, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
+import { TestUtils } from "../utils/test-utils";
+
+describe('Commande diverses', () => {
+
+
+  it('Commande « tester » (objet présent, invisible et absent)', () => {
+
+    const scenario =
+      'La salle est un lieu.\n' +
+      '  le cube est un objet ici.\n' +
+      '  le triangle est un objet invisible ici.\n' +
+      '  le rectangle est un objet inaccessible ici.\n' +
+      'L’autre salle (f) est un lieu.\n' +
+      '  le cercle est un objet ici.\n' +
+      'action tester ceci:\n' +
+      '  dire "Je teste [intitulé ceci]."\n' +
+      'fin action\n' +
+      '';
+    let ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    // 1) tester le cube qui est présent
+    let ctxCommande = ctxPartie.com.executerCommande('tester le cube');
+    expect(ctxCommande.commandeValidee).toBeTrue();
+    expect(ctxCommande.sortie).toEqual('Je teste le cube.{N}');
+    // 2) tester le triangle qui est invisible
+    ctxCommande = ctxPartie.com.executerCommande('tester le triangle');
+    expect(ctxCommande.commandeValidee).toBeFalse();
+    expect(ctxCommande.sortie).toEqual('Je ne le vois pas.{N}');
+    // 3) tester le rectangle qui n’est pas accessible
+    ctxCommande = ctxPartie.com.executerCommande('tester le rectangle');
+    expect(ctxCommande.commandeValidee).toBeFalse();
+    expect(ctxCommande.sortie).toEqual('Je n’y ai pas accès.{N}');
+    // 4) tester le cercle qui n’est pas présent
+    ctxCommande = ctxPartie.com.executerCommande('tester le cercle');
+    expect(ctxCommande.commandeValidee).toBeFalse();
+    expect(ctxCommande.sortie).toEqual('Le cercle n’est pas ici.{N}');
+
+  });
+
+});
 
 describe('Décomposer des commandes', () => {
 
@@ -586,3 +626,4 @@ describe('Décomposer des commandes', () => {
   });
 
 });
+
