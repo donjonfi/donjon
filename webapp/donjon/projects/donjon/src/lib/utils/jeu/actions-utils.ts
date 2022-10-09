@@ -7,6 +7,7 @@ import { Correspondance } from "./correspondance";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
+import { Etat } from "../../models/commun/etat";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { PhraseUtils } from "../commun/phrase-utils";
@@ -109,7 +110,7 @@ export class ActionsUtils {
           // // un seul candidat
           // if (resCherCand.candidatsEnLice.length == 1) {
           // détaillé commande trouvée
-          raisonRefu = "Je sais " + this.afficherCandidatAction(resCherCand.candidatsEnLice[0]);
+          raisonRefu = "Je sais " + this.afficherCandidatAction(resCherCand.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
           // refu ceci
           if (ceciToujoursRefuse) {
             // expliquer refu CECI + CELA
@@ -137,7 +138,7 @@ export class ActionsUtils {
           raisonRefu = "Je sais :";
           resCherCand.candidatsRefuses.forEach(candidat => {
             // détaillé commande trouvée
-            raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat);
+            raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
           });
           raisonRefu += "La combinaison de « " + ceciCommande.intitule + " » et « " + ceciCommande.intitule + " » ne convient pas.";
         }
@@ -292,7 +293,11 @@ export class ActionsUtils {
       // B. sujet précis
     } else {
       if (commandeCeci.nbCor === 0) {
-        retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+        if (argumentUnique) {
+          retVal = "Je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+        } else {
+          retVal = "je n’ai pas trouvé « " + commandeCeci.intitule + " ».";
+        }
       } else {
         if (argumentUnique) {
           // retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v pouvoir ipr pas " + tokenCeciOuCela + "] être utilisé[es " + tokenCeciOuCela + "] pour cette commande.";
@@ -307,15 +312,25 @@ export class ActionsUtils {
   }
 
   /** Afficher la forme de l’action attendue. */
-  private afficherCandidatAction(candidat: Action) {
+  private afficherCandidatAction(candidat: Action, ceciConnu: boolean, celaConnu: boolean) {
     let explication: string;
     if (candidat.ceci) {
       // CECI + CELA
       if (candidat.cela) {
-        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}";
+        if (ceciConnu) {
+          explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.afficherNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}";
+        } else if (celaConnu) {
+          explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.afficherNomPrecisDuComplement(candidat.cibleCela) + "/}";
+        } else {
+          explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + " " + (candidat.prepositionCela ? (candidat.prepositionCela + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCela) + "/}";
+        }
         // CECI
       } else {
-        explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/}";
+        if (ceciConnu) {
+          explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + candidat.cibleCeci + "/}";
+        } else {
+          explication = "{/" + candidat.infinitif + " " + (candidat.prepositionCeci ? (candidat.prepositionCeci + " ") : "") + this.masquerNomPrecisDuComplement(candidat.cibleCeci) + "/}";
+        }
       }
       // SEUL
     } else {
@@ -324,86 +339,117 @@ export class ActionsUtils {
     return explication;
   }
 
+  private obtenirPhraseRefuEtatElement(etat: string, tokenCeciOuCela: 'ceci' | 'cela', argumentUnique: boolean): string {
+    let retVal: string;
+    switch (etat) {
+      case EEtatsBase.visible:
+        if (argumentUnique) {
+          retVal = "Je ne [le " + tokenCeciOuCela + "] vois pas.";
+        } else {
+          retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] visible[s " + tokenCeciOuCela + "]";
+        }
+        break;
+
+      case EEtatsBase.accessible:
+        if (argumentUnique) {
+          retVal = "Je n’y ai pas accès.";
+        } else {
+          retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] accessible[s " + tokenCeciOuCela + "]";
+        }
+        break;
+
+      case EEtatsBase.disponible:
+        if (argumentUnique) {
+          retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
+        } else {
+          retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "]";
+        }
+        break;
+
+      case EEtatsBase.possede:
+        if (argumentUnique) {
+          // retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
+          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/.}";
+        } else {
+          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+
+
+      case EEtatsBase.present:
+        if (argumentUnique) {
+          retVal = "[Intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici.";
+        } else {
+          retVal = "{/[intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici/}";
+        }
+        break;
+
+      default:
+        // retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
+        if (argumentUnique) {
+          retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        } else {
+          retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+    }
+    return retVal;
+  }
+
   private expliquerRefuEtatElement(elementCommande: ElementJeu, tokenCeciOuCela: 'ceci' | 'cela', cibleAction: CibleAction, argumentUnique: boolean) {
 
     let retVal: string;
 
-    // retrouvé l’état requis dans la liste des états
-    const etatAction = this.jeu.etats.trouverEtat(cibleAction.epithete);
-    // état requis trouvé
-    if (etatAction) {
+    // l’épithete peut en réalité est composé de plusieurs états
+    let etatsNonVerifiesBruts = this.listerEtatsNonVerifies(elementCommande, cibleAction.epithete);
 
-      switch (etatAction.nom) {
-        case EEtatsBase.visible:
-          // si ni visible, ni présent => dire qu’il n’est pas présent.
-          if (!this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
-            if (argumentUnique) {
-              retVal = "[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] présent[es " + tokenCeciOuCela + "].";
-            } else {
-              retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] présent[es " + tokenCeciOuCela + "]";
-            }
-            // si pas visible, mais présent => dire que pas visible
-          } else {
-            if (argumentUnique) {
-              retVal = "Je ne [le " + tokenCeciOuCela + "] vois pas.";
-            } else {
-              retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] visible[s " + tokenCeciOuCela + "]";
-            }
-          }
-
-          break;
-
-        case EEtatsBase.accessible:
-          if (argumentUnique) {
-            retVal = "{/Je n’y ai pas accès.";
-          } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] accessible[s " + tokenCeciOuCela + "]";
-          }
-          break;
-
-        case EEtatsBase.disponible:
-          if (argumentUnique) {
-            retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
-          } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "]";
-          }
-          break;
-
-        case EEtatsBase.possede:
-          if (argumentUnique) {
-            // retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
-            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/.}";
-          } else {
-            retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
-          }
-          break;
-
-
-        case EEtatsBase.present:
-          if (argumentUnique) {
-            retVal = "[Intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici.";
-          } else {
-            retVal = "{/[intitulé " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] ici/}";
-          }
-          break;
-
-        default:
-          // retVal = "L’élément ne convient pas actuellement : {/[intitulé " + tokenCeciOuCela + "]/}.";
-          if (argumentUnique) {
-            retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
-          } else {
-            retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
-          }
-          break;
-      }
-      // état requis pas trouvé
-    } else {
-      // retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
-      if (argumentUnique) {
-        retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+    if (etatsNonVerifiesBruts.length == 1) {
+      // retrouvé l’état requis dans la liste des états
+      const etatAction = this.jeu.etats.trouverEtat(etatsNonVerifiesBruts[0]);
+      // état requis trouvé
+      if (etatAction) {
+        //si ni visible, ni présent => dire qu’il n’est pas présent.
+        if (etatAction.nom == EEtatsBase.visible && !this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
+          retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.present, tokenCeciOuCela, argumentUnique);
+          // sinon on dire ce qu’il n’est pas
+        } else {
+          retVal = this.obtenirPhraseRefuEtatElement(etatAction.nom, tokenCeciOuCela, argumentUnique);
+        }
+        // état requis pas trouvé
       } else {
-        retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+        // retVal = "L’élément ne convient pas actuellement : {/[Intitulé " + tokenCeciOuCela + "]/}.";
+        if (argumentUnique) {
+          retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+        } else {
+          retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
       }
+    } else if (etatsNonVerifiesBruts.length == 2) {
+
+      let etatsNonVerifies: Etat[] = [];
+      etatsNonVerifiesBruts.forEach(etatBrut => {
+        etatsNonVerifies.push(this.jeu.etats.trouverEtat(etatBrut));
+      });
+
+      let estListeEt = cibleAction.epithete.match(/\bet\b/);
+
+      if (etatsNonVerifies.some(x => x.nom == EEtatsBase.visible) && etatsNonVerifies.some(x => x.nom == EEtatsBase.accessible)) {
+        if (estListeEt) {
+          //si ni visible, ni présent => dire qu’il n’est pas présent.
+          if (!this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
+            retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.present, tokenCeciOuCela, argumentUnique);
+          } else {
+            retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.visible, tokenCeciOuCela, argumentUnique);
+          }
+        } else {
+          retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
+        }
+      } else {
+        retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
+      }
+
+    } else {
+
     }
 
     return retVal;
@@ -475,6 +521,50 @@ export class ActionsUtils {
       // B. sujet précis
     } else {
       retVal = "un élément précis";
+    }
+    return retVal;
+  }
+
+
+  /** Permet de ne pas divulgacher l’intrigue au joueur. */
+  private afficherNomPrecisDuComplement(actionCeci: CibleAction) {
+    let retVal: string;
+    //     A. classe
+    if (this.estCibleUneClasse(actionCeci)) {
+      let classeCibleCeci = ClasseUtils.trouverClasse(this.jeu.classes, actionCeci.nom);
+      // classe trouvée
+      if (classeCibleCeci) {
+        // ÉLÉMENT
+        if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.element)) {
+          if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.personne)) {
+            // persone
+            retVal = "quelqu’un";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.vivant)) {
+            // vivant
+            retVal = "un être vivant";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
+            // objet
+            retVal = "quelque chose";
+          } else {
+            // élément
+            retVal = "quelque chose";
+          }
+        } else {
+          if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
+            retVal = "un compteur";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
+            retVal = "un sujet";
+          } else {
+            retVal = "une classe racine inconnue"; // ???
+          }
+        }
+        // classe inconnue
+      } else {
+        retVal = "une classe inconnue"; // ???
+      }
+      // B. sujet précis
+    } else {
+      retVal = actionCeci.determinant + actionCeci.nomEpithete;
     }
     return retVal;
   }
@@ -826,8 +916,11 @@ export class ActionsUtils {
     let etats: string[];
     // s’il y a des états à vérifire
     if (listeEtats) {
-      let estListeEt = listeEtats.match(/\bet\b/);
+      let estListeEt = /\bet\b/.test(listeEtats);
       etats = PhraseUtils.separerListeIntitulesEtOu(listeEtats, true);
+
+      console.log(">>>> etats:", etats);
+
       let unEtatPasVerifie = false;
       let unEtatVerifie = false;
       etats.forEach(etat => {
@@ -837,16 +930,68 @@ export class ActionsUtils {
           unEtatPasVerifie = true;
         }
       });
+
+      console.log(">>>>> estListeEt:", estListeEt);
+      console.log(">>>>>> unEtatPasVerifie:", unEtatPasVerifie);
+      console.log(">>>>>> unEtatVerifie:", unEtatVerifie);
+
+
       // et => il faut tout vérifier
-      if (estListeEt && !unEtatPasVerifie) {
-        return true;
+      if (estListeEt) {
+        return !unEtatPasVerifie;
         // ou => il faut vérifier 1 seul état
       } else {
         return unEtatVerifie;
       }
+
       // rien à vérifier
     } else {
       return true;
+    }
+  }
+
+  /** 
+   * Retourner la liste des états qui ne sont pas vérifiés pour l’élément spécifié. 
+   * 
+   * Remarque:
+   *   - dans le cas d’un « ou », si au moins un des états est vérifié, la liste retournée sera vide.
+   *   - dans le cas d’un « et », seuls les états non vérifiés seront retournés.
+   */
+  private listerEtatsNonVerifies(element: ElementJeu, listeEtats: string): string[] {
+    let tousLesEtats: string[];
+    let etatsNonVerifies: string[] = [];
+    // s’il y a des états à vérifire
+    if (listeEtats) {
+      let estListeEt = listeEtats.match(/\bet\b/);
+      tousLesEtats = PhraseUtils.separerListeIntitulesEtOu(listeEtats, true);
+      let unEtatPasVerifie = false;
+      let unEtatVerifie = false;
+      tousLesEtats.forEach(etat => {
+        if (this.jeu.etats.possedeEtatElement(element, etat, this.eju)) {
+          unEtatVerifie = true;
+        } else {
+          unEtatPasVerifie = true;
+          etatsNonVerifies.push(etat);
+        }
+      });
+      // et => il faut tout vérifier
+      if (estListeEt) {
+        if (unEtatPasVerifie) {
+          return etatsNonVerifies;
+        } else {
+          return [];
+        }
+        // ou => il faut vérifier 1 seul état
+      } else {
+        if (unEtatVerifie) {
+          return [];
+        } else {
+          return etatsNonVerifies;
+        }
+      }
+      // rien à vérifier
+    } else {
+      return [];
     }
   }
 
