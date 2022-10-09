@@ -30,6 +30,8 @@ export enum EClasseRacine {
 }
 
 export enum EEtatsBase {
+  /** connu */
+  connu = "connu",
   /** présent (calculé) (↔ absent) */
   present = 'présent',
   /** absent (calculé) (↔ présent) */
@@ -140,5 +142,5 @@ export enum EEtatsBase {
   lu = "lu",
   /** vide: objet */
   vide = 'vide',
-  
+
 }

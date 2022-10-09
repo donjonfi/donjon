@@ -15,6 +15,7 @@ import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 export class ListeEtats {
 
+  public connuID = -1;
   public presentID = -1;
   public visiteID = -1;
   public intactID = -1;
@@ -63,6 +64,8 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
+    // connu (élémentJeu)
+    this.connuID = this.creerEtat(EEtatsBase.connu).id;
     // visité (lieu)
     this.visiteID = this.creerEtat(EEtatsBase.visite).id;
     // intact, déplacé et modifié (objet, lieu)
@@ -461,7 +464,7 @@ export class ListeEtats {
           // conseil inaccessible
           if (nomEtat.match(/^inaccessible(s)?$/)) {
             eju.ajouterConseil("L’état « inaccessible » n’est PAS l’inverse de « accessible ». Pour tester si un élément est accessible faites vos tests sur l’état « accessible ».");
-          // conseil invisible
+            // conseil invisible
           } else if (nomEtat.match(/^invisible(s)?$/)) {
             eju.ajouterConseil("L’état « invisible » n’est PAS l’inverse de « visible ». Pour tester si un élément est visible faites vos tests sur l’état « visible ».");
           }

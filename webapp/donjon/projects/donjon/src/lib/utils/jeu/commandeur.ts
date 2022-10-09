@@ -8,16 +8,21 @@ import { AnalyseurCommunUtils } from '../compilation/analyseur/analyseur-commun-
 import { CandidatCommande } from '../../models/jouer/candidat-commande';
 import { ClasseUtils } from '../commun/classe-utils';
 import { CommandeurDecomposer } from './commandeur.decomposer';
+import { Compteur } from '../../models/compilateur/compteur';
 import { ConditionsUtils } from './conditions-utils';
 import { ContexteCommande } from '../../models/jouer/contexte-commande';
 import { Debogueur } from './debogueur';
 import { Declencheur } from './declencheur';
 import { EClasseRacine } from '../../models/commun/constantes';
+import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
 import { Instructions } from './instructions';
 import { InterruptionsUtils } from './interruptions-utils';
+import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
+import { ListeEtats } from './liste-etats';
+import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { TypeEvenement } from '../../models/jouer/type-evenement';
@@ -143,12 +148,14 @@ export class Commandeur {
       const explicationRefu = this.act.obtenirRaisonRefuCommande(candidatCommande.els, candidatCommande.correspondCeci, candidatCommande.correspondCela);
 
       // correspondance CECI
-      let ceciRefuse = null;
+      let ceciRefuse: ElementJeu | Compteur | Localisation | Intitule = null;
       if (candidatCommande.correspondCeci) {
         if (candidatCommande.correspondCeci.nbCor) {
           // élément
           if (candidatCommande.correspondCeci.elements.length) {
             ceciRefuse = candidatCommande.correspondCeci.elements[0];
+            // si on interragit avec l'élement, on le connait
+            (ceciRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
             // compteur
           } else if (candidatCommande.correspondCeci.compteurs.length) {
             ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -163,12 +170,14 @@ export class Commandeur {
       }
 
       // correspondance CELA
-      let celaRefuse = null;
+      let celaRefuse: ElementJeu | Compteur | Localisation | Intitule = null;
       if (candidatCommande.correspondCela) {
         if (candidatCommande.correspondCela.nbCor) {
           // élément
           if (candidatCommande.correspondCela.elements.length) {
             celaRefuse = candidatCommande.correspondCela.elements[0];
+            // si on interragit avec l'élement, on le connait
+            (celaRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
             // compteur
           } else if (candidatCommande.correspondCela.compteurs.length) {
             celaRefuse = candidatCommande.correspondCela.compteurs[0];
@@ -228,6 +237,19 @@ export class Commandeur {
       }
 
       const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[indexCeci] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[indexCela] : null));
+
+      if (actionChoisie.ceci) {
+        if (ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.element)) {
+          // si on interragit avec l'élement, on le connait
+          (actionChoisie.ceci as ElementJeu).etats.push(this.jeu.etats.connuID);
+        }
+        if (candidatActionChoisi.cela) {
+          if (ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.element)) {
+            // si on interragit avec l'élement, on le connait
+            (actionChoisie.cela as ElementJeu).etats.push(this.jeu.etats.connuID);
+          }
+        }
+      }
 
       const isCeciV2 = actionChoisie.ceci ? true : false;
       let ceciQuantiteV2 = candidatCommande.ceciQuantiteV1;

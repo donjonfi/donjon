@@ -87,14 +87,14 @@ export class ElementsJeuUtils {
               // il n’existe qu’un seul exemplaire
             } else {
 
-              // si l’élément est encore intact
-              if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID)) {
+              // si l’élément est encore intact et inconnu
+              if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.connuID)) {
                 if (ceci.genre === Genre.f) {
                   determinant = "une ";
                 } else {
                   determinant = "un ";
                 }
-                // si l’élément a déjà été déplacer ou modifié
+                // si le joueur a déjà interragi avec l'élément
               } else {
                 // commence par une voyelle
                 if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
@@ -114,10 +114,17 @@ export class ElementsJeuUtils {
         }
         // quantité infinie => des
         else if (ceci.quantite == -1 || forcerNombre === Nombre.p) {
-          determinant = 'des ';
-          nom = ceci.intituleP.nom;
-          epithete = ceci.intituleP.epithete ?? '';
-
+          // si l’élément est encore intact et inconnu
+          if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.connuID)) {
+            determinant = 'des ';
+            nom = ceci.intituleP.nom;
+            epithete = ceci.intituleP.epithete ?? '';
+            // si le joueur a déjà interragi avec l'élément
+          } else {
+            determinant = 'les ';
+            nom = ceci.intituleP.nom;
+            epithete = ceci.intituleP.epithete ?? '';
+          }
           // quantité pas définie 
         } else if (ceci.quantite === undefined || ceci.quantite === null) {
           determinant = ceci.intitule.determinant;
