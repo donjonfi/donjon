@@ -4,8 +4,8 @@ RewriteEngine On
 # ou de l'url qui commence par assets : continuer sans rediriger.
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d [OR]
-RewriteCond %{REQUEST_URI} ^/beta/assets/
+RewriteCond %{REQUEST_URI} ^/v1/creer/assets/
 RewriteRule ^ - [L]
 
 # Si la ressource n'existe pas, rediriger vers index.html
-RewriteRule ^ /beta/index.html
+RewriteRule ^ /v1/creer/index.html
