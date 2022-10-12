@@ -12,14 +12,16 @@ Le gourdin est un objet ici.
 Le caillou est un objet ici.
 
 -- règle de priorité plus élevée car l’action est précisée.
-avant parler au troll ou parler de ceci au troll:
+règle avant parler au troll ou parler de ceci au troll:
   dire "{/(Vous tenez vraiment à essayer de lui parler ?)/}{N}".
+fin règle
 
 -- règle de priorité plus basse car l’action n’est pas précisée.
-avant une action impliquant le troll ou une action impliquant le troll et cela:
+règle avant une action impliquant le troll ou une action impliquant le troll et cela:
   si l’infinitif de l’action n’est ni regarder ni donner et si le joueur ne possède pas le gourdin:
-    dire "Avant que vous ayez pu [infinitif action] [préposition ceci] [intitulé ceci] [préposition cela?] [intitulé cela?]{<}, le troll vous assomme avec son gourdin.";
-    dire "Vous avez perdu !";
-    stopper l’action;
-    terminer le jeu;
-  fin si.
+    dire "Avant que vous ayez pu [infinitif action] [préposition ceci] [intitulé ceci] [préposition cela?] [intitulé cela?]{<}, le troll vous assomme avec son gourdin.".
+    dire "Vous avez perdu !".
+    stopper l’action.
+    terminer le jeu.
+  fin si
+fin règle

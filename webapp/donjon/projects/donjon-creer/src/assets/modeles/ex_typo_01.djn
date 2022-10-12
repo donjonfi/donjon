@@ -1,9 +1,11 @@
-
-avant commencer le jeu:
-  dire "
-  0: Voici {0 Un exemple de texte avec Style 0}
+règle avant commencer le jeu:
+  dire "  0: Voici Un exemple de texte avec Style
   1: Voici {1 Un exemple de texte avec Style 1}
   2: Voici {2 Un exemple de texte avec Style 2}
   3: Voici {3 Un exemple de texte avec Style 3}
   4: Voici {4 Un exemple de texte avec Style 4}
-  ".
+  5: Voici {5 Un exemple de texte avec Style 5}
+  6: Voici {6 Un exemple de texte avec Style 6}
+  7: Voici {7 Un exemple de texte avec Style 7}
+  {p}".
+fin règle

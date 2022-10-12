@@ -15,5 +15,8 @@ Son aperçu est "Une veste traîne.".
 Le lit est un support dans la chambre. "C'est un lit massif. Il est recouvert de votre édredon préféré, celui avec le patchwork rouge et vert.".
 Son aperçu est "Votre lit trône au centre de la pièce.".
 -- > L'édredon
-L'édredon est un objet décoratif sur le lit. "Ce patchwork est avant tout un souvenir sentimental. C'est votre préféré, malgré son état."
+L'édredon est un objet décoratif sur le lit. "Ce patchwork est avant tout un souvenir sentimental. C'est votre préféré, malgré son état.".
 Interpréter le patchwork, la couverture et la couette comme l'édredon.
+-- > Le coffre et la pièce
+Le coffre est un contenant dans la chambre.
+La pièce est un objet dans le coffre.

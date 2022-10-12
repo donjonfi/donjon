@@ -20,31 +20,35 @@ Le gros rocher est un obstacle à l’extérieur de la grotte.
 Chapitre "RÈGLES SPÉCIALES".
 
 -- informer le joueur de sa mission
-avant commencer le jeu:
+règle avant commencer le jeu:
   dire "Votre mission : sortir de la grotte.".
+fin règle
   
 -- lorsque le joueur utilise la dynamite sur le rocher
-avant utiliser bâton de dynamite ou utiliser bâton de dynamite sur le gros rocher:
-  exécuter la commande "dynamiter le rocher";
+règle avant utiliser bâton de dynamite ou utiliser bâton de dynamite sur le gros rocher:
+  exécuter la commande "dynamiter le rocher".
   stopper l’action.
+fin règle
   
 -- après un déplacement du joueur
-après aller vers ceci:
+règle après aller vers ceci:
   -- le joueur à réussi à aller dans la forêt
   si le joueur se trouve dans la forêt:
     -- laisser la description du lieu s’afficher avant
-    continuer l’action avant;
+    continuer l’action avant.
     -- informer le joueur qu’il a gagné
-    dire "{n}{n}{/Bravo ! Vous avez gagné la partie !/}";
-    terminer le jeu;
+    dire "{n}{n}{/Bravo ! Vous avez gagné la partie !/}".
+    terminer le jeu.
   fin si.
+fin règle
 
-le joueur peut dynamiter le gros rocher:
+action dynamiter le gros rocher:
   dire "Badaboum ! Le rocher vole en éclats.
-        La sortie est à présent dégagée.";
+        La sortie est à présent dégagée.".
   -- le rocher et la dynamite n’existent plus à présent
-  effacer le gros rocher;
+  effacer le gros rocher.
   effacer le bâton de dynamite.
+fin action
   
 Chapitre "PRÉFÉRENCES".
 

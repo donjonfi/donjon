@@ -1,8 +1,9 @@
-avant commencer le jeu:
-  dire "Ligne 1{n}Ligne2";
-  dire "{n}{n}Ligne3{n}{n}";
-  dire "
+règle avant commencer le jeu:
+  dire "Ligne 1{n}Ligne2".
+  dire "{n}{n}Ligne3{n}{n}".
+  dire ".
   Ligne 4
   Ligne 5
   Ligne 6
-  ".
+  {p}".
+fin règle

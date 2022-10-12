@@ -14,6 +14,8 @@ Le bouclier est un objet portable sur l’étale.
 Sa description est "Il s’agit d’un petit bouclier en bois.".
 La couleur du bouclier est "brun".
 
-après examiner l’épée ou examiner le bouclier:
-  dire "[p description ceci]{n}";
+règle avant examiner l’épée ou examiner le bouclier:
+  dire "[p description ceci]".
   dire "« [Intitulé ceci] [si aucun prix pour ceci]n’a pas de prix ! Il n’est pas à vendre.[sinon] est à vous pour seulement [p prix ceci] pièces ![fin si] Le [p couleur ceci] vous vas à ravir ! »".
+  arrêter l'action.
+fin règle
