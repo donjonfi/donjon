@@ -1555,7 +1555,7 @@ export class InstructionDire {
                   resultat.sortie += ".";
                   // obstacle
                 } else {
-                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " bloquent" : " bloque") + " la sortie (" + voisin.localisation + ").";
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " bloquent" : " bloque") + " la sortie (" + Localisation.getLocalisation(voisin.localisation) + ").";
                 }
 
               }
