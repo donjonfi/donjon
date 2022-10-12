@@ -46,14 +46,14 @@ export class InstructionChanger {
     if (instruction.sujet) {
       switch (instruction.sujet.nom.toLowerCase()) {
         // joueur
-        case 'joueur':
+        case 'joueur':          
           resultat = this.changerJoueur(instruction, contexteTour);
           break;
 
         // élément du jeu ou compteur (ceci)
         case 'ceci':
           if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
-            resultat = this.changerElementJeu(contexteTour.ceci as ElementJeu, instruction);
+            resultat = this.changerElementJeu(contexteTour.ceci as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.ceci as Compteur, instruction, contexteTour, evenement, declenchements);
           } else {
@@ -64,7 +64,7 @@ export class InstructionChanger {
         // élément du jeu ou compteur (cela)
         case 'cela':
           if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
-            resultat = this.changerElementJeu(contexteTour.cela as ElementJeu, instruction);
+            resultat = this.changerElementJeu(contexteTour.cela as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.cela as Compteur, instruction, contexteTour, evenement, declenchements);
           } else {
@@ -82,7 +82,7 @@ export class InstructionChanger {
             // OBJET(S) SEULEMENT
           } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.objets.length === 1) {
-              resultat = this.changerElementJeu(correspondance.objets[0], instruction);
+              resultat = this.changerElementJeu(correspondance.objets[0], instruction, contexteTour);
             } else {
               console.error("executerChanger: plusieurs objets trouvés:", correspondance);
               resultat.sortie = "{n}{+[Instruction « changer » : plusieurs objets trouvés pour « " + instruction.sujet + " ».]+}";
@@ -90,7 +90,7 @@ export class InstructionChanger {
             // LIEU(X) SEULEMENT
           } else if (correspondance.objets.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.lieux.length === 1) {
-              resultat = this.changerElementJeu(correspondance.lieux[0], instruction);
+              resultat = this.changerElementJeu(correspondance.lieux[0], instruction, contexteTour);
             } else {
               console.error("executerChanger: plusieurs lieux trouvés:", correspondance);
               resultat.sortie = "{n}{+[Instruction « changer » : plusieurs lieux trouvés pour « " + instruction.sujet + " ».]+}";
@@ -301,7 +301,7 @@ export class InstructionChanger {
       case 'se trouvent':
       case 'est':
       case 'sont':
-        resultat = this.changerElementJeu(this.jeu.joueur, instruction);
+        resultat = this.changerElementJeu(this.jeu.joueur, instruction, contexteTour);
         break;
 
       default:
@@ -418,7 +418,7 @@ export class InstructionChanger {
 
   }
 
-  private changerElementJeu(element: ElementJeu, instruction: ElementsPhrase): Resultat {
+  private changerElementJeu(element: ElementJeu, instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
 
     let resultat = new Resultat(true, '', 1);
 
@@ -437,7 +437,7 @@ export class InstructionChanger {
           // s’il s’agit en réalité d’un déplacement
           if (instruction.complement1.match(/^\b(ici|sous|sur|dans)\b/)) {
             this.eju.ajouterConseil('Instruction « changer » : Pour modifier la position d’un objet il est conseillé d’utiliser le verbe « se trouver » plutôt que « être » (ex: « changer le ballon se trouve sur la table. ») ou encore l’instruction « déplacer ». (ex: « déplacer le joueur vers la cuisine. »)');
-            resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, undefined);
+            resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, contexteTour);
             // sinon ajouter l’état
           } else {
             if (this.verbeux) {
@@ -454,7 +454,7 @@ export class InstructionChanger {
 
       case 'se trouve':
       case 'se trouvent':
-        resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, undefined);
+        resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, contexteTour);
         break;
 
       default:

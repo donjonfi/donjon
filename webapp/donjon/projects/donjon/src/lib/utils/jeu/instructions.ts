@@ -184,7 +184,6 @@ export class Instructions {
         break;
 
       case 'déplacer':
-
         // retrouver quantité à déplacer
         let sujetDeplacement = instruction.sujet;
         if (instruction.sujet.determinant == 'quantitéCeci ') {
@@ -221,7 +220,7 @@ export class Instructions {
             }
             if (voisinID != -1) {
               const voisin = this.eju.getLieu(voisinID);
-              sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, voisin.intitule, undefined);
+              sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, voisin.intitule, contexteTour);
               resultat.succes = sousResultat.succes;
             } else {
               resultat.succes = false;
