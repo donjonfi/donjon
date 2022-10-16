@@ -248,18 +248,24 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private verifierChrono() {
-    if (this.jeu.programmationsTemps.length) {
-      const tempsActuel = Date.now();
+    if (!this.jeu.termine) {
+      if (this.jeu.programmationsTemps.length) {
+        // vérifier les programmations qui sont terminées (temps écoulé)
+        const tempsActuel = Date.now();
+        let programmationTerminee: number[] = [];
+        for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
+          const programmation = this.jeu.programmationsTemps[indexProgrammation];
+          // vérifier si le chrono est arrivé à terme
+          if (tempsActuel - programmation.debutTemps > programmation.duree) {
+            programmationTerminee.push(indexProgrammation);
+          }
+        }
 
-      for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
-        const programmation = this.jeu.programmationsTemps[indexProgrammation];
-        // vérifier si le chrono est arrivé à terme
-        if (tempsActuel - programmation.debutTemps > programmation.duree) {
-
-          // TODO: RETIRER ROUTINE
-
-          // chrono écoulé
-          console.warn("CHRONO!!!!");
+        // récupérer les programmations teminées et exécuter la routine
+        programmationTerminee.forEach(programmationIndex => {
+          // retirer la programmation terminée
+          const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
+          console.warn("Chrono écoulé !!!!");
           // retrouver la routine
           const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
           if (routine) {
@@ -273,16 +279,30 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               console.warn("routine exécutée");
               const sortieRoutine = this.ctx.com.executerRoutine(routine);
               this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
+
+              console.warn("this.jeu.tamponInterruptions.length=", this.jeu.tamponInterruptions.length);
+              
+
+              // s’il y a des interruptions à gérer, il faut les gérer
+              if (this.jeu.tamponInterruptions.length) {
+                this.traiterProchaineInterruption();
+              } else if (this.jeu.tamponRoutinesEnAttente.length) {
+                // TODO: traiter routines en attente.
+              }
             }
           } else {
-
+            this.ctx.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
           }
-        }
+        });
+
+      }
+
+      if (!this.jeu.termine) {
+        setTimeout(() => {
+          this.verifierChrono();
+        }, 1000);
       }
     }
-    setTimeout(() => {
-      this.verifierChrono();
-    }, 1000);
   }
 
   /**
@@ -465,6 +485,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.jeu.tamponErreurs.push("interruptions: je ne connais pas ce type d’interruption: " + this.interruptionEnCours.typeInterruption);
           break;
       }
+    } else {
+
     }
   }
 
@@ -571,7 +593,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private terminerInterruption(choix: Choix | undefined) {
 
     // Il s’agit d’un tour interrompu
-    if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
+    if (this.interruptionEnCours.typeContexte == TypeContexte.tour || this.interruptionEnCours.typeContexte == TypeContexte.routine) {
       // tour à continuer
       const tourInterrompu = this.interruptionEnCours.tour;
       // l’interruption est terminée
@@ -580,8 +602,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (choix?.instructions?.length) {
         tourInterrompu.reste.unshift(...choix.instructions);
       }
-      // continuer le tour interrompu
-      const sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
+      let sortieCommande: string;
+      if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
+        // continuer le tour interrompu
+        sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
+      } else {
+        sortieCommande = this.ctx.com.continuerRoutineInterrompue(tourInterrompu);
+      }
 
       // s'il faut lancer une nouvelle partie
       if (sortieCommande.includes('@nouvelle partie@')) {
@@ -601,6 +628,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.traiterProchaineInterruption();
       // sinon la commande est terminée
     } else {
+
+      // TODO: traiter routines en attente.
+
 
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.ctx.jeu.commence) {
@@ -1009,6 +1039,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.traiterProchaineInterruption();
       // sinon la commande est terminée
     } else {
+
+      // TODO: traiter routines en attente.
 
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.ctx.jeu.commence) {

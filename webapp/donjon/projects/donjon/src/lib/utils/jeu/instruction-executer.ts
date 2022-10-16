@@ -256,7 +256,7 @@ export class InstructionExecuter {
         tempsMs = tempsNombre * 1000;
         break;
 
-      case 'minutes':
+      case 'minute':
         tempsMs = tempsNombre * 1000 * 60;
         break;
 

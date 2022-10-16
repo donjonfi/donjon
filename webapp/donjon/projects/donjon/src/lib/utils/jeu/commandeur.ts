@@ -339,7 +339,7 @@ export class Commandeur {
     if (resultatAvant.interrompreBlocInstruction) {
       InterruptionsUtils.definirInterruptionTour(tour, resultatAvant);
       tour.phase = PhaseTour.avant_interrompu; // on pourrait encore terminer dans la 2e partie de la règle.
-      this.executerInterruption(tour);
+      this.executerInterruption(tour, TypeContexte.tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
@@ -384,7 +384,7 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatPrerequis?.interrompreBlocInstruction) {
       InterruptionsUtils.definirInterruptionTour(tour, resultatPrerequis);
-      this.executerInterruption(tour);
+      this.executerInterruption(tour, TypeContexte.tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
@@ -409,7 +409,7 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatExecution.interrompreBlocInstruction) {
       InterruptionsUtils.definirInterruptionTour(tour, resultatExecution);
-      this.executerInterruption(tour);
+      this.executerInterruption(tour, TypeContexte.tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
@@ -482,7 +482,7 @@ export class Commandeur {
             tour.phase = PhaseTour.apres_interrompu;
           }
           InterruptionsUtils.definirInterruptionTour(tour, resultatApres);
-          this.executerInterruption(tour);
+          this.executerInterruption(tour, TypeContexte.tour);
           //  - sinon on n'a pas été interrompu
         } else {
 
@@ -517,16 +517,10 @@ export class Commandeur {
     const resultatFinaliser = this.finaliserAction(tour.commande.actionChoisie, tour, tour.commande.evenement);
     tour.commande.sortie += resultatFinaliser.sortie;
 
-    // // s’il restait à afficher la sortie de la règle « après » (commande « terminer avant »)
-    // if (tour.phase == PhaseTour.terminer_avant_sortie_apres) {
-    //   tour.commande.sortie += tour.resultatRegleApres.sortie;
-    //   tour.resultatRegleApres = undefined;
-    // }
-
     // si le déroulement a été interrompu
     if (resultatFinaliser.interrompreBlocInstruction) {
       InterruptionsUtils.definirInterruptionTour(tour, resultatFinaliser);
-      this.executerInterruption(tour);
+      this.executerInterruption(tour, TypeContexte.tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);
@@ -535,9 +529,9 @@ export class Commandeur {
 
 
 
-  private executerInterruption(tour: ContexteTour) {
+  private executerInterruption(tour: ContexteTour, type: TypeContexte) {
     // console.warn("+interruption+");
-    const interruption = new Interruption(tour.typeInterruption, TypeContexte.tour);
+    const interruption = new Interruption(tour.typeInterruption, type);
     interruption.tour = tour;
     interruption.choix = tour.choix;
     interruption.messageAttendre = tour.messageAttendre;
@@ -553,7 +547,24 @@ export class Commandeur {
     ctxTour.commande.sortie = "";
     ctxTour.phase = PhaseTour.execution;
     const resultatRoutine = this.ins.executerInstructions(routine.instructions, ctxTour, ctxTour.commande.evenement, undefined);
+    if (resultatRoutine.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(ctxTour, resultatRoutine);
+      this.executerInterruption(ctxTour, TypeContexte.routine);
+    }
     return resultatRoutine.sortie;
+  }
+
+  public continuerRoutineInterrompue(ctxTour: ContexteTour): string {
+    console.warn("@@ continuer la routine interrompue @@ reste=", ctxTour.reste);
+    // // on a déjà affiché la sortie de la partie précédente de la routine donc on peut la vider
+    // tour.commande.sortie = "";
+    // terminer les instructions de la routine interrompue
+    const resultatReste = this.ins.executerInstructions(ctxTour.reste, ctxTour, ctxTour.commande.evenement, undefined);
+    if (resultatReste.interrompreBlocInstruction) {
+      InterruptionsUtils.definirInterruptionTour(ctxTour, resultatReste);
+      this.executerInterruption(ctxTour, TypeContexte.routine);
+    }
+    return resultatReste.sortie;
   }
 
   public continuerLeTourInterrompu(tour: ContexteTour): string {
@@ -578,7 +589,7 @@ export class Commandeur {
     // si le déroulement a été interrompu
     if (resultatReste.interrompreBlocInstruction) {
       InterruptionsUtils.definirInterruptionTour(tour, resultatReste);
-      this.executerInterruption(tour);
+      this.executerInterruption(tour, TypeContexte.tour);
     } else {
       // sinon on passe à la phase suivante du tour.
       this.executerLaPhaseSuivante(tour);

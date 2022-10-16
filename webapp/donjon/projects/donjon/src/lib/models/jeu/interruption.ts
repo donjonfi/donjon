@@ -34,6 +34,8 @@ export enum TypeContexte {
   tour = 't',
   /** Commande à exécuter */
   commande = 'c',
+  /** Routine simple */
+  routine = 'r',
 }
 
 export enum TypeInterruption {
