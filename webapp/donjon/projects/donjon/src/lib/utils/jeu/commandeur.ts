@@ -21,10 +21,10 @@ import { Instructions } from './instructions';
 import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
-import { ListeEtats } from './liste-etats';
 import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { Resultat } from '../../models/jouer/resultat';
+import { RoutineSimple } from '../../models/compilateur/routine-simple';
 import { TypeEvenement } from '../../models/jouer/type-evenement';
 
 export class Commandeur {
@@ -544,6 +544,16 @@ export class Commandeur {
     interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
     interruption.nbToursAnnuler = tour.nbToursAnnuler;
     this.jeu.tamponInterruptions.push(interruption);
+  }
+
+  public executerRoutine(routine: RoutineSimple): string {
+    let ctxTour = new ContexteTour(undefined, undefined);
+    ctxTour.commande = new ContexteCommande();
+    ctxTour.commande.evenement = new Evenement(TypeEvenement.routine, routine.titre);
+    ctxTour.commande.sortie = "";
+    ctxTour.phase = PhaseTour.execution;
+    const resultatRoutine = this.ins.executerInstructions(routine.instructions, ctxTour, ctxTour.commande.evenement, undefined);
+    return resultatRoutine.sortie;
   }
 
   public continuerLeTourInterrompu(tour: ContexteTour): string {

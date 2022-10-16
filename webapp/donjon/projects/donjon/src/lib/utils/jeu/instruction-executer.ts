@@ -14,7 +14,7 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
-import { ReactionBeta } from "../../models/compilateur/reaction-beta";
+import { ProgrammationTemps } from "../../models/jeu/programation-temps";
 import { Resultat } from "../../models/jouer/resultat";
 import { RoutineReaction } from "../../models/compilateur/routine-reaction";
 
@@ -224,12 +224,19 @@ export class InstructionExecuter {
     const tokens = ExprReg.xActionExecuterRoutine.exec(instruction.complement1);
     if (tokens) {
       const nomRoutine = tokens[1];
+      const temps = tokens[2] ?? undefined;
+      const uniteTemps = tokens[3] ?? undefined;
+
       const routineTrouvee = this.jeu.routines.filter(x => x.nom == nomRoutine);
       if (routineTrouvee?.length) {
-        res = this.ins.executerInstructions(routineTrouvee[0].instructions, undefined, undefined, undefined);
+        if (uniteTemps) {
+          this.programmerRoutine(instruction, contexteTour, nomRoutine, temps, uniteTemps);
+        } else {
+          res = this.ins.executerInstructions(routineTrouvee[0].instructions, undefined, undefined, undefined);
+        }
       } else {
         contexteTour.ajouterErreurInstruction(instruction, `La routine simple n’a pas été trouvée: ${instruction.complement1}`);
-        res.succes = false;  
+        res.succes = false;
       }
     } else {
       contexteTour.ajouterErreurInstruction(instruction, `Le nom de la routine n’est pas dans un format supporté: ${instruction.complement1}`);
@@ -239,7 +246,37 @@ export class InstructionExecuter {
     return res;
   }
 
+  private programmerRoutine(instruction: ElementsPhrase, contexteTour: ContexteTour, routine: string, temps: string, unite: string) {
 
+    let tempsNombre = Number.parseInt(temps);
+    let tempsMs: number;
+
+    switch (unite.toLowerCase()) {
+      case 'seconde':
+        tempsMs = tempsNombre * 1000;
+        break;
+
+      case 'minutes':
+        tempsMs = tempsNombre * 1000 * 60;
+        break;
+
+      case 'heure':
+        tempsMs = tempsNombre * 1000 * 60 * 60;
+        break;
+
+      default:
+        contexteTour.ajouterErreurInstruction(instruction, `L’unité de temps n’est pas prise en charge: ${unite}. Unités valides : seconde, minute, heure.`);
+        tempsMs = 0;
+        break;
+    }
+
+    if (tempsMs > 0) {
+      let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
+      this.jeu.programmationsTemps.push(nouvelleProgrammation);
+    } else {
+      contexteTour.ajouterErreurInstruction(instruction, `La programmation du chronomètre n’a pas pu être réalisée car incorrecte.`);
+    }
+  }
 
   /** Exécuter l’instruction « Exécuter commande "xxxx…" */
   public executerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {

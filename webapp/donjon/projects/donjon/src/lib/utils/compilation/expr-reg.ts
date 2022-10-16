@@ -409,9 +409,9 @@ export class ExprReg {
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
   
-  /** Exécuter la routine: la routine nomRoutine(1)  */
-  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)$/i;
-  /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|cela|ici(5)}}  */
+  /** Exécuter la routine: la routine nomRoutine(1) [dans 10(2) seconde(3)[s]]  */
+  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)(?: dans ([1-9]\d*) (?:(tour|seconde|minute|heure)s?))?$/i;
+  /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|celFa|ici(5)}}  */
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
   /** Exécuter la commande: la commande "commande(1)" */
   static readonly xActionExecuterCommande = /^(?:(?:la )?commande) \"(.+)\"$/i;

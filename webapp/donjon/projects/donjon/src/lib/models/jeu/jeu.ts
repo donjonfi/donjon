@@ -10,6 +10,7 @@ import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
+import { ProgrammationTemps } from './programation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
@@ -68,6 +69,9 @@ export class Jeu {
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponInterruptions: Interruption[] = [];
 
+  /** Les routines simples qui attendent d’être exécutées (elle ne le sont qu’entre 2 tours de jeu) */
+  tamponRoutinesEnAttente: RoutineSimple[] = [];
+
   classes: Classe[] = [];
 
   etats: ListeEtats = new ListeEtats();
@@ -113,6 +117,9 @@ export class Jeu {
 
   /** Paramètres spécifiques au jeu */
   parametres: Parametres = new Parametres();
+
+  /** Programmations de routines (basée sur un décompte en millisecondes) */
+  programmationsTemps: ProgrammationTemps[] = [];
 
   /** 
    * Graine utilisée pour initialiser le générateur de nombres aléatoires.

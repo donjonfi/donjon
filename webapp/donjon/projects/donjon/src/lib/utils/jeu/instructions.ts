@@ -317,7 +317,7 @@ export class Instructions {
             // EXÉCUTER ROUTINE
           } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
             resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
-          } else {
+          } else {            
             // INCONNU
             contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" » ou « la routine xxx » pas pris en charge.");
             resultat.succes = false;

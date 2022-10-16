@@ -230,6 +230,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.interruptionEnCours) {
       // nouvelle partie
       this.ctx.jeu.commence = true;
+      this.lancerVerificationProgrammation();
       // reprise partie
       if (this.sauvegardeEnAttente) {
         this.lancerAutoTriche();
@@ -238,6 +239,50 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     // donner le focus sur « entrez une commande » 
     this.focusCommande();
+  }
+
+  private lancerVerificationProgrammation() {
+    setTimeout(() => {
+      this.verifierChrono();
+    }, 1000);
+  }
+
+  private verifierChrono() {
+    if (this.jeu.programmationsTemps.length) {
+      const tempsActuel = Date.now();
+
+      for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
+        const programmation = this.jeu.programmationsTemps[indexProgrammation];
+        // vérifier si le chrono est arrivé à terme
+        if (tempsActuel - programmation.debutTemps > programmation.duree) {
+
+          // TODO: RETIRER ROUTINE
+
+          // chrono écoulé
+          console.warn("CHRONO!!!!");
+          // retrouver la routine
+          const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
+          if (routine) {
+            console.warn("routine trouvéee");
+            // a) commande/interruption déjà en cours => garder pour plus tard.
+            if (this.commandeEnCours || this.interruptionEnCours) {
+              this.jeu.tamponRoutinesEnAttente.push(routine);
+              console.warn("routine pour le futur");
+              // b) rien en cours => exécuter la routine
+            } else {
+              console.warn("routine exécutée");
+              const sortieRoutine = this.ctx.com.executerRoutine(routine);
+              this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
+            }
+          } else {
+
+          }
+        }
+      }
+    }
+    setTimeout(() => {
+      this.verifierChrono();
+    }, 1000);
   }
 
   /**
@@ -560,6 +605,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.ctx.jeu.commence) {
         this.ctx.jeu.commence = true;
+        this.lancerVerificationProgrammation();
         // si une sauvegarde doit être restaurée
         if (this.sauvegardeEnAttente) {
           this.lancerAutoTriche();
@@ -844,7 +890,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-        this.executerLaCommande(commandeNettoyee, true, false, true);
+        let sortie = this.executerLaCommande(commandeNettoyee, true, false, true);
       }
     }
   }
@@ -967,6 +1013,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.ctx.jeu.commence) {
         this.ctx.jeu.commence = true;
+        this.lancerVerificationProgrammation();
       }
 
       // mode triche: afficher commande suivante
