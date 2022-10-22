@@ -55,6 +55,10 @@ export class InstructionDire {
 
     let texteDynamique = texteDynamiqueOriginal;
 
+    // échapper les crochets doubles pour ne pas les perdre
+    texteDynamique = texteDynamique.replace(/\\\[/g, ExprReg.caractereCrochetOuvrant);
+    texteDynamique = texteDynamique.replace(/\\\]/g, ExprReg.caractereCrochetFermant);
+    
     // vérifier s’il y a des [] à interpréter
     if (texteDynamique.includes('[')) {
       // Aperçu (d’un objet)
@@ -687,6 +691,58 @@ export class InstructionDire {
       }
 
       // ===================================================
+      // Horloge [horloge], [minutes horloge], [secondes horloge], …
+      // ===================================================
+      const baliseHorloge = "(?:(0?(?:heure|minute|seconde))(?:s)? )?horloge";
+      const xBaliseHorlogeMulti = new RegExp("\\[" + baliseHorloge + "\\]", "gi");
+      const xBaliseHorlogeSolo = new RegExp("\\[" + baliseHorloge + "\\]", "i");
+
+      if (xBaliseHorlogeMulti.test(texteDynamique)) {
+        // retrouver toutes les balises conjugaison
+        const allBalises = texteDynamique.match(xBaliseHorlogeMulti);
+        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
+
+        const maintenant = new Date();
+        const zeroPad = (num, places) => String(num).padStart(places, '0');
+
+        // parcourir chaque balise trouvée
+        balisesUniques.forEach(curBalise => {
+          // retrouver la préposition et la cible
+          const decoupe = curBalise.match(xBaliseHorlogeSolo);
+          const unite = decoupe[1]?.toLocaleLowerCase();
+          let valeurHorloge: string;
+          switch (unite) {
+            case 'heure':
+              valeurHorloge = maintenant.getHours().toString();
+              break;
+            case 'minute':
+              valeurHorloge = maintenant.getMinutes().toString();
+              break;
+            case 'seconde':
+              valeurHorloge = maintenant.getSeconds().toString();
+              break;
+            case '0heure':
+              valeurHorloge = zeroPad(maintenant.getHours(), 2);
+              break;
+            case '0minute':
+              valeurHorloge = zeroPad(maintenant.getMinutes(), 2);
+              break;
+            case '0seconde':
+              valeurHorloge = zeroPad(maintenant.getSeconds(), 2);
+              break;
+            default:
+              valeurHorloge = `${zeroPad(maintenant.getHours(), 2)}:${zeroPad(maintenant.getMinutes(), 2)}`;
+              break;
+          }
+
+          // remplacer la balise par l’horloge
+          const regExp = new RegExp("\\[" + (curBalise.slice(1, curBalise.length - 1)) + "\\]", "g");
+          texteDynamique = texteDynamique.replace(regExp, valeurHorloge);
+        });
+      }
+
+      // ===================================================
       // Mémoire [mémoire nom de la mémoire]
       // ===================================================
       const baliseMemoire = "(mémoire|memoire) (.+?)";
@@ -697,7 +753,7 @@ export class InstructionDire {
         // retrouver toutes les balises conjugaison
         const allBalises = texteDynamique.match(xBaliseMemoireMulti);
         // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
           // retrouver la préposition et la cible
@@ -841,6 +897,10 @@ export class InstructionDire {
       }
 
     } // fin interprétation crochets
+
+    // rétablir les crochets échapés
+    texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetOuvrant, '[');
+    texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetFermant, ']');
 
     // ===================================================
     // > RETOURS CONDITIONNELS
@@ -1673,7 +1733,6 @@ export class InstructionDire {
     } else {
       retVal = "";
     }
-
     return retVal;
   }
 
