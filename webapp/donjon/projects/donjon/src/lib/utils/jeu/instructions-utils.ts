@@ -9,6 +9,7 @@ import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { Evenement } from "../../models/jouer/evenement";
+import { Genre } from "../../models/commun/genre.enum";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
@@ -120,6 +121,28 @@ export class InstructionsUtils {
         case 'reponse':
           cible = new Intitule(contexteTour.reponse.toString(), PhraseUtils.getGroupeNominalDefiniOuIndefini(contexteTour.reponse.toString(), false), ClassesRacines.Intitule);
           break;
+        // case 'horloge':
+        //   let horloge = new Objet(-1, 'horloge', new GroupeNominal('l’', 'horloge'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
+        //   let dateHorloge = new Date();
+        //   horloge.proprietes.push(new ProprieteElement('heure', TypeValeur.nombre, dateHorloge.getHours().toString()));
+        //   horloge.proprietes.push(new ProprieteElement('heures', TypeValeur.nombre, dateHorloge.getHours().toString()));
+        //   horloge.proprietes.push(new ProprieteElement('minute', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
+        //   horloge.proprietes.push(new ProprieteElement('minutes', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
+        //   horloge.proprietes.push(new ProprieteElement('seconde', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
+        //   horloge.proprietes.push(new ProprieteElement('secondes', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
+        //   cible = horloge;
+        //   break;
+        // case 'calendrier':
+        //   let calendrier = new Objet(-1, 'calendrier', new GroupeNominal('le', 'calendrier'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
+        //   let dateCalendrier = new Date();
+        //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+        //   calendrier.proprietes.push(new ProprieteElement('jour', TypeValeur.mots, jours[dateCalendrier.getDay()]));
+        //   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        //   calendrier.proprietes.push(new ProprieteElement('date', TypeValeur.nombre, dateCalendrier.getDate().toString()));
+        //   calendrier.proprietes.push(new ProprieteElement('mois', TypeValeur.mots, mois[dateCalendrier.getMonth()]));
+        //   calendrier.proprietes.push(new ProprieteElement('année', TypeValeur.nombre, dateCalendrier.getFullYear().toString()));
+        //   cible = calendrier;
+        //   break;
       }
     }
     return cible;

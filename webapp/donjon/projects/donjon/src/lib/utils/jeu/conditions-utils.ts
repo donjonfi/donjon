@@ -106,9 +106,9 @@ export class ConditionsUtils {
 
     if (this.verbeux) {
       if (conditionBrute) {
-        console.log("🔀 « " + conditionBrute + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + ( contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
+        console.log("🔀 « " + conditionBrute + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + (contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
       } else if (conditionMulti) {
-        console.log("🔀 « " + conditionMulti.toString() + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + ( contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
+        console.log("🔀 « " + conditionMulti.toString() + " »\n => " + (resultatFinal ? "🙆‍♂️ " : "🙅 ") + resultatFinal + (contexteTour ? ("\nceci: " + contexteTour.ceci + "\ncela: " + contexteTour.cela) : ""));
       } else {
         console.error("🔀 ni conditionBrute ni conditionMulti ici ! ")
       }
@@ -248,6 +248,12 @@ export class ConditionsUtils {
             }
           }
         }
+        // horloge
+      } else if ((ExprReg.oHorloge).test(conditionSujetNomNettoye)) {
+        sujet = this.getValeurHorloge(conditionSujetNomNettoye, condition.verbe);
+        // calendrier
+      } else if ((ExprReg.oCalendrier).test(conditionSujetNomNettoye)) {
+        sujet = this.getValeurCalendrier(conditionSujetNomNettoye, condition.verbe);
       } else {
         // chercher dans les valeurs
         const valeurTrouvee = contexteTour?.trouverValeur(condition.sujet.nomEpithete);
@@ -304,6 +310,7 @@ export class ConditionsUtils {
               // rien à dire ici
             } else {
               console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
+              contexteTour.ajouterErreurCondition(condition, `Sujet de la condition pas trouvé : ${condition.sujet}`);
             }
           }
         }
@@ -1090,6 +1097,74 @@ export class ConditionsUtils {
       });
     }
 
+    return retVal;
+  }
+
+  private getValeurHorloge(valeurRecherchee: string, verbe: string): Compteur | undefined {
+    let retVal: Compteur | undefined;
+    const match = valeurRecherchee.match(ExprReg.oHorloge);
+    if (match) {
+      switch (match[1]) {
+        case 'heure':
+          retVal = new Compteur("heure", new Date().getHours());
+          break;
+        case 'minute':
+          retVal = new Compteur("minute", new Date().getMinutes());
+          break;
+        case 'seconde':
+          retVal = new Compteur("seconde", new Date().getSeconds());
+          break;
+        default:
+          this.eju.ajouterErreur("getValeurHorloge: valeurRecherchee doit être en minuscules.")
+          break;
+      }
+    }
+    return retVal;
+  }
+
+  private getValeurCalendrier(valeurRecherchee: string, verbe: string): Compteur | Intitule | undefined {
+    let retVal: Compteur | Intitule | undefined;
+    const match = valeurRecherchee.match(ExprReg.oCalendrier);
+    if (match) {
+      switch (match[1]) {
+        // jour de la semaine
+        case 'jour':
+          const indexJour = new Date().getDay();
+          // valeur numérique (1 => 7)
+          if (ExprReg.verbesCompteur.test(verbe)) {
+            const jours = [7, 1, 2, 3, 4, 5, 6];
+            retVal = new Compteur('jour', jours[indexJour]);
+            // valeur textuelle (lundi => dimanche)
+          } else {
+            const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+            retVal = new Intitule(jours[indexJour], new GroupeNominal(null, jours[indexJour], null), ClassesRacines.Intitule);
+          }
+          break;
+        // date du mois
+        case 'date':
+          retVal = new Compteur("date", new Date().getDate());
+          break;
+        // mois (1 => 12)
+        case 'mois':
+          const indexMois = new Date().getMonth();
+          // valeur numérique (1 => 12)
+          if (ExprReg.verbesCompteur.test(verbe)) {
+            const mois = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            retVal = new Compteur('mois', mois[indexMois]);
+            // valeur textuelle (janvier => décembre)
+          } else {
+            const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+            retVal = new Intitule(mois[indexMois], new GroupeNominal(null, mois[indexMois], null), ClassesRacines.Intitule);
+          }
+          break;
+        case 'année':
+          retVal = new Compteur("année", new Date().getFullYear());
+          break;
+        default:
+          this.eju.ajouterErreur("getValeurCalendrier: valeurRecherchee doit être en minuscules.")
+          break;
+      }
+    }
     return retVal;
   }
 
