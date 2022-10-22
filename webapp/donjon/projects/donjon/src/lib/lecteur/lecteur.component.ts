@@ -265,30 +265,25 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         programmationTerminee.forEach(programmationIndex => {
           // retirer la programmation terminée
           const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
-          console.warn("Chrono écoulé !!!!");
+          if (this.ctx.verbeux) {
+            console.log("Chrono écoulé");
+          }
           // retrouver la routine
           const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
           if (routine) {
-            console.warn("routine trouvéee");
+            if (this.ctx.verbeux) {
+              console.log("routine trouvéee");
+            }
+            this.jeu.tamponRoutinesEnAttente.push(routine);
+
             // a) commande/interruption déjà en cours => garder pour plus tard.
             if (this.commandeEnCours || this.interruptionEnCours) {
-              this.jeu.tamponRoutinesEnAttente.push(routine);
-              console.warn("routine pour le futur");
+              if (this.verbeux) {
+                console.log("routine pour le futur");
+              }
               // b) rien en cours => exécuter la routine
             } else {
-              console.warn("routine exécutée");
-              const sortieRoutine = this.ctx.com.executerRoutine(routine);
-              this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
-
-              console.warn("this.jeu.tamponInterruptions.length=", this.jeu.tamponInterruptions.length);
-              
-
-              // s’il y a des interruptions à gérer, il faut les gérer
-              if (this.jeu.tamponInterruptions.length) {
-                this.traiterProchaineInterruption();
-              } else if (this.jeu.tamponRoutinesEnAttente.length) {
-                // TODO: traiter routines en attente.
-              }
+              this.traiterProchaineRoutine();
             }
           } else {
             this.ctx.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
@@ -380,6 +375,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.verifierTamponErreurs();
     }, 1000);
+  }
+
+  private traiterProchaineRoutine() {
+    const routine = this.jeu.tamponRoutinesEnAttente.shift();
+
+    console.warn("routine exécutée: ", routine.nom);
+
+    const sortieRoutine = this.ctx.com.executerRoutine(routine);
+    this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
+
+    // s’il y a des interruptions à gérer, il faut les gérer
+    if (this.jeu.tamponInterruptions.length) {
+      this.traiterProchaineInterruption();
+      // s’il reste des routines à exécuter, il faut les exécuter
+    } else if (this.jeu.tamponRoutinesEnAttente.length) {
+      this.traiterProchaineRoutine();
+    }
   }
 
   private traiterProchaineInterruption() {
@@ -594,16 +606,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     // Il s’agit d’un tour interrompu
     if (this.interruptionEnCours.typeContexte == TypeContexte.tour || this.interruptionEnCours.typeContexte == TypeContexte.routine) {
+      const typeContexte = this.interruptionEnCours.typeContexte;
       // tour à continuer
       const tourInterrompu = this.interruptionEnCours.tour;
-      // l’interruption est terminée
-      this.interruptionEnCours = undefined;
       // ajouter les instructions découlant du choix au reste des instructions à exécuter pour ce tour
       if (choix?.instructions?.length) {
         tourInterrompu.reste.unshift(...choix.instructions);
       }
+      // l’interruption est terminée
+      this.interruptionEnCours = undefined;
+
       let sortieCommande: string;
-      if (this.interruptionEnCours.typeContexte == TypeContexte.tour) {
+      if (typeContexte == TypeContexte.tour) {
         // continuer le tour interrompu
         sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
       } else {
@@ -626,6 +640,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // s’il y a encore des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
       this.traiterProchaineInterruption();
+      // s’il reste des routines à exécuter, il faut les exécuter
+    } else if (this.jeu.tamponRoutinesEnAttente.length) {
+      this.traiterProchaineRoutine();
       // sinon la commande est terminée
     } else {
 
@@ -1037,6 +1054,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // s’il y a encore des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
       this.traiterProchaineInterruption();
+      // s’il reste des routines à exécuter, il faut les exécuter
+    } else if (this.jeu.tamponRoutinesEnAttente.length) {
+      this.traiterProchaineRoutine();
       // sinon la commande est terminée
     } else {
 

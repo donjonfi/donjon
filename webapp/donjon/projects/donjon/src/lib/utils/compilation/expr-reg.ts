@@ -417,6 +417,8 @@ export class ExprReg {
 
   /** Exécuter la routine: la routine nomRoutine(1) [dans 10(2) seconde(3)[s]]  */
   static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)(?: dans ([1-9]\d*) (?:(tour|seconde|minute|heure)s?))?$/i;
+  /** Annuler (l’exécution de ) la routine xxxx (1) */
+  static readonly xActionAnnulerRoutine = /^(?:l(?:'|’)ex(?:é|e|è)cution de )?(?:(?:la )?routine) (\S+)?$/i;
   /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|celFa|ici(5)}}  */
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
   /** Exécuter la commande: la commande "commande(1)" */
@@ -1038,10 +1040,12 @@ export class ExprReg {
   static readonly xAide = /^L(?:'|’)aide pour (?:la commande|l(?:'|’)action) ((?:se |s'|s’)?.+) est(?: *)/i;
 
   /** (heure|minute|seconde)(1){s} {de l’}horloge */
-  static readonly oHorloge = /^(?:le |la |les |l’|l')?(heure|minute|seconde)(?:s*) (?:de l(?:’|'))?horloge$/i;
+  static readonly oHorloge = /^(?:le |la |les |l’|l')?(heure|minute|seconde)(?:s*)$/i;
+  // static readonly oHorloge = /^(?:le |la |les |l’|l')?(heure|minute|seconde)(?:s*) (?:de l(?:’|'))?horloge$/i;
 
   /** (jour|date|mois|année)(1){s} {de l’}horloge */
-  static readonly oCalendrier = /^(?:le |la |les |l’|l')?(jour|date|mois|ann(?:é|è|e)e) (?:du )?calendrier$/i;
+  static readonly oCalendrier = /^(?:le |la |les |l’|l')?(jour|date|mois|ann(?:é|è|e)e)$/i;
+  // static readonly oCalendrier = /^(?:le |la |les |l’|l')?(jour|date|mois|ann(?:é|è|e)e) (?:du )?calendrier$/i;
 
   /** verbes liés à des compteurs */
   static readonly verbesCompteur = /(vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt)/i;

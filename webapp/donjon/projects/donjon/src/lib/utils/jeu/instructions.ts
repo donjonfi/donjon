@@ -285,8 +285,25 @@ export class Instructions {
           } else {
             resultat.nbToursAnnuler = 1;
           }
+        } else if (instruction.sujet.nom == "routine") {
+          // retirer la routine à annuler
+          const nomRoutine = instruction.sujet.epithete?.toLocaleLowerCase();
+          if (nomRoutine) {
+            if(this.verbeux){
+              console.log(`routine à annuler: ${nomRoutine}`);
+            }
+            const indexRoutine = this.jeu.programmationsTemps.findIndex(x => x.routine == nomRoutine);
+            if (indexRoutine != -1) {
+              this.jeu.programmationsTemps.splice(indexRoutine, 1);
+              if(this.verbeux){
+                console.log(`routine annulée`);
+              }
+            }
+          } else {
+            contexteTour.ajouterErreurInstruction(instruction, "Annuler routine: veuillez spécifier le nom de la routine à annuler.");
+          }
         } else {
-          contexteTour.ajouterErreurInstruction(instruction, "Annuler: il est seulement possible d'annuler un certain nombre de tours.");
+          contexteTour.ajouterErreurInstruction(instruction, "Annuler: il est seulement possible d'annuler un certain nombre de tours ou la programmation d’une routine.");
           resultat.succes = false;
         }
         break;
@@ -317,7 +334,7 @@ export class Instructions {
             // EXÉCUTER ROUTINE
           } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
             resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
-          } else {            
+          } else {
             // INCONNU
             contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" » ou « la routine xxx » pas pris en charge.");
             resultat.succes = false;

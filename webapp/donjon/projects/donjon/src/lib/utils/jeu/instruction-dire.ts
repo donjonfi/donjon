@@ -58,7 +58,7 @@ export class InstructionDire {
     // échapper les crochets doubles pour ne pas les perdre
     texteDynamique = texteDynamique.replace(/\\\[/g, ExprReg.caractereCrochetOuvrant);
     texteDynamique = texteDynamique.replace(/\\\]/g, ExprReg.caractereCrochetFermant);
-    
+
     // vérifier s’il y a des [] à interpréter
     if (texteDynamique.includes('[')) {
       // Aperçu (d’un objet)
@@ -690,10 +690,80 @@ export class InstructionDire {
         });
       }
 
+
       // ===================================================
-      // Horloge [horloge], [minutes horloge], [secondes horloge], …
+      // Calendrier [calendrier], [mois], [date], …
       // ===================================================
-      const baliseHorloge = "(?:(0?(?:heure|minute|seconde))(?:s)? )?horloge";
+      const baliseCalendrier = "(calendrier|(?:0?(?:jour|date|mois|ann(?:é|e|è)e)))";
+      const xBaliseCalendrierMulti = new RegExp("\\[" + baliseCalendrier + "\\]", "gi");
+      const xBaliseCalendrierSolo = new RegExp("\\[" + baliseCalendrier + "\\]", "i");
+
+      if (xBaliseCalendrierMulti.test(texteDynamique)) {
+        // retrouver toutes les balises conjugaison
+        const allBalises = texteDynamique.match(xBaliseCalendrierMulti);
+        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
+
+        const maintenant = new Date();
+        const zeroPad = (num, places) => String(num).padStart(places, '0');
+
+        // parcourir chaque balise trouvée
+        balisesUniques.forEach(curBalise => {
+          // retrouver la préposition et la cible
+          const decoupe = curBalise.match(xBaliseCalendrierSolo);
+          const unite = decoupe[1]?.toLocaleLowerCase();
+          let valeurCalendrier: string;
+          switch (unite) {
+            case 'jour':
+              const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+              valeurCalendrier = jours[maintenant.getDay()];
+              break;
+            case 'date':
+              valeurCalendrier = maintenant.getDate().toString();
+              break;
+            case 'mois':
+              const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+              valeurCalendrier = mois[maintenant.getMonth()];
+              break;
+            case 'année':
+            case 'annee':
+            case 'annèe':
+              valeurCalendrier = maintenant.getFullYear().toString();
+              break;
+            case '0jour':
+              // lundi = 1
+              const joursNombre = [7, 1, 2, 3, 4, 5, 6];
+              valeurCalendrier = joursNombre[maintenant.getDay()].toString();
+              break;
+            case '0date':
+              valeurCalendrier = zeroPad(maintenant.getDate(), 2);
+              break;
+            case '0mois':
+              // janvier = 1
+              valeurCalendrier = zeroPad((maintenant.getMonth() + 1), 2);
+              break;
+            case '0année':
+            case '0annee':
+            case '0annèe':
+              valeurCalendrier = maintenant.getFullYear().toString();
+              break;
+            case 'calendrier':
+            default:
+              valeurCalendrier = `${zeroPad(maintenant.getHours(), 2)}:${zeroPad(maintenant.getMinutes(), 2)}`;
+              break;
+          }
+
+          // remplacer la balise par l’horloge
+          const regExp = new RegExp("\\[" + (curBalise.slice(1, curBalise.length - 1)) + "\\]", "g");
+          texteDynamique = texteDynamique.replace(regExp, valeurCalendrier);
+        });
+      }
+
+
+      // ===================================================
+      // Horloge [horloge], [minutes], [secondes], …
+      // ===================================================
+      const baliseHorloge = "(horloge|(?:0?(?:heure|minute|seconde)))s*";
       const xBaliseHorlogeMulti = new RegExp("\\[" + baliseHorloge + "\\]", "gi");
       const xBaliseHorlogeSolo = new RegExp("\\[" + baliseHorloge + "\\]", "i");
 
@@ -731,6 +801,7 @@ export class InstructionDire {
             case '0seconde':
               valeurHorloge = zeroPad(maintenant.getSeconds(), 2);
               break;
+            case 'horloge':
             default:
               valeurHorloge = `${zeroPad(maintenant.getHours(), 2)}:${zeroPad(maintenant.getMinutes(), 2)}`;
               break;
