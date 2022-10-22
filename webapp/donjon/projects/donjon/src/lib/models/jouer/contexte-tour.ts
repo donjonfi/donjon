@@ -1,4 +1,5 @@
 import { Choix } from "../compilateur/choix";
+import { ConditionSolo } from "../compilateur/condition-solo";
 import { ContexteCommande } from "./contexte-commande";
 import { ElementsPhrase } from "../commun/elements-phrase";
 import { Instruction } from "../compilateur/instruction";
@@ -83,6 +84,15 @@ export class ContexteTour {
   ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {
     if (instruction) {
       console.error(erreur, "\ninstruction: ", instruction);
+    } else {
+      console.error(erreur);
+    }
+    this._erreurs.push(erreur);
+  }
+
+  ajouterErreurCondition(condition: ConditionSolo | undefined, erreur: string) {
+    if (condition) {
+      console.error(erreur, "\ncondition: ", condition);
     } else {
       console.error(erreur);
     }
