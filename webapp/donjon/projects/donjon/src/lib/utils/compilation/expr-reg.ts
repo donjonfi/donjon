@@ -24,7 +24,13 @@ export class ExprReg {
   //   ʖ − point virgule dans les commentaires
   static readonly caracterePointVirgule = 'ʖ';
   static readonly xCaracterePointVirgule = /ʖ/g;
-
+  //   ꝙ − caractère crochet ouvrant
+  static readonly caractereCrochetOuvrant = 'ꝙ';
+  static readonly xCaractereCrochetOuvrant = /ꝙ/g;
+  //   Ꝙ − caractère crochet fermant
+  static readonly caractereCrochetFermant = 'Ꝙ';
+  static readonly xCaractereCrochetFermant = /Ꝙ/g;
+  
   /** Nombre
    * - Exemples :
    *     - 0
@@ -276,7 +282,7 @@ export class ExprReg {
   /** Propriété
    * - Découpage :
    *     - son|sa propriété(1) est|vaut(6) valeur(7)
-   *     - la|le|l' proriété(2) du|de la|de l' complément(3) est|vaut(6) valeur(7)
+   *     - la|le|l' propriété(2) du|de la|de l' complément(3) est|vaut(6) valeur(7)
    *     - sa réaction(1) (concernant le)(4) sujet(5) est|vaut(6) valeur(7)
    *     - la réaction(2) du|de la|de l' complément(3) (au sujet du|de la)(4) sujet(5) est|vaut(6) valeur(7)
    * - Exemples :
@@ -408,7 +414,7 @@ export class ExprReg {
   static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
-  
+
   /** Exécuter la routine: la routine nomRoutine(1) [dans 10(2) seconde(3)[s]]  */
   static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)(?: dans ([1-9]\d*) (?:(tour|seconde|minute|heure)s?))?$/i;
   /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|celFa|ici(5)}}  */
@@ -481,7 +487,7 @@ export class ExprReg {
    *   - Cela est prioritairement disponible
    *   - 💥 ceci est ouvert
    */
-   static readonly rDefinitionComplementActionEtatPrioritaire = /^(ceci|cela) (?:est|sont) prioritairement (.+)?$/i;
+  static readonly rDefinitionComplementActionEtatPrioritaire = /^(ceci|cela) (?:est|sont) prioritairement (.+)?$/i;
 
   /**
    * définition action: compléments ceci/cela: élément du jeu
@@ -503,7 +509,7 @@ export class ExprReg {
   /**
    * définitions action: déplacement du joueur
    */
-  static readonly rDefinitionActionDeplacementJoueur = /^(?:Le joueur est d(?:é|e|è)plac(?:é|e|è) vers|L(?:’|')action d(?:é|e|è)place le joueur vers) (.+)$/i  
+  static readonly rDefinitionActionDeplacementJoueur = /^(?:Le joueur est d(?:é|e|è)plac(?:é|e|è) vers|L(?:’|')action d(?:é|e|è)place le joueur vers) (.+)$/i
 
   // ================================================================================================
   //  COMMANDES
@@ -1012,7 +1018,6 @@ export class ExprReg {
   */
   static readonly xRoutineActionEnteteCeciCela = /^((?:se |s’|s')?(?!l'|l’)\S+(?:ir|er|re))(?:(?: (\S+))? (ceci|cela)(?:(?: (\S+)) (cela|ceci))?)?$/i;
 
-
   // ================================================================================================
   //  DIVERS
   // ================================================================================================
@@ -1031,5 +1036,14 @@ export class ExprReg {
 
   /** L'aide pour l'action manger(1) est  */
   static readonly xAide = /^L(?:'|’)aide pour (?:la commande|l(?:'|’)action) ((?:se |s'|s’)?.+) est(?: *)/i;
+
+  /** (heure|minute|seconde)(1){s} {de l’}horloge */
+  static readonly oHorloge = /^(?:le |la |les |l’|l')?(heure|minute|seconde)(?:s*) (?:de l(?:’|'))?horloge$/i;
+
+  /** (jour|date|mois|année)(1){s} {de l’}horloge */
+  static readonly oCalendrier = /^(?:le |la |les |l’|l')?(jour|date|mois|ann(?:é|è|e)e) (?:du )?calendrier$/i;
+
+  /** verbes liés à des compteurs */
+  static readonly verbesCompteur = /(vaut|valent|dépasse(?:nt)?|attei(?:gne)?nt)/i;
 
 }
