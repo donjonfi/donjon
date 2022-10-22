@@ -7,6 +7,7 @@ export class ProgrammationTemps {
     public duree: number,
   ) {
     this.debutTemps = Date.now();
+    this.routine = this.routine.toLocaleLowerCase();
   }
 
   // /** La programmation a-t-elle été annulée ? */
