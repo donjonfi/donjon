@@ -949,9 +949,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    */
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
-    // VÉREFIER FIN DE PARTIE
+    // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
+    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
         this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
       }
