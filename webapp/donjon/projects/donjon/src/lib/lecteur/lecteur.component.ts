@@ -384,7 +384,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     const sortieRoutine = this.ctx.com.executerRoutine(routine);
     this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
-
+    this.scrollSortie();
+    
     // s’il y a des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
       this.traiterProchaineInterruption();
