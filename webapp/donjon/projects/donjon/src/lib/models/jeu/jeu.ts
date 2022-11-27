@@ -60,6 +60,9 @@ export class Jeu {
   /** Le jeu est-il déjà commencé ? */
   commence = false;
 
+  /** Le jeu est-il en pause ? */
+  interrompu = false;
+
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponErreurs: string[] = [];
 
@@ -137,5 +140,7 @@ export class Jeu {
    * Statistiques du jeu et de son scénario.
    */
   statistiques: Statistiques | undefined;
+
+
 
 }

@@ -78,7 +78,7 @@ export class Abreviations {
           premierMotComplet = mots[1];
           deuxiemeMotComplet = 'le joueur';
         }
-        
+
         // commande aide : ajouter « pour » avant le sujet
         if (premierMotComplet.trim() === 'afficher l’aide' && (mots[1]) && (mots[1] != 'pour')) {
           premierMotComplet += " pour ";
@@ -96,7 +96,7 @@ export class Abreviations {
         commande = mots.join(' ').replace(/  /g, ' ');
       }
 
-      if(commande == "nouvelle partie"){
+      if (commande == "nouvelle partie") {
         commande = "recommencer";
       }
 
@@ -360,6 +360,11 @@ export class Abreviations {
             retVal = "parler ";
             break;
 
+          case 'pau':
+          case 'pause':
+            retVal = "faire une pause";
+            break;
+            
           case 'pos':
             retVal = "poser ";
             break;

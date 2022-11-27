@@ -11,6 +11,7 @@ import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
+import { ContexteEcran } from '../models/jouer/contexte-ecran';
 
 @Component({
   selector: 'djn-lecteur',
@@ -29,11 +30,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   @Output() nouvellePartie = new EventEmitter();
 
   /** Le contexte de la partie en cours (jeu, commandeur, déclencheur, …) */
-  private ctx: ContextePartie | undefined;
+  private partie: ContextePartie | undefined;
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 20;
-  /** La sortie affichée au joueur (au format HTML). */
-  public sortieJoueur: string = null;
+
+  // /** La sortie affichée au joueur (au format HTML). */
+  // public sortieJoueur: string = null;
+
   /** Commande tapée par le joueur. */
   public commande = "";
   /** Historique des commandes tapées par le joueur. */
@@ -99,8 +102,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
 
     /** Décharcher la partie en cours (arrêter musiques par exemple) */
-    if (this.ctx) {
-      this.ctx.unload();
+    if (this.partie) {
+      this.partie.unload();
     }
 
     /** Initialiser une nouvelle partie si un jeu est fourni. */
@@ -114,7 +117,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Initialiser une nouvelle partie (ou reprendre une partie) */
   private initialiserJeu() {
-    this.sortieJoueur = "";
     this.resteDeLaSortie = [];
     this.commandeEnCours = false;
     this.interruptionEnCours = undefined;
@@ -130,7 +132,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.historiqueCommandesPartie = [];
 
     // initialiser le contexte de la partie
-    this.ctx = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
+    this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
 
     this.verifierTamponErreurs();
 
@@ -138,56 +140,56 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.definirIFID();
 
     // afficher le titre et la version du jeu
-    this.sortieJoueur += ("<h5>" + (this.ctx.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.ctx.jeu.titre) : "(jeu sans titre)"));
+    let texteTitreVersion = ("<h5>" + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
-    if (this.ctx.jeu.version) {
-      this.sortieJoueur += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.version) + '</small>');
+    if (this.partie.jeu.version) {
+      texteTitreVersion += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + '</small>');
     }
-    this.sortieJoueur += '</h5>';
-
-
-    this.sortieJoueur += '<p>Un jeu de ';
+    texteTitreVersion += '</h5>';
+    this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
 
     // afficher l’auteur du jeu
-    if (this.ctx.jeu.auteur) {
-      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.ctx.jeu.auteur));
-    } else if (this.ctx.jeu.auteurs) {
-      this.sortieJoueur += (BalisesHtml.retirerBalisesHtml(this.ctx.jeu.auteurs));
+    let texteAuteur = 'Un jeu de';
+    if (this.partie.jeu.auteur) {
+      texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteur));
+    } else if (this.partie.jeu.auteurs) {
+      texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteurs));
     } else {
-      this.sortieJoueur += ("(anonyme)");
+      texteAuteur += ("(anonyme)");
     }
+    this.partie.ecran.ajouterParagrapheBrut(texteAuteur);
 
-    this.sortieJoueur += '</p>';
+    // afficher site web et/ou licence
+    if (this.partie.jeu.siteWebLien || this.partie.jeu.licenceTitre) {
+      let texteSiteWebLicence = '<p>';
 
-    if (this.ctx.jeu.siteWebLien || this.ctx.jeu.licenceTitre) {
-
-      this.sortieJoueur += '<p>';
       // site web du jeu
-      if (this.ctx.jeu.siteWebLien) {
-        if (this.ctx.jeu.siteWebTitre) {
-          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebTitre) + "</a>");
+      if (this.partie.jeu.siteWebLien) {
+        if (this.partie.jeu.siteWebTitre) {
+          texteSiteWebLicence += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.siteWebTitre) + "</a>");
         } else {
-          this.sortieJoueur += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.siteWebLien) + "</a>");
+          texteSiteWebLicence += ('Site web : <a href="' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.siteWebLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.siteWebLien) + "</a>");
+        }
+      }
+      // licence du jeu
+      if (this.partie.jeu.licenceTitre) {
+        if (this.partie.jeu.siteWebLien) {
+          texteSiteWebLicence += '<br>';
+        }
+        if (this.partie.jeu.licenceLien) {
+          texteSiteWebLicence += ('Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.licenceTitre) + "</a>");
+        } else {
+          texteSiteWebLicence += ('Licence : ' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.licenceTitre));
         }
       }
 
-      // afficher la licence du jeu
-      if (this.ctx.jeu.licenceTitre) {
-        if (this.ctx.jeu.siteWebLien) {
-          this.sortieJoueur += '<br>';
-        }
-        if (this.ctx.jeu.licenceLien) {
-          this.sortieJoueur += ('Licence : <a href="' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceLien) + '" target="_blank">' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceTitre) + "</a>");
-        } else {
-          this.sortieJoueur += ('Licence : ' + BalisesHtml.retirerBalisesHtml(this.ctx.jeu.licenceTitre));
-        }
-      }
-      this.sortieJoueur += '</p>';
+      texteSiteWebLicence += '</p>';
+      this.partie.ecran.ajouterContenuHtml(texteSiteWebLicence);
     }
 
-    if (this.ctx.jeu.parametres.activerAudio) {
+    if (this.partie.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
-      this.sortieJoueur += "<p>" + BalisesHtml.convertirEnHtml("{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}", this.ctx.dossierRessourcesComplet) + "</p>";
+      this.partie.ecran.ajouterParagrapheBrut('{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}');
     } else {
       this.activerParametreAudio = false;
     }
@@ -208,28 +210,28 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // =====================
 
     // si la commande commencer le jeu existe, commencer le jeu
-    if (this.ctx.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
+    if (this.partie.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
       // exécuter la commande « commencer le jeu »
       this.executerLaCommande("commencer le jeu", false, true, false);
       // sinon initialiser les éléments du jeu en fonction de la position du joueur
     } else {
       // définir visibilité des objets initiale
-      this.ctx.eju.majPresenceDesObjets();
+      this.partie.eju.majPresenceDesObjets();
       // définir adjacence des lieux initiale
-      this.ctx.eju.majAdjacenceLieux();
+      this.partie.eju.majAdjacenceLieux();
 
       // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
-      if (this.ctx.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.ctx.jeu.lieux.length > 0) {
+      if (this.partie.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.partie.jeu.lieux.length > 0) {
         // exécuter la commande « regarder »
         this.executerLaCommande("regarder", false, true, false);
       } else {
-        this.sortieJoueur = "";
+        // this.sortieJoueur = "";
       }
     }
     // le jeu est commencé à moins qu’il ne soit interrompu
     if (!this.interruptionEnCours) {
       // nouvelle partie
-      this.ctx.jeu.commence = true;
+      this.partie.jeu.commence = true;
       this.lancerVerificationProgrammation();
       // reprise partie
       if (this.sauvegardeEnAttente) {
@@ -265,13 +267,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         programmationTerminee.forEach(programmationIndex => {
           // retirer la programmation terminée
           const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
-          if (this.ctx.verbeux) {
+          if (this.partie.verbeux) {
             console.log("Chrono écoulé");
           }
           // retrouver la routine
           const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
           if (routine) {
-            if (this.ctx.verbeux) {
+            if (this.partie.verbeux) {
               console.log("routine trouvéee");
             }
             this.jeu.tamponRoutinesEnAttente.push(routine);
@@ -286,7 +288,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               this.traiterProchaineRoutine();
             }
           } else {
-            this.ctx.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
+            this.partie.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
           }
         });
 
@@ -307,7 +309,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private ajouterSortieJoueur(contenu: string) {
 
     if (contenu) {
-
       // en mode auto-triche ou restauration partie, on n’attend pas !
       if (this.autoTricheActif || this.sauvegardeEnAttente) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
@@ -328,16 +329,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // s’il ne faut pas effacer l’écran
         if (indexDernierEffacement == -1) {
           // ajouter à la suite
-          this.sortieJoueur += texteSection;
+          this.partie.ecran.ajouterContenuHtml(texteSection);
           // sinon
         } else {
           // remplacer la sortie du joueur
-          this.effacerEcran();
-          this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length);
+          this.partie.ecran.remplacerContenuHtml(texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length));
         }
         // attendre pour afficher la suite éventuelle
         if (sectionsContenu.length > 1) {
-          this.sortieJoueur += '<p class="t-commande font-italic">Appuyez sur une touche…'
+          this.partie.ecran.ajouterContenuHtml('<p class="t-commande font-italic">Appuyez sur une touche…');
           this.resteDeLaSortie = this.resteDeLaSortie.concat(sectionsContenu.slice(1));
         }
       }
@@ -346,26 +346,26 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private verifierTamponErreurs() {
     // vérifier s’il reste des erreurs à afficher
-    if (this.ctx.jeu?.tamponErreurs.length) {
+    if (this.partie.jeu?.tamponErreurs.length) {
       let texteErreurs = "";
-      while (this.ctx.jeu.tamponErreurs.length) {
-        const erreur = this.ctx.jeu.tamponErreurs.shift();
+      while (this.partie.jeu.tamponErreurs.length) {
+        const erreur = this.partie.jeu.tamponErreurs.shift();
         texteErreurs += '{N}■ ' + erreur + '';
       }
-      texteErreurs = '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteErreurs = '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.partie.dossierRessourcesComplet);
       this.ajouterTexteAIgnorerAuxStatistiques(texteErreurs);
       this.sortieJoueur += texteErreurs;
       this.scrollSortie();
     }
 
     // vérifier s’il reste des conseils à afficher
-    if (this.debogueur && this.ctx.jeu?.tamponConseils.length) {
+    if (this.debogueur && this.partie.jeu?.tamponConseils.length) {
       let texteConseils = "";
-      while (this.ctx.jeu.tamponConseils.length) {
-        const conseil = this.ctx.jeu.tamponConseils.shift();
+      while (this.partie.jeu.tamponConseils.length) {
+        const conseil = this.partie.jeu.tamponConseils.shift();
         texteConseils += '{N}💡' + conseil + '';
       }
-      texteConseils = '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.ctx.dossierRessourcesComplet);
+      texteConseils = '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.partie.dossierRessourcesComplet);
       this.ajouterTexteAIgnorerAuxStatistiques(texteConseils);
       this.sortieJoueur += texteConseils;
       this.scrollSortie();
@@ -382,8 +382,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     console.warn("routine exécutée: ", routine.nom);
 
-    const sortieRoutine = this.ctx.com.executerRoutine(routine);
-    this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.ctx.dossierRessourcesComplet) + "</p>");
+    const sortieRoutine = this.partie.com.executerRoutine(routine);
+    this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.partie.dossierRessourcesComplet) + "</p>");
 
     // s’il y a des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
@@ -426,7 +426,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               const curChoix = this.interruptionEnCours.choix[indexChoix];
               // pour les QCM: toujours 1 seule valeur par choix !
               // sinon on s'en sort pas avec les lettres et la gestion des index...
-              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeurs[0].toString(), this.ctx.dossierRessourcesComplet) + '</li>';
+              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeurs[0].toString(), this.partie.dossierRessourcesComplet) + '</li>';
             }
             this.sortieJoueur += '</ul>'
             if (this.choixPossibles.length > 0) {
@@ -506,18 +506,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private ajouterTexteAIgnorerAuxStatistiques(texteAIgnorer: string) {
     // comptabiliser la commandes dans les statistiques
     const affichageCommandeNettoye = Statisticien.nettoyerTexteSortie(texteAIgnorer);
-    this.ctx.jeu.statistiques.nbMotsCommandesAffichees += Statisticien.compterMotsTexte(affichageCommandeNettoye);
-    this.ctx.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
+    this.partie.jeu.statistiques.nbMotsCommandesAffichees += Statisticien.compterMotsTexte(affichageCommandeNettoye);
+    this.partie.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
   }
 
   private effacerEcran() {
-    Statisticien.sauverStatistiquesAvantEffacerSortie(this.ctx, this.sortieJoueur);
+    Statisticien.sauverStatistiquesAvantEffacerSortie(this.partie, this.sortieJoueur);
     this.sortieJoueur = "";
   }
 
   private traiterChoixStatiqueJoueur() {
     this.commande = this.commande?.trim();
-    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.partie.dossierRessourcesComplet) + '</span>';
     this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
     this.sortieJoueur += affichageCommande;
 
@@ -550,7 +550,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private traiterChoixLibreJoueur() {
     this.commande = this.commande?.trim();
-    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.ctx.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.partie.dossierRessourcesComplet) + '</span>';
     this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
     this.sortieJoueur += affichageCommande;
 
@@ -619,9 +619,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       let sortieCommande: string;
       if (typeContexte == TypeContexte.tour) {
         // continuer le tour interrompu
-        sortieCommande = this.ctx.com.continuerLeTourInterrompu(tourInterrompu);
+        sortieCommande = this.partie.com.continuerLeTourInterrompu(tourInterrompu);
       } else {
-        sortieCommande = this.ctx.com.continuerRoutineInterrompue(tourInterrompu);
+        sortieCommande = this.partie.com.continuerRoutineInterrompue(tourInterrompu);
       }
 
       // s'il faut lancer une nouvelle partie
@@ -629,7 +629,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.nouvellePartie.emit();
         // sinon afficher la sortie du tour
       } else {
-        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet));
+        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet));
       }
     } else {
       this.jeu.tamponErreurs.push("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
@@ -650,8 +650,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
 
       // si le jeu n’étais pas encore commencé, il l’est à présent
-      if (!this.ctx.jeu.commence) {
-        this.ctx.jeu.commence = true;
+      if (!this.partie.jeu.commence) {
+        this.partie.jeu.commence = true;
         this.lancerVerificationProgrammation();
         // si une sauvegarde doit être restaurée
         if (this.sauvegardeEnAttente) {
@@ -814,7 +814,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.autoCommandes.pop();
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.ctx.dossierRessourcesComplet);
+    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.partie.dossierRessourcesComplet);
 
   }
 
@@ -850,7 +850,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.sauvegardeEnAttente = false;
         // sinon il n'y a pas de solution chargée
       } else {
-        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
+        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
       }
     }
 
@@ -870,7 +870,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.indexTriche = 0;
       this.commande = this.autoCommandes[this.indexTriche];
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.ctx.dossierRessourcesComplet));
+      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
     }
   }
 
@@ -951,11 +951,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.ctx.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
+    if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
-        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
+        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.partie.dossierRessourcesComplet) + '</span>';
       }
-      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.ctx.dossierRessourcesComplet);
+      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.partie.dossierRessourcesComplet);
     } else {
       // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
       if (ajouterCommandeDansHistorique) {
@@ -980,7 +980,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // EXÉCUTION DE LA COMMANDE
-      const contexteCommande = this.ctx.com.executerCommande(commandeNettoyee);
+      const contexteCommande = this.partie.com.executerCommande(commandeNettoyee);
 
       if (ecrireCommande) {
         let affichageCommande: string;
@@ -994,7 +994,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // -> afficher la commande entrée par le joueur + son interprétation
           affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
-        affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.ctx.dossierRessourcesComplet) + '</span>';
+        affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.partie.dossierRessourcesComplet) + '</span>';
         this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
         this.sortieJoueur += affichageCommande;
       }
@@ -1016,7 +1016,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.lancerSauverCommandes();
           // sortie spéciale: statistiques
         } else if (sortieCommande == "@statistiques@") {
-          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.ctx, this.sortieJoueur), this.ctx.dossierRessourcesComplet);
+          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.partie, this.sortieJoueur), this.partie.dossierRessourcesComplet);
           // éviter de comptabiliser l’affichage des statistiques dans le nombre de mots
           this.ajouterTexteAIgnorerAuxStatistiques(sortieStatistiques);
           this.ajouterSortieJoueur(sortieStatistiques);
@@ -1025,7 +1025,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.nouvellePartie.emit();
           // sortie normale
         } else {
-          const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.ctx.dossierRessourcesComplet);
+          const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet);
           // si commande pas comprise, refusée ou spéciale (déboguer), on va ignorer sa sortie pour les statistiques
           if (!contexteCommande.evenement?.commandeComprise) {
             this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
@@ -1039,7 +1039,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         // si on n’a pas été interrompu, informer que la commande n’a rien renvoyé
         if (!this.jeu.tamponInterruptions.length) {
-          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.ctx.dossierRessourcesComplet));
+          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.partie.dossierRessourcesComplet));
         }
       }
 
@@ -1063,8 +1063,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // TODO: traiter routines en attente.
 
       // si le jeu n’étais pas encore commencé, il l’est à présent
-      if (!this.ctx.jeu.commence) {
-        this.ctx.jeu.commence = true;
+      if (!this.partie.jeu.commence) {
+        this.partie.jeu.commence = true;
         this.lancerVerificationProgrammation();
       }
 
@@ -1090,13 +1090,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** valeur de la case à cocher pour activer l’audio */
   get audioActif(): boolean {
-    return this.ctx.jeu.parametres.activerAudio;
+    return this.partie.jeu.parametres.activerAudio;
   }
 
   /** valeur de la case à cocher pour activer l’audio */
   set audioActif(actif: boolean) {
-    this.ctx.jeu.parametres.activerAudio = actif;
-    this.ctx.ins.onChangementAudioActif();
+    this.partie.jeu.parametres.activerAudio = actif;
+    this.partie.ins.onChangementAudioActif();
   }
 
   get placeHolder(): string {
@@ -1181,8 +1181,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.ctx) {
-      this.ctx.unload();
+    if (this.partie) {
+      this.partie.unload();
     }
     this.enleverIFID();
   }

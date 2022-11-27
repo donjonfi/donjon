@@ -564,6 +564,26 @@ L'aide pour l'action examiner est "{*Examiner*}
   {+raccourci+} : {-ex-}".
 
 -- ==========
+--   FAIRE
+-- ==========
+action faire ceci:
+  définitions:
+    ceci est un intitulé.
+
+  phase prérequis:
+    si ceci n’est pas une pause, refuser "Je sais seulement faire une pause.".
+
+  phase exécution:
+    si ceci est une pause:
+      interrompre la partie.
+      afficher l’écran technique.
+      dire "Jeu en pause.".
+      attendre une touche.
+      afficher l’écran précédent.
+    fin si
+fin action
+
+-- ==========
 --   FERMER
 -- ==========
 action fermer ceci:
@@ -1200,6 +1220,16 @@ action utiliser ceci sur cela:
     ceci est prioritairement possédé.
   phase épilogue:
     dire "Ça n’a rien donné.".
+fin action
+
+-- =================
+--   VERROUILLER
+-- =================
+action verrouiller ceci avec cela:
+  définitions:
+    ceci est prioritairement verouillable.
+  phase épilogue:
+    dire "Ça n’a pas fonctionné.".
 fin action
 
 -- =============

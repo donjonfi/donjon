@@ -1,5 +1,6 @@
 import { AleatoireUtils } from "../../utils/jeu/aleatoire-utils";
 import { Commandeur } from "../../utils/jeu/commandeur";
+import { ContexteEcran } from "./contexte-ecran";
 import { Declencheur } from "../../utils/jeu/declencheur";
 import { ElementsJeuUtils } from "../../utils/commun/elements-jeu-utils";
 import { Instructions } from "../../utils/jeu/instructions";
@@ -8,10 +9,14 @@ import { StringUtils } from "../../utils/commun/string.utils";
 
 export class ContextePartie {
 
-  public com: Commandeur;
-  public ins: Instructions;
-  public eju: ElementsJeuUtils;
-  public dec: Declencheur;
+  public readonly com: Commandeur;
+  public readonly ins: Instructions;
+  public readonly eju: ElementsJeuUtils;
+
+  public readonly dec: Declencheur;
+
+  /** les écrans de jeu  */
+  public readonly ecran: ContexteEcran;
 
   private _dossierRessourcesComplet: string;
 
@@ -42,6 +47,8 @@ export class ContextePartie {
       }
     }
 
+    this.ecran = new ContexteEcran(this._dossierRessourcesComplet);
+
     this.initialiserAleatoire();
   }
 
@@ -67,9 +74,11 @@ export class ContextePartie {
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
-  public get dossierRessourcesComplet() {
+  public get dossierRessourcesComplet(): string {
     return this._dossierRessourcesComplet;
   }
+
+
 
   public unload() {
     // supprimer les musiques en court éventuelles

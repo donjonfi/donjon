@@ -74,28 +74,28 @@ export class AnalyseurCommunUtils {
               console.error("Instruction « jouer » pas complète.");
               els = null;
             }
-            // AFFICHER une image
+            // AFFICHER une image, un écran
           } else if (els.infinitif == 'afficher') {
-            const suiteAfficher = ExprReg.xSuiteInstructionAfficher.exec(els.complement1);
+            const suiteAfficher = ExprReg.xSuiteInstructionAfficherImage.exec(els.complement1);
             if (suiteAfficher) {
               const limage = suiteAfficher[1];
               const fichier = suiteAfficher[2];
               els.sujet = PhraseUtils.getGroupeNominalDefini(limage, true);
-              // complémnent 1: fichier
+              // complément 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
             } else {
               console.error("Instruction « afficher » pas complète.");
               els = null;
             }
-            // CHRAGER le thème
+            // CHARGER le thème
           } else if (els.infinitif == 'charger') {
             const suiteCharger = ExprReg.xSuiteInstructionCharger.exec(els.complement1);
             if (suiteCharger) {
               const letheme = suiteCharger[1];
               const fichier = suiteCharger[2];
               els.sujet = PhraseUtils.getGroupeNominalDefini(letheme, true);
-              // complémnent 1: fichier
+              // complément 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
             } else {
