@@ -22,6 +22,41 @@ export class ContexteEcran {
   ) { }
 
   /**
+   * Changer l’écran affiché au joueur.
+   * @param ecran écran à afficher.
+   */
+  public afficherEcran(ecran: ChoixEcran) {
+    switch (ecran) {
+      case ChoixEcran.principal:
+        this.ecranSecondaireAffiche = false;
+        this.ecranTechniqueAffiche = false;
+        break;
+
+      case ChoixEcran.secondaire:
+        this.ecranSecondaireAffiche = true;
+        this.ecranTechniqueAffiche = false;
+        break;
+
+      case ChoixEcran.technique:
+        // raz écran technique lorsqu’on l’affiche
+        this._ecranTechnique = '';
+        this.ecranTechniqueAffiche = true;
+        break;
+
+      case ChoixEcran.precedent:
+        if (this.ecranTechniqueAffiche) {
+          this.ecranTechniqueAffiche = false;
+        } else {
+          this.ecranSecondaireAffiche = !this.ecranSecondaireAffiche;
+        }
+        break;
+
+      default:
+        throw new Error(`afficherEcran: écran pas connu (${ecran})`);
+    }
+  }
+
+  /**
    * Contenu de l’écran à afficher au joueur.
    */
   get ecran(): string {
@@ -156,4 +191,11 @@ export class ContexteEcran {
     }
   }
 
+}
+
+export enum ChoixEcran {
+  principal,
+  secondaire,
+  technique,
+  precedent
 }

@@ -23,6 +23,9 @@ export class InterruptionsUtils {
       case TypeInterruption.annulerTour:
         tour.nbToursAnnuler = resultat.nbToursAnnuler;
         break;
+      case TypeInterruption.changerEcran:
+        tour.ecran = resultat.ecran;
+        break;
     }
   }
 
@@ -45,6 +48,9 @@ export class InterruptionsUtils {
         break;
       case TypeInterruption.annulerTour:
         resultat.nbToursAnnuler = sousResultat.nbToursAnnuler;
+        break;
+      case TypeInterruption.changerEcran:
+        resultat.ecran = sousResultat.ecran;
         break;
     }
   }

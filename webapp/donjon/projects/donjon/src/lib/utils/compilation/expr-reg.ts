@@ -854,7 +854,7 @@ export class ExprReg {
    * - Tests unitaires
    *     - (aucun)
    */
-  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent)$/i;
+  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent|precedent)$/i;
 
   /** 
    * Complément de l’instruction afficher (une image)

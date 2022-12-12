@@ -150,7 +150,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
 
     // afficher l’auteur du jeu
-    let texteAuteur = 'Un jeu de';
+    let texteAuteur = 'Un jeu de ';
     if (this.partie.jeu.auteur) {
       texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteur));
     } else if (this.partie.jeu.auteurs) {
@@ -501,6 +501,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // enlever commande en cours + le nombre de commandes à annuler
           this.historiqueCommandesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this.historiqueCommandesPartie);
           this.nouvellePartie.emit();
+          break;
+
+        case TypeInterruption.changerEcran:
+          this.partie.ecran.afficherEcran(this.interruptionEnCours.ecran);
+          this.terminerInterruption(undefined);
           break;
 
         default:
@@ -1010,9 +1015,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // -> afficher la commande entrée par le joueur + son interprétation
           affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
-        affichageCommande = this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + affichageCommande + '-}');
-        this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
-        this.partie.ecran.ajouterContenuHtml(affichageCommande);
+        const texteIgnore = this.partie.ecran.ajouterParagrapheDonjonOuvert('{-' + affichageCommande + '-}');
+        this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
       }
 
       const sortieCommande = contexteCommande.sortie;

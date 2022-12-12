@@ -87,7 +87,7 @@ export class AnalyseurCommunUtils {
             } else {
               const suiteAfficherEcran = ExprReg.xSuiteInstructionAfficherEcran.exec(els.complement1);
               if (suiteAfficherEcran) {
-                // TODO: adapter instruction afficher l’écran xxx
+                els.sujet = new GroupeNominal('l’', 'écran', suiteAfficherEcran[2].toLocaleLowerCase())
               } else {
                 console.error("Instruction « afficher » pas complète.");
                 els = null;  

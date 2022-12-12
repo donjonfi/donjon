@@ -1,5 +1,6 @@
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 
+import { ChoixEcran } from '../../models/jouer/contexte-ecran';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Commandeur } from './commandeur';
 import { CompteursUtils } from './compteurs-utils';
@@ -289,13 +290,13 @@ export class Instructions {
           // retirer la routine à annuler
           const nomRoutine = instruction.sujet.epithete?.toLocaleLowerCase();
           if (nomRoutine) {
-            if(this.verbeux){
+            if (this.verbeux) {
               console.log(`routine à annuler: ${nomRoutine}`);
             }
             const indexRoutine = this.jeu.programmationsTemps.findIndex(x => x.routine == nomRoutine);
             if (indexRoutine != -1) {
               this.jeu.programmationsTemps.splice(indexRoutine, 1);
-              if(this.verbeux){
+              if (this.verbeux) {
                 console.log(`routine annulée`);
               }
             }
@@ -397,8 +398,30 @@ export class Instructions {
           } else {
             resultat.sortie += "{+Le nom de l’image à afficher ne peut contenir que des lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Ex: mon_image.png+}"
           }
+        } else if (instruction.sujet?.nom == 'écran') {
+          resultat.typeInterruption = TypeInterruption.changerEcran;
+          resultat.interrompreBlocInstruction = true;
+          switch (instruction.sujet.epithete) {
+            case 'principal':
+              resultat.ecran = ChoixEcran.principal;
+              break;
+            case 'secondaire':
+              resultat.ecran = ChoixEcran.secondaire;
+              break;
+            case 'technique':
+              resultat.ecran = ChoixEcran.technique;
+              break;
+            case 'précédent':
+            case 'precedent':
+              resultat.ecran = ChoixEcran.precedent;
+              break;
+
+            default:
+              resultat.sortie += "{+Je peux seulement afficher l’un des écrans suivants: << principal >>, << secondaire >>, << technique >> ou << précédent >>.+}";
+              break;
+          }
         } else {
-          resultat.sortie += "{+Je peux seulement afficher des images. Le nom de l’image à afficher ne peut contenir que des lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Ex: mon_image.png+}"
+          resultat.sortie += "{+Je peux seulement afficher des images ou l’un des écrans. Le nom de l’image à afficher ne peut contenir que des lettres, chiffres et tirets (pas de caractère spécial ou lettre accentuée). Ex: mon_image.png+}"
         }
         break;
 

@@ -1,4 +1,5 @@
 import { Choix } from "../compilateur/choix";
+import { ChoixEcran } from "../jouer/contexte-ecran";
 import { ContexteCommande } from "../jouer/contexte-commande";
 import { ContexteTour } from "../jouer/contexte-tour";
 
@@ -19,6 +20,8 @@ export class Interruption {
   public nbSecondesAttendre: number | undefined;
   /** le nombre de tours à annuler (interruption annuler tour) */
   public nbToursAnnuler: number | undefined;
+  /** écran à afficher (interruption changer écran) */
+  public ecran: ChoixEcran | undefined;
 
   constructor(
     /** Type d’interruption (attendre un choix, attendre une touche, attendre X secondes) */
@@ -49,15 +52,6 @@ export enum TypeInterruption {
   attendreChoixLibre = 'l',
   /** Annuler 1 tour de jeu (ou plus) */
   annulerTour = 'a',
+  /** Changer l’écran affiché (principal, secondaire, technique) */
+  changerEcran = 'e',
 }
-
-// export enum TypeChoixInterruption {
-//   /** Aucun choix */
-//   aucun = 'a',
-//   /** Choix libre */
-//   libre = 'l',
-//   /** Choix statiques */
-//   statique = 's',
-//   /** Choix dynamiques */
-//   dynamique = 'd',
-// }
