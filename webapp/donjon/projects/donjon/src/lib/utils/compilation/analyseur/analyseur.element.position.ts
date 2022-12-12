@@ -92,9 +92,9 @@ export class AnalyseurElementPosition {
                   // sujet
                   nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                   // complément
-                  ctx.dernierLieu.nom,
+                  ctx.dernierLieu.nom + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                   // position
-                  "dans"
+                  'dans'
                 );
               } else {
                 ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
@@ -112,7 +112,7 @@ export class AnalyseurElementPosition {
                 // sujet
                 nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                 // complément
-                ctx.dernierElementGenerique.nom,
+                ctx.dernierElementGenerique.nom + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                 // position
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
@@ -334,7 +334,7 @@ export class AnalyseurElementPosition {
               // sujet
               ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
               // complément
-              ctxAnalyse.dernierLieu.nom,
+              ctxAnalyse.dernierLieu.nom + (ctxAnalyse.dernierLieu.epithete ? (' ' + ctxAnalyse.dernierLieu.epithete.toLowerCase()) : ''),
               // position
               "dans"
             )

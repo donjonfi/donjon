@@ -100,9 +100,9 @@ export class AnalyseurUtils {
               // sujet
               elementConcerne.nom.toLowerCase() + (elementConcerne.epithete ? (' ' + elementConcerne.epithete.toLowerCase()) : ''),
               // complément
-              ctx.dernierLieu.nom,
+              ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete) : ''),
               // position
-              "dans"
+              'dans'
             );
           } else {
             ctx.ajouterErreur(phrase.ligne, "Il/Elle se trouve ici : le dernier lieu créé porte le nom même nom que l'élément à ajouter (" + elementConcerne.elIntitule + ").")
@@ -125,7 +125,7 @@ export class AnalyseurUtils {
               // sujet
               elementConcerne.nom.toLowerCase() + (elementConcerne.epithete ? (' ' + elementConcerne.epithete.toLowerCase()) : ''),
               // complément
-              ctx.dernierElementGenerique.nom,
+              ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete) : ''),
               // position
               PositionSujetString.getPosition(iciDedansDessusDessous)
             );
