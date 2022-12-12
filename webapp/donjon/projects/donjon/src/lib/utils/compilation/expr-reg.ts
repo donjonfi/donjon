@@ -844,6 +844,19 @@ export class ExprReg {
   static readonly xSuiteInstructionJouer = /^((?:le )?son|(?:la )?musique) ([\w\._]*\w)(?: (?:(?:([0-9]\d* )(fois))|(en boucle)))?$/i;
 
   /** 
+   * Complément de l’instruction afficher (l’écran)
+   * - Découpage :
+   *     - l’écran(1) (principal|secondaire|technique|précédent)(2)
+   * - Exemples :
+   *     - l’écran principal
+   *     - l’écran secondaire
+   *     - l’écran technique
+   * - Tests unitaires
+   *     - (aucun)
+   */
+  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent)$/i;
+
+  /** 
    * Complément de l’instruction afficher (une image)
    * - Découpage :
    *     - l’image(1) nom_du_fichier.ext(2)
@@ -857,18 +870,6 @@ export class ExprReg {
    *     - 💥 image.gif
    */
   static readonly xSuiteInstructionAfficherImage = /^((?:l’|l')?image) ([\w\._]*\w)$/i;
-
-  /** 
-   * Complément de l’instruction afficher (l’écran)
-   * - Découpage :
-   *     - l’image(1) nom_du_fichier.ext(2)
-   * - Exemples :
-   *     - l’image donjon.png
-   *     - image mon_image.gif
-   * - Tests unitaires
-   *     - 
-   */
-   static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent)$/i;
 
   /** 
     * Complément de l’instruction charger (un thème)

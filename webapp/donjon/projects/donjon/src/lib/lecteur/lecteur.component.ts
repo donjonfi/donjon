@@ -34,9 +34,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   readonly TAILLE_DERNIERES_COMMANDES: number = 20;
 
-  // /** La sortie affichée au joueur (au format HTML). */
-  // public sortieJoueur: string = null;
-
   /** Commande tapée par le joueur. */
   public commande = "";
   /** Historique des commandes tapées par le joueur. */
@@ -115,6 +112,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  public get ecran(): string {
+    return this.partie?.ecran.ecran ?? "";
+  }
+
   /** Initialiser une nouvelle partie (ou reprendre une partie) */
   private initialiserJeu() {
     this.resteDeLaSortie = [];
@@ -157,7 +158,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       texteAuteur += ("(anonyme)");
     }
-    this.partie.ecran.ajouterParagrapheBrut(texteAuteur);
+    this.partie.ecran.ajouterParagrapheDonjon(texteAuteur);
 
     // afficher site web et/ou licence
     if (this.partie.jeu.siteWebLien || this.partie.jeu.licenceTitre) {
@@ -189,7 +190,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.partie.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
-      this.partie.ecran.ajouterParagrapheBrut('{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}');
+      this.partie.ecran.ajouterParagrapheDonjon('{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}');
     } else {
       this.activerParametreAudio = false;
     }
@@ -304,9 +305,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * Ajouter du contenu à la sortie pour le joueur.
-   * Cette méthode tient compte des pauses (attendre touche).
+   * Cette méthode tient compte des pauses (attendre touche) et effacements (effacer écran).
    */
-  private ajouterSortieJoueur(contenu: string) {
+  private ajouterContenuHtmlAvecTagsDonjon(contenu: string) {
 
     if (contenu) {
       // en mode auto-triche ou restauration partie, on n’attend pas !
@@ -352,10 +353,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const erreur = this.partie.jeu.tamponErreurs.shift();
         texteErreurs += '{N}■ ' + erreur + '';
       }
-      texteErreurs = '<p>' + BalisesHtml.convertirEnHtml('{+{/' + texteErreurs + '/}+}' + '</p>', this.partie.dossierRessourcesComplet);
-      this.ajouterTexteAIgnorerAuxStatistiques(texteErreurs);
-      this.sortieJoueur += texteErreurs;
-      this.scrollSortie();
+      this.ajouterErreurs(texteErreurs);
     }
 
     // vérifier s’il reste des conseils à afficher
@@ -365,10 +363,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const conseil = this.partie.jeu.tamponConseils.shift();
         texteConseils += '{N}💡' + conseil + '';
       }
-      texteConseils = '<p>' + BalisesHtml.convertirEnHtml('{-{/' + texteConseils + '/}-}' + '</p>', this.partie.dossierRessourcesComplet);
-      this.ajouterTexteAIgnorerAuxStatistiques(texteConseils);
-      this.sortieJoueur += texteConseils;
-      this.scrollSortie();
+      this.ajouteConseils(texteConseils);
     }
 
     // vérifier à nouveau dans quelques temps
@@ -377,15 +372,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);
   }
 
+  private ajouteConseils(texteConseils: string) {
+    const texteIgnore = this.partie.ecran.ajouterParagrapheDonjon('{-{/' + texteConseils + '/}-}');
+    this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+    this.scrollSortie();
+  }
+
+  private ajouterErreurs(texteErreurs: string) {
+    const texteIgnore = this.partie.ecran.ajouterParagrapheDonjon('{+{/' + texteErreurs + '/}+}');
+    this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+    this.scrollSortie();
+  }
+
   private traiterProchaineRoutine() {
     const routine = this.jeu.tamponRoutinesEnAttente.shift();
 
     console.warn("routine exécutée: ", routine.nom);
 
     const sortieRoutine = this.partie.com.executerRoutine(routine);
-    this.ajouterSortieJoueur("<p>" + BalisesHtml.convertirEnHtml(sortieRoutine, this.partie.dossierRessourcesComplet) + "</p>");
+    this.partie.ecran.ajouterParagrapheDonjon(sortieRoutine);
     this.scrollSortie();
-    
+
     // s’il y a des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
       this.traiterProchaineInterruption();
@@ -422,14 +429,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           if (this.interruptionEnCours.choix?.length) {
             const identifiantsChoix = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
             this.choixPossibles = identifiantsChoix.slice(0, this.interruptionEnCours.choix.length);
-            this.sortieJoueur += '<ul class="no-bullet">';
+
+            let texteChoix = '<ul class="no-bullet">';
             for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {
               const curChoix = this.interruptionEnCours.choix[indexChoix];
               // pour les QCM: toujours 1 seule valeur par choix !
               // sinon on s'en sort pas avec les lettres et la gestion des index...
-              this.sortieJoueur += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeurs[0].toString(), this.partie.dossierRessourcesComplet) + '</li>';
+              texteChoix += '<li>' + identifiantsChoix[indexChoix] + ' − ' + BalisesHtml.convertirEnHtml(curChoix.valeurs[0].toString(), this.partie.dossierRessourcesComplet) + '</li>';
             }
-            this.sortieJoueur += '</ul>'
+            texteChoix += '</ul>'
+            this.partie.ecran.ajouterContenuHtml(texteChoix);
             if (this.choixPossibles.length > 0) {
               this.indexChoixPropose = 0;
               this.commande = this.choixPossibles[this.indexChoixPropose];
@@ -449,16 +458,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               }
             }
           } else {
-            this.jeu.tamponErreurs.push("interruptions: le joueur doit faire un choix mais il n’y a aucun choix dans la liste");
+            this.ajouteErreur("interruptions: le joueur doit faire un choix mais il n’y a aucun choix dans la liste");
           }
           break;
 
         case TypeInterruption.attendreTouche:
 
           if (this.interruptionEnCours.messageAttendre) {
-            this.sortieJoueur += BalisesHtml.convertirEnHtml(this.interruptionEnCours.messageAttendre, undefined);
+            this.partie.ecran.ajouterContenuDonjon(this.interruptionEnCours.messageAttendre);
           } else {
-            this.sortieJoueur += '</p><p>' + BalisesHtml.convertirEnHtml('{-{/Veuillez appuyer sur une touche…/}-}', undefined) + '<br>';
+            this.partie.ecran.ajouterContenuDonjon('{p}{-{/Veuillez appuyer sur une touche…/}-}{p}');
           }
           this.commande = "";
           this.focusCommande();
@@ -495,7 +504,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           break;
 
         default:
-          this.jeu.tamponErreurs.push("interruptions: je ne connais pas ce type d’interruption: " + this.interruptionEnCours.typeInterruption);
+          this.ajouteErreur("interruptions: je ne connais pas ce type d’interruption: " + this.interruptionEnCours.typeInterruption);
           break;
       }
     } else {
@@ -511,16 +520,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.partie.jeu.statistiques.nbCaracteresCommandesAffichees += affichageCommandeNettoye.length;
   }
 
+  private ajouterConseil(conseil: string) {
+    this.jeu.tamponConseils.push(conseil);
+  }
+
+  private ajouteErreur(erreur: string) {
+    this.jeu.tamponErreurs.push(erreur);
+  }
+
   private effacerEcran() {
-    Statisticien.sauverStatistiquesAvantEffacerSortie(this.partie, this.sortieJoueur);
-    this.sortieJoueur = "";
+    Statisticien.sauverStatistiquesAvantEffacerSortie(this.partie, this.partie.ecran.ecran);
+    this.partie.ecran.effacerEcran();
   }
 
   private traiterChoixStatiqueJoueur() {
     this.commande = this.commande?.trim();
-    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.partie.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + this.commande + '-}');
     this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
-    this.sortieJoueur += affichageCommande;
 
     // choix classique
     let indexChoix = this.choixPossibles.findIndex(x => x == this.commande);
@@ -535,7 +551,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.commande = '';
       const choix = this.interruptionEnCours.choix[indexChoix];
       if (!choix) {
-        this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
+        this.ajouteErreur("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
         // sauvegarder la réponse dans le contexte du tour
         // remarques : toujours une seule valeur pour les choix statiques !
@@ -544,16 +560,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.terminerInterruption(choix);
       }
     } else {
-      this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
+      this.partie.ecran.ajouterParagrapheDonjon('Veuillez entrer la lettre correspondante à votre choix.');
     }
     this.scrollSortie();
   }
 
   private traiterChoixLibreJoueur() {
     this.commande = this.commande?.trim();
-    const affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande, this.partie.dossierRessourcesComplet) + '</span>';
+    const affichageCommande = this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + this.commande + '-}');
     this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
-    this.sortieJoueur += affichageCommande;
 
     const choixPasNettoye = this.commande.trim();
     const choixNettoye = StringUtils.normaliserReponse(this.commande);
@@ -577,7 +592,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.commande = '';
       const choix = this.interruptionEnCours.choix[indexChoix];
       if (!choix) {
-        this.jeu.tamponErreurs.push("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
+        this.ajouteErreur("Traiter choix: le choix correspondant à l’index n’a pas été retrouvé");
       } else {
         // sauvegarder la réponse dans le contexte du tour
         if (estAutreChoix) {
@@ -591,7 +606,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.terminerInterruption(choix);
       }
     } else {
-      this.sortieJoueur += "<p>Veuillez entrer la lettre correspondante à votre choix.</p>";
+      this.partie.ecran.ajouterParagrapheDonjon('Veuillez entrer la lettre correspondante à votre choix.');
     }
     this.scrollSortie();
   }
@@ -630,10 +645,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.nouvellePartie.emit();
         // sinon afficher la sortie du tour
       } else {
-        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet));
+        this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet));
       }
     } else {
-      this.jeu.tamponErreurs.push("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
+      this.ajouteErreur("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
       // l’interruption est terminée
       this.interruptionEnCours = undefined;
     }
@@ -683,17 +698,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         texteSection = texteSection.slice("<br>".length);
       }
       // ajouter à la suite
-      this.sortieJoueur += ("<p>" + texteSection + "</p>");
-      // sinon
+      this.partie.ecran.ajouterParagrapheHtml(texteSection);
+      // sinon (il faut effacer écran)
     } else {
       // remplacer la sortie du joueur
       this.effacerEcran();
-      this.sortieJoueur = "<p>" + texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length) + "</p>";
+      this.partie.ecran.ajouterParagrapheHtml(texteSection.slice(indexDernierEffacement + "@@effacer écran@@".length));
     }
 
     // s’il reste d’autres sections, attendre
     if (this.resteDeLaSortie.length) {
-      this.sortieJoueur += '<p class="t-commande font-italic">Appuyez sur une touche…'
+      this.partie.ecran.ajouterParagrapheDonjonOuvert
+      this.partie.ecran.ajouterContenuHtml('<p class="t-commande font-italic">Appuyez sur une touche…');
     } else {
       // mode triche : afficher commande suivante
       if (this.tricheActif) {
@@ -815,8 +831,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.autoCommandes.pop();
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-    this.sortieJoueur += '<p>' + BalisesHtml.convertirEnHtml('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.' + '</p>', this.partie.dossierRessourcesComplet);
-
+    this.partie.ecran.ajouterParagrapheDonjon('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.');
   }
 
   private lancerAutoTriche() {
@@ -851,7 +866,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.sauvegardeEnAttente = false;
         // sinon il n'y a pas de solution chargée
       } else {
-        this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
+        this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
       }
     }
 
@@ -871,22 +886,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.indexTriche = 0;
       this.commande = this.autoCommandes[this.indexTriche];
     } else {
-      this.ajouterSortieJoueur("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
+      this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
     }
   }
 
   private lancerSauverCommandes() {
-    this.sortieJoueur = '<p><b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir utiliser votre solution avec le mode <b>triche</b>.</i></p>';
+    let texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir utiliser votre solution avec le mode <b>triche</b>.</i>');
     // enlever la dernière commande, qui est « sauver commandes »
     this.historiqueCommandesPartie.pop();
     // afficher l’historique des commandes
     if (this.historiqueCommandesPartie.length > 0) {
       // enlever caractères spécial qui identifie les réponses à des questions
       const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
-      this.sortieJoueur += '<code>' + historiquePartieNettoye.join("<br>") + '</code>';
+      texteIgnore += this.partie.ecran.ajouterContenuHtml('<code>' + historiquePartieNettoye.join("<br>") + '</code>');
     } else {
-      this.ajouterSortieJoueur("<br>(Aucune commande à afficher.)");
+      texteIgnore += this.partie.ecran.ajouterContenuDonjon('{n}(Aucune commande à afficher.)');
     }
+    this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
   }
 
   /** Récupérer la liste de l'ensemble des commandes de la partie. */
@@ -934,11 +950,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // COMPLÉTER ET NETTOYER LA COMMANDE
         // compléter la commande
         const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
-        // this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeComplete ? (' (' + commandeComplete + ')') : ''), this.ctx.dossierRessourcesComplet) + '</span>';
         // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
         const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-        let sortie = this.executerLaCommande(commandeNettoyee, true, false, true);
+        this.executerLaCommande(commandeNettoyee, true, false, true);
       }
     }
   }
@@ -949,14 +964,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param ajouterCommandeDansHistorique faut-il ajouter la commande à l’historique des commandes du joueur ?
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    */
-  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean) {
+  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean): void {
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
     if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
-        this.sortieJoueur += '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(' > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : ''), this.partie.dossierRessourcesComplet) + '</span>';
+        this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : '') + '-}')
       }
-      this.sortieJoueur += "<br>" + BalisesHtml.convertirEnHtml('Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}', this.partie.dossierRessourcesComplet);
+      this.partie.ecran.ajouterContenuDonjon('{n}Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}');
     } else {
       // GESTION HISTORIQUE DES DERNIÈRES COMMANDES
       if (ajouterCommandeDansHistorique) {
@@ -995,9 +1010,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // -> afficher la commande entrée par le joueur + son interprétation
           affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
-        affichageCommande = '<p><span class="t-commande">' + BalisesHtml.convertirEnHtml(affichageCommande, this.partie.dossierRessourcesComplet) + '</span>';
+        affichageCommande = this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + affichageCommande + '-}');
         this.ajouterTexteAIgnorerAuxStatistiques(affichageCommande);
-        this.sortieJoueur += affichageCommande;
+        this.partie.ecran.ajouterContenuHtml(affichageCommande);
       }
 
       const sortieCommande = contexteCommande.sortie;
@@ -1017,10 +1032,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.lancerSauverCommandes();
           // sortie spéciale: statistiques
         } else if (sortieCommande == "@statistiques@") {
-          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.partie, this.sortieJoueur), this.partie.dossierRessourcesComplet);
+          const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.partie), this.partie.dossierRessourcesComplet);
           // éviter de comptabiliser l’affichage des statistiques dans le nombre de mots
           this.ajouterTexteAIgnorerAuxStatistiques(sortieStatistiques);
-          this.ajouterSortieJoueur(sortieStatistiques);
+          this.ajouterContenuHtmlAvecTagsDonjon(sortieStatistiques);
           // sortie spéciale: nouvelle partie
         } else if (sortieCommande.includes("@nouvelle partie@")) {
           this.nouvellePartie.emit();
@@ -1034,19 +1049,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           } else if (contexteCommande.evenement?.infinitif == 'afficher' && contexteCommande.evenement?.ceci == 'aide') {
             this.ajouterTexteAIgnorerAuxStatistiques(sortieCommandeHtml);
           }
-          this.ajouterSortieJoueur(sortieCommandeHtml);
+          this.ajouterContenuHtmlAvecTagsDonjon(sortieCommandeHtml);
         }
         // aucune sortie
       } else {
         // si on n’a pas été interrompu, informer que la commande n’a rien renvoyé
         if (!this.jeu.tamponInterruptions.length) {
-          this.ajouterSortieJoueur((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.partie.dossierRessourcesComplet));
+          this.ajouterContenuHtmlAvecTagsDonjon((nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml("{/La commande n’a renvoyé aucun retour./}", this.partie.dossierRessourcesComplet));
         }
       }
 
       // terminer le paragraphe si on n’a pas d’interruptions à gérer
       if (!this.jeu.tamponInterruptions.length) {
-        this.sortieJoueur += "</p>";
+        this.partie.ecran.fermerParagrahpe();
       }
     }
     // nettoyer l’entrée commande et scroll du texte

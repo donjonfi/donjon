@@ -76,17 +76,22 @@ export class AnalyseurCommunUtils {
             }
             // AFFICHER une image, un écran
           } else if (els.infinitif == 'afficher') {
-            const suiteAfficher = ExprReg.xSuiteInstructionAfficherImage.exec(els.complement1);
-            if (suiteAfficher) {
-              const limage = suiteAfficher[1];
-              const fichier = suiteAfficher[2];
+            const suiteAfficherImage = ExprReg.xSuiteInstructionAfficherImage.exec(els.complement1);
+            if (suiteAfficherImage) {
+              const limage = suiteAfficherImage[1];
+              const fichier = suiteAfficherImage[2];
               els.sujet = PhraseUtils.getGroupeNominalDefini(limage, true);
               // complément 1: fichier
               els.complement1 = fichier;
               els.sujetComplement1 = undefined;
             } else {
-              console.error("Instruction « afficher » pas complète.");
-              els = null;
+              const suiteAfficherEcran = ExprReg.xSuiteInstructionAfficherEcran.exec(els.complement1);
+              if (suiteAfficherEcran) {
+                // TODO: adapter instruction afficher l’écran xxx
+              } else {
+                console.error("Instruction « afficher » pas complète.");
+                els = null;  
+              }
             }
             // CHARGER le thème
           } else if (els.infinitif == 'charger') {

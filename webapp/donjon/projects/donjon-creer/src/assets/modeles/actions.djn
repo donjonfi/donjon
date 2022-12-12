@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI"
--- Version: 2022-10-04-0200.beta.2
+-- Version: 2022-12-12-0200.beta.9
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -571,14 +571,15 @@ action faire ceci:
     ceci est un intitulé.
 
   phase prérequis:
-    si ceci n’est pas une pause, refuser "Je sais seulement faire une pause.".
+    si ceci ne vaut pas une pause, refuser "Je sais seulement faire une pause.".
 
   phase exécution:
-    si ceci est une pause:
+    si ceci vaut une pause:
       interrompre la partie.
       afficher l’écran technique.
       dire "Jeu en pause.".
       attendre une touche.
+      continuer la partie.
       afficher l’écran précédent.
     fin si
 fin action
