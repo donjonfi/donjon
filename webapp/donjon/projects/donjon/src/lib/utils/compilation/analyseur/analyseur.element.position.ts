@@ -92,7 +92,7 @@ export class AnalyseurElementPosition {
                   // sujet
                   nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                   // complément
-                  ctx.dernierLieu.nom + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                  ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''),
                   // position
                   'dans'
                 );
