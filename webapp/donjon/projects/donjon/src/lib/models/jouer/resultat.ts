@@ -1,4 +1,5 @@
 import { Choix } from "../compilateur/choix";
+import { ChoixEcran } from "./contexte-ecran";
 import { Instruction } from "../compilateur/instruction";
 import { TypeInterruption } from "../jeu/interruption";
 
@@ -37,6 +38,7 @@ export class Resultat {
   public nbSecondesAttendre: number | undefined;
   /** le nombre de tours à annuler (interruption annuler tour) */
   public nbToursAnnuler: number | undefined;
-
+  /** écran à afficher (interruption changer écran) */
+  public ecran: ChoixEcran | undefined;
 
 }

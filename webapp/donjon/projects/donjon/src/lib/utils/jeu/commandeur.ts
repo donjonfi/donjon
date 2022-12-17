@@ -537,6 +537,7 @@ export class Commandeur {
     interruption.messageAttendre = tour.messageAttendre;
     interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
     interruption.nbToursAnnuler = tour.nbToursAnnuler;
+    interruption.ecran = tour.ecran;
     this.jeu.tamponInterruptions.push(interruption);
   }
 

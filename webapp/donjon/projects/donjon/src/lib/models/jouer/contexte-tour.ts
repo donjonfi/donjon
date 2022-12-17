@@ -1,4 +1,5 @@
 import { Choix } from "../compilateur/choix";
+import { ChoixEcran } from "./contexte-ecran";
 import { ConditionSolo } from "../compilateur/condition-solo";
 import { ContexteCommande } from "./contexte-commande";
 import { ElementsPhrase } from "../commun/elements-phrase";
@@ -35,6 +36,8 @@ export class ContexteTour {
   public nbSecondesAttendre: number | undefined;
   /** le nombre de tours à annuler (interruption annuler tour) */
   public nbToursAnnuler: number | undefined;
+  /** écran à afficher (interruption changer écran) */
+  public ecran: ChoixEcran | undefined;
 
   /** déplacement du joueur pour ce tour : origine */
   public origine: Lieu;

@@ -232,7 +232,7 @@ export class InstructionExecuter {
         if (uniteTemps) {
           this.programmerRoutine(instruction, contexteTour, nomRoutine, temps, uniteTemps);
         } else {
-          res = this.ins.executerInstructions(routineTrouvee[0].instructions, undefined, undefined, undefined);
+          res = this.ins.executerInstructions(routineTrouvee[0].instructions, contexteTour, evenement, undefined);
         }
       } else {
         contexteTour.ajouterErreurInstruction(instruction, `La routine simple n’a pas été trouvée: ${instruction.complement1}`);

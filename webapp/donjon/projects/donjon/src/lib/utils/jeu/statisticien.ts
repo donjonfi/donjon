@@ -19,7 +19,7 @@ export class Statisticien {
   }
 
   /** Afficher lest statistiques du nombre de mots du scénario et de la partie. */
-  public static afficherStatistiques(ctx: ContextePartie, sortieJoueur: string): string {
+  public static afficherStatistiques(ctx: ContextePartie): string {
     let sortie: string = '';
 
     // nombre de caractères du scénario
@@ -29,8 +29,8 @@ export class Statisticien {
       + "{t}- " + ctx.jeu.statistiques.nbCaracteresAffichables + " caractères affichables{n}"
       + "{t}- {+" + ctx.jeu.statistiques.nbMotsAffichables + " mots affichables+}{n}";
 
-    // nombre de caractères dans la sortie + ce qu’on a retenu avant effacement écran éventuel
-    const sortieNettoyee = Statisticien.nettoyerTexteSortie(sortieJoueur);
+    // nombre de caractères dans la sortie (les 2 écrans) + ce qu’on a retenu avant effacement écran éventuel
+    const sortieNettoyee = Statisticien.nettoyerTexteSortie(ctx.ecran.ecranPrincipal + ctx.ecran.ecranSecondaire);
     const nbCaracteresAffiches = sortieNettoyee.length + ctx.jeu.statistiques.nbCaracteresAffichesAvantEffacement;
     const nbMotsAffiches = Statisticien.compterMotsTexte(sortieNettoyee) + ctx.jeu.statistiques.nbMotsAffichesAvantEffacement;
     sortie += "Sortie partie :{n}"

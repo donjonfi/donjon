@@ -9,32 +9,75 @@ export class ContexteEcran {
   private ecranTechniqueAffiche = false;
 
   /** L’écran principal du jeu */
-  private ecranPrincipal = "";
+  private _ecranPrincipal = "";
 
   /** L’écran secondaire du jeu */
-  private ecranSecondaire = "";
+  private _ecranSecondaire = "";
 
   /** L’écran technique du jeu */
-  private ecranTechnique = "";
+  private _ecranTechnique = "";
 
   constructor(
     private dossierRessourcesComplet: string
   ) { }
 
   /**
-   * Obtenir le contenu de l’écran à afficher au joueur.
+   * Changer l’écran affiché au joueur.
+   * @param ecran écran à afficher.
+   */
+  public afficherEcran(ecran: ChoixEcran) {
+    switch (ecran) {
+      case ChoixEcran.principal:
+        this.ecranSecondaireAffiche = false;
+        this.ecranTechniqueAffiche = false;
+        break;
+
+      case ChoixEcran.secondaire:
+        this.ecranSecondaireAffiche = true;
+        this.ecranTechniqueAffiche = false;
+        break;
+
+      case ChoixEcran.technique:
+        // raz écran technique lorsqu’on l’affiche
+        this._ecranTechnique = '';
+        this.ecranTechniqueAffiche = true;
+        break;
+
+      case ChoixEcran.precedent:
+        if (this.ecranTechniqueAffiche) {
+          this.ecranTechniqueAffiche = false;
+        } else {
+          this.ecranSecondaireAffiche = !this.ecranSecondaireAffiche;
+        }
+        break;
+
+      default:
+        throw new Error(`afficherEcran: écran pas connu (${ecran})`);
+    }
+  }
+
+  /**
+   * Contenu de l’écran à afficher au joueur.
    */
   get ecran(): string {
     // écran technique
     if (this.ecranTechniqueAffiche) {
-      return this.ecranTechnique;
+      return this._ecranTechnique;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
-      return this.ecranSecondaire;
+      return this._ecranSecondaire;
       // écran principal
     } else {
-      return this.ecranPrincipal;
+      return this._ecranPrincipal;
     }
+  }
+
+  get ecranPrincipal(): string {
+    return this._ecranPrincipal;
+  }
+
+  get ecranSecondaire(): string {
+    return this._ecranSecondaire;
   }
 
   /** Effacer l’écran. */
@@ -42,27 +85,66 @@ export class ContexteEcran {
     this.remplacerHtml('');
   }
 
-  /** Ajouter du texte pas encore formaté en html à l’écran. */
-  public ajouterContenuBrut(contenuBrut: string) {
+  /** 
+   * Ajouter du texte pas encore formaté en html à l’écran. 
+   * @param contenuBrut Contenu qui sera converti en HTML.
+   * @returns contenu ajouté, converti en HTML.
+   */
+  public ajouterContenuDonjon(contenuBrut: string): string {
     const contenuHtml = BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
     this.ajouterHtml(contenuHtml);
+    return contenuHtml
   }
 
   /** 
    * Ajouter du contenu déjà formaté en HTML à l’écran.
    * @param contenuHtml Contenu HTML.
+   * @returns contenu ajouté.
    */
-  public ajouterContenuHtml(contenuHtml: string) {
+  public ajouterContenuHtml(contenuHtml: string): string {
     this.ajouterHtml(contenuHtml);
+    return contenuHtml;
   }
 
   /**
    * Ajouter un paragraphe avec le contenu spécifié.
    * @param contenuBrut Contenu qui sera converti en HTML.
+   * @returns le paragraphe ajouté, converti en HTML.
    */
-  public ajouterParagrapheBrut(contenuBrut: string) {
+  public ajouterParagrapheDonjon(contenuBrut: string): string {
     const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet) + '</p>';
     this.ajouterHtml(contenuHtml);
+    return contenuHtml;
+  }
+
+  /**
+   * Ajouter un paragraphe ouvert avec le contenu spécifié.
+   * @param contenuBrut Contenu qui sera converti en HTML.
+   * @returns le paragraphe ajouté, converti en HTML.
+   */
+  public ajouterParagrapheDonjonOuvert(contenuBrut: string): string {
+    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
+    this.ajouterHtml(contenuHtml);
+    return contenuHtml;
+  }
+
+  /**
+   * Ajouter un paragraphe avec le contenu spécifié.
+   * @param contenuHtml Contenu HTML.
+   * @returns le paragraphe ajouté.
+   */
+  public ajouterParagrapheHtml(contenuHtml: string): string {
+    contenuHtml = '<p>' + contenuHtml + '</p>';
+    this.ajouterHtml(contenuHtml);
+    return contenuHtml;
+  }
+
+  public fermerParagrahpe() {
+    this.ajouterHtml('</p>');
+  }
+
+  public sautParagraphe() {
+    this.ajouterHtml('</p><p>');
   }
 
   /**
@@ -78,7 +160,7 @@ export class ContexteEcran {
    * Effacer l’écran et commencer un nouveau paragraphe puis ajouter le contenu spécifié qui sera converti au format HTML.
    * @param contenuBrut Contenu qui sera converti en HTML.
    */
-  public remplacerContenuBrut(contenuBrut: string) {
+  public remplacerContenuDonjon(contenuBrut: string) {
     const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
     this.ajouterHtml(contenuHtml);
   }
@@ -86,27 +168,34 @@ export class ContexteEcran {
   private ajouterHtml(contenuHtml: string) {
     // écran technique
     if (this.ecranTechniqueAffiche) {
-      this.ecranTechnique += contenuHtml;
+      this._ecranTechnique += contenuHtml;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
-      this.ecranSecondaire += contenuHtml;
+      this._ecranSecondaire += contenuHtml;
       // écran principal
     } else {
-      this.ecranPrincipal += contenuHtml;
+      this._ecranPrincipal += contenuHtml;
     }
   }
 
   private remplacerHtml(contenuHtml: string) {
     // écran technique
     if (this.ecranTechniqueAffiche) {
-      this.ecranTechnique = contenuHtml;
+      this._ecranTechnique = contenuHtml;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
-      this.ecranSecondaire = contenuHtml;
+      this._ecranSecondaire = contenuHtml;
       // écran principal
     } else {
-      this.ecranPrincipal = contenuHtml;
+      this._ecranPrincipal = contenuHtml;
     }
   }
 
+}
+
+export enum ChoixEcran {
+  principal,
+  secondaire,
+  technique,
+  precedent
 }

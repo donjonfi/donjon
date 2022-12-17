@@ -844,6 +844,19 @@ export class ExprReg {
   static readonly xSuiteInstructionJouer = /^((?:le )?son|(?:la )?musique) ([\w\._]*\w)(?: (?:(?:([0-9]\d* )(fois))|(en boucle)))?$/i;
 
   /** 
+   * Complément de l’instruction afficher (l’écran)
+   * - Découpage :
+   *     - l’écran(1) (principal|secondaire|technique|précédent)(2)
+   * - Exemples :
+   *     - l’écran principal
+   *     - l’écran secondaire
+   *     - l’écran technique
+   * - Tests unitaires
+   *     - (aucun)
+   */
+  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent|precedent)$/i;
+
+  /** 
    * Complément de l’instruction afficher (une image)
    * - Découpage :
    *     - l’image(1) nom_du_fichier.ext(2)
@@ -857,18 +870,6 @@ export class ExprReg {
    *     - 💥 image.gif
    */
   static readonly xSuiteInstructionAfficherImage = /^((?:l’|l')?image) ([\w\._]*\w)$/i;
-
-  /** 
-   * Complément de l’instruction afficher (l’écran)
-   * - Découpage :
-   *     - l’image(1) nom_du_fichier.ext(2)
-   * - Exemples :
-   *     - l’image donjon.png
-   *     - image mon_image.gif
-   * - Tests unitaires
-   *     - 
-   */
-   static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent)$/i;
 
   /** 
     * Complément de l’instruction charger (un thème)
@@ -911,7 +912,7 @@ export class ExprReg {
    *   - 2 nombres compris entre 7 et 122
    *   - trois nombres compris entre un et trois
    */
-  static readonly xSuiteInstructionSelectionnerNombre = /^(?:([1-9][0-9]*)|(un|une|le|la|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (?:compris(?:e(?:s)?)? )entre ?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) et (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix))$/i;
+  static readonly xSuiteInstructionSelectionnerNombre = /^(?:([1-9][0-9]*)|(un|une|le|la|l’|l'|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) (?!(?:\d|(?:un|1|une|de|du|des|le|la|les|l)\b)|"|d’|d')(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (?:compris(?:e(?:s)?)? )entre ?(?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)) et (?:([1-9][0-9]*)|(un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix))$/i;
 
   /**
    * - Manger tomate(2).

@@ -87,14 +87,14 @@ export class AnalyseurElementPosition {
           // ICI
           case 'ici':
             if (ctx.dernierLieu) {
-              if (ctx.dernierLieu.nom !== nom) {
+              if (ctx.dernierLieu.nom !== nom || ctx.dernierLieu.epithete !== epithete ) {
                 position = new PositionSujetString(
                   // sujet
                   nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                   // complément
-                  ctx.dernierLieu.nom,
+                  ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''),
                   // position
-                  "dans"
+                  'dans'
                 );
               } else {
                 ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
@@ -107,12 +107,12 @@ export class AnalyseurElementPosition {
           case 'dedans':
           case 'dessus':
           case 'dessous':
-            if (ctx.dernierElementGenerique && ctx.dernierElementGenerique.nom !== nom) {
+            if (ctx.dernierElementGenerique && (ctx.dernierElementGenerique.nom !== nom || ctx.dernierElementGenerique.epithete !== epithete)) {
               position = new PositionSujetString(
                 // sujet
                 nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                 // complément
-                ctx.dernierElementGenerique.nom,
+                ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''),
                 // position
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
@@ -334,7 +334,7 @@ export class AnalyseurElementPosition {
               // sujet
               ctxAnalyse.dernierElementGenerique.nom.toLowerCase() + (ctxAnalyse.dernierElementGenerique.epithete ? (' ' + ctxAnalyse.dernierElementGenerique.epithete.toLowerCase()) : ''),
               // complément
-              ctxAnalyse.dernierLieu.nom,
+              ctxAnalyse.dernierLieu.nom + (ctxAnalyse.dernierLieu.epithete ? (' ' + ctxAnalyse.dernierLieu.epithete.toLowerCase()) : ''),
               // position
               "dans"
             )
