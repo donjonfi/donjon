@@ -87,7 +87,7 @@ export class AnalyseurElementPosition {
           // ICI
           case 'ici':
             if (ctx.dernierLieu) {
-              if (ctx.dernierLieu.nom !== nom) {
+              if (ctx.dernierLieu.nom !== nom || ctx.dernierLieu.epithete !== epithete ) {
                 position = new PositionSujetString(
                   // sujet
                   nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
@@ -107,12 +107,12 @@ export class AnalyseurElementPosition {
           case 'dedans':
           case 'dessus':
           case 'dessous':
-            if (ctx.dernierElementGenerique && ctx.dernierElementGenerique.nom !== nom) {
+            if (ctx.dernierElementGenerique && (ctx.dernierElementGenerique.nom !== nom || ctx.dernierElementGenerique.epithete !== epithete)) {
               position = new PositionSujetString(
                 // sujet
                 nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
                 // complément
-                ctx.dernierElementGenerique.nom + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''),
                 // position
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
