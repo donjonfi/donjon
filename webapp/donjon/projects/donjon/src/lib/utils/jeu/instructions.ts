@@ -450,8 +450,8 @@ export class Instructions {
             case 'secondaire':
               resultat.ecran = ChoixEcran.secondaire;
               break;
-            case 'technique':
-              resultat.ecran = ChoixEcran.technique;
+            case 'temporaire':
+              resultat.ecran = ChoixEcran.temporaire;
               break;
             case 'précédent':
             case 'precedent':
@@ -459,7 +459,7 @@ export class Instructions {
               break;
 
             default:
-              resultat.sortie += "{+Je peux seulement afficher l’un des écrans suivants: << principal >>, << secondaire >>, << technique >> ou << précédent >>.+}";
+              resultat.sortie += "{+Je peux seulement afficher l’un des écrans suivants: << principal >>, << secondaire >>, << temporaire >> ou << précédent >>.+}";
               break;
           }
         } else {

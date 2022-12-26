@@ -577,7 +577,7 @@ action faire ceci:
     si ceci vaut une pause:
       interrompre la partie.
       dire "{/Partie interrompue./}".
-      afficher l’écran technique.
+      afficher l’écran temporaire.
       dire "Jeu en pause.".
       attendre une touche.
       continuer la partie.

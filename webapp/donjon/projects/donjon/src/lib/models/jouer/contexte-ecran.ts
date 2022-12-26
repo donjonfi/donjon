@@ -2,11 +2,11 @@ import { BalisesHtml } from "../../utils/jeu/balises-html";
 
 export class ContexteEcran {
 
-  /** L’écran secondaire est-il actuellement affiché (indépendamment du fait que l’écran technique est affiché par dessus ou non) ? */
+  /** L’écran secondaire est-il actuellement affiché (indépendamment du fait que l’écran temporaire est affiché par dessus ou non) ? */
   private ecranSecondaireAffiche = false;
 
-  /** L’écran technique est-il actuellement affiché (cette écran s’affiche par dessus les autres) ? */
-  private ecranTechniqueAffiche = false;
+  /** L’écran temporaire est-il actuellement affiché (cette écran s’affiche par dessus les autres) ? */
+  private ecranTemporaireAffiche = false;
 
   /** L’écran principal du jeu */
   private _ecranPrincipal = "";
@@ -14,8 +14,8 @@ export class ContexteEcran {
   /** L’écran secondaire du jeu */
   private _ecranSecondaire = "";
 
-  /** L’écran technique du jeu */
-  private _ecranTechnique = "";
+  /** L’écran temporaire du jeu */
+  private _ecranTemporaire = "";
 
   constructor(
     private dossierRessourcesComplet: string
@@ -29,23 +29,23 @@ export class ContexteEcran {
     switch (ecran) {
       case ChoixEcran.principal:
         this.ecranSecondaireAffiche = false;
-        this.ecranTechniqueAffiche = false;
+        this.ecranTemporaireAffiche = false;
         break;
 
       case ChoixEcran.secondaire:
         this.ecranSecondaireAffiche = true;
-        this.ecranTechniqueAffiche = false;
+        this.ecranTemporaireAffiche = false;
         break;
 
-      case ChoixEcran.technique:
-        // raz écran technique lorsqu’on l’affiche
-        this._ecranTechnique = '';
-        this.ecranTechniqueAffiche = true;
+      case ChoixEcran.temporaire:
+        // raz écran temporaire lorsqu’on l’affiche
+        this._ecranTemporaire = '';
+        this.ecranTemporaireAffiche = true;
         break;
 
       case ChoixEcran.precedent:
-        if (this.ecranTechniqueAffiche) {
-          this.ecranTechniqueAffiche = false;
+        if (this.ecranTemporaireAffiche) {
+          this.ecranTemporaireAffiche = false;
         } else {
           this.ecranSecondaireAffiche = !this.ecranSecondaireAffiche;
         }
@@ -60,9 +60,9 @@ export class ContexteEcran {
    * Contenu de l’écran à afficher au joueur.
    */
   get ecran(): string {
-    // écran technique
-    if (this.ecranTechniqueAffiche) {
-      return this._ecranTechnique;
+    // écran temporaire
+    if (this.ecranTemporaireAffiche) {
+      return this._ecranTemporaire;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
       return this._ecranSecondaire;
@@ -166,9 +166,9 @@ export class ContexteEcran {
   }
 
   private ajouterHtml(contenuHtml: string) {
-    // écran technique
-    if (this.ecranTechniqueAffiche) {
-      this._ecranTechnique += contenuHtml;
+    // écran temporaire
+    if (this.ecranTemporaireAffiche) {
+      this._ecranTemporaire += contenuHtml;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
       this._ecranSecondaire += contenuHtml;
@@ -179,9 +179,9 @@ export class ContexteEcran {
   }
 
   private remplacerHtml(contenuHtml: string) {
-    // écran technique
-    if (this.ecranTechniqueAffiche) {
-      this._ecranTechnique = contenuHtml;
+    // écran temporaire
+    if (this.ecranTemporaireAffiche) {
+      this._ecranTemporaire = contenuHtml;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
       this._ecranSecondaire = contenuHtml;
@@ -196,6 +196,6 @@ export class ContexteEcran {
 export enum ChoixEcran {
   principal,
   secondaire,
-  technique,
+  temporaire,
   precedent
 }

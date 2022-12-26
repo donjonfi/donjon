@@ -52,6 +52,6 @@ export enum TypeInterruption {
   attendreChoixLibre = 'l',
   /** Annuler 1 tour de jeu (ou plus) */
   annulerTour = 'a',
-  /** Changer l’écran affiché (principal, secondaire, technique) */
+  /** Changer l’écran affiché (principal, secondaire, temporaire) */
   changerEcran = 'e',
 }

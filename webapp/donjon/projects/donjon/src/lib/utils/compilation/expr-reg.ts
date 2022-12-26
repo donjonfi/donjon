@@ -846,15 +846,15 @@ export class ExprReg {
   /** 
    * Complément de l’instruction afficher (l’écran)
    * - Découpage :
-   *     - l’écran(1) (principal|secondaire|technique|précédent)(2)
+   *     - l’écran(1) (principal|secondaire|temporaire|précédent)(2)
    * - Exemples :
    *     - l’écran principal
    *     - l’écran secondaire
-   *     - l’écran technique
+   *     - l’écran temporaire
    * - Tests unitaires
    *     - (aucun)
    */
-  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|technique|précédent|precedent)$/i;
+  static readonly xSuiteInstructionAfficherEcran = /^((?:l’|l')?écran) (principal|secondaire|temporaire|précédent|precedent)$/i;
 
   /** 
    * Complément de l’instruction afficher (une image)
