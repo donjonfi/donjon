@@ -250,51 +250,71 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }, 1000);
   }
 
+  private comptabiliserDerniereInterruptionDeLaPartie(): void {
+    // calculer le temps de l’interruption de la partie
+    const deltaMs = (this.jeu.finInterruption - this.jeu.debutInterruption);
+    this.jeu.debutInterruption = undefined;
+    this.jeu.finInterruption = undefined;
+    // ajouter ce temps aux programmations de routines en cours
+    this.jeu.programmationsTemps.forEach(prog => {
+      prog.duree += deltaMs;
+    });
+  }
+
   private verifierChrono() {
     if (!this.jeu.termine) {
-      if (this.jeu.programmationsTemps.length) {
-        // vérifier les programmations qui sont terminées (temps écoulé)
-        const tempsActuel = Date.now();
-        let programmationTerminee: number[] = [];
-        for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
-          const programmation = this.jeu.programmationsTemps[indexProgrammation];
-          // vérifier si le chrono est arrivé à terme
-          if (tempsActuel - programmation.debutTemps > programmation.duree) {
-            programmationTerminee.push(indexProgrammation);
-          }
-        }
-
-        // récupérer les programmations teminées et exécuter la routine
-        programmationTerminee.forEach(programmationIndex => {
-          // retirer la programmation terminée
-          const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
-          if (this.partie.verbeux) {
-            console.log("Chrono écoulé");
-          }
-          // retrouver la routine
-          const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
-          if (routine) {
-            if (this.partie.verbeux) {
-              console.log("routine trouvéee");
-            }
-            this.jeu.tamponRoutinesEnAttente.push(routine);
-
-            // a) commande/interruption déjà en cours => garder pour plus tard.
-            if (this.commandeEnCours || this.interruptionEnCours) {
-              if (this.verbeux) {
-                console.log("routine pour le futur");
-              }
-              // b) rien en cours => exécuter la routine
-            } else {
-              this.traiterProchaineRoutine();
-            }
-          } else {
-            this.partie.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
-          }
-        });
-
+      // si partie interrompue, vérifier s’il faut continue la partie
+      if (this.jeu.interrompu && this.jeu.finInterruption !== undefined) {
+        this.comptabiliserDerniereInterruptionDeLaPartie();
+        // restaurer la partie
+        this.jeu.interrompu = false;
       }
+      // si la partie n’est pas en pause, vérifier les chronos
+      if (!this.jeu.interrompu) {
+        if (this.jeu.programmationsTemps.length) {
+          // vérifier les programmations qui sont terminées (temps écoulé)
+          const tempsActuel = Date.now();
+          let programmationTerminee: number[] = [];
+          for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
+            const programmation = this.jeu.programmationsTemps[indexProgrammation];
+            // vérifier si le chrono est arrivé à terme
+            if (tempsActuel - programmation.debutTemps > programmation.duree) {
+              programmationTerminee.push(indexProgrammation);
+            }
+          }
 
+          // récupérer les programmations teminées et exécuter la routine
+          programmationTerminee.forEach(programmationIndex => {
+            // retirer la programmation terminée
+            const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
+            if (this.partie.verbeux) {
+              console.log("Chrono écoulé");
+            }
+            // retrouver la routine
+            const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
+            if (routine) {
+              if (this.partie.verbeux) {
+                console.log("routine trouvéee");
+              }
+              this.jeu.tamponRoutinesEnAttente.push(routine);
+
+              // a) commande/interruption déjà en cours => garder pour plus tard.
+              if (this.commandeEnCours || this.interruptionEnCours) {
+                if (this.verbeux) {
+                  console.log("routine pour le futur");
+                }
+                // b) rien en cours => exécuter la routine
+              } else {
+                this.traiterProchaineRoutine();
+              }
+            } else {
+              this.partie.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
+            }
+          });
+
+        }
+      }
+      // prochaine vérification des chronos
       if (!this.jeu.termine) {
         setTimeout(() => {
           this.verifierChrono();
@@ -387,7 +407,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private traiterProchaineRoutine() {
     const routine = this.jeu.tamponRoutinesEnAttente.shift();
 
-    console.warn("routine exécutée: ", routine.nom);
+    if (this.verbeux) {
+      console.warn("routine exécutée: ", routine.nom);
+    }
 
     const sortieRoutine = this.partie.com.executerRoutine(routine);
     this.partie.ecran.ajouterParagrapheDonjon(sortieRoutine);

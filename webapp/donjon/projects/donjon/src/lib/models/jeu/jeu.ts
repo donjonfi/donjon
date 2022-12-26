@@ -63,6 +63,12 @@ export class Jeu {
   /** Le jeu est-il en pause ? */
   interrompu = false;
 
+  /** Heure de début de la dernière interruption de la partie (millisecondes depuis 1/1/1970) */
+  debutInterruption: number | undefined
+
+  /** Heure de fin de la dernière interruption de la partie (millisecondes depuis 1/1/1970) */
+  finInterruption: number | undefined
+
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponErreurs: string[] = [];
 

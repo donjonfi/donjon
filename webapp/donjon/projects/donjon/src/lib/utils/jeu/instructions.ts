@@ -347,13 +347,33 @@ export class Instructions {
         }
         break;
 
-      case 'terminer':
+      case 'interrompre':
+        // A) Interrompre la partie
+        if (instruction.sujet?.nom === 'partie' || instruction.sujet?.nom === 'jeu') {
+          if (this.jeu.interrompu) {
+            contexteTour.ajouterErreurInstruction(instruction, "La partie est déjà interrompue.");
+          }
+          this.jeu.interrompu = true;
+          this.jeu.debutInterruption = Date.now();
+          this.jeu.finInterruption = undefined;
+          resultat.succes = true;
+          // Z) Autre: pas supporté
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "Je sais seulement interrompre la partie.");
+          resultat.succes = false;
+        }
+        break;
+
       case 'continuer':
-        // Il faut continuer l’action en cours (évènement APRÈS spécial)
-        // jeu
-        if (instruction.sujet?.nom === 'jeu') {
-          this.jeu.termine = true;
-          // action
+        // A) Continuer partie interrompue
+        if (instruction.sujet?.nom === 'partie' || instruction.sujet?.nom === 'jeu') {
+          if (!this.jeu.interrompu) {
+            contexteTour.ajouterErreurInstruction(instruction, "La partie n’est pas interrompue.");
+          }
+          // on ne désactive pas le flag ici, cela sera traité par le lecteur.
+          this.jeu.finInterruption = Date.now();
+          resultat.succes = true;
+          // B) continuer l’action (avant/après une règle après)
         } else if (instruction.sujet?.nom?.toLocaleLowerCase() === 'action') {
           // terminer/continuer l’action avant
           if (instruction.sujet.epithete?.toLocaleLowerCase() === 'avant') {
@@ -363,6 +383,28 @@ export class Instructions {
             resultat.terminerApresRegle = true;
           }
           resultat.succes = true;
+          // Z) Autre: pas supporté
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "Je sais seulement continuer une action ou la partie interrompue.");
+          resultat.succes = false;
+        }
+        break;
+
+      case 'terminer':
+        // A) Terminer le jeu (la partie)
+        if (instruction.sujet?.nom === 'jeu') {
+          this.jeu.termine = true;
+          // B) Terminer l’action (avant/après une règle après)
+        } else if (instruction.sujet?.nom?.toLocaleLowerCase() === 'action') {
+          // terminer l’action avant
+          if (instruction.sujet.epithete?.toLocaleLowerCase() === 'avant') {
+            resultat.terminerAvantRegle = true;
+            // terminer l’action {après} (par défaut)
+          } else {
+            resultat.terminerApresRegle = true;
+          }
+          resultat.succes = true;
+          // Z) Autre: pas supporté
         } else {
           console.error("executerInfinitif >> terminer >> sujet autre que  « action » ou « jeu » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
