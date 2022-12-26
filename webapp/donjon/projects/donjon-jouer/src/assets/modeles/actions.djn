@@ -563,26 +563,28 @@ L'aide pour l'action examiner est "{*Examiner*}
   > {-examiner {/l'épée/}}
   {+raccourci+} : {-ex-}".
 
--- -- ==========
--- --   FAIRE
--- -- ==========
--- action faire ceci:
---   définitions:
---     ceci est un intitulé.
+-- ==========
+--   FAIRE
+-- ==========
+action faire ceci:
+  définitions:
+    ceci est un intitulé.
 
---   phase prérequis:
---     si ceci ne vaut pas une pause, refuser "Je sais seulement faire une pause.".
+  phase prérequis:
+    si ceci ne vaut pas une pause, refuser "Je sais seulement faire une pause.".
 
---   phase exécution:
---     si ceci vaut une pause:
---       interrompre la partie.
---       afficher l’écran technique.
---       dire "Jeu en pause.".
---       attendre une touche.
---       continuer la partie.
---       afficher l’écran précédent.
---     fin si
--- fin action
+  phase exécution:
+    si ceci vaut une pause:
+      interrompre la partie.
+      dire "{/Partie interrompue./}".
+      afficher l’écran technique.
+      dire "Jeu en pause.".
+      attendre une touche.
+      continuer la partie.
+      afficher l’écran précédent.
+      dire "{/Reprise de la partie./}".
+    fin si
+fin action
 
 -- ==========
 --   FERMER
