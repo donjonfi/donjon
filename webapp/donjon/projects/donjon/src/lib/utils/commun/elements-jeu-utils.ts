@@ -507,12 +507,12 @@ export class ElementsJeuUtils {
 
         let intituleOriginal = obj.intitule;
 
-        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles) : 0.0;
+        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux) : 0.0;
 
         // si on n’a pas une correspondance exacte, essayer les synonymes
         if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
           for (const synonyme of obj.synonymes) {
-            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles);
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux);
             if (scoreSynonyme > meilleurScorePourCetObjet) {
               meilleurScorePourCetObjet = scoreSynonyme;
               if (scoreSynonyme == 1.0) {
@@ -774,7 +774,7 @@ export class ElementsJeuUtils {
    *  - 0.5 : correspondance exacte partielle
    *  - 0.375: correspondance proche partielle
    */
-  public static chercherSurIntitule<Type extends Intitule>(recherche: GroupeNominal, candidats: Type[]): [number, Type[]] {
+  public static chercherSurIntitule<Type extends Intitule>(recherche: GroupeNominal, candidats: Type[], verbeux: boolean): [number, Type[]] {
     let meilleursCandidats: Type[] = [];
     let meilleurScore = 0.0;
 
@@ -784,7 +784,7 @@ export class ElementsJeuUtils {
 
     candidats.forEach(candidat => {
 
-      const scoreCorrespondance = RechercheUtils.correspondanceMotsCles(rechercheMotsCles, candidat.motsCles);
+      const scoreCorrespondance = RechercheUtils.correspondanceMotsCles(rechercheMotsCles, candidat.motsCles, verbeux);
 
       // même meilleur score : on ajoute le candidat
       if (scoreCorrespondance > 0) {
@@ -895,11 +895,11 @@ export class ElementsJeuUtils {
             break;
         }
 
-        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles) : 0.0;
+        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux) : 0.0;
         // si on n’a pas une correspondance exacte, essayer les synonymes
         if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
           for (const synonyme of obj.synonymes) {
-            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles);
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux);
             if (scoreSynonyme > meilleurScorePourCetObjet) {
               meilleurScorePourCetObjet = scoreSynonyme;
               if (scoreSynonyme == 1.0) {

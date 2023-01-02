@@ -133,55 +133,94 @@ export class RechercheUtils {
    *  - 0.5 : correspondance exacte partielle
    *  - 0.375: correspondance proche partielle
    */
-  public static correspondanceMotsCles(recherche: string[], candidat: string[]): number {
+  public static correspondanceMotsCles(recherche: string[], candidat: string[], verbeux: boolean): number {
     let score = 0.0;
     // même nombre de mots clés
     if (recherche.length <= candidat.length) {
 
       let nbEgal = 0;
       let nbRessemblant = 0;
-      let nbDifferent = 0;
+      let nbPasTrouve = 0;
 
-      // on teste chaque mot dans le même ordre.
-      // (si les mots sont inversés, on considère qu’ils sont différents.)
+      // pour chaque mot de la recherche, on va vérifier qu’on le retrouve ou
+      // qu’on retrouve un mot similaire
 
-      for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
-        switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
-          case ERessemblance.egaux:
-            nbEgal++;
+      for (let indexMotCleRecherche = 0; indexMotCleRecherche < recherche.length; indexMotCleRecherche++) {
+        const motCleRecherche = recherche[indexMotCleRecherche];
+        let trouveEgal = false;
+        let trouveRessemblant = false;
+        // rechercher le mot parmis les mots du candidat
+        for (let indexMotCleCandidat = 0; indexMotCleCandidat < candidat.length; indexMotCleCandidat++) {
+          switch (RechercheUtils.ressemblanceMots(motCleRecherche, candidat[indexMotCleCandidat])) {
+            case ERessemblance.egaux:
+              trouveEgal = true;
+              break;
+            case ERessemblance.ressemblants:
+              trouveRessemblant = true;
+              break;
+          }
+          // si on a retrouvé le mot, pas besoin de continuer
+          if (trouveEgal) {
             break;
-
-          case ERessemblance.ressemblants:
-            nbRessemblant++;
-            break
-
-          case ERessemblance.differents:
-            nbDifferent++;
-            break;
+          }
+        }
+        // trouvé
+        if (trouveEgal) {
+          nbEgal++;
+          // trouvé semblable
+        } else if (trouveRessemblant) {
+          nbRessemblant++;
+          // PAS trouvé
+        } else {
+          nbPasTrouve++;
+          // si mot pas trouvé pas besoin de regarder plus loin vu qu’il sera refusé
+          break;
         }
       }
 
+      // // on teste chaque mot dans le même ordre.
+      // // (si les mots sont inversés, on considère qu’ils sont différents.)
+      // for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
+      //   switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
+      //     case ERessemblance.egaux:
+      //       nbEgal++;
+      //       break;
+
+      //     case ERessemblance.ressemblants:
+      //       nbRessemblant++;
+      //       break
+
+      //     case ERessemblance.differents:
+      //       nbDifferent++;
+      //       break;
+      //   }
+      // }
+
       // s’il y a au moins un mot qui ne ressemble pas > on ne prend pas
-      if (nbDifferent > 0) {
+      if (nbPasTrouve > 0) {
         score = 0.0;
         // sinon calculer la moyenne
       } else {
         score = ((nbEgal * 1.0) / candidat.length) + ((nbRessemblant * 0.75) / candidat.length);
       }
 
-      // si la recherche est plus courte que le mot, on divise le résultat par 2
-      if (recherche.length > candidat.length) {
-        score *= 0.5;
-      }
+      // // si la recherche est plus courte que le mot, on divise le résultat par 2
+      // if (recherche.length < candidat.length) {
+      //   score *= 0.5;
+      // }
 
       // recherche plus longue que candidat => on prend pas
     } else {
       score = 0.0;
     }
 
-    // TODO: enlever by pass quand moins de mots dans la recherche
-    if (score < 0.75) {
-      score = 0.0;
+    // // TODO: enlever by pass quand moins de mots dans la recherche
+    // if (score < 0.75) {
+    //   score = 0.0;
+    // }
+
+    if (verbeux) {
+      console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
     }
 
     return score;
@@ -281,8 +320,6 @@ export class RechercheUtils {
     return true;
   }
 }
-
-
 
 export enum ERessemblance {
   egaux = 0,
