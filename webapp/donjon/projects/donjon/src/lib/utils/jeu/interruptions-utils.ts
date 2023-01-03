@@ -1,11 +1,12 @@
+import { Interruption, TypeContexte, TypeInterruption } from "../../models/jeu/interruption";
+
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { Resultat } from "../../models/jouer/resultat";
-import { TypeInterruption } from "../../models/jeu/interruption";
 
 export class InterruptionsUtils {
 
   /** spécifier les informations de l’interruption qui a lieu suite au résultat */
-  public static definirInterruptionTour(tour: ContexteTour, resultat: Resultat) {
+  public static definirProprietesInterruptionResultatAuTour(tour: ContexteTour, resultat: Resultat) {
     tour.typeInterruption = resultat.typeInterruption;
     tour.reste = resultat.reste;
     switch (resultat.typeInterruption) {
@@ -30,7 +31,7 @@ export class InterruptionsUtils {
   }
 
   /** spécifier les informations de l’interruption qui a lieu suite au sous-resultat */
-  public static definirInterruptionSousResultat(resultat: Resultat, sousResultat: Resultat) {
+  public static definirProprietesInterruptionSousResultatAuResultat(resultat: Resultat, sousResultat: Resultat) {
     resultat.interrompreBlocInstruction = true;
     resultat.typeInterruption = sousResultat.typeInterruption;
     resultat.reste = sousResultat.reste;
@@ -53,6 +54,17 @@ export class InterruptionsUtils {
         resultat.ecran = sousResultat.ecran;
         break;
     }
+  }
+
+  public static creerInterruptionContexteTourOuRoutine(tour: ContexteTour, typeContexte: TypeContexte.tour | TypeContexte.routine): Interruption{
+    const interruption = new Interruption(tour.typeInterruption, typeContexte);
+    interruption.tour = tour;
+    interruption.choix = tour.choix;
+    interruption.messageAttendre = tour.messageAttendre;
+    interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
+    interruption.nbToursAnnuler = tour.nbToursAnnuler;
+    interruption.ecran = tour.ecran;
+    return interruption;
   }
 
 }

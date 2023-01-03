@@ -90,7 +90,7 @@ export class Instructions {
 
       // on interrompt le bloc d’instructions le temps que l’utilisateur fasse un choix
       if (sousResultat.interrompreBlocInstruction) {
-        InterruptionsUtils.definirInterruptionSousResultat(resultat, sousResultat);
+        InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultat, sousResultat);
         if (resultat.reste?.length) {
           //le reste des instructions de la liste principale (s’il y en a un)
           if (indexInstruction < (instructions.length - 1)) {
