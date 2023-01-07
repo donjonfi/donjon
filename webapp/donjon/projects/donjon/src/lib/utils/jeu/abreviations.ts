@@ -331,6 +331,10 @@ export class Abreviations {
           case 'nord-ouest':
             retVal = "aller au nord-ouest";
             break;
+
+          case 'nombre':
+            retVal = "afficher nombre ";
+            break;
           // ======================
           //           O
           // ======================
@@ -364,7 +368,7 @@ export class Abreviations {
           case 'pause':
             retVal = "faire une pause";
             break;
-            
+
           case 'pos':
             retVal = "poser ";
             break;

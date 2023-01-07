@@ -370,9 +370,6 @@ export class Commandeur {
     } else if (candidatCommande.els.infinitif == 'tester' && candidatCommande.els.sujet?.nom == 'audio') {
       ctx.sortie = this.ins.testerSon().sortie;
       ctx.commandeValidee = true; // la commande a été validée et exécutée
-    } else if (candidatCommande.els.infinitif == 'nombre' && (candidatCommande.els.sujet?.nom == 'mots' || candidatCommande.els.sujet?.nom == 'caractères')) {
-      ctx.sortie = '@statistiques@';
-      ctx.commandeValidee = true; // la commande a été validée et exécutée
     }
   }
 

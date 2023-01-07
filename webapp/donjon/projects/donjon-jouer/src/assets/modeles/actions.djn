@@ -29,13 +29,20 @@ action afficher ceci:
         {e}- {-interroger {/couturier/} concernant {/tissu/}-} : faire parler un personnage concernant un sujet spécifique
         {e}- {-ouvrir {/porte/} avec {/clé dorée/}-} : ouvrir la porte à l’aide de la clé dorée".
     sinonsi ceci est l’inventaire:
-     dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     sinonsi ceci est les sorties ou la sortie:
-     dire "[sorties ici]".
+      dire "[sorties ici]".
+    sinonsi ceci est le nombre de mots ou le nombre mots ou le nombre de caractères ou le nombre caractères:
+      dire "@statistiques@".
     fin si
 
   phase épilogue:
-    si ceci n’est ni l’aide ni l’inventaire ni la sortie ni les sorties, dire "Je peux afficher l’aide, votre inventaire ou les sorties.".
+    si ceci n’est 
+      ni l’aide 
+      ni l’inventaire 
+      ni la sortie ni les sorties 
+      ni le nombre de mots ni le nombre mots ni le nombre de caractères ni le nombre caractères, 
+    dire "Je peux afficher l’aide, votre inventaire, les sorties ou le nombre de mots.".
 
 fin action
 
