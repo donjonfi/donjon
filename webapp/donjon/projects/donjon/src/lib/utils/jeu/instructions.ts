@@ -27,6 +27,7 @@ import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
+import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { StringUtils } from '../commun/string.utils';
 import { TexteUtils } from '../commun/texte-utils';
@@ -507,10 +508,24 @@ export class Instructions {
         }
         break;
 
+      case 'tester':
+        if (instruction.sujet.motsCles.length == 1 && instruction.sujet.motsCles[0] == 'audio') {
+          resultat = this.testerSon();
+        } else {
+          contexteTour.ajouterErreurInstruction(instruction, "exécuter instruction: tester: je sais uniquement tester l’audio.");
+        }
+        break;
+
       case 'vider':
         const liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
         if (liste) {
           liste.vider();
+        } else if (instruction.sujet.motsCles.length == 1 && instruction.sujet.motsCles[0] == 'inventaire') {
+          // vider l’inventaire : les objets de l’inventaires ne sont plus positionnés dans le jeu.
+          const contenuInventaire = this.eju.obtenirContenu(this.jeu.joueur, PrepositionSpatiale.dans);
+          contenuInventaire.forEach(element => {
+            element.position = null;
+          });
         } else {
           contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction)
         }

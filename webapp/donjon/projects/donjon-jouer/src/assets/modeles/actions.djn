@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI"
--- Version: 2023-01-07-0200.beta.11
+-- Version: 2023-01-08-0200.beta.11
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1180,6 +1180,12 @@ action secouer ceci:
     changer ceci n’est plus intact.
   phase épilogue:
     dire "Je [l’ ceci]ai secoué[es ceci].".
+fin action
+-- ================
+--   TESTER AUDIO
+-- ================
+action tester l’audio:
+  tester l’audio.
 fin action
 
 -- ===========

@@ -333,7 +333,7 @@ export class Commandeur {
   private essayerLaCommande(indexCandidat: number, ctx: ContexteCommande): void {
 
     // A) ESSAYER PARMIS LES COMMANDES SPÉCIALES
-    this.essayercommandeSpeciale(ctx.candidats[indexCandidat], ctx);
+    this.essayercommandeDeboguer(ctx.candidats[indexCandidat], ctx);
 
     // B) ESSAYER PARMIS LES ACTIONS CHARGÉES DYNAMIQUEMENT
     if (!ctx.commandeValidee) {
@@ -345,7 +345,7 @@ export class Commandeur {
   }
 
   /** Essayer d’exécuter la commande spéciale correspondante */
-  private essayercommandeSpeciale(candidatCommande: CandidatCommande, ctx: ContexteCommande): void {
+  private essayercommandeDeboguer(candidatCommande: CandidatCommande, ctx: ContexteCommande): void {
     //   A) commande spéciale : déboguer
     if (candidatCommande.els.infinitif == 'déboguer') {
       // triche (avec fichier auto-commandes)
@@ -362,10 +362,6 @@ export class Commandeur {
         ctx.sortie = this.deb.deboguer(candidatCommande.els);
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }
-      // C) commande spéciale : émettre un son pour que le joueur puisse vérifier ses baffles.
-    } else if (candidatCommande.els.infinitif == 'tester' && candidatCommande.els.sujet?.nom == 'audio') {
-      ctx.sortie = this.ins.testerSon().sortie;
-      ctx.commandeValidee = true; // la commande a été validée et exécutée
     }
   }
 
