@@ -362,10 +362,6 @@ export class Commandeur {
         ctx.sortie = this.deb.deboguer(candidatCommande.els);
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }
-      // B) commande spéciale : sauver les commandes dans un fichier.
-    } else if (candidatCommande.els.infinitif == 'sauver' && candidatCommande.els.sujet?.nom == 'commandes') {
-      ctx.sortie = '@sauver-commandes@';
-      ctx.commandeValidee = true; // la commande a été validée et exécutée
       // C) commande spéciale : émettre un son pour que le joueur puisse vérifier ses baffles.
     } else if (candidatCommande.els.infinitif == 'tester' && candidatCommande.els.sujet?.nom == 'audio') {
       ctx.sortie = this.ins.testerSon().sortie;

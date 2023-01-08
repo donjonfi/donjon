@@ -11,7 +11,7 @@ import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
-import { ContexteEcran } from '../models/jouer/contexte-ecran';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'djn-lecteur',
@@ -859,6 +859,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
     console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
     this.partie.ecran.ajouterParagrapheDonjon('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.');
+    this.scrollSortie();
   }
 
   private lancerAutoTriche() {
@@ -917,17 +918,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private lancerSauverCommandes() {
-    let texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<b>Commandes utilisées durant la partie :</b><br><i>Sauvez ces commandes dans un fichier texte dont le nom se termine par l’extension <b>.sol</b> afin de pouvoir utiliser votre solution avec le mode <b>triche</b>.</i>');
+  private genererFichierSolution() {
     // enlever la dernière commande, qui est « sauver commandes »
     this.historiqueCommandesPartie.pop();
-    // afficher l’historique des commandes
+    let texteIgnore: string;
     if (this.historiqueCommandesPartie.length > 0) {
+      texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<i>Fichier solution généré. Vous pouvez utiliser votre fichier solution avec le mode <b>triche</b>.</i>');
       // enlever caractères spécial qui identifie les réponses à des questions
       const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
-      texteIgnore += this.partie.ecran.ajouterContenuHtml('<code>' + historiquePartieNettoye.join("<br>") + '</code>');
+      const contenuFichierSolution = historiquePartieNettoye.join('\n') + '\n';
+    
+      // Note: Ie and Edge don't support the new File constructor,
+      // so it's better to construct blobs and use saveAs(blob, filename)
+      const file = new File([contenuFichierSolution], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sol"), { type: "text/plain;charset=utf-8" });
+      FileSaver.saveAs(file);
+
     } else {
-      texteIgnore += this.partie.ecran.ajouterContenuDonjon('{n}(Aucune commande à afficher.)');
+      texteIgnore = this.partie.ecran.ajouterContenuDonjon('{n}Aucune commande dans l’historique, il n’y a rien à mettre dans le fichier solution.');
     }
     this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
   }
@@ -1054,8 +1061,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             this.lancerTriche();
           }, 100);
           // sortie spéciale: sauver-commandes
-        } else if (sortieCommande == "@sauver-commandes@") {
-          this.lancerSauverCommandes();
+        } else if (sortieCommande == "@générer-solution@") {
+          this.genererFichierSolution();
           // sortie spéciale: statistiques
         } else if (sortieCommande == "@statistiques@") {
           const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.partie), this.partie.dossierRessourcesComplet);
