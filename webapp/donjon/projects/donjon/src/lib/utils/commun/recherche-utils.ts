@@ -142,59 +142,71 @@ export class RechercheUtils {
       let nbRessemblant = 0;
       let nbPasTrouve = 0;
 
-      // pour chaque mot de la recherche, on va vérifier qu’on le retrouve ou
-      // qu’on retrouve un mot similaire
 
-      for (let indexMotCleRecherche = 0; indexMotCleRecherche < recherche.length; indexMotCleRecherche++) {
-        const motCleRecherche = recherche[indexMotCleRecherche];
-        let trouveEgal = false;
-        let trouveRessemblant = false;
-        // rechercher le mot parmis les mots du candidat
-        for (let indexMotCleCandidat = 0; indexMotCleCandidat < candidat.length; indexMotCleCandidat++) {
-          switch (RechercheUtils.ressemblanceMots(motCleRecherche, candidat[indexMotCleCandidat])) {
-            case ERessemblance.egaux:
-              trouveEgal = true;
-              break;
-            case ERessemblance.ressemblants:
-              trouveRessemblant = true;
-              break;
-          }
-          // si on a retrouvé le mot, pas besoin de continuer
-          if (trouveEgal) {
+      // =====================================================
+      // VERSION 2021
+      // =====================================================
+      // on teste chaque mot dans le même ordre.
+      // (si les mots sont inversés, on considère qu’ils sont différents.)
+      for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
+        switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
+          case ERessemblance.egaux:
+            nbEgal++;
             break;
-          }
-        }
-        // trouvé
-        if (trouveEgal) {
-          nbEgal++;
-          // trouvé semblable
-        } else if (trouveRessemblant) {
-          nbRessemblant++;
-          // PAS trouvé
-        } else {
-          nbPasTrouve++;
-          // si mot pas trouvé pas besoin de regarder plus loin vu qu’il sera refusé
-          break;
+
+          case ERessemblance.ressemblants:
+            nbRessemblant++;
+            break
+
+          case ERessemblance.differents:
+            nbPasTrouve++;
+            break;
         }
       }
 
-      // // on teste chaque mot dans le même ordre.
-      // // (si les mots sont inversés, on considère qu’ils sont différents.)
-      // for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
-      //   switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
-      //     case ERessemblance.egaux:
-      //       nbEgal++;
-      //       break;
 
-      //     case ERessemblance.ressemblants:
-      //       nbRessemblant++;
-      //       break
+      // // =====================================================
+      // // VERSION 2023
+      // // =====================================================
 
-      //     case ERessemblance.differents:
-      //       nbDifferent++;
+      // // pour chaque mot de la recherche, on va vérifier qu’on le retrouve ou
+      // // qu’on retrouve un mot similaire
+
+      // for (let indexMotCleRecherche = 0; indexMotCleRecherche < recherche.length; indexMotCleRecherche++) {
+      //   const motCleRecherche = recherche[indexMotCleRecherche];
+      //   let trouveEgal = false;
+      //   let trouveRessemblant = false;
+      //   // rechercher le mot parmis les mots du candidat
+      //   for (let indexMotCleCandidat = 0; indexMotCleCandidat < candidat.length; indexMotCleCandidat++) {
+      //     switch (RechercheUtils.ressemblanceMots(motCleRecherche, candidat[indexMotCleCandidat])) {
+      //       case ERessemblance.egaux:
+      //         trouveEgal = true;
+      //         break;
+      //       case ERessemblance.ressemblants:
+      //         trouveRessemblant = true;
+      //         break;
+      //     }
+      //     // si on a retrouvé le mot, pas besoin de continuer
+      //     if (trouveEgal) {
       //       break;
+      //     }
+      //   }
+      //   // trouvé
+      //   if (trouveEgal) {
+      //     nbEgal++;
+      //     // trouvé semblable
+      //   } else if (trouveRessemblant) {
+      //     nbRessemblant++;
+      //     // PAS trouvé
+      //   } else {
+      //     nbPasTrouve++;
+      //     // si mot pas trouvé pas besoin de regarder plus loin vu qu’il sera refusé
+      //     break;
       //   }
       // }
+
+      // =====================================================
+
 
       // s’il y a au moins un mot qui ne ressemble pas > on ne prend pas
       if (nbPasTrouve > 0) {
@@ -214,10 +226,10 @@ export class RechercheUtils {
       score = 0.0;
     }
 
-    // // TODO: enlever by pass quand moins de mots dans la recherche
-    // if (score < 0.75) {
-    //   score = 0.0;
-    // }
+    // TODO: enlever by pass quand moins de mots dans la recherche
+    if (score < 0.75) {
+      score = 0.0;
+    }
 
     if (verbeux) {
       console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
