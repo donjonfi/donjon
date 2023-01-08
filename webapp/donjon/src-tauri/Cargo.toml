@@ -1,6 +1,6 @@
 [package]
 name = "donjon-creer"
-version = "2.0.0-beta.10"
+version = "2.0.0-beta.11"
 description = "Donjon Créer − Édition de fictions interactives."
 authors = ["Jonathan Claes donjon.fi"]
 license = "MIT"
