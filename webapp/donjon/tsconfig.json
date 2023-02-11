@@ -8,6 +8,9 @@
       "donjon": [
         "dist/donjon/donjon",
         "dist/donjon"
+      ],
+      "file-saver-es": [
+        "@types/file-saver"
       ]
     },
     "forceConsistentCasingInFileNames": true,

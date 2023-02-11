@@ -13,7 +13,7 @@ import 'brace/theme/ambiance';
 import 'brace/theme/monokai';
 import 'brace/theme/solarized_dark';
 
-import * as FileSaver from 'file-saver';
+import * as FileSaver from 'file-saver-es';
 
 import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from '@donjon/core';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';

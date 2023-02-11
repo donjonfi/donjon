@@ -11,7 +11,7 @@ import { Choix } from '../models/compilateur/choix';
 import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
-import * as FileSaver from 'file-saver';
+import * as FileSaver from 'file-saver-es';
 
 @Component({
   selector: 'djn-lecteur',

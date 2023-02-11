@@ -1,4 +1,4 @@
-import * as FileSaver from 'file-saver';
+import * as FileSaver from 'file-saver-es';
 
 import { CompilateurV8, CompilateurV8Utils, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from '@donjon/core';
 import { Component, OnInit, ViewChild } from '@angular/core';
