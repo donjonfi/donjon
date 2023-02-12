@@ -91,7 +91,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private graineAvantAnnulation: string;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    private elementRef: ElementRef<HTMLElement>
   ) { }
 
   ngOnInit(): void { }
@@ -190,7 +191,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.partie.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
-      this.partie.ecran.ajouterParagrapheDonjon('{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}La commande {-tester audio-} permet de vérifier votre matériel./}');
+      this.partie.ecran.ajouterParagrapheDonjon('{/Ce jeu utilise des effets sonores, vous pouvez les désactiver en bas de la page.{n}@@tester audio@@./}');
     } else {
       this.activerParametreAudio = false;
     }
@@ -393,14 +394,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private ajouteConseils(texteConseils: string) {
-    const texteIgnore = this.partie.ecran.ajouterParagrapheDonjon('{-{/' + texteConseils + '/}-}');
+    const texteIgnore = this.partie.ecran.ajouterContenuDonjon('{-{/' + texteConseils + '/}-}');
+    this.partie.ecran.sautParagraphe();
     this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
     this.scrollSortie();
   }
 
   private ajouterErreurs(texteErreurs: string) {
-    const texteIgnore = this.partie.ecran.ajouterParagrapheDonjon('{+{/' + texteErreurs + '/}+}');
+    const texteIgnore = this.partie.ecran.ajouterContenuDonjon('{+{/' + texteErreurs + '/}+}');
     this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+    this.partie.ecran.sautParagraphe();
     this.scrollSortie();
   }
 
@@ -754,6 +757,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
       this.commandeInputRef.nativeElement.focus();
+
+      // activer le lien tester l’audio au besoin
+      if (this.audioActif) {
+        this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
+      }
+      
       // scrol 2 (afin de prendre en compte temps chargement images)
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
@@ -927,7 +936,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // enlever caractères spécial qui identifie les réponses à des questions
       const historiquePartieNettoye = CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
       const contenuFichierSolution = historiquePartieNettoye.join('\n') + '\n';
-    
+
       // Note: Ie and Edge don't support the new File constructor,
       // so it's better to construct blobs and use saveAs(blob, filename)
       const file = new File([contenuFichierSolution], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sol"), { type: "text/plain;charset=utf-8" });
@@ -1190,6 +1199,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** une interruption de type attendre X secondes est en cours */
   get interruptionAttendreSecondesEnCours(): boolean {
     return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreSecondes;
+  }
+
+  public testerAudio() {
+    console.log("testerAudio ");
+    this.partie.ins.testerSon();
   }
 
   /**

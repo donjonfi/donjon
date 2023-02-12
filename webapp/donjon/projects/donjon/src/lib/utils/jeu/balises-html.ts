@@ -28,6 +28,8 @@ export class BalisesHtml {
     // balises image
     retVal = retVal.replace(/@@image:([\w\-\.]*[\w]+)@@/g, '<img src="' + dossierRessources + '/images/$1" alt="$1" class="img-fluid rounded">');
 
+    retVal = retVal.replace(/@@tester audio@@/g, '<a id="tester-audio" class="tester-audio">Cliquez ici</a> pour tester l’audio.');
+
     // italique: texte avec une partie en {/italique/} et le reste normal.
     retVal = retVal.replace(/\{\//g, '<i>');
     retVal = retVal.replace(/\/\}/g, '</i>');
