@@ -156,7 +156,7 @@ export class CommandeurTour {
       if (sousResultatAvant.interrompreBlocInstruction) {
         InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatAvant, sousResultatAvant);
         if (declenchementsAvant.length > 1) {
-          this.jeu.tamponConseils.push("Déclanchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclanchent pour le même évènement.");
+          this.jeu.tamponConseils.push("Déclanchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclanchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
         }
       }
       if (resultatAvant.arreterApresRegle) {
