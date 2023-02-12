@@ -30,4 +30,7 @@ export class Evenement {
     public commandeComprise: string | undefined = undefined,
   ) { }
 
+  toString(): string {
+    return this.infinitif + (this.isCeci ? (" " + (this.prepositionCeci ? this.prepositionCeci + " " : "") + this.ceci) : "") + (this.isCela ? (" " + (this.prepositionCela ? this.prepositionCela + " " : "") + this.cela) : "")
+  }
 }
