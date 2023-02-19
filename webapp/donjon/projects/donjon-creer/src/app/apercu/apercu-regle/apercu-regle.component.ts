@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Regle, TypeEvenement } from '@donjon/core';
+import { Regle, TypeEvenement } from 'donjon';
 
 @Component({
   selector: 'app-apercu-regle',

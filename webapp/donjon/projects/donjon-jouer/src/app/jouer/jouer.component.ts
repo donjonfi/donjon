@@ -1,6 +1,6 @@
 import * as FileSaver from 'file-saver-es';
 
-import { CompilateurV8, CompilateurV8Utils, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from '@donjon/core';
+import { CompilateurV8, CompilateurV8Utils, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from 'donjon';
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';

@@ -16,7 +16,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { CommonModule } from '@angular/common';
-import { DonjonModule } from '@donjon/core';
+import { DonjonModule } from 'donjon';
 import { EditeurComponent } from './editeur/editeur.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';

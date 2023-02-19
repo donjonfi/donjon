@@ -1,4 +1,4 @@
-import { Localisation, Objet } from "@donjon/core";
+import { Localisation, Objet } from 'donjon';
 
 import { ObjetPresent } from "./objet-present";
 

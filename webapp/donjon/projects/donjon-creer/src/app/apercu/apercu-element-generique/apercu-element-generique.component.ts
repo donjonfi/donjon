@@ -1,4 +1,4 @@
-import { Classe, ClasseUtils, ElementGenerique } from '@donjon/core';
+import { Classe, ClasseUtils, ElementGenerique } from 'donjon';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({

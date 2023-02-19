@@ -1,4 +1,4 @@
-import { Classe, ClasseUtils, EEtatsBase, ElementsJeuUtils, Jeu, ListeEtats, Localisation, Objet, PrepositionSpatiale } from '@donjon/core';
+import { Classe, ClasseUtils, ElementsJeuUtils, ListeEtats } from 'donjon';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { ObjetPresent } from '../models/objet-present';

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Action } from '@donjon/core';
+import { Action } from 'donjon';
 
 @Component({
   selector: 'app-apercu-action',

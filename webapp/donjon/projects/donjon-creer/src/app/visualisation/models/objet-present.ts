@@ -1,4 +1,4 @@
-import { Objet } from "@donjon/core";
+import { Objet } from 'donjon';
 
 export class ObjetPresent {
   constructor(

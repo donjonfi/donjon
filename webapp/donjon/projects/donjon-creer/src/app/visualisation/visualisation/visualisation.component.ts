@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { ElementsJeuUtils, Jeu, Lieu, Objet } from '@donjon/core';
+import { ElementsJeuUtils, Jeu, Lieu } from 'donjon';
 
 import { ObjetPresent } from '../models/objet-present';
 

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Instruction } from '@donjon/core';
+import { Instruction } from 'donjon';
 
 @Component({
   selector: 'app-apercu-instruction',

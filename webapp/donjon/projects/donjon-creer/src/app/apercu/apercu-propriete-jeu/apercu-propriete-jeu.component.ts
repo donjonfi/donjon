@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PositionObjet, PrepositionSpatiale } from 'projects/donjon/src/public-api';
-import { ProprieteJeu, TypeProprieteJeu } from '@donjon/core';
+import { ProprieteJeu, TypeProprieteJeu } from 'donjon';
 
 @Component({
   selector: 'app-apercu-propriete-jeu',

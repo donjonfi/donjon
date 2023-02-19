@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver-es';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from '@donjon/core';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from 'donjon';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';

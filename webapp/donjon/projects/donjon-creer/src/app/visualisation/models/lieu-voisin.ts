@@ -1,4 +1,4 @@
-import { Lieu, Localisation } from "@donjon/core";
+import { Lieu, Localisation } from 'donjon';
 
 export class LieuVoisin {
   constructor(

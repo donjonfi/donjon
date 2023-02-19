@@ -6,8 +6,7 @@
     "outDir": "./dist/out-tsc",
     "paths": {
       "donjon": [
-        "dist/donjon/donjon",
-        "dist/donjon"
+        "projects/donjon/src/public-api.ts"
       ],
       "file-saver-es": [
         "@types/file-saver"

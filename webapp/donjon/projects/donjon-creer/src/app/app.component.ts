@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { version } from '@donjon/core';
+import { version } from 'donjon';
 
 @Component({
   selector: 'app-root',

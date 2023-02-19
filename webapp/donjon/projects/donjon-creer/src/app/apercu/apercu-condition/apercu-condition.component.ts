@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { ConditionMulti } from '@donjon/core';
+import { ConditionMulti } from 'donjon';
 
 @Component({
   selector: 'app-apercu-condition',

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { GroupeNominal } from '@donjon/core';
+import { GroupeNominal } from 'donjon';
 
 @Component({
   selector: 'app-apercu-sujet',

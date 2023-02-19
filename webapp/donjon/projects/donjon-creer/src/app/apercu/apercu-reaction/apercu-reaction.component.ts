@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Reaction } from '@donjon/core';
+import { Reaction } from 'donjon';
 
 @Component({
   selector: 'app-apercu-reaction',

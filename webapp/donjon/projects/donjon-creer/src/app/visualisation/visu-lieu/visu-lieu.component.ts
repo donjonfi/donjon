@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { ElementsJeuUtils, Lieu, ListeEtats, Localisation, PrepositionSpatiale } from '@donjon/core';
+import { ElementsJeuUtils, Lieu, ListeEtats, Localisation, PrepositionSpatiale } from 'donjon';
 
 import { LieuVoisin } from '../models/lieu-voisin';
 import { ObjetPresent } from '../models/objet-present';

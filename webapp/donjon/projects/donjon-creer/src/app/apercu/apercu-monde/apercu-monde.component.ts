@@ -1,4 +1,4 @@
-import { Action, ElementGenerique, Monde, Regle, TypeRegle } from '@donjon/core';
+import { Action, ElementGenerique, Monde, Regle, TypeRegle } from 'donjon';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
