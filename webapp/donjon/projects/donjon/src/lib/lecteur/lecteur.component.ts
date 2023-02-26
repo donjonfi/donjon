@@ -70,6 +70,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Afficher la case à cocher pour activer/désactiver l’audio */
   private activerParametreAudio: boolean = false;
 
+  /** Exécuter le jeu en mode smartphone */
+  public modeMobile: boolean = true;
+
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
@@ -762,7 +765,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (this.audioActif) {
         this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
       }
-      
+
       // scrol 2 (afin de prendre en compte temps chargement images)
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
@@ -955,8 +958,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     return CommandesUtils.enleverCaractereReponse(this.historiqueCommandesPartie);
   }
 
+  onMobile() {
+    this.modeMobile = !this.modeMobile;
+    console.log("mobile:", this.modeMobile);
+    
+  }
+
   /** Tabulation: continuer le mot */
-  onKeyDownTab(event) {
+  onKeyDownTab(event: Event) {
     if (!this.resteDeLaSortie?.length) {
       const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
       if (commandeComplete !== this.commande) {

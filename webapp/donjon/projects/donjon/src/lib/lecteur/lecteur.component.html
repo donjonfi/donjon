@@ -9,7 +9,8 @@
   <div class="rl-2">
     <!-- entrée utilisateur -->
     <div class="input-group mt-2 px-1">
-      <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
+      <clavier-tactile *ngIf="modeMobile"></clavier-tactile>
+      <input *ngIf="!modeMobile" #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
         id="txtCommande" [placeholder]="placeHolder" [maxlength]="maxLen">
@@ -17,6 +18,9 @@
           id="btExecuter">Valider</button>
         <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
           id="btExecuter">↑</button> -->
+          <button class="btn btn-outline-primary" (click)="onMobile()" type="button" id="btMobile">
+            <i class="fas" [ngClass]="{'fa-keyboard' : modeMobile, 'fa-hand-pointer': !modeMobile}"></i>
+          </button>
     </div>
     <small class="row m-0 p-0 pb-1">
       <div class="col p-1 astuce">
