@@ -51,6 +51,9 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "brace"
+            ],
             "outputPath": {
               "base": "dist/donjon-creer"
             },
@@ -156,6 +159,9 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "brace"
+            ],
             "outputPath": {
               "base": "dist/donjon-jouer"
             },
