@@ -1,4 +1,5 @@
 import { ACE_CONFIG, AceConfigInterface, AceModule } from 'ngx-ace-wrapper';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { ApercuActionComponent } from './apercu/apercu-action/apercu-action.component';
 import { ApercuConditionComponent } from './apercu/apercu-condition/apercu-condition.component';
@@ -19,7 +20,6 @@ import { CommonModule } from '@angular/common';
 import { DonjonModule } from 'donjon';
 import { EditeurComponent } from './editeur/editeur.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { VisuDetailObjetComponent } from './visualisation/visu-detail-objet/visu-detail-objet.component';
@@ -51,11 +51,11 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     ApercuLieuComponent,
     ApercuObjetComponent
   ],
+  bootstrap: [AppComponent],
   imports: [
     CommonModule,
     BrowserAnimationsModule,
     FormsModule,
-    HttpClientModule,
     AppRoutingModule,
     CollapseModule.forRoot(),
     TooltipModule.forRoot(),
@@ -66,8 +66,8 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     {
       provide: ACE_CONFIG,
       useValue: DEFAULT_ACE_CONFIG
-    }
-  ],
-  bootstrap: [AppComponent]
+    },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
 })
 export class AppModule { }

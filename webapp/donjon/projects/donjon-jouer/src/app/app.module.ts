@@ -1,10 +1,11 @@
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { DonjonModule } from 'donjon';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { JouerComponent } from './jouer/jouer.component';
 import { NgModule } from '@angular/core';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
@@ -14,16 +15,15 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
     AppComponent,
     JouerComponent,
   ],
+  bootstrap: [AppComponent],
   imports: [
     CommonModule,
     BrowserAnimationsModule,
     FormsModule,
-    HttpClientModule,
     AppRoutingModule,
     TooltipModule.forRoot(),
-    DonjonModule,
+    DonjonModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [provideHttpClient(withInterceptorsFromDi())]
 })
 export class AppModule { }

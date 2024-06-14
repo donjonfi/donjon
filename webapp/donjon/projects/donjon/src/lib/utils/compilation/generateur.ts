@@ -689,7 +689,7 @@ export class Generateur {
         retVal = ELocalisation.exterieur;
         break;
       case "intérieur":
-      case "intérieur":
+      case "interieur":
       case "dans":
         retVal = ELocalisation.interieur;
         break;
