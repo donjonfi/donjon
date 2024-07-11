@@ -153,7 +153,7 @@ action boire ceci:
   phase prérequis:
     si ceci est un vivant mais pas buvable, refuser "Vous avez de drôles d’idées.".
     si ceci n’est pas buvable, refuser "Ça ne se boit pas voyons !".
-      -- on veut en mannger 0…
+      -- on veut en manger 0…
     si quantitéCeci vaut 0, refuser "Je n’en bois donc aucun[e ceci].".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
     si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
@@ -827,7 +827,7 @@ action mettre ceci:
     fin si.
 fin action
 
--- metre ceci sur/dans cela
+-- mettre ceci sur/dans cela
 action mettre ceci dans cela:
   définitions:
     
@@ -964,10 +964,10 @@ L'aide pour l'action parler est "{*Parler*}
 -- ============
 --    PENSER
 -- ============
--- crédit: action basée sur celle prosposée par KrisDoC.
--- conseil: il est conseillé de créer tous les éléments auquels on peut penser.
+-- crédit: action basée sur celle proposée par KrisDoC.
+-- conseil: il est conseillé de créer tous les éléments auxquels on peut penser.
 --          il suffit de ne pas positionner l'élément dan le jeu si le joueur ne peut
---          pas interragir avec directement.
+--          pas interagir avec directement.
 action penser à ceci:
   définitions:
     ceci est un intitulé.
@@ -1030,7 +1030,7 @@ action pousser ceci:
   phase exécution:
     changer ceci est déplacé.
   phase épilogue:
-    dire "Je [l’ ceci]ai poussé[es ceci] mais ça semble n’avoir rien déclanché.".
+    dire "Je [l’ ceci]ai poussé[es ceci] mais ça semble n’avoir rien déclenché.".
 fin action
 
 -- ===========
@@ -1228,7 +1228,7 @@ fin action
 -- ===========
 action toucher ceci:
   phase prérequis:
-    si ceci est le joueur, refuser "Non vous ne revez pas.".
+    si ceci est le joueur, refuser "Non vous ne rêvez pas.".
     si ceci est un vivant, refuser "Vous lui avez demandé son avis ?".
   phase exécution:
     changer ceci n’est plus intact.
@@ -1272,7 +1272,7 @@ fin action
 -- =================
 action verrouiller ceci avec cela:
   définitions:
-    ceci est prioritairement verouillable.
+    ceci est prioritairement verrouillable.
   phase épilogue:
     dire "Ça n’a pas fonctionné.".
 fin action
