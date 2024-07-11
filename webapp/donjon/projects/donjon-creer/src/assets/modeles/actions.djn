@@ -1,5 +1,5 @@
--- Titre: "Actions de base pour Donjon FI"
--- Version: 2023-01-08-0200.beta.11
+-- Titre: "Actions de base pour Donjon FI".
+-- Version: 2024-07-11-0200.beta.14
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -191,7 +191,7 @@ fin action
 --   CASSER
 -- ===========
 
-action casser:
+action casser ceci:
 
   phase prérequis:
     si ceci est le joueur, refuser "Ça ne va pas ?".
@@ -201,7 +201,6 @@ action casser:
     dire "Ça peut encore servir.".
 
 fin action
-
 
 -- ===========
 --   CHANTER
