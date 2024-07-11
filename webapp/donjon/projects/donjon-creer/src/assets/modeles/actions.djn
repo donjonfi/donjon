@@ -474,7 +474,11 @@ action enlever ceci:
   phase exécution:
     changer le joueur ne porte plus ceci.
   phase épilogue:
-    dire "Vous ne portez plus [intitulé ceci].".
+    si ceci est portable:
+      dire "Vous ne portez plus [intitulé ceci].".
+    sinon
+      dire "Essayons autre chose.".
+    fin si
 fin action
 
 
