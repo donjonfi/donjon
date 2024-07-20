@@ -843,33 +843,41 @@ export class ConditionsUtils {
    */
   private trouverObjetCible(brute: string, intitule: GroupeNominal, contexteTour: ContexteTour): Objet {
     let objetCible: Objet = null;
-    // retrouver OBJET CLASSIQUE
-    if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule, false);
-      if (objetsTrouves.length == 1) {
-        objetCible = objetsTrouves[0];
-      } else {
-        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
-      }
-      // retrouver OBJET SPÉCIAL
-    } else if (brute === 'ceci') {
+
+    const bruteNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(brute);
+
+    // retrouver OBJET SPÉCIAL
+    if (bruteNettoye === 'ceci') {
       if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
         objetCible = contexteTour.ceci as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > ceci n’est pas un objet.");
       }
-    } else if (brute === 'cela') {
+    } else if (bruteNettoye === 'cela') {
       if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
         objetCible = contexteTour.cela as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > cela n’est pas un objet.");
       }
     } else {
-      console.error("ConditionsUtils > trouverObjetCible > objet spécial pas pris en change :", brute);
+      // retrouver OBJET CLASSIQUE
+      if (intitule) {
+        const objetsTrouves = this.eju.trouverObjet(intitule, false);
+        if (objetsTrouves.length == 1) {
+          objetCible = objetsTrouves[0];
+        } else if (objetsTrouves.length != 0) {
+          console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
+        }
+        // retrouver OBJET SPÉCIAL
+      } else {
+        console.error("ConditionsUtils > trouverObjetCible > objet spécial pas pris en change :", brute);
+      }
     }
+
     if (!objetCible) {
       console.warn("ConditionsUtils > trouverObjetCible > pas pu trouver :", brute);
     }
+
     return objetCible;
   }
 
