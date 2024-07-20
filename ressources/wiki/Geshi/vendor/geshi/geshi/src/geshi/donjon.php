@@ -41,7 +41,7 @@ $language_data = array (
         ),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array('@'),
-    'ESCAPE_CHAR' => array('\\'),
+    'ESCAPE_CHAR' => '\\',
     'KEYWORDS' => array(
     /* Statements */
         1 => array(
