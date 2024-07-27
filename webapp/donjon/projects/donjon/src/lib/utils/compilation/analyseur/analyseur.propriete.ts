@@ -102,7 +102,7 @@ export class AnalyseurPropriete {
           }
           // B) PROPRIÉTÉ
         } else {
-          ctxAnalyse.dernierePropriete = new ProprieteElement(nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
+          ctxAnalyse.dernierePropriete = new ProprieteElement(null, nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
           // ajouter la propriété au dernier élément
           elementCible.proprietes.push(ctxAnalyse.dernierePropriete);
 

@@ -290,7 +290,7 @@ export class ConditionsUtils {
           } else if (correspondances.listes.length === 1) {
             sujet = correspondances.listes[0];
           } else {
-            // checher dans les propriétés
+            // chercher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
             if (proprieteJeu) {
               const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
@@ -498,6 +498,20 @@ export class ConditionsUtils {
             // console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
+              retVal = true;
+            }
+            break;
+
+          // comparaison : commence par
+          case 'commence':
+            if (sujet.nom.startsWith(condition.complement.replace(/^\"|\"$/g, ''))) {
+              retVal = true;
+            }
+            break;
+
+          // comparaison : termine par
+          case 'termine':
+            if (sujet.nom.endsWith(condition.complement.replace(/^\"|\"$/g, ''))) {
               retVal = true;
             }
             break;
@@ -717,6 +731,16 @@ export class ConditionsUtils {
             } else if (sujet.intitule.toString() == condition.complement) {
               retVal = true;
             }
+            break;
+
+          // comparaison: commence par
+          case 'commence':
+            retVal = sujet.intitule.toString().startsWith(condition.complement.replace(/^\"|\"$/g, ''));
+            break;
+
+          // comparaison: termine par
+          case 'termine':
+            retVal = sujet.intitule.toString().endsWith(condition.complement.replace(/^\"|\"$/g, ''));
             break;
 
           case 'existe':

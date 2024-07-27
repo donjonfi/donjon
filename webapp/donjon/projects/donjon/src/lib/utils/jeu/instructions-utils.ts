@@ -124,23 +124,23 @@ export class InstructionsUtils {
         // case 'horloge':
         //   let horloge = new Objet(-1, 'horloge', new GroupeNominal('l’', 'horloge'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
         //   let dateHorloge = new Date();
-        //   horloge.proprietes.push(new ProprieteElement('heure', TypeValeur.nombre, dateHorloge.getHours().toString()));
-        //   horloge.proprietes.push(new ProprieteElement('heures', TypeValeur.nombre, dateHorloge.getHours().toString()));
-        //   horloge.proprietes.push(new ProprieteElement('minute', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
-        //   horloge.proprietes.push(new ProprieteElement('minutes', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
-        //   horloge.proprietes.push(new ProprieteElement('seconde', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
-        //   horloge.proprietes.push(new ProprieteElement('secondes', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'heure', TypeValeur.nombre, dateHorloge.getHours().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'heures', TypeValeur.nombre, dateHorloge.getHours().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'minute', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'minutes', TypeValeur.nombre, dateHorloge.getMinutes().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'seconde', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
+        //   horloge.proprietes.push(new ProprieteElement(horloge, 'secondes', TypeValeur.nombre, dateHorloge.getSeconds().toString()));
         //   cible = horloge;
         //   break;
         // case 'calendrier':
         //   let calendrier = new Objet(-1, 'calendrier', new GroupeNominal('le', 'calendrier'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
         //   let dateCalendrier = new Date();
         //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
-        //   calendrier.proprietes.push(new ProprieteElement('jour', TypeValeur.mots, jours[dateCalendrier.getDay()]));
+        //   calendrier.proprietes.push(new ProprieteElement(horloge, 'jour', TypeValeur.mots, jours[dateCalendrier.getDay()]));
         //   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-        //   calendrier.proprietes.push(new ProprieteElement('date', TypeValeur.nombre, dateCalendrier.getDate().toString()));
-        //   calendrier.proprietes.push(new ProprieteElement('mois', TypeValeur.mots, mois[dateCalendrier.getMonth()]));
-        //   calendrier.proprietes.push(new ProprieteElement('année', TypeValeur.nombre, dateCalendrier.getFullYear().toString()));
+        //   calendrier.proprietes.push(new ProprieteElement(horloge, 'date', TypeValeur.nombre, dateCalendrier.getDate().toString()));
+        //   calendrier.proprietes.push(new ProprieteElement(horloge, 'mois', TypeValeur.mots, mois[dateCalendrier.getMonth()]));
+        //   calendrier.proprietes.push(new ProprieteElement(horloge, 'année', TypeValeur.nombre, dateCalendrier.getFullYear().toString()));
         //   cible = calendrier;
         //   break;
       }
@@ -328,7 +328,13 @@ export class InstructionsUtils {
 
       case TypeProprieteJeu.proprieteElement:
         // trouver la propriete
-        recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
+        if(recherche.intituleProprieteElement.nom == 'intitulé' && recherche.element)
+        {
+          recherche.proprieteElement = new ProprieteElement(recherche.element, "intitulé", TypeValeur.mots, recherche.element.intitule.toString())
+        }
+        else{
+          recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
+        }
         if (!recherche.proprieteElement) {
           // spécial: taille d'une liste
           if (recherche.liste && recherche.intituleProprieteElement.nom == 'taille') {
@@ -379,7 +385,7 @@ export class InstructionsUtils {
    * Dupliquer l’élément du jeu pour utilisation temporaire (sans l’ajouter au jeu ni lui donner d’ID.)
    * 
    * Remarques:
-   *  - Sert uniquement à pouvoir modifier des propriétés sans endomager l’original.
+   *  - Sert uniquement à pouvoir modifier des propriétés sans endommager l’original.
    * - Ne pas utiliser l’élément dans le jeu ensuite ! Pour cela utiliser copierObjet !
    * 
    * @param original élément à dupliquer.
@@ -404,7 +410,7 @@ export class InstructionsUtils {
 
     // copier les propriétés
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+      copie.proprietes.push(new ProprieteElement(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
     });
 
     // TODO: faut-il copier le contenu (support/contenant/…) ?
