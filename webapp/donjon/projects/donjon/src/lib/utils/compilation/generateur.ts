@@ -164,6 +164,7 @@ export class Generateur {
           if (proExistantDeja) {
             proExistantDeja.valeur = pro.valeur;
           } else {
+            pro.parent = nouvLieu;
             nouvellesProp.push(pro);
           }
         }
@@ -231,6 +232,7 @@ export class Generateur {
           if (proExistantDeja) {
             proExistantDeja.valeur = pro.valeur;
           } else {
+            pro.parent = joueur;
             nouvellesProp.push(pro);
           }
         }
@@ -326,8 +328,7 @@ export class Generateur {
         curEle.proprietes.forEach(pro => {
           // spécial: intitulé
           if (pro.nom == 'intitulé') {
-            // TODO: gérer groupe nominal ?
-            // newObjet.intitule = new GroupeNominal(null, pro.valeur);
+            // gérer groupe nominal
             const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(pro.valeur, false);
             if (intituleDecompose) {
               newObjet.intitule = intituleDecompose;
@@ -350,6 +351,7 @@ export class Generateur {
             if (proExistantDeja) {
               proExistantDeja.valeur = pro.valeur;
             } else {
+              pro.parent = newObjet;
               nouvellesProp.push(pro);
             }
           }
