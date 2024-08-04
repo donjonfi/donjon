@@ -21,6 +21,11 @@ export class Monde {
     this.classes.push(ClassesRacines.Porte);
     this.classes.push(ClassesRacines.Contenant);
     this.classes.push(ClassesRacines.Support);
+    this.classes.push(ClassesRacines.Solide);
+    this.classes.push(ClassesRacines.Liquide);
+    this.classes.push(ClassesRacines.Gaz);
+    this.classes.push(ClassesRacines.Boisson);
+    this.classes.push(ClassesRacines.Aliment);
 
   }
 

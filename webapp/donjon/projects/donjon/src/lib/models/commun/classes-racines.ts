@@ -37,7 +37,7 @@ export class ClassesRacines {
 
   /** Il s’agit d’un objet du jeu */
   public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 2,
-    [EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
+    [EEtatsBase.solide, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
 
   /** Il s’agit d’un être vivant */
   public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 3,
@@ -66,4 +66,23 @@ export class ClassesRacines {
   public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 3,
     [EEtatsBase.fixe]);
 
+  /** Il s’agit d’un solide */
+  public static Solide = new Classe(EClasseRacine.solide, "solide", ClassesRacines.Objet, 3,
+    [EEtatsBase.solide]);
+
+  /** Il s’agit d’un liquide */
+  public static Liquide = new Classe(EClasseRacine.liquide, "liquide", ClassesRacines.Objet, 3,
+    [EEtatsBase.liquide]);
+
+  /** Il s’agit d’un gaz */
+  public static Gaz = new Classe(EClasseRacine.gaz, "gaz", ClassesRacines.Objet, 3,
+    [EEtatsBase.gazeux]);
+
+  /** Il s’agit d’une boisson, elle est liquide et buvable. */
+  public static Boisson = new Classe(EClasseRacine.boisson, "boisson", ClassesRacines.Liquide, 4,
+    [EEtatsBase.buvable]);
+
+  /** Il s’agit d’une aliment, il est solide et mangeable. */
+  public static Aliment = new Classe(EClasseRacine.aliment, "aliment", ClassesRacines.Solide, 4,
+    [EEtatsBase.mangeable]);
 }

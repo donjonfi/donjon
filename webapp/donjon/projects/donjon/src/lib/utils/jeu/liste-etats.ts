@@ -51,6 +51,9 @@ export class ListeEtats {
   public obscurID = -1;
   public videID = -1;
   public indenombrableID = -1;
+  public solideID = -1;
+  public liquideID = -1;
+  public gazeuxID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -146,6 +149,11 @@ export class ListeEtats {
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.lu); // est-ce une bonne idée ?
     // vide (contenant)
     this.videID = this.creerEtat(EEtatsBase.vide, Genre.m, Nombre.s, true).id;
+     // solide, liquide et gazeux (objet)
+     const soLiGa = this.creerGroupeEtats([EEtatsBase.solide, EEtatsBase.liquide, EEtatsBase.gazeux]);
+     this.solideID = soLiGa[0].id;
+     this.liquideID = soLiGa[1].id;
+     this.gazeuxID = soLiGa[2].id;
   }
 
   /**
