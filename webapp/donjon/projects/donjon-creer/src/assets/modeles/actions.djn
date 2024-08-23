@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-07-27-0200.beta.17
+-- Version: 2024-08-23-0200.beta.18
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -152,6 +152,7 @@ action boire ceci:
 
   phase prérequis:
     si ceci est un vivant mais pas buvable, refuser "Vous avez de drôles d’idées.".
+    si ceci est liquide mais pas buvable, refuser "Je ne boirais pas ça si j’étais vous.".
     si ceci n’est pas buvable, refuser "Ça ne se boit pas voyons !".
       -- on veut en manger 0…
     si quantitéCeci vaut 0, refuser "Je n’en bois donc aucun[e ceci].".
@@ -171,6 +172,12 @@ action boire ceci:
     fin si.
 
 fin action
+
+L'aide pour l'action boire est "{*Boire*}
+  Permet d’ingérer un liquide.
+  {+exemples+} :
+  > {-boire {/la potion/}-}
+  {+raccourci+} : {-bo-}".
 
   -- ===========
   --   BRÛLER
@@ -492,7 +499,7 @@ action examiner ceci:
     Ceci est un intitulé.
 
   phase prérequis:
-    si ceci n’est ni un élément ni une direction, refuser "Je ne comprend pas ce que vous voulez examiner.".
+    si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
@@ -781,7 +788,6 @@ action manger ceci:
   définitions:
     Ceci est prioritairement possédé.
   phase prérequis:
-    si ceci est un lieu, refuser "Ça ne se mange pas voyons !".
     si ceci est un vivant mais pas mangeable, refuser "Vous avez de drôles d’idées.".
     si ceci n’est pas mangeable, refuser "Ça ne se mange pas voyons !".
     -- on veut en manger 0…
@@ -800,6 +806,11 @@ action manger ceci:
     fin si.
 fin action
 
+L'aide pour l'action manger est "{*Manger*}
+  Permet d’absorber un aliment.
+  {+exemples+} :
+  > {-manger {/la pomme/}-}
+  {+raccourci+} : {-ma-}".
 
 -- ===========
 --   METTRE
@@ -1045,6 +1056,7 @@ action prendre ceci:
     si ceci est une personne ou un animal, refuser "Ça ne me parait pas très prudent.".
     si ceci est un décor ou décoratif, refuser "Je préfère ne pas m’encombrer avec ça.".
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est liquide ou gazeux et que l’inventaire est perméable, refuser "Je ne sais pas [le ceci] mettre directement dans mon inventaire.".
     -- on veut en prendre 0…
     si quantitéCeci vaut 0, refuser "Je n’en prends donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
@@ -1160,7 +1172,7 @@ action regarder ceci:
   définitions:
     ceci est un intitulé.
   phase prérequis:
-    si ceci n’est ni un élément ni une direction, refuser "Je ne comprend pas ce que vous voulez regarder.".
+    si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez regarder.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
   phase exécution:
     si ceci est une personne:
