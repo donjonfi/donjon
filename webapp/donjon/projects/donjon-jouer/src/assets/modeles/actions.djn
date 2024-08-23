@@ -7,10 +7,6 @@
 
 désactiver les actions de base.
 
---le salon est un lieu.
---le verre est un contenant dans le salon.
---l’eau (f) est une boisson dans le verre.
-
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)
 -- =========================================
@@ -381,6 +377,7 @@ action déplacer ceci:
   phase prérequis:
     si ceci est le joueur, refuser "La commande {-aller-} devrait vous convenir.".
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est liquide ou gazeux, refuser "Je ne sais déplacer que les objets solides.".
   phase exécution:
     changer ceci est déplacé.
   phase épilogue:
@@ -712,6 +709,7 @@ action jeter ceci:
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
     si ceci est un vivant, refuser "Je suis contre la violence.".
+    si ceci est liquide ou gazeux, refuser "Je ne sais jeter que les objets solides.".
     -- on veut en jeter 0…
     si quantitéCeci vaut 0, refuser "Je n’en jette donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
@@ -730,6 +728,7 @@ action jeter ceci vers cela:
     si ceci n'est pas accessible, refuser "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
     si cela est un vivant, refuser "Je suis contre la violence.".
+    si ceci est liquide ou gazeux, refuser "Je ne sais jeter que les objets solides.".
     -- on veut en jeter 0…
     si quantitéCeci vaut 0, refuser "Je n’en jette donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
@@ -850,6 +849,9 @@ action mettre ceci dans cela:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
     si cela n'est ni un support ni un contenant ni un vivant, refuser "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.".
     si cela est un contenant et fermé, refuser "[Intitulé cela] [v être ipr cela] fermé[es cela].".
+    si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers."
+    si ceci est liquide et si cela est un support, refuser "Ça va couler."
+    si ceci est gazeux et si cela est un contenant ou un support, refuser "Ça va s'évaporer."
 
   phase exécution:
     si cela est un support:
@@ -1011,6 +1013,7 @@ action poser ceci:
   définitions:
     ceci est un objet visible, accessible et possédé.
   phase prérequis:
+    si ceci est liquide ou gazeux, refuser "Je ne sais poser que les objets solides.".
     -- on veut en jeter 0…
     si quantitéCeci vaut 0, refuser "Je n’en pose donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
@@ -1028,6 +1031,7 @@ action poser ceci sur cela:
     ceci est un objet visible, accessible et possédé.
     cela est un support.
   phase prérequis:
+    si ceci est liquide ou gazeux, refuser "Je ne sais poser que les objets solides.".
     -- on veut en jeter 0…
     si quantitéCeci vaut 0, refuser "Je n’en pose donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
@@ -1042,6 +1046,7 @@ fin action
 action pousser ceci:
   phase prérequis:
     si ceci est le joueur, refuser "Je suis dans le chemin ?".
+    si ceci est liquide ou gazeux, refuser "Je ne sais pousser que les objets solides.".
   phase exécution:
     changer ceci est déplacé.
   phase épilogue:
@@ -1060,7 +1065,8 @@ action prendre ceci:
     si ceci est une personne ou un animal, refuser "Ça ne me parait pas très prudent.".
     si ceci est un décor ou décoratif, refuser "Je préfère ne pas m’encombrer avec ça.".
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
-    si ceci est liquide ou gazeux et que l’inventaire est perméable, refuser "Je ne sais pas [le ceci] mettre directement dans mon inventaire.".
+    si ceci est liquide et que l’inventaire est perméable, refuser "Je ne sais pas [le ceci] mettre directement dans l’inventaire.".
+    si ceci est gazeux, refuser "Ça va s’évaporer".
     -- on veut en prendre 0…
     si quantitéCeci vaut 0, refuser "Je n’en prends donc aucun.".
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
