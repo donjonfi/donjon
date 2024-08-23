@@ -27,11 +27,6 @@ export enum EClasseRacine {
   // types spéciaux
   joueur = 'joueur',
   inventaire = 'inventaire',
-  liquide = 'liquide',
-  solide = 'solide',
-  gaz = 'gaz',
-  boisson = 'boisson',
-  aliment = 'aliment',
 }
 
 export enum EEtatsBase {
@@ -147,12 +142,18 @@ export enum EEtatsBase {
   lu = "lu",
   /** vide: objet */
   vide = 'vide',
-  
+
   /** solide: objet (≠ liquide, ≠ gazeux)  */
   solide = 'solide',
   /** liquide (≠ solide, ≠ gazeux)  */
   liquide = 'liquide',
   /** gazeux (≠ solide, ≠ liquide)  */
   gazeux = 'gazeux',
+
+  /** imperméable (↔ perméable) */
+  impermeable = 'imperméable',
+  /** perméable (↔ imperméable) */
+  permeable = 'perméable',
+
 
 }

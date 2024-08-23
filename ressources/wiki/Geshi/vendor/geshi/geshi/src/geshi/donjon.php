@@ -60,9 +60,7 @@ $language_data = array (
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
 			'compteur', 'compteurs',
 			'\daction', '\dactions', 'question',  'questions',
-			'liste',    'listes',
-            'boisson', 'boissons',   'aliment',   'aliments',
-			
+			'liste',    'listes',			
             ),
         3 => array(
             'si', 'sinon', 'sinonsi', 'choix', 'choisir', 'remplacer', 

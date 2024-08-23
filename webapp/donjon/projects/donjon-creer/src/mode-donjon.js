@@ -101,7 +101,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste|boisson)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|aliment)|" +
+          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
             "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {
