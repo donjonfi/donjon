@@ -1,5 +1,5 @@
 import { ContexteTour, PhaseTour } from '../../models/jouer/contexte-tour';
-import { Interruption, TypeContexte } from '../../models/jeu/interruption';
+import { TypeContexte } from '../../models/jeu/interruption';
 
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
@@ -75,7 +75,7 @@ export class Commandeur {
 
         // les 2 candidats ont le même score
         if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
-          this.jeu.tamponErreurs.push("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
+          this.jeu.ajouterErreur("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
           this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
           if (!ctxCmd.commandeValidee) {
@@ -91,7 +91,7 @@ export class Commandeur {
         }
         // s’il y a plus de 2 candidats, c’est un cas qui n’est pas pris en charge (ça ne devrait pas arriver)
       } else {
-        this.jeu.tamponErreurs.push("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
+        this.jeu.ajouterErreur("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
       }
       // débogueur: changer le monde (uniquement si le débogueur est actif)
     } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /) && this.debogueurActif) {
@@ -359,7 +359,7 @@ export class Commandeur {
           ctx.commandeValidee = true; // la commande a été validée et exécutée
         }
         // déboguer un élément du jeu
-      } else {
+      } else if(candidatCommande.isCeciV1 && !candidatCommande.isCelaV1) {
         ctx.sortie = this.deb.deboguer(candidatCommande.els);
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }
