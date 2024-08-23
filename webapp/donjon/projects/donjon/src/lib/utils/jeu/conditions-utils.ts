@@ -371,7 +371,7 @@ export class ConditionsUtils {
             } else if (condition.sujetComplement && condition.sujetComplement.nom === 'aucun' && condition.sujetComplement.epithete?.match(/objet(s)?/i)) {
               retVal = !this.eju.verifierContientObjet(sujet as ElementJeu);
             } else {
-              console.error("siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ", condition.complement, condition.sujetComplement);
+              contexteTour.ajouterErreurCondition(condition, `siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ${condition.complement}`)
             }
             break;
 

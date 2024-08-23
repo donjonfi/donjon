@@ -85,13 +85,16 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
 
             + "(\\b("
-            + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
+            + "présent|absent|intact|déplacé|modifié|"
+            + "caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
-            + "enfilable|chaussable|"
+            + "solide|liquide|gazeu(x|s)|(im)?perméable|"
             + "porté|enfilé|chaussé|possédé|disponible|occupé|"
-            + "(in)?visible|(in)?accessible|ajdacent|"
+            + "enfilable|chaussable|"
+            + "invisible|inaccessible|adjacent|"
+            + "initialisé|"
             + "multiple|unique|illimité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
 
@@ -104,7 +107,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))( pas| plus)?\\b"
+          regex: "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|commence|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))( pas| plus)?( par)?\\b"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

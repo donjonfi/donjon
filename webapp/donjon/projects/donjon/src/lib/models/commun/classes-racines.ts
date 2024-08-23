@@ -37,7 +37,7 @@ export class ClassesRacines {
 
   /** Il s’agit d’un objet du jeu */
   public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 2,
-    [EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
+    [EEtatsBase.solide, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
 
   /** Il s’agit d’un être vivant */
   public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 3,
@@ -60,7 +60,7 @@ export class ClassesRacines {
 
   /** Il s’agit d’un contenant */
   public static Contenant = new Classe(EClasseRacine.contenant, "contenant", ClassesRacines.Objet, 3,
-    [EEtatsBase.ouvert]);
+    [EEtatsBase.ouvert, EEtatsBase.impermeable]);
 
   /** Il s’agit d’un support */
   public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 3,

@@ -224,7 +224,7 @@ export class Conjugaison {
     ['peindre', 'peint'],
     ['plaindre', 'plaint'],
     ['teindre', 'teint'],
-    ['décevoir', 'deçu'],
+    ['décevoir', 'déçu'],
     ['apercevoir', 'aperçu'],
     ['concevoir', 'conçu'],
     ['recevoir', 'reçu'],

@@ -21,7 +21,6 @@ export class Monde {
     this.classes.push(ClassesRacines.Porte);
     this.classes.push(ClassesRacines.Contenant);
     this.classes.push(ClassesRacines.Support);
-
   }
 
   classes: Classe[] = [];
