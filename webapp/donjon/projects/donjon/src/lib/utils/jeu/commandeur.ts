@@ -154,8 +154,8 @@ export class Commandeur {
           // élément
           if (candidatCommande.correspondCeci.elements.length) {
             ceciRefuse = candidatCommande.correspondCeci.elements[0];
-            // si on interragit avec l'élement, on le connait
-            (ceciRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(ceciRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
             // compteur
           } else if (candidatCommande.correspondCeci.compteurs.length) {
             ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -176,8 +176,8 @@ export class Commandeur {
           // élément
           if (candidatCommande.correspondCela.elements.length) {
             celaRefuse = candidatCommande.correspondCela.elements[0];
-            // si on interragit avec l'élement, on le connait
-            (celaRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(celaRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
             // compteur
           } else if (candidatCommande.correspondCela.compteurs.length) {
             celaRefuse = candidatCommande.correspondCela.compteurs[0];
@@ -238,15 +238,16 @@ export class Commandeur {
 
       const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[indexCeci] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[indexCela] : null));
 
+      // les éléments avec lesquels ont interagit sont connus.
       if (actionChoisie.ceci) {
         if (ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.element)) {
-          // si on interragit avec l'élement, on le connait
-          (actionChoisie.ceci as ElementJeu).etats.push(this.jeu.etats.connuID);
+          // si on interagit avec l’élément, on le connaît
+          this.jeu.etats.ajouterEtatIdElement(actionChoisie.ceci as ElementJeu, this.jeu.etats.connuID, this.eju);
         }
         if (candidatActionChoisi.cela) {
           if (ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.element)) {
-            // si on interragit avec l'élement, on le connait
-            (actionChoisie.cela as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(actionChoisie.cela as ElementJeu, this.jeu.etats.connuID, this.eju);
           }
         }
       }
@@ -319,7 +320,7 @@ export class Commandeur {
 
 
 
-  private creerInterruptionRoutine(tour: ContexteTour, resultat: Resultat){
+  private creerInterruptionRoutine(tour: ContexteTour, resultat: Resultat) {
     InterruptionsUtils.definirProprietesInterruptionResultatAuTour(tour, resultat);
     this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionContexteTourOuRoutine(tour, TypeContexte.routine));
   }

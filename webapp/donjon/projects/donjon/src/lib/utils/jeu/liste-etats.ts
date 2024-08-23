@@ -334,13 +334,20 @@ export class ListeEtats {
     return etat;
   }
 
-  /** Ajouter un état à l'élément. */
-  ajouterEtatElement(element: ElementJeu, nomEtat: string, ejuOuctxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions). */
+  ajouterEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils){
+    if(!this.possedeEtatIdElement(element, etatID, eju)){
+      element.etats.push(etatID);
+    }
+  }
+
+  /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes et des contradictions). */
+  ajouterEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
 
     const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
 
     if (etat.calcule && !forcerCalcul) {
-      ejuOuctxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
       // état classique
     } else {
       // s'il s'agit d'un état faisant partie d'un groupe
@@ -370,13 +377,13 @@ export class ListeEtats {
   }
 
   /** Retirer un état à un élément */
-  retirerEtatElement(element: ElementJeu, nomEtat: string, ejuOuctxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  retirerEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
     const etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
       // vérifier s’il s’agit d’un état calculé
       if (etat.calcule && !forcerCalcul) {
-        ejuOuctxGen.ajouterErreur("retirerEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+        ejuOuCtxGen.ajouterErreur("retirerEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
         // état classique
       } else {
         // ne garder que les autres états
