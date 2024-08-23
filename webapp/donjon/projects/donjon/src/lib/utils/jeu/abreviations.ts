@@ -163,6 +163,15 @@ export class Abreviations {
             break;
 
           // ======================
+          //           B
+          // ======================
+
+          case 'bo':
+          case 'boi':
+            retVal = "boire "
+            break;
+
+          // ======================
           //           C
           // ======================
 
@@ -294,13 +303,9 @@ export class Abreviations {
           //           M
           // ======================
 
-          case 'mo':
-          case 'monter':
-            retVal = "aller en haut";
-            break;
-
-          case 'mon':
-            retVal = "montrer ";
+          case 'ma':
+          case 'man':
+            retVal = "manger "
             break;
 
           case 'm\'':
@@ -312,6 +317,19 @@ export class Abreviations {
           case 'met':
             retVal = "mettre ";
             break;
+
+          case 'mo':
+          case 'monter':
+            retVal = "aller en haut";
+            break;
+
+          case 'mon':
+            retVal = "montrer ";
+            break;
+
+
+
+
 
           // ======================
           //           N
