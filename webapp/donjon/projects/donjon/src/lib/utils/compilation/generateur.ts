@@ -110,6 +110,7 @@ export class Generateur {
     let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
+    jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.permeable, ctx);
     jeu.objets.push(inventaire);
 
     // AJOUTER LES LIEUX

@@ -60,7 +60,7 @@ export class ClassesRacines {
 
   /** Il s’agit d’un contenant */
   public static Contenant = new Classe(EClasseRacine.contenant, "contenant", ClassesRacines.Objet, 3,
-    [EEtatsBase.ouvert]);
+    [EEtatsBase.ouvert, EEtatsBase.impermeable]);
 
   /** Il s’agit d’un support */
   public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 3,
