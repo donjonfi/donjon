@@ -85,21 +85,23 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
 
             + "(\\b("
-            + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
+            + "présent|absent|intact|déplacé|modifié|"
+            + "caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
-            + "enfilable|chaussable|"
-            + "solide|liquide|gazeux|"
+            + "solide|liquide|gazeu(x|s)|(im)?perméable|"
             + "porté|enfilé|chaussé|possédé|disponible|occupé|"
-            + "(in)?visible|(in)?accessible|adjacent|"
+            + "enfilable|chaussable|"
+            + "invisible|inaccessible|adjacent|"
+            + "initialisé|"
             + "multiple|unique|illimité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
 
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste|boisson)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|aliment|solide|gaz|liquide)|" +
+          regex: "une (clé|porte|personne|action|direction|liste|boisson)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|aliment)|" +
             "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {

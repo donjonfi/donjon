@@ -51,6 +51,7 @@ $language_data = array (
 			'affecter', 'afficher', 'jouer', 'arrêter'
             ),
         2 => array(
+            'clé',      'clés',      'direction', 'directions',
 			'objet',    'objets',    'lieu',      'lieux', 
 			'élément',  'éléments',  'décor',     'décors', 
 			'support',  'supports',  'contenant', 'contenants', 
@@ -58,8 +59,9 @@ $language_data = array (
 			'vivant',   'vivants',   'animal',    'animaux', 
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
 			'compteur', 'compteurs',
-			'\daction',   '\dactions',   'question',  'questions',
-			'liste', 'listes'
+			'\daction', '\dactions', 'question',  'questions',
+			'liste',    'listes',
+            'boisson', 'boissons',   'aliment',   'aliments',
 			
             ),
         3 => array(
@@ -67,12 +69,15 @@ $language_data = array (
 			'avant', 'après', 'règle', 'action', 'réaction', 'réactions', 'basique', 'concernant', 'routine',
 			'phase', 'prérequis', 'exécution', 'épilogue',
 			'définition', 'définitions',
-			'peut', 'est', 'sont', 'pas', 'plus',
-			'possède', 'possèdent', 'contient', 'contiennent', 'réagit', 'réagissent',
-			'vaut', 'valent', 'augmente', 'augmentent', 'diminue', 'diminuent',
+			'est', 'sont', 'pas', 'plus', 'se trouve', 'se trouvent',
+            'contient', 'contiennent',
+			'possède', 'possèdent', 'porte', 'portent',
+            'réagit', 'réagissent', 'peut', 'peuvent', 
+			'vaut', 'valent', 'commence par', 'commencent par',
+            'augmente', 'augmentent', 'diminue', 'diminuent', 
 			'atteint', 'atteignent', 'dépasse', 'dépassent', 'se déclenche', 'se déclenchent',
 			'ni', 'soit', 'ou', 'et', 'mais',
-			'interpréter', 'comme',
+			'interpréter', 'comme', 
 			'initialement', 'puis', 'fin', 'finsi', 'finchoix', 'finchoisir',
       'prioritairement', 'progressivement',
 			'choix', 'choisir', 'aucun', 'autre', 'boucle', 'hasard', 'fois'
@@ -88,9 +93,20 @@ $language_data = array (
 		5 => array(
 			'vers', 'au', 'en', 'sur', 'dans', 
 			'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
-			'possédé(e)', 'visible', 'mangeable', 'buvable', 'porté(e)?', 'portable', 'disponible',
-			'fermé', 'fermée', 'ouvert', 'ouverte', 'verrouillé', 'verrouillée',
-			'initialisé', 'initialisée'
+
+            'présent(e)?', 'absent(e)?', 'intact(e)?', 'déplacé(e)?', 'modifié(e)?', 
+            'caché(e)?', 'couvert(e)?', 'décorati(f|ve)',
+            '(in)?dénombrable', 'mangeable', 'buvable',
+			'ouvert', 'ouverte', 'fermé', 'fermée', '(dé)?verrouillable', 'verrouillé', 'verrouillée',
+			'clair', 'obscur', 'allumé',
+			'marche', 'arrêt', 'parlant', 'opaque', 'transparent', 'fixé', 'transportable', 'portable',
+            'solide', 'liquide', 'gazeu(x|se)', 'perméable', 'imperméable',
+            'porté', 'enfilé', 'chaussé', 'possédé', 'disponible', 'occupé',
+            'enfilable', 'chaussable',
+            'invisible', 'inaccessible', 'adjacent',
+			'initialisé', 'initialisée',
+			'multiple', 'unique', 'illimité',
+            'équipé', 'équipable'
 			)
         ),
     'SYMBOLS' => array(
