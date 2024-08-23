@@ -120,7 +120,7 @@ export class Commandeur {
       // la commande n’a pas pu être décomposée
     } else {
       ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
-      ctxCmd.sortie += "Voici des exemples de commandes que je comprend :\n";
+      ctxCmd.sortie += "Voici des exemples de commandes que je comprends :\n";
       ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
       ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
       ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
