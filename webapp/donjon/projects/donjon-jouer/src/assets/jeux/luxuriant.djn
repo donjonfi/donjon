@@ -67,7 +67,7 @@ La serre est un lieu.
     dire "Il est bien trop tard pour cela, il faut trouver une solution plus radicale !".
       
   Le joueur peut découper la Drosera Vorace:
-    dire "Je comprend la commande {-utiliser xxx sur yyy-}.".
+    dire "Je comprends la commande {-utiliser xxx sur yyy-}.".
 
   -- allumage de la tronçonneuse
   Le joueur peut démarrer la tronçonneuse:
