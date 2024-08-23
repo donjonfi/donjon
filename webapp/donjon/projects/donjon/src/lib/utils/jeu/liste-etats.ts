@@ -54,6 +54,8 @@ export class ListeEtats {
   public solideID = -1;
   public liquideID = -1;
   public gazeuxID = -1;
+  public permeableID = -1;
+  public impermeableID = -1;
 
   private etats: Etat[] = [];
   private nextEtat = 1;
@@ -149,11 +151,15 @@ export class ListeEtats {
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.lu); // est-ce une bonne idée ?
     // vide (contenant)
     this.videID = this.creerEtat(EEtatsBase.vide, Genre.m, Nombre.s, true).id;
-     // solide, liquide et gazeux (objet)
-     const soLiGa = this.creerGroupeEtats([EEtatsBase.solide, EEtatsBase.liquide, EEtatsBase.gazeux]);
-     this.solideID = soLiGa[0].id;
-     this.liquideID = soLiGa[1].id;
-     this.gazeuxID = soLiGa[2].id;
+    // solide, liquide et gazeux (objet)
+    const soLiGa = this.creerGroupeEtats([EEtatsBase.solide, EEtatsBase.liquide, EEtatsBase.gazeux]);
+    this.solideID = soLiGa[0].id;
+    this.liquideID = soLiGa[1].id;
+    this.gazeuxID = soLiGa[2].id;
+    // perméable et imperméable (contenant)
+    const permImperm = this.creerBasculeEtats(EEtatsBase.permeable, EEtatsBase.impermeable);
+    this.permeableID = permImperm[0].id;
+    this.impermeableID = permImperm[1].id;
   }
 
   /**
