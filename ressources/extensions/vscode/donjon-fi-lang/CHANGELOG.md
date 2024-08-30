@@ -1,5 +1,8 @@
 # Historique des versions
 
+## [2.0 beta 18] - 30/08/2024
+- Coloration syntaxique pour Donjon FI 2.0 (beta 18)
+
 ## [2.0 beta 1] - 28/08/2022
 - Coloration syntaxique pour Donjon FI 2.0 (beta 1)
 
