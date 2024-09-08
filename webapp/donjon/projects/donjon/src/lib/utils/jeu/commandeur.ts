@@ -291,6 +291,12 @@ export class Commandeur {
         (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + actionChoisie.ceci.intitule + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + actionChoisie.cela.intitule + '/}') : ''))
       );
 
+      // éviter « aller en le haut » et « aller au le nord ».
+      ctx.evenement.commandeComprise = ctx.evenement.commandeComprise
+        .replace("aller en {/le ", "aller {/en ")
+        .replace("aller au {/le ", "aller {/au ")
+        .replace("aller {/l'", "aller {/à l’");
+
       ctx.actionChoisie = actionChoisie;
 
     }
