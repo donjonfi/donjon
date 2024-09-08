@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-08-23-0200.beta.18
+-- Version: 2024-09-08-0200.beta.19
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -101,7 +101,7 @@ L'aide pour l'action aller est "{*Aller*}
   > {-sud-}
   > {-monter-}
   > {-entrer dans {/la cabane/}-}
-  {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-en-}, {-so-}".
+  {+raccourci+} : {-n-}, {-s-}, {-o-}, {-e-}, {-mo-}, {-de-}, {-h-}, {-b-}, {-en-}, {-so-}".
 
 -- ============
 --   ANNULER
@@ -415,7 +415,7 @@ Permet de donner un objet que vous possédez à quelqu'un.
 {+exemples+} :
 > {-donner {/la poudre magique/} à {/la magicienne/}-}
 > {-donner {/la pomme/} au {/nain/}-}
-{+raccourci+} : {-d-}".
+{+raccourci+} : {-do-}".
 
 -- ===========
 --   ÉCOUTER
@@ -579,7 +579,7 @@ L'aide pour l'action examiner est "{*Examiner*}
   {+exemples+} :
   > {-examiner {/l'arbre/}-}
   > {-examiner {/l'épée/}}
-  {+raccourci+} : {-ex-}".
+  {+raccourci+} : {-x-}, {-ex-}".
 
 -- ==========
 --   FAIRE
@@ -750,7 +750,7 @@ L'aide pour l'action jeter est "{*Jeter*}
   Permet de jeter un objet que vous possédez sur le sol.
   {+exemple+} :
   > {-jeter {/la fleur/}-}
-  {+raccourci+} : {-j-}".
+  {+raccourci+} : {-j-}, {-je-}".
 
 -- ===========
 --    LÂCHER
@@ -1099,7 +1099,7 @@ L'aide pour l'action prendre est "{*Prendre*}
   {+exemples+} :
   > {-prendre {/l'épée/}-}
   > {-prendre {/le bouquet de fleurs/}-}
-  {+raccourci+} : {-p-}".
+  {+raccourci+} : {-p-}, {-pr-}".
 
 -- ===========
 --   PRIER
@@ -1196,7 +1196,7 @@ L'aide pour l'action regarder est "{*Regarder*}
   Permet de regarder autour de vous pour en savoir plus sur le lieu où vous vous trouvez.
   {+exemple+} :
   > {-regarder-}
-  {+raccourci+} : {-re-}".
+  {+raccourci+} : {-r-}, {-re-}".
   
 -- ===========
 --   SAUTER

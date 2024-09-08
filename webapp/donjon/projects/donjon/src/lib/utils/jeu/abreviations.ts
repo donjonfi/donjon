@@ -10,6 +10,7 @@ export class Abreviations {
           retVal = "au nord";
           break;
         case 'n-e':
+        case 'ne':
           retVal = "au nord-est";
           break;
         case 'e':
@@ -21,13 +22,19 @@ export class Abreviations {
         case 's':
           retVal = "au sud";
           break;
-        case 's-o':
+        case 's-o': // (so: sortir!)
+        case 's-w':
+        case 'sw':
           retVal = "au sud-ouest";
           break;
         case 'o':
+        case 'w':
           retVal = "à l’ouest";
           break;
         case 'n-o':
+        case 'n-w':
+        case 'nw':
+        case 'no':
           retVal = "au nord-ouest";
           break;
 
@@ -40,7 +47,7 @@ export class Abreviations {
 
   static obtenirCommandeComplete(commande: string, abreviations: Abreviation[]) {
 
-    let commandeModifiee = commande.toLocaleLowerCase("fr");
+    let commandeModifiee = commande.trim().toLocaleLowerCase("fr");
 
     // séparer le premier m’ ou s’ de la suite de la commande
     if (commandeModifiee.startsWith("m’") || commandeModifiee.startsWith("m'")) {
@@ -75,7 +82,12 @@ export class Abreviations {
         // c’est un « me » par exemple « me regarder » 
         // => on va le transformer en « regarder le joueur ».
         if (premierMotComplet === 'moi') {
-          premierMotComplet = mots[1];
+          premierMotComplet = Abreviations.premierMotCommande(mots[1], true, abreviations);
+          deuxiemeMotComplet = 'le joueur';
+        }
+
+        // si le 2e mot est "me" l’interpréter comme "moi" en anglais.
+        if (mots[1].trim() == 'me') {
           deuxiemeMotComplet = 'le joueur';
         }
 
@@ -166,6 +178,11 @@ export class Abreviations {
           //           B
           // ======================
 
+          case 'b':
+          case 'bas':
+            retVal = "aller en bas";
+            break;
+
           case 'bo':
           case 'boi':
             retVal = "boire "
@@ -180,10 +197,15 @@ export class Abreviations {
             retVal = "chausser ";
             break;
 
+          // case 'cl': // (en: close)
+          //   retVal = "fermer ";
+          //   break;
+
           // ======================
           //           D
           // ======================
 
+          case 'd': // (en: down)
           case 'de':
           case 'descendre':
             retVal = "aller en bas";
@@ -211,7 +233,6 @@ export class Abreviations {
             retVal = "déverrouiller";
             break;
 
-          case 'd':
           case 'do':
           case 'don':
             retVal = "donner ";
@@ -225,6 +246,10 @@ export class Abreviations {
           case 'est':
             retVal = "aller à l’est";
             break;
+
+          // case 'ea': // (en: eat)
+          //   retVal = "manger "
+          //   break;
 
           case 'ef':
           case 'eff':
@@ -260,16 +285,38 @@ export class Abreviations {
             retVal = "fermer ";
             break;
 
+
+          // ======================
+          //           G
+          // ======================
+
+          // g (en: again, fr: répète)
+
+          // case 'go': // (en: go)
+          //   retVal = "aller ";
+          //   break;
+
+          // ======================
+          //           H
+          // ======================
+
+          case 'h':
+          case 'haut':
+            retVal = "aller en haut";
+            break;
+
           // ======================
           //           I
           // ======================
 
-
-          case 'i':
-          case 'in':
+          case 'i': // (en: inventory)
           case 'inv':
           case 'inventaire':
             retVal = "afficher inventaire";
+            break;
+
+          case 'in': // (en: in)
+            retVal = 'aller dedans';
             break;
 
           case 'int':
@@ -280,6 +327,7 @@ export class Abreviations {
           //           J
           // ======================
 
+          // todo: éviter d’utiliser 'je' car peut-être est-ce le pronom ?
           case 'j':
           case 'je':
           case 'jet':
@@ -290,7 +338,11 @@ export class Abreviations {
           //           L
           // ======================
 
-          case 'l':
+          case 'l': // (en: look)
+          case 'ls':
+            retVal = "regarder ";
+            break;
+
           case 'la':
           case 'lâ':
           case 'lac':
@@ -341,11 +393,14 @@ export class Abreviations {
             break;
 
           case 'n-e':
+          case 'ne': // (en: north east)
           case 'nord-est':
             retVal = "aller au nord-est";
             break;
 
           case 'n-o':
+          case 'no':
+          case 'nw': // (en: north west)
           case 'nord-ouest':
             retVal = "aller au nord-ouest";
             break;
@@ -362,9 +417,17 @@ export class Abreviations {
             retVal = "aller à l’ouest";
             break;
 
+          // case 'op': // (en: open)
+          //   retVal = "ouvrir ";
+          //   break;
+
           case 'ou':
           case 'ouv':
             retVal = "ouvrir ";
+            break;
+
+          case 'out': // (en: out)
+            retVal = 'aller dehors';
             break;
 
           // ======================
@@ -422,11 +485,14 @@ export class Abreviations {
             break;
 
           case 's-e':
+          case 'se': // (en: south east)
           case 'sud-est':
             retVal = "aller au sud-est";
             break;
 
           case 's-o':
+          case 's-w': // (south west)
+          case 'sw':// (south west)
           case 'sud-ouest':
             retVal = "aller au sud-ouest";
             break;
@@ -446,6 +512,10 @@ export class Abreviations {
           //           T
           // ======================
 
+          case 't': // (en: take)
+            retVal = "prendre "
+            break;
+
           case 'te':
           case 'ten':
             retVal = "tenir ";
@@ -454,21 +524,42 @@ export class Abreviations {
           // ======================
           //           U
           // ======================
+          case 'u': // (en: up)
+            retVal = "aller en haut";
+            break;
 
-          case 'u':
           case 'ut':
           case 'uti':
             retVal = "utiliser ";
             break;
 
           // ======================
+          //           W
+          // ======================
+          case 'w': // (en: west)
+            retVal = "aller à l’ouest";
+            break;
+
+          // ======================
           //           X
           // ======================
 
-          case 'x':
+          case 'x': // (en: examine)
             retVal = "examiner ";
             break;
 
+          // ======================
+          //           Y
+          // ======================
+
+          // ======================
+          //           Z
+          // ======================
+          case 'z': // (en: wait)
+            retVal = "attendre";
+            break;
+
+          // ======================
           default:
             break;
         }
