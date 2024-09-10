@@ -8,10 +8,10 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|"
-      + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|"
+      + "intitulé|Intitulé|pronom|Pronom|description|quantité|infinitif|préposition|titre|auteur|auteurs|"
       + "aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu|"
-      + "musique|image|thème"
+      + "musique|image|thème|sortie|sorties"
     );
 
     var builtinFunctions = (
@@ -91,9 +91,9 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
             + "solide|liquide|gazeu(x|s)|(im)?perméable|"
-            + "porté|enfilé|chaussé|possédé|disponible|occupé|"
             + "enfilable|chaussable|"
-            + "invisible|inaccessible|adjacent|"
+            + "porté|enfilé|chaussé|possédé|disponible|occupé|"
+            + "(in)?visible|(in)?accessible|adjacent|"
             + "initialisé|"
             + "multiple|unique|illimité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
@@ -101,7 +101,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
+          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|intitulé|élément)|" +
             "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {

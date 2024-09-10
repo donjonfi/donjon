@@ -38,6 +38,8 @@ export class Commandeur {
 
   private comTour: CommandeurTour;
 
+  private premiereIncomprehension = true;
+
   constructor(
     private jeu: Jeu,
     private ins: Instructions,
@@ -120,15 +122,20 @@ export class Commandeur {
       // la commande n’a pas pu être décomposée
     } else {
       ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
-      ctxCmd.sortie += "Voici des exemples de commandes que je comprends :\n";
-      ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
-      ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
-      ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
-      ctxCmd.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
-      ctxCmd.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
-      ctxCmd.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
-      ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
-      ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
+      if (this.premiereIncomprehension) {
+        this.premiereIncomprehension = false;
+        ctxCmd.sortie += "Voici des exemples de commandes que je comprends :\n";
+        ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
+        ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
+        ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
+        ctxCmd.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
+        ctxCmd.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
+        ctxCmd.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
+        ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
+        ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
+      } else {
+        // ctxCmd.sortie += "Vous pouvez entrer la commande {-aide-}.\n";
+      }
     }
     return ctxCmd;
   }
@@ -284,6 +291,12 @@ export class Commandeur {
         (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + actionChoisie.ceci.intitule + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + actionChoisie.cela.intitule + '/}') : ''))
       );
 
+      // éviter « aller en le haut » et « aller au le nord ».
+      ctx.evenement.commandeComprise = ctx.evenement.commandeComprise
+        .replace("aller en {/le ", "aller {/en ")
+        .replace("aller au {/le ", "aller {/au ")
+        .replace("aller {/l'", "aller {/à l’");
+
       ctx.actionChoisie = actionChoisie;
 
     }
@@ -359,7 +372,7 @@ export class Commandeur {
           ctx.commandeValidee = true; // la commande a été validée et exécutée
         }
         // déboguer un élément du jeu
-      } else if(candidatCommande.isCeciV1 && !candidatCommande.isCelaV1) {
+      } else if (candidatCommande.isCeciV1 && !candidatCommande.isCelaV1) {
         ctx.sortie = this.deb.deboguer(candidatCommande.els);
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }

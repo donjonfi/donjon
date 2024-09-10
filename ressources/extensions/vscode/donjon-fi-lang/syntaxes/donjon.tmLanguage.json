@@ -34,7 +34,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(refuser|attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|fermer|ouvrir|remplacer|sauver|stopper|terminer|verrouiller|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b(?!\\.)"
+          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|remplacer|refuser|sauver|stopper|terminer|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b(?!\\.)"
         },
         {
           "name": "support.constant",
@@ -42,11 +42,11 @@
         },
         {
           "name": "entity.name.function",
-          "match": "\\b((i|I)ntitulé|(p|P)ronom|description|quantité|infinitif|préposition|titre|auteur|auteurs|aperçu|texte|lien|capacité|accord|réaction|version|site|web|aide|commande|action|contenu|musique|image|obstacle|sortie(s)?)\\b"
+          "match": "\\b((i|I)ntitulé|(p|P)ronom|description|quantité|infinitif|préposition|titre|auteur(s)?|aperçu|texte|lien|capacité|accord|réaction|version|site|web|aide|commande|action|contenu|musique|image|thème|sortie(s)?)\\b"
         },
         {
           "name": "constant.language",
-          "match": "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|dénombrable|indénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|multiple|unique|illimité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -78,7 +78,7 @@
         },
         {
           "name": "keyword.operator",
-          "match": "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|existe|possède(nt)?|porte(nt)?(?! (de|d'|d’|comme)\\b)|réagi(ssen)?t|peu(ven)?t))( pas| plus)?\\b"
+          "match": "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|commence|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?(?! (de|d'|d’|comme)\\b)|réagi(ssen)?t|peu(ven)?t))( pas| plus)?( par)?\\b"
         }
       ]
     },
