@@ -7,6 +7,9 @@ import { Nombre } from '../commun/nombre.enum';
 import { ProprieteElement } from '../commun/propriete-element';
 import { TypeValeur } from '../compilateur/type-valeur';
 
+/**
+ * Il peut s’agir d’un lieu ou bien d’un objet du jeu.
+ */
 export class ElementJeu extends Intitule {
 
   constructor(
@@ -85,7 +88,7 @@ export class ElementJeu extends Intitule {
     if (existant) {
       existant.valeur = valeur.toString();
     } else {
-      this.proprietes.push(new ProprieteElement('quantité', TypeValeur.nombre, valeur.toString()));
+      this.proprietes.push(new ProprieteElement(this, 'quantité', TypeValeur.nombre, valeur.toString()));
     }
   }
 
@@ -101,7 +104,7 @@ export class ElementJeu extends Intitule {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement('titre', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteElement(this, 'titre', TypeValeur.mots, valeur));
     }
   }
 
@@ -117,7 +120,7 @@ export class ElementJeu extends Intitule {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement('description', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteElement(this, 'description', TypeValeur.mots, valeur));
     }
   }
 
@@ -143,7 +146,7 @@ export class ElementJeu extends Intitule {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement('aperçu', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteElement(this, 'aperçu', TypeValeur.mots, valeur));
     }
   }
 
@@ -169,7 +172,7 @@ export class ElementJeu extends Intitule {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement('texte', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteElement(this, 'texte', TypeValeur.mots, valeur));
     }
   }
 

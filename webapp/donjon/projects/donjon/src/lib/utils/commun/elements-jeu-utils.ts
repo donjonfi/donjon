@@ -1175,7 +1175,7 @@ export class ElementsJeuUtils {
     original.proprietes.forEach(prop => {
       // ne pas copier la propriété « quantité »
       if (prop.nom != 'quantité') {
-        copie.proprietes.push(new ProprieteElement(prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+        copie.proprietes.push(new ProprieteElement(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
       }
     });
 

@@ -1,5 +1,5 @@
 import { ContexteTour, PhaseTour } from '../../models/jouer/contexte-tour';
-import { Interruption, TypeContexte } from '../../models/jeu/interruption';
+import { TypeContexte } from '../../models/jeu/interruption';
 
 import { ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
@@ -38,6 +38,8 @@ export class Commandeur {
 
   private comTour: CommandeurTour;
 
+  private premiereIncomprehension = true;
+
   constructor(
     private jeu: Jeu,
     private ins: Instructions,
@@ -75,7 +77,7 @@ export class Commandeur {
 
         // les 2 candidats ont le même score
         if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
-          this.jeu.tamponErreurs.push("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
+          this.jeu.ajouterErreur("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
           this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
           if (!ctxCmd.commandeValidee) {
@@ -91,7 +93,7 @@ export class Commandeur {
         }
         // s’il y a plus de 2 candidats, c’est un cas qui n’est pas pris en charge (ça ne devrait pas arriver)
       } else {
-        this.jeu.tamponErreurs.push("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
+        this.jeu.ajouterErreur("Commandeur: executerCommande: J’ai plus de 2 candidats, ça n’est pas prévu !");
       }
       // débogueur: changer le monde (uniquement si le débogueur est actif)
     } else if (commande.match(/^déboguer (changer|déplacer|effacer|vider|dire) /) && this.debogueurActif) {
@@ -120,15 +122,20 @@ export class Commandeur {
       // la commande n’a pas pu être décomposée
     } else {
       ctxCmd.sortie = "Désolé, je n'ai pas compris la commande « " + commande + " ».\n";
-      ctxCmd.sortie += "Voici des exemples de commandes que je comprend :\n";
-      ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
-      ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
-      ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
-      ctxCmd.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
-      ctxCmd.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
-      ctxCmd.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
-      ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
-      ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
+      if (this.premiereIncomprehension) {
+        this.premiereIncomprehension = false;
+        ctxCmd.sortie += "Voici des exemples de commandes que je comprends :\n";
+        ctxCmd.sortie += "{t}- {-aller vers le nord-} ou l’abréviation {-n-}\n";
+        ctxCmd.sortie += "{t}- {-examiner le radiateur-} ou {-ex radiateur-}\n";
+        ctxCmd.sortie += "{t}- {-prendre la cerise-} ou {-p cerise-}\n";
+        ctxCmd.sortie += "{t}- {-parler avec le capitaine concernant le trésor perdu-}\n";
+        ctxCmd.sortie += "{t}- {-interroger magicienne concernant bague-}\n";
+        ctxCmd.sortie += "{t}- {-donner l’épée au forgeron-} ou {-do épée à forgeron-}\n";
+        ctxCmd.sortie += "{t}- {-effacer l’écran-} ou {-ef-}\n";
+        ctxCmd.sortie += "{t}- {-aide montrer-} ou {-? montrer-}\n";
+      } else {
+        // ctxCmd.sortie += "Vous pouvez entrer la commande {-aide-}.\n";
+      }
     }
     return ctxCmd;
   }
@@ -154,8 +161,8 @@ export class Commandeur {
           // élément
           if (candidatCommande.correspondCeci.elements.length) {
             ceciRefuse = candidatCommande.correspondCeci.elements[0];
-            // si on interragit avec l'élement, on le connait
-            (ceciRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(ceciRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
             // compteur
           } else if (candidatCommande.correspondCeci.compteurs.length) {
             ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -176,8 +183,8 @@ export class Commandeur {
           // élément
           if (candidatCommande.correspondCela.elements.length) {
             celaRefuse = candidatCommande.correspondCela.elements[0];
-            // si on interragit avec l'élement, on le connait
-            (celaRefuse as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(celaRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
             // compteur
           } else if (candidatCommande.correspondCela.compteurs.length) {
             celaRefuse = candidatCommande.correspondCela.compteurs[0];
@@ -238,15 +245,16 @@ export class Commandeur {
 
       const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[indexCeci] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[indexCela] : null));
 
+      // les éléments avec lesquels ont interagit sont connus.
       if (actionChoisie.ceci) {
         if (ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.element)) {
-          // si on interragit avec l'élement, on le connait
-          (actionChoisie.ceci as ElementJeu).etats.push(this.jeu.etats.connuID);
+          // si on interagit avec l’élément, on le connaît
+          this.jeu.etats.ajouterEtatIdElement(actionChoisie.ceci as ElementJeu, this.jeu.etats.connuID, this.eju);
         }
         if (candidatActionChoisi.cela) {
           if (ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.element)) {
-            // si on interragit avec l'élement, on le connait
-            (actionChoisie.cela as ElementJeu).etats.push(this.jeu.etats.connuID);
+            // si on interagit avec l’élément, on le connaît
+            this.jeu.etats.ajouterEtatIdElement(actionChoisie.cela as ElementJeu, this.jeu.etats.connuID, this.eju);
           }
         }
       }
@@ -282,6 +290,12 @@ export class Commandeur {
         // commande correspondante
         (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + actionChoisie.ceci.intitule + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + actionChoisie.cela.intitule + '/}') : ''))
       );
+
+      // éviter « aller en le haut » et « aller au le nord ».
+      ctx.evenement.commandeComprise = ctx.evenement.commandeComprise
+        .replace("aller en {/le ", "aller {/en ")
+        .replace("aller au {/le ", "aller {/au ")
+        .replace("aller {/l'", "aller {/à l’");
 
       ctx.actionChoisie = actionChoisie;
 
@@ -319,7 +333,7 @@ export class Commandeur {
 
 
 
-  private creerInterruptionRoutine(tour: ContexteTour, resultat: Resultat){
+  private creerInterruptionRoutine(tour: ContexteTour, resultat: Resultat) {
     InterruptionsUtils.definirProprietesInterruptionResultatAuTour(tour, resultat);
     this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionContexteTourOuRoutine(tour, TypeContexte.routine));
   }
@@ -358,7 +372,7 @@ export class Commandeur {
           ctx.commandeValidee = true; // la commande a été validée et exécutée
         }
         // déboguer un élément du jeu
-      } else {
+      } else if (candidatCommande.isCeciV1 && !candidatCommande.isCelaV1) {
         ctx.sortie = this.deb.deboguer(candidatCommande.els);
         ctx.commandeValidee = true; // la commande a été validée et exécutée
       }

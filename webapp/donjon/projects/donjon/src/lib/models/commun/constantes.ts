@@ -1,6 +1,6 @@
 
-export const version = "2.0-beta.12"
-export const versionNum = 1012;
+export const version = "2.0-beta.19"
+export const versionNum = 1019;
 
 export enum EClasseRacine {
   intitule = 'intitule',
@@ -142,5 +142,18 @@ export enum EEtatsBase {
   lu = "lu",
   /** vide: objet */
   vide = 'vide',
+
+  /** solide: objet (≠ liquide, ≠ gazeux)  */
+  solide = 'solide',
+  /** liquide (≠ solide, ≠ gazeux)  */
+  liquide = 'liquide',
+  /** gazeux (≠ solide, ≠ liquide)  */
+  gazeux = 'gazeux',
+
+  /** imperméable (↔ perméable) */
+  impermeable = 'imperméable',
+  /** perméable (↔ imperméable) */
+  permeable = 'perméable',
+
 
 }

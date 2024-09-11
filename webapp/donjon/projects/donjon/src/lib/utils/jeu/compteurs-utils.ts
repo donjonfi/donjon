@@ -12,6 +12,7 @@ import { ProprieteElement } from "../../models/commun/propriete-element";
 import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
+import { Nombre } from "../../models/commun/nombre.enum";
 
 export class CompteursUtils {
 
@@ -108,7 +109,29 @@ export class CompteursUtils {
           switch (verbe) {
             case 'vaut':
             case 'est':
-              compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
+
+              const nouvelleValeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
+
+              // cas spécifique: intitulé
+              if (compteurOuPropriete.nom == 'intitulé') {
+                // gérer groupe nominal
+                const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(nouvelleValeur, false);
+                if (intituleDecompose) {
+                  compteurOuPropriete.parent.intitule = intituleDecompose;
+                  if (compteurOuPropriete.parent.nombre == Nombre.p) {
+                    compteurOuPropriete.parent.intituleP = compteurOuPropriete.parent.intitule;
+                    compteurOuPropriete.parent.intituleS = null;
+                  } else {
+                    compteurOuPropriete.parent.intituleS = compteurOuPropriete.parent.intitule;
+                    compteurOuPropriete.parent.intituleP = null;
+                  }
+                } else {
+                  console.error("L’intitulé « " + valeurStr + " » n’est pas un groupe nominal supporté.")
+                }
+                // autres cas
+              } else {
+                compteurOuPropriete.valeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
+              }
               break;
 
             case 'diminue':
@@ -203,6 +226,10 @@ export class CompteursUtils {
     return valeurNum;
   }
 
+  /**
+   * Renvoyer la valeur fournie ou bien la valeur correspondante à l’intitulé de valeur fourni.
+   * @param valeurString valeur ou intitulé de la valeur (propriété d’un objet)
+   */
   public static intituleValeurVersString(valeurString: string, contexteTour: ContexteTour | undefined, eju: ElementsJeuUtils, jeu: Jeu): string {
 
     let retVal: string;

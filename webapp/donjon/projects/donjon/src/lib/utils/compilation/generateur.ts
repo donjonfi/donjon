@@ -110,6 +110,7 @@ export class Generateur {
     let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
+    jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.permeable, ctx);
     jeu.objets.push(inventaire);
 
     // AJOUTER LES LIEUX
@@ -164,6 +165,7 @@ export class Generateur {
           if (proExistantDeja) {
             proExistantDeja.valeur = pro.valeur;
           } else {
+            pro.parent = nouvLieu;
             nouvellesProp.push(pro);
           }
         }
@@ -231,6 +233,7 @@ export class Generateur {
           if (proExistantDeja) {
             proExistantDeja.valeur = pro.valeur;
           } else {
+            pro.parent = joueur;
             nouvellesProp.push(pro);
           }
         }
@@ -326,8 +329,7 @@ export class Generateur {
         curEle.proprietes.forEach(pro => {
           // spécial: intitulé
           if (pro.nom == 'intitulé') {
-            // TODO: gérer groupe nominal ?
-            // newObjet.intitule = new GroupeNominal(null, pro.valeur);
+            // gérer groupe nominal
             const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(pro.valeur, false);
             if (intituleDecompose) {
               newObjet.intitule = intituleDecompose;
@@ -350,6 +352,7 @@ export class Generateur {
             if (proExistantDeja) {
               proExistantDeja.valeur = pro.valeur;
             } else {
+              pro.parent = newObjet;
               nouvellesProp.push(pro);
             }
           }
@@ -689,7 +692,7 @@ export class Generateur {
         retVal = ELocalisation.exterieur;
         break;
       case "intérieur":
-      case "intérieur":
+      case "interieur":
       case "dans":
         retVal = ELocalisation.interieur;
         break;

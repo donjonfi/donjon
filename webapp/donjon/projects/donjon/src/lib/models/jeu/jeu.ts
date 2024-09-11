@@ -148,5 +148,9 @@ export class Jeu {
   statistiques: Statistiques | undefined;
 
 
+  ajouterErreur(erreur: string){
+    console.error(erreur);
+    this.tamponErreurs.push(erreur);
+  }
 
 }

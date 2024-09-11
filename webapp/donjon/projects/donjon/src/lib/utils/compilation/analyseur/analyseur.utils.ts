@@ -115,7 +115,7 @@ export class AnalyseurUtils {
       case 'dedans':
       case 'dessus':
       case 'dessous':
-      case 'à l’extérieur':
+      case 'à l’intérieur':
       case 'à l\'intérieur':
       case 'à l’extérieur':
       case 'à l\'extérieur':

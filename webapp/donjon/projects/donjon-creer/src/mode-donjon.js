@@ -8,10 +8,10 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var variableLanguage = (
       "joueur|inventaire|"
-      + "intitulé|description|infinitif|préposition|titre|auteur|auteurs|"
+      + "intitulé|Intitulé|pronom|Pronom|description|quantité|infinitif|préposition|titre|auteur|auteurs|"
       + "aperçu|texte|lien|capacité|accord|réaction|version|licence|site|web|jeu|"
       + "aide|commande|action|contenu|"
-      + "musique|image|thème"
+      + "musique|image|thème|sortie|sorties"
     );
 
     var builtinFunctions = (
@@ -85,26 +85,29 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "(\\b(quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)(?!\\w))|"
 
             + "(\\b("
-            + "présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|"
+            + "présent|absent|intact|déplacé|modifié|"
+            + "caché|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
+            + "solide|liquide|gazeu(x|s)|(im)?perméable|"
             + "enfilable|chaussable|"
             + "porté|enfilé|chaussé|possédé|disponible|occupé|"
-            + "(in)?visible|(in)?accessible|ajdacent|"
+            + "(in)?visible|(in)?accessible|adjacent|"
+            + "initialisé|"
             + "multiple|unique|illimité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
 
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur)|" +
+          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|intitulé|élément)|" +
             "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {
           // token: "support.variable",
           token: "variable.parameter",
-          regex: "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))( pas| plus)?\\b"
+          regex: "\\b((ne |n’|n')?(se |s’|s')?(?!l(’|'))(est|sont|trouve(nt)?|déclenche(nt)?|vau(len)?t|commence|diminue(nt)?|augmente(nt)?|attei(gne)?nt|dépasse(nt)?|contien(nen)?t|inclu(en)?t|existe|possède(nt)?|porte(nt)?|réagi(ssen)?t|peu(ven)?t))( pas| plus)?( par)?\\b"
         }, {
           token: "constant.numeric", // float
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"

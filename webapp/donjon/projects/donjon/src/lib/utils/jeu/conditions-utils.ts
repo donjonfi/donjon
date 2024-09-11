@@ -290,7 +290,7 @@ export class ConditionsUtils {
           } else if (correspondances.listes.length === 1) {
             sujet = correspondances.listes[0];
           } else {
-            // checher dans les propriétés
+            // chercher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
             if (proprieteJeu) {
               const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
@@ -371,7 +371,7 @@ export class ConditionsUtils {
             } else if (condition.sujetComplement && condition.sujetComplement.nom === 'aucun' && condition.sujetComplement.epithete?.match(/objet(s)?/i)) {
               retVal = !this.eju.verifierContientObjet(sujet as ElementJeu);
             } else {
-              console.error("siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ", condition.complement, condition.sujetComplement);
+              contexteTour.ajouterErreurCondition(condition, `siEstVraiSansLien > condition « contient » pas encore gérée pour le complément ${condition.complement}`)
             }
             break;
 
@@ -498,6 +498,20 @@ export class ConditionsUtils {
             // console.warn("vaut condi=", condition, "ceci=", contexteTour.ceci, "cela=", contexteTour.cela);
 
             if (('"' + sujet.nom + '"') === condition.complement) {
+              retVal = true;
+            }
+            break;
+
+          // comparaison : commence par
+          case 'commence':
+            if (sujet.nom.startsWith(condition.complement.replace(/^\"|\"$/g, ''))) {
+              retVal = true;
+            }
+            break;
+
+          // comparaison : termine par
+          case 'termine':
+            if (sujet.nom.endsWith(condition.complement.replace(/^\"|\"$/g, ''))) {
               retVal = true;
             }
             break;
@@ -719,6 +733,16 @@ export class ConditionsUtils {
             }
             break;
 
+          // comparaison: commence par
+          case 'commence':
+            retVal = sujet.intitule.toString().startsWith(condition.complement.replace(/^\"|\"$/g, ''));
+            break;
+
+          // comparaison: termine par
+          case 'termine':
+            retVal = sujet.intitule.toString().endsWith(condition.complement.replace(/^\"|\"$/g, ''));
+            break;
+
           case 'existe':
             if (condition.complement = 'préposition') {
               if (condition.sujet.nom == 'ceci') {
@@ -843,33 +867,41 @@ export class ConditionsUtils {
    */
   private trouverObjetCible(brute: string, intitule: GroupeNominal, contexteTour: ContexteTour): Objet {
     let objetCible: Objet = null;
-    // retrouver OBJET CLASSIQUE
-    if (intitule) {
-      const objetsTrouves = this.eju.trouverObjet(intitule, false);
-      if (objetsTrouves.length == 1) {
-        objetCible = objetsTrouves[0];
-      } else {
-        console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
-      }
-      // retrouver OBJET SPÉCIAL
-    } else if (brute === 'ceci') {
+
+    const bruteNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(brute);
+
+    // retrouver OBJET SPÉCIAL
+    if (bruteNettoye === 'ceci') {
       if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
         objetCible = contexteTour.ceci as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > ceci n’est pas un objet.");
       }
-    } else if (brute === 'cela') {
+    } else if (bruteNettoye === 'cela') {
       if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
         objetCible = contexteTour.cela as Objet;
       } else {
         console.error("ConditionsUtils > trouverObjetCible > cela n’est pas un objet.");
       }
     } else {
-      console.error("ConditionsUtils > trouverObjetCible > objet spécial pas pris en change :", brute);
+      // retrouver OBJET CLASSIQUE
+      if (intitule) {
+        const objetsTrouves = this.eju.trouverObjet(intitule, false);
+        if (objetsTrouves.length == 1) {
+          objetCible = objetsTrouves[0];
+        } else if (objetsTrouves.length != 0) {
+          console.warn("Instructions > trouverObjetCible > plusieurs correspondances trouvées pour :", brute);
+        }
+        // retrouver OBJET SPÉCIAL
+      } else {
+        console.error("ConditionsUtils > trouverObjetCible > objet spécial pas pris en change :", brute);
+      }
     }
+
     if (!objetCible) {
       console.warn("ConditionsUtils > trouverObjetCible > pas pu trouver :", brute);
     }
+
     return objetCible;
   }
 

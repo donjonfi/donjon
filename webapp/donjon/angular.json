@@ -49,12 +49,18 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/donjon-creer",
+            "allowedCommonJsDependencies": [
+              "brace"
+            ],
+            "outputPath": {
+              "base": "dist/donjon-creer"
+            },
             "index": "projects/donjon-creer/src/index.html",
-            "main": "projects/donjon-creer/src/main.ts",
-            "polyfills": "projects/donjon-creer/src/polyfills.ts",
+            "polyfills": [
+              "projects/donjon-creer/src/polyfills.ts"
+            ],
             "tsConfig": "projects/donjon-creer/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -64,7 +70,8 @@
             "styles": [
               "projects/donjon-creer/src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "browser": "projects/donjon-creer/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -89,9 +96,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -103,11 +108,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "donjon-creer:build:production"
+              "buildTarget": "donjon-creer:build:production"
             },
             "development": {
-              "browserTarget": "donjon-creer:build:development",
-              "port": 4200
+              "port": 4200,
+              "buildTarget": "donjon-creer:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -115,7 +120,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "donjon-creer:build"
+            "buildTarget": "donjon-creer:build"
           }
         },
         "test": {
@@ -152,12 +157,18 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/donjon-jouer",
+            "allowedCommonJsDependencies": [
+              "brace"
+            ],
+            "outputPath": {
+              "base": "dist/donjon-jouer"
+            },
             "index": "projects/donjon-jouer/src/index.html",
-            "main": "projects/donjon-jouer/src/main.ts",
-            "polyfills": "projects/donjon-jouer/src/polyfills.ts",
+            "polyfills": [
+              "projects/donjon-jouer/src/polyfills.ts"
+            ],
             "tsConfig": "projects/donjon-jouer/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -166,7 +177,8 @@
             "styles": [
               "projects/donjon-jouer/src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "browser": "projects/donjon-jouer/src/main.ts"
           },
           "configurations": {
             "multi": {
@@ -210,13 +222,13 @@
                 }
               ],
               "outputHashing": "all",
-              "outputPath": "dist/donjon-one",
+              "outputPath": {
+                "base": "dist/donjon-one"
+              },
               "baseHref": "./"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -228,11 +240,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "donjon-jouer:build:production"
+              "buildTarget": "donjon-jouer:build:production"
             },
             "development": {
-              "browserTarget": "donjon-jouer:build:development",
-              "port": 4201
+              "port": 4201,
+              "buildTarget": "donjon-jouer:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -240,7 +252,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "donjon-jouer:build"
+            "buildTarget": "donjon-jouer:build"
           }
         },
         "test": {
