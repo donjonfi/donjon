@@ -206,6 +206,18 @@ export class ElementJeu extends Intitule {
   public capacites: Capacite[] = [];
 
   /** Ils s’agit des autres noms que le joueur peut donner à cet élément du jeu. */
-  synonymes: GroupeNominal[] = null;
+  private _synonymes: GroupeNominal[] = [];
+
+  get synonymes(): GroupeNominal[] {
+    return this._synonymes;
+  }
+
+  public addSynonymes(synonymes: GroupeNominal[]) {
+    synonymes.forEach(synonyme => {
+      if (!this._synonymes.some(x => x.toString() == synonyme.toString())) {
+        this._synonymes.push(synonyme);
+      }
+    });
+  }
 
 }

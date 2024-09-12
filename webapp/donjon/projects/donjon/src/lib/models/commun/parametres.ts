@@ -7,5 +7,5 @@ export class Parametres {
     public activerDescriptionDesObjetsSupportes = true;
     public activerAudio = false;
     public activerRemplacementDestinationDeplacements = true;
-   
+    public activerSynonymesAuto = true;
 }

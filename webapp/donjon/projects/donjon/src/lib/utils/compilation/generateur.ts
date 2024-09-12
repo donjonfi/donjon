@@ -74,7 +74,7 @@ export class Generateur {
     // ****************
     const jeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'jeu');
     if (jeuDansMonde) {
-      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === 'ifid' || x.nom.toLowerCase() == 'identifiant' )?.valeur;
+      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === 'ifid' || x.nom.toLowerCase() == 'identifiant')?.valeur;
       jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === 'auteur')?.valeur;
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === 'auteurs')?.valeur;
@@ -126,7 +126,15 @@ export class Generateur {
       let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
-      nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
+      if (curEle.synonymes?.length) {
+        nouvLieu.addSynonymes(curEle.synonymes)
+      }
+
+      // générer les synonymes automatiques
+      if (jeu.parametres.activerSynonymesAuto) {
+        Generateur.genererSynonymesAuto(nouvLieu);
+      }
+
       // ajouter description éventuelle du lieu
       if (curEle.description) {
         nouvLieu.description = curEle.description;
@@ -192,9 +200,7 @@ export class Generateur {
     let joueur = new Objet(jeu.nextID++, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
-    joueur.synonymes = [
-      new GroupeNominal("", "moi", null)
-    ];
+    joueur.addSynonymes([new GroupeNominal("", "moi", null)]);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache, ctx);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact, ctx);
     // ajouter le joueur aux objets du jeu
@@ -268,7 +274,14 @@ export class Generateur {
         }
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
-        newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
+        if (curEle.synonymes?.length) {
+          newObjet.addSynonymes(curEle.synonymes)
+        }
+
+        // générer les synonymes automatiques
+        if (jeu.parametres.activerSynonymesAuto) {
+          Generateur.genererSynonymesAuto(newObjet);
+        }
 
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
@@ -463,7 +476,7 @@ export class Generateur {
 
     // GÉNÉRER LES ROUTINES
     // ********************
-    rc.routinesSimples.forEach(routineSimple =>{
+    rc.routinesSimples.forEach(routineSimple => {
       jeu.routines.push(routineSimple);
     });
 
@@ -778,6 +791,17 @@ export class Generateur {
   private static corrigerNombreSiIndenombrable(el: ElementJeu, jeu: Jeu) {
     if (el.nombre == Nombre.s && jeu.etats.possedeEtatIdElement(el, jeu.etats.indenombrableID, undefined)) {
       el.nombre = Nombre.i;
+    }
+  }
+
+  public static genererSynonymesAuto(el: ElementJeu) {
+    if (el.intitule.motsCles.length > 1) {
+      for (const motCle of el.intitule.motsCles) {
+        const curSynonyme = PhraseUtils.getGroupeNominalDefini(motCle, true);
+        if (!el.synonymes.some(x => x.toString() == curSynonyme.toString())) {
+          el.synonymes.push(curSynonyme);
+        }
+      }
     }
   }
 

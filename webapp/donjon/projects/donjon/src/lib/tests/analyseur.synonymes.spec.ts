@@ -107,8 +107,9 @@ describe('Synonymes − Scénario synonyme action)', () => {
   });
 
 
-  it('fruit et pomme comme pomme rouge', () => {
+  it('fruit et pomme comme pomme rouge (sans synonymes auto)', () => {
     const scenario = '' +
+      'Désactiver les synonymes auto. ' +
       'La pomme rouge est un fruit. ' +
       'La table est un support. ' +
       'Interpréter pomme et fruit comme la pomme rouge.' +
@@ -124,7 +125,30 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('fruit');
     expect(ctx.jeu.objets[2].synonymes[1].epithete).toBeFalsy();
     expect(ctx.jeu.objets[3].nom).toEqual('table');
-    expect(ctx.jeu.objets[3].synonymes).toBeFalsy();
+    expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
+  });
+
+  it('fruit et pomme comme pomme rouge (avec synonymes auto)', () => {
+    const scenario = '' +
+      'Activer les synonymes auto. ' +
+      'La pomme rouge est un fruit. ' +
+      'La table est un support. ' +
+      'Interpréter pomme et fruit comme la pomme rouge.' +
+      '';
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+
+    // (index 0 et 1 utilisés pour inventaire et joueur)
+    expect(ctx.jeu.objets).toHaveSize(4);
+    expect(ctx.jeu.objets[2].nom).toEqual('pomme rouge');
+    expect(ctx.jeu.objets[2].synonymes).toHaveSize(3);
+    expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('pomme');
+    expect(ctx.jeu.objets[2].synonymes[0].epithete).toBeFalsy();
+    expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('fruit');
+    expect(ctx.jeu.objets[2].synonymes[1].epithete).toBeFalsy();
+    expect(ctx.jeu.objets[2].synonymes[2].nom).toEqual('rouge');
+    expect(ctx.jeu.objets[2].synonymes[2].epithete).toBeFalsy();
+    expect(ctx.jeu.objets[3].nom).toEqual('table');
+    expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
   });
 
 });

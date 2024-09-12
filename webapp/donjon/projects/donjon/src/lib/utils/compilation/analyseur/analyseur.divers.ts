@@ -112,6 +112,12 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerRemplacementDestinationDeplacements = isActiver;
           break;
 
+        case 'synonymes auto':
+        case 'synonymes automatiques':
+        case 'synonymes autos':
+          ctxAnalyse.parametres.activerSynonymesAuto = isActiver;
+          break;
+          
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
