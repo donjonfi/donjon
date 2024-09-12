@@ -50,13 +50,30 @@ export class CommandeurDecomposer {
           if (candidat.correspondCela.nbCor > 0) {
             // les 2 arguments ont une correspondance (100% correspondance)
             candidat.score += 100;
+
+            // néanmoins, si les 2 arguments font référence au même élément du jeu mais ne sont pas nommés pareil, diminuer le score
+            if (
+              candidat.correspondCeci.elements.length
+              && candidat.correspondCela.elements.length
+              && candidat.correspondCeci.elements[0] == candidat.correspondCela.elements[0]
+              && candidat.ceciIntituleV1 != candidat.celaIntituleV1
+            ) {
+              candidat.score -= 70;
+            }
+
           } else {
             // 1 des 2 arguments a une correspondance (50% correspondance)
             candidat.score += 30;
+            // ajouter le nombre de token qui composent l’argument ayant une correspondance
+            // en effet, si un des découpage de la commande comprend plus de mots ayant une correspondance, il sera prioritaire.
+            candidat.score += candidat.ceciIntituleV1.motsCles.length;
           }
         } else if (candidat.correspondCela.nbCor > 0) {
           // 1 des 2 arguments a une correspondance (50% correspondance)
           candidat.score += 30;
+          // ajouter le nombre de token qui composent l’argument ayant une correspondance
+          // en effet, si un des découpage de la commande comprend plus de mots ayant une correspondance, il sera prioritaire.
+          candidat.score += candidat.celaIntituleV1.motsCles.length;
         }
         // b) 1 argument
       } else if (candidat.isCeciV1) {

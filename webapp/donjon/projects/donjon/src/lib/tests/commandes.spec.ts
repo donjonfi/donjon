@@ -534,7 +534,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
+  it('commande « offrir une tarte à la cerise »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la cerise');
     // la tarte à la cerise n’existe pas
     expect(ctxCom.candidats).toHaveSize(2);
