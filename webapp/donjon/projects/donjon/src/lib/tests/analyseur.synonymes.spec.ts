@@ -95,7 +95,7 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.actions[1].synonymes[1]).toEqual('plonger');
   });
 
-  it('courrir comme marcher et sauter (💥)', () => {
+  it('courir comme marcher et sauter (💥)', () => {
     const scenario = '' +
       'Marcher est une action. ' +
       'Sauter est une action. ' +

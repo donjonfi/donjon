@@ -42,6 +42,26 @@ export class CommandeurDecomposer {
       candidat.celaQuantiteV1 = candidat.isCelaV1 ? (MotUtils.getQuantite(candidat.els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(candidat.els.sujetComplement1.nom) ? -1 : 1))) : 0;
       candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
 
+      // si 1er argument à 1 correspondance et que le 2e en a plusieurs, dont 1 qui est la même que le premier argument, 
+      // on peut l’effacer car le joueur ne va pas nommer de manière différentes le même objet!
+      if (candidat.correspondCeci?.elements.length == 1 && candidat.correspondCela?.elements.length > 1) {
+        for (let index = 0; index < candidat.correspondCela?.elements.length; index++) {
+          if (candidat.correspondCeci.elements[0] == candidat.correspondCela.elements[index]) {
+            candidat.correspondCela.elements.splice(index, 1);
+            candidat.correspondCela.nbCor -=1;
+            break;
+          }
+        }
+      } else if (candidat.correspondCela?.elements.length == 1 && candidat.correspondCeci?.elements.length > 1) {
+        for (let index = 0; index < candidat.correspondCeci?.elements.length; index++) {
+          if (candidat.correspondCela.elements[0] == candidat.correspondCeci.elements[index]) {
+            candidat.correspondCeci.elements.splice(index, 1);
+            candidat.correspondCeci.nbCor -=1;
+            break;
+          }
+        }
+      }
+
       // 4. ÉTABLISSEMENT DU SCORE DU CANDIDAT
       // 4.1 - SCORE CORRESPONDANCE DES ARGUMENTS
       // a) 2 arguments
