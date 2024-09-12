@@ -14,6 +14,7 @@ import { PhraseUtils } from "../commun/phrase-utils";
 import { ResultatChercherCandidats } from "../../models/jeu/resultat-chercher-candidats";
 import { ResultatVerifierCandidat } from "../../models/jeu/resultat-verifier-candidat";
 import { StringUtils } from "../commun/string.utils";
+import { ERessemblance, RechercheUtils } from "../commun/recherche-utils";
 
 export class ActionsUtils {
 
@@ -33,9 +34,15 @@ export class ActionsUtils {
     // 1. trouver l’infinitif (en tenant compte des accents)
     let resCherCand = this.chercherCandidatsCommandeSansControle(commande);
 
+    // TODO: vérifier verbe similaires et demander
+
     // verbe inconnu
     if (!resCherCand.verbeConnu) {
-      raisonRefu = "Désolé, je ne connais pas le verbe « " + commande.infinitif + " »";
+      if(resCherCand.verbesSimilaires.length == 1){
+        raisonRefu = "Je ne connais pas le verbe {/" + commande.infinitif + "/} mais je connais {/" + resCherCand.verbesSimilaires[0] + "/}.";
+      }else{
+        raisonRefu = "Je ne connais pas le verbe {/" + commande.infinitif + "/}.";
+      }
       // verbe connu 
     } else {
       // I) plus aucun candidat en lice => problème ave le nombre d’arguments
@@ -482,7 +489,7 @@ export class ActionsUtils {
     return explication;
   }
 
-  /** Permet de ne pas divulgacher l’intrigue au joueur. */
+  /** Permet de ne pas divulgâcher l’intrigue au joueur. */
   private masquerNomPrecisDuComplement(actionCeci: CibleAction) {
     let retVal: string;
     //     A. classe
@@ -526,7 +533,7 @@ export class ActionsUtils {
   }
 
 
-  /** Permet de ne pas divulgacher l’intrigue au joueur. */
+  /** Permet de ne pas divulgâcher l’intrigue au joueur. */
   private afficherNomPrecisDuComplement(actionCeci: CibleAction) {
     let retVal: string;
     //     A. classe
@@ -570,16 +577,20 @@ export class ActionsUtils {
   }
 
   /**
-   * Vérifier dans les actions si l’infitif spécifié, avec le nombre d’arguments spécifiés, existe.
+   * Vérifier dans les actions si l’infinitif spécifié, avec le nombre d’arguments spécifiés, existe.
    * Retourne un score qui sera plus élevé si les prépositions sont celles prévues pour cette commande.
    */
   public scoreInfinitifExisteAvecCeciCela(infinitif: string, isCeci: boolean, isCela: boolean, prepositionCeci: string | undefined, prepositionCela: string | undefined): number {
     // chercher les candidats en tenant compte des accents
-    var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true);
+    var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, false);
 
     // si verbe pas trouvé, chercher candidat en ne tenant pas compte des accents
     if (!candidats.verbeConnu) {
-      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false);
+      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false, false);
+    }
+    // si verbe pas trouvé, chercher candidat similaire
+    if (!candidats.verbeConnu) {
+      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, true);
     }
 
     var score = 0;
@@ -601,25 +612,43 @@ export class ActionsUtils {
   /**
    * On cherche une action qui correspond sur l’infinitif et le nombre d’arguments mais sans vérifier la nature des arguments.
    */
-  public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean, tenirCompteDesAccents: boolean) {
+  public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean, tenirCompteDesAccents: boolean, chercherVerbeSimilaire: boolean) {
     let candidatsEnLice: Action[] = [];
     let candidatsRefuses: Action[] = [];
     let verbeConnu: boolean = false;
+
+    // TODO: chercher si verbe similaire
+    let verbesSimilaires: string[] = [];
     const infinitifNormalise = StringUtils.normaliserMot(infinitif);
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
       let infinitifOk = false;
+      let infinitifSimilaire = false;
       // vérifier infinitif => avec accents
       if (tenirCompteDesAccents) {
-        infinitifOk = (infinitif === action.infinitif);
-        // vérifier également les synonymes
-        if (!infinitifOk && action.synonymes) {
-          action.synonymes.forEach(synonyme => {
-            if (!infinitifOk && infinitif === synonyme) {
-              infinitifOk = true;
-            }
-          });
+        // chercher un verbe similaire
+        if (chercherVerbeSimilaire) {
+          infinitifSimilaire = RechercheUtils.ressemblanceMots(infinitif, action.infinitif) == ERessemblance.ressemblants;
+          // vérifier également les synonymes
+          if (!infinitifSimilaire && action.synonymes) {
+            action.synonymes.forEach(synonyme => {
+              if (!infinitifSimilaire && (RechercheUtils.ressemblanceMots(infinitif, synonyme) == ERessemblance.ressemblants)) {
+                infinitifSimilaire = true;
+              }
+            });
+          }
+          // chercher un verbe identique
+        } else {
+          infinitifOk = (infinitif === action.infinitif);
+          // vérifier également les synonymes
+          if (!infinitifOk && action.synonymes) {
+            action.synonymes.forEach(synonyme => {
+              if (!infinitifOk && infinitif === synonyme) {
+                infinitifOk = true;
+              }
+            });
+          }
         }
         // vérifier infinitif => sans accents
       } else {
@@ -649,12 +678,14 @@ export class ActionsUtils {
         } else {
           candidatsRefuses.push(action);
         }
+      } else if (infinitifSimilaire) {
+        verbesSimilaires.push(action.infinitif);
       }
     });
     // if (this.verbeux) {
     //   console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
     // }
-    return new ResultatChercherCandidats(verbeConnu, candidatsEnLice, candidatsRefuses);
+    return new ResultatChercherCandidats(verbeConnu, verbesSimilaires, candidatsEnLice, candidatsRefuses);
   }
 
   /**
@@ -666,12 +697,16 @@ export class ActionsUtils {
     const isCeci = commande.sujet ? true : false;
     const isCela = commande.sujetComplement1 ? true : false;
     // chercher candidats en tenant compte des accents
-    let candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true);
+    let resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, false);
     // si infinitif pas trouvé, essayer sans tenir compte des accents
-    if (!candidats.verbeConnu) {
-      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false);
+    if (!resultatChercherCandidats.verbeConnu) {
+      resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false, false);
     }
-    return candidats;
+    // si toujours pas trouvé, essayer de trouver verbe similaire
+    if (!resultatChercherCandidats.verbeConnu) {
+      resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, true);
+    }
+    return resultatChercherCandidats;
   }
 
   /** Trouver l’action personnalisée correspondant le mieux la la commande de l’utilisateur */

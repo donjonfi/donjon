@@ -172,11 +172,11 @@ export class InstructionExecuter {
       const actionCela = InstructionsUtils.trouverCibleSpeciale(insCela, contexteTour, evenement, this.eju, this.jeu);
 
       // chercher les candidats en tenant compte des accents
-      let resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, true);
+      let resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, true, false);
 
       // si verbe pas trouvé, chercher candidat en ne tenant pas compte des accents
       if (!resChercherCandidats.verbeConnu) {
-        resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, false);
+        resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, false, false);
       }
 
       // action pas trouvée

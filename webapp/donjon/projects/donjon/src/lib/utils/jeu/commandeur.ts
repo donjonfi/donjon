@@ -75,6 +75,9 @@ export class Commandeur {
         this.essayerLaCommande(0, ctxCmd);
       } else if (ctxCmd.candidats.length == 2) {
 
+
+        // TODO: demander quelle découpe est correcte
+
         // les 2 candidats ont le même score
         if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
           this.jeu.ajouterErreur("commandeur: 2 candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
@@ -233,6 +236,9 @@ export class Commandeur {
       // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
       let indexCeci = 0;
       let indexCela = 0;
+
+
+      // TODO: demander quel objet prendre !
 
       if (candidatActionChoisi.ceci?.length > 1) {
         ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
