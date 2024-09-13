@@ -197,6 +197,11 @@ export class Abreviations {
             retVal = "chausser ";
             break;
 
+          case 'clear':
+          case 'cls':
+            retVal = "effacer";
+            break;
+
           // case 'cl': // (en: close)
           //   retVal = "fermer ";
           //   break;
