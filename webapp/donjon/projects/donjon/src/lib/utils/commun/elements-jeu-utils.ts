@@ -94,7 +94,7 @@ export class ElementsJeuUtils {
                 } else {
                   determinant = "un ";
                 }
-                // si le joueur a déjà interragi avec l'élément
+                // si le joueur a déjà interagi avec l'élément
               } else {
                 // commence par une voyelle
                 if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
@@ -1050,7 +1050,7 @@ export class ElementsJeuUtils {
         if (!inclureObjetsNonVisibles) {
           objets = objets.filter(x => this.jeu.etats.estVisible(x, this));
         }
-        // si on ne doit pas lister les objets cachés, garder uniqument les objets non cachés
+        // si on ne doit pas lister les objets cachés, garder uniquement les objets non cachés
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }

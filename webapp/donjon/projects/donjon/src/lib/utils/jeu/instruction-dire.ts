@@ -153,7 +153,7 @@ export class InstructionDire {
         // retrouver toutes les balises lister/décrire
         const allBalises = texteDynamique.match(xBaliseListerDecrireContenuMulti);
 
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
 
         // parcourir chaque balise trouvée
@@ -233,7 +233,7 @@ export class InstructionDire {
       if (xBaliseListerDecrireListeMulti.test(texteDynamique)) {
         // retrouver toutes les balises lister/décrire
         const allBalises = texteDynamique.match(xBaliseListerDecrireListeMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -370,7 +370,7 @@ export class InstructionDire {
       if (xBaliseProprieteMulti.test(texteDynamique)) {
         // retrouver toutes les balises propriétés
         const allBalises = texteDynamique.match(xBaliseProprieteMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -574,7 +574,7 @@ export class InstructionDire {
         // retrouver toutes les balises de propriété [p xxx ceci]
         const xBaliseGenerique = /\[p (\S+) (ici|ceci|cela)\]/gi;
         const allBalises = texteDynamique.match(xBaliseGenerique);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -659,7 +659,7 @@ export class InstructionDire {
         // retrouver toutes les balises de compteurs [c xxx]
         const xBaliseGenerique = /\[c (.+?)\]/gi;
         const allBalises = texteDynamique.match(xBaliseGenerique);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -701,7 +701,7 @@ export class InstructionDire {
       if (xBaliseCalendrierMulti.test(texteDynamique)) {
         // retrouver toutes les balises conjugaison
         const allBalises = texteDynamique.match(xBaliseCalendrierMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
 
         const maintenant = new Date();
@@ -770,7 +770,7 @@ export class InstructionDire {
       if (xBaliseHorlogeMulti.test(texteDynamique)) {
         // retrouver toutes les balises conjugaison
         const allBalises = texteDynamique.match(xBaliseHorlogeMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
 
         const maintenant = new Date();
@@ -823,7 +823,7 @@ export class InstructionDire {
       if (xBaliseMemoireMulti.test(texteDynamique)) {
         // retrouver toutes les balises conjugaison
         const allBalises = texteDynamique.match(xBaliseMemoireMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -861,7 +861,7 @@ export class InstructionDire {
 
         // retrouver toutes les balises conjugaison
         const allBalises = texteDynamique.match(xBaliseVerbeMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -895,7 +895,7 @@ export class InstructionDire {
       if (xBaliseImageMulti.test(texteDynamique)) {
         // retrouver toutes les balises image
         const allBalises = texteDynamique.match(xBaliseImageMulti);
-        // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
         const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
         // parcourir chaque balise trouvée
         balisesUniques.forEach(curBalise => {
@@ -1017,14 +1017,14 @@ export class InstructionDire {
    * @param cela 
    */
   private suiteTraiterPropriete(texteDynamique: string, allBalises: RegExpMatchArray, sansDe: boolean, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number): string {
-    // ne garder qu’une seule occurence de chaque afin de ne pas calculer plusieurs fois la même balise.
+    // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
     const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
     // parcourir chaque balise trouvée    
     balisesUniques.forEach(curBalise => {
       let valeur = "{+@problème balise@+}";
       // enlever les []
       const curProprieteIntitule = curBalise.slice(1, (curBalise.length - 1));
-      // ajouter le « de » s’il est asbent de l’expression (ex: description table => description de table)
+      // ajouter le « de » s’il est absent de l’expression (ex: description table => description de table)
       let curProprieteIntituleCorrige = curProprieteIntitule;
       if (sansDe) {
         curProprieteIntituleCorrige = curProprieteIntituleCorrige.replace(" ", " de "); // rem: seul premier espace est remplacé.
@@ -1364,7 +1364,7 @@ export class InstructionDire {
     // A) Chercher si une fiche d’aide exacte existe (avec accents)
     let ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
 
-    // B) Chercher l’inifitif original de l’action
+    // B) Chercher l’infinitif original de l’action
     if (!ficheAide) {
       let actionOriginaleTrouvee: Action | undefined;
       for (const action of this.jeu.actions) {
@@ -1427,7 +1427,7 @@ export class InstructionDire {
 
   }
 
-  /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
+  /** Afficher le statut d'une porte ou d'un contenant (verrouillé, ouvrable, ouvert, fermé) */
   private afficherStatut(obj: Objet) {
     let retVal = "";
     if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
@@ -1570,7 +1570,7 @@ export class InstructionDire {
       // - nombre d’objets sans aperçu (et non décoratifs)
       let nbObjetsApercuAuto = objetsAvecApercuAuto.length;
       // - nombre d’objets sans aperçu
-      let nbObjetsSansAperu = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID)).length;
+      let nbObjetsSansApercu = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID)).length;
 
       // - supports décoratifs (eux ne sont pas affichés, mais leur contenu bien !)
       let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
@@ -1582,7 +1582,7 @@ export class InstructionDire {
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
           if (apercuCalcule == '-') {
-            nbObjetsSansAperu += 1;
+            nbObjetsSansApercu += 1;
           } else {
             resultat.sortie += "{U}" + apercuCalcule;
             // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
@@ -1696,7 +1696,7 @@ export class InstructionDire {
       }
 
       // si on n’a encore rien affiché, afficher le texte spécifique
-      if (!resultat.sortie && nbObjetsSansAperu == 0) {
+      if (!resultat.sortie && nbObjetsSansApercu == 0) {
         resultat.sortie = texteSiRien;
         // enlever le 1er {N} du résultat
         // } else if (resultat.sortie.startsWith("{N}")) {
@@ -1706,7 +1706,7 @@ export class InstructionDire {
     return resultat;
   }
 
-  /** Afficher le statut d'une porte ou d'un contenant (verrouilé, ouvrable, ouvert, fermé) */
+  /** Afficher le statut d'une porte ou d'un contenant (verrouillé, ouvrable, ouvert, fermé) */
   public afficherObstacle(direction: Lieu | ELocalisation, texteSiAucunObstacle = "(aucun obstacle)") {
     let retVal: string = texteSiAucunObstacle;
 

@@ -434,7 +434,7 @@ export class Generateur {
             }
 
             if (curEle.positionString.length > 1) {
-              ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
+              ctx.ajouterErreur('L’élément « ' + curEle.elIntitule + ' » : a été positionné à plusieurs endroits. Seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
             }
 
           };

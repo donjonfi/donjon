@@ -288,7 +288,7 @@ export class InstructionsUtils {
         break;
       // B. NOMBRE DE: CLASSE AVEC ATTRIBUTS + POSITION
       case TypeProprieteJeu.nombreDeClasseAttributsPosition:
-        // si la classe rechechée hérite de objet
+        // si la classe recherchée hérite de objet
         if (ClasseUtils.heriteDe(recherche.classe, EClasseRacine.objet)) {
           // si la classe de l’élément cible hérite de objet
           if (ClasseUtils.heriteDe(recherche.element.classe, EClasseRacine.objet)) {

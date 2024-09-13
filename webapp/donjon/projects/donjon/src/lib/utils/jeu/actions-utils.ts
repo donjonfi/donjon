@@ -27,7 +27,7 @@ export class ActionsUtils {
 
   private eju: ElementsJeuUtils;
 
-  public obtenirRaisonRefuCommande(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance) {
+  public obtenirRaisonRefusCommande(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance): string {
 
     let raisonRefu: string = "Inconnu.";
 
@@ -38,10 +38,10 @@ export class ActionsUtils {
 
     // verbe inconnu
     if (!resCherCand.verbeConnu) {
-      if(resCherCand.verbesSimilaires.length == 1){
-        raisonRefu = "Je ne connais pas le verbe {/" + commande.infinitif + "/} mais je connais {/" + resCherCand.verbesSimilaires[0] + "/}.";
-      }else{
-        raisonRefu = "Je ne connais pas le verbe {/" + commande.infinitif + "/}.";
+      if (resCherCand.verbesSimilaires.length == 1) {
+        raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ". Voulez-vous dire {-" + resCherCand.verbesSimilaires[0] + "-} ?";
+      } else {
+        raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ".";
       }
       // verbe connu 
     } else {

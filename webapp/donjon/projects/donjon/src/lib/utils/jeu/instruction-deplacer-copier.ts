@@ -38,7 +38,7 @@ export class InstructionDeplacerCopier {
     // trouver l’élément à déplacer
     const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
-    // retrouver le nombre d’occurence (quantité) à déplacer
+    // retrouver le nombre d’occurrence (quantité) à déplacer
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // console.log(">> sujet.determinant=", sujet.determinant);
@@ -80,7 +80,7 @@ export class InstructionDeplacerCopier {
     // trouver l’élément à copier
     const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
-    // retrouver le nombre d’occurence (quantité) à copier
+    // retrouver le nombre d’occurrence (quantité) à copier
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // trouver la destination

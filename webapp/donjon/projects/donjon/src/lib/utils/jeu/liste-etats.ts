@@ -108,10 +108,10 @@ export class ListeEtats {
     this.creerBasculeEtats(EEtatsBase.unique, EEtatsBase.multiple);
     this.creerEtat(EEtatsBase.illimite);
     this.ajouterContradiction(EEtatsBase.unique, EEtatsBase.illimite);
-
-    // mangeable, buvable, portable (objet)
+    // mangeable, buvable
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);
+    // portable, enfilable, équipable, chaussable (vêtements, armes, bijoux, …)
     this.creerEtat(EEtatsBase.portable);
     this.creerEtat(EEtatsBase.enfilable);
     this.creerEtat(EEtatsBase.equipable);
