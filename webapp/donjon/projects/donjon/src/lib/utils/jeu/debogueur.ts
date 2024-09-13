@@ -203,7 +203,7 @@ export class Debogueur {
     const sortie =
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(compteur, false) + "*}" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(compteur.classe) +
-      "{n}{e}{_valeur_}{n}" + compteur.valeur?.toString() ?? '?' +
+      "{n}{e}{_valeur_}{n}" + compteur.valeur.toString() +
       "";
     return sortie;
   }
