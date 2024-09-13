@@ -22,6 +22,8 @@ export class Interruption {
   public nbToursAnnuler: number | undefined;
   /** écran à afficher (interruption changer écran) */
   public ecran: ChoixEcran | undefined;
+  /** le message à afficher lorsque l’on demande une confirmation ou une commande */
+  public messageConfirmationOuCommande: string | undefined;
 
   constructor(
     /** Type d’interruption (attendre un choix, attendre une touche, attendre X secondes) */

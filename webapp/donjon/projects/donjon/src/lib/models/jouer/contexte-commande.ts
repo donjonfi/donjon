@@ -1,6 +1,7 @@
 import { ActionCeciCela } from "../compilateur/action";
 import { CandidatCommande } from "./candidat-commande";
 import { Evenement } from "./evenement";
+import { QuestionsCommande } from "./questions-commande";
 
 export class ContexteCommande {
 
@@ -10,6 +11,8 @@ export class ContexteCommande {
   public candidats: CandidatCommande[];
 
   public sortie: string = "";
+
+  public questions: QuestionsCommande | undefined;
 
   /** 
    * Est-ce qu’une des commandes candidates a été validée et exécutée ?
@@ -26,25 +29,6 @@ export class ContexteCommande {
    */
   public evenement: Evenement;
 
-  // /** La commande décomposée en éléments de phrase (étape 1) */
-  // public els: ElementsPhrase;
-
-  // /** Un premier argument a-t-il été fourni ? */
-  // public isCeciV1: boolean | undefined;
-  // /** L’intitulé du premier argument */
-  // public ceciIntituleV1: GroupeNominal | undefined;
-  // /** La quantité du premier argument */
-  // public ceciQuantiteV1: number | undefined
-  // /** Les correspondances trouvées pour le premier argument */
-  // public resultatCeci: Correspondance | undefined;
-
-  // /** Un second argument a-t-il été fourni ? */
-  // public isCelaV1: boolean | undefined;
-  // /** L’intitulé du second argument */
-  // public celaIntituleV1: GroupeNominal | undefined;
-  // /** La quantité du second argument */
-  // public celaQuantiteV1: number | undefined
-  // /** Les correspondances trouvées pour le second argument */
-  // public resultatCela: Correspondance | undefined;
+  public verbeSimilaire: string | undefined;
 
 }

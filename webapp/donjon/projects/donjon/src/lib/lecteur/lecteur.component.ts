@@ -12,6 +12,7 @@ import { StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
 import * as FileSaver from 'file-saver-es';
+import { QuestionCommande } from '../models/jouer/questions-commande';
 
 @Component({
   selector: 'djn-lecteur',
@@ -753,7 +754,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private scrollSortie() {
-    // scrol 1
+    // scroll 1
     setTimeout(() => {
       this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
       this.commandeInputRef.nativeElement.focus();
@@ -762,8 +763,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (this.audioActif) {
         this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
       }
-      
-      // scrol 2 (afin de prendre en compte temps chargement images)
+
+      // scroll 2 (afin de prendre en compte temps chargement images)
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
         this.commandeInputRef.nativeElement.focus();
@@ -1057,7 +1058,34 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
       }
 
-      const sortieCommande = contexteCommande.sortie;
+      let sortieCommande = contexteCommande.sortie;
+
+      // s’il y a une question en suspend:
+      if (contexteCommande.questions != undefined) {
+        let question: QuestionCommande;
+        if (contexteCommande.questions.QcmDecoupe && contexteCommande.questions.QcmDecoupe.Reponse == undefined) {
+          question = contexteCommande.questions.QcmDecoupe;
+        } else if (contexteCommande.questions.QcmInfinitif && contexteCommande.questions.QcmInfinitif.Reponse == undefined) {
+          question = contexteCommande.questions.QcmInfinitif;
+        } else if (contexteCommande.questions.QcmCeci && contexteCommande.questions.QcmCeci.Reponse == undefined) {
+          question = contexteCommande.questions.QcmCeci;
+        } else if (contexteCommande.questions.QcmCela && contexteCommande.questions.QcmCela.Reponse == undefined) {
+          question = contexteCommande.questions.QcmCela;
+        } else if (contexteCommande.questions.QcmCeciEtCela && contexteCommande.questions.QcmCeciEtCela.Reponse == undefined) {
+          question = contexteCommande.questions.QcmCeciEtCela;
+        } else {
+          throw new Error("Not implemented");
+        }
+
+        sortieCommande = question.Question;
+        for (let index = 0; index < question.Choix.length; index++) {
+          sortieCommande += `{n}${index + 1} − ${question.Choix[index].valeurs[0]}`;
+        }
+
+        //this.partie.com.continuerLeTourInterrompu();
+
+      }
+
       if (sortieCommande) {
         // sortie spéciale: auto-triche
         if (sortieCommande == "@auto-triche@") {
