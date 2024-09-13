@@ -32,28 +32,28 @@ export class ActionsUtils {
     let raisonRefu: string = "Inconnu.";
 
     // 1. trouver l’infinitif (en tenant compte des accents)
-    let resCherCand = this.chercherCandidatsCommandeSansControle(commande);
+    let resChercherCandidat = this.chercherCandidatsCommandeSansControle(commande);
 
     // TODO: vérifier verbe similaires et demander
 
     // verbe inconnu
-    if (!resCherCand.verbeConnu) {
-      if (resCherCand.verbesSimilaires.length == 1) {
-        raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ". Voulez-vous dire {-" + resCherCand.verbesSimilaires[0] + "-} ?";
+    if (!resChercherCandidat.verbeConnu) {
+      if (resChercherCandidat.verbesSimilaires.length) {
+        raisonRefu = `Verbes similaires:${resChercherCandidat.verbesSimilaires.join(',')}`;
       } else {
         raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ".";
       }
       // verbe connu 
     } else {
       // I) plus aucun candidat en lice => problème ave le nombre d’arguments
-      if (resCherCand.candidatsEnLice.length == 0) {
+      if (resChercherCandidat.candidatsEnLice.length == 0) {
         //     I.A) 1 seul candidat refusé
-        if (resCherCand.candidatsRefuses.length == 1) {
-          raisonRefu = "Je sais " + this.expliquerRefuTropOuTropPeuArguments(resCherCand.candidatsRefuses[0], commande);
+        if (resChercherCandidat.candidatsRefuses.length == 1) {
+          raisonRefu = "Je sais " + this.expliquerRefuTropOuTropPeuArguments(resChercherCandidat.candidatsRefuses[0], commande);
           // I.B) plusieurs candidats refusés
         } else {
           raisonRefu = "Je sais :";
-          resCherCand.candidatsRefuses.forEach(candidat => {
+          resChercherCandidat.candidatsRefuses.forEach(candidat => {
             raisonRefu += "{n}{t}- " + this.expliquerRefuTropOuTropPeuArguments(candidat, commande);
           });
         }
@@ -75,7 +75,7 @@ export class ActionsUtils {
         // tester 1er argument (ceci):
         let candidatsOkCeci: Action[] = [];
         let candidatsKoCeci: Action[] = [];
-        resCherCand.candidatsEnLice.forEach(candidat => {
+        resChercherCandidat.candidatsEnLice.forEach(candidat => {
           const resCurCeci = this.verifierCandidatCeciCela(ceciCommande, candidat.cibleCeci);
           if (resCurCeci.elementsTrouves.length) {
             candidatsOkCeci.push(candidat);
@@ -93,7 +93,7 @@ export class ActionsUtils {
           // tester le 2e argument (cela)
           let candidatsOkCela: Action[] = [];
           let candidatsKoCela: Action[] = [];
-          resCherCand.candidatsEnLice.forEach(candidat => {
+          resChercherCandidat.candidatsEnLice.forEach(candidat => {
             const resCurCeci = this.verifierCandidatCeciCela(celaCommande, candidat.cibleCela);
             if (resCurCeci.elementsTrouves.length) {
               candidatsOkCela.push(candidat);
@@ -110,32 +110,32 @@ export class ActionsUtils {
         if (ceciToujoursRefuse || celaToujoursRefuse) {
 
           // si plusieurs candidats, prendre l’action la plus générique.
-          if (resCherCand.candidatsEnLice.length > 1) {
-            resCherCand.candidatsEnLice = [this.garderActionCompleteSiPossible(resCherCand.candidatsEnLice)];
+          if (resChercherCandidat.candidatsEnLice.length > 1) {
+            resChercherCandidat.candidatsEnLice = [this.garderActionCompleteSiPossible(resChercherCandidat.candidatsEnLice)];
           }
 
           // // un seul candidat
           // if (resCherCand.candidatsEnLice.length == 1) {
           // détaillé commande trouvée
-          raisonRefu = "Je sais " + this.afficherCandidatAction(resCherCand.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
+          raisonRefu = "Je sais " + this.afficherCandidatAction(resChercherCandidat.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
           // refu ceci
           if (ceciToujoursRefuse) {
             // expliquer refu CECI + CELA
             if (celaToujoursRefuse) {
-              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
-              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
+              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
               // expliquer refu CECI
             } else {
               if (argumentUnique) {
-                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
               } else {
-                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
+                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
               }
             }
             // expliquer refu CELA
           } else if (celaToujoursRefuse) {
             // expliquer refu cela
-            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
+            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
           }
 
           // CECI et CELA sont OK à certains moments
@@ -143,7 +143,7 @@ export class ActionsUtils {
           // => il y a forcément plusieurs actions (sinon on n’arriverait pas ici)
         } else {
           raisonRefu = "Je sais :";
-          resCherCand.candidatsRefuses.forEach(candidat => {
+          resChercherCandidat.candidatsRefuses.forEach(candidat => {
             // détaillé commande trouvée
             raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
           });
@@ -679,7 +679,9 @@ export class ActionsUtils {
           candidatsRefuses.push(action);
         }
       } else if (infinitifSimilaire) {
-        verbesSimilaires.push(action.infinitif);
+        if (!verbesSimilaires.includes(action.infinitif)) {
+          verbesSimilaires.push(action.infinitif);
+        }
       }
     });
     // if (this.verbeux) {

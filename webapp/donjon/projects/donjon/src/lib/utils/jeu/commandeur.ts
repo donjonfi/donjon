@@ -177,9 +177,9 @@ export class Commandeur {
       const explicationRefus = this.act.obtenirRaisonRefusCommande(candidatCommande.els, candidatCommande.correspondCeci, candidatCommande.correspondCela);
 
       // verbe refusé mais verbe similaire trouvé => proposer alternative
-      if (explicationRefus.includes("Voulez-vous dire")) {
-        const verbeSimilaire = explicationRefus.replace(/^.+Voulez-vous dire {-(\w+)-}.+$/g, '$1');
-        ctx.verbeSimilaire = verbeSimilaire;
+      if (explicationRefus.startsWith("Verbes similaires:")) {
+        const verbesSimilaires = explicationRefus.replace(/^Verbes similaires:(\w+)$/g, '$1');
+        ctx.verbesSimilaires = verbesSimilaires.split(",");
 
         // verbe ou correspondance CECI/CELA refusés => donner l’explication
       } else {
@@ -289,7 +289,7 @@ export class Commandeur {
           candidatActionChoisi.ceci.forEach(candidatCeci => {
             candidatActionChoisi.cela.forEach(candidatCela => {
               let choixCela = new Choix([
-                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {-${candidatCeci}-} ${candidatActionChoisi.action.prepositionCela} {-${candidatCela}-}`
+                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {+${candidatCeci}+} ${candidatActionChoisi.action.prepositionCela} {+${candidatCela}+}`
               ]);
               qCeciCela.Choix.push(choixCela);
             });
@@ -305,7 +305,7 @@ export class Commandeur {
           qCeci.Choix = [];
           candidatActionChoisi.ceci.forEach(candidatCeci => {
             let choixCeci = new Choix([
-              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {-${candidatCeci.intitule}-}`
+              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {+${candidatCeci.intitule}+}`
             ]);
             if (candidatActionChoisi.cela?.length) {
               choixCeci.valeurs[0] += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`
@@ -319,11 +319,11 @@ export class Commandeur {
         } else if (candidatActionChoisi.cela?.length > 1) {
           // if (!ctx.questions.QcmCela) {
           // ajouter question concernant la découpe de la commande
-          let qCela = new QuestionCommande(`Il y a plusieurs correspondances pour {-${candidatCommande.celaIntituleV1.toString()}-} :`);
+          let qCela = new QuestionCommande(`Il y a plusieurs correspondances pour {+${candidatCommande.celaIntituleV1.toString()}+} :`);
           qCela.Choix = [];
           candidatActionChoisi.cela.forEach(candidatCela => {
             let choixCela = new Choix([
-              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} ${candidatActionChoisi.ceci[0].intitule} ${candidatActionChoisi.action.prepositionCela} {-${candidatCela.intitule}-}`
+              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} ${candidatActionChoisi.ceci[0].intitule} ${candidatActionChoisi.action.prepositionCela} {+${candidatCela.intitule}+}`
             ]);
             // let choixCela = new Choix([candidatCela.intitule.toString()]);
             qCela.Choix.push(choixCela);
@@ -450,7 +450,7 @@ export class Commandeur {
       this.chercherParmiLesActions(ctxCmd.candidats[indexCandidat], ctxCmd);
       if (ctxCmd.actionChoisie) {
         this.comTour.demarrerNouveauTour(ctxCmd);
-      } else if (ctxCmd.verbeSimilaire) {
+      } else if (ctxCmd.verbesSimilaires) {
         //this.comTour.demanderConfirmation(ctx);
         if (!ctxCmd.questions) {
           ctxCmd.questions = new QuestionsCommande();
@@ -460,9 +460,10 @@ export class Commandeur {
         let qI = new QuestionCommande(`J’ai trouvé ce verbe similaire car ${ctxCmd.candidats[indexCandidat].els.infinitif} m’est inconnu :`);
         ctxCmd.questions.QcmInfinitif = qI;
         qI.Choix = [];
-        let choix = new Choix([ctxCmd.verbeSimilaire]);
-        qI.Choix.push(choix);
-        this.jeu.ajouterErreur("commandeur: Verbe inconnu mais un vebre similaire a été trouvé: " + ctxCmd.verbeSimilaire);
+        ctxCmd.verbesSimilaires.forEach(verbeSimilaire => {
+          let choix = new Choix([verbeSimilaire]);
+          qI.Choix.push(choix);
+        });
       }
     }
   }

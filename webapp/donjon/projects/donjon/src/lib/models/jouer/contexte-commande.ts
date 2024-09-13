@@ -29,6 +29,6 @@ export class ContexteCommande {
    */
   public evenement: Evenement;
 
-  public verbeSimilaire: string | undefined;
+  public verbesSimilaires: string[] | undefined;
 
 }

@@ -2,6 +2,7 @@ import { Choix } from "../compilateur/choix";
 import { ChoixEcran } from "../jouer/contexte-ecran";
 import { ContexteCommande } from "../jouer/contexte-commande";
 import { ContexteTour } from "../jouer/contexte-tour";
+import { QuestionCommande, QuestionsCommande } from "../jouer/questions-commande";
 
 export class Interruption {
 
@@ -22,8 +23,9 @@ export class Interruption {
   public nbToursAnnuler: number | undefined;
   /** écran à afficher (interruption changer écran) */
   public ecran: ChoixEcran | undefined;
-  /** le message à afficher lorsque l’on demande une confirmation ou une commande */
-  public messageConfirmationOuCommande: string | undefined;
+  /*** questions concernant la dernière commande (interruption question commande) */
+  public questionsCommande: QuestionsCommande | undefined;
+  public derniereQuestion: QuestionCommande | undefined;
 
   constructor(
     /** Type d’interruption (attendre un choix, attendre une touche, attendre X secondes) */
@@ -56,4 +58,6 @@ export enum TypeInterruption {
   annulerTour = 'a',
   /** Changer l’écran affiché (principal, secondaire, temporaire) */
   changerEcran = 'e',
+  /** Question concernant la dernière commande entrée */
+  questionCommande = 'q',
 }

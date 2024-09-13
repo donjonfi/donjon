@@ -1,6 +1,8 @@
 import { Interruption, TypeContexte, TypeInterruption } from "../../models/jeu/interruption";
+import { ContexteCommande } from "../../models/jouer/contexte-commande";
 
 import { ContexteTour } from "../../models/jouer/contexte-tour";
+import { QuestionCommande } from "../../models/jouer/questions-commande";
 import { Resultat } from "../../models/jouer/resultat";
 
 export class InterruptionsUtils {
@@ -56,7 +58,7 @@ export class InterruptionsUtils {
     }
   }
 
-  public static creerInterruptionContexteTourOuRoutine(tour: ContexteTour, typeContexte: TypeContexte.tour | TypeContexte.routine): Interruption{
+  public static creerInterruptionContexteTourOuRoutine(tour: ContexteTour, typeContexte: TypeContexte.tour | TypeContexte.routine): Interruption {
     const interruption = new Interruption(tour.typeInterruption, typeContexte);
     interruption.tour = tour;
     interruption.choix = tour.choix;
@@ -64,6 +66,13 @@ export class InterruptionsUtils {
     interruption.nbSecondesAttendre = tour.nbSecondesAttendre;
     interruption.nbToursAnnuler = tour.nbToursAnnuler;
     interruption.ecran = tour.ecran;
+    return interruption;
+  }
+
+  public static creerInterruptionQuestionCommande(commande: ContexteCommande, derniereQuestion: QuestionCommande): Interruption {
+    const interruption = new Interruption(TypeInterruption.questionCommande, TypeContexte.commande);
+    interruption.questionsCommande = commande.questions;
+    interruption.derniereQuestion = derniereQuestion;
     return interruption;
   }
 

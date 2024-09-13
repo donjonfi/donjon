@@ -13,6 +13,7 @@ import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
 import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
+import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 
 @Component({
   selector: 'djn-lecteur',
@@ -534,6 +535,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.terminerInterruption(undefined);
           break;
 
+        case TypeInterruption.questionCommande:
+          // rien de spécifique ici
+          break;
+
         default:
           this.ajouteErreur("interruptions: je ne connais pas ce type d’interruption: " + this.interruptionEnCours.typeInterruption);
           break;
@@ -667,8 +672,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       if (typeContexte == TypeContexte.tour) {
         // continuer le tour interrompu
         sortieCommande = this.partie.com.continuerLeTourInterrompu(tourInterrompu);
-      } else {
+      } else if (typeContexte == TypeContexte.routine) {
         sortieCommande = this.partie.com.continuerRoutineInterrompue(tourInterrompu);
+      } else {
+        throw new Error("TypeContexte pas pris en charge");
       }
 
       // s'il faut lancer une nouvelle partie
@@ -678,8 +685,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet));
       }
+    } else if (this.interruptionEnCours.typeContexte == TypeContexte.commande) {
+
+      if (choix) {
+        const commandeEnCours = this.interruptionEnCours.commande;
+
+        // l’interruption est terminé (une correction a eu lieu)
+        this.interruptionEnCours = undefined;
+
+        // exécuter à nouveau la commande corrigée
+        this.executerLaCommande(commandeEnCours.brute, true, false, true);
+      } else {
+        // l’interruption est terminé (pas de correction)
+        this.interruptionEnCours = undefined;
+      }
+
     } else {
-      this.ajouteErreur("Terminer interruption: actuellement je ne gère que les interruptions du tour.");
+      this.ajouteErreur("Terminer interruption: type d’interruption pas pris en charge");
       // l’interruption est terminée
       this.interruptionEnCours = undefined;
     }
@@ -984,21 +1006,41 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (this.interruptionAttendreChoixEnCours) {
       this.traiterChoixStatiqueJoueur();
     } else if (this.interruptionAttendreChoixLibreEnCours) {
-      this.traiterChoixLibreJoueur()
-    } else if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
-      this.curseurHistorique = -1;
-      if (this.commande && this.commande.trim() !== "") {
-        event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
-        this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
-
-        // COMPLÉTER ET NETTOYER LA COMMANDE
-        // compléter la commande
-        const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
-        // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
-        const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
-
-        this.executerLaCommande(commandeNettoyee, true, false, true);
+      this.traiterChoixLibreJoueur();
+    } else if (this.interruptionQuestionCommande) {
+      // nombre => réponse question
+      let number = this.commande ? Number.parseInt(this.commande) : 1;
+      if (number) {
+        if ((number - 1) < this.interruptionEnCours.derniereQuestion.Choix.length) {
+          this.ajouteErreur("Choix effectué!");
+          this.terminerInterruption(this.interruptionEnCours.derniereQuestion.Choix[number - 1])
+        } else {
+          this.ajouteErreur("Choix pas dispo!");
+        }
+        // sinon => commande
+      } else {
+        this.terminerInterruption(undefined);
+        this.enterCommande();
       }
+
+    } else if (!this.resteDeLaSortie?.length && !this.interruptionEnCours) {
+      this.enterCommande();
+    }
+  }
+
+  private enterCommande(): void {
+    this.curseurHistorique = -1;
+    if (this.commande && this.commande.trim() !== "") {
+      event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
+      this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci
+
+      // COMPLÉTER ET NETTOYER LA COMMANDE
+      // compléter la commande
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
+      // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
+      const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
+
+      this.executerLaCommande(commandeNettoyee, true, false, true);
     }
   }
 
@@ -1062,28 +1104,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
       // s’il y a une question en suspend:
       if (contexteCommande.questions != undefined) {
-        let question: QuestionCommande;
+        let nouvelleQuestion: QuestionCommande;
         if (contexteCommande.questions.QcmDecoupe && contexteCommande.questions.QcmDecoupe.Reponse == undefined) {
-          question = contexteCommande.questions.QcmDecoupe;
+          nouvelleQuestion = contexteCommande.questions.QcmDecoupe;
         } else if (contexteCommande.questions.QcmInfinitif && contexteCommande.questions.QcmInfinitif.Reponse == undefined) {
-          question = contexteCommande.questions.QcmInfinitif;
+          nouvelleQuestion = contexteCommande.questions.QcmInfinitif;
         } else if (contexteCommande.questions.QcmCeci && contexteCommande.questions.QcmCeci.Reponse == undefined) {
-          question = contexteCommande.questions.QcmCeci;
+          nouvelleQuestion = contexteCommande.questions.QcmCeci;
         } else if (contexteCommande.questions.QcmCela && contexteCommande.questions.QcmCela.Reponse == undefined) {
-          question = contexteCommande.questions.QcmCela;
+          nouvelleQuestion = contexteCommande.questions.QcmCela;
         } else if (contexteCommande.questions.QcmCeciEtCela && contexteCommande.questions.QcmCeciEtCela.Reponse == undefined) {
-          question = contexteCommande.questions.QcmCeciEtCela;
+          nouvelleQuestion = contexteCommande.questions.QcmCeciEtCela;
         } else {
-          throw new Error("Not implemented");
+          throw new Error("Question commande pas implémentée");
         }
 
-        sortieCommande = question.Question;
-        for (let index = 0; index < question.Choix.length; index++) {
-          sortieCommande += `{n}${index + 1} − ${question.Choix[index].valeurs[0]}`;
+        sortieCommande = nouvelleQuestion.Question;
+        for (let index = 0; index < nouvelleQuestion.Choix.length; index++) {
+          sortieCommande += `{n}${index + 1} − ${nouvelleQuestion.Choix[index].valeurs[0]}`;
         }
 
-        //this.partie.com.continuerLeTourInterrompu();
-
+        this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionQuestionCommande(contexteCommande, nouvelleQuestion));
       }
 
       if (sortieCommande) {
@@ -1194,6 +1235,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       return 'Appuyez sur une touche…';
     } else if (this.interruptionAttendreSecondesEnCours) {
       return 'Veuillez patienter…';
+    } else if (this.interruptionQuestionCommande) {
+      return 'Veuillez entrer un nombre ou une commande';
     } else {
       return 'Entrez une commande (infinitif + compl. direct + compl. indirect)';
     }
@@ -1227,6 +1270,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** une interruption de type attendre X secondes est en cours */
   get interruptionAttendreSecondesEnCours(): boolean {
     return this.interruptionEnCours?.typeInterruption === TypeInterruption.attendreSecondes;
+  }
+
+  get interruptionQuestionCommande(): boolean {
+    return this.interruptionEnCours?.typeInterruption === TypeInterruption.questionCommande;
   }
 
   public testerAudio() {
