@@ -39,12 +39,15 @@ export class BalisesHtml {
     // souligner. texte avec une partie {_soulignée_} et le reste normal.
     retVal = retVal.replace(/\{_/g, '<u>');
     retVal = retVal.replace(/_\}/g, '</u>');
-    // texte IMPORTANT {+texte+}
-    retVal = retVal.replace(/\{\+/g, '<span class="t-important">');
-    retVal = retVal.replace(/\+\}/g, '</span>');
     // texte COMMANDE {-texte-}
     retVal = retVal.replace(/\{-/g, '<span class="t-commande">');
     retVal = retVal.replace(/-\}/g, '</span>');
+    // texte COMMANDE {=texte=}
+    retVal = retVal.replace(/\{=/g, '<span class="t-highlight">');
+    retVal = retVal.replace(/=\}/g, '</span>');
+    // texte IMPORTANT {+texte+}
+    retVal = retVal.replace(/\{\+/g, '<span class="t-important">');
+    retVal = retVal.replace(/\+\}/g, '</span>');
     // italique: CODE {@code@}
     retVal = retVal.replace(/\{@/g, '<span class="t-code-couleur">');
     retVal = retVal.replace(/@\}/g, '</span>');
