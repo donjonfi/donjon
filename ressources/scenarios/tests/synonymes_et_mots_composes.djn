@@ -23,6 +23,13 @@ Monsieur Dupont est une personne ici.
 Le chateau d’if est un objet ici.
 Le comte du chateau est une personne ici.
 
+réactions du comte du chateau:
+  basique:
+    dire"Bonjour !".
+  concernant le chateau d’if:
+    dire "C’est mon chateau!".
+fin réactions
+
 La table est un support ici.
 Une pomme est un objet.
 La lettre est un objet caché sous la table.

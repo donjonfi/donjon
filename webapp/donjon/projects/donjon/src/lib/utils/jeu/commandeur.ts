@@ -75,6 +75,11 @@ export class Commandeur {
     // > décomposer la commande
     let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
 
+    if (this.correctionCommandeEnCours) {
+      ctxCmd.questions = this.correctionCommandeEnCours.questions;
+      this.correctionCommandeEnCours = undefined;
+    }
+
     // si on a réussi à décomposer la commande
     if (ctxCmd.candidats.length > 0) {
 
@@ -87,9 +92,9 @@ export class Commandeur {
         if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
 
           // déjà reçu une réponse
-          if (this.correctionCommandeEnCours != null && this.correctionCommandeEnCours.questions.QcmDecoupe?.Reponse !== undefined) {
-            console.warn(`Réponse: ${this.correctionCommandeEnCours.questions.QcmDecoupe.Reponse}`);
-            this.essayerLaCommande(this.correctionCommandeEnCours.questions.QcmDecoupe?.Reponse, ctxCmd);
+          if (ctxCmd.questions?.QcmDecoupe?.Reponse !== undefined) {
+            // console.warn(`Réponse: ${ctxCmd.questions.QcmDecoupe.Reponse}`);
+            this.essayerLaCommande(ctxCmd.questions.QcmDecoupe.Reponse, ctxCmd);
             // pas encore reçu de réponse
           } else {
             if (!ctxCmd.questions) {
@@ -158,8 +163,6 @@ export class Commandeur {
         // ctxCmd.sortie += "Vous pouvez entrer la commande {-aide-}.\n";
       }
     }
-
-    this.correctionCommandeEnCours = undefined;
 
     return ctxCmd;
   }
@@ -262,21 +265,21 @@ export class Commandeur {
       // Ex2: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
       // => Dans ce cas, on on va demander au joueur de choisir parmi les résultats avec le même score.
 
-      // TODO: AFFICHER POSITION DE L’OBJET?
+      // TODO: AFFICHER LOCALISATION DE L’OBJET?
 
       if (candidatActionChoisi.ceci?.length > 1 || candidatActionChoisi.cela?.length > 1) {
         // s’il y a plusieurs correspondances équivalentes pour ceci ET cela
         if (candidatActionChoisi.ceci?.length > 1 && candidatActionChoisi.cela?.length > 1) {
           // on a déjà précisé => appliqué la correction
-          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse !== undefined) {
+          if (ctx.questions?.QcmCeciEtCela?.Reponse !== undefined) {
             // calcul index de ceci et cela
             const n = candidatActionChoisi.cela.length;
-            const indexCeciChoisi = this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse / n;
-            const indexCelaChoisi = this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse % n;
+            const indexCeciChoisi = ctx.questions.QcmCeciEtCela.Reponse / n;
+            const indexCelaChoisi = ctx.questions.QcmCeciEtCela.Reponse % n;
             candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
             candidatActionChoisi.cela = [candidatActionChoisi.cela[indexCelaChoisi]]
+            // console.warn("Ceci et Cela choisi !");
             ctx.commandeValidee = true;
-            console.warn("C’est validé !");
             // demander une précision
           } else {
             // ajouter question concernant complément direct
@@ -299,11 +302,11 @@ export class Commandeur {
           // s’il y a plusieurs correspondances équivalentes pour ceci
         } else if (candidatActionChoisi.ceci?.length > 1) {
           // on a déjà précisé => appliqué la correction
-          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCeci?.Reponse !== undefined) {
-            const indexCeciChoisi = this.correctionCommandeEnCours.questions.QcmCeci.Reponse;
+          if (ctx.questions?.QcmCeci?.Reponse !== undefined) {
+            const indexCeciChoisi = ctx.questions.QcmCeci.Reponse;
             candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
+            // console.warn("Ceci choisi !");
             ctx.commandeValidee = true;
-            console.warn("C’est validé !");
             // demander une précision
           } else {
             // ajouter question concernant complément direct
@@ -325,11 +328,11 @@ export class Commandeur {
           }
         } else if (candidatActionChoisi.cela?.length > 1) {
           // on a déjà précisé => appliqué la correction
-          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCela?.Reponse !== undefined) {
-            const indexCelaChoisi = this.correctionCommandeEnCours.questions.QcmCela.Reponse;
+          if (ctx.questions?.QcmCela?.Reponse !== undefined) {
+            const indexCelaChoisi = ctx.questions.QcmCela.Reponse;
             candidatActionChoisi.cela = [candidatActionChoisi.cela[indexCelaChoisi]]
+            // console.warn("Cela choisi !");
             ctx.commandeValidee = true;
-            console.warn("C’est validé !");
             // demander une précision
           } else {
             // ajouter question concernant la découpe de la commande
@@ -356,6 +359,9 @@ export class Commandeur {
       if (ctx.commandeValidee) {
         // index sera toujours 0 étant donné la manip ci-dessus.
         const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[0] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[0] : null));
+
+        // plus de question en suspend à destination du joueur
+        ctx.questions = undefined;
 
         // les éléments avec lesquels ont interagit sont connus.
         if (actionChoisie.ceci) {
@@ -468,8 +474,8 @@ export class Commandeur {
         this.comTour.demarrerNouveauTour(ctxCmd);
       } else if (ctxCmd.verbesSimilaires) {
         // correction infinitif déjà sélectionnée
-        if (this.correctionCommandeEnCours != null && this.correctionCommandeEnCours.questions.QcmInfinitif) {
-          ctxCmd.candidats[indexCandidat].els.infinitif = this.correctionCommandeEnCours.questions.QcmInfinitif.Choix[this.correctionCommandeEnCours.questions.QcmInfinitif.Reponse].valeurs[0].toString();
+        if (ctxCmd.questions?.QcmInfinitif?.Reponse !== undefined) {
+          ctxCmd.candidats[indexCandidat].els.infinitif = ctxCmd.questions.QcmInfinitif.Choix[ctxCmd.questions.QcmInfinitif.Reponse].valeurs[0].toString();
           console.warn(`Verbe similaire choisi: ${ctxCmd.candidats[indexCandidat].els.infinitif}`);
           this.chercherParmiLesActions(ctxCmd.candidats[indexCandidat], ctxCmd);
           if (ctxCmd.actionChoisie) {
@@ -483,7 +489,7 @@ export class Commandeur {
 
           // ajouter question concernant la découpe de la commande
           // let qI = new QuestionCommande(`J’ai trouvé ${(ctxCmd.verbesSimilaires.length > 1 ? "ces verbes similaires" : "ce verbe similaire")} car ${ctxCmd.candidats[indexCandidat].els.infinitif} m’est inconnu :`);
-          let qI = new QuestionCommande(`Pouvez-vous confirmer l’action ?`);
+          let qI = new QuestionCommande(`Pouvez-vous confirmer le verbe ?`);
           ctxCmd.questions.QcmInfinitif = qI;
           qI.Choix = [];
           ctxCmd.verbesSimilaires.forEach(verbeSimilaire => {
@@ -517,7 +523,7 @@ export class Commandeur {
     }
   }
 
-  public static afficherDetailCommande(candidat: CandidatCommande, forcerInfinitif: string| undefined): string {
+  public static afficherDetailCommande(candidat: CandidatCommande, forcerInfinitif: string | undefined): string {
     let retVal = "";
     retVal += (forcerInfinitif ? forcerInfinitif : candidat.els.infinitif) + " "
     if (candidat.correspondCeci) {
