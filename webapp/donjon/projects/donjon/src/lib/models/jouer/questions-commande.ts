@@ -11,7 +11,7 @@ export class QuestionsCommande {
 export class QuestionCommande {
     Question: string;
     Choix: Choix[];
-    Reponse: string | null = null;
+    Reponse: number | undefined = undefined;
     constructor(question: string) {
         this.Question = question;
     }

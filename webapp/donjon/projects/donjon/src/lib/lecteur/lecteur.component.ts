@@ -536,7 +536,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           break;
 
         case TypeInterruption.questionCommande:
-          // rien de spécifique ici
+
+        // TODO: Vérifier Mode TRICHE / CHARGEMENT / ANNULER
+
+          // si mode triche, proposer le choix de la solution (commande suivante)
+          if (this.tricheActif) {
+            this.indexTriche += 1;
+            if (this.indexTriche < this.autoCommandes.length) {
+              this.commande = this.autoCommandes[this.indexTriche];
+            }
+          }
+          // focus sur l'entrée de commande
+          this.focusCommande();
+          // reprise partie
+          if (this.sauvegardeEnAttente) {
+            this.lancerAutoTriche();
+          }
           break;
 
         default:
@@ -687,14 +702,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
     } else if (this.interruptionEnCours.typeContexte == TypeContexte.commande) {
 
-      if (choix) {
+      if (this.interruptionEnCours.derniereQuestion.Reponse != undefined) {
         const commandeEnCours = this.interruptionEnCours.commande;
-
         // l’interruption est terminé (une correction a eu lieu)
         this.interruptionEnCours = undefined;
-
         // exécuter à nouveau la commande corrigée
-        this.executerLaCommande(commandeEnCours.brute, true, false, true);
+        this.partie.com.setCorrectionCommande(commandeEnCours);
+        this.partie.ecran.ajouterContenuDonjon(`{n}{-> ${this.commande}-}`)
+        this.commande = commandeEnCours.brute;
+        // TODO: Gestion de l’historique pour les commandes corrigées.
+        this.executerLaCommande(this.commande, false, false, false)
+
       } else {
         // l’interruption est terminé (pas de correction)
         this.interruptionEnCours = undefined;
@@ -1012,8 +1030,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       let number = this.commande ? Number.parseInt(this.commande) : 1;
       if (number) {
         if ((number - 1) < this.interruptionEnCours.derniereQuestion.Choix.length) {
-          this.ajouteErreur("Choix effectué!");
-          this.terminerInterruption(this.interruptionEnCours.derniereQuestion.Choix[number - 1])
+          this.interruptionEnCours.derniereQuestion.Reponse = (number - 1);
+          this.terminerInterruption(undefined);
         } else {
           this.ajouteErreur("Choix pas dispo!");
         }
@@ -1049,6 +1067,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param commandeNettoyee la commande déjà nettoyée avec CommandesUtils.nettoyerCommande();
    * @param ajouterCommandeDansHistorique faut-il ajouter la commande à l’historique des commandes du joueur ?
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
+   * @param ecrireCommande faut-il écrire la commande dans la sortie du jeu ?
    */
   private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean): void {
     // VÉRIFIER FIN DE PARTIE

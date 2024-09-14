@@ -73,6 +73,7 @@ export class InterruptionsUtils {
     const interruption = new Interruption(TypeInterruption.questionCommande, TypeContexte.commande);
     interruption.questionsCommande = commande.questions;
     interruption.derniereQuestion = derniereQuestion;
+    interruption.commande = commande;
     return interruption;
   }
 

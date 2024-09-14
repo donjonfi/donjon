@@ -42,6 +42,8 @@ export class Commandeur {
 
   private premiereIncomprehension = true;
 
+  private correctionCommandeEnCours: ContexteCommande;
+
   constructor(
     private jeu: Jeu,
     private ins: Instructions,
@@ -62,6 +64,10 @@ export class Commandeur {
     return CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
   }
 
+  public setCorrectionCommande(commandeEnCours: ContexteCommande) {
+    this.correctionCommandeEnCours = commandeEnCours;
+  }
+
   /** Exécuter la commande */
   public executerCommande(commande: string): ContexteCommande {
 
@@ -80,31 +86,23 @@ export class Commandeur {
         // les 2 candidats ont le même score
         if (ctxCmd.candidats[0].score == ctxCmd.candidats[1].score) {
 
-          // TODO: demander quelle découpe est correcte
-
           // déjà reçu une réponse
-          if (ctxCmd.questions?.QcmDecoupe) {
-            if (ctxCmd.questions.QcmDecoupe.Reponse == "a") {
-              this.essayerLaCommande(0, ctxCmd);
-            } else {
-              this.essayerLaCommande(1, ctxCmd);
-            }
+          if (this.correctionCommandeEnCours != null && this.correctionCommandeEnCours.questions.QcmDecoupe?.Reponse !== undefined) {
+            console.warn(`Réponse: ${this.correctionCommandeEnCours.questions.QcmDecoupe.Reponse}`);
+            this.essayerLaCommande(this.correctionCommandeEnCours.questions.QcmDecoupe?.Reponse, ctxCmd);
             // pas encore reçu de réponse
           } else {
             if (!ctxCmd.questions) {
               ctxCmd.questions = new QuestionsCommande();
             }
             // ajouter question concernant la découpe de la commande
-            let qD = new QuestionCommande("Quelle commande voulez-vous appliquer ?");
-            qD.Choix = [];
-            let choixA = new Choix([Commandeur.afficherDetailCommande(ctxCmd.candidats[0])]);
-            qD.Choix.push(choixA);
-            let choixB = new Choix([Commandeur.afficherDetailCommande(ctxCmd.candidats[1])]);
-            qD.Choix.push(choixB);
-            ctxCmd.questions.QcmDecoupe = qD;
-
-            this.jeu.ajouterErreur("commandeur: plusieurs candidats ont le même score pour la découpe de la commande. Par la suite je demanderai lequel choisir.");
-
+            let qcmDecoupe = new QuestionCommande("Quelle commande voulez-vous appliquer ?");
+            qcmDecoupe.Choix = [];
+            ctxCmd.candidats.forEach(candidat => {
+              let choix = new Choix([Commandeur.afficherDetailCommande(candidat, undefined)]);
+              qcmDecoupe.Choix.push(choix);
+            });
+            ctxCmd.questions.QcmDecoupe = qcmDecoupe;
           }
           // le premier candidat a un score plus élevé
         } else {
@@ -160,6 +158,9 @@ export class Commandeur {
         // ctxCmd.sortie += "Vous pouvez entrer la commande {-aide-}.\n";
       }
     }
+
+    this.correctionCommandeEnCours = undefined;
+
     return ctxCmd;
   }
 
@@ -257,81 +258,95 @@ export class Commandeur {
       const candidatActionChoisi = actionsCeciCela[0];
 
       // il peut y avoir plusieurs correspondances avec le même score pour un objet.
-      // Ex: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
-      // => Dans ce cas, on prend un élément au hasard pour que le jeu ne soit pas bloqué.
-      let indexCeci = 0;
-      let indexCela = 0;
+      // Ex1: le joueur veut prendre la « clé » mais il y a en a 2 : une clé verte et une clé rouge.
+      // Ex2: il y a une pomme par terre et des pommes sur le pommier on on fait « prendre pomme ».
+      // => Dans ce cas, on on va demander au joueur de choisir parmi les résultats avec le même score.
 
-
-      // TODO: Plusieurs objets possible pour 1 ou 2 des arguments, demander quel objet prendre
-
-      // if (candidatActionChoisi.ceci?.length > 1) {
-      //   ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.ceciIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-      //   indexCeci = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.ceci.length);
-      // }
-      // if (candidatActionChoisi.cela?.length > 1) {
-      //   ctx.sortie += "{+{/Il y a plusieurs résultats équivalents pour « " + candidatCommande.celaIntituleV1.toString() + " ». Je choisis au hasard./}+}{n}";
-      //   indexCela = Math.floor(AleatoireUtils.nombre() * candidatActionChoisi.cela.length);
-      // }
+      // TODO: AFFICHER POSITION DE L’OBJET?
 
       if (candidatActionChoisi.ceci?.length > 1 || candidatActionChoisi.cela?.length > 1) {
-
-        if (!ctx.questions) {
-          ctx.questions = new QuestionsCommande();
-        }
-
+        // s’il y a plusieurs correspondances équivalentes pour ceci ET cela
         if (candidatActionChoisi.ceci?.length > 1 && candidatActionChoisi.cela?.length > 1) {
-          // if (!ctx.questions.QcmCeci) {
-          // ajouter question concernant complément direct
-          // let qCeciCela = new QuestionCommande(`Il y a plusieurs correspondances pour {-${candidatCommande.ceciIntituleV1.toString()}-} et {-${candidatCommande.celaIntituleV1.toString()}-} :`);
-          let qCeciCela = new QuestionCommande(`Il y a plusieurs correspondances :`);
-          qCeciCela.Choix = [];
-          candidatActionChoisi.ceci.forEach(candidatCeci => {
+          // on a déjà précisé => appliqué la correction
+          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse !== undefined) {
+            // calcul index de ceci et cela
+            const n = candidatActionChoisi.cela.length;
+            const indexCeciChoisi = this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse / n;
+            const indexCelaChoisi = this.correctionCommandeEnCours.questions.QcmCeciEtCela?.Reponse % n;
+            candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
+            candidatActionChoisi.cela = [candidatActionChoisi.cela[indexCelaChoisi]]
+            ctx.commandeValidee = true;
+            console.warn("C’est validé !");
+            // demander une précision
+          } else {
+            // ajouter question concernant complément direct
+            // let qCeciCela = new QuestionCommande(`Il y a plusieurs correspondances pour {=${candidatCommande.ceciIntituleV1.toString()}=} et {=${candidatCommande.celaIntituleV1.toString()}=} :`);
+            let qCeciCela = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
+            qCeciCela.Choix = [];
+            candidatActionChoisi.ceci.forEach(candidatCeci => {
+              candidatActionChoisi.cela.forEach(candidatCela => {
+                let choixCela = new Choix([
+                  `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci}=} ${candidatActionChoisi.action.prepositionCela} {=${candidatCela}=}`
+                ]);
+                qCeciCela.Choix.push(choixCela);
+              });
+            });
+            if (!ctx.questions) {
+              ctx.questions = new QuestionsCommande();
+            }
+            ctx.questions.QcmCeciEtCela = qCeciCela;
+          }
+          // s’il y a plusieurs correspondances équivalentes pour ceci
+        } else if (candidatActionChoisi.ceci?.length > 1) {
+          // on a déjà précisé => appliqué la correction
+          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCeci?.Reponse !== undefined) {
+            const indexCeciChoisi = this.correctionCommandeEnCours.questions.QcmCeci.Reponse;
+            candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
+            ctx.commandeValidee = true;
+            console.warn("C’est validé !");
+            // demander une précision
+          } else {
+            // ajouter question concernant complément direct
+            let qCeci = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
+            qCeci.Choix = [];
+            candidatActionChoisi.ceci.forEach(candidatCeci => {
+              let choixCeci = new Choix([
+                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci.intitule}=}`
+              ]);
+              if (candidatActionChoisi.cela?.length) {
+                choixCeci.valeurs[0] += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`
+              }
+              qCeci.Choix.push(choixCeci);
+            });
+            if (!ctx.questions) {
+              ctx.questions = new QuestionsCommande();
+            }
+            ctx.questions.QcmCeci = qCeci;
+          }
+        } else if (candidatActionChoisi.cela?.length > 1) {
+          // on a déjà précisé => appliqué la correction
+          if (this.correctionCommandeEnCours && this.correctionCommandeEnCours.questions.QcmCela?.Reponse !== undefined) {
+            const indexCelaChoisi = this.correctionCommandeEnCours.questions.QcmCela.Reponse;
+            candidatActionChoisi.cela = [candidatActionChoisi.cela[indexCelaChoisi]]
+            ctx.commandeValidee = true;
+            console.warn("C’est validé !");
+            // demander une précision
+          } else {
+            // ajouter question concernant la découpe de la commande
+            let qCela = new QuestionCommande(`Il y a plusieurs correspondances pour {+${candidatCommande.celaIntituleV1.toString()}+} :`);
+            qCela.Choix = [];
             candidatActionChoisi.cela.forEach(candidatCela => {
               let choixCela = new Choix([
-                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {+${candidatCeci}+} ${candidatActionChoisi.action.prepositionCela} {+${candidatCela}+}`
+                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} ${candidatActionChoisi.ceci[0].intitule} ${candidatActionChoisi.action.prepositionCela} {=${candidatCela.intitule}=}`
               ]);
-              qCeciCela.Choix.push(choixCela);
+              // let choixCela = new Choix([candidatCela.intitule.toString()]);
+              qCela.Choix.push(choixCela);
             });
-          });
-          ctx.questions.QcmCeciEtCela = qCeciCela;
-          // } else {
-
-          // }
-        } else if (candidatActionChoisi.ceci?.length > 1) {
-          // if (!ctx.questions.QcmCeci) {
-          // ajouter question concernant complément direct
-          let qCeci = new QuestionCommande(`Il y a plusieurs correspondances :`);
-          qCeci.Choix = [];
-          candidatActionChoisi.ceci.forEach(candidatCeci => {
-            let choixCeci = new Choix([
-              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {+${candidatCeci.intitule}+}`
-            ]);
-            if (candidatActionChoisi.cela?.length) {
-              choixCeci.valeurs[0] += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`
+            if (!ctx.questions) {
+              ctx.questions = new QuestionsCommande();
             }
-            qCeci.Choix.push(choixCeci);
-          });
-          ctx.questions.QcmCeci = qCeci;
-          // } else {
-
-          // }
-        } else if (candidatActionChoisi.cela?.length > 1) {
-          // if (!ctx.questions.QcmCela) {
-          // ajouter question concernant la découpe de la commande
-          let qCela = new QuestionCommande(`Il y a plusieurs correspondances pour {+${candidatCommande.celaIntituleV1.toString()}+} :`);
-          qCela.Choix = [];
-          candidatActionChoisi.cela.forEach(candidatCela => {
-            let choixCela = new Choix([
-              `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} ${candidatActionChoisi.ceci[0].intitule} ${candidatActionChoisi.action.prepositionCela} {+${candidatCela.intitule}+}`
-            ]);
-            // let choixCela = new Choix([candidatCela.intitule.toString()]);
-            qCela.Choix.push(choixCela);
-          });
-          ctx.questions.QcmCela = qCela;
-          // } else {
-
-          // }
+            ctx.questions.QcmCela = qCela;
+          }
         }
       } else {
         // la commande a été validée et sera exécutée
@@ -339,7 +354,8 @@ export class Commandeur {
       }
 
       if (ctx.commandeValidee) {
-        const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[indexCeci] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[indexCela] : null));
+        // index sera toujours 0 étant donné la manip ci-dessus.
+        const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[0] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[0] : null));
 
         // les éléments avec lesquels ont interagit sont connus.
         if (actionChoisie.ceci) {
@@ -451,19 +467,31 @@ export class Commandeur {
       if (ctxCmd.actionChoisie) {
         this.comTour.demarrerNouveauTour(ctxCmd);
       } else if (ctxCmd.verbesSimilaires) {
-        //this.comTour.demanderConfirmation(ctx);
-        if (!ctxCmd.questions) {
-          ctxCmd.questions = new QuestionsCommande();
-        }
+        // correction infinitif déjà sélectionnée
+        if (this.correctionCommandeEnCours != null && this.correctionCommandeEnCours.questions.QcmInfinitif) {
+          ctxCmd.candidats[indexCandidat].els.infinitif = this.correctionCommandeEnCours.questions.QcmInfinitif.Choix[this.correctionCommandeEnCours.questions.QcmInfinitif.Reponse].valeurs[0].toString();
+          console.warn(`Verbe similaire choisi: ${ctxCmd.candidats[indexCandidat].els.infinitif}`);
+          this.chercherParmiLesActions(ctxCmd.candidats[indexCandidat], ctxCmd);
+          if (ctxCmd.actionChoisie) {
+            this.comTour.demarrerNouveauTour(ctxCmd);
+          }
+          // correction infinitif à proposer
+        } else {
+          if (!ctxCmd.questions) {
+            ctxCmd.questions = new QuestionsCommande();
+          }
 
-        // ajouter question concernant la découpe de la commande
-        let qI = new QuestionCommande(`J’ai trouvé ce verbe similaire car ${ctxCmd.candidats[indexCandidat].els.infinitif} m’est inconnu :`);
-        ctxCmd.questions.QcmInfinitif = qI;
-        qI.Choix = [];
-        ctxCmd.verbesSimilaires.forEach(verbeSimilaire => {
-          let choix = new Choix([verbeSimilaire]);
-          qI.Choix.push(choix);
-        });
+          // ajouter question concernant la découpe de la commande
+          // let qI = new QuestionCommande(`J’ai trouvé ${(ctxCmd.verbesSimilaires.length > 1 ? "ces verbes similaires" : "ce verbe similaire")} car ${ctxCmd.candidats[indexCandidat].els.infinitif} m’est inconnu :`);
+          let qI = new QuestionCommande(`Pouvez-vous confirmer l’action ?`);
+          ctxCmd.questions.QcmInfinitif = qI;
+          qI.Choix = [];
+          ctxCmd.verbesSimilaires.forEach(verbeSimilaire => {
+            // let choix = new Choix([Commandeur.afficherDetailCommande(ctxCmd.candidats[indexCandidat], verbeSimilaire)]);
+            let choix = new Choix([verbeSimilaire]);
+            qI.Choix.push(choix);
+          });
+        }
       }
     }
   }
@@ -489,22 +517,22 @@ export class Commandeur {
     }
   }
 
-  public static afficherDetailCommande(candidat: CandidatCommande): string {
+  public static afficherDetailCommande(candidat: CandidatCommande, forcerInfinitif: string| undefined): string {
     let retVal = "";
-    retVal += candidat.els.infinitif + " "
+    retVal += (forcerInfinitif ? forcerInfinitif : candidat.els.infinitif) + " "
     if (candidat.correspondCeci) {
       retVal += candidat.els.preposition0 ? (candidat.els.preposition0 + " ") : "";
       if (candidat.correspondCeci.elements.length) {
-        retVal += "{-" + candidat.correspondCeci.elements[0].intitule + "-} ";
+        retVal += "{=" + candidat.correspondCeci.elements[0].intitule + "=} ";
       } else {
-        retVal += "{-" + candidat.correspondCeci.intitule + "-} ";
+        retVal += "{=" + candidat.correspondCeci.intitule + "=} ";
       }
       if (candidat.correspondCela) {
         retVal += candidat.els.preposition1 ? (candidat.els.preposition1 + " ") : "";
         if (candidat.correspondCela.elements.length) {
-          retVal += "{-" + candidat.correspondCela.elements[0].intitule + "-}";
+          retVal += "{=" + candidat.correspondCela.elements[0].intitule + "=}";
         } else {
-          retVal += "{-" + candidat.correspondCela.intitule + "-}";
+          retVal += "{=" + candidat.correspondCela.intitule + "=}";
         }
       }
     }
