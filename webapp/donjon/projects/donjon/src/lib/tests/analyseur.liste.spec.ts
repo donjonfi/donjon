@@ -138,7 +138,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.epithete).toEqual("gagnants");
     expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
     expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
-    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // description pas définie
     expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
     expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(3); //doit contenir des nombres
     expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte
@@ -164,7 +164,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
     expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
     expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
-    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // description pas définie
     expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
     expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(0); //ne doit pas contenir de nombre
     expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(2); // doit contenir des textes
@@ -190,7 +190,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
     expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
     expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.p); // nombre
-    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // description pas définie
     expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
     expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(0); //ne doit pas contenir de nombre
     expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte
@@ -216,7 +216,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.epithete).toBeUndefined();
     expect(ctxAnalyse.dernierElementGenerique.genre).toEqual(Genre.m); // genre
     expect(ctxAnalyse.dernierElementGenerique.nombre).toEqual(Nombre.s); // nombre
-    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // desrcription pas définie
+    expect(ctxAnalyse.dernierElementGenerique.description).toBeNull(); // description pas définie
     expect(ctxAnalyse.dernierElementGenerique.classeIntitule).toEqual(EClasseRacine.liste); // intitulé classe
     expect(ctxAnalyse.dernierElementGenerique.valeursNombre).toHaveSize(1); // doit pas contenir 1 nombre
     expect(ctxAnalyse.dernierElementGenerique.valeursTexte).toHaveSize(0); // ne doit pas contenir de texte

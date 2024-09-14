@@ -359,7 +359,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
     expect(el.positionString).toHaveSize(0); // position pas définie
     AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-    expect(el.description).toBeNull(); // desrcription pas définie
+    expect(el.description).toBeNull(); // description pas définie
     expect(el.capacites).toHaveSize(0); // aucune capacité
     expect(el.attributs).toHaveSize(0); // aucun attribut
     expect(el.proprietes).toHaveSize(0); // aucune propriété
@@ -390,7 +390,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(el.classeIntitule).toEqual(EClasseRacine.lieu); // intitulé classe
     expect(el.positionString).toHaveSize(0); // position pas définie
     AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-    expect(el.description).toBe('Vous êtes dans Paris.'); // desrcription définie
+    expect(el.description).toBe('Vous êtes dans Paris.'); // description définie
     expect(el.capacites).toHaveSize(0); // aucune capacité
     expect(el.attributs).toHaveSize(1); // aucun attribut
     expect(el.proprietes).toHaveSize(0); // aucune propriété
@@ -506,7 +506,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(el.positionString).toHaveSize(1); // position définie
     expect(el.positionString[0]).toEqual(new PositionSujetString('château du comte', 'village', 'au nord du ')); // position
     AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-    expect(el.description).toBeNull(); // desrcription pas définie
+    expect(el.description).toBeNull(); // description pas définie
     expect(el.capacites).toHaveSize(0); // aucune capacité
     expect(el.attributs).toHaveSize(0); // aucun attribut
     expect(el.proprietes).toHaveSize(0); // aucune propriété
@@ -538,7 +538,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
     expect(el.positionString).toHaveSize(1); // position définie
     expect(el.positionString[0]).toEqual(new PositionSujetString('cadenas bleu', 'labo', 'dans le ')); // position
     AnalyseurUtils.ajouterDescriptionDernierElement(phrases[0], ctxAnalyse); // ajout description éventuelle
-    expect(el.description).toBeNull(); // desrcription pas définie
+    expect(el.description).toBeNull(); // description pas définie
     expect(el.capacites).toHaveSize(0); // aucune capacité
     expect(el.attributs).toHaveSize(0); // aucun attribut
     expect(el.proprietes).toHaveSize(0); // aucune propriété
