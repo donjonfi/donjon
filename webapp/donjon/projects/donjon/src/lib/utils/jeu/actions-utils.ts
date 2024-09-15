@@ -365,6 +365,14 @@ export class ActionsUtils {
         }
         break;
 
+      case EEtatsBase.vu:
+        if (argumentUnique) {
+          retVal = "Je ne [l’ " + tokenCeciOuCela + "]ai pas encore vu[s " + tokenCeciOuCela + "].";
+        } else {
+          retVal = "Je n’ai pas encore vu {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+
       case EEtatsBase.disponible:
         if (argumentUnique) {
           retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
