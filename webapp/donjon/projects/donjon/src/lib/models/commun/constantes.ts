@@ -30,6 +30,8 @@ export enum EClasseRacine {
 }
 
 export enum EEtatsBase {
+  /** vu */
+  vu = "vu",
   /** connu */
   connu = "connu",
   /** présent (calculé) (↔ absent) */

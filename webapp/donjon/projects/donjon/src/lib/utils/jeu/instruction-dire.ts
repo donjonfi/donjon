@@ -70,12 +70,16 @@ export class InstructionDire {
               const eleCeci = contexteTour.ceci as ElementJeu;
               apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
+              // l’objet a été vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(eleCeci, this.jeu.etats.vuID, this.eju);
             } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
               const dirCeci = contexteTour.ceci as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                // le lieu a été vu par le joueur
+                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
               } else {
                 console.error("calculerTexteDynamique: aperçu de ceci: voisin pas trouvé dans cette direction.");
               }
@@ -94,12 +98,16 @@ export class InstructionDire {
               const eleCela = contexteTour.cela as ElementJeu;
               apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
+              // l’objet a été vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(eleCela, this.jeu.etats.vuID, this.eju);
             } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
               const dirCela = contexteTour.cela as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                // le lieu a été vu par le joueur
+                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
               } else {
                 console.error("calculerTexteDynamique: aperçu de cela: voisin pas trouvé dans cette direction.");
               }
@@ -1578,6 +1586,8 @@ export class InstructionDire {
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercuSpecifique.forEach(obj => {
         const apercuCalcule = this.calculerTexteDynamique(obj.apercu, ++obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
+        // l’objet a été vu par le joueur
+        this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
@@ -1603,7 +1613,7 @@ export class InstructionDire {
         } else {
           objetsAvecApercuAuto.push(obj);
           nbObjetsApercuAuto += 1;
-
+          // TODO: faut-il considérer que les objets forcés sans aperçu ont été vus ?
         }
       });
 
@@ -1623,6 +1633,9 @@ export class InstructionDire {
         let curObjIndex = 0;
         objetsAvecApercuAuto.forEach(obj => {
           ++curObjIndex;
+          // l’objet a été vu par le joueur
+          this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
+          // ajouter l’intitulé de l’objet à la liste
           resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
           if (curObjIndex < (nbObjetsApercuAuto - 1)) {
             resultat.sortie += ", ";
@@ -1666,13 +1679,17 @@ export class InstructionDire {
             const curPorteObstacle = this.eju.getObjet(voisin.id);
             if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
               // décrire l’obstacle
-              // si aperçu défini
+              // - l’objet a été vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(curPorteObstacle, this.jeu.etats.vuID, this.eju);
+              // - si aperçu défini
               if (curPorteObstacle.apercu) {
                 // afficher l'aperçu.
                 if (curPorteObstacle.apercu != '-') {
                   resultat.sortie += "{U}" + this.calculerTexteDynamique(curPorteObstacle.apercu, ++curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+                } else {
+                  // TODO: faut-il considéré qu’un objet est vu quand son aperçu est « - » ?
                 }
-                // si pas d’aperçu défini
+                // - si pas d’aperçu défini
               } else {
                 // porte
                 if (ClasseUtils.heriteDe(curPorteObstacle.classe, EClasseRacine.porte)) {
@@ -1737,6 +1754,8 @@ export class InstructionDire {
       // si aperçu dispo pour l’obstacle, on l’affiche.
       if (obstacle.apercu) {
         retVal = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+        // l’objet a été vu par le joueur
+        this.jeu.etats.ajouterEtatIdElement(obstacle, this.jeu.etats.vuID, this.eju);
         // sinon on affiche texte auto.
       } else {
         retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";

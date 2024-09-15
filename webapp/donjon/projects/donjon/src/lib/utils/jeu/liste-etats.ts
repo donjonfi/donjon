@@ -15,6 +15,7 @@ import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 export class ListeEtats {
 
+  public vuID = -1;
   public connuID = -1;
   public presentID = -1;
   public visiteID = -1;
@@ -69,7 +70,8 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // connu (élémentJeu)
+    // vu, connu (élémentJeu)
+    this.vuID = this.creerEtat(EEtatsBase.vu).id;
     this.connuID = this.creerEtat(EEtatsBase.connu).id;
     // visité (lieu)
     this.visiteID = this.creerEtat(EEtatsBase.visite).id;
