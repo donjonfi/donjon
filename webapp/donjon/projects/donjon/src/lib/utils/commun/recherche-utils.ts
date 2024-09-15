@@ -26,10 +26,11 @@ export class RechercheUtils {
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
         .replace(/é|è|ê|ë/g, 'e')
-        .replace(/ï|î/g, 'i')
-        .replace(/à|ä|â/g, 'a')
-        .replace(/û|ù/g, 'u')
-        .replace(/ô/g, 'o')
+        .replace(/î|ï/g, 'i')
+        .replace(/à|â|ä/g, 'a')
+        .replace(/ù|û|ü/g, 'u')
+        .replace(/ô|ö/g, 'o')
+        .replace(/ÿ/g, 'y')
         .replace(/ç/g, 'c');
     }
     return retVal;

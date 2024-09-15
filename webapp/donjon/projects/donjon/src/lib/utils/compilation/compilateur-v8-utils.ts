@@ -38,7 +38,7 @@ export class CompilateurV8Utils {
     // terminer par un « . » les « fin bloc »
     resultat = resultat.replace(/([ \t]*fin(?: )?(?:si|règle|action|r(?:é|e|è)action(?:s)?|choix|choisir|routine)\b)(?!])(\.)?/mig, "$1.");
     // terminer par un « . » les « fin erreur » s’ils sont seuls sur la ligne
-    resultat = resultat.replace(/^([ \t]*fin [\wéèêà]+)(?!\.|])(\.)?[ \t]*$/ig, "$1.");
+    resultat = resultat.replace(/^([ \t]*fin [\wàâäéèêëîïôöùûüÿçæœ]+)(?!\.|])(\.)?[ \t]*$/ig, "$1.");
 
     // terminer par un « : » les « sinon »
     resultat = resultat.replace(/([ \t]*sinon\b)(:)?(?!])/mig, "$1:");

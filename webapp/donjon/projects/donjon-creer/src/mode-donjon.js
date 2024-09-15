@@ -113,7 +113,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
         }, {
           token: keywordMapper,
-          regex: "[a-zA-Zéèàêç_$][a-zA-Z0-9éèàêç_$]*"
+          regex: "[a-zA-Zàâäéèêëîïôöùûüÿçæœ_$][a-zA-Z0-9àâäéèêëîïôöùûüÿçæœ_$]*"
         },
 
         // {
