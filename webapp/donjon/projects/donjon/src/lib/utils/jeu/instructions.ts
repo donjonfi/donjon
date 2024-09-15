@@ -58,6 +58,7 @@ export class Instructions {
     this.insDeplacerCopier = new InstructionDeplacerCopier(this.jeu, this.eju, this.verbeux);
     this.insChanger = new InstructionChanger(this.jeu, this.eju, this.verbeux);
     this.insChanger.instructionDeplacerCopier = this.insDeplacerCopier;
+    this.insChanger.instructionDire = this.insDire;
     this.insJouerArreter = new InstructionJouerArreter(this.jeu);
     this.insCharger = new InstructionCharger(this.jeu, this.document);
     this.insSelectionner = new InstructionSelectionner(this.verbeux);
@@ -114,6 +115,8 @@ export class Instructions {
   private executerInstruction(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
     let resultat: Resultat;
+
+    contexteTour.derniereInstruction = instruction;
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction, "contexteTour:", contexteTour);
     }

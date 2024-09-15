@@ -18,6 +18,9 @@ export class ContexteTour {
   // erreurs
   private _erreurs: string[] = [];
 
+  // dernière instruction exécutée (pour debogage)
+  public derniereInstruction: Instruction | undefined;
+
   public phase: PhaseTour;
 
   public commande: ContexteCommande;
@@ -53,7 +56,7 @@ export class ContexteTour {
    * Valeurs du tour.
    */
   private valeurs = new Map<string, Valeur>();
-  
+
   /**
    * Liste de valeurs du tour.
    */
@@ -78,10 +81,13 @@ export class ContexteTour {
 
   // réponses (dernière, avant-dernière, préantépénultième)
 
-  // 
-
-  get erreurs(): readonly string[]{
+  get erreurs(): readonly string[] {
     return this._erreurs;
+  }
+
+  ajouterErreurDerniereInstruction(erreur: string) {
+    console.error(erreur, "\ninstruction: ", this.derniereInstruction);
+    this._erreurs.push(erreur);
   }
 
   ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {

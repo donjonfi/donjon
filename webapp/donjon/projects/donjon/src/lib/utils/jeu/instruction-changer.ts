@@ -21,10 +21,12 @@ import { ProprieteElement } from "../../models/commun/propriete-element";
 import { RechercheUtils } from "../commun/recherche-utils";
 import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
+import { InstructionDire } from "./instruction-dire";
 
 export class InstructionChanger {
 
   private insDeplacerCopier: InstructionDeplacerCopier;
+  private insDire: InstructionDire;
 
   constructor(
     private jeu: Jeu,
@@ -37,6 +39,10 @@ export class InstructionChanger {
     this.insDeplacerCopier = instructionDeplacerCopier;
   }
 
+  set instructionDire(instructionDire: InstructionDire) {
+    this.insDire = instructionDire;
+  }
+
   /** Changer quelque chose dans le jeu */
   public executerChanger(instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement = null, declenchements: number): Resultat {
 
@@ -46,7 +52,7 @@ export class InstructionChanger {
     if (instruction.sujet) {
       switch (instruction.sujet.nom.toLowerCase()) {
         // joueur
-        case 'joueur':          
+        case 'joueur':
           resultat = this.changerJoueur(instruction, contexteTour);
           break;
 
@@ -138,22 +144,22 @@ export class InstructionChanger {
             switch (instruction.verbe.toLowerCase()) {
               case 'augmente':
               case 'augmentent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'diminue':
               case 'diminuent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'vaut':
               case 'valent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'est':
               case 'sont':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               default:
@@ -318,17 +324,17 @@ export class InstructionChanger {
     switch (instruction.verbe.toLowerCase()) {
       case 'augmente':
       case 'augmentent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       case 'diminue':
       case 'diminuent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       case 'vaut':
       case 'valent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       default:

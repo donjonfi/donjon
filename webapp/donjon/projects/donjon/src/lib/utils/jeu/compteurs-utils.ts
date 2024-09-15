@@ -13,32 +13,33 @@ import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 import { Nombre } from "../../models/commun/nombre.enum";
+import { InstructionDire } from "./instruction-dire";
 
 export class CompteursUtils {
 
   /** Changer la valeur d’un compteur */
-  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', opperationStr: string, eju: ElementsJeuUtils, jeu: Jeu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
+  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', operationStr: string, eju: ElementsJeuUtils, jeu: Jeu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined, instructionDire: InstructionDire) {
 
     if (compteurOuPropriete) {
 
       // enlever le de qui débute la nouvelle valeur
-      const valeurStr = opperationStr.replace(/^(de |d’|d'|du |des )/i, "");
+      const valeurStr = operationStr.replace(/^(de |d’|d'|du |des )/i, "");
 
       // A) compteur
       if (compteurOuPropriete instanceof Compteur) {
-        let opperationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
-        if (opperationNum !== null) {
+        let operationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
+        if (operationNum !== null) {
           switch (verbe) {
             case 'vaut':
-              compteurOuPropriete.valeur = opperationNum;
+              compteurOuPropriete.valeur = operationNum;
               break;
 
             case 'diminue':
-              compteurOuPropriete.valeur -= opperationNum;
+              compteurOuPropriete.valeur -= operationNum;
               break;
 
             case 'augmente':
-              compteurOuPropriete.valeur += opperationNum;
+              compteurOuPropriete.valeur += operationNum;
               break;
 
             default:
@@ -51,11 +52,11 @@ export class CompteursUtils {
       } else {
         // > nombre
         if (compteurOuPropriete.type == TypeValeur.nombre) {
-          let opperationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
-          if (opperationNum !== null) {
+          let operationNum: number = this.intituleValeurVersNombre(valeurStr, contexteTour, evenement, eju, jeu);
+          if (operationNum !== null) {
             switch (verbe) {
               case 'vaut':
-                compteurOuPropriete.valeur = opperationNum.toString();
+                compteurOuPropriete.valeur = operationNum.toString();
                 break;
 
               case 'diminue':
@@ -66,7 +67,7 @@ export class CompteursUtils {
                   let valQuantite = parseInt(compteurOuPropriete.valeur);
                   // on ne peut diminuer la quantité que si elle n’est pas infinie
                   if (valQuantite != -1) {
-                    valQuantite -= opperationNum;
+                    valQuantite -= operationNum;
                     // la quantité ne peut pas être négative
                     if (valQuantite < 0) {
                       valQuantite = 0;
@@ -75,7 +76,7 @@ export class CompteursUtils {
                     compteurOuPropriete.valeur = valQuantite.toString();
                   }
                 } else {
-                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) - opperationNum).toString();
+                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) - operationNum).toString();
                 }
                 break;
 
@@ -86,7 +87,7 @@ export class CompteursUtils {
                   let valQuantite = parseInt(compteurOuPropriete.valeur);
                   // on ne peut diminuer la quantité que si elle n’est pas infinie
                   if (valQuantite != -1) {
-                    valQuantite += opperationNum;
+                    valQuantite += operationNum;
                     // la quantité ne peut pas être négative
                     if (valQuantite < 0) {
                       valQuantite = 0;
@@ -95,7 +96,7 @@ export class CompteursUtils {
                     compteurOuPropriete.valeur = valQuantite.toString();
                   }
                 } else {
-                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) + opperationNum).toString();
+                  compteurOuPropriete.valeur = (parseFloat(compteurOuPropriete.valeur) + operationNum).toString();
                 }
                 break;
 
@@ -109,11 +110,18 @@ export class CompteursUtils {
           switch (verbe) {
             case 'vaut':
             case 'est':
-
-              const nouvelleValeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
-
               // cas spécifique: intitulé
               if (compteurOuPropriete.nom == 'intitulé') {
+
+                console.warn(`valeurStr=${valeurStr}`);
+                let nouvelleValeur = this.intituleValeurVersString(valeurStr, contexteTour, eju, jeu);
+                console.warn(`nouvelleValeur step 1=${nouvelleValeur}`);
+                // calculer le texte dynamique éventuel
+                // TODO: Calculer texte dynamiquement (si contient des []) avant d’appliquer le nouvel intitulé.
+
+                nouvelleValeur = instructionDire.calculerTexteDynamique(nouvelleValeur, 0, undefined, contexteTour, evenement, undefined);
+                console.warn(`nouvelleValeur step 2=${nouvelleValeur}`);
+
                 // gérer groupe nominal
                 const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(nouvelleValeur, false);
                 if (intituleDecompose) {
@@ -126,7 +134,8 @@ export class CompteursUtils {
                     compteurOuPropriete.parent.intituleP = null;
                   }
                 } else {
-                  console.error("L’intitulé « " + valeurStr + " » n’est pas un groupe nominal supporté.")
+                  // console.error("L’intitulé « " + valeurStr + " » n’est pas un groupe nominal supporté.")
+                  contexteTour.ajouterErreurDerniereInstruction(`L’intitulé « ${nouvelleValeur}" » n’est pas un groupe nominal supporté.`);
                 }
                 // autres cas
               } else {

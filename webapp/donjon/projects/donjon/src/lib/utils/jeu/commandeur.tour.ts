@@ -107,12 +107,19 @@ export class CommandeurTour {
         break;
       case PhaseTour.continuer_apres:
       case PhaseTour.continuer_apres_interrompu:
+        // ajouter les erreurs à la sortie
+        tour.erreurs.forEach(erreur => {
+          tour.commande.sortie += `{+${erreur}+}{n}`
+        });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
       // ÉPLILOGUE (TERMINER)
       case PhaseTour.epilogue:
-        // case PhaseTour.terminer_avant_sortie_apres:
+         // ajouter les erreurs à la sortie
+         tour.erreurs.forEach(erreur => {
+          tour.commande.sortie += `{+${erreur}+}{n}`
+        });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
