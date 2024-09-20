@@ -7,6 +7,7 @@
 @import "../../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
 @import "../../../node_modules/@fortawesome/fontawesome-free/scss/solid";
 
+
 #txtCommande:focus {
   outline: none;
   box-shadow: none;
@@ -16,77 +17,88 @@
 // Thème jeu
 // ============================================
 
-.subgrid-jouer {
-  /* fond de la fenêtre */
-  background-color: #ffffff;
-
-  /* couleur du texte par défaut en dehors de la sortie du jeu */
-  color: #000000;
-}
-
 .card.sortie-jeu {
   /* couleur du texte par défaut */
-  color: #000000;
+  color: #ffffff;
 
   /* fond de la sortie du jeu */
-  background-color: #fcf8ef;
+  background-color: #000000;
 
-  /* image de fond */
-  background-image: none;
-  background-repeat: repeat;
-  background-attachment: fixed;
-  background-position: center;
+  // /* image de fond */
+  // background-image: none;
+  // background-repeat: repeat;
+  // background-attachment: fixed;
+  // background-position: center;
 
   /** bordure de la sortie du jeu **/
-  border: solid 1px #9c9c9c;
+  border: none;  
 }
 
 /* texte entre {- -} */
 .t-commande {
-  color: #668899;
+  color: #65dbff;
+}
+/* texte entre {= =} */
+.t-highlight {
+  color: #ffeb76;
 }
 
 /* texte entre {+ +} */
 .t-important {
-  color: #AA5555;
+  color: #ffa8ce;
+}
+
+.t-code-couleur{
+  font-family: Consolas,"courier new";
+  color: #000000;
+  // border: 1px solid #668899;
+  background-color: rgb(252, 237, 217);
+}
+
+.t-code{
+  font-family: Consolas,"courier new";
+  color: #000000;
 }
 
 /* invite de commandes */
 #txtCommande {
   /* texte de l’invite de commandes */
-  color: #000000;
+  color: #ffeb76;
 
   /* fond de l’invite de commandes */
-  background-color: #fcf8ef;
+  background-color: #000000;
 
   /* bordure de l’invite de commandes */
-  border: 2px solid #dad8d8;
+  border: 2px solid #ffeb76;
 }
 
 /* bordure de l’invite de commande (quand sélectionné) */
 #txtCommande:focus {
-  border: 2px solid #9c9c9c;
+  border: 2px solid #ffeb76;
 }
 
 /* astuce dans l’invite de commande */
 #txtCommande::placeholder {
-  color: #868686;
+  color: #eaeaea;
 }
 
 /* astuce sous l’invite de commande */
-.subgrid-jouer .astuce {
-  color: #202020;
+.subgrid-jouer .astuce,
+.grid-lecteur .astuce {
+
+  color: #eaeaea;
 }
 
 .card.sortie-jeu a {
   /* couleur du texte des liens */
-  color: #2b2b2b;
+  color: #ffeb76;
 }
 
 .card.sortie-jeu a:hover {
   /* couleur du texte des liens (activé) */
-  color: #585858;
+  color: #fff4b7;
 }
+
 
 // ============================================
 // APERÇU
@@ -209,6 +221,7 @@
   font-family: "bevanregular", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   font-size: large;
 }
+
 
 ul.no-bullet {
   padding: 0;

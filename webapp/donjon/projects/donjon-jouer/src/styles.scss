@@ -26,70 +26,71 @@
 
 .card.sortie-jeu {
   /* couleur du texte par défaut */
-  color: #ffffff;
+  color: #000000;
 
   /* fond de la sortie du jeu */
-  background-color: #000000;
+  background-color: #fcf8ef;
 
-  // /* image de fond */
-  // background-image: none;
-  // background-repeat: repeat;
-  // background-attachment: fixed;
-  // background-position: center;
+  /* image de fond */
+  background-image: none;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-position: center;
 
   /** bordure de la sortie du jeu **/
-  border: none;
+  border: solid 1px #9c9c9c;
 }
 
 /* texte entre {- -} */
 .t-commande {
-  color: #65dbff;
+  color: #689;
 }
 
 /* texte entre {= =} */
 .t-highlight {
-  color: #ffeb76;
+  color: #D85;
+}
 
 /* texte entre {+ +} */
 .t-important {
-  color: #ffa8ce;
+  color: #A55;
 }
 
 /* invite de commandes */
 #txtCommande {
   /* texte de l’invite de commandes */
-  color: #ffeb76;
+  color: #000000;
 
   /* fond de l’invite de commandes */
-  background-color: #000000;
+  background-color: #fcf8ef;
 
   /* bordure de l’invite de commandes */
-  border: 2px solid #ffeb76;
+  border: 2px solid #dad8d8;
 }
 
 /* bordure de l’invite de commande (quand sélectionné) */
 #txtCommande:focus {
-  border: 2px solid #ffeb76;
+  border: 2px solid #9c9c9c;
 }
 
 /* astuce dans l’invite de commande */
 #txtCommande::placeholder {
-  color: #eaeaea;
+  color: #868686;
 }
 
 /* astuce sous l’invite de commande */
 .subgrid-jouer .astuce {
-  color: #eaeaea;
+  color: #202020;
 }
 
 .card.sortie-jeu a {
   /* couleur du texte des liens */
-  color: #ffeb76;
+  color: #2b2b2b;
 }
 
 .card.sortie-jeu a:hover {
   /* couleur du texte des liens (activé) */
-  color: #fff4b7;
+  color: #585858;
 }
 
 // ============================================
@@ -102,7 +103,6 @@
 
 .objet {
   color: $primary;
-
   .epithete {
     font-style: italic;
   }
