@@ -662,7 +662,7 @@ export class AnalyseurV8Routines {
             `Une définition a été trouvée pour {@ceci@} mais l’entête de l’action n’inclut pas de complément indirect {@ceci@}.`,
           );
           // définir ceci par défaut
-          routine.action.cibleCeci = new CibleAction('un', 'objet', 'vu, visible et accessible');
+          routine.action.cibleCeci = new CibleAction('un', 'objet', 'visible et accessible');
         }
         cibleSujet = routine.action.cibleCeci;
         // CELA
@@ -676,7 +676,7 @@ export class AnalyseurV8Routines {
             `Une définition a été trouvée pour {@cela@} mais l’entête de l’action n’inclut pas de complément indirect {@cela@}.`,
           );
           // définir cela par défaut
-          routine.action.cibleCela = new CibleAction('un', 'objet', 'vu, visible et accessible');
+          routine.action.cibleCela = new CibleAction('un', 'objet', 'visible et accessible');
         }
         cibleSujet = routine.action.cibleCela;
       }
