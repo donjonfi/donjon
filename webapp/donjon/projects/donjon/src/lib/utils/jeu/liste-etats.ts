@@ -27,6 +27,7 @@ export class ListeEtats {
   public couvertID = -1;
   public visibleID = -1;
   public invisibleID = -1;
+  public secretID = -1;
   public accessibleID = -1;
   public inaccessibleID = -1;
   public possedeID = -1;
@@ -89,6 +90,9 @@ export class ListeEtats {
     this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
     this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
+    // secret (objet)
+    this.secretID = this.creerEtat(EEtatsBase.secret).id;
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
     // accessible, inaccessible (objet)
     this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
     this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;

@@ -36,7 +36,7 @@ export class RoutineAction extends Routine {
  * Les différentes phases d’une action.
  */
 export enum EtiquetteAction {
-  /** phase prérequis: cette phase peut empècher l’exécution de l’action si certains conditions sont remplies. */
+  /** phase prérequis: cette phase peut empêcher l’exécution de l’action si certains conditions sont remplies. */
   phasePrerequis = 1,
   /** phase exécution: cette phase permet de modifier le jeu suite à l’exécution de l’action. */
   phaseExecution = 2,

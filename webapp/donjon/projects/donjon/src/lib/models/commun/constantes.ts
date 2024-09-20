@@ -56,6 +56,8 @@ export enum EEtatsBase {
   visible = 'visible',
   /** invisible */
   invisible = 'invisible',
+  /** secret */
+  secret = "secret",
   /** accessible (calculé) */
   accessible = 'accessible',
   /** inaccessible */
