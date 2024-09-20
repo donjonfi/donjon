@@ -307,6 +307,22 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
+  // // TODO: support les chaînes de caractères dynamiques pour pouvoir choisir
+  // // dynamiquement le nom de l’image.
+  // it('Instruction :  « afficher l’image "donjon.png" »', () => {
+  //   const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher l’image "donjon.png"');
+  //   expect(result).not.toBeNull();
+  //   expect(result.infinitif).toEqual('afficher');
+  //   expect(result.sujet).toEqual(new GroupeNominal('l’', 'image'));
+  //   expect(result.verbe).toBeNull();
+  //   expect(result.complement1).toEqual('"donjon.png"');
+  //   expect(result.sujetComplement1).toBeUndefined();
+  //   expect(result.complement2).toBeUndefined();
+  //   expect(result.sujetComplement2).toBeUndefined();
+  //   expect(result.sujetComplement3).toBeUndefined();
+  //   expect(result.sujetComplement4).toBeUndefined();
+  // });
+
   it('Instruction :  « afficher image mon_image.gif »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher image mon_image.gif');
     expect(result).not.toBeNull();
