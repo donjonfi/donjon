@@ -439,7 +439,7 @@ export class ActionsUtils {
           retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
         }
       }
-    } else if (etatsNonVerifiesBruts.length == 2) {
+    } else if (etatsNonVerifiesBruts.length > 1) {
 
       let etatsNonVerifies: Etat[] = [];
       etatsNonVerifiesBruts.forEach(etatBrut => {
@@ -457,14 +457,21 @@ export class ActionsUtils {
             retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.visible, tokenCeciOuCela, argumentUnique);
           }
         } else {
+          // TODO: gérer autre attribut d’une liste OU
           retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
         }
       } else {
+        // TODO: gérer autre attributs que visible ET accessible
         retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
       }
 
+      // état requis pas trouvé
     } else {
-
+      if (argumentUnique) {
+        retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+      } else {
+        retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+      }
     }
 
     return retVal;
