@@ -184,7 +184,7 @@ describe('Complément action EstSoitNiPas − Epressions régulières', () => {
 
 });
 
-describe('définition action: déplacement joueur − Epressions régulières', () => {
+describe('définition action: déplacement joueur − Expressions régulières', () => {
 
   it('L’action déplace le joueur vers ceci', () => {
     const result = ExprReg.rDefinitionActionDeplacementJoueur.exec('L’action déplace le joueur vers ceci');

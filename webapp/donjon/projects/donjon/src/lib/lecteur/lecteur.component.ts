@@ -80,6 +80,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** une commande est en cours */
   commandeEnCours: boolean = false;
 
+  sansDefilement: boolean = false;
+
   /** Interruption qui est en cours */
   interruptionEnCours: Interruption | undefined;
   /** Les choix possibles pour l’utilisateur */
@@ -348,8 +350,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // s'il n'y a pas de texte en attente, afficher la première partie
       } else {
         // retrouver le dernier effacement d’écran éventuel
-        const texteSection = sectionsContenu[0];
+        let texteSection = sectionsContenu[0];
         const indexDernierEffacement = texteSection.lastIndexOf("@@effacer écran@@");
+
+        if (texteSection.includes("@@sans défilement@@")) {
+          this.sansDefilement = true;
+          texteSection = texteSection.replace(/@@sans défilement@@/g, "");
+        }
+
         // s’il ne faut pas effacer l’écran
         if (indexDernierEffacement == -1) {
           // ajouter à la suite
@@ -794,22 +802,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private scrollSortie() {
-    // scroll 1
-    setTimeout(() => {
-      this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-      this.commandeInputRef.nativeElement.focus();
 
-      // activer le lien tester l’audio au besoin
-      if (this.audioActif) {
-        this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
-      }
-
-      // scroll 2 (afin de prendre en compte temps chargement images)
+    if (this.sansDefilement) {
+      this.sansDefilement = false;
+    } else {
+      // scroll 1
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
         this.commandeInputRef.nativeElement.focus();
-      }, 500);
-    }, 100);
+
+        // activer le lien tester l’audio au besoin
+        if (this.audioActif) {
+          this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
+        }
+
+        // scroll 2 (afin de prendre en compte temps chargement images)
+        setTimeout(() => {
+          this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
+          this.commandeInputRef.nativeElement.focus();
+        }, 500);
+      }, 100);
+    }
   }
 
   /**

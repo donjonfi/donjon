@@ -165,7 +165,7 @@ export class CompilateurV8Utils {
           if (phrasePrecedente) {
             const blocActuelEstSousTexte = prochainBlocEstSousTexte;
             if (prochainBlocEstSousTexte) {
-              // pas de guillets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
+              // pas de guillemets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
               prochainBlocEstSousTexte = false;
             } else {
               // si on a un crochet non fermé dans le texte actuel, le code suivant est en réalité la suite du texte
