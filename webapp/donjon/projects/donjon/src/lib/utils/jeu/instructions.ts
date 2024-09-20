@@ -116,7 +116,9 @@ export class Instructions {
 
     let resultat: Resultat;
 
-    contexteTour.derniereInstruction = instruction;
+    if (!contexteTour) {
+      throw new Error("executerInstruction: ContexteTour pas fourni.");
+    }
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction, "contexteTour:", contexteTour);
     }

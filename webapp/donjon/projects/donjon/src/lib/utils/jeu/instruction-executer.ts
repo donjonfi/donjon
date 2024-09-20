@@ -144,7 +144,8 @@ export class InstructionExecuter {
     // on a trouvé une réaction
     if (reaction) {
       // TODO: faut-il fournir ceci,cela, l’évènement et déclenchements ?
-      resultat = this.ins.executerInstructions(reaction.instructions, undefined, undefined, undefined);
+      let ctxTour = new ContexteTour(undefined, undefined);
+      resultat = this.ins.executerInstructions(reaction.instructions, ctxTour, undefined, undefined);
       // on n’a pas trouvé de réaction
     } else {
       // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.
