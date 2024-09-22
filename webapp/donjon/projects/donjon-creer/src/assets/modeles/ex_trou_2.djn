@@ -1,0 +1,44 @@
+Le titre du jeu est "Trou 2".
+L’auteur du jeu est "zigoteau".
+
+La plage est un lieu.
+Sa description est "Vous êtes sur un plage de sable fin.[si la plage est trouée] Il y a un trou dans le sable.[finsi]".
+La grotte est un lieu à l’est de la plage.
+
+Les dunes sont un lieu à l’ouest de la plage.
+Sa description est "Vous êtes dans des dunes sous un soleil de plomb.[si les dunes sont trouées] Il y a un trou un peu plus loin.[finsi]".
+
+action creuser trou:
+  -- on peut seulement creuser sur la plage ou dans les dunes
+  si ici est la plage ou les dunes:
+    -- on ne peut creuser qu’une seule fois
+    si ici est troué:
+      dire "Je vois déjà un beau trou ici.".
+    sinon
+      -- il faut la pelle pour creuser
+      dire "Vous creusez un trou.".
+      changer ici est troué.
+    fin si.
+  sinon
+    dire "Pas moyen de creuser ici.".
+  fin si
+fin action
+ 
+action boucher le trou:
+  si ici est troué:
+    changer ici n’est plus troué.
+    dire "Vous remplissez le trou de sable. Disparu.".
+  sinon
+    dire "Je ne vois pas de trou.".
+  fin si
+fin action
+
+action examiner le trou:
+  si ici est troué:
+    dire "Il est très profond.".
+  sinon
+    dire "Je ne vois pas de trou.".
+  fin si
+fin action
+
+interpréter remplir et remblayer comme boucher.
