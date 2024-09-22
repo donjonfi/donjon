@@ -56,6 +56,11 @@ export class InstructionChanger {
           resultat = this.changerJoueur(instruction, contexteTour);
           break;
 
+        // lieu où se trouve le joueur
+        case 'ici':
+          resultat = this.changerElementJeu(this.eju.curLieu, instruction, contexteTour);
+          break;
+
         // élément du jeu ou compteur (ceci)
         case 'ceci':
           if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {

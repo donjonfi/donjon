@@ -1,0 +1,46 @@
+Le titre du jeu est "Trou 1".
+L’auteur du jeu est "zigoteau".
+ 
+L’historique est une liste.
+ 
+La plage est un lieu.
+La grotte est un lieu à l’est de la plage.
+Les dunes sont un lieu à l’ouest de la plage.
+
+La pelle est un objet sur la plage.
+
+Le trou est un contenant fixé.
+Sa description est "Vous pouvez être fier de ce beau grand trou.".
+Le coquillage est un objet dans le trou.
+
+action creuser le trou:
+  -- on peut seulement creuser sur la plage ou dans les dunes
+  si ici est la plage ou les dunes:
+    -- on ne peut creuser qu’une seule fois
+    si l’historique contient "creusé":
+      dire "Assez creusé pour aujourd’hui !".
+    sinon
+      -- il faut la pelle pour creuser
+      si le joueur possède la pelle:
+        dire "Vous creusez un trou.".
+        déplacer le trou vers ici.
+        changer l’historique contient "creusé".
+        sinon
+        dire "Je n’ai pas envie de me salir les mains.".
+      fin si
+    fin si.
+  sinon
+    dire "Pas moyen de creuser ici.".
+  fin si
+fin action
+ 
+action boucher le trou:
+  si le trou est ici:
+    effacer le trou.
+    dire "Vous remplissez le trou de sable. Disparu.".
+  sinon
+    dire "Je ne vois pas de trou.".
+  fin si
+fin action
+
+interpréter remplir et remblayer comme boucher.
