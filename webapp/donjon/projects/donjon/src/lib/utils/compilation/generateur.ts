@@ -126,14 +126,6 @@ export class Generateur {
       let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
-      if (curEle.synonymes?.length) {
-        nouvLieu.addSynonymes(curEle.synonymes)
-      }
-
-      // générer les synonymes automatiques
-      if (jeu.parametres.activerSynonymesAuto) {
-        Generateur.genererSynonymesAuto(nouvLieu);
-      }
 
       // ajouter description éventuelle du lieu
       if (curEle.description) {
@@ -179,6 +171,15 @@ export class Generateur {
         }
       });
       nouvLieu.proprietes.push(...nouvellesProp);
+
+      // synonymes définis par l’auteur
+      if (curEle.synonymes?.length) {
+        nouvLieu.addSynonymes(curEle.synonymes)
+      }
+      // synonymes générés automatiquement
+      if (jeu.parametres.activerSynonymesAuto) {
+        Generateur.genererSynonymesAuto(nouvLieu);
+      }
 
       // description par défaut du lieu (description automatique)
       if (nouvLieu.description === null) {
@@ -274,15 +275,7 @@ export class Generateur {
         }
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
-        if (curEle.synonymes?.length) {
-          newObjet.addSynonymes(curEle.synonymes)
-        }
-
-        // générer les synonymes automatiques
-        if (jeu.parametres.activerSynonymesAuto) {
-          Generateur.genererSynonymesAuto(newObjet);
-        }
-
+        
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
@@ -371,6 +364,15 @@ export class Generateur {
           }
         });
         newObjet.proprietes.push(...nouvellesProp);
+
+        // synonymes définis par l’auteur
+        if (curEle.synonymes?.length) {
+          newObjet.addSynonymes(curEle.synonymes)
+        }
+        // synonymes générés automatiquement
+        if (jeu.parametres.activerSynonymesAuto) {
+          Generateur.genererSynonymesAuto(newObjet);
+        }
 
         // description par défaut
         if (newObjet.description === null) {
