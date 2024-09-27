@@ -296,5 +296,14 @@ export class InstructionExecuter {
     return res;
   }
 
+  public executerDerniereCommande(): Resultat {
+    const ctxCom = this.com.executerDerniereCommande();
+    if (ctxCom) {
+      return new Resultat(true, ctxCom.sortie, 1);
+    } else {
+      return new Resultat(false, '', 0);
+    }
+  }
+
 
 }

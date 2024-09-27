@@ -159,6 +159,10 @@ export class Abreviations {
             retVal = "afficher ";
             break;
 
+          case 'again':
+            retVal = 'répéter la dernière commande';
+            break;
+
           case 'a':
           case 'al':
           case 'all':
@@ -261,6 +265,11 @@ export class Abreviations {
             retVal = "effacer";
             break;
 
+          case 'enc':
+          case 'encore':
+            retVal = 'répéter la dernière commande';
+            break;
+
           case 'en':
           case 'entrer':
             retVal = 'aller dedans';
@@ -296,6 +305,10 @@ export class Abreviations {
           // ======================
 
           // g (en: again, fr: répète)
+
+          case 'g': //(en: again, fr: répète)
+            retVal = 'répéter la dernière commande';
+            break;
 
           // case 'go': // (en: go)
           //   retVal = "aller ";
@@ -478,6 +491,12 @@ export class Abreviations {
           case 're':
           case 'reg':
             retVal = "regarder ";
+            break;
+
+          case 'ré':
+          case 'rép':
+          case 'répète':
+            retVal = 'répéter la dernière commande';
             break;
 
           // ======================

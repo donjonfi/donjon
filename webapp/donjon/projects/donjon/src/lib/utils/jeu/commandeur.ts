@@ -44,6 +44,9 @@ export class Commandeur {
 
   private correctionCommandeEnCours: ContexteCommande;
 
+  private commandeActuelle: string | undefined;
+  private commandePrecedente: string | undefined;
+
   constructor(
     private jeu: Jeu,
     private ins: Instructions,
@@ -55,6 +58,15 @@ export class Commandeur {
     this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
     this.act = new ActionsUtils(this.jeu, this.verbeux);
     this.deb = new Debogueur(this.jeu, this.ins, this.verbeux);
+  }
+
+  // Exécuter à nouveau la dernière commande
+  public executerDerniereCommande(): ContexteCommande | undefined {
+    let retVal: ContexteCommande | undefined;
+    if (this.commandePrecedente) {
+      retVal = this.executerCommande(this.commandePrecedente);
+    }
+    return retVal;
   }
 
   /**
@@ -70,6 +82,9 @@ export class Commandeur {
 
   /** Exécuter la commande */
   public executerCommande(commande: string): ContexteCommande {
+
+    this.commandePrecedente = this.commandeActuelle;
+    this.commandeActuelle = commande;
 
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande

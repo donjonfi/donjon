@@ -13,12 +13,12 @@ export class ExprReg {
   static readonly caractereRetourLigne = 'Ʒ';
   static readonly xCaractereRetourLigne = /Ʒ/g;
   static readonly xCaractereRetourLigneDebutPhrase = /^(([ \t]*)Ʒ)+/g;
-  //   ƻ − deux points (:) dans les comentaires
+  //   ƻ − deux points (:) dans les commentaires
   static readonly caractereDeuxPoints = 'ƻ';
   static readonly caractereDeuxPointsDouble = 'ƻ:';
   static readonly xCaractereDeuxPoints = /ƻ/g;
   static readonly xCaractereDeuxPointsDouble = /ƻ:/g;
-  //   ʔ − virgule dans les comentaires
+  //   ʔ − virgule dans les commentaires
   static readonly caractereVirgule = 'ʔ';
   static readonly xCaractereVirgule = /ʔ/g;
   //   ʖ − point virgule dans les commentaires
@@ -94,7 +94,7 @@ export class ExprReg {
    *     - La pomme de terre pourrie
    *     - la canne à pèche
    *     - le chapeau gris
-   *     - l’arracheur de dents dorrées
+   *     - l’arracheur de dents dorées
    *     - Bruxelles-Capitale
    *     - 💥 20 tomates
    *     - 💥 une tomate
@@ -183,11 +183,11 @@ export class ExprReg {
    *     - determinant(1), nom(2), épithète(3) féminin?(4), type(5), attributs(6), ici(9)
    * - Exemples :
    *     - La (1) {pomme de terre}(2) pourrie(3) (pommes de terre)(4) est un légume(5) pourri(6) {dans le}(7) jardin(8).
-   *     - Les(1) {torches en bois}(2) enflamées(3) (f)(4) sont des objets(5) maudits(6) {dans le}(7) jardin(8).
+   *     - Les(1) {torches en bois}(2) enflammées(3) (f)(4) sont des objets(5) maudits(6) {dans le}(7) jardin(8).
    *     - L’allée(1) (f)(4) est un lieu(5) {au sud du}(7) départ(8)
    * - Tests unitaires
-   *     - Les torches en bois enflamées sont des objets maudits dans le jardin
-   *     - La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée
+   *     - Les torches en bois enflammées sont des objets maudits dans le jardin
+   *     - La pomme de terre (pommes de terre) est un légume pourri dans la grange ensorcelée
    *     - L’allée principale (f) est un lieu au sud du départ
    *     - La gare est un lieu dans Lisbonne
    *     - Le bucheron est une personne ici
@@ -220,7 +220,7 @@ export class ExprReg {
    * - Découpage :
    *   - élément(1) se trouve[nt] position(2)
    * - Tests unitaires :
-   *   - Le chat se trouve sur le divant
+   *   - Le chat se trouve sur le divan
    *   - Les haricots sauvages se trouvent ici
    *   - Bob se trouve à l’intérieur de la cabane hurlante.
    *   - La forêt se trouve au nord du chemin et au sud de l’abri.
@@ -233,7 +233,7 @@ export class ExprReg {
    * position relative d’un élément du jeu
    * - Découpage :
    *   - position(1) {autre élément}(2)
-   *   - postion(3)
+   *   - position(3)
    * - Tests unitaires :
    *   - {sur le }(1) {divan}(2)
    *   - ici (3)
@@ -250,13 +250,13 @@ export class ExprReg {
 
   /** pronom démonstratif
    * - (C’est/Ce sont un/des)(1), type(2), [attributs(3)]
-   * - Ex: C’est une personne fachée.
+   * - Ex: C’est une personne fâchée.
   */
   static readonly xPronomDemonstratifTypeAttributs = /^((?:c(?:’|')est (?:un|une))|(?:ce sont des)) (\S+)( .+)?/i;
 
   /** pronom personnel + attribut
    * - attributs(1)
-   * - Ex: Il est faché, grand et fort.
+   * - Ex: Il est fâché, grand et fort.
    * - Ex: Celui-ci grand.
    */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
@@ -287,16 +287,16 @@ export class ExprReg {
    *     - la réaction(2) du|de la|de l' complément(3) (au sujet du|de la)(4) sujet(5) est|vaut(6) valeur(7)
    * - Exemples :
    *     - Sa réaction est "Je viens avec vous.".
-   *     - La description du bateau est "C’est un fameux rafio.".
+   *     - La description du bateau est "C’est un fameux rafiot.".
    *     - Sa réaction à propos de la pomme ou des poires est "C’est bon pour la santé.".
    *     - Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !".
    *     - La réaction du capitaine concernant les pirates est "Aïe aïe aïe…".
    *     - La réaction du capitaine concernant les pirates, les méchants hargneux ou les malfrats est "Aïe aïe aïe…"
-   *     - La réaction du schérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
+   *     - La réaction du shérif rouge à propos des pirates, des méchants ou des malfrats est "nrstnrstnrst".
    * - Tests unitaires :
    *     - Son texte est "Voici ce qui est écrit"
    *     - Sa valeur vaut 3
-   *     - La description du bateau est "C’est un fameux rafio"
+   *     - La description du bateau est "C’est un fameux rafiot"
    *     - La réaction du capitaine du bateau concernant le trésor est "Vous ne l’aurez pas !"
    *     - La réaction de la cavalière hantée au sujet des bois, de la prairie ou des fleurs est dire "C’est naturel"; dire "Quoi d’autre ?"
    *     - Sa réaction concernant la pomme est : changer le joueur possède la pomme; dire "Je vous la donne !"
@@ -314,7 +314,7 @@ export class ExprReg {
    * - Tests unitaires :
    *     - Le bateau est vieux et troué
    *     - Julien est grand
-   *     - L’aliance du lac rouge (f) est petite, fragile, vieille et dorée
+   *     - L’alliance du lac rouge (f) est petite, fragile, vieille et dorée
    *     - Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides
    */
   static readonly xElementSimpleAttributs = /^(?!un |une |ce |c’|c'|elle |il |elles |ils |sa |son |ses )(le |la |l(?:’|')|les )?(\S+|(?:\S+ (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))/i;
@@ -328,7 +328,7 @@ export class ExprReg {
    *     - interpréter Alain et le marin comme l’apprenti du village
    *     - interpréter le marin, Alain et le boss comme le capitaine crochet
    *     - Interpréter marcher comme se déplacer
-   *     - interpréter marcher, courrir, sauter, s’étirer et danser comme s’exercer
+   *     - interpréter marcher, courir, sauter, s’étirer et danser comme s’exercer
    *     (- 💥 interpréter courir comme le pied de bois)
    */
   static readonly xSynonymes = /^interpréter ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?) comme (.+)$/i;
@@ -423,6 +423,7 @@ export class ExprReg {
   static readonly xActionExecuterAction = /^(?:l(?:'|’)action) (\S+(?:er|re|ir))(?: (?!ceci|cela|ici)(\S+))?(?: (ceci|cela|ici)(?: (?!ceci|cela|ici)(\S+) (ceci|cela|ici))?)?$/i;
   /** Exécuter la commande: la commande "commande(1)" */
   static readonly xActionExecuterCommande = /^(?:(?:la )?commande) \"(.+)\"$/i;
+  static readonly xActionExecuterDerniereCommande = /^(?:la )?dernière commande$/i;
 
   /** condition -> si(1) {condition}(2), {instruction}(3) */
   static readonly rRefuser = /^(si) (.+)(?:,)(.+)/i;
@@ -484,7 +485,7 @@ export class ExprReg {
    * définition action: compléments ceci/cela: états prioritaires
    * - Découpage : 
    *   - (Ceci|Cela)(1) (est|sont) prioritairement étatsPrioritaires(2)
-   * - Tests unitaies :
+   * - Tests unitaires :
    *   - ceci est prioritairement déplacé ou fixé
    *   - Cela est prioritairement disponible
    *   - 💥 ceci est ouvert
@@ -518,7 +519,7 @@ export class ExprReg {
   // ================================================================================================
 
   /** 
-   * Généralement, une commande est composée d’un verbe à l’infinitf
+   * Généralement, une commande est composée d’un verbe à l’infinitif
    * parfois suivit puis d’un groupe nominal:
    * - aller au nord
    * - aller nord
@@ -540,7 +541,7 @@ export class ExprReg {
 
   /**
    * 1) PARLER DE SUJET AVEC INTERLOCUTEUR (formulation qui évite les ambiguïtés avec les noms composés)
-   * - => parler(1) de la(2) table à manger(3) abimée(4) avec(5) le(6) comte du bois(7) énervé(8)
+   * - => parler(1) de la(2) table à manger(3) abîmée(4) avec(5) le(6) comte du bois(7) énervé(8)
    * - parler du baton avec le fermier
    * - parler du poisson rouge avec le pécheur énervé
    * - parler de la couronne magique avec le sorcier enflammé
@@ -552,7 +553,7 @@ export class ExprReg {
    * 2) PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
    * => discuter(1) avec le(2) capitaine du bateau(3) endormi(4) concernant(5) la(6) cabine de navigation(7) ensanglantée(8)
    * - parler au marchand ambulant concernant l’argent perdu
-   * - discuter avec le coq au vin à propos de l’assaisonement
+   * - discuter avec le coq au vin à propos de l’assaisonnement
    * - parler à pigeon intelligent concernant miettes de pain rassies
    * - parler avec le capitaine à propos de carte aux trésors
    * - discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée
@@ -561,14 +562,14 @@ export class ExprReg {
 
   /**
    * 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
-   * - => interroger(1) le(2) comte du bois(3) sauvage(4) sur(5) les(6) elfs aux pouvoirs(7) maléfiques(8)
+   * - => interroger(1) le(2) comte du bois(3) sauvage(4) sur(5) les(6) elfes aux pouvoirs(7) maléfiques(8)
    * - tests unitaires:
    *   - interroger le fermier concernant la poule
    *   - questionner le fermier géant à propos de la poule rousse
    *   - questionner le boulanger sur de la farine grise
    *   - questionner le marchand d’armes concernant une épée magique
    *   - interroger elf sur de l’eau douce
-   *   - interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques
+   *   - interroger le comte du bois sauvage sur les elfes aux pouvoirs maléfiques
    *   - questionner les lutins concernant du bois à brûler
    *   - interroger Dracula à propos d’une fiole
    */
@@ -605,14 +606,14 @@ export class ExprReg {
 
   /**
    * 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
-   * - => discuter(1) (avec le)(2) comte(3) Dracula(4) (de la(6))(5) tournure(7) inatendue(8)
+   * - => discuter(1) (avec le)(2) comte(3) Dracula(4) (de la(6))(5) tournure(7) inattendue(8)
    * - tests unitaires:
    *   - parler à mousse de mat
    *   - parler avec la magicienne étourdie du sort raté
    *   - discuter avec Jean-Paul de Jason
    *   - parler au magicien de la potion de vie
    *   - parler au magicien du bois de la potion magique (=> souci)
-   *   - discuter avec le comte Dracula de la tournure inatendue
+   *   - discuter avec le comte Dracula de la tournure inattendue
    */
   static readonly xCommandeParlerAvecInterlocuteurDeSujet = /^(parler|discuter) (du |de (?:la |l(?:’|'))?|des |d(?:’|')(?:un |une )?)(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))? (avec) (le |la |l(?:’|')|les )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+))?$/i;
 
@@ -645,7 +646,7 @@ export class ExprReg {
    * - Le nombre de crottes du troll n’atteint pas 2
    * - Le texte du livre ne vaut pas "NRST"
    * - La valeur de ceci atteint la quantité de cela
-   * - Le nombre d’objets dans l’armoir dépasse 0
+   * - Le nombre d’objets dans l’armoire dépasse 0
    * - Le nombre d’objets sous le lit ne vaut pas 10
    * - Le nombre de maisons maudites du vendeur du chemin tournoyant ne dépasse pas 3
    * - Le nombre d’objets ensorcelés sur la table basse ne vaut pas 37
@@ -662,7 +663,7 @@ export class ExprReg {
   /**
    * [si] la(1) porte(2) vers(3) (ceci|cela|[le ]nord(5))(4) [n’]est(6) pas(7) ouverte(8)
    * - si la sortie vers le nord est obstruée
-   * - si la sortie vers l’ouest est innaccessible
+   * - si la sortie vers l’ouest est inaccessible
    * - si la porte vers l’ouest est verrouillée
    * - si la porte vers ceci n’est pas ouverte
    */
@@ -740,7 +741,7 @@ export class ExprReg {
    */
   static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
 
-  /** liste de textes, nombres ou intitilués 
+  /** liste de textes, nombres ou intitulés 
    *  => "texte1", "texte2" ou "texte3"(1)|nombre1, nombre2 ou nombre3(2)|intitulé1, intitulé2 ou intitulé3(3) 
    */
   static readonly xListeTextesNombresOuIntitules = /^(?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*$/i;
@@ -804,8 +805,8 @@ export class ExprReg {
   static readonly xInstruction = /^(?!choisir|autre)(\S+(?:ir|er|re)) (.+)?$/i;
 
   /**
-   * Phrase simple avec un verbe conjugé.
-   * [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n’|n'] ([se] verbe conjugé)(4) [pas|plus]\(5) complément(6).
+   * Phrase simple avec un verbe conjugué.
+   * [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n’|n'] ([se] verbe conjugué)(4) [pas|plus]\(5) complément(6).
    * - la porte secrète n’est plus fermée
    * - la canne à pèche rouge est ouverte
    * - ceci n’est plus vide
@@ -974,7 +975,7 @@ export class ExprReg {
   /**
    * Le nombre de|d’|d' classe(1) attribut1(2) attribut2(3) [position(4) nomElement(5) épithèteElement(6)]
    * 
-   * - Le nombre d’objets dans l’armoir
+   * - Le nombre d’objets dans l’armoire
    * - Le nombre d'objets ensorcelés sur la table basse
    * - Le nombre de jouets sous le lit
    * - Le nombre d’objets rouges et maudits sous le lit du comte vert
