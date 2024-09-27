@@ -14,7 +14,7 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
-import { ProgrammationTemps } from "../../models/jeu/programation-temps";
+import { ProgrammationTemps } from "../../models/jeu/programmation-temps";
 import { Resultat } from "../../models/jouer/resultat";
 import { RoutineReaction } from "../../models/compilateur/routine-reaction";
 

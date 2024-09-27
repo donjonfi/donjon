@@ -10,7 +10,7 @@ import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
-import { ProgrammationTemps } from './programation-temps';
+import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';

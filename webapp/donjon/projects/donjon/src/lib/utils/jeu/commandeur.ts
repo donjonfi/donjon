@@ -46,6 +46,8 @@ export class Commandeur {
 
   private commandeActuelle: string | undefined;
   private commandePrecedente: string | undefined;
+  private contexteActuel: ContexteCommande | undefined;
+  private contextePrecedent: ContexteCommande | undefined;
 
   constructor(
     private jeu: Jeu,
@@ -64,6 +66,8 @@ export class Commandeur {
   public executerDerniereCommande(): ContexteCommande | undefined {
     let retVal: ContexteCommande | undefined;
     if (this.commandePrecedente) {
+      this.correctionCommandeEnCours = this.contextePrecedent;
+      console.warn("💙 commande précédente:", this.commandePrecedente, "et son contexte: ", this.contextePrecedent);
       retVal = this.executerCommande(this.commandePrecedente);
     }
     return retVal;
@@ -83,8 +87,11 @@ export class Commandeur {
   /** Exécuter la commande */
   public executerCommande(commande: string): ContexteCommande {
 
+    // sauver commande précédente pour commande "encore"
     this.commandePrecedente = this.commandeActuelle;
     this.commandeActuelle = commande;
+    this.contextePrecedent = this.contexteActuel;
+    this.contexteActuel = this.correctionCommandeEnCours;
 
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande

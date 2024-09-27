@@ -218,7 +218,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // si la commande commencer le jeu existe, commencer le jeu
     if (this.partie.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
       // exécuter la commande « commencer le jeu »
-      this.executerLaCommande("commencer le jeu", false, true, false);
+      this.executerLaCommande("commencer le jeu", false, false, true, false, true);
       // sinon initialiser les éléments du jeu en fonction de la position du joueur
     } else {
       // définir visibilité des objets initiale
@@ -229,7 +229,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
       if (this.partie.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.partie.jeu.lieux.length > 0) {
         // exécuter la commande « regarder »
-        this.executerLaCommande("regarder", false, true, false);
+        this.executerLaCommande("regarder", false, false, true, false, true);
       } else {
         // this.sortieJoueur = "";
       }
@@ -545,7 +545,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         case TypeInterruption.questionCommande:
 
-        // TODO: Vérifier Mode TRICHE / CHARGEMENT / ANNULER
+          // TODO: Vérifier Mode TRICHE / CHARGEMENT / ANNULER
 
           // si mode triche, proposer le choix de la solution (commande suivante)
           if (this.tricheActif) {
@@ -717,10 +717,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // exécuter à nouveau la commande corrigée
         this.partie.com.setCorrectionCommande(commandeEnCours);
         this.partie.ecran.ajouterContenuDonjon(`{n}{-> ${this.commande}-}`)
+        // sauver choix pour la sauvegarde
+        this.historiqueCommandesPartie.push(this.commande);
+        // exécuter à nouveau la commande originale
         this.commande = commandeEnCours.brute;
-        // TODO: Gestion de l’historique pour les commandes corrigées.
-        this.executerLaCommande(this.commande, false, false, false)
-
+        this.executerLaCommande(this.commande, false, false, false, false, false);
       } else {
         // l’interruption est terminé (pas de correction)
         this.interruptionEnCours = undefined;
@@ -1040,7 +1041,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.traiterChoixLibreJoueur();
     } else if (this.interruptionQuestionCommande) {
       // nombre => réponse question
-      let number = this.commande ? Number.parseInt(this.commande) : 1;
+      // > par défaut: choix 1
+      if (!this.commande) {
+        this.commande = "1";
+      }
+      // > retrouver le choix éventuel
+      let number = Number.parseInt(this.commande);
+      // > si un choix a été fait
       if (number) {
         if ((number - 1) < this.interruptionEnCours.derniereQuestion.Choix.length) {
           this.interruptionEnCours.derniereQuestion.Reponse = (number - 1);
@@ -1048,7 +1055,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.ajouteErreur("Choix pas dispo!");
         }
-        // sinon => commande
+        // sinon => c’est une commande
       } else {
         this.terminerInterruption(undefined);
         this.enterCommande();
@@ -1071,7 +1078,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
       const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-      this.executerLaCommande(commandeNettoyee, true, false, true);
+      this.executerLaCommande(commandeNettoyee, true, true, false, true, true);
     }
   }
 
@@ -1082,7 +1089,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    * @param ecrireCommande faut-il écrire la commande dans la sortie du jeu ?
    */
-  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean): void {
+  private executerLaCommande(commandeNettoyee: string, ajouterCommandeDansHistorique: boolean, ajouterCommandeDansSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
     if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|générer solution|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
@@ -1104,7 +1111,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
-      if (ajouterCommandeDansHistorique) {
+      if (ajouterCommandeDansSauvegarde) {
         // ne pas inclure la commande déboguer triche à l'historique pour 
         // éviter les boucles lorsqu'on annule une commande...
         if (!commandeNettoyee.startsWith('déboguer triche')) {
@@ -1147,16 +1154,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           nouvelleQuestion = contexteCommande.questions.QcmCela;
         } else if (contexteCommande.questions.QcmCeciEtCela && contexteCommande.questions.QcmCeciEtCela.Reponse == undefined) {
           nouvelleQuestion = contexteCommande.questions.QcmCeciEtCela;
-        } else {
-          throw new Error("Question commande pas implémentée");
         }
 
-        sortieCommande = nouvelleQuestion.Question;
-        for (let index = 0; index < nouvelleQuestion.Choix.length; index++) {
-          sortieCommande += `{n}${index + 1} − ${nouvelleQuestion.Choix[index].valeurs[0]}`;
+        if (nouvelleQuestion) {
+          sortieCommande = nouvelleQuestion.Question;
+          for (let index = 0; index < nouvelleQuestion.Choix.length; index++) {
+            sortieCommande += `{n}${index + 1} − ${nouvelleQuestion.Choix[index].valeurs[0]}`;
+          }
+          this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionQuestionCommande(contexteCommande, nouvelleQuestion));
         }
-
-        this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionQuestionCommande(contexteCommande, nouvelleQuestion));
       }
 
       if (sortieCommande) {
@@ -1227,11 +1233,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.lancerVerificationProgrammation();
       }
 
-      // mode triche: afficher commande suivante
-      if (this.tricheActif && !this.resteDeLaSortie?.length) {
-        this.indexTriche += 1;
-        if (this.indexTriche < this.autoCommandes.length) {
-          this.commande = this.autoCommandes[this.indexTriche];
+      if (continuerTricheApresCommande) {
+        // mode triche: afficher commande suivante
+        if (this.tricheActif && !this.resteDeLaSortie?.length) {
+          this.indexTriche += 1;
+          if (this.indexTriche < this.autoCommandes.length) {
+            this.commande = this.autoCommandes[this.indexTriche];
+          }
         }
       }
     }
