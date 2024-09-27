@@ -106,7 +106,7 @@ export class Generateur {
 
     // INVENTAIRE
     // **********
-    // (on l’ajoute pour pouvoir interragir avec)
+    // (on l’ajoute pour pouvoir interagir avec)
     let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
@@ -134,7 +134,7 @@ export class Generateur {
       // ajouter les états par défaut de la classe du lieu
       //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
       Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats, ctx);
-      // ajouter les états du lieu définis explicitements
+      // ajouter les états du lieu définis explicitement
       if (curEle.attributs) {
         curEle.attributs.forEach(attribut => {
           jeu.etats.ajouterEtatElement(nouvLieu, attribut, ctx);
@@ -279,7 +279,7 @@ export class Generateur {
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
-        // ajouter les états de l'objet définis explicitements
+        // ajouter les états de l'objet définis explicitement
         if (curEle.attributs) {
           curEle.attributs.forEach(attribut => {
             jeu.etats.ajouterEtatElement(newObjet, attribut, ctx);
@@ -666,7 +666,7 @@ export class Generateur {
   }
 
   /**
-   * Atribuer les états par défaut de l’objet sur base de la classe spécifiée.
+   * Attribuer les états par défaut de l’objet sur base de la classe spécifiée.
    * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
    */
   static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats, ctx: ContexteGeneration) {
@@ -687,6 +687,7 @@ export class Generateur {
 
     strPosition = strPosition
       .trim()
+      .toLocaleLowerCase()
       .replace(/^((à (l’|l')|en |au( |\-)))/, "")
       .replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')$/, "")
       .trim();
