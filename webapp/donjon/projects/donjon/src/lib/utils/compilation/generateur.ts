@@ -26,11 +26,11 @@ import { PhraseUtils } from '../commun/phrase-utils';
 import { ProprieteElement } from '../../models/commun/propriete-element';
 import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../interfaces/compilateur/regle';
-import { RegleBeta } from '../../models/compilateur/regle-beta';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
+import { Commandeur } from 'donjon';
 
 export class Generateur {
 
@@ -275,7 +275,7 @@ export class Generateur {
         }
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
-        
+
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
@@ -455,21 +455,6 @@ export class Generateur {
       }
     }
 
-    // GÉNÉRER LES AUDITEURS
-    // *********************
-    rc.regles.forEach(regle => {
-      switch (regle.typeRegle) {
-        case TypeRegle.apres:
-        case TypeRegle.avant:
-        case TypeRegle.remplacer:
-          jeu.auditeurs.push(Generateur.getAuditeur(regle));
-          break;
-
-        default:
-          break;
-      }
-    });
-
     // GÉNÉRER LES ACTIONS
     // *******************
     rc.actions.forEach(action => {
@@ -527,6 +512,60 @@ export class Generateur {
 
       jeu.listes.push(curListe);
     });
+
+    // GÉNÉRER LES AUDITEURS
+    // *********************
+
+    let com = new Commandeur(jeu, null, null, true);
+
+    // ajouter les règles
+    rc.regles.forEach(regle => {
+      switch (regle.typeRegle) {
+        case TypeRegle.apres:
+        case TypeRegle.avant:
+        case TypeRegle.remplacer:
+
+          // découper les commandes qui déclenchent les règles
+          // à présent que l’on dispose des objets
+          regle.evenements.forEach(ev => {
+            let ctxCom = com.decomposerCommande(ev.commandeComprise);
+            // aucune commande trouvée
+            if (ctxCom.candidats.length == 0) {
+              ctx.ajouterErreur(`❌ Pas trouvé la commande pour la règle ${regle.intitule}`)
+              // une commande se démarque
+            } else if ((ctxCom.candidats.length == 1) || (ctxCom.candidats[0].score > ctxCom.candidats[1].score)) {
+              const cmd = ctxCom.candidats[0];
+              ev.commandeComprise = undefined;
+
+              const ceci = cmd.els.sujet;
+              ev.isCeci = ceci ? true : false;
+              ev.ceci =  (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
+              ev.classeCeci = null;
+              ev.quantiteCeci = 0;
+
+              const cela = cmd.els.sujetComplement1;
+              ev.isCela = cela ? true : false;
+              ev.cela =  (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
+              ev.classeCela = null;
+              ev.quantiteCela = 0;
+
+              console.warn(`🟢 Commande trouvée pour la règle ${regle.intitule}`);
+
+              // aucune commande  ne se démarque
+            } else {
+              ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.intitule}`)
+            }
+          });
+
+          // ajouter la règle
+          jeu.auditeurs.push(Generateur.getAuditeur(regle));
+          break;
+
+        default:
+          break;
+      }
+    });
+
 
     // ajouter les erreurs
     if (ctx.erreurs.length) {
