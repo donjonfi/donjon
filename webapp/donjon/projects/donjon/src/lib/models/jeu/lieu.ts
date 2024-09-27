@@ -18,4 +18,20 @@ export class Lieu extends ElementJeu {
 
   voisins: Voisin[] = [];
 
+  /**
+   * Ajouter le voisin s’il n’existe pas encore (afin d’éviter les doublons)
+   * @param newVoisin 
+   */
+  ajouterVoisin(newVoisin: Voisin) {
+    let existeDeja = false;
+    this.voisins.forEach(curVoisin => {
+      if (curVoisin.id == newVoisin.id && curVoisin.localisation == newVoisin.localisation && curVoisin.type == newVoisin.type) {
+        existeDeja = true;
+      }
+    });
+    if (!existeDeja) {
+      this.voisins.push(newVoisin);
+    }
+  }
+
 }

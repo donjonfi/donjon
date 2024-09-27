@@ -574,14 +574,14 @@ export class Generateur {
         // ajouter au lieu trouvé, le voisin elVoisin
         const opposeVoisin = new Voisin(idElVoisin, classeRacine, localisation);
         const lieu = lieux.find(x => x.id == lieuTrouveID);
-        lieu.voisins.push(opposeVoisin);
+        lieu.ajouterVoisin(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
         if (classeRacine == EClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
           const newVoisin = new Voisin(lieuTrouveID, classeRacine, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
-          lieuTrouve.voisins.push(newVoisin);
+          lieuTrouve.ajouterVoisin(newVoisin);
           // la porte trouvée, est également visible depuis le lieu voisin à priori…
         } else if (classeRacine == EClasseRacine.porte) {
           // todo: rendre la porte visible chez le voisin également
