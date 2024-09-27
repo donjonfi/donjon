@@ -137,7 +137,7 @@ export class InstructionChanger {
         case TypeProprieteJeu.nombreDeClasseAttributs:
         case TypeProprieteJeu.nombreDeClasseAttributsPosition:
           resultat.succes = false;
-          resultat.sortie = "{+[Je ne peut pas changer directement une propriété calculée]+}";
+          resultat.sortie = "{+[Je ne peux pas changer directement une propriété calculée]+}";
           break;
 
         // propriété d’un élément
