@@ -94,9 +94,15 @@ export class CompilateurV8Utils {
 
     // séparer les blocs en phrases sauf à l’intérieur des textes.
     blocsInstructionEtTexte.forEach(bloc => {
-      if (bloc !== '') {
-        // bloc instruction, séparer les phrases (sur les '.')
-        if (blocSuivantEstInstruction && !prochainBlocEstSousTexte) {
+
+      // bloc instruction, séparer les phrases (sur les '.')
+      if (blocSuivantEstInstruction && !prochainBlocEstSousTexte) {
+        // rien a faire si instruction vide
+        if (bloc == '') {
+          if(numeroLigne != 1){
+            console.warn("Bloc instruction vide à la ligne n°", numeroLigne, ".");
+          }
+        } else {
           // séparer sur les points (.) qui terminent un mot et les doubles points (:)
           // TODO: prendre en charge le point-virgule (;) ?
           const phrasesBrutes = bloc.split(/(?:\.|:)(?!\w|_)/);
@@ -142,75 +148,75 @@ export class CompilateurV8Utils {
 
             numeroLigne += nbLignes; //Math.max(1, nbLignes);
           }
-          // si le bloc est un texte, l'ajouter tel quel :
-        } else {
-
-          // compte le nombre de lignes pour ne pas se décaller !
-          const nbLignes = bloc.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
-
-          // pour éviter que les , et ; des textes soient interprétés, on les remplace par des caractères différents
-          let texteNettoye = bloc.replace(/\,/g, ExprReg.caractereVirgule).trim();
-          texteNettoye = texteNettoye.replace(/\;/g, ExprReg.caracterePointVirgule).trim();
-
-          // corriger espaces insécables et chevrons
-          texteNettoye = texteNettoye
-            .replace(/<< /g, "« ")
-            .replace(/ >>/g, " »")
-            .replace(/ \?/g, " ?")
-            .replace(/ !/g, " !")
-            // .replace(/ :/g, " :") // pose un souci avec les si/sinon
-            .replace(/\.\.\.(?!:\.)/g, "…");
-
-          // le texte concerne toujours la phrase précédente (s'il y en a une)
-          if (phrasePrecedente) {
-            const blocActuelEstSousTexte = prochainBlocEstSousTexte;
-            if (prochainBlocEstSousTexte) {
-              // pas de guillemets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
-              prochainBlocEstSousTexte = false;
-            } else {
-              // si on a un crochet non fermé dans le texte actuel, le code suivant est en réalité la suite du texte
-              prochainBlocEstSousTexte = CompilateurCommunUtils.dernierCrochetEstOuvert(texteNettoye);
-            }
-            // GESTION DES GUILLEMETS
-            // cas le plus commun:
-            // le bloc précédent n’est pas un sous texte et  le bloc suivant n’est pas un sous texte
-            if (!blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
-              // on est dans un sous-texte:
-              //  ne pas mettre de guillemets (ils sont ajoutés par les blocs qui l’entourent)
-              if (blocActuelEstSousTexte) {
-                phrasePrecedente.morceaux.push(texteNettoye);
-                // on est dans un texte principal:
-                //  on met des guillemets ouvrant et fermant autours du texte
-              } else {
-                phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
-              }
-              // autre cas:
-              //  le bloc précédent n’est pas un sous texte, on commence par un guillemet ouvrant
-              //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
-            } else if (!blocPrecedentEstSousTexte && prochainBlocEstSousTexte) {
-              phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereDebutTexte);
-              // autre cas:
-              //  le bloc précédent est un sous texte, on commence par un guillemet fermant
-              //  le bloc suivant n’est pas un sous texte, on termine sur un guillemet fermant
-            } else if (blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
-              phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereFinTexte);
-              // autre cas:
-              //  le bloc précédent est un sous texte, on commence par un guillemet fermant
-              //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
-            } else {
-              phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereDebutTexte);
-            }
-
-            // si on est actuellement dans un sous-texte, le prochain bloc suivra un sous-texte.
-            blocPrecedentEstSousTexte = blocActuelEstSousTexte;
-
-          } else {
-            console.error("Le scénario doit commencer par une instruction. (Il ne peut pas commencer par un texte entre guillemets.)");
-          }
-          numeroLigne += nbLignes; // Math.max(1, nbLignes);
         }
-        blocSuivantEstInstruction = !blocSuivantEstInstruction;
+        // si le bloc est un texte, l'ajouter tel quel :
+      } else {
+
+        // compte le nombre de lignes pour ne pas se décaller !
+        const nbLignes = bloc.match(ExprReg.xCaractereRetourLigne)?.length ?? 0;
+
+        // pour éviter que les , et ; des textes soient interprétés, on les remplace par des caractères différents
+        let texteNettoye = bloc.replace(/\,/g, ExprReg.caractereVirgule).trim();
+        texteNettoye = texteNettoye.replace(/\;/g, ExprReg.caracterePointVirgule).trim();
+
+        // corriger espaces insécables et chevrons
+        texteNettoye = texteNettoye
+          .replace(/<< /g, "« ")
+          .replace(/ >>/g, " »")
+          .replace(/ \?/g, " ?")
+          .replace(/ !/g, " !")
+          // .replace(/ :/g, " :") // pose un souci avec les si/sinon
+          .replace(/\.\.\.(?!:\.)/g, "…");
+
+        // le texte concerne toujours la phrase précédente (s'il y en a une)
+        if (phrasePrecedente) {
+          const blocActuelEstSousTexte = prochainBlocEstSousTexte;
+          if (prochainBlocEstSousTexte) {
+            // pas de guillemets dans ce cas-ci car déjà ajoutés par les blocs de texte qui entourent le bloc forcé
+            prochainBlocEstSousTexte = false;
+          } else {
+            // si on a un crochet non fermé dans le texte actuel, le code suivant est en réalité la suite du texte
+            prochainBlocEstSousTexte = CompilateurCommunUtils.dernierCrochetEstOuvert(texteNettoye);
+          }
+          // GESTION DES GUILLEMETS
+          // cas le plus commun:
+          // le bloc précédent n’est pas un sous texte et  le bloc suivant n’est pas un sous texte
+          if (!blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
+            // on est dans un sous-texte:
+            //  ne pas mettre de guillemets (ils sont ajoutés par les blocs qui l’entourent)
+            if (blocActuelEstSousTexte) {
+              phrasePrecedente.morceaux.push(texteNettoye);
+              // on est dans un texte principal:
+              //  on met des guillemets ouvrant et fermant autours du texte
+            } else {
+              phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereFinTexte);
+            }
+            // autre cas:
+            //  le bloc précédent n’est pas un sous texte, on commence par un guillemet ouvrant
+            //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
+          } else if (!blocPrecedentEstSousTexte && prochainBlocEstSousTexte) {
+            phrasePrecedente.morceaux.push(ExprReg.caractereDebutTexte + texteNettoye + ExprReg.caractereDebutTexte);
+            // autre cas:
+            //  le bloc précédent est un sous texte, on commence par un guillemet fermant
+            //  le bloc suivant n’est pas un sous texte, on termine sur un guillemet fermant
+          } else if (blocPrecedentEstSousTexte && !prochainBlocEstSousTexte) {
+            phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereFinTexte);
+            // autre cas:
+            //  le bloc précédent est un sous texte, on commence par un guillemet fermant
+            //  le bloc suivant est un sous texte, on termine sur un guillemet ouvrant
+          } else {
+            phrasePrecedente.morceaux.push(ExprReg.caractereFinTexte + texteNettoye + ExprReg.caractereDebutTexte);
+          }
+
+          // si on est actuellement dans un sous-texte, le prochain bloc suivra un sous-texte.
+          blocPrecedentEstSousTexte = blocActuelEstSousTexte;
+
+        } else {
+          console.error("Le scénario doit commencer par une instruction. (Il ne peut pas commencer par un texte entre guillemets.)");
+        }
+        numeroLigne += nbLignes; // Math.max(1, nbLignes);
       }
+      blocSuivantEstInstruction = !blocSuivantEstInstruction;
     });
 
     return phrases;
