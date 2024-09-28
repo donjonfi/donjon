@@ -8,7 +8,7 @@ import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
 import { DOCUMENT } from '@angular/common';
 import { Choix } from '../models/compilateur/choix';
-import { StringUtils } from '../../public-api';
+import { ExprReg, StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
 import * as FileSaver from 'file-saver-es';
@@ -604,7 +604,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-      this.historiqueCommandesPartie.push("Ð" + this.commande);
+      this.historiqueCommandesPartie.push(ExprReg.caractereReponse + this.commande);
 
       // effacer la commande
       this.commande = '';
@@ -645,7 +645,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (indexChoix != -1) {
       // GESTION HISTORIQUE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-      this.historiqueCommandesPartie.push("Ð" + this.commande);
+      this.historiqueCommandesPartie.push(ExprReg.caractereReponse + this.commande);
 
       // effacer la commande
       this.commande = '';
@@ -718,7 +718,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.partie.com.setCorrectionCommande(commandeEnCours);
         this.partie.ecran.ajouterContenuDonjon(`{n}{-> ${this.commande}-}`)
         // sauver choix pour la sauvegarde
-        this.historiqueCommandesPartie.push(this.commande);
+        this.historiqueCommandesPartie.push(ExprReg.caractereReponse + this.commande);
         // exécuter à nouveau la commande originale
         this.commande = commandeEnCours.brute;
         this.executerLaCommande(this.commande, false, false, false, false, false);
