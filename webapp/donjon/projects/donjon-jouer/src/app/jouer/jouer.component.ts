@@ -155,8 +155,14 @@ export class JouerComponent implements OnInit {
     let sauvegarde = new Sauvegarde();
     // version
     sauvegarde.version = versionNum;
-    // graine pour le générateur de nombres aléatoires
+    // graine initiale pour le générateur de nombres aléatoires (Sauvegarde V1)
     sauvegarde.graine = this.jeu.graine;
+    // graines utilisées pour le générateur de nombres aléatoires (Sauvegarde V2)
+    sauvegarde.historiqueGraines = this.jeu.historiqueGraines;
+    // routines programmées déjà déclenchées
+    sauvegarde.historiqueDeclenchements = this.jeu.historiqueDeclenchements;
+    // routines programmées pas encore déclenchées
+    sauvegarde.declenchementsFuturs = this.jeu.declenchementsFuturs;
     // commandes du joueur
     sauvegarde.commandes = this.lecteurRef.getHistoriqueCommandesPartie();
     // scénario
@@ -173,7 +179,7 @@ export class JouerComponent implements OnInit {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartie() {
+  onNouvellePartieOuAnnulerTour() {
     this.erreurs = [];
     // vérifier si on a déjà le fichier actions.djn
     this.chargerActions(false).then(actions => {

@@ -351,7 +351,7 @@
 
           <!-- TAB: TESTER LE JEU -->
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartie)="onNouvellePartie()"></djn-lecteur>
+            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour()"></djn-lecteur>
           </div>
 
           <!-- TAB: APERÇU ÉLÉMENTS -->

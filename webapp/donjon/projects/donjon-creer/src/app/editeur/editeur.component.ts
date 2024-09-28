@@ -409,7 +409,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartie() {
+  onNouvellePartieOuAnnulerTour() {
     this.onCompiler();
   }
 

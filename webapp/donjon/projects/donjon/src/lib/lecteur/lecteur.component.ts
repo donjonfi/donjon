@@ -29,7 +29,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Le débogueur est il actif ? */
   @Input() debogueur = false;
   /** Annuler un certain nombre de tours */
-  @Output() nouvellePartie = new EventEmitter();
+  @Output() nouvellePartieOuAnnulerTour = new EventEmitter();
 
   /** Le contexte de la partie en cours (jeu, commandeur, déclencheur, …) */
   private partie: ContextePartie | undefined;
@@ -59,7 +59,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** 
    * Une sauvegarde est-elle en attente de restauration ?
    */
-  private sauvegardeEnAttente = false;
+  private restaurationSauvegardeEnCours = false;
 
   /**
    * Le système « triche » est-il actif ?
@@ -103,7 +103,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    /** Décharcher la partie en cours (arrêter musiques par exemple) */
+    /** Décharger la partie en cours (arrêter musiques par exemple) */
     if (this.partie) {
       this.partie.unload();
     }
@@ -208,7 +208,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     if (this.jeu.sauvegarde) {
       this.autoCommandes = this.jeu.sauvegarde;
       this.jeu.sauvegarde = undefined;
-      this.sauvegardeEnAttente = true;
+      this.restaurationSauvegardeEnCours = true;
     }
 
     // =====================
@@ -240,7 +240,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.partie.jeu.commence = true;
       this.lancerVerificationProgrammation();
       // reprise partie
-      if (this.sauvegardeEnAttente) {
+      if (this.restaurationSauvegardeEnCours) {
         this.lancerAutoTriche();
       }
     }
@@ -288,7 +288,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
 
-          // récupérer les programmations teminées et exécuter la routine
+          // récupérer les programmations terminées et exécuter la routine
           programmationTerminee.forEach(programmationIndex => {
             // retirer la programmation terminée
             const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
@@ -299,9 +299,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
             const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
             if (routine) {
               if (this.partie.verbeux) {
-                console.log("routine trouvéee");
+                console.log("routine trouvée");
               }
               this.jeu.tamponRoutinesEnAttente.push(routine);
+
+              // enregistrer le moment où la routine a été mise sur le pile pour la sauvegarde
+              this.jeu.ajouterDeclenchementDansHistorique(routine.nom, this.indexProchaineCommande);
 
               // a) commande/interruption déjà en cours => garder pour plus tard.
               if (this.commandeEnCours || this.interruptionEnCours) {
@@ -336,7 +339,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (contenu) {
       // en mode auto-triche ou restauration partie, on n’attend pas !
-      if (this.autoTricheActif || this.sauvegardeEnAttente) {
+      if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
         contenu = contenu.replace(/@@attendre touche@@/g, '<br><span class="t-commande font-italic">Appuyez sur une touche…</span><br>')
       }
@@ -456,7 +459,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // focus sur l'entrée de commande
           this.focusCommande();
           // reprise partie
-          if (this.sauvegardeEnAttente) {
+          if (this.restaurationSauvegardeEnCours) {
             this.lancerAutoTriche();
           }
           break;
@@ -488,7 +491,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               // focus sur l'entrée de commande
               this.focusCommande();
               // reprise partie
-              if (this.sauvegardeEnAttente) {
+              if (this.restaurationSauvegardeEnCours) {
                 this.lancerAutoTriche();
               }
             }
@@ -507,9 +510,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           this.focusCommande();
 
-          // si on est en auto-triche où qu'une sauvegarde doit
-          // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.sauvegardeEnAttente) {
+          // si (on est en auto-triche) 
+          // ou bien si (une sauvegarde est en cours de restauration ou un tour doit être annulé)
+          // alors on n'attend pas !
+          if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
             this.terminerInterruption(undefined);
           }
           break;
@@ -520,7 +524,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.focusCommande();
           // si on est en auto-triche où qu'une sauvegarde doit
           // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.sauvegardeEnAttente) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {
@@ -535,7 +539,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.graineAvantAnnulation = this.jeu.graine;
           // enlever commande en cours + le nombre de commandes à annuler
           this.historiqueCommandesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this.historiqueCommandesPartie);
-          this.nouvellePartie.emit();
+          this.nouvellePartieOuAnnulerTour.emit();
           break;
 
         case TypeInterruption.changerEcran:
@@ -557,7 +561,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // focus sur l'entrée de commande
           this.focusCommande();
           // reprise partie
-          if (this.sauvegardeEnAttente) {
+          if (this.restaurationSauvegardeEnCours) {
             this.lancerAutoTriche();
           }
           break;
@@ -703,7 +707,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
       // s'il faut lancer une nouvelle partie
       if (sortieCommande.includes('@nouvelle partie@')) {
-        this.nouvellePartie.emit();
+        this.nouvellePartieOuAnnulerTour.emit();
         // sinon afficher la sortie du tour
       } else {
         this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet));
@@ -750,7 +754,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.partie.jeu.commence = true;
         this.lancerVerificationProgrammation();
         // si une sauvegarde doit être restaurée
-        if (this.sauvegardeEnAttente) {
+        if (this.restaurationSauvegardeEnCours) {
           this.lancerAutoTriche();
         }
       }
@@ -930,7 +934,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // s'il y a des commandes à exécuter
     if (this.autoCommandes && this.autoCommandes.length) {
       // on a lancé la restauration de la sauvegarde
-      this.sauvegardeEnAttente = false;
+      this.restaurationSauvegardeEnCours = false;
 
       // désactiver temporairement l'audio
       const backAudioActif = this.jeu.parametres.activerAudio;
@@ -954,8 +958,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // aucune commande à exécuter
     } else {
       // si mode restauration sauvegarde, c'est fini
-      if (this.sauvegardeEnAttente) {
-        this.sauvegardeEnAttente = false;
+      if (this.restaurationSauvegardeEnCours) {
+        this.restaurationSauvegardeEnCours = false;
+
+        // générer une nouvelle graine aléatoire pour éviter
+        // que la suite du jeu soit la même à chaque chargement
+        // d’une sauvegarde ou après chaque annulation de commande
+        this.partie.nouvelleGraineAleatoire();
+
         // sinon il n'y a pas de solution chargée
       } else {
         this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
@@ -1187,7 +1197,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.ajouterContenuHtmlAvecTagsDonjon(sortieStatistiques);
           // sortie spéciale: nouvelle partie
         } else if (sortieCommande.includes("@nouvelle partie@")) {
-          this.nouvellePartie.emit();
+          this.nouvellePartieOuAnnulerTour.emit();
           // sortie normale
         } else {
           const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet);

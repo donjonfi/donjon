@@ -6,6 +6,7 @@ import { ElementsJeuUtils } from "../../utils/commun/elements-jeu-utils";
 import { Instructions } from "../../utils/jeu/instructions";
 import { Jeu } from "../jeu/jeu";
 import { StringUtils } from "../../utils/commun/string.utils";
+import { GraineSauvegarde } from "donjon";
 
 export class ContextePartie {
 
@@ -19,6 +20,8 @@ export class ContextePartie {
   public readonly ecran: ContexteEcran;
 
   private _dossierRessourcesComplet: string;
+
+  private _indexCommandeSuivante: number = 0;
 
   constructor(
     /** L’état du jeu correspondant à la partie. */
@@ -49,7 +52,12 @@ export class ContextePartie {
 
     this.ecran = new ContexteEcran(this._dossierRessourcesComplet);
 
+    // initialiser le générateur de nombres aléatoire en début de partie
     this.initialiserAleatoire();
+  }
+
+  public get indexCommandeSuivante(): number {
+    return this._indexCommandeSuivante;
   }
 
   /** Initialiser le générateur de nombres aléatoires. */
@@ -68,8 +76,16 @@ export class ContextePartie {
    */
   public nouvelleGraineAleatoire(): void {
     // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
-    // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
-    this.jeu.graine = Math.random().toString();
+    // et le moment où on les a changé afin de pouvoir restaurer une partie sauvegardée !
+
+    // création d’une nouvelle graine
+
+    let graine = Math.random();
+    // sauvegarde v2
+    this.jeu.ajouterGraineDansHistorique(graine, this.indexCommandeSuivante);
+    // sauvegarde v1
+    this.jeu.graine = graine.toString();
+    // initialisation du jeu avec la nouvelle graine
     AleatoireUtils.init(this.jeu.graine);
   }
 
@@ -78,10 +94,8 @@ export class ContextePartie {
     return this._dossierRessourcesComplet;
   }
 
-
-
   public unload() {
-    // supprimer les musiques en court éventuelles
+    // supprimer les musiques en cours éventuelles
     this.ins.unload();
   }
 

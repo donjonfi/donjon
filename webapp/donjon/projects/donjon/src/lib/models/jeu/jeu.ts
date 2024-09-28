@@ -14,6 +14,7 @@ import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
+import { DeclenchementFutur, DeclenchementPasse, GraineSauvegarde } from '../jouer/sauvegarde';
 
 export class Jeu {
 
@@ -133,11 +134,64 @@ export class Jeu {
   /** 
    * Graine utilisée pour initialiser le générateur de nombres aléatoires.
    * Lorsqu'on sauvegarde la partie, au sauvegarde également la graine.
+   * (sauvegarde V1)
    */
   graine: string | undefined;
 
+
+  /**
+   * Historique de l’ensemble des graines utilisées pour
+   * initialiser le générateur de nombres aléatoires.
+   * (sauvegarde V2)
+   */
+  get historiqueGraines() {
+    return this._historiqueGraines;
+  }
+
+  _historiqueGraines: GraineSauvegarde[] = [];
+
+  public ajouterGraineDansHistorique(graine: number, indexProchaineCommande: number) {
+    let newGraine = new GraineSauvegarde();
+    newGraine.graine = graine;
+    newGraine.idxComSuivante = indexProchaineCommande;
+    this._historiqueGraines.push(newGraine);
+  }
+
+  /**
+   * Historique des routines programmées déjà déclenchées.
+   * (sauvegarde V2)
+   */
+  get historiqueDeclenchements() {
+    return this._historiqueDeclenchements;
+  }
+
+  private _historiqueDeclenchements: DeclenchementPasse[] = [];
+
+  public ajouterDeclenchementDansHistorique(routine: string, indexProchaineCommande: number) {
+    let dec = new DeclenchementPasse();
+    dec.routine = routine;
+    dec.idxComSuivante = indexProchaineCommande;
+    this.historiqueDeclenchements.push(dec);
+  }
+
+  /**
+   * Liste des routines programmées pas encore déclenchées.
+   * (sauvegarde V2)
+   */
+  get declenchementsFuturs(): DeclenchementFutur[] {
+    let retVal = [];
+    const tempsActuel = Date.now();
+    this.programmationsTemps.forEach(pt => {
+      let curDec = new DeclenchementFutur();
+      curDec.routine = pt.routine;
+      // calculer le temps restant avant déclenchement
+      curDec.tempsMs = pt.duree - (tempsActuel - pt.debutTemps)
+    });
+    return retVal;
+  };
+
   /** 
-   * Commandes à exécuter à l'intialisation du jeu
+   * Commandes à exécuter à l'initialisation du jeu
    * afin de rétablir la sauvegarde précédemment chargée.
    */
   sauvegarde: string[] | undefined;
@@ -148,7 +202,7 @@ export class Jeu {
   statistiques: Statistiques | undefined;
 
 
-  ajouterErreur(erreur: string){
+  ajouterErreur(erreur: string) {
     console.error(erreur);
     this.tamponErreurs.push(erreur);
   }
