@@ -181,28 +181,39 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     const scenario = '' +
       'Le métro est un lieu. ' +
       'L’historique est une liste. ' +
+      'Elle contient "bus". ' +
       'action tester: ' +
       '  changer l’historique contient "métro". ' +
+      '  changer l’historique ne contient plus "bus". ' +
       'fin action ' +
       'La description du métro est "[si l’historique contient "métro"]métro trouvé[sinon]Pas de métro[finsi]". ' +
+      'Le texte du métro est "[si l’historique contient "bus"]Bus trouvé[sinon]Pas de bus[finsi]". ' +
       '';
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
     expect(ctx.jeu.listes).toHaveSize(1);
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
-    expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
+    expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
     expect(texteCalcule).toEqual("Pas de métro");
+
+    texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
+    expect(texteCalcule).toEqual("Bus trouvé");
 
     ctx.com.executerCommande("tester");
 
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"métro"');
+    expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
+
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
     expect(texteCalcule).toEqual("métro trouvé");
+
+    texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
+    expect(texteCalcule).toEqual("Pas de bus");
 
   });
 
