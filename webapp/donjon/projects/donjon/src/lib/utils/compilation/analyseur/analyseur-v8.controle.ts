@@ -265,9 +265,9 @@ export class AnalyseurV8Controle {
     let instruction: Instruction | undefined;
 
     // A. ENTÊTE
-    // => ex: « choisir[:] » (choisir parmis les choix statiques)
+    // => ex: « choisir[:] » (choisir parmi les choix statiques)
     // => ex: « choisir librement[:] » (choisir librement)
-    // => ex: « choisir parmis les couleurs disponibles[:] » (choisir parmis une liste dynamique)
+    // => ex: « choisir parmi les couleurs disponibles[:] » (choisir parmi une liste dynamique)
     let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     // trouver le type d’instruction choisir (statique, dynamique, libre)
     const typeChoisir = this.trouverTypeChoisir(phraseAnalysee, routine, ctx);

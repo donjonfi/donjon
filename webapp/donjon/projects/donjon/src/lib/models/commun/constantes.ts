@@ -1,6 +1,6 @@
 
-export const version = "2.1-beta.23"
-export const versionNum = 1123;
+export const version = "2.1-beta.24"
+export const versionNum = 1124;
 
 export enum EClasseRacine {
   intitule = 'intitule',
