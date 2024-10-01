@@ -42,7 +42,8 @@ export class AnalyseurListe {
               const morceau = phrase.morceaux[index];
               // nombre impaire => valeur
               if (index % 2) {
-                ctxAnalyse.dernierElementGenerique.valeursTexte.push(TexteUtils.retrouverTexteOriginal(morceau));
+                // Le texte original est entouré de guillemets eux-même entourés d’espaces !
+                ctxAnalyse.dernierElementGenerique.valeursTexte.push(TexteUtils.retrouverTexteOriginal(morceau).trim());
                 // nombre paire => autre
               } else if (index > 0) {
                 if (morceau != ',' && morceau != 'et') {

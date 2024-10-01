@@ -15,12 +15,13 @@ export class AnalyseurUtils {
   public static ajouterDescriptionDernierElement(phrase: Phrase, ctx: ContexteAnalyse) {
     // si phrase en plusieurs morceaux, ajouter commentaire qui suit.
     if (phrase.morceaux.length > 1) {
-      // reconstituer la description et enlever les caractèrs spéciaux
+      // reconstituer la description et enlever les caractères spéciaux
       let description = "";
       for (let index = 1; index < phrase.morceaux.length; index++) {
+        // le texte original est entouré de guillemets eux-même entourés d’espaces !
         description += TexteUtils.retrouverTexteOriginal(phrase.morceaux[index]);
       }
-      // enlever les guillemets autours de la valeur
+      // enlever les espaces et les guillemets autours de la valeur
       description = description.trim().replace(/^\"|\"$/g, '');
       ctx.dernierElementGenerique.description = description;
     }

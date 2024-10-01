@@ -3,7 +3,7 @@ import { ExprReg } from "../compilation/expr-reg";
 export class TexteUtils {
 
   /**
-   * Remplacer les caractères d’échapement dans le texte par ceux d’origine.
+   * Remplacer les caractères d’échappement dans le texte par ceux d’origine.
    */
   static retrouverTexteOriginal(texteEncode: string): string {
     return texteEncode
