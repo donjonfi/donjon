@@ -108,7 +108,7 @@ export class AnalyseurPropriete {
 
           // si phrase en plusieurs morceaux, ajouter valeur (texte) de la propriété
           if (phrase.morceaux.length > 1) {
-            // reconstituer la valeur et enlever les caractèrs spéciaux
+            // reconstituer la valeur et enlever les caractères spéciaux
             let valeur = "";
             for (let index = 1; index < phrase.morceaux.length; index++) {
               // ajouter la description en enlevant les caractères spéciaux
