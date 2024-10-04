@@ -128,7 +128,7 @@ export class JouerComponent implements OnInit {
           // rétablir la graine pour le générateur aléatoire
           jeu.graine = sauvegarde.graine;
           // exécuter les commandes de la sauvegarde
-          jeu.sauvegarde = sauvegarde.commandes;
+          jeu.commandesRestaurationSauvegarde = sauvegarde.commandes;
           // lancer le jeu
           this.jeu = jeu;
 
@@ -152,20 +152,9 @@ export class JouerComponent implements OnInit {
 
   onSauvegarderJeu(): void {
 
-    let sauvegarde = new Sauvegarde();
-    // version
-    sauvegarde.version = versionNum;
-    // graine initiale pour le générateur de nombres aléatoires (Sauvegarde V1)
-    sauvegarde.graine = this.jeu.graine;
-    // graines utilisées pour le générateur de nombres aléatoires (Sauvegarde V2)
-    sauvegarde.historiqueGraines = this.jeu.historiqueGraines;
-    // routines programmées déjà déclenchées
-    sauvegarde.historiqueDeclenchements = this.jeu.historiqueDeclenchements;
-    // routines programmées pas encore déclenchées
-    sauvegarde.declenchementsFuturs = this.jeu.declenchementsFuturs;
-    // commandes du joueur
-    sauvegarde.commandes = this.lecteurRef.getHistoriqueCommandesPartie();
-    // scénario
+    let sauvegarde = this.lecteurRef.creerSauvegardePartie();
+
+    // ajout du scénario
     sauvegarde.scenario = this.scenario;
 
     const contenuJson = JSON.stringify(sauvegarde);

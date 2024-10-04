@@ -138,42 +138,6 @@ export class Jeu {
    */
   graine: string | undefined;
 
-
-  /**
-   * Historique de l’ensemble des graines utilisées pour
-   * initialiser le générateur de nombres aléatoires.
-   * (sauvegarde V2)
-   */
-  get historiqueGraines() {
-    return this._historiqueGraines;
-  }
-
-  _historiqueGraines: GraineSauvegarde[] = [];
-
-  public ajouterGraineDansHistorique(graine: number, indexProchaineCommande: number) {
-    let newGraine = new GraineSauvegarde();
-    newGraine.graine = graine;
-    newGraine.idxComSuivante = indexProchaineCommande;
-    this._historiqueGraines.push(newGraine);
-  }
-
-  /**
-   * Historique des routines programmées déjà déclenchées.
-   * (sauvegarde V2)
-   */
-  get historiqueDeclenchements() {
-    return this._historiqueDeclenchements;
-  }
-
-  private _historiqueDeclenchements: DeclenchementPasse[] = [];
-
-  public ajouterDeclenchementDansHistorique(routine: string, indexProchaineCommande: number) {
-    let dec = new DeclenchementPasse();
-    dec.routine = routine;
-    dec.idxComSuivante = indexProchaineCommande;
-    this.historiqueDeclenchements.push(dec);
-  }
-
   /**
    * Liste des routines programmées pas encore déclenchées.
    * (sauvegarde V2)
@@ -189,12 +153,6 @@ export class Jeu {
     });
     return retVal;
   };
-
-  /** 
-   * Commandes à exécuter à l'initialisation du jeu
-   * afin de rétablir la sauvegarde précédemment chargée.
-   */
-  sauvegarde: string[] | undefined;
 
   /**
    * Statistiques du jeu et de son scénario.

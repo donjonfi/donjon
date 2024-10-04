@@ -279,8 +279,8 @@ export class InstructionExecuter {
     }
   }
 
-  /** Exécuter l’instruction « Exécuter commande "xxxx…" */
-  public executerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+  /**  Envoyer la commande à exécuter au commandeur (l’instruction « Exécuter commande "xxxx…") */
+  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {

@@ -340,7 +340,7 @@ export class Instructions {
             resultat = this.insExecuter.executerDerniereCommande();
             // EXÉCUTER COMMANDE "…"
           } else if (ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
-            resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+            resultat = this.insExecuter.envoyerCommande(instruction, contexteTour);
 
             // EXÉCUTER ROUTINE
           } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
