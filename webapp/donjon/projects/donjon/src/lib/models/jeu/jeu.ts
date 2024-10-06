@@ -14,7 +14,7 @@ import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
-import { DeclenchementFutur, DeclenchementPasse, GraineSauvegarde } from '../jouer/sauvegarde';
+import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
 
 export class Jeu {
 
@@ -159,6 +159,8 @@ export class Jeu {
    */
   statistiques: Statistiques | undefined;
 
+  /** Sauvegarde à charger au début de la prochaine partie. */
+  sauvegarde: Sauvegarde | undefined;
 
   ajouterErreur(erreur: string) {
     console.error(erreur);

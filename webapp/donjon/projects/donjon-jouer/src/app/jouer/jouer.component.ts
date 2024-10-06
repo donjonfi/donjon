@@ -128,7 +128,7 @@ export class JouerComponent implements OnInit {
           // rétablir la graine pour le générateur aléatoire
           jeu.graine = sauvegarde.graine;
           // exécuter les commandes de la sauvegarde
-          jeu.commandesRestaurationSauvegarde = sauvegarde.commandes;
+          jeu.commandesRestaurationSauvegarde = sauvegarde.commandesGrainesDeclenchementsReponses;
           // lancer le jeu
           this.jeu = jeu;
 

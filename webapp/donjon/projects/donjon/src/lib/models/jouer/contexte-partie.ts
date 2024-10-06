@@ -60,7 +60,8 @@ export class ContextePartie {
     this.ecran = new ContexteEcran(this._dossierRessourcesComplet);
 
     // initialiser le générateur de nombres aléatoire en début de partie
-    this.initialiserAleatoire();
+    // this.initialiserAleatoire();
+    this.nouvelleGraineAleatoire(this.jeu.graine);
   }
 
   public get commandesEtReponsesPartie(): string[] {
@@ -78,69 +79,84 @@ export class ContextePartie {
     this._indexProchaineCommandePartie = this._commandesEtReponsesPartie.push(commandeBrute);
   }
 
-  /** Initialiser le générateur de nombres aléatoires. */
-  private initialiserAleatoire() {
-    // graine pas encore définie: on en crée une nouvelle
-    if (this.jeu.graine == undefined) {
-      this.nouvelleGraineAleatoire();
-      // graine déjà définie : on la réutilise
-    } else {
-      AleatoireUtils.init(this.jeu.graine);
-    }
-  }
+  // /** Initialiser le générateur de nombres aléatoires. */
+  // private initialiserAleatoire() {
+  //   // graine pas encore définie: on en crée une nouvelle
+  //   if (this.jeu.graine == undefined) {
+  //     this.nouvelleGraineAleatoire();
+  //     // graine déjà définie : on la réutilise
+  //   } else {
+  //     AleatoireUtils.init(this.jeu.graine);
+  //   }
+  // }
 
   /** 
    * Changer la graine pour la générateur de nombres aléatoires.
    */
-  public nouvelleGraineAleatoire(): void {
+  public nouvelleGraineAleatoire(graineForcee?: string | undefined): void {
     // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
     // et le moment où on les a changé afin de pouvoir restaurer une partie sauvegardée !
 
     // création d’une nouvelle graine
 
-    let graine = Math.random();
-    // sauvegarde v2
-    this.ajouterGraineDansHistorique(graine, this.indexProchaineCommandePartie);
-    // sauvegarde v1
-    this.jeu.graine = graine.toString();
-    // initialisation du jeu avec la nouvelle graine
-    AleatoireUtils.init(this.jeu.graine);
+    let nouvelleGraine: string;
+
+    if (graineForcee !== undefined) {
+      nouvelleGraine = graineForcee;
+    } else {
+      nouvelleGraine = Math.random().toString();
+    }
+    AleatoireUtils.init(nouvelleGraine);
+
+    // sauvegarde de la graine
+    this.commandesEtReponsesPartie.push(`g:${nouvelleGraine}`);
+
+    // let graine = Math.random();
+    // // sauvegarde v2
+    // this.ajouterGraineDansHistorique(graine, this.indexProchaineCommandePartie);
+    // // sauvegarde v1
+    // this.jeu.graine = graine.toString();
+    // // initialisation du jeu avec la nouvelle graine
+    // AleatoireUtils.init(this.jeu.graine);
   }
 
-  /**
-   * Historique des routines programmées déjà déclenchées.
-   * (sauvegarde V2)
-   */
-  get sauvegardeDeclenchements() {
-    return this._sauvegardeDeclenchements;
+  // /**
+  //  * Historique des routines programmées déjà déclenchées.
+  //  * (sauvegarde V2)
+  //  */
+  // get sauvegardeDeclenchements() {
+  //   return this._sauvegardeDeclenchements;
+  // }
+
+  // private _sauvegardeDeclenchements: DeclenchementPasse[] = [];
+
+  // public ajouterDeclenchementDansSauvegarde(routine: string, indexProchaineCommande: number) {
+  //   let dec = new DeclenchementPasse();
+  //   dec.routine = routine;
+  //   dec.idxComSuivante = indexProchaineCommande;
+  //   this.sauvegardeDeclenchements.push(dec);
+  // }
+
+  public ajouterDeclenchementDansSauvegarde(routine: string) {
+    this.commandesEtReponsesPartie.push(`d:${routine}`);
   }
 
-  private _sauvegardeDeclenchements: DeclenchementPasse[] = [];
+  // /**
+  //  * Historique de l’ensemble des graines utilisées pour
+  //  * initialiser le générateur de nombres aléatoires.
+  //  * (sauvegarde V2)
+  //  */
+  // get historiqueGraines() {
+  //   return this._historiqueGraines;
+  // }
+  // _historiqueGraines: GraineSauvegarde[] = [];
 
-  public ajouterDeclenchementDansSauvegarde(routine: string, indexProchaineCommande: number) {
-    let dec = new DeclenchementPasse();
-    dec.routine = routine;
-    dec.idxComSuivante = indexProchaineCommande;
-    this.sauvegardeDeclenchements.push(dec);
-  }
-
-  /**
-   * Historique de l’ensemble des graines utilisées pour
-   * initialiser le générateur de nombres aléatoires.
-   * (sauvegarde V2)
-   */
-  get historiqueGraines() {
-    return this._historiqueGraines;
-  }
-
-  _historiqueGraines: GraineSauvegarde[] = [];
-
-  public ajouterGraineDansHistorique(graine: number, indexProchaineCommande: number) {
-    let newGraine = new GraineSauvegarde();
-    newGraine.graine = graine;
-    newGraine.idxComSuivante = indexProchaineCommande;
-    this._historiqueGraines.push(newGraine);
-  }
+  // public ajouterGraineDansHistorique(graine: number, indexProchaineCommande: number) {
+  //   let newGraine = new GraineSauvegarde();
+  //   newGraine.graine = graine;
+  //   newGraine.idxComSuivante = indexProchaineCommande;
+  //   this._historiqueGraines.push(newGraine);
+  // }
 
   /** 
    * Commandes à exécuter à l'initialisation du jeu
@@ -155,7 +171,7 @@ export class ContextePartie {
 
   public creerSauvegarde(): Sauvegarde {
     // TODO: implémenter sauvegardePartie
-   
+
     let sauvegarde = new Sauvegarde();
     // version
     sauvegarde.version = versionNum;
@@ -168,7 +184,7 @@ export class ContextePartie {
     // routines programmées pas encore déclenchées
     sauvegarde.declenchementsFuturs = this.jeu.declenchementsFuturs;
     // commandes du joueur
-    sauvegarde.commandes = this.getCommandesEtReponsesPartieNettoyees();
+    sauvegarde.commandesGrainesDeclenchementsReponses = this.getCommandesEtReponsesPartieNettoyees();
     // scénario
     sauvegarde.scenario = undefined;
 
@@ -176,7 +192,7 @@ export class ContextePartie {
 
   }
 
-  public enleverDerniereCommande(){
+  public enleverDerniereCommande() {
     this._commandesEtReponsesPartie.pop();
 
   }

@@ -5,6 +5,8 @@ export class ExprReg {
   static readonly caractereDebutTexte = 'Ƶ';
   static readonly caractereFinTexte = 'ƶ';
   static readonly caractereReponse = 'Ð';
+  static readonly caractereGraine = 'Ħ';
+  static readonly caractereDeclenchement = 'Ŧ';
   static readonly xCaractereReponse = /Ð/g;
   static readonly xCaracteresCommentaire = /Ƶ|ƶ/g;
   static readonly xCaractereDebutCommentaire = /Ƶ/g;

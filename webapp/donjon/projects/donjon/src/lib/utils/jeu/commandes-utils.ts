@@ -1,5 +1,6 @@
 import { ExprReg } from "../compilation/expr-reg";
 import { RechercheUtils } from "../commun/recherche-utils";
+import { Sauvegarde } from "../../models/jouer/sauvegarde";
 
 export class CommandesUtils {
   /** Nettoyer la commmande pour ne pas afficher une erreur en cas de 
@@ -26,9 +27,9 @@ export class CommandesUtils {
   /**
    * Retourner la liste des commandes à laquelle on a retiré autant de tours de jeux  que demandé.
    */
-  public static enleverToursDeJeux(nombreDeToursAEnlever: number, commandes: string[]) {
+  public static enleverToursDeJeux(nombreDeToursAEnlever: number, sauvegarde: Sauvegarde) {
     for (let nbToursEnleves = 0; nbToursEnleves < nombreDeToursAEnlever; nbToursEnleves++) {
-      const derniereCommande = commandes.pop();
+      const derniereCommande = sauvegarde.commandesGrainesDeclenchementsReponses.pop();
       // s'il s'agit d'une réponse à une question, ce n'est pas une commande
       // donc il faudra encore enlever la commande précédente pour enlever tout le tour
       if (derniereCommande.startsWith(ExprReg.caractereReponse)) {

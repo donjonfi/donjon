@@ -45,11 +45,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Curseur dans l’historique des commandes */
   private curseurDernieresCommandes = -1;
 
-  /** 
-   * pour remplir automatiquement les commandes joueur
-   * afin de tester plus rapidement le jeu.
-   */
-  private autoCommandes: string[] = null;
+  // /** 
+  //  * pour remplir automatiquement les commandes joueur
+  //  * afin de tester plus rapidement le jeu.
+  //  */
+  // private autoCommandes: string[] = null;
 
   /**
    * Le système « auto triche » est-il en cours d’exécution ?
@@ -105,7 +105,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    /** Décharger la partie en cours (arrêter musiques par exemple) */
+    console.log("@@@@@@@@@@ ngOnChanges LECTEUR @@@@@@@@@@@@@@");
+
+
+    /** S'assurer de décharger la partie en cours (arrêter musiques par exemple) */
     if (this.partie) {
       this.partie.unload();
     }
@@ -137,7 +140,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
       this.partie.commandesRestaurationSauvegarde = sauvegardeCommandes;
       this.jeu.graine = this.graineAvantAnnulation;
-    }else{
+    } else {
       this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
     }
 
@@ -203,16 +206,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.activerParametreAudio = false;
     }
 
-    // ================
-    //  REPRISE PARTIE (sauvegarde ou pour annuler 1 commande)
-    // ================
+    // // ================
+    // //  REPRISE PARTIE (sauvegarde ou pour annuler 1 commande)
+    // // ================
 
-    // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
-    if (this.jeu.commandesRestaurationSauvegarde) {
-      this.autoCommandes = this.jeu.commandesRestaurationSauvegarde;
-      this.jeu.commandesRestaurationSauvegarde = undefined;
-      this.restaurationSauvegardeEnCours = true;
-    }
+    // // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
+    // if (this.jeu.sauvegarde) {
+    //   this.autoCommandes = this.partie.commandesRestaurationSauvegarde;
+    //   this.partie.commandesRestaurationSauvegarde = undefined;
+    //   this.jeu.sa = true;
+    // }
 
     // =====================
     //  COMMENCER LA PARTIE
@@ -242,10 +245,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // nouvelle partie
       this.partie.jeu.commence = true;
       this.lancerVerificationProgrammation();
-      // reprise partie
-      if (this.restaurationSauvegardeEnCours) {
+
+      // reprise partie s'il existe une sauvegarde de partie à restaurer
+      if (this.jeu.sauvegarde) {
+        this.restaurationSauvegardeEnCours = true;
         this.lancerAutoTriche();
       }
+
     }
 
     // donner le focus sur « entrez une commande » 
@@ -539,9 +545,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         case TypeInterruption.annulerTour:
           this.interruptionEnCoursAvantAnnulation = this.interruptionEnCours;
-          this.graineAvantAnnulation = this.jeu.graine;
-          // enlever commande en cours + le nombre de commandes à annuler
-          this._commandesEtReponsesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this._commandesEtReponsesPartie);
+          this.jeu.sauvegarde = this.partie.creerSauvegarde();
+          CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this.jeu.sauvegarde);
+          // this.graineAvantAnnulation = this.jeu.graine;
+          // // enlever commande en cours + le nombre de commandes à annuler
+          // this._commandesEtReponsesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this._commandesEtReponsesPartie);
           this.nouvellePartieOuAnnulerTour.emit();
           break;
 
@@ -934,45 +942,65 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private lancerAutoTriche() {
-    // s'il y a des commandes à exécuter
-    if (this.autoCommandes && this.autoCommandes.length) {
-      // on a lancé la restauration de la sauvegarde
-      this.restaurationSauvegardeEnCours = false;
 
-      // désactiver temporairement l'audio
-      const backAudioActif = this.jeu.parametres.activerAudio;
-      this.audioActif = false;
+    // on a lancé la restauration de la sauvegarde
+    this.restaurationSauvegardeEnCours = false;
 
-      this.autoTricheActif = true;
-      this.autoCommandes.forEach(async curCom => {
-        this.commande = curCom;
-        this.onKeyDownEnter(null);
-      });
+    // si on est occupé à restaurer une sauvegarde
+    if (this.jeu.sauvegarde) {
+      // s'il reste des commandes à exécuter
+      if (this.jeu.sauvegarde.commandesGrainesDeclenchementsReponses.length) {
 
-      // // nouvelle graine pour l’aléatoire
-      // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
-      // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
-      // this.ctx.nouvelleGraineAleatoire();
+        // désactiver temporairement l'audio
+        const backAudioActif = this.jeu.parametres.activerAudio;
+        this.audioActif = false;
 
-      // rétablir l'audio
-      this.audioActif = backAudioActif;
+        this.autoTricheActif = true;
 
-      this.autoTricheActif = false;
-      // aucune commande à exécuter
-    } else {
-      // si mode restauration sauvegarde, c'est fini
-      if (this.restaurationSauvegardeEnCours) {
-        this.restaurationSauvegardeEnCours = false;
+        this.jeu.sauvegarde.commandesGrainesDeclenchementsReponses.forEach(async curCom => {
 
-        // générer une nouvelle graine aléatoire pour éviter
-        // que la suite du jeu soit la même à chaque chargement
-        // d’une sauvegarde ou après chaque annulation de commande
+          let [type, valeur] = curCom.split(":");
+          switch (type) {
+            // commande et réponse
+            case 'c':
+            case 'r': // TODO: est-ce que r doit être possible ici ou cela n’est pas normal de tomber dans ce cas ?
+              this.commande = valeur;
+              this.onKeyDownEnter(null);
+              break;
+
+            // graine
+            case 'g':
+              this.partie.nouvelleGraineAleatoire();
+              break;
+
+            // déclenchement
+            case 'r':
+              // TODO: déclenchement
+            break;
+
+            default:
+              throw new Error(`Restauration sauvegarde: type de commande pas pris en charge:  ${type}`);
+          }
+
+
+        });
+
+
+        // // nouvelle graine pour l’aléatoire
+        // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
+        // et le moment où on les a changé afin de pouvoir restaurer une partie sauvegardée !
         this.partie.nouvelleGraineAleatoire();
 
-        // sinon il n'y a pas de solution chargée
+        // rétablir l'audio
+        this.audioActif = backAudioActif;
+
+        // aucune commande à exécuter
       } else {
-        this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
+        this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucune commande à exécuter./}", this.partie.dossierRessourcesComplet));
       }
+      // s'il n'y a pas de sauvegarde/solution chargée
+    } else {
+      this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
     }
 
     // si on était occupé à annuler des tours de jeu, terminer le tour commencé
@@ -982,6 +1010,61 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.interruptionEnCoursAvantAnnulation = undefined;
       this.terminerInterruption(undefined);
     }
+
+
+
+
+
+
+
+    // // s'il y a des commandes à exécuter
+    // if (this.jeu.sauvegarde && this.jeu.sauvegarde.commandesGrainesDeclenchementsReponses.length) {
+    //   // on a lancé la restauration de la sauvegarde
+    //   this.restaurationSauvegardeEnCours = false;
+
+    //   // désactiver temporairement l'audio
+    //   const backAudioActif = this.jeu.parametres.activerAudio;
+    //   this.audioActif = false;
+
+    //   this.autoTricheActif = true;
+    //   this.autoCommandes.forEach(async curCom => {
+    //     this.commande = curCom;
+    //     this.onKeyDownEnter(null);
+    //   });
+
+    //   // // nouvelle graine pour l’aléatoire
+    //   // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
+    //   // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
+    //   // this.ctx.nouvelleGraineAleatoire();
+
+    //   // rétablir l'audio
+    //   this.audioActif = backAudioActif;
+
+    //   this.autoTricheActif = false;
+    //   // aucune commande à exécuter
+    // } else {
+    //   // si mode restauration sauvegarde, c'est fini
+    //   if (this.restaurationSauvegardeEnCours) {
+    //     this.restaurationSauvegardeEnCours = false;
+
+    //     // générer une nouvelle graine aléatoire pour éviter
+    //     // que la suite du jeu soit la même à chaque chargement
+    //     // d’une sauvegarde ou après chaque annulation de commande
+    //     this.partie.nouvelleGraineAleatoire();
+
+    //     // sinon il n'y a pas de solution chargée
+    //   } else {
+    //     this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
+    //   }
+    // }
+
+    // // si on était occupé à annuler des tours de jeu, terminer le tour commencé
+    // // avant le début de l'annulation
+    // if (this.interruptionEnCoursAvantAnnulation) {
+    //   this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
+    //   this.interruptionEnCoursAvantAnnulation = undefined;
+    //   this.terminerInterruption(undefined);
+    // }
 
   }
 
@@ -1359,7 +1442,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public creerSauvegardePartie(): Sauvegarde{
+  public creerSauvegardePartie(): Sauvegarde {
     return this.partie.creerSauvegarde();
   }
 
