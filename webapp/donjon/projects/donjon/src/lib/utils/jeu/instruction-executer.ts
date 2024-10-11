@@ -272,8 +272,12 @@ export class InstructionExecuter {
     }
 
     if (tempsMs > 0) {
-      let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
-      this.jeu.programmationsTemps.push(nouvelleProgrammation);
+      if (this.ins.modeTricheActif) {
+        contexteTour.ajouterErreurDerniereInstruction(`Programmation de routine ${routine} ignorée (car mode triche est actif)`);
+      } else {
+        let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
+        this.jeu.programmationsTemps.push(nouvelleProgrammation);
+      }
     } else {
       contexteTour.ajouterErreurInstruction(instruction, `La programmation du chronomètre n’a pas pu être réalisée car incorrecte.`);
     }

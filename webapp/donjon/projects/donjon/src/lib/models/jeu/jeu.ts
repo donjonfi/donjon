@@ -150,6 +150,8 @@ export class Jeu {
       curDec.routine = pt.routine;
       // calculer le temps restant avant déclenchement
       curDec.tempsMs = pt.duree - (tempsActuel - pt.debutTemps)
+
+      retVal.push(curDec);
     });
     return retVal;
   };

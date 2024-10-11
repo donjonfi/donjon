@@ -125,10 +125,11 @@ export class JouerComponent implements OnInit {
           if (sauvegarde.version > versionNum) {
             jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
           }
-          // rétablir la graine pour le générateur aléatoire
-          jeu.graine = sauvegarde.graine;
+          // // rétablir la graine pour le générateur aléatoire
+          // jeu.graine = sauvegarde.graine;
+
           // exécuter les commandes de la sauvegarde
-          jeu.commandesRestaurationSauvegarde = sauvegarde.commandesGrainesDeclenchementsReponses;
+          jeu.sauvegarde = sauvegarde;
           // lancer le jeu
           this.jeu = jeu;
 
@@ -151,14 +152,8 @@ export class JouerComponent implements OnInit {
   }
 
   onSauvegarderJeu(): void {
-
-    let sauvegarde = this.lecteurRef.creerSauvegardePartie();
-
-    // ajout du scénario
-    sauvegarde.scenario = this.scenario;
-
+    let sauvegarde = this.lecteurRef.creerSauvegardePartie(this.scenario);
     const contenuJson = JSON.stringify(sauvegarde);
-
     // Note: Ie and Edge don't support the new File constructor,
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sav"), { type: "text/plain;charset=utf-8" });

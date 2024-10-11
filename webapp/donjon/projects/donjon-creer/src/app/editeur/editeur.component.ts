@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver-es';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from 'donjon';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -310,7 +310,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Compiler (Analyser) le code source (scénario) */
-  onCompiler(): void {
+  onCompiler(solution: Sauvegarde | undefined): void {
 
     this.compilationEnCours = true;
     this.compilationTerminee = false;
@@ -340,7 +340,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.codeSource = this.codeSource.replace(/(")$/gm, '".');
         if (this.sectionMode == 'tout') {
           this.sectionCodeSourceVisible = this.codeSource;
-        }else{
+        } else {
           this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/(;)$/gm, '.').replace(/(")$/gm, '".');
         }
       }
@@ -373,7 +373,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.erreurs = resultatCompilation.erreurs;
         this.messages = resultatCompilation.messages;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(resultatCompilation);
+        const jeu = Generateur.genererJeu(resultatCompilation);
+        if (solution) {
+          jeu.sauvegarde = solution;
+        }
+        this.jeu = jeu;
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -409,8 +413,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartieOuAnnulerTour() {
-    this.onCompiler();
+  onNouvellePartieOuAnnulerTour(solution: Sauvegarde | undefined) {
+    this.onCompiler(solution);
   }
 
   // =============================================
@@ -542,13 +546,30 @@ export class EditeurComponent implements OnInit, OnDestroy {
           // lire le fichier
           fileReader.readAsText(file);
 
-          // B. CHARGEMENT FICHIER SOLUTION
+          // B. CHARGEMENT FICHIER SOLUTION (il s’agit d’un fichier sauvegarde sans le scénario)
         } else if (file.name.endsWith(".sol")) {
           const fileReader = new FileReader();
           // quand lu, définir les auto commandes
           fileReader.onloadend = (progressEvent) => {
-            ((this.lecteurRef as any) as LecteurComponent).setAutoCommandes(fileReader.result as string);
+
+            const contenuFichier = fileReader.result as string;
+
+            // A. sauvegarde => scénario + commandes + graine
+            if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
+              var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
+
+              // informer si sauvegarde faite avec version plus récente de Donjon FI.
+              if (sauvegarde.version > versionNum) {
+                this.jeu.tamponErreurs.push("Cette solution a été effectuée avec une version plus récente de Donjon FI.");
+              }
+
+              ((this.lecteurRef as any) as LecteurComponent).setSolution(sauvegarde);
+
+            } else {
+              this.jeu.tamponErreurs.push("Ce fichier n’est pas une sauvegarde Donjon FI");
+            }
           };
+
           // lire le fichier
           fileReader.readAsText(file);
         }

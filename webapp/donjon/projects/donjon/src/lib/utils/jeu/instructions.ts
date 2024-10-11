@@ -73,6 +73,8 @@ export class Instructions {
     this.insExecuter.commandeur = commandeur;
   }
 
+  public modeTricheActif = false;
+
   /** Exécuter une liste d’instructions */
   public executerInstructions(instructions: Instruction[], contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 

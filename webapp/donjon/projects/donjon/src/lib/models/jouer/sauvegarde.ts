@@ -17,7 +17,7 @@ export class Sauvegarde {
    *  - g: graine
    *  - c: commande
   */
-  public commandesGrainesDeclenchementsReponses: string[];
+  public etapesSauvegarde: string[];
 
   /** 
    * La graine utilisée pour initialiser le générateur

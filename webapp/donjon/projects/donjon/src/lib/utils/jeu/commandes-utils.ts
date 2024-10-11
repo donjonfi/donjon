@@ -27,30 +27,47 @@ export class CommandesUtils {
   /**
    * Retourner la liste des commandes à laquelle on a retiré autant de tours de jeux  que demandé.
    */
-  public static enleverToursDeJeux(nombreDeToursAEnlever: number, sauvegarde: Sauvegarde) {
+  public static enleverToursDeJeux(nombreDeToursAEnlever: number, sauvegarde: Sauvegarde): Sauvegarde {
     for (let nbToursEnleves = 0; nbToursEnleves < nombreDeToursAEnlever; nbToursEnleves++) {
-      const derniereCommande = sauvegarde.commandesGrainesDeclenchementsReponses.pop();
-      // s'il s'agit d'une réponse à une question, ce n'est pas une commande
+      const derniereCommande = sauvegarde.etapesSauvegarde.pop();
+
+      // s'il s'agit d'une réponse à une question, une graine ou un déclenchement, ce n'est pas une commande
       // donc il faudra encore enlever la commande précédente pour enlever tout le tour
-      if (derniereCommande.startsWith(ExprReg.caractereReponse)) {
-        nbToursEnleves--;
+      switch (derniereCommande.slice(0, 1)) {
+        case ExprReg.caractereReponse:
+        case ExprReg.caractereGraine:
+          nbToursEnleves--;
+          break;
+        case ExprReg.caractereDeclenchement:
+          // s’il s’agit d’un déclenchement, il faut le remettre avant la dernière commande afin qu’il se déclenche 
+          // tout de même malgré l’annulation de la dernière commande.
+          sauvegarde.etapesSauvegarde.splice(Math.max(0, sauvegarde.etapesSauvegarde.length - 2), 0, derniereCommande);
+          nbToursEnleves--;
+          break;
+
+        case ExprReg.caractereCommande:
+          break;
+
+        default:
+          throw new Error("enleverToursDeJeux: Caractère pas pris en charge !");
       }
+
       // si on est arrivé au début, on arrête.
-      if (commandes.length == 0) {
+      if (sauvegarde.etapesSauvegarde.length == 0) {
         break;
       }
     }
-    return commandes;
+    return sauvegarde;
   }
 
-  /** Enlever le caractère qui identifie les réponses dans la liste des commandes. */
-  public static enleverCaractereReponse(commandes: string[]) {
-    let commandesNettoyees = []
-    commandes.forEach(commande => {
-      commandesNettoyees.push(commande.replace(ExprReg.xCaractereReponse, ''));
-    });
-    return commandesNettoyees;
-  }
+  // /** Enlever le caractère qui identifie les réponses dans la liste des commandes. */
+  // public static enleverCaractereReponse(commandes: string[]) {
+  //   let commandesNettoyees = []
+  //   commandes.forEach(commande => {
+  //     commandesNettoyees.push(commande.replace(ExprReg.xCaractereReponse, ''));
+  //   });
+  //   return commandesNettoyees;
+  // }
 
 }
 

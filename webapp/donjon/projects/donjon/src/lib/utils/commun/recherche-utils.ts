@@ -232,9 +232,9 @@ export class RechercheUtils {
       score = 0.0;
     }
 
-    if (verbeux) {
-      console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
-    }
+    // if (verbeux) {
+    //   console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
+    // }
 
     return score;
   }
