@@ -247,4 +247,47 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
   });
 
+  it('Vérifier liste vide après avoir été vidée', () => {
+
+    const scenario = '' +
+      'Le métro est un lieu. ' +
+      'L’historique est une liste. ' +
+      'action remplir: ' +
+      '  changer l’historique contient "chinchilla". ' +
+      'fin action ' +
+      'action vider: ' +
+      '  changer l’historique ne contient plus "chinchilla". ' +
+      'fin action ' +
+      'action vérifier: ' +
+      '  si l’historique est vide :' +
+      '    changer le joueur est éteint. ' +
+      '  sinon ' + 
+      '    changer le joueur est allumé. ' +
+      '  finsi ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("vérifier");
+
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();
+
+
+    ctx.com.executerCommande("remplir");
+    ctx.com.executerCommande("vérifier");
+
+     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeFalse();
+   expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeTrue();
+
+
+    ctx.com.executerCommande("vider");
+    ctx.com.executerCommande("vérifier");
+
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();
+
+  });
+
 });
