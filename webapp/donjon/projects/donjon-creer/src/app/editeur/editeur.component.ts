@@ -74,6 +74,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /** Faut-il activer le mode verbeux du compilateur Donjon FI ? */
   compilateurVerbeux = false;
 
+  solutionChargee: Sauvegarde | undefined;
+
   public config: AceConfigInterface = {
     // mode: 'text',
     mode: 'donjon',
@@ -310,7 +312,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Compiler (Analyser) le code source (scénario) */
-  onCompiler(solution: Sauvegarde | undefined): void {
+  onCompiler(restauration: Sauvegarde | undefined): void {
 
     this.compilationEnCours = true;
     this.compilationTerminee = false;
@@ -373,11 +375,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.erreurs = resultatCompilation.erreurs;
         this.messages = resultatCompilation.messages;
         // générer le jeu
-        const jeu = Generateur.genererJeu(resultatCompilation);
-        if (solution) {
-          jeu.sauvegarde = solution;
+        const jeuGenere = Generateur.genererJeu(resultatCompilation);
+        // fonctionnalité annuler
+        if (restauration) {
+          jeuGenere.sauvegarde = restauration;
+          // fonctionnalité triche
+        } else if (this.solutionChargee) {
+          jeuGenere.sauvegarde = restauration;
         }
-        this.jeu = jeu;
+        this.jeu = jeuGenere;
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -531,7 +537,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       const file = hie.files[0];
       if (file) {
 
-        console.warn("chargement de ", file.name);
+        console.warn("chargement du fichier", file.name);
 
         // A. CHARGEMENT SCÉNARIO
         if (file.name.endsWith(".djn") || file.name.endsWith(".txt")) {
@@ -555,7 +561,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
             const contenuFichier = fileReader.result as string;
 
             // A. sauvegarde => scénario + commandes + graine
-            if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
+            if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"sauvegarde"/)) {
               var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
 
               // informer si sauvegarde faite avec version plus récente de Donjon FI.
@@ -563,8 +569,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
                 this.jeu.tamponErreurs.push("Cette solution a été effectuée avec une version plus récente de Donjon FI.");
               }
 
-              ((this.lecteurRef as any) as LecteurComponent).setSolution(sauvegarde);
-
+              console.log("@@@@@@@@@ FICHIER SOLUTION CHARGÉ");
+              if(this.jeu){
+                ((this.lecteurRef as any)as LecteurComponent).setSolution(sauvegarde);
+              }
+              this.solutionChargee = sauvegarde;
             } else {
               this.jeu.tamponErreurs.push("Ce fichier n’est pas une sauvegarde Donjon FI");
             }

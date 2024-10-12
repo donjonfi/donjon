@@ -46,30 +46,25 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Curseur dans l’historique des commandes */
   private curseurDernieresCommandes = -1;
 
-  // /** 
-  //  * pour remplir automatiquement les commandes joueur
-  //  * afin de tester plus rapidement le jeu.
-  //  */
-  // private autoCommandes: string[] = null;
-
   /**
-   * Le système « auto triche » est-il en cours d’exécution ?
+   * Le système de triche automatique est-il en cours d’exécution ?
    */
   private autoTricheActif = false;
+  private autoTricheEnAttente = false;
+
+  /**
+   * Le système de triche manuel est-il en cours d’exécution ?
+   */
+  private manuTricheActif = false;
+  private manuTricheEnAttente = false;
 
   /** 
    * Une sauvegarde est-elle en attente de restauration ?
    */
-  private restaurationSauvegardeEnCours = false;
-
-  /**
-   * Le système « triche » est-il actif ?
-   */
-  private tricheActif = false;
+  private restaurationSauvegardeEnAttente = false;
 
   /** Index de la dernière commande exécutée avec le système « triche/chargement partie » */
   private indexDerniereCommandeRestauration: number = 0;
-
 
 
   /** Afficher la case à cocher pour activer/désactiver l’audio */
@@ -98,7 +93,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private graineAvantAnnulation: string;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
+    @Inject(DOCUMENT) private htmlDocument: Document,
     private elementRef: ElementRef<HTMLElement>
   ) { }
 
@@ -129,28 +124,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Initialiser une nouvelle partie (ou reprendre une partie) */
   private initialiserJeu() {
+
+    console.log("@@@@@@@@@@@@ initialiserJeu @@@@@@@@@@@@@@");
+
     this.resteDeLaSortie = [];
     this.commandeEnCours = false;
     this.interruptionEnCours = undefined;
+    this.manuTricheActif = false;
+    this.autoTricheActif = false;
 
-    // tester si on est occupé a "annuler" un certain nombre de tours de jeux
-    // on sauve les actions à exécuter à nouveau (sauf celles qui doivent être annulées)
-    if (this.interruptionEnCoursAvantAnnulation) {
-
-
-      this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
-
-      // // TODO: sauvegarde complète nécessaire ici ! Sinon problème avec déclenchements de routines programmées.
-      // const sauvegardeCommandes = CommandesUtils.enleverCaractereReponse(this.partie.commandesReponsesGrainesEtDeclenchementsPartie);
-      // this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
-      // this.partie.commandesRestaurationSauvegarde = sauvegardeCommandes;
-      // this.jeu.graine = this.graineAvantAnnulation;
-
-    } else {
-      this.partie = new ContextePartie(this.jeu, this.document, this.verbeux, this.debogueur);
+    if (this.autoTricheEnAttente && !this.jeu.sauvegarde) {
+      this.autoTricheEnAttente = false;
+      this.ajouteErreur("Mode triche auto: aucun fichier solution chargé.");
     }
 
     // initialiser le contexte de la partie
+    this.partie = new ContextePartie(this.jeu, this.htmlDocument, this.verbeux, this.debogueur);
 
     this.verifierTamponErreurs();
 
@@ -213,15 +202,36 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // // ================
-    // //  REPRISE PARTIE (sauvegarde ou pour annuler 1 commande)
+    // //  REPRISE PARTIE
     // // ================
 
-    // // tester s'il s'agit d'une reprise de jeu et qu'il faut déjà exécuter des commandes
-    // if (this.jeu.sauvegarde) {
-    //   this.autoCommandes = this.partie.commandesRestaurationSauvegarde;
-    //   this.partie.commandesRestaurationSauvegarde = undefined;
-    //   this.jeu.sa = true;
-    // }
+    // mode triche manuel: on démarre pour initialiser graine de hasard
+    if (this.manuTricheEnAttente) {
+      this.manuTricheEnAttente = false;
+      if (this.jeu.sauvegarde) {
+        this.lancerManuTriche();
+      } else {
+        this.ajouteErreur("Mode triche: aucun fichier solution chargé.");
+      }
+    }
+
+    // mode restauration automatique: on initialise graine de hasard
+    if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+
+      // éviter de programmer les déclenchements de routines
+      this.partie.ins.restaurationPartieEnCours = true;
+
+      if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
+        const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[this.indexDerniereCommandeRestauration];
+        let [type, valeur] = prochaineEtape.split(":");
+        if (type == ExprReg.caractereGraine) {
+          this.ajouteConseils("Graine du générateur de hasard restaurée.")
+          this.partie.nouvelleGraineAleatoire(valeur);
+        } else {
+          this.ajouteErreur("Restauration de partie : la première étape n’est pas la graine du générateur de hasard.");
+        }
+      }
+    }
 
     // =====================
     //  COMMENCER LA PARTIE
@@ -246,27 +256,26 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // this.sortieJoueur = "";
       }
     }
+
     // le jeu est commencé à moins qu’il ne soit interrompu
     if (!this.interruptionEnCours) {
-      // nouvelle partie
       this.partie.jeu.commence = true;
-      this.lancerVerificationProgrammation();
 
-      // reprise partie s'il existe une sauvegarde de partie à restaurer
-      if (this.jeu.sauvegarde) {
-        console.log("@@@@@@@@@@@ Le jeu possède une sauvegarde !");
-        
-        this.restaurationSauvegardeEnCours = true;
+      // restauration d’un jeu précédent
+      if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
         this.lancerAutoTriche();
+        // partie normale
+      } else {
+        this.lancerRoutinesProgrammees();
       }
-
     }
+
 
     // donner le focus sur « entrez une commande » 
     this.focusCommande();
   }
 
-  private lancerVerificationProgrammation() {
+  private lancerRoutinesProgrammees() {
     setTimeout(() => {
       this.verifierChrono();
     }, 1000);
@@ -356,7 +365,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (contenu) {
       // en mode auto-triche ou restauration partie, on n’attend pas !
-      if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
+      if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
         contenu = contenu.replace(/@@attendre touche@@/g, '<br><span class="t-commande font-italic">Appuyez sur une touche…</span><br>')
       }
@@ -468,16 +477,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           // si mode triche, proposer le choix de la solution (commande suivante)
           this.afficherProchaineCommandeRestauration();
-          // if (this.tricheActif) {
-          //   this.indexDerniereCommandeRestauration += 1;
-          //   if (this.indexDerniereCommandeRestauration < this.autoCommandes.length) {
-          //     this.commande = this.autoCommandes[this.indexDerniereCommandeRestauration];
-          //   }
-          // }
           // focus sur l'entrée de commande
           this.focusCommande();
           // reprise partie
-          if (this.restaurationSauvegardeEnCours) {
+          if (this.restaurationSauvegardeEnAttente) {
             this.lancerAutoTriche();
           }
           break;
@@ -501,17 +504,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
               // si mode triche, proposer le choix de la solution (commande suivante)
               this.afficherProchaineCommandeRestauration();
-              // if (this.tricheActif) {
-              //   this.indexDerniereCommandeRestauration += 1;
-              //   if (this.indexDerniereCommandeRestauration < this.autoCommandes.length) {
-              //     this.commande = this.autoCommandes[this.indexDerniereCommandeRestauration];
-              //   }
-              // }
 
               // focus sur l'entrée de commande
               this.focusCommande();
               // reprise partie
-              if (this.restaurationSauvegardeEnCours) {
+              if (this.restaurationSauvegardeEnAttente) {
                 this.lancerAutoTriche();
               }
             }
@@ -533,7 +530,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // si (on est en auto-triche) 
           // ou bien si (une sauvegarde est en cours de restauration ou un tour doit être annulé)
           // alors on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
             this.terminerInterruption(undefined);
           }
           break;
@@ -544,7 +541,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.focusCommande();
           // si on est en auto-triche où qu'une sauvegarde doit
           // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnCours) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {
@@ -576,7 +573,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // focus sur l'entrée de commande
           this.focusCommande();
           // reprise partie
-          if (this.restaurationSauvegardeEnCours) {
+          if (this.restaurationSauvegardeEnAttente) {
             this.lancerAutoTriche();
           }
           break;
@@ -592,39 +589,53 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private afficherProchaineCommandeRestauration() {
 
-    console.log("afficherProchaineCommandeRestauration");
+    console.log(`afficherProchaineCommandeRestauration, manuTricheActif=${this.manuTricheActif}`);
+
+    if (this.manuTricheActif && !this.jeu.sauvegarde) {
+      throw new Error("Manu triche actif mais aucune sauvegarde trouvée !");
+    }
 
 
-    // si mode triche, proposer le choix de la solution (commande suivante)
-    if (this.tricheActif && !this.resteDeLaSortie?.length) {
+    // si mode triche manuel, proposer le choix de la solution (commande suivante)
+    if (this.manuTricheActif && !this.resteDeLaSortie?.length) {
       this.indexDerniereCommandeRestauration += 1;
       if (this.indexDerniereCommandeRestauration < this.jeu.sauvegarde.etapesSauvegarde.length) {
 
         const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[this.indexDerniereCommandeRestauration];
+        let [type, valeur] = prochaineEtape.split(":");
 
-        switch (prochaineEtape.slice(0, 2)) {
+        switch (type) {
           // commande
-          case `${ExprReg.caractereCommande}:`:
-            this.commande = prochaineEtape.slice(2);
+          case `${ExprReg.caractereCommande}`:
+            this.commande = valeur;
             break;
           // réponse
-          case `${ExprReg.caractereReponse}:`:
-            this.commande = prochaineEtape.slice(2);
+          case `${ExprReg.caractereReponse}`:
+            this.commande = valeur;
             break;
 
           // déclenchement
-          case `${ExprReg.caractereDeclenchement}:`:
-            throw new Error("La prochaine étape est un déclenchement, ça ne devrait pas arriver ici !");
+          case `${ExprReg.caractereDeclenchement}`:
+            this.ajouterConseil(`La routine « ${valeur} » avait été déclenchée avant la prochaine commande`);
+            // afficher commande suivante
+            this.afficherProchaineCommandeRestauration();
+            break;
 
           // graine
-          case `${ExprReg.caractereGraine}:`:
-            throw new Error("La prochaine étape est une graine, ça ne devrait pas arriver ici !");
+          case `${ExprReg.caractereGraine}`:
+            this.partie.nouvelleGraineAleatoire(valeur);
+            this.ajouterConseil(`Générateur de hasard mis à jour selon fichier solution`);
+            // afficher commande suivante
+            this.afficherProchaineCommandeRestauration();
+            break;
 
           // autre
           default:
             throw new Error("La prochaine étape n’est pas d’un type connu");
 
         }
+      } else {
+        this.ajouterConseil(`Fin du fichier solution.`);
       }
     }
   }
@@ -806,21 +817,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.partie.jeu.commence) {
         this.partie.jeu.commence = true;
-        this.lancerVerificationProgrammation();
         // si une sauvegarde doit être restaurée
-        if (this.restaurationSauvegardeEnCours) {
+        if (this.restaurationSauvegardeEnAttente) {
           this.lancerAutoTriche();
+          // sinon lancer le système de routines programmées
+        } else {
+          this.lancerRoutinesProgrammees();
         }
       }
 
       // mode triche: afficher commande suivante
       this.afficherProchaineCommandeRestauration();
-      // if (this.tricheActif && !this.resteDeLaSortie?.length) {
-      //   this.indexDerniereCommandeRestauration += 1;
-      //   if (this.indexDerniereCommandeRestauration < this.autoCommandes.length) {
-      //     this.commande = this.autoCommandes[this.indexDerniereCommandeRestauration];
-      //   }
-      // }
     }
     this.scrollSortie();
   }
@@ -852,12 +859,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       // mode triche : afficher commande suivante
       this.afficherProchaineCommandeRestauration();
-      // if (this.tricheActif) {
-      //   this.indexDerniereCommandeRestauration += 1;
-      //   if (this.indexDerniereCommandeRestauration < this.autoCommandes.length) {
-      //     this.commande = this.autoCommandes[this.indexDerniereCommandeRestauration];
-      //   }
-      // }
     }
     this.scrollSortie();
   }
@@ -895,8 +896,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       // regarder s’il reste du texte à afficher
       if (this.resteDeLaSortie?.length) {
         this.afficherSuiteSortie();
-        // effacer sortie sauf si mode triche actif
-        if (!this.tricheActif) {
+        // effacer sortie sauf si mode triche manuel est actif
+        if (!this.manuTricheActif) {
           this.commande = "";
         }
         event.preventDefault();
@@ -976,17 +977,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Définir la liste des auto commandes (pour tester un jeu plus rapidement avec triche et auto-triche) */
   public setSolution(sauvegarde: Sauvegarde) {
-    // this.autoCommandes = autoCommandes.split(/(?:\r\n|\r|\n|@;@)/);
-    // // retirer dernière entrée si vide
-    // if (!this.autoCommandes[this.autoCommandes.length]) {
-    //   this.autoCommandes.pop();
-    // }
-    // console.log("Fichier auto commandes chargé : ", this.autoCommandes.length, " commande(s).");
-
     this.jeu.sauvegarde = sauvegarde;
-
     this.partie.ecran.ajouterParagrapheDonjon('{/Fichier solution chargé./}{n}Vous pouvez utiliser {-triche-} ou {-triche auto-} pour tester le jeu à l’aide de ce fichier.');
     this.scrollSortie();
+  }
+
+  public restaurerProchainJeu() {
+    this.restaurationSauvegardeEnAttente = true;
   }
 
   private lancerAutoTriche() {
@@ -994,7 +991,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     this.ajouteErreur("START AUTO TRICHE");
 
     // on a lancé la restauration de la sauvegarde
-    this.restaurationSauvegardeEnCours = false;
+    this.restaurationSauvegardeEnAttente = false;
+    this.autoTricheEnAttente = false;
 
     // si on est occupé à restaurer une sauvegarde
     if (this.jeu.sauvegarde) {
@@ -1006,7 +1004,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.audioActif = false;
 
         this.autoTricheActif = true;
-        this.partie.ins.modeTricheActif = true;
+        this.partie.ins.restaurationPartieEnCours = true;
 
         this.jeu.sauvegarde.etapesSauvegarde.forEach(async curCom => {
 
@@ -1040,8 +1038,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         // fin du mode triche
         this.autoTricheActif = false;
-        this.partie.ins.modeTricheActif = false;
-
+        this.partie.ins.restaurationPartieEnCours = false;
 
         // // nouvelle graine pour l’aléatoire
         // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
@@ -1067,12 +1064,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.interruptionEnCoursAvantAnnulation = undefined;
       this.terminerInterruption(undefined);
     }
-
-
-
-
-
-
 
     // // s'il y a des commandes à exécuter
     // if (this.jeu.sauvegarde && this.jeu.sauvegarde.commandesGrainesDeclenchementsReponses.length) {
@@ -1125,22 +1116,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   }
 
-  private lancerTriche() {
-    // if (this.autoCommandes && this.autoCommandes.length) {
-    if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
-      this.tricheActif = true;
-      this.indexDerniereCommandeRestauration = 0;
-      this.afficherProchaineCommandeRestauration();
-      // // this.commande = this.autoCommandes[this.indexDerniereCommandeRestauration];
-      // if (this.indexDerniereCommandeRestauration < this.jeu.sauvegarde.commandesReponsesGrainesEtDeclenchements.length) {
-      //   this.commande = this.jeu.sauvegarde.commandesReponsesGrainesEtDeclenchements[this.indexDerniereCommandeRestauration];
-      // }
+  private lancerManuTriche(): void {
+    if (this.jeu.sauvegarde) {
+      if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
+        this.manuTricheActif = true;
+        this.indexDerniereCommandeRestauration = -1;
+        this.afficherProchaineCommandeRestauration();
+      } else {
+        this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucune commande à exécuter./}", this.partie.dossierRessourcesComplet));
+      }
     } else {
       this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
     }
   }
 
-  private genererFichierSolution() {
+  private genererFichierSolution(): void {
     // enlever la dernière commande, qui est « sauver commandes »
     this.partie.enleverDerniereCommande();
     let texteIgnore: string;
@@ -1152,16 +1142,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       const contenuJson = JSON.stringify(sauvegarde);
       const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sol"), { type: "text/plain;charset=utf-8" });
       FileSaver.saveAs(file);
-
-      // // enlever caractères spécial qui identifie les réponses à des questions
-      // // TODO: générer fichier de sauvegarde complet pour que le mode triche puisse également reproduire les déclenchements de routines programmées ?
-      // const historiquePartieNettoye = this.partie.getCommandesEtReponsesPartieNettoyees();
-      // const contenuFichierSolution = historiquePartieNettoye.join('\n') + '\n';
-
-      // // Note: Ie and Edge don't support the new File constructor,
-      // // so it's better to construct blobs and use saveAs(blob, filename)
-      // const file = new File([contenuFichierSolution], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sol"), { type: "text/plain;charset=utf-8" });
-      // FileSaver.saveAs(file);
 
     } else {
       texteIgnore = this.partie.ecran.ajouterContenuDonjon('{n}Aucune commande dans l’historique, il n’y a rien à mettre dans le fichier solution.');
@@ -1337,7 +1317,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // sortie spéciale: triche
         } else if (sortieCommande == "@triche@") {
           setTimeout(() => {
-            this.lancerTriche();
+            this.manuTricheEnAttente = true;
+            this.nouvellePartieOuAnnulerTour.emit(this.jeu.sauvegarde);
           }, 100);
           // sortie spéciale: sauver-commandes
         } else if (sortieCommande == "@générer-solution@") {
@@ -1387,24 +1368,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.traiterProchaineRoutine();
       // sinon la commande est terminée
     } else {
-
-      // TODO: traiter routines en attente.
-
       // si le jeu n’étais pas encore commencé, il l’est à présent
       if (!this.partie.jeu.commence) {
         this.partie.jeu.commence = true;
-        this.lancerVerificationProgrammation();
+        if (!this.autoTricheActif) {
+          this.lancerRoutinesProgrammees();
+        }
       }
 
       if (continuerTricheApresCommande) {
         // mode triche: afficher commande suivante
         this.afficherProchaineCommandeRestauration();
-        // if (this.tricheActif && !this.resteDeLaSortie?.length) {
-        //   this.indexDerniereCommandeRestauration += 1;
-        //   if (this.indexDerniereCommandeTriche < this.autoCommandes.length) {
-        //     this.commande = this.autoCommandes[this.indexDerniereCommandeTriche];
-        //   }
-        // }
       }
     }
 
@@ -1489,19 +1463,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
    * Charger IFID dans le header de la page
    */
   private definirIFID() {
-    if (this.document) {
+    if (this.htmlDocument) {
       // si on a un IFID, l'ajouter à la page web
       if (this.jeu?.IFID) {
         // récuperer ancienne balise
-        let oldMetaIFID = this.document.querySelector("meta[name='ifid']") as HTMLMetaElement;
+        let oldMetaIFID = this.htmlDocument.querySelector("meta[name='ifid']") as HTMLMetaElement;
         const metaContent = "UUID://" + BalisesHtml.retirerBalisesHtml(this.jeu.IFID) + "//";
         // balise déjà présente
         if (oldMetaIFID) {
           oldMetaIFID.content = metaContent;
           // ajouter balise
         } else {
-          const head = this.document.getElementsByTagName('head')[0];
-          const newMetaIFID = this.document.createElement('meta');
+          const head = this.htmlDocument.getElementsByTagName('head')[0];
+          const newMetaIFID = this.htmlDocument.createElement('meta');
           newMetaIFID.name = 'ifid';
           newMetaIFID.content = metaContent;
           head.appendChild(newMetaIFID);
@@ -1523,7 +1497,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private enleverIFID() {
     // récuperer ancienne balise
-    let oldMetaIFID = this.document.querySelector("meta[name='ifid']") as HTMLMetaElement;
+    let oldMetaIFID = this.htmlDocument.querySelector("meta[name='ifid']") as HTMLMetaElement;
     // supprimer l'ancienne balise
     if (oldMetaIFID) {
       oldMetaIFID.remove();

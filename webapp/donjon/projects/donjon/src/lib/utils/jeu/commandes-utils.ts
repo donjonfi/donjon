@@ -28,24 +28,29 @@ export class CommandesUtils {
    * Retourner la liste des commandes à laquelle on a retiré autant de tours de jeux  que demandé.
    */
   public static enleverToursDeJeux(nombreDeToursAEnlever: number, sauvegarde: Sauvegarde): Sauvegarde {
+
+    let pileDeclenchements: string[] = [];
+
     for (let nbToursEnleves = 0; nbToursEnleves < nombreDeToursAEnlever; nbToursEnleves++) {
       const derniereCommande = sauvegarde.etapesSauvegarde.pop();
 
       // s'il s'agit d'une réponse à une question, une graine ou un déclenchement, ce n'est pas une commande
       // donc il faudra encore enlever la commande précédente pour enlever tout le tour
-      switch (derniereCommande.slice(0, 1)) {
+      let [type, valeur] = derniereCommande.split(":");
+      switch (type) {
         case ExprReg.caractereReponse:
         case ExprReg.caractereGraine:
+          // réponse ou hasard: on doit annuler une étape de plus
           nbToursEnleves--;
           break;
         case ExprReg.caractereDeclenchement:
-          // s’il s’agit d’un déclenchement, il faut le remettre avant la dernière commande afin qu’il se déclenche 
-          // tout de même malgré l’annulation de la dernière commande.
-          sauvegarde.etapesSauvegarde.splice(Math.max(0, sauvegarde.etapesSauvegarde.length - 2), 0, derniereCommande);
+          // déclenchement: on doit annuler une étape de plus et on doit garder le déclenchement
+          pileDeclenchements.push(derniereCommande);
           nbToursEnleves--;
           break;
 
         case ExprReg.caractereCommande:
+          // cas normal
           break;
 
         default:
@@ -57,6 +62,12 @@ export class CommandesUtils {
         break;
       }
     }
+
+    // restaurer les déclenchements
+    while (pileDeclenchements.length) {
+      sauvegarde.etapesSauvegarde.push(pileDeclenchements.pop())
+    }
+
     return sauvegarde;
   }
 

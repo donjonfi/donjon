@@ -110,7 +110,7 @@ export class JouerComponent implements OnInit {
       this.chargerActions(false).then(actions => {
 
         // A. sauvegarde => scénario + commandes + graine
-        if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
+        if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"sauvegarde"/)) {
           var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
 
           // enlever les commentaires afin de réduire un peu la taille du fichier
