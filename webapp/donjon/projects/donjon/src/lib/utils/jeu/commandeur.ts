@@ -67,7 +67,6 @@ export class Commandeur {
     let retVal: ContexteCommande | undefined;
     if (this.commandePrecedente) {
       this.correctionCommandeEnCours = this.contextePrecedent;
-      console.warn("💙 commande précédente:", this.commandePrecedente, "et son contexte: ", this.contextePrecedent);
       retVal = this.executerCommande(this.commandePrecedente);
     }
     return retVal;

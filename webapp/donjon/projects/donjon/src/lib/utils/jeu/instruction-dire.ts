@@ -1852,40 +1852,40 @@ export class InstructionDire {
 
     switch (localisation) {
       case ELocalisation.nord:
-        retVal = "nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.nord_est:
-        retVal = "nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.est:
-        retVal = "est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "à l’est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud_est:
-        retVal = "sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud:
-        retVal = "sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud_ouest:
-        retVal = "sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.ouest:
-        retVal = "ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "à l’ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.nord_ouest:
-        retVal = "nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "au nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.haut:
-        retVal = "monter" + obstacle + " − " + titreLieu;
+        retVal = "en haut" + obstacle + ` : {+${titreLieu}+}`;
         break;
       case ELocalisation.bas:
-        retVal = "descendre" + obstacle + " − " + titreLieu;
+        retVal = "en bas" + obstacle + ` : {+${titreLieu}+}`;
         break;
       case ELocalisation.interieur:
-        retVal = "entrer" + obstacle + " − " + titreLieu;
+        retVal = "devant" + obstacle + ` : {+${titreLieu}+}`;
         break;
       case ELocalisation.exterieur:
-        retVal = "sortir" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? (" − " + titreLieu) : ' − ?');
+        retVal = "dehors" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
 
       default:

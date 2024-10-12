@@ -174,6 +174,12 @@ export class Abreviations {
             retVal = "attaquer ";
             break;
 
+          case 'av':
+          case 'ava':
+          case 'avancer':
+            retVal = "aller dedans";
+            break;
+
           case 'triche':
             retVal = "déboguer triche ";
             break;
