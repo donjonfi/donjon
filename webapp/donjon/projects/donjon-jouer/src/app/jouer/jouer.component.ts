@@ -125,11 +125,14 @@ export class JouerComponent implements OnInit {
           if (sauvegarde.version > versionNum) {
             jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
           }
-          // // rétablir la graine pour le générateur aléatoire
-          // jeu.graine = sauvegarde.graine;
 
-          // exécuter les commandes de la sauvegarde
-          jeu.sauvegarde = sauvegarde;
+          if (sauvegarde.version >= 30000) {
+            jeu.sauvegarde = sauvegarde;
+            ((this.lecteurRef as any) as LecteurComponent).restaurerProchainJeu();
+          }else{
+            jeu.tamponErreurs.push("Ancienne sauvegarde.\n Pour continuer votre partie, veuillez vous rendre sur https://donjon.fi/v2/jouer/");
+          }
+
           // lancer le jeu
           this.jeu = jeu;
 

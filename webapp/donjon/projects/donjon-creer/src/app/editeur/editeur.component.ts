@@ -563,13 +563,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
             // A. sauvegarde => scénario + commandes + graine
             if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"sauvegarde"/)) {
               var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
-
               // informer si sauvegarde faite avec version plus récente de Donjon FI.
               if (sauvegarde.version > versionNum) {
                 this.jeu.tamponErreurs.push("Cette solution a été effectuée avec une version plus récente de Donjon FI.");
               }
-
-              console.log("@@@@@@@@@ FICHIER SOLUTION CHARGÉ");
               if(this.jeu){
                 ((this.lecteurRef as any)as LecteurComponent).setSolution(sauvegarde);
               }

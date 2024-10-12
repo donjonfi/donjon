@@ -100,10 +100,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-
-    console.log("@@@@@@@@@@ ngOnChanges LECTEUR @@@@@@@@@@@@@@");
-
-
     /** S'assurer de décharger la partie en cours (arrêter musiques par exemple) */
     if (this.partie) {
       this.partie.unload();
@@ -124,9 +120,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Initialiser une nouvelle partie (ou reprendre une partie) */
   private initialiserJeu() {
-
-    console.log("@@@@@@@@@@@@ initialiserJeu @@@@@@@@@@@@@@");
-
     this.resteDeLaSortie = [];
     this.commandeEnCours = false;
     this.interruptionEnCours = undefined;
@@ -995,12 +988,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private lancerAutoTriche() {
-
-    console.log("@@@@@ lancer AUTO Triche");
-
-    console.log(this.jeu.sauvegarde);
-
-
     // on a lancé la restauration de la sauvegarde
     this.restaurationSauvegardeEnAttente = false;
     this.autoTricheEnAttente = false;
