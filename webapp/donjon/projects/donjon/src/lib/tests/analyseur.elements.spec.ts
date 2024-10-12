@@ -1,4 +1,3 @@
-import { AnalyseurBeta } from "../utils/compilation/analyseur/analyseur-beta";
 import { AnalyseurElementPosition } from "../utils/compilation/analyseur/analyseur.element.position";
 import { AnalyseurElementSimple } from "../utils/compilation/analyseur/analyseur.element.simple";
 import { AnalyseurUtils } from "../utils/compilation/analyseur/analyseur.utils";

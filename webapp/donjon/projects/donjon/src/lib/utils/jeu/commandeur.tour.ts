@@ -41,7 +41,7 @@ export class CommandeurTour {
     tour.commande.sortie = "";
 
     // terminer les instructions de la phase interrompue
-    // TODO: nombre de déclanchements s’il s’agit d’une règle
+    // TODO: nombre de déclenchements s’il s’agit d’une règle
     const resultatReste = this.ins.executerInstructions(tour.reste, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatReste.sortie;
 
@@ -163,7 +163,7 @@ export class CommandeurTour {
       if (sousResultatAvant.interrompreBlocInstruction) {
         InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatAvant, sousResultatAvant);
         if (declenchementsAvant.length > 1) {
-          this.jeu.tamponConseils.push("Déclanchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclanchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
+          this.jeu.tamponConseils.push("Déclenchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclenchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
         }
       }
       if (resultatAvant.arreterApresRegle) {
@@ -171,7 +171,7 @@ export class CommandeurTour {
       }
     }
 
-    // si on a fait appel à l’instruction « arrêter l’action »
+    // si on a fait appel à l’instruction « arrêter l’action » / « refuser l’action »
     if (resultatAvant.arreterApresRegle === true) {
       // cloturer le tour
       tour.phase = PhaseTour.fin;
@@ -304,7 +304,7 @@ export class CommandeurTour {
           if (sousResultatApres.interrompreBlocInstruction) {
             InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatApres, sousResultatApres);
             if (declenchementsApres.length > 1) {
-              this.jeu.tamponConseils.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
+              this.jeu.tamponConseils.push("Déclenchement règle après: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « après » se déclenchent pour le même évènement.");
             }
           }
         } // fin exécution des instructions des règles après

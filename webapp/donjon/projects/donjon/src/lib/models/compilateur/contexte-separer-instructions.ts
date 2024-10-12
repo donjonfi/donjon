@@ -37,7 +37,7 @@ export class ContexteSeparerInstructions {
   public instructionsBlocsCondEnCoursSinon: Instruction[][] = [];
   /** est ce qu’on se trouve actuellement dans la partie sinon du bloc conditionnel ouvert ? */
   public dansBlocSinon: boolean[] = [];
-  /** est-ce que la prochaine instsructions est attendue (pour cloturer un si rapide) */
+  /** est-ce que la prochaine instruction est attendue (pour cloturer un si rapide) */
   public prochaineInstructionAttenduePourSiRapide: Instruction[] = null;
   /** est-ce que le prochain si est un « sinon si » ? */
   public prochainSiEstSinonSi = false;
