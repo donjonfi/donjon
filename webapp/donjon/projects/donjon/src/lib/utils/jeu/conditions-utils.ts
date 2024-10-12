@@ -423,8 +423,11 @@ export class ConditionsUtils {
             // remarque: négation appliquée plus loin.
             let destination: ElementJeu = null;
 
-            const conditionSujetComplementNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujetComplement?.nom);
+            if (condition.sujetComplement?.nom === 'inventaire') {
+              condition.sujetComplement.nom = 'joueur';
+            }
 
+            const conditionSujetComplementNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujetComplement?.nom);
 
             if (condition.sujetComplement?.nom === "ici") {
               destination = this.eju.curLieu;
