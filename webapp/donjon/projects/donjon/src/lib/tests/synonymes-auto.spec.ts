@@ -33,6 +33,21 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.synonymes[1].nomEpithete).toEqual("dubois");
     });
 
+    it('Clé verte rouillée', () => {
+        const ej = new ElementJeu(1, "Clé de bois sec", PhraseUtils.getGroupeNominalDefini("Clé de bois sec", false), ClassesRacines.Objet);
+        console.log("@@@@@ rouillée ej = ", ej);
+        
+        expect(ej.intitule.nomEpithete).toEqual("Clé de bois sec");
+        Generateur.genererSynonymesAuto(ej);
+        expect(ej.synonymes).toHaveSize(6);
+        expect(ej.synonymes[0].nomEpithete).toEqual("cle");
+        expect(ej.synonymes[1].nomEpithete).toEqual("cle bois");
+        expect(ej.synonymes[2].nomEpithete).toEqual("cle sec");
+        expect(ej.synonymes[3].nomEpithete).toEqual("bois");
+        expect(ej.synonymes[4].nomEpithete).toEqual("bois sec");
+        expect(ej.synonymes[5].nomEpithete).toEqual("sec");
+    });
+
     it('Jacques', () => {
         const ej = new ElementJeu(1, "Jacques", PhraseUtils.getGroupeNominalDefini("Jacques", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Jacques");

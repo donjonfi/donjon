@@ -539,19 +539,19 @@ export class Generateur {
 
               const ceci = cmd.els.sujet;
               ev.isCeci = ceci ? true : false;
-              ev.ceci =  (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
+              ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
               ev.classeCeci = null;
               ev.quantiteCeci = 0;
               ev.prepositionCeci = cmd.els.preposition0;
 
               const cela = cmd.els.sujetComplement1;
               ev.isCela = cela ? true : false;
-              ev.cela =  (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
+              ev.cela = (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
               ev.classeCela = null;
               ev.quantiteCela = 0;
               ev.prepositionCela = cmd.els.preposition1;
 
-              if(ctx.verbeux){
+              if (ctx.verbeux) {
                 console.warn(`🟢 Commande trouvée pour la règle ${regle.intitule}`);
               }
 
@@ -841,14 +841,28 @@ export class Generateur {
   }
 
   public static genererSynonymesAuto(el: ElementJeu) {
+    // composé de au moins 2 mots
     if (el.intitule.motsCles.length > 1) {
-      for (const motCle of el.intitule.motsCles) {
-        const curSynonyme = PhraseUtils.getGroupeNominalDefini(motCle, true);
-        if (!el.synonymes.some(x => x.toString() == curSynonyme.toString())) {
-          el.synonymes.push(curSynonyme);
+      for (let indexMotA = 0; indexMotA < el.intitule.motsCles.length; indexMotA++) {
+        // chaque mot séparé est un synonyme
+        const motCleA = el.intitule.motsCles[indexMotA];
+        const curSynonymeSimple = PhraseUtils.getGroupeNominalDefini(motCleA, true);
+        if (!el.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
+          el.synonymes.push(curSynonymeSimple);
+        }
+        // composé de au moins 3 mots
+        if (el.intitule.motsCles.length > 2) {
+          for (let indexMotB = indexMotA+1; indexMotB < el.intitule.motsCles.length; indexMotB++) {
+            const motCleB = el.intitule.motsCles[indexMotB];
+            const curSynonymeDouble = PhraseUtils.getGroupeNominalDefini(`${motCleA} ${motCleB}`, true);
+            if (!el.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
+              el.synonymes.push(curSynonymeDouble);
+            }
+          }
         }
       }
     }
+
   }
 
 }
