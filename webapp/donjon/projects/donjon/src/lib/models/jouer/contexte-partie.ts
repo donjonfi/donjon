@@ -23,12 +23,8 @@ export class ContextePartie {
 
   private _dossierRessourcesComplet: string;
 
-
   /** historique des commandes déjà exécutées depuis le début de la partie*/
   private _etapesPartie: string[] = [];
-  // /** Index de la prochaine commande dans l’historique des commandes de la partie */
-  // private _indexProchaineCommandePartie: number = 0;
-
 
   constructor(
     /** L’état du jeu correspondant à la partie. */
@@ -59,25 +55,11 @@ export class ContextePartie {
 
     this.ecran = new ContexteEcran(this._dossierRessourcesComplet);
 
-    // initialiser le générateur de nombres aléatoire en début de partie
-    // this.initialiserAleatoire();
-    this.nouvelleGraineAleatoire(this.jeu.graine);
   }
 
   public get etapesPartie(): string[] {
     return this._etapesPartie;
   }
-
-  // public get indexProchaineCommandePartie(): number {
-  //   return this._indexProchaineCommandePartie;
-  // }
-
-  //   /** Sauvegarder la commande dans l’historique des commandes et incrémenter l’index de la prochaine commande.
-  //  * L’index de la prochaine commande est utilisé pour la sauvegarde du déclenchement des routines programmées.
-  //  */
-  //   public ajouterCommandeOuReponseDansSauvegarde(commandeBrute: string) {
-  //     this._indexProchaineCommandePartie = this._commandesEtReponsesPartie.push(commandeBrute);
-  //   }
 
   public ajouterCommandeDansSauvegarde(commandeBrute: string) {
     this._etapesPartie.push(ExprReg.caractereCommande + ":" + commandeBrute);
@@ -86,17 +68,6 @@ export class ContextePartie {
   public ajouterReponseDansSauvegarde(reponseBrute: string) {
     this._etapesPartie.push(ExprReg.caractereReponse + ":" + reponseBrute);
   }
-
-  // /** Initialiser le générateur de nombres aléatoires. */
-  // private initialiserAleatoire() {
-  //   // graine pas encore définie: on en crée une nouvelle
-  //   if (this.jeu.graine == undefined) {
-  //     this.nouvelleGraineAleatoire();
-  //     // graine déjà définie : on la réutilise
-  //   } else {
-  //     AleatoireUtils.init(this.jeu.graine);
-  //   }
-  // }
 
   /** 
    * Changer la graine pour la générateur de nombres aléatoires.
@@ -118,59 +89,11 @@ export class ContextePartie {
 
     // sauvegarde de la graine
     this.etapesPartie.push(`${ExprReg.caractereGraine}:${nouvelleGraine}`);
-
-    // let graine = Math.random();
-    // // sauvegarde v2
-    // this.ajouterGraineDansHistorique(graine, this.indexProchaineCommandePartie);
-    // // sauvegarde v1
-    // this.jeu.graine = graine.toString();
-    // // initialisation du jeu avec la nouvelle graine
-    // AleatoireUtils.init(this.jeu.graine);
   }
-
-  // /**
-  //  * Historique des routines programmées déjà déclenchées.
-  //  * (sauvegarde V2)
-  //  */
-  // get sauvegardeDeclenchements() {
-  //   return this._sauvegardeDeclenchements;
-  // }
-
-  // private _sauvegardeDeclenchements: DeclenchementPasse[] = [];
-
-  // public ajouterDeclenchementDansSauvegarde(routine: string, indexProchaineCommande: number) {
-  //   let dec = new DeclenchementPasse();
-  //   dec.routine = routine;
-  //   dec.idxComSuivante = indexProchaineCommande;
-  //   this.sauvegardeDeclenchements.push(dec);
-  // }
 
   public ajouterDeclenchementDansSauvegarde(routine: string) {
     this.etapesPartie.push(`${ExprReg.caractereDeclenchement}:${routine}`);
   }
-
-  // /**
-  //  * Historique de l’ensemble des graines utilisées pour
-  //  * initialiser le générateur de nombres aléatoires.
-  //  * (sauvegarde V2)
-  //  */
-  // get historiqueGraines() {
-  //   return this._historiqueGraines;
-  // }
-  // _historiqueGraines: GraineSauvegarde[] = [];
-
-  // public ajouterGraineDansHistorique(graine: number, indexProchaineCommande: number) {
-  //   let newGraine = new GraineSauvegarde();
-  //   newGraine.graine = graine;
-  //   newGraine.idxComSuivante = indexProchaineCommande;
-  //   this._historiqueGraines.push(newGraine);
-  // }
-
-  // /** 
-  //  * Commandes à exécuter à l'initialisation du jeu
-  //  * afin de rétablir la sauvegarde précédemment chargée.
-  //  */
-  // public commandesRestaurationSauvegarde: string[] | undefined;
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
   public get dossierRessourcesComplet(): string {
@@ -192,17 +115,9 @@ export class ContextePartie {
     return sauvegarde;
   }
 
-  public enleverDerniereCommande() {
+  public enleverCommandeGenererSolution() {
     this._etapesPartie.pop();
-
   }
-
-  // /** Récupérer la liste de l'ensemble des commandes de la partie. */
-  // public getCommandesEtReponsesPartieNettoyees(): string[] {
-  //   // enlever le caractère spécial qui identifie les réponses et renvoyer 
-  //   // l'historique de la partie.
-  //   return CommandesUtils.enleverCaractereReponse(this._commandesEtReponsesPartie);
-  // }
 
   public unload() {
     // supprimer les musiques en cours éventuelles

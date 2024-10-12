@@ -273,7 +273,9 @@ export class InstructionExecuter {
 
     if (tempsMs > 0) {
       if (this.ins.restaurationPartieEnCours) {
-        contexteTour.ajouterErreurDerniereInstruction(`Programmation de routine ${routine} ignorée (car mode triche est actif)`);
+        if (this.verbeux) {
+          console.warn(`Programmation de routine ${routine} ignorée (restaurationPartieEnCours)`);
+        }
       } else {
         let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
         this.jeu.programmationsTemps.push(nouvelleProgrammation);

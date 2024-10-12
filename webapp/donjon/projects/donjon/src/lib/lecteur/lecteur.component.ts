@@ -64,7 +64,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   private restaurationSauvegardeEnAttente = false;
 
   /** Index de la dernière commande exécutée avec le système « triche/chargement partie » */
-  private indexDerniereCommandeRestauration: number = 0;
+  private indexDerniereCommandeRestauration: number = -1;
 
 
   /** Afficher la case à cocher pour activer/désactiver l’audio */
@@ -201,41 +201,48 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.activerParametreAudio = false;
     }
 
-    // // ================
-    // //  REPRISE PARTIE
-    // // ================
+    // // =========================
+    // // GÉNÉRATEUR DE HASARD
+    // // =========================
 
-    // mode triche manuel: on démarre pour initialiser graine de hasard
-    if (this.manuTricheEnAttente) {
-      this.manuTricheEnAttente = false;
-      if (this.jeu.sauvegarde) {
-        this.lancerManuTriche();
-      } else {
-        this.ajouteErreur("Mode triche: aucun fichier solution chargé.");
-      }
-    }
+    let graineDeDepart: string | undefined;
 
-    // mode restauration automatique: on initialise graine de hasard
-    if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+    this.indexDerniereCommandeRestauration = -1;
 
-      // éviter de programmer les déclenchements de routines
-      this.partie.ins.restaurationPartieEnCours = true;
-
+    // utilisation d’une sauvegarde: on initialise graine du générateur de hasard avec valeur présente dans la sauvegarde
+    if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.manuTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
       if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
-        const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[this.indexDerniereCommandeRestauration];
-        let [type, valeur] = prochaineEtape.split(":");
+        const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[++this.indexDerniereCommandeRestauration];
+        let [type, graineRestauree] = prochaineEtape.split(":");
         if (type == ExprReg.caractereGraine) {
           this.ajouteConseils("Graine du générateur de hasard restaurée.")
-          this.partie.nouvelleGraineAleatoire(valeur);
+          graineDeDepart = graineRestauree;
         } else {
           this.ajouteErreur("Restauration de partie : la première étape n’est pas la graine du générateur de hasard.");
         }
+      } else {
+        this.ajouterConseil("Restauration de partie : sauvegarde vide.")
       }
+    }
+
+    // nouvelle graine
+    if (graineDeDepart == undefined) {
+      this.partie.nouvelleGraineAleatoire();
+      // restauration graine
+    } else {
+      // initialiser le générateur de hasard avec la graine choisie
+      this.partie.nouvelleGraineAleatoire(graineDeDepart);
     }
 
     // =====================
     //  COMMENCER LA PARTIE
     // =====================
+
+    // restauration auto d’une partie : éviter le déclenchement des routines programmées
+    if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
+      // éviter de programmer les déclenchements de routines
+      this.partie.ins.restaurationPartieEnCours = true;
+    }
 
     // si la commande commencer le jeu existe, commencer le jeu
     if (this.partie.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
@@ -260,16 +267,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // le jeu est commencé à moins qu’il ne soit interrompu
     if (!this.interruptionEnCours) {
       this.partie.jeu.commence = true;
-
-      // restauration d’un jeu précédent
-      if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+      // restauration d’un jeu précédent en mode manuel
+      if (this.manuTricheEnAttente) {
+        this.manuTricheEnAttente = false;
+        this.lancerManuTriche();
+        // restauration d’un jeu précédent en mode automatique
+      } else if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
         this.lancerAutoTriche();
         // partie normale
       } else {
         this.lancerRoutinesProgrammees();
       }
     }
-
 
     // donner le focus sur « entrez une commande » 
     this.focusCommande();
@@ -308,6 +317,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           let programmationTerminee: number[] = [];
           for (let indexProgrammation = 0; indexProgrammation < this.jeu.programmationsTemps.length; indexProgrammation++) {
             const programmation = this.jeu.programmationsTemps[indexProgrammation];
+            if (programmation == undefined) {
+              throw new Error("Programmation pas retrouvée !");
+            }
             // vérifier si le chrono est arrivé à terme
             if (tempsActuel - programmation.debutTemps > programmation.duree) {
               programmationTerminee.push(indexProgrammation);
@@ -476,11 +488,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         case TypeInterruption.attendreChoixLibre:
           this.commande = "";
           // si mode triche, proposer le choix de la solution (commande suivante)
-          this.afficherProchaineCommandeRestauration();
+          this.executerProchaineEtapeManuTriche();
           // focus sur l'entrée de commande
           this.focusCommande();
-          // reprise partie
-          if (this.restaurationSauvegardeEnAttente) {
+          // si restauration automatique doit être démarrée
+          if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
             this.lancerAutoTriche();
           }
           break;
@@ -502,13 +514,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               this.indexChoixPropose = 0;
               this.commande = this.choixPossibles[this.indexChoixPropose];
 
-              // si mode triche, proposer le choix de la solution (commande suivante)
-              this.afficherProchaineCommandeRestauration();
+              // si mode triche manuel, proposer le choix de la solution (commande suivante)
+              this.executerProchaineEtapeManuTriche();
 
               // focus sur l'entrée de commande
               this.focusCommande();
-              // reprise partie
-              if (this.restaurationSauvegardeEnAttente) {
+              // si restauration automatique doit être démarrée
+              if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
                 this.lancerAutoTriche();
               }
             }
@@ -530,7 +542,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // si (on est en auto-triche) 
           // ou bien si (une sauvegarde est en cours de restauration ou un tour doit être annulé)
           // alors on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
             this.terminerInterruption(undefined);
           }
           break;
@@ -541,7 +553,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.focusCommande();
           // si on est en auto-triche où qu'une sauvegarde doit
           // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {
@@ -555,9 +567,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.interruptionEnCoursAvantAnnulation = this.interruptionEnCours;
           this.jeu.sauvegarde = this.partie.creerSauvegardeSolution();
           CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this.jeu.sauvegarde);
-          // this.graineAvantAnnulation = this.jeu.graine;
-          // // enlever commande en cours + le nombre de commandes à annuler
-          // this._commandesEtReponsesPartie = CommandesUtils.enleverToursDeJeux(1 + this.interruptionEnCoursAvantAnnulation.nbToursAnnuler, this._commandesEtReponsesPartie);
           this.nouvellePartieOuAnnulerTour.emit(this.jeu.sauvegarde);
           break;
 
@@ -568,12 +577,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         case TypeInterruption.questionCommande:
 
-          // TODO: Vérifier Mode TRICHE / CHARGEMENT / ANNULER
+          // si mode triche manuel, proposer le choix de la solution (commande suivante)
+          this.executerProchaineEtapeManuTriche();
 
           // focus sur l'entrée de commande
           this.focusCommande();
-          // reprise partie
-          if (this.restaurationSauvegardeEnAttente) {
+          // si restauration automatique doit être démarrée
+          if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
             this.lancerAutoTriche();
           }
           break;
@@ -587,14 +597,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private afficherProchaineCommandeRestauration() {
+  private executerProchaineEtapeManuTriche() {
 
-    console.log(`afficherProchaineCommandeRestauration, manuTricheActif=${this.manuTricheActif}`);
 
     if (this.manuTricheActif && !this.jeu.sauvegarde) {
       throw new Error("Manu triche actif mais aucune sauvegarde trouvée !");
     }
-
 
     // si mode triche manuel, proposer le choix de la solution (commande suivante)
     if (this.manuTricheActif && !this.resteDeLaSortie?.length) {
@@ -606,27 +614,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
         switch (type) {
           // commande
-          case `${ExprReg.caractereCommande}`:
+          case ExprReg.caractereCommande:
             this.commande = valeur;
             break;
           // réponse
-          case `${ExprReg.caractereReponse}`:
+          case ExprReg.caractereReponse:
             this.commande = valeur;
             break;
 
           // déclenchement
-          case `${ExprReg.caractereDeclenchement}`:
+          case ExprReg.caractereDeclenchement:
             this.ajouterConseil(`La routine « ${valeur} » avait été déclenchée avant la prochaine commande`);
             // afficher commande suivante
-            this.afficherProchaineCommandeRestauration();
+            this.executerProchaineEtapeManuTriche();
             break;
 
           // graine
-          case `${ExprReg.caractereGraine}`:
+          case ExprReg.caractereGraine:
             this.partie.nouvelleGraineAleatoire(valeur);
             this.ajouterConseil(`Générateur de hasard mis à jour selon fichier solution`);
             // afficher commande suivante
-            this.afficherProchaineCommandeRestauration();
+            this.executerProchaineEtapeManuTriche();
             break;
 
           // autre
@@ -827,7 +835,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // mode triche: afficher commande suivante
-      this.afficherProchaineCommandeRestauration();
+      this.executerProchaineEtapeManuTriche();
     }
     this.scrollSortie();
   }
@@ -858,7 +866,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.partie.ecran.ajouterContenuHtml('<p class="t-commande font-italic">Appuyez sur une touche…');
     } else {
       // mode triche : afficher commande suivante
-      this.afficherProchaineCommandeRestauration();
+      this.executerProchaineEtapeManuTriche();
     }
     this.scrollSortie();
   }
@@ -988,11 +996,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private lancerAutoTriche() {
 
-    this.ajouteErreur("START AUTO TRICHE");
+    console.log("@@@@@ lancer AUTO Triche");
+
+    console.log(this.jeu.sauvegarde);
+
 
     // on a lancé la restauration de la sauvegarde
     this.restaurationSauvegardeEnAttente = false;
     this.autoTricheEnAttente = false;
+    this.autoTricheActif = true;
 
     // si on est occupé à restaurer une sauvegarde
     if (this.jeu.sauvegarde) {
@@ -1006,31 +1018,46 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         this.autoTricheActif = true;
         this.partie.ins.restaurationPartieEnCours = true;
 
+        let ignorerEtapeGraine = true;
+
         this.jeu.sauvegarde.etapesSauvegarde.forEach(async curCom => {
 
-          let [type, valeur] = curCom.split(":");
-          switch (type) {
-            // commande et réponse
-            case 'c':
-            case 'r': // TODO: est-ce que r doit être possible ici ou cela n’est pas normal de tomber dans ce cas ?
-              this.commande = valeur;
-              this.onKeyDownEnter(null);
-              break;
+          if (ignorerEtapeGraine) {
+            ignorerEtapeGraine = false;
+          } else {
+            let [type, valeur] = curCom.split(":");
+            switch (type) {
+              // commande et réponse
+              case 'c':
+              case 'r': // TODO: est-ce que r doit être possible ici ou cela n’est pas normal de tomber dans ce cas ?
+                this.commande = valeur;
+                this.onKeyDownEnter(null);
+                break;
 
-            // graine
-            case 'g':
-              this.partie.nouvelleGraineAleatoire();
-              break;
+              // graine
+              case 'g':
+                this.partie.nouvelleGraineAleatoire(valeur);
+                break;
 
-            // déclenchement
-            case 'd':
-              let nouvelleProgrammation = new ProgrammationTemps(valeur, 0);
-              this.jeu.programmationsTemps.push(nouvelleProgrammation);
-              this.verifierChrono();
-              break;
+              // déclenchement
+              case 'd':
+                const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == valeur);
+                if (routine) {
+                  if (this.partie.verbeux) {
+                    console.log("routine trouvée");
+                  }
+                  this.jeu.tamponRoutinesEnAttente.push(routine);
+                  // enregistrer le moment où la routine a été mise sur le pile pour la sauvegarde
+                  this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
+                  this.traiterProchaineRoutine();
+                } else {
+                  this.ajouteErreur(`Triche auto: routine pas trouvée: ${valeur}`)
+                }
+                break;
 
-            default:
-              throw new Error(`Restauration sauvegarde: type de commande pas pris en charge:  ${type}`);
+              default:
+                throw new Error(`Restauration sauvegarde: type de commande pas pris en charge:  ${type}`);
+            }
           }
 
 
@@ -1065,63 +1092,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       this.terminerInterruption(undefined);
     }
 
-    // // s'il y a des commandes à exécuter
-    // if (this.jeu.sauvegarde && this.jeu.sauvegarde.commandesGrainesDeclenchementsReponses.length) {
-    //   // on a lancé la restauration de la sauvegarde
-    //   this.restaurationSauvegardeEnCours = false;
-
-    //   // désactiver temporairement l'audio
-    //   const backAudioActif = this.jeu.parametres.activerAudio;
-    //   this.audioActif = false;
-
-    //   this.autoTricheActif = true;
-    //   this.autoCommandes.forEach(async curCom => {
-    //     this.commande = curCom;
-    //     this.onKeyDownEnter(null);
-    //   });
-
-    //   // // nouvelle graine pour l’aléatoire
-    //   // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
-    //   // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
-    //   // this.ctx.nouvelleGraineAleatoire();
-
-    //   // rétablir l'audio
-    //   this.audioActif = backAudioActif;
-
-    //   this.autoTricheActif = false;
-    //   // aucune commande à exécuter
-    // } else {
-    //   // si mode restauration sauvegarde, c'est fini
-    //   if (this.restaurationSauvegardeEnCours) {
-    //     this.restaurationSauvegardeEnCours = false;
-
-    //     // générer une nouvelle graine aléatoire pour éviter
-    //     // que la suite du jeu soit la même à chaque chargement
-    //     // d’une sauvegarde ou après chaque annulation de commande
-    //     this.partie.nouvelleGraineAleatoire();
-
-    //     // sinon il n'y a pas de solution chargée
-    //   } else {
-    //     this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
-    //   }
-    // }
-
-    // // si on était occupé à annuler des tours de jeu, terminer le tour commencé
-    // // avant le début de l'annulation
-    // if (this.interruptionEnCoursAvantAnnulation) {
-    //   this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
-    //   this.interruptionEnCoursAvantAnnulation = undefined;
-    //   this.terminerInterruption(undefined);
-    // }
-
   }
 
   private lancerManuTriche(): void {
     if (this.jeu.sauvegarde) {
       if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
         this.manuTricheActif = true;
-        this.indexDerniereCommandeRestauration = -1;
-        this.afficherProchaineCommandeRestauration();
+        // on a déjà lu la première étape qui est la graine de hasard
+        this.indexDerniereCommandeRestauration = 0;
+        this.executerProchaineEtapeManuTriche();
       } else {
         this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucune commande à exécuter./}", this.partie.dossierRessourcesComplet));
       }
@@ -1132,7 +1111,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   private genererFichierSolution(): void {
     // enlever la dernière commande, qui est « sauver commandes »
-    this.partie.enleverDerniereCommande();
+    this.partie.enleverCommandeGenererSolution();
     let texteIgnore: string;
     if (this.partie.etapesPartie.length > 0) {
       texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<i>Fichier solution généré. Vous pouvez utiliser votre fichier solution avec le mode <b>triche</b>.</i>');
@@ -1148,8 +1127,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
   }
-
-
 
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
@@ -1311,7 +1288,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         // sortie spéciale: auto-triche
         if (sortieCommande == "@auto-triche@") {
           setTimeout(() => {
-            this.autoTricheActif = true;
+            this.autoTricheEnAttente = true;
             this.nouvellePartieOuAnnulerTour.emit(this.jeu.sauvegarde);
           }, 100);
           // sortie spéciale: triche
@@ -1378,7 +1355,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
       if (continuerTricheApresCommande) {
         // mode triche: afficher commande suivante
-        this.afficherProchaineCommandeRestauration();
+        this.executerProchaineEtapeManuTriche();
       }
     }
 

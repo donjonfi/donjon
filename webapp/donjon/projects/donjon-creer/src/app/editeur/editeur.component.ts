@@ -376,10 +376,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.messages = resultatCompilation.messages;
         // générer le jeu
         const jeuGenere = Generateur.genererJeu(resultatCompilation);
-        // fonctionnalité annuler
+        // fonctionnalité annuler (priorité 1)
         if (restauration) {
           jeuGenere.sauvegarde = restauration;
-          // fonctionnalité triche
+          // fonctionnalité triche (priorité 2)
         } else if (this.solutionChargee) {
           jeuGenere.sauvegarde = restauration;
         }
