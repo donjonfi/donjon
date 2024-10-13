@@ -292,10 +292,10 @@ export class InstructionsUtils {
         if (ClasseUtils.heriteDe(recherche.classe, EClasseRacine.objet)) {
           // si la classe de l’élément cible hérite de objet
           if (ClasseUtils.heriteDe(recherche.element.classe, EClasseRacine.objet)) {
-            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, false, recherche.prepositionSpatiale);
+            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, true, false, recherche.prepositionSpatiale);
             // si la classe de l’élément cible hérite de lieu
           } else if (ClasseUtils.heriteDe(recherche.element.classe, EClasseRacine.lieu)) {
-            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, false, PrepositionSpatiale.dans);
+            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, true, false, PrepositionSpatiale.dans);
           }
           // si la classe recherchée n’hérite pas de objet
         } else {

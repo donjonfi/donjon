@@ -197,10 +197,10 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de métro");
+    expect(texteCalcule).toEqual("{E}Pas de métro{E}");
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Bus trouvé");
+    expect(texteCalcule).toEqual("{E}Bus trouvé{E}");
 
     ctx.com.executerCommande("tester");
 
@@ -210,10 +210,10 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("métro trouvé");
+    expect(texteCalcule).toEqual("{E}métro trouvé{E}");
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de bus");
+    expect(texteCalcule).toEqual("{E}Pas de bus{E}");
 
   });
 
@@ -235,7 +235,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de Métro");
+    expect(texteCalcule).toEqual("{E}Pas de Métro{E}");
 
     ctx.com.executerCommande("tester");
 
@@ -243,7 +243,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Métro trouvé");
+    expect(texteCalcule).toEqual("{E}Métro trouvé{E}");
 
   });
 

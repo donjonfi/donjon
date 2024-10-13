@@ -216,9 +216,9 @@ export class InstructionDire {
           let resultatCurBalise: string;
           if (cible instanceof ElementJeu) {
             if (isLister) {
-              resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, preposition).sortie;
+              resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, preposition).sortie;
             } else {
-              resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, preposition).sortie;
+              resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, preposition).sortie;
             }
           } else {
             resultatCurBalise = "{+(cible pas trouvée)+}";
@@ -297,7 +297,7 @@ export class InstructionDire {
       }
 
       // ================================================================================
-      // OSTACLE
+      // OBSTACLE
       // ================================================================================
 
       if (texteDynamique.includes("[obstacle ")) {
@@ -977,7 +977,7 @@ export class InstructionDire {
 
     } // fin interprétation crochets
 
-    // rétablir les crochets échapés
+    // rétablir les crochets échappés
     texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetOuvrant, '[');
     texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetFermant, ']');
 
@@ -1006,7 +1006,7 @@ export class InstructionDire {
     // ======================================================================================================
     if (texteDynamiqueSansBaliseStyle.match(/(\.|…|:|\?|!)(\)| »)?$/)) {
       // si le texte se termine par une balise de type {x}, ne pas ajouter de retour à la ligne auto.
-      if (texteDynamique.match(/\{\w\}$/)) {
+      if (texteDynamique.match(/\{[a-zA-DF-Z]\}$/)) {
         // sinon ajouter retour à la ligne auto.
       } else {
         texteDynamique += "{N}";
@@ -1354,16 +1354,27 @@ export class InstructionDire {
       // jamais une condition au début car dans ce cas ça donne une première chaine vide.
       let suivantEstCondition = false; // description.trim().startsWith("[");
       let afficherMorceauSuivant = true;
+      let conditionQuiPrecede = "";
       // console.log("$$$$$$$$$$$ morceaux=", morceaux, "suivantEstCondition=", suivantEstCondition);
       for (let index = 0; index < morceaux.length; index++) {
         statut.curMorceauIndex = index;
         const curMorceau = morceaux[index];
         if (suivantEstCondition) {
+          conditionQuiPrecede = curMorceau;
           afficherMorceauSuivant = this.estConditionDescriptionRemplie(curMorceau, statut, contexteTour, evenement, declenchements);
           suivantEstCondition = false;
         } else {
           if (afficherMorceauSuivant) {
-            retVal += curMorceau;
+            // ajouter le morceau s’il n’est pas vide
+            if(curMorceau?.length){
+              // si on est après un bloc condition
+              if(conditionQuiPrecede.match(/^fin/gi)){
+                retVal += curMorceau;
+              // si on est à l’intérieur d’un bloc condition
+              }else{
+                retVal += "{E}" + curMorceau + "{E}";
+              }
+            }
           }
           suivantEstCondition = true;
         }
@@ -1486,10 +1497,10 @@ export class InstructionDire {
    * Lister le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, retrait: number = 1): Resultat {
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, retrait: number = 1): Resultat {
 
     let resultat = new Resultat(false, '', 1);
-    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
+    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
@@ -1524,7 +1535,7 @@ export class InstructionDire {
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID) ||
               this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.transparentID)
             ) {
-              let contenu = this.executerListerContenu(obj, false, false, false, false, prepositionSpatiale, retrait + 1).sortie;
+              let contenu = this.executerListerContenu(obj, false, false, false, false, false, prepositionSpatiale, retrait + 1).sortie;
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
@@ -1544,7 +1555,7 @@ export class InstructionDire {
         let supportsSansApercu = objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerListerContenu(support, false, false, false, false, PrepositionSpatiale.sur);
+          const sousRes = this.executerListerContenu(support, false, false, false, false, false, PrepositionSpatiale.sur);
           resultat.sortie += sousRes.sortie;
         });
 
@@ -1569,10 +1580,10 @@ export class InstructionDire {
    * Décrire le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale): Resultat {
+  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale): Resultat {
 
     let resultat = new Resultat(false, '', 1);
-    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
+    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
@@ -1612,7 +1623,7 @@ export class InstructionDire {
                   resultat.sortie = resultat.sortie.slice(0, resultat.sortie.length - '{N}'.length);
                 }
                 // ne pas afficher objets cachés du support, on ne l’examine pas directement
-                const sousRes = this.executerDecrireContenu(obj, (" Dessus, il y a "), "", false, false, false, false, PrepositionSpatiale.sur);
+                const sousRes = this.executerDecrireContenu(obj, (" Dessus, il y a "), "", false, false, false, false, false, PrepositionSpatiale.sur);
                 resultat.sortie += sousRes.sortie;
               }
             }
@@ -1630,7 +1641,7 @@ export class InstructionDire {
       if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
         supportsDecoratifs.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, false, PrepositionSpatiale.sur);
+          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, false, false, PrepositionSpatiale.sur);
           resultat.sortie += sousRes.sortie;
         });
       }
@@ -1662,7 +1673,7 @@ export class InstructionDire {
             // s’il s’agit d’un support
             if (ClasseUtils.heriteDe(objetsAvecApercuAuto[0].classe, EClasseRacine.support)) {
               // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-              const sousRes = this.executerDecrireContenu(objetsAvecApercuAuto[0], (" Dessus, il y a "), ("{U}Il n'y a rien de particulier dessus."), false, false, false, false, PrepositionSpatiale.sur);
+              const sousRes = this.executerDecrireContenu(objetsAvecApercuAuto[0], (" Dessus, il y a "), ("{U}Il n'y a rien de particulier dessus."), false, false, false, false, false, PrepositionSpatiale.sur);
               resultat.sortie += sousRes.sortie;
             }
             // sinon il y en a plusieurs
@@ -1670,7 +1681,7 @@ export class InstructionDire {
             let supportsAvecApercuAuto = objetsAvecApercuAuto.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
             supportsAvecApercuAuto.forEach(support => {
               // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-              const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, false, PrepositionSpatiale.sur);
+              const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, false, false, PrepositionSpatiale.sur);
               resultat.sortie += sousRes.sortie;
             });
           }

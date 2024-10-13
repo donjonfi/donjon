@@ -92,6 +92,12 @@ export class BalisesHtml {
 
     // espace {e}
     retVal = retVal.replace(/\{e\}/g, ' ');
+    // un seul {E} d’affilé
+    retVal = retVal.replace(/(\{E\})+/g, '{E}');
+    // espace {E} si précédé d’une ponctuation {E}
+    retVal = retVal.replace(/(\.|\?|…|:|!)\{E\}(?=\w)/g, '$1 ');
+    // supprimer les {E} restants
+    retVal = retVal.replace(/\{E\}/g, '');
     // espace insécable {i}
     retVal = retVal.replace(/\{i\}/g, '&nbsp;');
 
