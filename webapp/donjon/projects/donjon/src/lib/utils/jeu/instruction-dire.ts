@@ -941,10 +941,10 @@ export class InstructionDire {
       }
 
       // Le nombre de classe état1 état2 position
-      const xBaliseNombreDeClasseEtatPossitionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?\]/gi;
-      if (xBaliseNombreDeClasseEtatPossitionMulti.test(texteDynamique)) {
+      const xBaliseNombreDeClasseEtatPositionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?\]/gi;
+      if (xBaliseNombreDeClasseEtatPositionMulti.test(texteDynamique)) {
         // retrouver toutes les balises nombre de classe état1 état2 position
-        const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPossitionMulti);
+        const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPositionMulti);
         // remplacer les balises par leur valeur
         texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, contexteTour, evenement, declenchements);
       }
@@ -1209,6 +1209,14 @@ export class InstructionDire {
               retVal = true;
             } else {
               console.warn("[fin si] sans 'si'.");
+            }
+            break;
+          // FIN
+          case 'fin':
+            if (statut.conditionDebutee === ConditionDebutee.si || statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
+              retVal = true;
+            } else {
+              console.warn("[fin choix] sans 'si', 'fois', 'boucle', 'hasard' ou 'initialement'.");
             }
             break;
 
