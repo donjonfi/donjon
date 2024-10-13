@@ -1,0 +1,28 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Scénario de test des synonymes et des demandes de précisions".
+L’auteur du jeu est "DonjonFI".
+Le titre de la licence est "CC0 1.0 Universal".
+Le lien de la licence est "https://creativecommons.org/publicdomain/zero/1.0/".
+L’identifiant du jeu est "d0f12106-aeaa-458f-996e-bf1b6908dd77".
+
+Le donjon est un lieu.
+
+La table en bois est un support dans le donjon.
+
+La clé rouillée est un objet caché ici.
+
+La clé dorée est un objet secret sous la table en bois.
+
+La clé rouge est un objet sur la table en bois.
+
+
+La bibliothèque est un contenant mi-plein ici.
+Sa description est "Il s’agit grande bibliothèque qui contient de nombreux livres scientifiques.[si le livre scientifique se trouve dans la bibliothèque]L’un d’eux[#livre scientifique] dépasse un petit peu des autres.[fin si]Elle est faite de bois ancien.".
+Le livre scientifique est un objet dans la bibliothèque.
+Sa description est "Un livre.[1ère fois]1ère fois.[2e fois]2e fois.[puis]3e fois.[fin]Il est poussiéreux.".
+Interpréter la bib comme la bibliothèque.
+Interpréter livre, livre scientifique et livre qui dépasse comme livre scientifique.
+
+règle avant commencer le jeu:
+  dire "Hello !".
+fin règle
