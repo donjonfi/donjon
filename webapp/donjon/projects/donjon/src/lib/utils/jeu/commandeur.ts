@@ -357,7 +357,7 @@ export class Commandeur {
             // demander une précision
           } else {
             // ajouter question concernant la découpe de la commande
-            let qCela = new QuestionCommande(`Il y a plusieurs correspondances pour {+${candidatCommande.celaIntituleV1.toString()}+} :`);
+            let qCela = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
             qCela.Choix = [];
             candidatActionChoisi.cela.forEach(candidatCela => {
               let choixCela = new Choix([

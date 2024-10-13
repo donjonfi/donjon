@@ -777,19 +777,6 @@ export class ActionsUtils {
             }
           }
 
-          /*
-   
-                 // B. plusieurs candidats se démarquent
-            } else if (matchCeci.elementsTrouves.length !== 1) {
-              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
-   
-   
-                 // B. plusieurs candidats se démarquent
-                  } else if (matchCela.elementsTrouves.length !== 1) {
-                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
-   
-          */
-
           if (candidatCorrespond) {
 
             const score = matchCeci.meilleurScore + (matchCela?.meilleurScore ?? 0);
@@ -830,13 +817,13 @@ export class ActionsUtils {
   private verifierCandidatCeciCela(ceciCelaCommande: Correspondance, candidatCeciCelaAction: CibleAction): ResultatVerifierCandidat {
     let retVal: Array<ElementJeu | Intitule> = [];
 
-    // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
+    // on donne un score aux correspondances : cela permet de départager plusieurs correspondances.
     let meilleurScore = 0;
 
     //   A. s’il s’agit d’une classe
     if (this.estCibleUneClasse(candidatCeciCelaAction)) {
       ceciCelaCommande.elements.forEach(ele => {
-        // vérifier si l’ojet est du bon type
+        // vérifier si l’objet est du bon type
         if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom))) {
 
           // s’il n’y a pas d’état requis ou si l’état est respecté
@@ -879,7 +866,7 @@ export class ActionsUtils {
       // Vérifier s’il s’agit du sujet précis
       // PRIORITÉ 1 >> élément (objet ou lieu)
       if (ceciCelaCommande.elements.length) {
-        // console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // console.log("verifierCandidatCeciCela > sujet précis > éléments (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCelaCommande.elements.forEach(ele => {
           // console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);

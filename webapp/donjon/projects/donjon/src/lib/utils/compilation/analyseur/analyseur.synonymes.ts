@@ -12,7 +12,7 @@ import { TexteUtils } from "../../commun/texte-utils";
 export class AnalyseurSynonymes {
 
   /**
-   * Rechecher une abréviation de commande
+   * Rechercher une abréviation de commande
    */
   public static testerAbreviation(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 

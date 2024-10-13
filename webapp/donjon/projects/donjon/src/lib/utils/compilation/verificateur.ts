@@ -32,7 +32,7 @@ export class Verificateur {
 
   }
 
-  /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
+  /** Est-ce le début d’un nouveau bloc région (règle, action, …) */
   public static estNouvelleRoutine(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
 
