@@ -920,6 +920,33 @@ export class InstructionDire {
       }
 
       // ===================================================
+      // HASHTAG
+      // ===================================================
+      // #groupe nominal(1)
+      const baliseHashtag  = "#\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
+      const xBaliseHashtagMulti = new RegExp("\\[" + baliseHashtag + "\\]", "gi");
+      const xBaliseHashtagSolo = new RegExp("\\[" + baliseHashtag + "\\]", "i");
+
+      if (xBaliseHashtagMulti.test(texteDynamique)) {
+        // retrouver toutes les balises image
+        const allBalises = texteDynamique.match(xBaliseHashtagMulti);
+        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
+        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+        // parcourir chaque balise trouvée
+        balisesUniques.forEach(curBalise => {
+          // retrouver le nom du fichier
+          const decoupe = xBaliseHashtagSolo.exec(curBalise);
+          const elementJeu = decoupe[1];
+          // générer la balise image
+          const baliseHashtag = '@@hashtag:' + elementJeu + '@@';
+          // remplacer les [] par une balise image
+          const expression = `#\\s?${elementJeu}`;
+          const regExp = new RegExp("\\[" + expression + "\\]", "g");
+          texteDynamique = texteDynamique.replace(regExp, baliseHashtag);
+        });
+      }
+
+      // ===================================================
       // DIVERS
       // ===================================================
 
