@@ -923,7 +923,7 @@ export class InstructionDire {
       // HASHTAG
       // ===================================================
       // #groupe nominal(1)
-      const baliseHashtag  = "#\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
+      const baliseHashtag = "#\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
       const xBaliseHashtagMulti = new RegExp("\\[" + baliseHashtag + "\\]", "gi");
       const xBaliseHashtagSolo = new RegExp("\\[" + baliseHashtag + "\\]", "i");
 
@@ -1393,12 +1393,12 @@ export class InstructionDire {
         } else {
           if (afficherMorceauSuivant) {
             // ajouter le morceau s’il n’est pas vide
-            if(curMorceau?.length){
+            if (curMorceau?.length) {
               // si on est après un bloc condition
-              if(conditionQuiPrecede.match(/^fin/gi)){
+              if (conditionQuiPrecede.match(/^fin/gi)) {
                 retVal += curMorceau;
-              // si on est à l’intérieur d’un bloc condition
-              }else{
+                // si on est à l’intérieur d’un bloc condition
+              } else {
                 retVal += "{E}" + curMorceau + "{E}";
               }
             }
@@ -1847,17 +1847,38 @@ export class InstructionDire {
         const lieuxVoisinsVisibles = this.eju.getLieuxVoisinsVisibles(lieu);
 
         if (lieuxVoisinsVisibles.length > 0) {
-          retVal = "Sorties :";
+          retVal = "Sorties : ";
           // afficher les voisins : directions + lieux
           if (this.jeu.parametres.activerAffichageDirectionSorties) {
+            const premier = 0;
+            const dernier = lieuxVoisinsVisibles.length - 1;
+
             lieuxVoisinsVisibles.forEach(lieuVoisinVisible => {
               retVal += ("{n}{i}- " + this.afficherLieuVoisinEtLocalisation(lieuVoisinVisible.localisation, lieu.id, lieuVoisinVisible.id, this.jeu.parametres.activerAffichageLieuxInconnus));
             });
+
             // afficher les voisins: lieux
           } else {
-            lieuxVoisinsVisibles.forEach(voisinVisible => {
-              retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisinVisible.localisation, lieu.id, voisinVisible.id));
-            });
+
+            if (this.jeu.parametres.activerSortiesEnLigne) {
+              for (let index = 0; index < lieuxVoisinsVisibles.length; index++) {
+                const lieuVoisinVisible = lieuxVoisinsVisibles[index];
+                // premier
+                if (index == 0) {
+                  retVal += (this.afficherLieuVoisin(lieuVoisinVisible.localisation, lieu.id, lieuVoisinVisible.id, false));
+                  // dernier (si plusieurs)
+                } else if (index == lieuxVoisinsVisibles.length - 1) {
+                  retVal += " et " + (this.afficherLieuVoisin(lieuVoisinVisible.localisation, lieu.id, lieuVoisinVisible.id, false)) + ".";
+                  // milieu
+                } else {
+                  retVal += ", " + (this.afficherLieuVoisin(lieuVoisinVisible.localisation, lieu.id, lieuVoisinVisible.id, false));
+                }
+              }
+            } else {
+              lieuxVoisinsVisibles.forEach(voisinVisible => {
+                retVal += ("{n}{i}- " + this.afficherLieuVoisin(voisinVisible.localisation, lieu.id, voisinVisible.id, true));
+              });
+            }
           }
 
         } else {
@@ -1872,10 +1893,10 @@ export class InstructionDire {
     return retVal;
   }
 
-  private afficherLieuVoisin(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number) {
+  private afficherLieuVoisin(localisation: ELocalisation, curLieuIndex: number, voisinIndex: number, majuscule: boolean) {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
-    let titreLieu = lieu.titre;
+    let titreLieu = majuscule ? lieu.titre : lieu.intitule;
     let obstacle = this.afficherObstacle(localisation, "");
     if (obstacle) {
       obstacle = " ({/obstrué/})";
@@ -1898,34 +1919,34 @@ export class InstructionDire {
 
     switch (localisation) {
       case ELocalisation.nord:
-        retVal = "au nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_n_}ord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.nord_est:
-        retVal = "au nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_n_}ord-{_e_}st" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.est:
-        retVal = "à l’est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "à l’{_e_}st" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud_est:
-        retVal = "au sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_s_}ud-{_e_}st" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud:
-        retVal = "au sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_s_}ud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.sud_ouest:
-        retVal = "au sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_s_}ud-{_o_}uest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.ouest:
-        retVal = "à l’ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "à l’{_o_}uest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.nord_ouest:
-        retVal = "au nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
+        retVal = "au {_n_}ord-{_o_}uest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
         break;
       case ELocalisation.haut:
-        retVal = "en haut" + obstacle + ` : {+${titreLieu}+}`;
+        retVal = "en {_h_}aut" + obstacle + ` : {+${titreLieu}+}`;
         break;
       case ELocalisation.bas:
-        retVal = "en bas" + obstacle + ` : {+${titreLieu}+}`;
+        retVal = "en {_b_}as" + obstacle + ` : {+${titreLieu}+}`;
         break;
       case ELocalisation.interieur:
         retVal = "devant" + obstacle + ` : {+${titreLieu}+}`;

@@ -86,6 +86,10 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageSorties = isActiver;
           break;
 
+        case 'sorties en ligne':
+          ctxAnalyse.parametres.activerSortiesEnLigne = isActiver;
+          break;
+
         case 'affichage des directions des sorties':
           ctxAnalyse.parametres.activerAffichageDirectionSorties = isActiver;
           break;
@@ -117,7 +121,7 @@ export class AnalyseurDivers {
         case 'synonymes autos':
           ctxAnalyse.parametres.activerSynonymesAuto = isActiver;
           break;
-          
+
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
