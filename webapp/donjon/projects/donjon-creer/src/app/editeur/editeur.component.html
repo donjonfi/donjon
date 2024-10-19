@@ -323,7 +323,7 @@
 
           <!-- TAB: ACTIONS (COMMANDES) -->
           <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <h3>Actions de base</h3>
+            <h2>Actions de base</h2>
             <p>Ces actions sont chargées automatiquement avant votre scénario afin que vous puissiez disposer d’actions de base pour votre jeu.</p>
             <ul>
               <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
@@ -332,11 +332,11 @@
             </ul>
             
             <!-- charger actions.djn distant -->
-            <h4 class="mt-4">Actions originales</h4>
+            <h3 class="mt-4">Actions originales</h3>
             <button class="btn btn-primary ms-1" (click)="onRafraichirActions()"><i class="fas fa-rotate me-2"></i>Utiliser fichier actions original</button>
 
             <!-- charger actions.djn local -->
-            <h4 class="mt-4">Actions personnalisées</h4>
+            <h3 class="mt-4">Actions personnalisées</h3>
             <p>Vous pouvez utiliser votre propre fichier à la place du fichier original.
               Vous pouvez ainsi avoir vos propres actions de base pour l’ensemble de vos jeux.
               <br>Vous pouvez récupérer le fichier <code>actions.djn</code> original à l’adresse <a href="https:donjon.fi/creer/actions" target="_blank">donjon.fi/creer/actions</a> afin de l’adapter.
@@ -397,7 +397,7 @@
 
               <div *ngIf="compilationTerminee">
 
-                <h5>Résultat de l’analyse</h5>
+                <h2>Résultat de l’analyse</h2>
 
                 <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
                   <div>
