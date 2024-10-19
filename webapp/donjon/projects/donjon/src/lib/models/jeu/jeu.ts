@@ -34,6 +34,12 @@ export class Jeu {
   /** Auteurs du jeu. */
   auteurs: string | undefined;
 
+  /** Participants au jeu */
+  participants: string | undefined;
+
+  /*** Remerciements */
+  remerciements: string | undefined;
+
   /** Titre du site web. */
   siteWebTitre: string | undefined;
 

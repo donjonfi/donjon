@@ -78,6 +78,8 @@ export class Generateur {
       jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === 'auteur')?.valeur;
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === 'auteurs')?.valeur;
+      jeu.participants = jeuDansMonde.proprietes.find(x => x.nom === 'participants')?.valeur;
+      jeu.remerciements = jeuDansMonde.proprietes.find(x => x.nom === 'remerciements')?.valeur;
       jeu.version = jeuDansMonde.proprietes.find(x => x.nom === 'version')?.valeur;
     }
 

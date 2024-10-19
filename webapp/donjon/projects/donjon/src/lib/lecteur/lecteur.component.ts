@@ -139,17 +139,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     // ajouter le IFID à la page web
     this.definirIFID();
 
+    this.partie.ecran.ajouterContenuHtml("<center>")
+
     // afficher le titre et la version du jeu
-    let texteTitreVersion = ("<h5>" + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : "(jeu sans titre)"));
+    let texteTitreVersion = ("<h1>" + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : "(jeu sans titre)"));
     // afficher la version du jeu
     if (this.partie.jeu.version) {
       texteTitreVersion += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + '</small>');
     }
-    texteTitreVersion += '</h5>';
+    texteTitreVersion += '</h1>';
     this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
 
     // afficher l’auteur du jeu
-    let texteAuteur = 'Un jeu de ';
+    let texteAuteur = '<h2>';
     if (this.partie.jeu.auteur) {
       texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteur));
     } else if (this.partie.jeu.auteurs) {
@@ -157,7 +159,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       texteAuteur += ("(anonyme)");
     }
-    this.partie.ecran.ajouterParagrapheDonjon(texteAuteur);
+    texteAuteur += '</h2>';
+    this.partie.ecran.ajouterContenuHtml(texteAuteur);
+
+    if(this.partie.jeu.participants){
+      let texteParticipants = '<h3>Avec la participation de ';
+      texteParticipants += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.participants));
+      texteParticipants += '</h3>';
+      this.partie.ecran.ajouterContenuHtml(texteParticipants);
+    }
+
+    if(this.partie.jeu.remerciements){
+      let texteRemerciements = '<h3>Remerciements : ';
+      texteRemerciements += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.remerciements));
+      texteRemerciements += '</h3>';
+      this.partie.ecran.ajouterContenuHtml(texteRemerciements);
+    }
 
     // afficher site web et/ou licence
     if (this.partie.jeu.siteWebLien || this.partie.jeu.licenceTitre) {
@@ -186,6 +203,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       texteSiteWebLicence += '</p>';
       this.partie.ecran.ajouterContenuHtml(texteSiteWebLicence);
     }
+
+    this.partie.ecran.ajouterContenuHtml("</center>")
 
     if (this.partie.jeu.parametres.activerAudio) {
       this.activerParametreAudio = true;
