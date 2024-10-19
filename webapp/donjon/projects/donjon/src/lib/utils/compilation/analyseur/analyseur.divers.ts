@@ -86,7 +86,8 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageSorties = isActiver;
           break;
 
-        case 'sorties en ligne':
+        case 'affichage des sorties sur une ligne':
+        case 'affichage des sorties en ligne':
           ctxAnalyse.parametres.activerSortiesEnLigne = isActiver;
           break;
 
