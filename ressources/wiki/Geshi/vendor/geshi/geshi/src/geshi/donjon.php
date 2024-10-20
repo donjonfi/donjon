@@ -58,7 +58,7 @@ $language_data = array (
 			'obstacle', 'obstacles', 'porte',     'portes', 
 			'vivant',   'vivants',   'animal',    'animaux', 
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
-			'compteur', 'compteurs',
+			'compteur', 'compteurs', 'concept',   'concepts',
 			'\daction', '\dactions', 'question',  'questions',
 			'liste',    'listes',			
             ),

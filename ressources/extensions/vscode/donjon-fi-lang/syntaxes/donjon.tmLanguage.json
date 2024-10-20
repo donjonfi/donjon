@@ -54,7 +54,7 @@
       "patterns": [
         {
           "name": "storage.type",
-          "match": "(une \\b(clé|porte|personne|action|direction|liste)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)\\b|(deux \\b(objets)\\b)"
+          "match": "(une \\b(clé|porte|personne|action|direction|liste)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|concept|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)\\b|(deux \\b(objets)\\b)"
         }
       ]
     },
