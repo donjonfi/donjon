@@ -920,10 +920,10 @@ export class InstructionDire {
       }
 
       // ===================================================
-      // HASHTAG
+      // MENTIONNÉ (#), VU (@) et CONNU (&)
       // ===================================================
       // #groupe nominal(1)
-      const baliseHashtag = "#\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
+      const baliseHashtag = "(#|@|&)\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
       const xBaliseHashtagMulti = new RegExp("\\[" + baliseHashtag + "\\]", "gi");
       const xBaliseHashtagSolo = new RegExp("\\[" + baliseHashtag + "\\]", "i");
 
@@ -936,13 +936,23 @@ export class InstructionDire {
         balisesUniques.forEach(curBalise => {
           // retrouver le nom du fichier
           const decoupe = xBaliseHashtagSolo.exec(curBalise);
-          const elementJeu = decoupe[1];
-          // générer la balise image
-          const baliseHashtag = '@@hashtag:' + elementJeu + '@@';
-          // remplacer les [] par une balise image
-          const expression = `#\\s?${elementJeu}`;
+          const type = decoupe[1];
+          const elementJeu = decoupe[2];
+          // générer la balise mentionné
+          let baliseResultante: string
+          if (type == "#") {
+            baliseResultante = '@@mentionné:' + elementJeu + '@@';
+          } else if (type == "@") {
+            baliseResultante = '@@vu:' + elementJeu + '@@';
+          } else if (type == '&') {
+            baliseResultante = '@@connu:' + elementJeu + '@@';
+          } else {
+            throw new Error(`Type balise pas prise en charge type=${type}`);
+          }
+          // remplacer les [] par balise résultante
+          const expression = `${type}\\s?${elementJeu}`;
           const regExp = new RegExp("\\[" + expression + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, baliseHashtag);
+          texteDynamique = texteDynamique.replace(regExp, baliseResultante);
         });
       }
 
