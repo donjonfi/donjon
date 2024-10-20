@@ -24,46 +24,49 @@ export class ClassesRacines {
    * ouest, nord-ouest, haut, bas, intérieur, extérieur) */
   public static Direction = new Classe(EClasseRacine.direction, "direction", ClassesRacines.Intitule, 1, []);
 
+  /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
+  public static Concept = new Classe(EClasseRacine.concept, "concept", null, 1, []);
+
   /** Il s’agit d’un élément du jeu */
-  public static Element = new Classe(EClasseRacine.element, "élément", ClassesRacines.Intitule, 1,
+  public static Element = new Classe(EClasseRacine.element, "élément", ClassesRacines.Concept, 2,
     [EEtatsBase.intact]);
 
   /** Il s’agit d’un élément spécial du jeu (le jeu lui-même, la licence, …) */
-  public static Special = new Classe(EClasseRacine.special, "spécial", ClassesRacines.Element, 2, []);
+  public static Special = new Classe(EClasseRacine.special, "spécial", ClassesRacines.Element, 3, []);
 
   /** Il s’agit d’un lieu du jeu */
-  public static Lieu = new Classe(EClasseRacine.lieu, "lieu", ClassesRacines.Element, 2,
+  public static Lieu = new Classe(EClasseRacine.lieu, "lieu", ClassesRacines.Element, 3,
     [EEtatsBase.clair]);
 
   /** Il s’agit d’un objet du jeu */
-  public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 2,
+  public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 3,
     [EEtatsBase.solide, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
 
   /** Il s’agit d’un être vivant */
-  public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 3,
+  public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 4,
     [EEtatsBase.fixe]);
 
   /** Il s’agit d’un animal */
-  public static Animal = new Classe(EClasseRacine.animal, "animal", ClassesRacines.Vivant, 4, []);
+  public static Animal = new Classe(EClasseRacine.animal, "animal", ClassesRacines.Vivant, 5, []);
 
   /** Il s’agit d’une personne */
-  public static Personne = new Classe(EClasseRacine.personne, "personne", ClassesRacines.Vivant, 4,
+  public static Personne = new Classe(EClasseRacine.personne, "personne", ClassesRacines.Vivant, 5,
     [EEtatsBase.parlant]);
 
   /** Il s’agit d’un obstacle */
-  public static Obstacle = new Classe(EClasseRacine.obstacle, "obstacle", ClassesRacines.Objet, 3,
+  public static Obstacle = new Classe(EClasseRacine.obstacle, "obstacle", ClassesRacines.Objet, 4,
     [EEtatsBase.fixe]);
 
   /** Il s’agit d’une porte */
-  public static Porte = new Classe(EClasseRacine.porte, "porte", ClassesRacines.Obstacle, 4,
+  public static Porte = new Classe(EClasseRacine.porte, "porte", ClassesRacines.Obstacle, 5,
     [EEtatsBase.ouvert, EEtatsBase.ouvrable, EEtatsBase.deverrouille]);
 
   /** Il s’agit d’un contenant */
-  public static Contenant = new Classe(EClasseRacine.contenant, "contenant", ClassesRacines.Objet, 3,
+  public static Contenant = new Classe(EClasseRacine.contenant, "contenant", ClassesRacines.Objet, 4,
     [EEtatsBase.ouvert, EEtatsBase.impermeable]);
 
   /** Il s’agit d’un support */
-  public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 3,
+  public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 4,
     [EEtatsBase.fixe]);
 
 }

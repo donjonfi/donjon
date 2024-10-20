@@ -114,6 +114,8 @@ export class CompilateurCommunUtils {
         ctx.compteurs.push(el);
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.liste)) {
         ctx.listes.push(el);
+      } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.concept)) {
+        ctx.monde.concepts.push(el);
       } else {
         console.error("ParseCode >>> classe racine pas prise en charge:", el.classe, el);
       }

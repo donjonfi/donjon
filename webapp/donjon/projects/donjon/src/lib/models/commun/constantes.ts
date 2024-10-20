@@ -13,6 +13,7 @@ export enum EClasseRacine {
   listeIntitule = 'listeintitule',
   listeMixte = 'listemixte',
   direction = 'direction',
+  concept = 'concept',
   element = 'element',
   special = 'special',
   lieu = 'lieu',
@@ -30,34 +31,45 @@ export enum EClasseRacine {
 }
 
 export enum EEtatsBase {
+
+  /** mentionné */
+  mentionne = 'mentionné',
   /** vu */
-  vu = "vu",
+  vu = 'vu',
   /** connu */
-  connu = "connu",
+  connu = 'connu',
+
   /** présent (calculé) (↔ absent) */
   present = 'présent',
   /** absent (calculé) (↔ présent) */
   absent = 'absent',
+
   /** visité : lieu */
-  visite = "visité",
+  visite = 'visité',
+
   /** intact (≠ déplacé) */
-  intact = "intact",
+  intact = 'intact',
   /** déplacé (≠ intact) */
-  deplace = "déplacé",
+  deplace = 'déplacé',
   /** modifié (≠ intact) */
-  modifie = "modifié",
-  /** caché */
-  cache = 'caché',
-  /** couvert */
-  couvert = 'couvert',
-  /** couvrant */
-  couvrant = 'couvrant',
+  modifie = 'modifié',
+
   /** visible (calculé) */
   visible = 'visible',
   /** invisible */
   invisible = 'invisible',
   /** secret */
-  secret = "secret",
+  secret = 'secret',
+  /** caché */
+  cache = 'caché',
+  /** discret */
+  discret = 'discret',
+  
+  /** couvert */
+  couvert = 'couvert',
+  /** couvrant */
+  couvrant = 'couvrant',
+
   /** accessible (calculé) */
   accessible = 'accessible',
   /** inaccessible */
@@ -143,7 +155,7 @@ export enum EEtatsBase {
   /** adjacent : lieu */
   adjacent = 'adjacent',
   /** lu : objet */
-  lu = "lu",
+  lu = 'lu',
   /** vide: objet */
   vide = 'vide',
 

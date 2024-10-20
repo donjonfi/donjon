@@ -678,7 +678,7 @@ export class ElementsJeuUtils {
           cor.compteurs = [];
         }
 
-        // 5. Chercher parmis les listes
+        // 5. Chercher parmi les listes
         const listeTrouvee = this.trouverListeAvecNom(sujet.nomEpithete);
         if (listeTrouvee) {
           cor.nbCor += 1;
@@ -686,6 +686,13 @@ export class ElementsJeuUtils {
         } else {
           cor.listes = [];
         }
+
+        // 6. Chercher parmi les concepts
+        // TODO: chercher parmi les concepts
+        // const conceptsTrouves = this.trouverConcepts();
+        // if(conceptsTrouves){
+        // }
+
       }
       if (this.verbeux) {
         console.log(" >>>> éléments trouvés:", cor.elements);

@@ -31,6 +31,7 @@ import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
 import { Commandeur } from 'donjon';
+import { Concept } from '../../models/compilateur/concept';
 
 export class Generateur {
 
@@ -114,6 +115,14 @@ export class Generateur {
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.permeable, ctx);
     jeu.objets.push(inventaire);
+
+    // AJOUTER LES CONCEPTS
+    // ********************
+    rc.monde.concepts.forEach(curEle => {
+      // TODO: générer concepts
+      // let curConcept = new Concept();
+      // jeu.concepts.push(curConcept);
+    });
 
     // AJOUTER LES LIEUX
     // ******************
@@ -854,7 +863,7 @@ export class Generateur {
         }
         // composé de au moins 3 mots
         if (el.intitule.motsCles.length > 2) {
-          for (let indexMotB = indexMotA+1; indexMotB < el.intitule.motsCles.length; indexMotB++) {
+          for (let indexMotB = indexMotA + 1; indexMotB < el.intitule.motsCles.length; indexMotB++) {
             const motCleB = el.intitule.motsCles[indexMotB];
             const curSynonymeDouble = PhraseUtils.getGroupeNominalDefini(`${motCleA} ${motCleB}`, true);
             if (!el.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {

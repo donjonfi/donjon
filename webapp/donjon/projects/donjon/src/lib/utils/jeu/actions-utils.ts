@@ -278,6 +278,17 @@ export class ActionsUtils {
             } else {
               retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un compteur.";
             }
+          // s’il doit s’agir d’un CONCEPT
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.concept)) {
+            // intitulé trouvé
+            if (commandeCeci.concepts.length) {
+              // TODO: check états
+              retVal = "L’état du concept {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              // pas de concept trouvé
+            } else {
+              // todo: afficher ceci ?
+              retVal = "L’argument n’est pas un concept connu.";
+            }
             // s’il doit s’agir d’un INTITULÉ
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
             // intitulé trouvé

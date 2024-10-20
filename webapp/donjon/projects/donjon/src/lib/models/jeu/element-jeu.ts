@@ -2,15 +2,15 @@ import { Capacite } from '../commun/capacite';
 import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
-import { Intitule } from './intitule';
 import { Nombre } from '../commun/nombre.enum';
 import { ProprieteElement } from '../commun/propriete-element';
 import { TypeValeur } from '../compilateur/type-valeur';
+import { Concept } from '../compilateur/concept';
 
 /**
  * Il peut s’agir d’un lieu ou bien d’un objet du jeu.
  */
-export class ElementJeu extends Intitule {
+export class ElementJeu extends Concept {
 
   constructor(
     /** Identifiant unique de l’élément */
@@ -185,39 +185,9 @@ export class ElementJeu extends Intitule {
     this.proprietes.find(x => x.nom == 'texte').nbAffichage = valeur;
   }
 
-
-  /** Propriétés de l’élément */
-  public proprietes: ProprieteElement[] = [];
-
-  /**
-   * États actuels de l’élément
-   * - ouvrable
-   * - verrouillable
-   * - ouvert(e)
-   * - verrouillé(e)
-   * - allumé(e)
-   * - cassé(e)
-   * - …
-   */
-  // public etats: string[] = [];
-  public etats: number[] = [];
-
   /** Capacités de l’élément */
   public capacites: Capacite[] = [];
 
-  /** Ils s’agit des autres noms que le joueur peut donner à cet élément du jeu. */
-  private _synonymes: GroupeNominal[] = [];
 
-  get synonymes(): GroupeNominal[] {
-    return this._synonymes;
-  }
-
-  public addSynonymes(synonymes: GroupeNominal[]) {
-    synonymes.forEach(synonyme => {
-      if (!this._synonymes.some(x => x.toString() == synonyme.toString())) {
-        this._synonymes.push(synonyme);
-      }
-    });
-  }
 
 }

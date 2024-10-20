@@ -15,6 +15,7 @@ import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
 import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
+import { Concept } from '../compilateur/concept';
 
 export class Jeu {
 
@@ -112,6 +113,9 @@ export class Jeu {
 
   /** Règles ajoutées au jeu. */
   regles: RegleBeta[] = [];
+
+  /** Concepts ajoutés au jeu (qui ne sont pas plus que des concepts) */
+  concepts: Concept[] = [];
 
   /** Compteurs ajoutés au jeu */
   compteurs: Compteur[] = [];

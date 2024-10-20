@@ -17,12 +17,15 @@ export class ListeEtats {
 
   public vuID = -1;
   public connuID = -1;
+  public mentionneID = -1;
+
   public presentID = -1;
   public visiteID = -1;
   public intactID = -1;
   public deplaceID = -1;
   public modifieID = -1;
   public cacheID = -1;
+  public discretID = -1;
   public couvrantID = -1;
   public couvertID = -1;
   public visibleID = -1;
@@ -71,7 +74,9 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // vu, connu (élémentJeu)
+    // mentionné (concept)
+    this.mentionneID = this.creerEtat(EEtatsBase.mentionne).id;
+    // vu, connu (élément jeu)
     this.vuID = this.creerEtat(EEtatsBase.vu).id;
     this.connuID = this.creerEtat(EEtatsBase.connu).id;
     // visité (lieu)
@@ -84,15 +89,17 @@ export class ListeEtats {
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.modifie);
     // décoratif (objet)
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
-    // caché, couvert, couvrant, invisible (objet)
-    this.cacheID = this.creerEtat(EEtatsBase.cache).id;
-    this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
-    this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
-    this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
-    this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
-    // secret (objet)
+    // secret, caché, couvert, couvrant, invisible (objet)
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
     this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
+    this.cacheID = this.creerEtat(EEtatsBase.cache).id;
+    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
+    this.discretID = this.creerEtat(EEtatsBase.discret).id;
+    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);
+    this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
+    this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
+    this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
+    this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     // accessible, inaccessible (objet)
     this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
     this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;

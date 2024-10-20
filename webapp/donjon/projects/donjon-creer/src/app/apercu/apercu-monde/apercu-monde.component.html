@@ -36,6 +36,15 @@
 
 </div>
 
+<h2>Concepts</h2>
+<p *ngIf="!monde.concepts">Veuillez commencer par interpréter le code.</p>
+
+<p *ngIf="monde.concepts && monde.concepts.length == 0">Aucun concept trouvé.</p>
+<ul>
+  <li *ngFor="let concept of monde.concepts">
+    <app-apercu-element-generique [el]="concept"></app-apercu-element-generique>
+  </li>
+</ul>
 
 <h2>Compteurs</h2>
 <p *ngIf="!compteurs">Veuillez commencer par interpréter le code.</p>
