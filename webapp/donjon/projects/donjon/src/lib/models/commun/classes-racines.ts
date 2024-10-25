@@ -25,7 +25,7 @@ export class ClassesRacines {
   public static Direction = new Classe(EClasseRacine.direction, "direction", ClassesRacines.Intitule, 1, []);
 
   /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
-  public static Concept = new Classe(EClasseRacine.concept, "concept", null, 1, []);
+  public static Concept = new Classe(EClasseRacine.concept, "concept", ClassesRacines.Intitule, 1, []);
 
   /** Il s’agit d’un élément du jeu */
   public static Element = new Classe(EClasseRacine.element, "élément", ClassesRacines.Concept, 2,
