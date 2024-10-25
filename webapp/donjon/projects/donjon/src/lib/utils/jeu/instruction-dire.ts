@@ -71,7 +71,8 @@ export class InstructionDire {
               const eleCeci = contexteTour.ceci as ElementJeu;
               apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
-              // l’objet a été vu par le joueur
+              // l’objet a été mentionné et vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(eleCeci, this.jeu.etats.mentionneID, this.eju);
               this.jeu.etats.ajouterEtatIdElement(eleCeci, this.jeu.etats.vuID, this.eju);
             } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
               const dirCeci = contexteTour.ceci as Localisation;
@@ -79,7 +80,8 @@ export class InstructionDire {
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
-                // le lieu a été vu par le joueur
+                // le lieu a été mentionné et vu par le joueur
+                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.mentionneID, this.eju);
                 this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
               } else {
                 console.error("calculerTexteDynamique: aperçu de ceci: voisin pas trouvé dans cette direction.");
@@ -99,7 +101,8 @@ export class InstructionDire {
               const eleCela = contexteTour.cela as ElementJeu;
               apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
-              // l’objet a été vu par le joueur
+              // l’objet a été mentionné et vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(eleCela, this.jeu.etats.mentionneID, this.eju);
               this.jeu.etats.ajouterEtatIdElement(eleCela, this.jeu.etats.vuID, this.eju);
             } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
               const dirCela = contexteTour.cela as Localisation;
@@ -107,7 +110,8 @@ export class InstructionDire {
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
-                // le lieu a été vu par le joueur
+                // le lieu a été mentionné et vu par le joueur
+                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.mentionneID, this.eju);
                 this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
               } else {
                 console.error("calculerTexteDynamique: aperçu de cela: voisin pas trouvé dans cette direction.");
@@ -1644,7 +1648,8 @@ export class InstructionDire {
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercuSpecifique.forEach(obj => {
         const apercuCalcule = this.calculerTexteDynamique(obj.apercu, ++obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
-        // l’objet a été vu par le joueur
+        // l’objet a été mentionné et vu par le joueur
+        this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.mentionneID, this.eju);
         this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
@@ -1691,7 +1696,8 @@ export class InstructionDire {
         let curObjIndex = 0;
         objetsAvecApercuAuto.forEach(obj => {
           ++curObjIndex;
-          // l’objet a été vu par le joueur
+          // l’objet a été mentionné et vu par le joueur
+          this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.mentionneID, this.eju);
           this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
           // ajouter l’intitulé de l’objet à la liste
           resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
@@ -1737,7 +1743,8 @@ export class InstructionDire {
             const curPorteObstacle = this.eju.getObjet(voisin.id);
             if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
               // décrire l’obstacle
-              // - l’objet a été vu par le joueur
+              // - l’objet a été mentionné et vu par le joueur
+              this.jeu.etats.ajouterEtatIdElement(curPorteObstacle, this.jeu.etats.mentionneID, this.eju);
               this.jeu.etats.ajouterEtatIdElement(curPorteObstacle, this.jeu.etats.vuID, this.eju);
               // - si aperçu défini
               if (curPorteObstacle.apercu) {
@@ -1812,7 +1819,8 @@ export class InstructionDire {
       // si aperçu dispo pour l’obstacle, on l’affiche.
       if (obstacle.apercu) {
         retVal = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
-        // l’objet a été vu par le joueur
+        // l’objet a été mentionné et vu par le joueur
+        this.jeu.etats.ajouterEtatIdElement(obstacle, this.jeu.etats.mentionneID, this.eju);
         this.jeu.etats.ajouterEtatIdElement(obstacle, this.jeu.etats.vuID, this.eju);
         // sinon on affiche texte auto.
       } else {
