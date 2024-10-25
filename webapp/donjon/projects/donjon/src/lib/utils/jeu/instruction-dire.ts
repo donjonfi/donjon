@@ -1317,9 +1317,9 @@ export class InstructionDire {
       verbeConjugue = Conjugaison.getConjugaigonVerbeRegulier(infinitifSansLeSe, modeTemps, personne, verbePronominal);
       // sinon il faut vraiment savoir conjuguer le verbe
     } else {
-      // retrouver le verbe parmis les verbes irréguliers pris en charge
+      // retrouver le verbe parmi les verbes irréguliers pris en charge
       let conjugaisonVerbeIrregulier = Conjugaison.getVerbeIrregulier(infinitifSansLeSe);
-      // verbe trouvé parmis les irréguliers
+      // verbe trouvé parmi les irréguliers
       if (conjugaisonVerbeIrregulier) {
         // retrouver la forme demandée
         const cle = modeTemps + " " + personne;

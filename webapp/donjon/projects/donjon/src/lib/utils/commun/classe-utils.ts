@@ -49,7 +49,7 @@ export class ClasseUtils {
   }
 
   /**
-   * Retrouver la classe correspondante parmis la liste fournie sur base de l’intitulé fourni.
+   * Retrouver la classe correspondante parmi la liste fournie sur base de l’intitulé fourni.
    * Si la classe n’est pas trouvée, elle est crée et ajoutée à la liste, comme nouveau dérivé de la classe « objet ».
    * @param classes Liste des classes 
    * @param intitule Intitulé de la classe à retrouver.

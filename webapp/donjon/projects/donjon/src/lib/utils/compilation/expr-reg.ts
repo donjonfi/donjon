@@ -804,7 +804,7 @@ export class ExprReg {
    *     - dire "Bonjour !"
    *     - changer le score augmente de 1
    *     - 💥 la pomme est verte
-   *     - 💥 choisir parmis la liste
+   *     - 💥 choisir parmi la liste
    */
   static readonly xInstruction = /^(?!choisir|autre)(\S+(?:ir|er|re)) (.+)?$/i;
 

@@ -156,7 +156,7 @@ export class ActionsUtils {
   }
 
   /**
-   * On garde l’action complete parmis la liste d’actions.
+   * On garde l’action complete parmi la liste d’actions.
    * S’il n’y en a pas on prend la première.
    * @param candidats 
    */
@@ -820,7 +820,7 @@ export class ActionsUtils {
   }
 
   /**
-   * Vérifier si on trouve l’élément rechercher parmis les correspondances.
+   * Vérifier si on trouve l’élément rechercher parmi les correspondances.
    * @param ceciCelaCommande  correspondances
    * @param candidatCeciCelaAction  élément recherché
    * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.

@@ -177,7 +177,7 @@ export class RechercheUtils {
       //   const motCleRecherche = recherche[indexMotCleRecherche];
       //   let trouveEgal = false;
       //   let trouveRessemblant = false;
-      //   // rechercher le mot parmis les mots du candidat
+      //   // rechercher le mot parmi les mots du candidat
       //   for (let indexMotCleCandidat = 0; indexMotCleCandidat < candidat.length; indexMotCleCandidat++) {
       //     switch (RechercheUtils.ressemblanceMots(motCleRecherche, candidat[indexMotCleCandidat])) {
       //       case ERessemblance.egaux:

@@ -385,7 +385,7 @@ export class InstructionChanger {
           const cibleSpeciale: Intitule = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.nom, contexteTour, evenement, this.eju, this.jeu);
           if (cibleSpeciale) {
             intitule = cibleSpeciale;
-            // ii) rechercher parmis tous les éléments du jeu
+            // ii) rechercher parmi tous les éléments du jeu
           } else {
             const cor = this.eju.trouverCorrespondance(instruction.sujetComplement1, TypeSujet.SujetEstNom, false, false);
             if (cor.nbCor == 1) {

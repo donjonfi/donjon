@@ -630,7 +630,7 @@ export class ConditionsUtils {
                 const cibleSpeciale: Intitule = InstructionsUtils.trouverCibleSpeciale(condition.sujetComplement.nom, contexteTour, evenement, this.eju, this.jeu);
                 if (cibleSpeciale) {
                   intitule = cibleSpeciale;
-                  // ii) rechercher parmis tous les éléments du jeu
+                  // ii) rechercher parmi tous les éléments du jeu
                 } else {
                   const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
                   if (cor.nbCor == 1) {

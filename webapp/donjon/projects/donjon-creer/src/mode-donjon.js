@@ -64,7 +64,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "(\\b(" +
             "désactiver|activer|" +
             "si|sinon|sinonsi|" +
-            "(autre )?choix|choisir( parmis)?|" +
+            "(autre )?choix|choisir( parmi)?|" +
             "phase (prérequis|exécution|épilogue)|" +
             "(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
             "interpréter|comme)\\b" +
