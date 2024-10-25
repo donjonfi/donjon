@@ -12,6 +12,7 @@ import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
+import { Concept } from '../../models/compilateur/concept';
 
 export class ListeEtats {
 
@@ -348,14 +349,14 @@ export class ListeEtats {
   }
 
   /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions). */
-  ajouterEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils){
-    if(!this.possedeEtatIdElement(element, etatID, eju)){
+  ajouterEtatIdElement(element: Concept, etatID: number, eju: ElementsJeuUtils) {
+    if (!this.possedeEtatIdElement(element, etatID, eju)) {
       element.etats.push(etatID);
     }
   }
 
   /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes et des contradictions). */
-  ajouterEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  ajouterEtatElement(element: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
 
     const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
 
@@ -390,7 +391,7 @@ export class ListeEtats {
   }
 
   /** Retirer un état à un élément */
-  retirerEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  retirerEtatElement(element: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
     const etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
@@ -422,7 +423,7 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils = null) {
+  possedeEtatIdElement(element: Concept, etatID: number, eju: ElementsJeuUtils = null) {
     let retVal = false;
     if (element) {
       // A. VISIBLE
@@ -431,15 +432,25 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return element.id == eju.curLieu.id;
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVisible((element as Objet), eju);
+        } else {
+          return false;
         }
         // B. ACCESSIBLE
       } else if (etatID === this.accessibleID) {
-        return this.estAccessible((element as Objet), eju);
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
+          return this.estAccessible((element as Objet), eju);
+        } else {
+          return false;
+        }
         // C. VIDE
       } else if (etatID === this.videID) {
-        return this.estVide(element, eju);
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.support) || ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return this.estVide(element as ElementJeu, eju);
+        } else {
+          return false;
+        }
         // D. DIVERS
       } else {
         retVal = element.etats.includes(etatID);
@@ -455,7 +466,7 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeEtatElement(element: ElementJeu, nomEtat: string, eju: ElementsJeuUtils) {
+  possedeEtatElement(element: Concept, nomEtat: string, eju: ElementsJeuUtils) {
     let retVal = false;
     if (element) {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
@@ -463,8 +474,11 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return element.id == eju.curLieu.id;
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVisible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
 
       } else if (nomEtat.match(/^accessible(s)?$/)) {
@@ -472,24 +486,33 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estAccessible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else if (nomEtat.match(/^vide(s)?$/)) {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVide((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else if (nomEtat.match(/^obstrué(e)?(s)?$/)) {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return !eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return !this.estAccessible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else {
         let etat = this.trouverEtat(nomEtat);
@@ -652,13 +675,13 @@ export class ListeEtats {
 
   }
 
-  estVide(element: ElementJeu, eju: ElementsJeuUtils) {
-    if (ClasseUtils.heriteDe(element.classe, EClasseRacine.support) || ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
-      return eju.obtenirContenu(element, PrepositionSpatiale.sur).length == 0;
-    } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant)) {
-      return eju.obtenirContenu(element, PrepositionSpatiale.dans).length == 0;
+  estVide(objet: ElementJeu, eju: ElementsJeuUtils) {
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support) || ClasseUtils.heriteDe(objet.classe, EClasseRacine.lieu)) {
+      return eju.obtenirContenu(objet, PrepositionSpatiale.sur).length == 0;
+    } else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) {
+      return eju.obtenirContenu(objet, PrepositionSpatiale.dans).length == 0;
     } else {
-      console.warn("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", element);
+      console.warn("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", objet);
       return false;
     }
   }
@@ -716,7 +739,7 @@ export class ListeEtats {
   }
 
   /** Obtenir les états liés à un élément du jeu. */
-  obtenirEtatsElementJeu(el: ElementJeu) {
+  obtenirEtatsElementJeu(el: Concept) {
     let elEtats: Etat[] = [];
     el.etats.forEach(etatID => {
       let curEtat = this.obtenirEtat(etatID);
@@ -755,7 +778,7 @@ export class ListeEtats {
   }
 
   /** Récupérer la liste des intitulés des états de l’élément spécéfié. */
-  obtenirIntitulesEtatsElementJeu(el: ElementJeu) {
+  obtenirIntitulesEtatsElementJeu(el: Concept) {
     const elEtats = this.obtenirEtatsElementJeu(el);
     const feminin = el.genre === Genre.f;
     const pluriel = el.nombre === Nombre.p;

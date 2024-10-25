@@ -24,12 +24,13 @@ import { Liste } from "../../models/jeu/liste";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
-import { ProprieteElement } from "../../models/commun/propriete-element";
+import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { Resultat } from "../../models/jouer/resultat";
 import { StringUtils } from "../commun/string.utils";
 import { TexteUtils } from "../commun/texte-utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
+import { Concept } from "../../models/compilateur/concept";
 
 export class InstructionDire {
 
@@ -626,13 +627,13 @@ export class InstructionDire {
                 if (cible instanceof ElementJeu) {
                   resultatCurBalise = cible.quantite.toString();
                 } else {
-                  resultatCurBalise = "???";
+                  resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée car il ne s’agit pas d’un élément du jeu.) ";
                 }
                 break;
 
               // Propriété
               default:
-                if (cible instanceof ElementJeu) {
+                if (cible instanceof Concept) {
                   const propriete = cible.proprietes.find(x => x.nom == proprieteString);
                   if (propriete) {
                     // texte
@@ -643,10 +644,11 @@ export class InstructionDire {
                       resultatCurBalise = propriete.valeur;
                     }
                   } else {
-                    resultatCurBalise = "(propriété « " + proprieteString + " » pas trouvée)";
+                    resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée) ";
                   }
                 } else {
-                  resultatCurBalise = "???";
+                  contexteTour.ajouterErreurDerniereInstruction("Texte dynamique => propriété => doit concerner un concept.");
+                  resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée car il ne s’agit pas d’un concept.) ";
                 }
                 break;
             }
@@ -1089,15 +1091,15 @@ export class InstructionDire {
           if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
             valeur = (curProprieteCible as Compteur).valeur.toString();
           } else if (curPropriete.type === TypeProprieteJeu.nombreDeProprieteElement) {
-            valeur = (curProprieteCible as ProprieteElement).valeur;
+            valeur = (curProprieteCible as ProprieteConcept).valeur;
           } else if (curPropriete.type === TypeProprieteJeu.proprieteElement) {
-            const propriete = (curProprieteCible as ProprieteElement);
+            const propriete = (curProprieteCible as ProprieteConcept);
             // texte
             if (propriete.type == TypeValeur.mots) {
               valeur = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(curPropriete.element, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               // nombre
             } else {
-              valeur = (curProprieteCible as ProprieteElement).valeur;
+              valeur = (curProprieteCible as ProprieteConcept).valeur;
             }
           }
         }

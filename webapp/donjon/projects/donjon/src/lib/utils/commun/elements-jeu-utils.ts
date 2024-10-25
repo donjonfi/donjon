@@ -18,9 +18,10 @@ import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
-import { ProprieteElement } from '../../models/commun/propriete-element';
+import { ProprieteConcept } from '../../models/commun/propriete-element';
 import { RechercheUtils } from './recherche-utils';
 import { Voisin } from '../../models/jeu/voisin';
+import { Concept } from '../../models/compilateur/concept';
 
 export class ElementsJeuUtils {
 
@@ -465,7 +466,7 @@ export class ElementsJeuUtils {
 
 
   /**
-   * Retrouver un lieu parmis tous les lieux sur base de son intitulé.
+   * Retrouver un lieu parmi tous les lieux sur base de son intitulé.
    * Remarque: Il peut y avoir plus d’une correspondance.
    */
   trouverLieuSurIntituleAvecScore(recherche: GroupeNominal, prioriteLieuxAdjacents: boolean): [number, Lieu[]] {
@@ -473,7 +474,7 @@ export class ElementsJeuUtils {
     let lieuxTrouvesAdjacents: [number, Lieu[]];
     let lieuxTrouvesNonAdjacents: [number, Lieu[]];
 
-    // chercher parmis les lieux adjacents
+    // chercher parmi les lieux adjacents
     const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
     lieuxTrouvesAdjacents = this.suiteTrouverLieuSurIntituleAvecScore(lieuxAdjacents, recherche);
 
@@ -481,7 +482,7 @@ export class ElementsJeuUtils {
     if (lieuxTrouvesAdjacents[0] == 0.0 || !prioriteLieuxAdjacents) {
       const lieuxNonAdjacents = this.jeu.lieux.filter(x => !x.etats.includes(this.jeu.etats.adjacentID) && this.curLieu.id != x.id);
       lieuxTrouvesNonAdjacents = this.suiteTrouverLieuSurIntituleAvecScore(lieuxNonAdjacents, recherche);
-      // retourner le meilleur score parmis les lieux trouvés
+      // retourner le meilleur score parmi les lieux trouvés
       if (lieuxTrouvesAdjacents[0] > lieuxTrouvesNonAdjacents[0]) {
         return lieuxTrouvesAdjacents;
       } else if (lieuxTrouvesNonAdjacents[0] > lieuxTrouvesNonAdjacents[0] || lieuxTrouvesNonAdjacents[0] == 0.0) {
@@ -552,7 +553,7 @@ export class ElementsJeuUtils {
 
     const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
 
-    // chercher parmis les objets présents
+    // chercher parmi les objets présents
     const lieuxAdjacents = this.jeu.lieux.filter(x => x.etats.includes(this.jeu.etats.adjacentID) || this.curLieu.id == x.id);
     // console.warn("lieuxAdjacents=", lieuxAdjacents);
     let lieuTrouve = lieuxAdjacents.find(x => x.nom == rechercheNettoyee);
@@ -587,7 +588,19 @@ export class ElementsJeuUtils {
   }
 
   /**
-   * Retrouver une liste parmis toutes les listes sur base de son nom.
+   * Retrouver un concept parmi toutes les concepts sur base de son nom (n’inclut pas les objets qui sont plus que des concepts)
+   */
+  trouverConceptAvecNom(recherche: string): Concept | undefined {
+    let conceptTrouve: Concept | undefined;
+    if (recherche) {
+      const rechercheNettoyee = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(recherche.trim());
+      conceptTrouve = this.jeu.concepts.find(x => x.nom === rechercheNettoyee);
+    }
+    return conceptTrouve;
+  }
+
+  /**
+   * Retrouver une liste parmi toutes les listes sur base de son nom.
    */
   trouverListeAvecNom(recherche: string): Liste | undefined {
     let listeTrouvee: Liste | undefined;
@@ -599,7 +612,7 @@ export class ElementsJeuUtils {
   }
 
   /**
-   * Retrouver un compteur parmis tous les compteurs sur base de son nom.
+   * Retrouver un compteur parmi tous les compteurs sur base de son nom.
    */
   trouverCompteurAvecNom(recherche: string): Compteur | undefined {
     let compteurTrouve: Compteur | undefined;
@@ -647,7 +660,7 @@ export class ElementsJeuUtils {
           cor.nbCor += cor.lieux.length;
         }
 
-        // 3. Chercher parmis les objets
+        // 3. Chercher parmi les objets
 
         // déterminer si le mot à chercher est au pluriel
         const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
@@ -655,7 +668,6 @@ export class ElementsJeuUtils {
         if (typeSujet === TypeSujet.SujetEstIntitule) {
           // TODO: comparer score des objets avec score des autres types d’éléments.
           cor.objets = this.trouverObjetSurIntituleAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
-          // cor.objets = this.trouverObjet(sujet, prioriteObjetsPresents, nombre);
         } else {
           const objetTrouve = this.trouverObjetAvecNom(sujet.nomEpithete);
           if (objetTrouve) {
@@ -669,7 +681,7 @@ export class ElementsJeuUtils {
           cor.elements = cor.elements.concat(cor.objets);
           cor.nbCor += cor.objets.length;
         }
-        // 4. Chercher parmis les compteurs
+        // 4. Chercher parmi les compteurs
         const compteurTrouve = this.trouverCompteurAvecNom(sujet.nomEpithete);
         if (compteurTrouve) {
           cor.nbCor += 1;
@@ -688,17 +700,23 @@ export class ElementsJeuUtils {
         }
 
         // 6. Chercher parmi les concepts
-        // TODO: chercher parmi les concepts
-        // const conceptsTrouves = this.trouverConcepts();
-        // if(conceptsTrouves){
-        // }
+        if (typeSujet === TypeSujet.SujetEstIntitule) {
+          const conceptsTrouves = this.trouverConceptAvecNom(sujet.nomEpithete);
+          if (conceptsTrouves) {
+            cor.concepts = [conceptsTrouves]
+          } else {
+            cor.concepts = [];
+          }
+        } else {
+          cor.concepts = this.trouverConceptSurIntituleAvecScore(sujet)[1];
+        }
+        cor.nbCor +=  cor.concepts.length;
 
       }
       if (this.verbeux) {
         console.log(" >>>> éléments trouvés:", cor.elements);
-        // console.log(" >>>> objets trouvés:", cor.objets);
-        // console.log(" >>>> lieux trouvés:", cor.lieux);
-        // console.log(" >>>> intitulé:", cor.intitule);
+        console.log(" >>>> concepts trouvés:", cor.concepts);
+        console.log(" >>>> listes trouvées:", cor.listes);
       }
 
     }
@@ -707,6 +725,8 @@ export class ElementsJeuUtils {
     if (cor.nbCor == 1) {
       if (cor.elements) {
         cor.unique = cor.elements[0];
+      } else if (cor.concepts) {
+        cor.unique = cor.concepts[0];
       } else if (cor.compteurs) {
         cor.unique = cor.compteurs[0];
       } else if (cor.listes) {
@@ -810,7 +830,66 @@ export class ElementsJeuUtils {
   }
 
   /**
-   * Retrouver un objet parmis tous les objets sur base de son intitulé.
+    * Retrouver un concept, parmi les concepts qui ne sont pas plus que ça, sur base de son intitulé et de ses synonymes
+    * Remarque: Il peut y avoir plus d’une correspondance.
+    * 
+   * Retourne les meilleurs candidats et le meilleur score.
+   * 
+   * Score:
+   *  - 1.0 : correspondance exacte
+   *  - 0.75 : correspondance proche
+   *  - 0.5 : correspondance exacte partielle
+   *  - 0.375: correspondance proche partielle
+   */
+
+  trouverConceptSurIntituleAvecScore(recherche: GroupeNominal): [number, Concept[]] {
+
+    let meilleursCandidats: Concept[] = [];
+    let meilleurScore = 0.0;
+
+    if (recherche) {
+
+      this.jeu.concepts.forEach(concept => {
+        let intituleOriginal: GroupeNominal;
+
+        // A. regarder dans l'intitulé original de l’objet
+        intituleOriginal = concept.intitule;
+
+        let meilleurScorePourCeConcept = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux) : 0.0;
+        // si on n’a pas une correspondance exacte, essayer les synonymes
+        if (meilleurScorePourCeConcept < 1.0 && concept.synonymes) {
+          for (const synonyme of concept.synonymes) {
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux);
+            if (scoreSynonyme > meilleurScorePourCeConcept) {
+              meilleurScorePourCeConcept = scoreSynonyme;
+              if (scoreSynonyme == 1.0) {
+                break;
+              }
+            }
+          }
+        }
+
+        // si on a un score > 0
+        if (meilleurScorePourCeConcept != 0) {
+          // si même score que le meilleur score, l’ajouter aux meilleurs candidats
+          if (meilleurScorePourCeConcept == meilleurScore) {
+            meilleursCandidats.push(concept);
+            // si nouveau meilleur score, remplacer les meilleurs candidats par celui-ci
+          } else if (meilleurScorePourCeConcept > meilleurScore) {
+            meilleurScore = meilleurScorePourCeConcept;
+            meilleursCandidats = [concept];
+          }
+        }
+      });
+
+    }
+
+    return [meilleurScore, meilleursCandidats];
+
+  }
+
+  /**
+   * Retrouver un objet parmi tous les objets sur base de son intitulé.
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
@@ -836,7 +915,7 @@ export class ElementsJeuUtils {
 
 
   /**
-   * Retrouver un objet parmis tous les objets sur base de son intitulé.
+   * Retrouver un objet parmi tous les objets sur base de son intitulé.
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
@@ -854,7 +933,7 @@ export class ElementsJeuUtils {
       // chercher parmi les objets NON présents
       const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
       objetsTrouvesNonPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsNonPresents, recherche, nombre);
-      // retourner le meilleur score parmis les objets trouvés
+      // retourner le meilleur score parmi les objets trouvés
       if (objetsTrouvesPresents[0] > objetsTrouvesNonPresents[0]) {
         return objetsTrouvesPresents;
       } else if (objetsTrouvesNonPresents[0] > objetsTrouvesNonPresents[0] || objetsTrouvesNonPresents[0] == 0.0) {
@@ -1191,7 +1270,7 @@ export class ElementsJeuUtils {
     original.proprietes.forEach(prop => {
       // ne pas copier la propriété « quantité »
       if (prop.nom != 'quantité') {
-        copie.proprietes.push(new ProprieteElement(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+        copie.proprietes.push(new ProprieteConcept(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
       }
     });
 

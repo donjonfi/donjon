@@ -34,7 +34,7 @@ export class PositionObjet {
     }
   }
 
-  public static prepositionSpacialeToString(prep: PrepositionSpatiale) {
+  public static prepositionSpatialeToString(prep: PrepositionSpatiale) {
     switch (prep) {
       case PrepositionSpatiale.dans:
         return 'dans';

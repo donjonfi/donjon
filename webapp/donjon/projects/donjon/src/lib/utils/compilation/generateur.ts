@@ -23,7 +23,7 @@ import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
-import { ProprieteElement } from '../../models/commun/propriete-element';
+import { ProprieteConcept } from '../../models/commun/propriete-element';
 import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../interfaces/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
@@ -120,8 +120,63 @@ export class Generateur {
     // ********************
     rc.monde.concepts.forEach(curEle => {
       // TODO: générer concepts
-      // let curConcept = new Concept();
-      // jeu.concepts.push(curConcept);
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let nouvConcept = new Concept(jeu.nextID++, intitule.nomEpithete, intitule);
+      nouvConcept.genre = curEle.genre;
+      nouvConcept.nombre = curEle.nombre;
+
+      // ajouter les états par défaut de la classe du lieu
+      //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+      Generateur.attribuerEtatsParDefaut(nouvConcept.classe, nouvConcept, jeu.etats, ctx);
+      // ajouter les états du lieu définis explicitement
+      if (curEle.attributs) {
+        curEle.attributs.forEach(attribut => {
+          jeu.etats.ajouterEtatElement(nouvConcept, attribut, ctx);
+        });
+      }
+
+            // parcourir les propriétés du lieu
+            let nouvellesProp: ProprieteConcept[] = []
+            curEle.proprietes.forEach(pro => {
+              // spécial: intitulé
+              if (pro.nom == 'intitulé') {
+                // TODO: gérer groupe nominal ?
+                const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
+                nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
+                if (nouvConcept.nombre == Nombre.p) {
+                  nouvConcept.intituleP = nouvConcept.intitule;
+                } else {
+                  nouvConcept.intituleS = nouvConcept.intitule;
+                }
+                // autres propriétés
+              } else {
+                // fix ç de aperçu
+                if (pro.nom == 'apercu') {
+                  pro.nom = 'aperçu';
+                }
+                // ajouter ou mettre à jour
+                const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
+                if (proExistantDeja) {
+                  proExistantDeja.valeur = pro.valeur;
+                } else {
+                  pro.parent = nouvConcept;
+                  nouvellesProp.push(pro);
+                }
+              }
+            });
+            nouvConcept.proprietes.push(...nouvellesProp);
+      
+            // synonymes définis par l’auteur
+            if (curEle.synonymes?.length) {
+              nouvConcept.addSynonymes(curEle.synonymes)
+            }
+            // synonymes générés automatiquement
+            if (jeu.parametres.activerSynonymesAuto) {
+              Generateur.genererSynonymesAuto(nouvConcept);
+            }
+
+
+      jeu.concepts.push(nouvConcept);
     });
 
     // AJOUTER LES LIEUX
@@ -153,7 +208,7 @@ export class Generateur {
       }
 
       // parcourir les propriétés du lieu
-      let nouvellesProp: ProprieteElement[] = []
+      let nouvellesProp: ProprieteConcept[] = []
       curEle.proprietes.forEach(pro => {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
@@ -229,7 +284,7 @@ export class Generateur {
       }
 
       // parcourir les propriétés du joueur
-      let nouvellesProp: ProprieteElement[] = []
+      let nouvellesProp: ProprieteConcept[] = []
       joueurDansMonde.proprietes.forEach(pro => {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
@@ -342,7 +397,7 @@ export class Generateur {
         }
 
         // parcourir les propriétés de l’objet
-        let nouvellesProp: ProprieteElement[] = []
+        let nouvellesProp: ProprieteConcept[] = []
         curEle.proprietes.forEach(pro => {
           // spécial: intitulé
           if (pro.nom == 'intitulé') {
@@ -723,7 +778,7 @@ export class Generateur {
    * Attribuer les états par défaut de l’objet sur base de la classe spécifiée.
    * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
    */
-  static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats, ctx: ContexteGeneration) {
+  static attribuerEtatsParDefaut(classe: Classe, ele: Concept, etats: ListeEtats, ctx: ContexteGeneration) {
     // commencer par la classe parent (s’il y en a)
     if (classe.parent) {
       Generateur.attribuerEtatsParDefaut(classe.parent, ele, etats, ctx);
@@ -737,7 +792,7 @@ export class Generateur {
   /**
    * Obtenir la localisation correspondante.
    */
-  static getLocalisation(strPosition: string) {
+  static getLocalisation(strPosition: string): ELocalisation {
 
     strPosition = strPosition
       .trim()
@@ -851,23 +906,23 @@ export class Generateur {
     }
   }
 
-  public static genererSynonymesAuto(el: ElementJeu) {
+  public static genererSynonymesAuto(concept: Concept) {
     // composé de au moins 2 mots
-    if (el.intitule.motsCles.length > 1) {
-      for (let indexMotA = 0; indexMotA < el.intitule.motsCles.length; indexMotA++) {
+    if (concept.intitule.motsCles.length > 1) {
+      for (let indexMotA = 0; indexMotA < concept.intitule.motsCles.length; indexMotA++) {
         // chaque mot séparé est un synonyme
-        const motCleA = el.intitule.motsCles[indexMotA];
+        const motCleA = concept.intitule.motsCles[indexMotA];
         const curSynonymeSimple = PhraseUtils.getGroupeNominalDefini(motCleA, true);
-        if (!el.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
-          el.synonymes.push(curSynonymeSimple);
+        if (!concept.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
+          concept.synonymes.push(curSynonymeSimple);
         }
         // composé de au moins 3 mots
-        if (el.intitule.motsCles.length > 2) {
-          for (let indexMotB = indexMotA + 1; indexMotB < el.intitule.motsCles.length; indexMotB++) {
-            const motCleB = el.intitule.motsCles[indexMotB];
+        if (concept.intitule.motsCles.length > 2) {
+          for (let indexMotB = indexMotA + 1; indexMotB < concept.intitule.motsCles.length; indexMotB++) {
+            const motCleB = concept.intitule.motsCles[indexMotB];
             const curSynonymeDouble = PhraseUtils.getGroupeNominalDefini(`${motCleA} ${motCleB}`, true);
-            if (!el.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
-              el.synonymes.push(curSynonymeDouble);
+            if (!concept.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
+              concept.synonymes.push(curSynonymeDouble);
             }
           }
         }

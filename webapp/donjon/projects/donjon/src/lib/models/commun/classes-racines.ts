@@ -20,12 +20,12 @@ export class ClassesRacines {
   public static ListeIntitule = new Classe(EClasseRacine.listeIntitule, "liste intitulé", ClassesRacines.Liste, 2, []);
   public static ListeMixte = new Classe(EClasseRacine.listeMixte, "liste mixte", ClassesRacines.Liste, 2, []);
 
+  /** Il s’agit d’un concept présent dans le jeu */
+  public static Concept = new Classe(EClasseRacine.concept, "concept", ClassesRacines.Intitule, 1, []);
+
   /** Il s’agit d’une direction (nord, nord-est, est, sud-est, sud, sud-ouest, 
    * ouest, nord-ouest, haut, bas, intérieur, extérieur) */
   public static Direction = new Classe(EClasseRacine.direction, "direction", ClassesRacines.Intitule, 1, []);
-
-  /** Il s’agit d’un mot ou d’un groupe nominal (racine) */
-  public static Concept = new Classe(EClasseRacine.concept, "concept", ClassesRacines.Intitule, 1, []);
 
   /** Il s’agit d’un élément du jeu */
   public static Element = new Classe(EClasseRacine.element, "élément", ClassesRacines.Concept, 2,

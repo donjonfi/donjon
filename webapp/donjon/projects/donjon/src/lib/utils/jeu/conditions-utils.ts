@@ -25,6 +25,7 @@ import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { RechercheUtils } from '../commun/recherche-utils';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
+import { Concept } from '../../models/compilateur/concept';
 
 export class ConditionsUtils {
 
@@ -118,9 +119,9 @@ export class ConditionsUtils {
   }
 
 
-  private trouverSujetCondition(condition: ConditionSolo | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): ElementJeu | Intitule | null {
+  private trouverSujetCondition(condition: ConditionSolo | undefined, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): ElementJeu | Concept | Intitule | null {
 
-    let sujet: ElementJeu | Intitule | null = null;
+    let sujet: ElementJeu | Concept | Intitule | null = null;
 
     const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
 
@@ -283,8 +284,10 @@ export class ConditionsUtils {
           const correspondances = this.eju.trouverCorrespondance(condition.sujet, TypeSujet.SujetEstNom, false, false);
           if (correspondances.elements.length == 1) {
             sujet = correspondances.elements[0];
-          } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1) {
-            console.error("siEstVraiSansLien >>> plusieurs éléments trouvés pour le sujet:", condition.sujet, condition, correspondances);
+          } else if (correspondances.elements.length > 1 || correspondances.compteurs.length > 1 || correspondances.concepts.length > 1) {
+            console.error("siEstVraiSansLien >>> plusieurs correspondances trouvées pour le sujet:", condition.sujet, condition, correspondances);
+          } else if (correspondances.concepts.length == 1) {
+            sujet = correspondances.concepts[0];
           } else if (correspondances.compteurs.length === 1) {
             sujet = correspondances.compteurs[0];
           } else if (correspondances.listes.length === 1) {
@@ -376,7 +379,7 @@ export class ConditionsUtils {
             break;
 
 
-          // EXISTANCE
+          // EXISTENCE
           // forme "aucun·e xxxx pour yyyy" ou "aucun·e xxx vers yyyy"
           // Ex: aucune description n’existe pour ceci. 
           // Ex: aucune sortie n’existe vers le nord.
@@ -520,14 +523,46 @@ export class ConditionsUtils {
             break;
 
           default:
-            console.error(
-              "siEstVraiSansLien > Condition élément du jeu: verbe pas connu (" + condition.verbe + ").\n",
-              "Les verbes connus sont : être, contenir, exister, posséder, porter, se trouver, réagir et valoir.\n",
-              condition);
+            contexteTour.ajouterErreurCondition(condition, "Condition sur un objet ou un lieu : verbe pas supporté : " + condition.verbe + ".");
             break;
         }
+
         // *********************************************
-        //  B. COMPTEUR
+        //  B. CONCEPT
+        // *********************************************
+      } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
+        // 2 - Trouver le verbe
+        // ++++++++++++++++++++
+        switch (condition.verbe) {
+          // ÉTAT
+          case 'est':
+          case 'sont':
+            // remarque: négation appliquée plus loin.
+            if (condition.complement?.startsWith('défini')) {
+              retVal = true;
+            } else {
+              // est une [classe] | est [état]
+              // remarque: négation appliquée plus loin.
+              retVal = this.verifierConditionEst(condition, (sujet as Concept));
+            }
+            break;
+
+          // EXISTENCE
+          // forme "aucun·e xxxx pour yyyy" ou "aucun·e xxx vers yyyy"
+          // Ex: aucune description n’existe pour ceci. 
+          // Ex: aucune sortie n’existe vers le nord.
+          // Ex: un aperçu existe pour cela.
+          case 'existe':
+            retVal = this.verifierConditionExiste(condition, sujet, contexteTour, evenement, declenchements);
+            break;
+
+          default:
+            contexteTour.ajouterErreurCondition(condition, "Condition sur un concept : verbe pas supporté : " + condition.verbe + ".");
+            break;
+        }
+
+        // *********************************************
+        //  C. COMPTEUR
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.compteur)) {
 
@@ -582,15 +617,12 @@ export class ConditionsUtils {
             break;
 
           default:
-            console.error(
-              "Condition compteur: verbe pas connu (" + condition.verbe + ").\n",
-              "Les verbes connus sont : valoir, déppasser et atteindre.\n",
-              condition);
+            contexteTour.ajouterErreurCondition(condition, "Condition sur un compteur : verbe pas supporté : " + condition.verbe + ".");
             break;
 
         }
         // *********************************************
-        //  C. LISTE
+        //  D. LISTE
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.liste)) {
 
@@ -651,15 +683,12 @@ export class ConditionsUtils {
             break;
 
           default:
-            console.error(
-              "Condition liste: verbe pas connu (" + condition.verbe + ").\n",
-              "Les verbes connus sont : être.\n",
-              condition);
+            contexteTour.ajouterErreurCondition(condition, "Condition sur une liste : verbe pas supporté : " + condition.verbe + ".");
             break;
 
         }
         // *********************************************
-        //  C. DIRECTION
+        //  E. DIRECTION
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
 
@@ -673,7 +702,7 @@ export class ConditionsUtils {
             retVal = this.verifierConditionEst(condition, (sujet as Intitule));
             break;
 
-          // EXISTANCE
+          // EXISTENCE
           // forme "aucun·e xxxx pour yyyy" ou "aucun·e xxx vers yyyy"
           // Ex: aucune description n’existe pour ceci. 
           // Ex: aucune sortie n’existe vers le nord.
@@ -691,18 +720,13 @@ export class ConditionsUtils {
             }
             break;
 
-
-
           default:
-            console.error(
-              "Condition intitulé: verbe pas connu (" + condition.verbe + ").\n",
-              "Les verbes connus sont : valoir.\n",
-              condition);
+            contexteTour.ajouterErreurCondition(condition, "Condition sur une direction : verbe pas supporté : " + condition.verbe + ".");
             break;
         }
 
         // *********************************************
-        //  D. INTITULÉ
+        //  F. INTITULÉ
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
 
@@ -747,7 +771,9 @@ export class ConditionsUtils {
             break;
 
           case 'existe':
-            if (condition.complement = 'préposition') {
+            console.log("@@@@@@@@@@@@@ existe ! condition=", condition);
+
+            if (condition.complement == 'préposition') {
               if (condition.sujet.nom == 'ceci') {
                 // remarque: négation appliquée plus loin.
                 if (evenement.prepositionCeci) {
@@ -759,23 +785,20 @@ export class ConditionsUtils {
                   retVal = true;
                 }
               } else {
-                console.error("Seul ceci/cela sont pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
+                contexteTour.ajouterErreurCondition(condition, "Condition : intitulé : Seuls ceci ou cela sont pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».")
               }
             } else {
-              console.error("Seul « préposition » pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».");
+              contexteTour.ajouterErreurCondition(condition, "Condition : intitulé : Seul le mot « préposition » est pris en charge pour la formulation « (auc)une préposition (n’)existe pour ».")
             }
             break;
 
           default:
-            console.error(
-              "Condition intitulé: verbe pas connu (" + condition.verbe + ").\n",
-              "Les verbes connus sont : valoir.\n",
-              condition);
+            contexteTour.ajouterErreurCondition(condition, "Condition sur un intitulé : verbe pas supporté : " + condition.verbe + ".");
             break;
 
         }
         // *********************************************
-        //  D. AUCUN SUJET
+        //  G. AUCUN SUJET
         // *********************************************
       } else {
 
@@ -912,12 +935,12 @@ export class ConditionsUtils {
  * Vérifier une condition de type "est", c'est à dire vérifer l'état ou la classe.
  * /!\ La négation n'est pas appliquée ici, il faut le faire ensuite.
  */
-  private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Intitule) {
+  private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Concept | Intitule) {
     let resultCondition: boolean = null;
 
     if (!condition.sujetComplement || !condition.sujetComplement.determinant) {
-      // vérifier la liste des états (si c’est un élémentJeu)
-      if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
+      // vérifier la liste des états (si c’est un concept)
+      if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
         resultCondition = this.jeu.etats.possedeEtatElement((sujet as ElementJeu), condition.complement, this.eju);
         // sinon comparer l’intitulé du sujet avec le complément
       } else if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
@@ -967,7 +990,7 @@ export class ConditionsUtils {
 
   }
 
-  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Intitule, contexteTour: ContexteTour, evenement: Evenement, declenchements: number) {
+  private verifierConditionExiste(condition: ConditionSolo, sujet: ElementJeu | Concept | Intitule, contexteTour: ContexteTour, evenement: Evenement, declenchements: number) {
 
     let retVal = false;
 
@@ -1123,13 +1146,14 @@ export class ConditionsUtils {
       // à moins qu’on ne trouve la propriété et une valeur, le retour vaudra false
       retVal = false;
       // parcourir les propriétés
-      (sujet as ElementJeu).proprietes.forEach(propriete => {
+      (sujet as Concept).proprietes.forEach(propriete => {
         // si on a trouvé la propriété et qu’elle a une valeur
         if (propriete.nom.toLocaleLowerCase() === condition.complement.toLowerCase() && propriete.valeur) {
           // on a trouvé la propriété et celle-ci a une valeur
           retVal = true;
         }
       });
+      console.log("@@@@@@@@ Existe Concept: ", retVal);
     }
 
     return retVal;

@@ -8,7 +8,7 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
-import { ProprieteElement } from "../../models/commun/propriete-element";
+import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { StringUtils } from "../commun/string.utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
@@ -18,7 +18,7 @@ import { InstructionDire } from "./instruction-dire";
 export class CompteursUtils {
 
   /** Changer la valeur d’un compteur */
-  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteElement, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', operationStr: string, eju: ElementsJeuUtils, jeu: Jeu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined, instructionDire: InstructionDire) {
+  public static changerValeurCompteurOuPropriete(compteurOuPropriete: Compteur | ProprieteConcept, verbe: 'vaut' | 'augmente' | 'diminue' | 'est', operationStr: string, eju: ElementsJeuUtils, jeu: Jeu, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined, instructionDire: InstructionDire) {
 
     if (compteurOuPropriete) {
 
@@ -216,7 +216,7 @@ export class CompteursUtils {
           if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
             valeurNum = (curProprieteCible as Compteur).valeur;
           } else {
-            valeurNum = parseFloat((curProprieteCible as ProprieteElement).valeur);
+            valeurNum = parseFloat((curProprieteCible as ProprieteConcept).valeur);
           }
         }
         // trouver compteur éventuel
@@ -260,7 +260,7 @@ export class CompteursUtils {
         if ((curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributs) || (curPropriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
           retVal = (curProprieteCible as Compteur).valeur.toString();
         } else {
-          retVal = (curProprieteCible as ProprieteElement).valeur;
+          retVal = (curProprieteCible as ProprieteConcept).valeur;
         }
       }
     }
@@ -273,7 +273,7 @@ export class CompteursUtils {
    * @param propriete 
    * @returns 
    */
-  public static proprieteElementVersCompteur(propriete: ProprieteElement) {
+  public static proprieteElementVersCompteur(propriete: ProprieteConcept) {
     if (propriete.type == TypeValeur.nombre) {
       return new Compteur(propriete.nom, parseFloat(propriete.valeur));
     } else {

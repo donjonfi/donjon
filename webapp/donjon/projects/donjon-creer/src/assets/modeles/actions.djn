@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-10-12-030000.beta.2
+-- Version: 2024-10-25-030000.beta.2
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -981,19 +981,17 @@ L'aide pour l'action parler est "{*Parler*}
 -- ============
 --    PENSER
 -- ============
+-- On peut penser à un élément du jeu ou bien à un concept.
 -- crédit: action basée sur celle proposée par KrisDoC.
--- conseil: il est conseillé de créer tous les éléments auxquels on peut penser.
---          il suffit de ne pas positionner l'élément dan le jeu si le joueur ne peut
---          pas interagir avec directement.
 action penser à ceci:
   définitions:
     ceci est un intitulé.
   phase exécution:
-    si ceci est un élément et si une pensée existe pour ceci:
-      dire "[p pensée ceci]".
-      changer ceci est évoqué.
+    si ceci est un concept et si une pensée existe pour ceci:
+        dire "[p pensée ceci]".
+        changer ceci est évoqué.
     sinon
-      dire "Ça ne m’évoque rien.".
+        dire "Ça ne m’évoque rien.".
     fin si
 fin action
 

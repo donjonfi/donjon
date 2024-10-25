@@ -15,6 +15,8 @@ import { ResultatChercherCandidats } from "../../models/jeu/resultat-chercher-ca
 import { ResultatVerifierCandidat } from "../../models/jeu/resultat-verifier-candidat";
 import { StringUtils } from "../commun/string.utils";
 import { ERessemblance, RechercheUtils } from "../commun/recherche-utils";
+import { Concept } from "../../models/compilateur/concept";
+import { ClassesRacines } from "donjon";
 
 export class ActionsUtils {
 
@@ -278,7 +280,7 @@ export class ActionsUtils {
             } else {
               retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un compteur.";
             }
-          // s’il doit s’agir d’un CONCEPT
+            // s’il doit s’agir d’un CONCEPT
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.concept)) {
             // intitulé trouvé
             if (commandeCeci.concepts.length) {
@@ -826,28 +828,33 @@ export class ActionsUtils {
    * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.
    */
   private verifierCandidatCeciCela(ceciCelaCommande: Correspondance, candidatCeciCelaAction: CibleAction): ResultatVerifierCandidat {
-    let retVal: Array<ElementJeu | Intitule> = [];
+    let retVal: Array<ElementJeu | Concept | Intitule> = [];
 
     // on donne un score aux correspondances : cela permet de départager plusieurs correspondances.
     let meilleurScore = 0;
 
     //   A. s’il s’agit d’une classe
     if (this.estCibleUneClasse(candidatCeciCelaAction)) {
-      ceciCelaCommande.elements.forEach(ele => {
+
+      let tousLesConcepts = ceciCelaCommande.concepts.concat(ceciCelaCommande.elements);
+
+      tousLesConcepts.forEach(ele => {
         // vérifier si l’objet est du bon type
         if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom))) {
-
           // s’il n’y a pas d’état requis ou si l’état est respecté
-          // if (!candidatCeciCelaAction.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.epithete, this.eju)) {
           if (this.controllerEtatsElement(ele, candidatCeciCelaAction.epithete)) {
-            let curScore = 125;
+            let curScore = 100;
+            // un élément du jeu vaut plus qu’un concept
+            if (ClasseUtils.heriteDe(ele.classe, EClasseRacine.element)) {
+              curScore += 125;
+            }
             // si priorité respectée, score augmente
             if (candidatCeciCelaAction.priorite) {
-              // if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
               if (this.controllerEtatsElement(ele, candidatCeciCelaAction.priorite)) {
                 curScore += 75; // prioritaire
               }
             }
+
             // meilleur score jusqu’à présent => remplace le précédent résultat
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
@@ -866,7 +873,7 @@ export class ActionsUtils {
         meilleurScore = 75;
         retVal = [ceciCelaCommande.localisation];
       }
-      //  - vérifier intitué
+      //  - vérifier intitulé
       if (meilleurScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom) === EClasseRacine.intitule) {
         meilleurScore = 50;
         retVal = [ceciCelaCommande.intitule];
@@ -902,28 +909,48 @@ export class ActionsUtils {
             }
           }
         });
-        // PRIORITÉ 2 >> compteur
+        // PRIORITÉ 2 >> concepts
+      } else if (ceciCelaCommande.concepts.length) {
+        // console.log("verifierCandidatCeciCela > sujet précis > concept (" + candidatCeciCelaAction.nom + (candidatCeciCelaAction.epithete ?? '') + ")");
+        // vérifier s’il s’agit du sujet précis
+        ceciCelaCommande.concepts.forEach(concept => {
+          // console.log("check for concept=", concept, "candidatCeciCela=", candidatCeciCelaAction);
+          // console.log("check for concept.intitule.nom=", concept.intitule.nom, "candidatCeciCela.nom=", candidatCeciCelaAction.nom);
+          // console.log("check for concept.intitule.epithete=", concept.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCelaAction.epithete);
+          if (concept.intitule.nom === candidatCeciCelaAction.nom && concept.intitule.epithete === candidatCeciCelaAction.epithete) {
+            let curScore = 500;
+            if (curScore > meilleurScore) {
+              meilleurScore = curScore;
+              retVal = [concept];
+            } else {
+              // déjà un match, on en a plusieurs
+              // (ici ils ont toujours la même valeur)
+              retVal.push(concept);
+            }
+          }
+        });
+        // PRIORITÉ 3 >> compteur
       } else if (ceciCelaCommande.compteurs.length) {
         // console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
-        ceciCelaCommande.compteurs.forEach(cpt => {
+        ceciCelaCommande.compteurs.forEach(compteur => {
           // console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
           // console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
           // console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-          if (cpt.intitule.nom === candidatCeciCelaAction.nom && cpt.intitule.epithete === candidatCeciCelaAction.epithete) {
+          if (compteur.intitule.nom === candidatCeciCelaAction.nom && compteur.intitule.epithete === candidatCeciCelaAction.epithete) {
             let curScore = 500;
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
-              retVal = [cpt];
+              retVal = [compteur];
             } else {
               // déjà un match, on en a plusieurs
               // (ici ils ont toujours la même valeur)
-              retVal.push(cpt);
+              retVal.push(compteur);
             }
           }
         });
-        // PRIORITÉ 3 >> intitulé
+        // PRIORITÉ 4 >> intitulé
       } else if (ceciCelaCommande.intitule) {
         // console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
 
@@ -962,7 +989,7 @@ export class ActionsUtils {
    * Si la liste d’états est vide, le résultat sera vrai.
    * Si la liste d’états contient plusieurs éléments, il doivent êtres séparés par des virgules et enfin de liste un « et » ou un « ou ».
    */
-  private controllerEtatsElement(element: ElementJeu, listeEtats: string) {
+  private controllerEtatsElement(element: Concept, listeEtats: string) {
     let etats: string[];
     // s’il y a des états à vérifire
     if (listeEtats) {

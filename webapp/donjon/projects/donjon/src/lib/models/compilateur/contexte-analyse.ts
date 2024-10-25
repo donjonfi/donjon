@@ -4,7 +4,7 @@ import { Aide } from "../commun/aide";
 import { Definition } from "./definition";
 import { ElementGenerique } from "./element-generique";
 import { Parametres } from "../commun/parametres";
-import { ProprieteElement } from "../commun/propriete-element";
+import { ProprieteConcept } from "../commun/propriete-element";
 import { ReactionBeta } from "./reaction-beta";
 import { Regle } from "../../interfaces/compilateur/regle";
 
@@ -21,7 +21,7 @@ export class ContexteAnalyse {
     public parametres = new Parametres(),
   ) { }
 
-  public dernierePropriete: ProprieteElement = null;
+  public dernierePropriete: ProprieteConcept = null;
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 

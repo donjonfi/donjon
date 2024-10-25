@@ -5,7 +5,8 @@ import { ElementJeu } from "./element-jeu";
 import { Etat } from "../commun/etat";
 import { GroupeNominal } from "../commun/groupe-nominal";
 import { Liste } from "./liste";
-import { ProprieteElement } from "../commun/propriete-element";
+import { ProprieteConcept } from "../commun/propriete-element";
+import { Concept } from "../compilateur/concept";
 
 export enum TypeProprieteJeu {
   inconnu = '?',
@@ -28,7 +29,7 @@ export class ProprieteJeu {
   public intituleProprieteElement: GroupeNominal = null;
 
   /** Propriete de l’élément cible */
-  public proprieteElement: ProprieteElement = null;
+  public proprieteElement: ProprieteConcept = null;
 
   // B. CLASSE CIBLE (éventuellement positionnée par rapport à l’élément cible)
 
@@ -50,7 +51,7 @@ export class ProprieteJeu {
   public intituleElement: GroupeNominal = null;
 
   /** Élément cible */
-  public element: ElementJeu = null;
+  public element: Concept = null;
 
   /** Liste cible */
   public liste: Liste = null;
@@ -98,11 +99,11 @@ export class ProprieteJeu {
           retVal += " " + nomEtat;
         });
         // position
-        retVal += PositionObjet.prepositionSpacialeToString(this.prepositionSpatiale) + " " + this.intituleElement;
+        retVal += PositionObjet.prepositionSpatialeToString(this.prepositionSpatiale) + " " + this.intituleElement;
         break;
 
       default:
-        retVal = "???";
+        retVal = "???!";
         break;
     }
     return retVal;

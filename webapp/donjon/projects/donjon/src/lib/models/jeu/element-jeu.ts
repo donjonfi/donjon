@@ -3,7 +3,7 @@ import { Classe } from '../commun/classe';
 import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
-import { ProprieteElement } from '../commun/propriete-element';
+import { ProprieteConcept } from '../commun/propriete-element';
 import { TypeValeur } from '../compilateur/type-valeur';
 import { Concept } from '../compilateur/concept';
 
@@ -14,7 +14,7 @@ export class ElementJeu extends Concept {
 
   constructor(
     /** Identifiant unique de l’élément */
-    public id: number,
+    id: number,
 
     /** Nom de l’élément */
     nom: string,
@@ -39,30 +39,8 @@ export class ElementJeu extends Concept {
     classe: Classe,
 
   ) {
-    super(nom, intitule, classe);
+    super(id, nom, intitule, classe);
   }
-
-  /**
- * Genre de l’élément
- * - Féminin
- * - Masculin
- * - Neutre
- */
-  public genre: Genre = null;
-
-  /**
-   * Nombre de l’élément:
-   * - Singulier
-   * - Pluriel
-   * - Indéfini
-   */
-  public nombre: Nombre = null;
-
-  /** Intitulé (singulier) */
-  public intituleS: GroupeNominal = null;
-  /** Intitulé (pluriel) */
-  public intituleP: GroupeNominal = null;
-
 
   // RACCOURCIS: QUANTITÉ
 
@@ -88,7 +66,7 @@ export class ElementJeu extends Concept {
     if (existant) {
       existant.valeur = valeur.toString();
     } else {
-      this.proprietes.push(new ProprieteElement(this, 'quantité', TypeValeur.nombre, valeur.toString()));
+      this.proprietes.push(new ProprieteConcept(this, 'quantité', TypeValeur.nombre, valeur.toString()));
     }
   }
 
@@ -104,7 +82,7 @@ export class ElementJeu extends Concept {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement(this, 'titre', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteConcept(this, 'titre', TypeValeur.mots, valeur));
     }
   }
 
@@ -120,7 +98,7 @@ export class ElementJeu extends Concept {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement(this, 'description', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteConcept(this, 'description', TypeValeur.mots, valeur));
     }
   }
 
@@ -146,7 +124,7 @@ export class ElementJeu extends Concept {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement(this, 'aperçu', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteConcept(this, 'aperçu', TypeValeur.mots, valeur));
     }
   }
 
@@ -172,7 +150,7 @@ export class ElementJeu extends Concept {
     if (existant) {
       existant.valeur = valeur;
     } else {
-      this.proprietes.push(new ProprieteElement(this, 'texte', TypeValeur.mots, valeur));
+      this.proprietes.push(new ProprieteConcept(this, 'texte', TypeValeur.mots, valeur));
     }
   }
 

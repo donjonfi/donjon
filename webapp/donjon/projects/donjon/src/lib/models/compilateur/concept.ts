@@ -1,12 +1,16 @@
 import { Classe } from "../commun/classe";
 import { ClassesRacines } from "../commun/classes-racines";
+import { Genre } from "../commun/genre.enum";
 import { GroupeNominal } from "../commun/groupe-nominal";
-import { ProprieteElement } from "../commun/propriete-element";
+import { Nombre } from "../commun/nombre.enum";
+import { ProprieteConcept } from "../commun/propriete-element";
 import { Intitule } from "../jeu/intitule";
 
 export class Concept extends Intitule {
 
   constructor(
+    /** Identifiant unique du concept */
+    public id: number,
     /** Nom du compteur */
     nom: string,
     /** Intitulé du compteur */
@@ -17,8 +21,14 @@ export class Concept extends Intitule {
     super(nom, (intitule ? intitule : (new GroupeNominal(null, nom, null))), classe);
   }
 
+
+  /** Intitulé (singulier) */
+  public intituleS: GroupeNominal = null;
+  /** Intitulé (pluriel) */
+  public intituleP: GroupeNominal = null;
+
   /** Propriétés de l’élément */
-  public proprietes: ProprieteElement[] = [];
+  public proprietes: ProprieteConcept[] = [];
 
   /**
    * États actuels de l’élément
@@ -47,5 +57,21 @@ export class Concept extends Intitule {
       }
     });
   }
+
+  /**
+* Genre de l’élément
+* - Féminin
+* - Masculin
+* - Neutre
+*/
+  public genre: Genre = null;
+
+  /**
+   * Nombre de l’élément:
+   * - Singulier
+   * - Pluriel
+   * - Indéfini
+   */
+  public nombre: Nombre = null;
 
 }
