@@ -31,7 +31,7 @@ import { Choix } from '../../models/compilateur/choix';
 
 export class Commandeur {
 
-  /** Élements du jeu Utils */
+  /** Éléments du jeu Utils */
   private eju: ElementsJeuUtils;
   /** Actions Utils */
   private act: ActionsUtils;
@@ -76,7 +76,7 @@ export class Commandeur {
    * Décomposer la commande et renvoyer les candidats trouvés.
    */
   public decomposerCommande(commande: string): ContexteCommande {
-    return CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
+    return CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
   }
 
   public setCorrectionCommande(commandeEnCours: ContexteCommande) {
@@ -94,7 +94,7 @@ export class Commandeur {
 
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
-    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.eju, this.act);
+    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
 
     if (this.correctionCommandeEnCours) {
       ctxCmd.questions = this.correctionCommandeEnCours.questions;

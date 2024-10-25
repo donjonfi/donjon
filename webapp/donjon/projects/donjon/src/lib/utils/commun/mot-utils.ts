@@ -68,6 +68,8 @@ export class MotUtils {
       } else if (nomM.endsWith('el')) {
         feminin = nomM + 'le';
         // et => + te (ette)
+      } else if(nomM == 'secret'){
+        feminin = 'secrète';
       } else if (nomM.endsWith('et')) {
         feminin = nomM + 'te';
         // eau => elle
