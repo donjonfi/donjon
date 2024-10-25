@@ -452,7 +452,7 @@ export class ExprReg {
   /**
   * un déplacement vers {élément1}(1)[ ou {élément2}(2)]
   */
-  static readonly rDelpacementVers = /^(?:un )?déplacement vers (.+?)?$/i;
+  static readonly rDeplacementVers = /^(?:un )?déplacement vers (.+?)?$/i;
 
   /**
    * une action quelconque

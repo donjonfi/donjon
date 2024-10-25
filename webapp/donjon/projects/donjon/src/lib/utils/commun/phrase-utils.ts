@@ -98,7 +98,7 @@ export class PhraseUtils {
               retVal.push(ev);
               // D) DÉPLACEMENT VERS X
             } else {
-              const deplacement = ExprReg.rDelpacementVers.exec(evenementBrut.trim());
+              const deplacement = ExprReg.rDeplacementVers.exec(evenementBrut.trim());
               if (deplacement) {
                 let ev = new Evenement(
                   TypeEvenement.deplacement,
