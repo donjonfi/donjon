@@ -376,15 +376,15 @@ export class ElementsJeuUtils {
 
     // s’il y a des voisins
     if (allLieuxVoisins.length != 0) {
-      // pour chaque voisin vérifier s’il y a un obstacle qui empèche de voir qu’il y a une sortie
+      // pour chaque voisin vérifier s’il y a un obstacle qui empêche de voir qu’il y a une sortie
       allLieuxVoisins.forEach(voisin => {
 
-        let voisinCache = false;
+        let voisinInvisible = false;
 
         // vérifier si le lieu n’est pas caché
         const curLieuVoisin = this.getLieu(voisin.id);
-        if (this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.cacheID)) {
-          voisinCache = true;
+        if (this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.cacheID) || this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.invisibleID)) {
+          voisinInvisible = true;
         } else {
           // A) PORTES
           const curVoisinObstacles = lieu.voisins.filter(x => (x.type == EClasseRacine.obstacle || x.type == EClasseRacine.porte) && x.localisation == voisin.localisation);
@@ -397,13 +397,13 @@ export class ElementsJeuUtils {
               if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
                 // si la porte est n’est ni visible ni ouverte, le voisin ne doit pas être ajouté à la liste (il est caché).
                 if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.fermeID) && !this.jeu.etats.estVisible(curObstacle, this)) {
-                  voisinCache = true;
+                  voisinInvisible = true;
                 }
                 // B) Autre type d’obstacle
               } else {
                 // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).
                 if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.couvrantID)) {
-                  voisinCache = true;
+                  voisinInvisible = true;
                 }
               }
             });
@@ -411,7 +411,7 @@ export class ElementsJeuUtils {
           } else {
           }
         }
-        if (!voisinCache) {
+        if (!voisinInvisible) {
           voisinsVisibles.push(voisin);
         }
       });
