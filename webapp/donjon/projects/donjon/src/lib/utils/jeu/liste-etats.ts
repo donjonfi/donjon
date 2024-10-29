@@ -1,18 +1,18 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 
-import { ClasseUtils } from '../commun/classe-utils';
-import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
-import { ElementJeu } from '../../models/jeu/element-jeu';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
-import { LienCondition } from '../../models/compilateur/lien-condition';
-import { Lieu } from '../../models/jeu/lieu';
-import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
+import { Concept } from '../../models/compilateur/concept';
+import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
+import { LienCondition } from '../../models/compilateur/lien-condition';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
-import { Concept } from '../../models/compilateur/concept';
+import { ClasseUtils } from '../commun/classe-utils';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { MotUtils } from '../commun/mot-utils';
 
 export class ListeEtats {
 
@@ -79,7 +79,9 @@ export class ListeEtats {
     this.mentionneID = this.creerEtat(EEtatsBase.mentionne).id;
     // vu, connu (élément jeu)
     this.vuID = this.creerEtat(EEtatsBase.vu).id;
+    this.ajouterImplication(EEtatsBase.vu, EEtatsBase.mentionne);
     this.connuID = this.creerEtat(EEtatsBase.connu).id;
+    this.ajouterImplication(EEtatsBase.connu, EEtatsBase.vu);
     // visité (lieu)
     this.visiteID = this.creerEtat(EEtatsBase.visite).id;
     // intact, déplacé et modifié (objet, lieu)
@@ -93,8 +95,10 @@ export class ListeEtats {
     // secret, caché, couvert, couvrant, invisible (objet)
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
     this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
+    this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
     this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
+    this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);
     this.discretID = this.creerEtat(EEtatsBase.discret).id;
     this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
@@ -236,44 +240,47 @@ export class ListeEtats {
     return this.suiteCreerEtat(nomEtat, genre, nombre, null, null, calcule);
   }
 
-  // /**
-  //  * spécifier que étatA implique étatB
-  //  */
-  // ajouterImplication(nomEtatA: string, nomEtatB: string) {
-  //   let etatA = this.trouverEtat(nomEtatA);
-  //   let etatB = this.trouverEtat(nomEtatB);
-  //   if (etatA && etatB) {
-  //     // ajouter etatB aux implications de etatA
-  //     if (!etatA.implications) {
-  //       etatA.implications = [etatB.id];
-  //     } else if (!etatA.implications.includes(etatB.id)) {
-  //       etatA.implications.push(etatB.id);
-  //     }
-  //     // ajouter également toutes les implications de etatB à celles de etatA
-  //     if (etatB.implications) {
-  //       etatB.implications.forEach(implication => {
-  //         if (!etatA.implications.includes(implication)) {
-  //           etatA.implications.push(implication);
-  //         }
-  //       });
-  //     }
-  //     // modifier tous les éléments qui impliquent etatA: ils doivent impliquer les implications de étatA
-  //     this.etats.forEach(autreEtat => {
-  //       // si implique etatA
-  //       if (autreEtat.implications && autreEtat.implications.includes(etatA.id)) {
-  //         // ajouter les implication de etatA
-  //         etatA.implications.forEach(implication => {
-  //           if (!autreEtat.implications.includes(implication)) {
-  //             autreEtat.implications.push(implication);
-  //           }
-  //         });
-  //       }
-  //     });
+  /**
+   * spécifier que étatImpliquant implique étatImpliqué
+   */
+  ajouterImplication(nomEtatImpliquant: string, nomEtatImplique: string) {
+    let etatImpliquant = this.trouverEtat(nomEtatImpliquant);
+    let etatImplique = this.trouverEtat(nomEtatImplique);
+    if (etatImpliquant && etatImplique) {
+      // ajouter nomEtatImplique aux implications de nomEtatImpliquant
+      if (!etatImpliquant.implications) {
+        etatImpliquant.implications = [etatImplique.id];
+      } else if (!etatImpliquant.implications.includes(etatImplique.id)) {
+        etatImpliquant.implications.push(etatImplique.id);
+      }
+      // ajouter également toutes les implications de nomEtatImplique à celles de nomEtatImpliquant
+      if (etatImplique.implications) {
+        etatImplique.implications.forEach(implication => {
+          if (!etatImpliquant.implications.includes(implication)) {
+            etatImpliquant.implications.push(implication);
+          }
+        });
+      }
 
-  //   } else {
-  //     console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
-  //   }
-  // }
+      console.warn(`Implications de ${etatImpliquant}: ${etatImpliquant.implications.join(',')}`);
+
+      // modifier tous les éléments qui impliquent nomEtatImpliquant: ils doivent impliquer les implications de étatA
+      this.etats.forEach(autreEtat => {
+        // si implique nomEtatImpliquant
+        if (autreEtat.implications && autreEtat.implications.includes(etatImpliquant.id)) {
+          // ajouter les implication de nomEtatImpliquant
+          etatImpliquant.implications.forEach(implication => {
+            if (!autreEtat.implications.includes(implication)) {
+              autreEtat.implications.push(implication);
+            }
+          });
+        }
+      });
+
+    } else {
+      console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatImpliquant, nomEtatImplique);
+    }
+  }
 
   ajouterContradiction(nomEtatA: string, nomEtatB: string) {
     let etatA = this.trouverEtat(nomEtatA);
@@ -348,7 +355,7 @@ export class ListeEtats {
     return etat;
   }
 
-  /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions). */
+  /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions ni des implications). */
   ajouterEtatIdElement(element: Concept, etatID: number, eju: ElementsJeuUtils) {
     if (!this.possedeEtatIdElement(element, etatID, eju)) {
       element.etats.push(etatID);
@@ -356,38 +363,52 @@ export class ListeEtats {
   }
 
   /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes et des contradictions). */
-  ajouterEtatElement(element: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  ajouterEtatElement(conceptCible: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
 
-    const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
+    const etatAjoute = this.trouverOuCreerEtat(nomEtat, conceptCible.genre, conceptCible.nombre);
 
-    if (etat.calcule && !forcerCalcul) {
-      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+    if (etatAjoute.calcule && !forcerCalcul) {
+      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etatAjoute.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
       // état classique
     } else {
       // s'il s'agit d'un état faisant partie d'un groupe
-      if (etat.groupe !== null) {
+      if (etatAjoute.groupe !== null) {
         // retirer tous les états existants pour ce groupe
-        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etat.groupe).map(x => x.id);
-        element.etats = element.etats.filter(x => !idsEtatsDuGroupe.includes(x));
+        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etatAjoute.groupe).map(x => x.id);
+        conceptCible.etats = conceptCible.etats.filter(x => !idsEtatsDuGroupe.includes(x));
         // ajouter le nouvel état
-        element.etats.push(etat.id);
+        conceptCible.etats.push(etatAjoute.id);
         // sinon, ajouter l'état s'il n'y est pas encore
       } else {
-        if (!element.etats.includes(etat.id)) {
-          element.etats.push(etat.id);
+        if (!conceptCible.etats.includes(etatAjoute.id)) {
+          conceptCible.etats.push(etatAjoute.id);
           // s’il s’agit d’une bascule, enlever l’autre état
-          if (etat.bascule) {
+          if (etatAjoute.bascule) {
             // ne garder que les autres états
-            element.etats = element.etats.filter(x => x !== etat.bascule);
+            conceptCible.etats = conceptCible.etats.filter(x => x !== etatAjoute.bascule);
           }
         }
       }
+      // si le nouvel état a des implications
+      if(etatAjoute.implications?.length){
+        this.appliquerImplications(conceptCible, etatAjoute.implications)
+      }
       // si le nouvel état a des contradictions
-      if (etat.contradictions) {
+      if (etatAjoute.contradictions?.length) {
         // retirer les contradictions
-        element.etats = element.etats.filter(x => !etat.contradictions.includes(x));
+        conceptCible.etats = conceptCible.etats.filter(x => !etatAjoute.contradictions.includes(x));
       }
     }
+  }
+
+  /**
+   * Ajouter les nouvelles implications à l’état cible s’il ne les a pas encore
+   * @param etatCible 
+   * @param implicationsNouvelEtat 
+   */
+  private appliquerImplications(conceptCible: Concept, implicationsNouvelEtat: number[]) {
+    let implicationsManquantes = implicationsNouvelEtat.filter(x => !conceptCible.etats.includes(x));
+    conceptCible.etats.push(...implicationsManquantes);
   }
 
   /** Retirer un état à un élément */
@@ -777,7 +798,7 @@ export class ListeEtats {
     return retVal;
   }
 
-  /** Récupérer la liste des intitulés des états de l’élément spécéfié. */
+  /** Récupérer la liste des intitulés des états de l’élément spécifié. */
   obtenirIntitulesEtatsElementJeu(el: Concept) {
     const elEtats = this.obtenirEtatsElementJeu(el);
     const feminin = el.genre === Genre.f;

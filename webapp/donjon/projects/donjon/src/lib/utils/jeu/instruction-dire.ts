@@ -10,7 +10,7 @@ import { Compteur } from "../../models/compilateur/compteur";
 import { ConditionsUtils } from "./conditions-utils";
 import { Conjugaison } from "./conjugaison";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
-import { EClasseRacine } from "../../models/commun/constantes";
+import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
@@ -72,8 +72,7 @@ export class InstructionDire {
               apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
               // l’objet a été mentionné et vu par le joueur
-              this.jeu.etats.ajouterEtatIdElement(eleCeci, this.jeu.etats.mentionneID, this.eju);
-              this.jeu.etats.ajouterEtatIdElement(eleCeci, this.jeu.etats.vuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(eleCeci, EEtatsBase.vu, this.eju, false);
             } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
               const dirCeci = contexteTour.ceci as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
@@ -81,8 +80,7 @@ export class InstructionDire {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
                 // le lieu a été mentionné et vu par le joueur
-                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.mentionneID, this.eju);
-                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
+                this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
               } else {
                 console.error("calculerTexteDynamique: aperçu de ceci: voisin pas trouvé dans cette direction.");
               }
@@ -102,8 +100,7 @@ export class InstructionDire {
               apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
               // l’objet a été mentionné et vu par le joueur
-              this.jeu.etats.ajouterEtatIdElement(eleCela, this.jeu.etats.mentionneID, this.eju);
-              this.jeu.etats.ajouterEtatIdElement(eleCela, this.jeu.etats.vuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(eleCela, EEtatsBase.vu, this.eju, false);
             } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
               const dirCela = contexteTour.cela as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
@@ -111,8 +108,7 @@ export class InstructionDire {
                 let voisin = this.eju.getLieu(voisinID);
                 apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
                 // le lieu a été mentionné et vu par le joueur
-                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.mentionneID, this.eju);
-                this.jeu.etats.ajouterEtatIdElement(voisin, this.jeu.etats.vuID, this.eju);
+                this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
               } else {
                 console.error("calculerTexteDynamique: aperçu de cela: voisin pas trouvé dans cette direction.");
               }
@@ -1649,8 +1645,7 @@ export class InstructionDire {
       objetsAvecApercuSpecifique.forEach(obj => {
         const apercuCalcule = this.calculerTexteDynamique(obj.apercu, ++obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
         // l’objet a été mentionné et vu par le joueur
-        this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.mentionneID, this.eju);
-        this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
           // (ignorer les objets dont l'aperçu vaut "-")
@@ -1697,8 +1692,7 @@ export class InstructionDire {
         objetsAvecApercuAuto.forEach(obj => {
           ++curObjIndex;
           // l’objet a été mentionné et vu par le joueur
-          this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.mentionneID, this.eju);
-          this.jeu.etats.ajouterEtatIdElement(obj, this.jeu.etats.vuID, this.eju);
+          this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
           // ajouter l’intitulé de l’objet à la liste
           resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
           if (curObjIndex < (nbObjetsApercuAuto - 1)) {
@@ -1744,8 +1738,7 @@ export class InstructionDire {
             if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
               // décrire l’obstacle
               // - l’objet a été mentionné et vu par le joueur
-              this.jeu.etats.ajouterEtatIdElement(curPorteObstacle, this.jeu.etats.mentionneID, this.eju);
-              this.jeu.etats.ajouterEtatIdElement(curPorteObstacle, this.jeu.etats.vuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(curPorteObstacle, EEtatsBase.vu, this.eju, false);
               // - si aperçu défini
               if (curPorteObstacle.apercu) {
                 // afficher l'aperçu.
@@ -1820,8 +1813,7 @@ export class InstructionDire {
       if (obstacle.apercu) {
         retVal = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
         // l’objet a été mentionné et vu par le joueur
-        this.jeu.etats.ajouterEtatIdElement(obstacle, this.jeu.etats.mentionneID, this.eju);
-        this.jeu.etats.ajouterEtatIdElement(obstacle, this.jeu.etats.vuID, this.eju);
+        this.jeu.etats.ajouterEtatElement(obstacle, EEtatsBase.vu, this.eju, false);
         // sinon on affiche texte auto.
       } else {
         retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";
