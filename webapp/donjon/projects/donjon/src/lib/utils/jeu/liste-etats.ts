@@ -46,6 +46,7 @@ export class ListeEtats {
   public fermeID = -1;
   public verrouilleID = -1;
   public verrouillableID = -1;
+  public lisibleID = -1;
   public opaqueID = -1;
   public transparentID = -1;
   public transportableID = -1;
@@ -75,9 +76,8 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // mentionné (concept)
+    // mentionné (concept), vu (élément jeu) et connu (élément jeu)
     this.mentionneID = this.creerEtat(EEtatsBase.mentionne).id;
-    // vu, connu (élément jeu)
     this.vuID = this.creerEtat(EEtatsBase.vu).id;
     this.ajouterImplication(EEtatsBase.vu, EEtatsBase.mentionne);
     this.connuID = this.creerEtat(EEtatsBase.connu).id;
@@ -94,13 +94,16 @@ export class ListeEtats {
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
     // secret, caché, couvert, couvrant, invisible (objet)
     this.discretID = this.creerEtat(EEtatsBase.discret).id;
-    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);    
+    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
-    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
     this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);    
+    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.vu);
+    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
-    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
     this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.mentionne);
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.vu);
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
     this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
@@ -143,6 +146,8 @@ export class ListeEtats {
     this.verrouillableID = this.creerEtat(EEtatsBase.verrouillable).id;
     const verrDeve = this.creerBasculeEtats(EEtatsBase.verrouille, EEtatsBase.deverrouille);
     this.verrouilleID = verrDeve[0].id;
+    // lisible (objet que l’on peut lire)
+    this.lisibleID = this.creerEtat(EEtatsBase.lisible).id;
     // transportable et fixe (objet)
     const transFixe = this.creerBasculeEtats(EEtatsBase.transportable, EEtatsBase.fixe);
     this.transportableID = transFixe[0].id;

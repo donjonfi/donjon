@@ -126,6 +126,8 @@ export enum EEtatsBase {
   verrouille = 'verrouillé',
   /** déverrouillé (↔ verrouillé) : porte, cadenas, contenant, … */
   deverrouille = 'déverrouillé',
+  /** lisible (livre, panneau, …) */
+  lisible = 'lisible',
   /** clair (↔ obscur) : lieu */
   clair = 'clair',
   /** obscur (↔ clair) : lieu */
