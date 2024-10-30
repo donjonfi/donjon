@@ -13,7 +13,7 @@ import { Compteur } from '../../models/compilateur/compteur';
 import { ContexteCommande } from '../../models/jouer/contexte-commande';
 import { Debogueur } from './debogueur';
 import { Declencheur } from './declencheur';
-import { EClasseRacine } from '../../models/commun/constantes';
+import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
@@ -216,7 +216,7 @@ export class Commandeur {
             if (candidatCommande.correspondCeci.elements.length) {
               ceciRefuse = candidatCommande.correspondCeci.elements[0];
               // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatIdElement(ceciRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(ceciRefuse as ElementJeu, EEtatsBase.connu, this.eju);
               // compteur
             } else if (candidatCommande.correspondCeci.compteurs.length) {
               ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -238,7 +238,7 @@ export class Commandeur {
             if (candidatCommande.correspondCela.elements.length) {
               celaRefuse = candidatCommande.correspondCela.elements[0];
               // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatIdElement(celaRefuse as ElementJeu, this.jeu.etats.connuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(celaRefuse as ElementJeu, EEtatsBase.connu, this.eju);
               // compteur
             } else if (candidatCommande.correspondCela.compteurs.length) {
               celaRefuse = candidatCommande.correspondCela.compteurs[0];
@@ -388,12 +388,12 @@ export class Commandeur {
         if (actionChoisie.ceci) {
           if (ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.element)) {
             // si on interagit avec l’élément, on le connaît
-            this.jeu.etats.ajouterEtatIdElement(actionChoisie.ceci as ElementJeu, this.jeu.etats.connuID, this.eju);
+            this.jeu.etats.ajouterEtatElement(actionChoisie.ceci as ElementJeu, EEtatsBase.connu, this.eju);
           }
           if (candidatActionChoisi.cela) {
             if (ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.element)) {
               // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatIdElement(actionChoisie.cela as ElementJeu, this.jeu.etats.connuID, this.eju);
+              this.jeu.etats.ajouterEtatElement(actionChoisie.cela as ElementJeu, EEtatsBase.connu, this.eju);
             }
           }
         }
