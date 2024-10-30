@@ -11,8 +11,12 @@ export class PositionObjet {
   public static getPrepositionSpatiale(preposition: string) {
 
     // accepter « à l’intérieur » pour dans
-    if (preposition.startsWith('à l’intérieur') || preposition.startsWith('à l\'intérieur')) {
+    if (preposition.includes('intérieur') || preposition.includes('dans')) {
       preposition = "dans";
+    } else if (preposition.includes('sous')) {
+      preposition = "sous";
+    } else if (preposition.includes('dessus') || preposition.includes('sur')) {
+      preposition = "sur";
     }
 
     // ne tester que le premier mot (pour retirer le/la/les/du/…)
@@ -30,18 +34,20 @@ export class PositionObjet {
         return PrepositionSpatiale.dans;
 
       default:
+        console.error(`getPrepositionSpatiale: inconnu: ${prepOnly}`);
         return PrepositionSpatiale.inconnu;
     }
   }
 
   public static prepositionSpatialeToString(prep: PrepositionSpatiale) {
+
     switch (prep) {
       case PrepositionSpatiale.dans:
         return 'dans';
-        
+
       case PrepositionSpatiale.sous:
         return 'sous';
-    
+
       case PrepositionSpatiale.sur:
         return 'sur';
 

@@ -22,6 +22,7 @@ export class PositionSujetString {
           break;
 
         case 'dessous':
+        case 'en-dessous':
         case 'au-dessous':
         case 'sous':
           retVal = 'sous';
@@ -42,11 +43,11 @@ export class PositionSujetString {
   }
 
   public toString() {
-    return (this.sujet  + ' ' + this.position  + ' ' + this.complement);
+    return (this.sujet + ' ' + this.position + ' ' + this.complement);
   }
 
-  public positionToString(){
-    return (this.position + ' ' +  this.complement);
+  public positionToString() {
+    return (this.position + ' ' + this.complement);
   }
 
 }
