@@ -86,7 +86,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
             + "(\\b("
             + "présent|absent|intact|déplacé|modifié|"
-            + "caché|couvert|décorati(f|v)|"
+            + "secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"

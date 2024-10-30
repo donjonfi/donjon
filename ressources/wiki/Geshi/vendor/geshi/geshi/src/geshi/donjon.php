@@ -93,7 +93,7 @@ $language_data = array (
 			'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
 
             'présent(e)?', 'absent(e)?', 'intact(e)?', 'déplacé(e)?', 'modifié(e)?', 
-            'caché(e)?', 'couvert(e)?', 'décorati(f|ve)',
+            'secr(et|ète)', 'caché(e)?', 'discr(et|ète)', 'couvert(e)?', 'décorati(f|ve)',
             '(in)?dénombrable', 'mangeable', 'buvable',
 			'ouvert', 'ouverte', 'fermé', 'fermée', '(dé)?verrouillable', 'verrouillé', 'verrouillée',
 			'clair', 'obscur', 'allumé',
