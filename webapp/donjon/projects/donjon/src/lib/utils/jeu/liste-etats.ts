@@ -93,14 +93,14 @@ export class ListeEtats {
     // décoratif (objet)
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
     // secret, caché, couvert, couvrant, invisible (objet)
+    this.discretID = this.creerEtat(EEtatsBase.discret).id;
+    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);    
+    this.cacheID = this.creerEtat(EEtatsBase.cache).id;
+    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
+    this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);    
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
     this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
     this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);
-    this.cacheID = this.creerEtat(EEtatsBase.cache).id;
-    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
-    this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);
-    this.discretID = this.creerEtat(EEtatsBase.discret).id;
-    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
     this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
@@ -182,9 +182,9 @@ export class ListeEtats {
 
   /**
    * Trouver un état sur base de son nom.
-   * @returns l'état correspondant ou null si pas touvé.
+   * @returns l'état correspondant ou null si pas trouvé.
    */
-  trouverEtat(nomEtat: string): Etat {
+  trouverEtat(nomEtat: string): Etat | null {
     // retirer le e et le s final
     // - cas particulier: si terminaison "ble"|"que" on retire pas le e final.
     const trouve = false;
@@ -206,6 +206,11 @@ export class ListeEtats {
         retVal = etat;
       }
     });
+
+    if (!retVal) {
+      console.log(`Pas trouvé état: ${nomEtat} \nétats:`, this.etats.join(", "));
+    }
+
     return retVal;
   }
 
@@ -246,7 +251,7 @@ export class ListeEtats {
   ajouterImplication(nomEtatImpliquant: string, nomEtatImplique: string) {
     let etatImpliquant = this.trouverEtat(nomEtatImpliquant);
     let etatImplique = this.trouverEtat(nomEtatImplique);
-    if (etatImpliquant && etatImplique) {
+    if (etatImpliquant && etatImplique) {      
       // ajouter nomEtatImplique aux implications de nomEtatImpliquant
       if (!etatImpliquant.implications) {
         etatImpliquant.implications = [etatImplique.id];
@@ -262,7 +267,7 @@ export class ListeEtats {
         });
       }
 
-      console.warn(`Implications de ${etatImpliquant}: ${etatImpliquant.implications.join(',')}`);
+      // console.warn(`Implications de ${etatImpliquant.nom}: ${etatImpliquant.implications.join(',')}`);
 
       // modifier tous les éléments qui impliquent nomEtatImpliquant: ils doivent impliquer les implications de étatA
       this.etats.forEach(autreEtat => {
@@ -278,7 +283,12 @@ export class ListeEtats {
       });
 
     } else {
-      console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatImpliquant, nomEtatImplique);
+      if (!nomEtatImpliquant) {
+        console.error(`ajouterImplication >> pas trouvé état impliquant ${nomEtatImpliquant}`);
+      }
+      if (!nomEtatImplique) {
+        console.error(`ajouterImplication >> pas trouvé état impliqué ${nomEtatImplique}`);
+      }
     }
   }
 
@@ -390,7 +400,7 @@ export class ListeEtats {
         }
       }
       // si le nouvel état a des implications
-      if(etatAjoute.implications?.length){
+      if (etatAjoute.implications?.length) {
         this.appliquerImplications(conceptCible, etatAjoute.implications)
       }
       // si le nouvel état a des contradictions
@@ -630,6 +640,11 @@ export class ListeEtats {
       return false;
     }
 
+    // si secret -> pas visible
+    if (objet.etats.includes(this.secretID)) {
+      return false;
+    }
+
     // s’il s’agit d’un OBSTACLE (dont portes), il est visible (car jamais dans un contenant et présente, visible, non couverte)
     if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.obstacle)) {
       return true;
@@ -668,6 +683,10 @@ export class ListeEtats {
     }
     // si couvert -> pas accessible
     if (objet.etats.includes(this.couvertID)) {
+      return false;
+    }
+    // si secret -> pas accessible
+    if (objet.etats.includes(this.secretID)) {
       return false;
     }
     // si inaccessible -> pas accessible
