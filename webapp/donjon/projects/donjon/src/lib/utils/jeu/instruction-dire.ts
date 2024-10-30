@@ -12,7 +12,7 @@ import { Conjugaison } from "./conjugaison";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
 import { Genre } from "../../models/commun/genre.enum";
@@ -31,6 +31,7 @@ import { TexteUtils } from "../commun/texte-utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 import { Concept } from "../../models/compilateur/concept";
+import { MotUtils } from "donjon";
 
 export class InstructionDire {
 
@@ -47,7 +48,7 @@ export class InstructionDire {
   /**
    * Calculer le texte dynamique en tenant compte des balises conditionnelles et des états actuels.
    */
-  public calculerTexteDynamique(texteDynamiqueOriginal: string, nbAffichage: number, intact: boolean | undefined, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
+  public calculerTexteDynamique(texteDynamiqueOriginal: string, nbAffichage: number, intact: boolean | undefined, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
     if (texteDynamiqueOriginal === undefined) {
       throw new Error("texteDynamiqueOriginal n’est pas défini.");
     } else if (texteDynamiqueOriginal === null) {
@@ -66,19 +67,19 @@ export class InstructionDire {
       if (texteDynamique.includes("[aperçu") || texteDynamique.includes("[apercu")) {
         if (texteDynamique.includes("[aperçu ceci]") || texteDynamique.includes("[apercu ceci]")) {
           let apercuCeci = "???";
-          if (contexteTour?.ceci) {
-            if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
-              const eleCeci = contexteTour.ceci as ElementJeu;
-              apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+          if (ctxTour?.ceci) {
+            if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.element)) {
+              const eleCeci = ctxTour.ceci as ElementJeu;
+              apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
               // l’objet a été mentionné et vu par le joueur
               this.jeu.etats.ajouterEtatElement(eleCeci, EEtatsBase.vu, this.eju, false);
-            } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
-              const dirCeci = contexteTour.ceci as Localisation;
+            } else if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.direction)) {
+              const dirCeci = ctxTour.ceci as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
-                apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
                 // le lieu a été mentionné et vu par le joueur
                 this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
               } else {
@@ -94,19 +95,19 @@ export class InstructionDire {
         }
         if (texteDynamique.includes("[aperçu cela]") || texteDynamique.includes("[apercu cela]")) {
           let apercuCela = "???";
-          if (contexteTour?.cela) {
-            if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
-              const eleCela = contexteTour.cela as ElementJeu;
-              apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+          if (ctxTour?.cela) {
+            if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.element)) {
+              const eleCela = ctxTour.cela as ElementJeu;
+              apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
               texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
               // l’objet a été mentionné et vu par le joueur
               this.jeu.etats.ajouterEtatElement(eleCela, EEtatsBase.vu, this.eju, false);
-            } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
-              const dirCela = contexteTour.cela as Localisation;
+            } else if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.direction)) {
+              const dirCela = ctxTour.cela as Localisation;
               let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
               if (voisinID !== -1) {
                 let voisin = this.eju.getLieu(voisinID);
-                apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
                 // le lieu a été mentionné et vu par le joueur
                 this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
               } else {
@@ -130,16 +131,16 @@ export class InstructionDire {
       // statut (porte, contenant)
       if (texteDynamique.includes("[statut")) {
         if (texteDynamique.includes("[statut ceci]")) {
-          if (contexteTour?.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet)) {
-            const statutCeci = this.afficherStatut(contexteTour.ceci as Objet);
+          if (ctxTour?.ceci && ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.objet)) {
+            const statutCeci = this.afficherStatut(ctxTour.ceci as Objet);
             texteDynamique = texteDynamique.replace(/\[statut ceci\]/g, statutCeci);
           } else {
             console.error("calculerTexteDynamique: statut de ceci: ceci n'est pas un objet");
           }
         }
         if (texteDynamique.includes("[statut cela]")) {
-          if (contexteTour?.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet)) {
-            const statutCela = this.afficherStatut(contexteTour.cela as Objet);
+          if (ctxTour?.cela && ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.objet)) {
+            const statutCela = this.afficherStatut(ctxTour.cela as Objet);
             texteDynamique = texteDynamique.replace(/\[statut cela\]/g, statutCela);
           } else {
             console.error("calculerTexteDynamique: statut de cela: cela n'est pas un objet");
@@ -180,7 +181,7 @@ export class InstructionDire {
           let phraseSiQuelqueChose = "";
           let afficherObjetsCaches = !exclureCaches;
 
-          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
 
           // retrouver la préposition (dans par défaut)
           let preposition = PrepositionSpatiale.dans;
@@ -303,13 +304,13 @@ export class InstructionDire {
 
       if (texteDynamique.includes("[obstacle ")) {
         if (texteDynamique.includes("[obstacle vers ceci]")) {
-          if (contexteTour?.ceci) {
+          if (ctxTour?.ceci) {
             let obstacleVersCeci: string = null;
-            if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
-              obstacleVersCeci = this.afficherObstacle((contexteTour.ceci as Localisation).id);
+            if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.direction)) {
+              obstacleVersCeci = this.afficherObstacle((ctxTour.ceci as Localisation).id);
               texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
-            } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.lieu)) {
-              obstacleVersCeci = this.afficherObstacle(contexteTour.ceci as Lieu);
+            } else if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.lieu)) {
+              obstacleVersCeci = this.afficherObstacle(ctxTour.ceci as Lieu);
               texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
             } else {
               console.error("calculerTexteDynamique: statut sortie vers ceci: ceci n’est ni une direction ni un lieu.");
@@ -319,13 +320,13 @@ export class InstructionDire {
           }
         }
         if (texteDynamique.includes("[obstacle vers cela]")) {
-          if (contexteTour?.cela) {
+          if (ctxTour?.cela) {
             let obstacleVersCela: string = null;
-            if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
-              obstacleVersCela = this.afficherObstacle((contexteTour.cela as Localisation).id);
+            if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.direction)) {
+              obstacleVersCela = this.afficherObstacle((ctxTour.cela as Localisation).id);
               texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
-            } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.lieu)) {
-              obstacleVersCela = this.afficherObstacle(contexteTour.cela as Lieu);
+            } else if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.lieu)) {
+              obstacleVersCela = this.afficherObstacle(ctxTour.cela as Lieu);
               texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
             } else {
               console.error("calculerTexteDynamique: statut sortie vers cela: cela n’est ni une direction ni un lieu.");
@@ -351,16 +352,16 @@ export class InstructionDire {
       // aide
       if (texteDynamique.includes("[aide")) {
         if (texteDynamique.includes("[aide ceci]")) {
-          if (contexteTour) {
-            const aideCeci = this.recupererFicheAide(contexteTour.ceci);
+          if (ctxTour) {
+            const aideCeci = this.recupererFicheAide(ctxTour.ceci);
             texteDynamique = texteDynamique.replace(/\[aide ceci\]/g, aideCeci);
           } else {
             console.error("calculerTexteDynamique: aide ceci: pas de contexteTour");
           }
         }
         if (texteDynamique.includes("[aide cela]")) {
-          if (contexteTour) {
-            const aideCela = this.recupererFicheAide(contexteTour.cela);
+          if (ctxTour) {
+            const aideCela = this.recupererFicheAide(ctxTour.cela);
             texteDynamique = texteDynamique.replace(/\[aide cela\]/g, aideCela);
           } else {
             console.error("calculerTexteDynamique: aide cela: pas de contexteTour");
@@ -388,7 +389,7 @@ export class InstructionDire {
 
           const proprieteString = decoupe[1];
           let cibleString = decoupe[2];
-          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
 
           let resultat: string = '';
 
@@ -591,7 +592,7 @@ export class InstructionDire {
           const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
           const proprieteString = decoupe[1];
           const cibleString = decoupe[2];
-          let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, contexteTour, evenement, this.eju, this.jeu);
+          let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
           let resultatCurBalise: string = null;
           if (cible) {
             switch (proprieteString) {
@@ -638,7 +639,7 @@ export class InstructionDire {
                   if (propriete) {
                     // texte
                     if (propriete.type == TypeValeur.mots) {
-                      resultatCurBalise = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), contexteTour, evenement, declenchements);
+                      resultatCurBalise = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
                       // nombre
                     } else {
                       resultatCurBalise = propriete.valeur;
@@ -647,7 +648,7 @@ export class InstructionDire {
                     resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée) ";
                   }
                 } else {
-                  contexteTour.ajouterErreurDerniereInstruction("Texte dynamique => propriété => doit concerner un concept.");
+                  ctxTour.ajouterErreurDerniereInstruction("Texte dynamique => propriété => doit concerner un concept.");
                   resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée car il ne s’agit pas d’un concept.) ";
                 }
                 break;
@@ -845,7 +846,7 @@ export class InstructionDire {
 
           let valeurMemoire: string;
 
-          const elementTrouve = contexteTour.trouverValeur(intituleValeurOuListe);
+          const elementTrouve = ctxTour.trouverValeur(intituleValeurOuListe);
           if (elementTrouve) {
             valeurMemoire = elementTrouve.toString();
           } else {
@@ -884,7 +885,7 @@ export class InstructionDire {
           const sujet = decoupe[4];
 
           // retrouver le verbe conjugué
-          const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, contexteTour, evenement);
+          const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, ctxTour, evenement);
 
           // remplacer la balise par le verbe conjugué
           const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujet}`;
@@ -976,7 +977,7 @@ export class InstructionDire {
         // retrouver toutes les balises nombre de propriété de élément
         const allBalises = texteDynamique.match(xBaliseNombreDeProprieteMulti);
         // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, contexteTour, evenement, declenchements);
+        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
       }
 
       // Le nombre de classe état1 état2 position
@@ -985,7 +986,7 @@ export class InstructionDire {
         // retrouver toutes les balises nombre de classe état1 état2 position
         const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPositionMulti);
         // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, contexteTour, evenement, declenchements);
+        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
       }
 
       // La propriété de élément
@@ -994,7 +995,7 @@ export class InstructionDire {
         // retrouver toutes les balises propriété de élément
         const allBalises = texteDynamique.match(xBaliseProprieteDeElementMulti);
         // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, contexteTour, evenement, declenchements);
+        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
       }
 
       // propriété élément
@@ -1003,7 +1004,7 @@ export class InstructionDire {
         // retrouver toutes les balises  propriété élément
         const allBalises = texteDynamique.match(xBaliseProprieteElementMulti);
         // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, true, contexteTour, evenement, declenchements);
+        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, true, ctxTour, evenement, declenchements);
       }
 
       // s’il reste des crochets à interpréter
@@ -1011,7 +1012,7 @@ export class InstructionDire {
         // ===================================================
         // > CONDITIONS
         // ===================================================
-        texteDynamique = this.calculerCrochetsConditions(texteDynamique, nbAffichage, intact, contexteTour, evenement, declenchements);
+        texteDynamique = this.calculerCrochetsConditions(texteDynamique, nbAffichage, intact, ctxTour, evenement, declenchements);
       }
 
     } // fin interprétation crochets
@@ -1019,6 +1020,11 @@ export class InstructionDire {
     // rétablir les crochets échappés
     texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetOuvrant, '[');
     texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetFermant, ']');
+
+    // ======================================================================================================
+    // > Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@connu:xxxxx@@
+    // ======================================================================================================
+    texteDynamique = this.traiterMentions(texteDynamique, ctxTour);
 
     // ===================================================
     // > RETOURS CONDITIONNELS
@@ -1050,6 +1056,63 @@ export class InstructionDire {
       } else {
         texteDynamique += "{N}";
       }
+    }
+
+
+
+    return texteDynamique;
+  }
+
+  /**
+   *  Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@connu:xxxxx@@
+   */
+  private traiterMentions(texteDynamique: string, ctxTour: ContexteTour): string {
+
+    // ===================================================
+    // retrouvé les balises MENTIONNÉ, VU et CONNU
+    // ===================================================
+    // type(1): groupe nominal(2)
+    const baliseHashtag = "@@(mentionné|vu|connu):\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)@@";
+    const xBaliseHashtagMulti = new RegExp(baliseHashtag, "gi");
+    const xBaliseHashtagSolo = new RegExp(baliseHashtag, "i");
+
+    if (xBaliseHashtagMulti.test(texteDynamique)) {
+      // retrouver toutes les balises image
+      const allBalises = texteDynamique.match(xBaliseHashtagMulti);
+      // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
+      const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
+      // parcourir chaque balise trouvée
+      balisesUniques.forEach(curBalise => {
+        // retrouver le nom du fichier
+        const decoupe = xBaliseHashtagSolo.exec(curBalise);
+        const type = decoupe[1];
+        const elementJeu = decoupe[2];
+        // retrouver la cible
+        let correspondance = this.eju.trouverCorrespondance(PhraseUtils.getGroupeNominalDefini(elementJeu, false), TypeSujet.SujetEstNom, false, false);
+        if (correspondance.nbCor == 1) {
+          // ajouter l’état correspondant à la cible
+          if (type == "mentionné") {
+            this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.mentionne, this.eju);
+          } else if (type == "vu") {
+            this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.vu, this.eju);
+          } else if (type == 'connu') {
+            this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.connu, this.eju);
+          } else {
+            throw new Error(`Type balise pas prise en charge type=${type}`);
+          }
+        } else {
+          if (correspondance.nbCor == 0) {
+            ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: aucune correspondance trouvée.`)
+          } else {
+            ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: plusieurs correspondances trouvées.`)
+          }
+        }
+
+        // remplacer les [] par balise résultante
+        const expression = `@@${type}:\\s?${elementJeu}@@`;
+        const regExp = new RegExp(expression, "g");
+        texteDynamique = texteDynamique.replace(regExp, "");
+      });
     }
 
     return texteDynamique;

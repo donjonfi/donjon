@@ -19,7 +19,7 @@ export class Correspondance {
   /** Reprend les lieux et les objets trouvés */
   elements: ElementJeu[] = [];
 
-  unique: Intitule | undefined;
+  unique: Intitule | Concept | ElementJeu | undefined;
 
   nbCor = 0;
 
