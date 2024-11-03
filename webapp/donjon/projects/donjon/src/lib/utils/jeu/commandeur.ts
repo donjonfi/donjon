@@ -214,9 +214,8 @@ export class Commandeur {
           if (candidatCommande.correspondCeci.nbCor) {
             // élément
             if (candidatCommande.correspondCeci.elements.length) {
+              //(on ne considère pas qu’on a interagi avec l’élément alors que l’action a été refusée => on ne lui ajoute pas « connu »)
               ceciRefuse = candidatCommande.correspondCeci.elements[0];
-              // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatElement(ceciRefuse as ElementJeu, EEtatsBase.connu, this.eju);
               // compteur
             } else if (candidatCommande.correspondCeci.compteurs.length) {
               ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -236,9 +235,8 @@ export class Commandeur {
           if (candidatCommande.correspondCela.nbCor) {
             // élément
             if (candidatCommande.correspondCela.elements.length) {
+              //(on ne considère pas qu’on a interagi avec l’élément alors que l’action a été refusée => on ne lui ajoute pas « connu »)
               celaRefuse = candidatCommande.correspondCela.elements[0];
-              // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatElement(celaRefuse as ElementJeu, EEtatsBase.connu, this.eju);
               // compteur
             } else if (candidatCommande.correspondCela.compteurs.length) {
               celaRefuse = candidatCommande.correspondCela.compteurs[0];
