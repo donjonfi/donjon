@@ -378,9 +378,17 @@ export class ActionsUtils {
         }
         break;
 
+        case EEtatsBase.mentionne:
+        if (argumentUnique) {
+          retVal = "Je n’en ai pas encore entendu parler.";
+        } else {
+          retVal = "Je n’ai pas encore entendu parler de {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+
       case EEtatsBase.vu:
         if (argumentUnique) {
-          retVal = "Je ne [l’ " + tokenCeciOuCela + "]ai pas encore vu[s " + tokenCeciOuCela + "].";
+          retVal = "Je ne [l’ " + tokenCeciOuCela + "]ai pas encore vu[es " + tokenCeciOuCela + "].";
         } else {
           retVal = "Je n’ai pas encore vu {/[intitulé " + tokenCeciOuCela + "]/}";
         }
