@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-10-25-030000.beta.2
+-- Version: 2024-11-03-030000.beta.3
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -293,15 +293,15 @@ fin action
 
 action demander ceci:
   définitions:
-    ceci est un intitulé.
+    ceci est un intitulé prioritairement mentionné.
   phase épilogue:
     dire "Je sais demander mais il faut me dire quoi et à qui.".
 fin action
 
 action demander ceci à cela:
   définitions:
-    Ceci est un intitulé.
-    Cela est un objet visible.
+    Ceci est un intitulé prioritairement mentionné.
+    Cela est un objet vu et visible.
   phase prérequis:
     si cela n'est ni une personne ni parlant ou si cela est muet, refuser "[Intitulé ceci] ne parle pas.".
   phase exécution:
@@ -392,7 +392,7 @@ action donner ceci à cela:
 
   définitions:
     Ceci est un objet visible, accessible et possédé.
-    Cela est un vivant visible.
+    Cela est un vivant vu et visible.
 
   phase prérequis:
     si ceci est le joueur, refuser "Ça ne va pas ?".
@@ -427,7 +427,7 @@ fin action
 
 action écouter ceci:
   définitions:
-    ceci est un objet visible.
+    ceci est un objet présent.
   phase prérequis:
     si ceci est le joueur, refuser "Vous prenez le temps de vous écouter. Hein ?".
   phase épilogue:
@@ -450,7 +450,7 @@ fin action
 -- ============
 action énerver ceci:
   définitions:
-    ceci est un objet visible.
+    ceci est un objet vu et visible.
   phase prérequis:
     si ceci est le joueur, refuser "Vous vous énervez un bon coup.".
     si ceci n’est pas un vivant, refuser "Rien à faire, [pronom ceci] reste impassible.".
@@ -497,18 +497,21 @@ fin action
 action examiner ceci:
 
   définitions:
-    Ceci est un intitulé.
+    Ceci est un intitulé prioritairement mentionné.
 
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
+    si ceci est un objet visible mais pas vu, refuser "Je ne [l’ceci]ai pas encore vu[es ceci].".
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
     -- objet
     si ceci est un objet:
       -- > description de l’objet
-      dire "[description ceci]".
+      si la préposition de ceci n’est pas sous:
+        dire "[description ceci]".
+      fin si.
       -- > statut de l’objet
       si ceci est une porte ou un contenant,
         dire "[statut ceci]".
@@ -655,7 +658,7 @@ fin action
 -- ============
 action insulter ceci:
   définitions:
-    Ceci est un objet visible.
+    Ceci est un concept mentionné.
   phase prérequis:
     si ceci est le joueur, refuser "Vous vous insultez copieusement. (Ça va passer…)".
   phase épilogue:
@@ -679,8 +682,8 @@ fin action
 
 action interroger ceci concernant cela:
   définitions:
-    ceci est un objet visible et accessible prioritairement parlant.
-    cela est un intitulé.
+    ceci est un objet vu, visible et accessible prioritairement parlant.
+    cela est un intitulé prioritairement mentionné.
   phase prérequis:
     si ceci n'est ni une personne ni parlant ou si ceci est muet, refuser "[Intitulé ceci] ne parle pas.".
   phase exécution:
@@ -723,7 +726,7 @@ fin action
 action jeter ceci vers cela:
   définitions:
     ceci est prioritairement possédé.
-    cela est un objet visible.
+    cela est un objet vu et visible.
   phase prérequis:
     si ceci n'est pas accessible, refuser "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
@@ -774,7 +777,7 @@ fin action
 -- ===========
 action lire ceci:
   définitions:
-    ceci est un objet visible prioritairement lisible.
+    ceci est un objet vu et visible prioritairement lisible.
   phase prérequis:
     si ceci est le joueur, refuser "Vous lisez en vous. Hein ?".
     si aucun texte pour ceci, refuser "Je ne vois rien à lire.".
@@ -886,8 +889,8 @@ L'aide pour l'action mettre est "{*Mettre / Poser / Tenir / Enfiler / Chausser*}
 
 action montrer ceci à cela:
   définitions:
-    ceci est un objet visible prioritairement possédé.
-    cela est un vivant visible.
+    ceci est un objet vu et visible prioritairement possédé.
+    cela est un vivant vu et visible.
   phase prérequis:
     si cela est le joueur, refuser "Je pense qu'[pronom cela] me voit déjà.".
   phase exécution:
@@ -945,7 +948,7 @@ L'aide pour l'action ouvrir est "{*Ouvrir*}
 -- parler avec ceci
 action parler avec ceci:
   définitions:
-    ceci est un objet visible prioritairement parlant.
+    ceci est un objet vu et visible prioritairement parlant.
   phase prérequis:
     si ceci n'est ni une personne ni parlant ou si ceci est muet, refuser "[Intitulé ceci] ne parle pas.".
     si ceci est le joueur, refuser "Vous entamez un monologue.".
@@ -957,8 +960,8 @@ fin action
 
 action parler avec ceci concernant cela:
   définitions:
-    ceci est un objet visible prioritairement parlant.
-    cela est un intitulé.
+    ceci est un objet vu et visible prioritairement parlant.
+    cela est un intitulé prioritairement mentionné.
   phase prérequis:
     si ceci n'est ni une personne ni parlant ou si ceci est muet, refuser "[Intitulé ceci] ne parle pas.".
     si ceci est le joueur, refuser "Je connais déjà la réponse.".
@@ -985,7 +988,7 @@ L'aide pour l'action parler est "{*Parler*}
 -- crédit: action basée sur celle proposée par KrisDoC.
 action penser à ceci:
   définitions:
-    ceci est un intitulé.
+    ceci est un intitulé prioritairement mentionné.
   phase exécution:
     si ceci est un concept et si une pensée existe pour ceci:
         dire "[p pensée ceci]".
@@ -1109,7 +1112,7 @@ fin action
 
 action prier ceci:
   définitions:
-    ceci est un intitulé.
+    ceci est un intitulé prioritairement mentionné.
   phase prérequis:
     si ceci est le joueur, refuser "Vous vous appréciez beaucoup. C'est bien.".
   phase épilogue:
@@ -1178,10 +1181,11 @@ fin action
 -- b) regarder ceci
 action regarder ceci:
   définitions:
-    ceci est un intitulé.
+    ceci est un intitulé prioritairement mentionné.
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez regarder.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
+    si ceci est un objet et si ceci n’est pas vu: refuser "Je ne [l’ ceci]ai pas encore vu[es].".
   phase exécution:
     si ceci est une personne:
       dire "[description ceci]".
