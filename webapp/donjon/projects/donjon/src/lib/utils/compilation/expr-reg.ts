@@ -412,7 +412,7 @@ export class ExprReg {
    *     - Appuyer sur ceci avec cela est une action qui concerne deux objets accessibles prioritairement possédés.
    *     - Aller vers ceci est une action qui concerne un intitulé et qui déplace le joueur vers ceci
    */
-  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |1 |2 |la |le |l’|l')?(\S+)(?: (\S+))?(?: prioritairement (\S+))?(?: et (un |une |1 |la |le |l’|l')(\S+)(?: (\S+))?(?: prioritairement (\S+))?)?)?(?:(?: et?) qui déplace le joueur vers (.+?))?$/i;
+  static readonly xAction = /^((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (\S+))? (ceci)(?:(?: (\S+))? (cela))?)? est une action(?: qui concerne (un |une |deux |1 |2 |la |le |l’|l')?(\S+)(?: (?!prioritairement)(\S+))?(?: prioritairement (\S+))?(?: et (un |une |1 |la |le |l’|l')(\S+)(?: (?!prioritairement)(\S+))?(?: prioritairement (\S+))?)?)?(?:(?: et?) qui déplace le joueur vers (.+?))?$/i;
 
   /** Le joueur peut verbe(1) [[[ à/de/sur/…]\(2) déterminant(3) nom(4) epithete(5)]: instructions(6) */
   static readonly xActionSimplifiee = /^Le joueur peut ((?:se |s’|s')?\S+(?:ir|er|re))(?:(?: (?!(?:un|une|le|la|les|l)\b)(\S+?))? (le |la |les |l(?:’|')|des |de l(?:’|')|de la |du |un |une )?(\S+|(?:\S+ (?:à |en |de(?: la)? |du |des |d'|d’)\S+))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))\S+))?)?(?: *):(?: *)(.+)?$/i;
@@ -483,7 +483,7 @@ export class ExprReg {
    *   - cela est un lieu
    *   - Cela est une licorne petite et mignone prioritairement gentille ou amicale
    */
-  static readonly rDefinitionComplementActionTypeEtat = /^(Ceci|Cela) (?:est|sont) (un|une) (\S+)(?: (.+?))?(?: prioritairement (.+))?$/i;
+  static readonly rDefinitionComplementActionTypeEtat = /^(Ceci|Cela) (?:est|sont) (un|une) (\S+)(?: (?!prioritairement)(.+?))?(?: prioritairement (.+))?$/i;
 
   /**
    * définition action: compléments ceci/cela: états prioritaires
