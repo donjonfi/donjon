@@ -229,7 +229,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation.actions[1].infinitif).toEqual('tester');
     expect(resultatCompilation.actions[1].ceci).toBeTrue();
     expect(resultatCompilation.actions[1].cibleCeci.nom).toEqual('objet');
-    expect(resultatCompilation.actions[1].cibleCeci.epithete).toEqual('visible et accessible');
+    expect(resultatCompilation.actions[1].cibleCeci.epithete).toEqual('vu, visible et accessible');
     expect(resultatCompilation.actions[1].cela).toBeTrue();
     expect(resultatCompilation.actions[1].cibleCela.nom).toEqual('chaise');
     expect(resultatCompilation.regles).toHaveSize(0); // aucune règle

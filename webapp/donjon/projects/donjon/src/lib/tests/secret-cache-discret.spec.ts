@@ -1,3 +1,4 @@
+import { ClasseUtils, ElementsJeuUtils } from "donjon";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { TypeRegle } from "../models/compilateur/type-regle";
 import { ContextePartie } from "../models/jouer/contexte-partie";
@@ -5,23 +6,7 @@ import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
 import { Generateur } from "../utils/compilation/generateur";
 
-const scenario = `        
-La salon est un lieu.
-
-La bibliothèque est un contenant ici.
-  Sa description est "Une bibliothèque. Un livre de cuisine [@livre de cuisine]dépasse".
-  Le livre de cuisine est un objet discret dedans.
-
-Le bureau est un support ici.
-  La lettre est un objet dessus.
-    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[&pièce]".
-    Son texte est "La saviez-vous ? Sous le bureau il y a un parchemin[#parchemin]".
-  La pièce est un objet caché sur le bureau.
-  Le parchemin est un objet secret en dessous du bureau.
-`
-
 const actions = `
-
 -- ======================
 --   COMMENCER (jeu, nouvelle partie)
 -- ======================
@@ -68,17 +53,17 @@ fin action
 -- b) regarder ceci
 action regarder ceci:
   définitions:
-    ceci est un intitulé.
+    ceci est un intitulé prioritairement mentionné.
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez regarder.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
+    si ceci est un objet et visible mais pas vu, refuser "Je ne [l’ ceci]ai pas encore vu[es ceci].".
   phase exécution:
     si ceci est une personne:
       dire "[description ceci]".
     sinon
       exécuter la commande "examiner [préposition ceci] [intitulé ceci]".
-    fin si.
-fin action
+    fin si
   
 -- ============
 --   EXAMINER
@@ -87,18 +72,21 @@ fin action
 action examiner ceci:
 
   définitions:
-    Ceci est un intitulé.
+    Ceci est un intitulé prioritairement mentionné.
 
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
+    si ceci est un objet et visible mais pas vu, refuser "Je ne [l’ ceci]ai pas encore vu[es ceci].".
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
     -- objet
     si ceci est un objet:
       -- > description de l’objet
-      dire "[description ceci]".
+      si la préposition de ceci n’est pas sous:
+        dire "[description ceci]".
+      fin si.
       -- > statut de l’objet
       si ceci est une porte ou un contenant,
         dire "[statut ceci]".
@@ -179,6 +167,26 @@ fin action
 
 `;
 
+const scenario = `        
+La salon est un lieu.
+
+La bibliothèque est un contenant ici.
+  Sa description est "Une bibliothèque. Un livre de cuisine [@livre de cuisine]dépasse.".
+  Le livre de cuisine est un objet discret dedans.
+
+Le bureau est un support ici.
+  La lettre est un objet dessus.
+    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[&pièce]".
+    Son texte est "La saviez-vous ? Sous le bureau il y a un parchemin[#parchemin]".
+  La pièce est un objet caché sur le bureau.
+  Le parchemin est un objet secret en dessous du bureau.
+`
+// états
+// mentionneID: 3, vuID: 4, connuID: 5, 
+// discretID: 11,  cacheID: 12, secret: 13,
+// accessibleID: 18, adjacentID: 58
+
+
 describe('Test du jeu avec secret, caché et discret', () => {
   it('Nombre de phrases', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
@@ -203,13 +211,31 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(rc.monde.objets).toHaveSize(1 + 6); // (joueur,) bibliothèque, livre de cuisine, bureau, lettre, pièce et parchemin
     const jeu = Generateur.genererJeu(rc);
     expect(jeu.objets).toHaveSize(2 + 6); // (inventaire, joueur,) bibliothèque, livre de cuisine, bureau, lettre, pièce et parchemin
+
+
+
     const ctxPartie = new ContextePartie(jeu);
     let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+
+    let bibliotheque = ctxPartie.jeu.objets[2];
+    expect(bibliotheque.nom).toEqual("bibliotheque");
 
     let livreCuisine = ctxPartie.jeu.objets[3];
     expect(livreCuisine.nom).toEqual("livre de cuisine");
 
+    // classique
+    expect(ClasseUtils.getHierarchieClasse(bibliotheque.classe)).toEqual("contenant → objet → élément → concept → intitulé");
+    expect(bibliotheque.etats).toContain(ctxPartie.jeu.etats.presentID);
+    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.secretID);
+    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
+    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.discretID);
+    expect(bibliotheque.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+    expect(bibliotheque.etats).toContain(ctxPartie.jeu.etats.vuID);
+    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+
     // discret
+    expect(ClasseUtils.getHierarchieClasse(livreCuisine.classe)).toEqual("objet → élément → concept → intitulé");
+    expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.presentID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.discretID);
@@ -218,11 +244,16 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.connuID);
 
     // TODO: faut-il empêcher d’examiner un objet pas encore mentionné/vu/connu ?
-    // ctxCommande = ctxPartie.com.executerCommande("examiner livre");
-    // expect(ctxCommande.sortie).toEqual("Je ne comprends pas ce que vous voulez examiner.{N}");
+    ctxCommande = ctxPartie.com.executerCommande("examiner livre");
+    expect(ctxCommande.sortie)
+      .withContext("Le livre ne doit pas pouvoir être examiné car il n’a pas encore été vu")
+      .toEqual("Je ne l’ai pas encore vu.{N}");
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner bibliothèque");
-    expect(ctxCommande.sortie).toEqual("Une bibliothèque. Un livre de cuisine dépasse Dedans, il y a un livre de cuisine.{N}");
+    ctxCommande = ctxPartie.com.executerCommande("examiner la bibliothèque");
+    expect(ctxCommande.sortie)
+      .withContext("Le livre, déjà mentionné dans bibliothèque, ne doit pas être décrit une seconde fois.")
+      .toEqual("Une bibliothèque. Un livre de cuisine dépasse.{N}");
+
     // => vu
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
@@ -263,6 +294,14 @@ describe('Test du jeu avec secret, caché et discret', () => {
     let parchemin = ctxPartie.jeu.objets[7];
     expect(parchemin.nom).toEqual("parchemin");
 
+    // classique
+    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.secretID);
+    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
+    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.discretID);
+    expect(bureau.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+    expect(bureau.etats).toContain(ctxPartie.jeu.etats.vuID);
+    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+
     // secret
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.secretID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.cacheID);
@@ -272,7 +311,9 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.connuID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
-    expect(ctxCommande.sortie).toEqual("Je ne comprends pas ce que vous voulez examiner.{N}");
+    expect(ctxCommande.sortie)
+      .withContext("Le parchemin secret ne doit pas pouvoir être examiné")
+      .toEqual("Je ne comprends pas ce que vous voulez examiner.{N}");
 
     ctxCommande = ctxPartie.com.executerCommande("lire lettre");
     expect(ctxCommande.sortie).toEqual("La saviez-vous ? Sous le bureau il y a un parchemin");
@@ -285,6 +326,8 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.connuID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner sous bureau");
+    expect(ctxCommande.sortie).toEqual(" Dessous, il y a un parchemin.{N}");
+
     // => vu
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
@@ -322,6 +365,14 @@ describe('Test du jeu avec secret, caché et discret', () => {
     let piece = ctxPartie.jeu.objets[6];
     expect(piece.nom).toEqual("piece");
 
+    // classique
+    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.secretID);
+    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
+    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.discretID);
+    expect(lettre.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+    expect(lettre.etats).toContain(ctxPartie.jeu.etats.vuID);
+    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+
     // cachée
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(piece.etats).toContain(ctxPartie.jeu.etats.cacheID);
@@ -330,9 +381,11 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.vuID);
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.connuID);
 
-    // // TODO: empêcher d’examiner un objet qui n’est pas encore mentionné/vu/connu ?
-    // ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
-    // expect(ctxCommande.sortie).toEqual("Je ne comprends pas ce que vous voulez examiner.{N}");
+    // on ne doit pas pouvoir examiner directement un objet caché
+    ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
+    expect(ctxCommande.sortie)
+      .withContext("La pièce cachée ne doit pas pouvoir être examinée")
+      .toEqual("Je ne l’ai pas encore vue.{N}");
 
     ctxCommande = ctxPartie.com.executerCommande("examiner lettre");
     expect(ctxCommande.sortie).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}");
