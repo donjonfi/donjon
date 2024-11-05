@@ -1,21 +1,25 @@
 import { ContexteTour, PhaseTour } from "../../models/jouer/contexte-tour";
-import { Interruption, TypeContexte } from "../../models/jeu/interruption";
+import { TypeContexte } from "../../models/jeu/interruption";
 
 import { ActionCeciCela } from "../../models/compilateur/action";
 import { ConditionsUtils } from "./conditions-utils";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
 import { Declencheur } from "./declencheur";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { Instructions } from "./instructions";
 import { InterruptionsUtils } from "./interruptions-utils";
 import { Jeu } from "../../models/jeu/jeu";
 import { Resultat } from "../../models/jouer/resultat";
+import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
+import { ClasseUtils } from "../commun/classe-utils";
+import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
+import { ElementJeu } from "../../models/jeu/element-jeu";
 
 export class CommandeurTour {
 
   /** Conditions Utils */
   private cond: ConditionsUtils;
+  private eju: ElementsJeuUtils;
 
   constructor(
     private jeu: Jeu,
@@ -24,6 +28,7 @@ export class CommandeurTour {
     private verbeux: boolean,
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
+    this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
   }
 
   public demarrerNouveauTour(commande: ContexteCommande) {
@@ -116,8 +121,8 @@ export class CommandeurTour {
         break;
       // ÉPLILOGUE (TERMINER)
       case PhaseTour.epilogue:
-         // ajouter les erreurs à la sortie
-         tour.erreurs.forEach(erreur => {
+        // ajouter les erreurs à la sortie
+        tour.erreurs.forEach(erreur => {
           tour.commande.sortie += `{+${erreur}+}{n}`
         });
         // passer à la phase « fin »
@@ -129,11 +134,31 @@ export class CommandeurTour {
         break;
       // FIN
       case PhaseTour.fin:
+        this.executerPhaseFin(tour);
         break;
 
       default:
         console.error("Phase inconnue:", tour.phase);
         break;
+    }
+  }
+
+  private executerPhaseFin(tour: ContexteTour) {
+
+    // TODO: il ne faut pas que 'penser à un objet' rende l’objet connu !
+
+    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent connu.
+    if (tour.commande.actionChoisie.action.ceci
+      // problème: examiner ne requiert pas que l’objet soit vu pourtant l’objet est ensuite connu.
+      //  && tour.commande.actionChoisie.action.cibleCeci.epithete?.includes('vu')
+      && ClasseUtils.heriteDe(tour.commande.actionChoisie.ceci.classe, EClasseRacine.element)) {
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.connu, this.eju);
+    }
+    if (tour.commande.actionChoisie.action.cela
+      // problème: examiner ne requiert pas que l’objet soit vu pourtant l’objet est ensuite connu.
+      // && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
+      && ClasseUtils.heriteDe(tour.commande.actionChoisie.cela.classe, EClasseRacine.element)) {
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.connu, this.eju);
     }
   }
 

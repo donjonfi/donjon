@@ -382,20 +382,6 @@ export class Commandeur {
         // plus de question en suspend à destination du joueur
         ctx.questions = undefined;
 
-        // les éléments avec lesquels ont interagit sont connus.
-        if (actionChoisie.ceci) {
-          if (ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.element)) {
-            // si on interagit avec l’élément, on le connaît
-            this.jeu.etats.ajouterEtatElement(actionChoisie.ceci as ElementJeu, EEtatsBase.connu, this.eju);
-          }
-          if (candidatActionChoisi.cela) {
-            if (ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.element)) {
-              // si on interagit avec l’élément, on le connaît
-              this.jeu.etats.ajouterEtatElement(actionChoisie.cela as ElementJeu, EEtatsBase.connu, this.eju);
-            }
-          }
-        }
-
         const isCeciV2 = actionChoisie.ceci ? true : false;
         let ceciQuantiteV2 = candidatCommande.ceciQuantiteV1;
         // transformer « -1 » en la quantité de l’objet

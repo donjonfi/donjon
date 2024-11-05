@@ -1687,6 +1687,8 @@ export class InstructionDire {
     let resultat = new Resultat(false, '', 1);
     const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
 
+    // TODO: ne pas décrire à nouveau les objets qui ont déjà été mentionnés précédemment dans le même texte. ([# nom de l’objet])
+
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
       resultat.succes = true;
@@ -1716,7 +1718,7 @@ export class InstructionDire {
             nbObjetsSansApercu += 1;
           } else {
             resultat.sortie += "{U}" + apercuCalcule;
-            // B.2 SI C’EST UN SUPPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
+            // B.2 SI C’EST UN SUPPORT, AFFICHER SON CONTENU (VISIBLE et NON Caché)
             // (uniquement si option activée)
             if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
               if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.support)) {
