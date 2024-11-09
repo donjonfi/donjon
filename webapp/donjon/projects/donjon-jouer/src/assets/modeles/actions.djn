@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-11-03-030000.beta.3
+-- Version: 2024-11-09-030000.beta.3
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -493,7 +493,6 @@ fin action
 -- ============
 --   EXAMINER
 -- ============
-
 action examiner ceci:
 
   définitions:
@@ -506,6 +505,9 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
+      changer ceci est familier.
+      changer ceci n’est plus discret.
+      changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
       -- > description de l’objet
