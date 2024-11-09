@@ -46,7 +46,7 @@
         },
         {
           "name": "constant.language",
-          "match": "(\\b(présent|absent|intact|déplacé|modifié|secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
         }
       ]
     },
