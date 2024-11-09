@@ -144,21 +144,16 @@ export class CommandeurTour {
   }
 
   private executerPhaseFin(tour: ContexteTour) {
-
-    // TODO: il ne faut pas que 'penser à un objet' rende l’objet connu !
-
-    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent connu.
+    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent familier.
     if (tour.commande.actionChoisie.action.ceci
-      // problème: examiner ne requiert pas que l’objet soit vu pourtant l’objet est ensuite connu.
-      //  && tour.commande.actionChoisie.action.cibleCeci.epithete?.includes('vu')
+       && tour.commande.actionChoisie.action.cibleCeci.epithete?.includes('vu')
       && ClasseUtils.heriteDe(tour.commande.actionChoisie.ceci.classe, EClasseRacine.element)) {
-      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.connu, this.eju);
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.familier, this.eju);
     }
     if (tour.commande.actionChoisie.action.cela
-      // problème: examiner ne requiert pas que l’objet soit vu pourtant l’objet est ensuite connu.
-      // && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
+      && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
       && ClasseUtils.heriteDe(tour.commande.actionChoisie.cela.classe, EClasseRacine.element)) {
-      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.connu, this.eju);
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.familier, this.eju);
     }
   }
 

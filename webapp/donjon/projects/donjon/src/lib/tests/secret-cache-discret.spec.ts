@@ -68,7 +68,6 @@ action regarder ceci:
 -- ============
 --   EXAMINER
 -- ============
-
 action examiner ceci:
 
   définitions:
@@ -81,6 +80,11 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
+    si ceci est un élément:
+      changer ceci est familier.
+      changer ceci n’est plus discret.
+      changer ceci n’est plus intact.
+    fin si
     -- objet
     si ceci est un objet:
       -- > description de l’objet
@@ -176,13 +180,14 @@ La bibliothèque est un contenant ici.
 
 Le bureau est un support ici.
   La lettre est un objet dessus.
-    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[&pièce]".
+    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[@pièce][&pièce]".
     Son texte est "La saviez-vous ? Sous le bureau il y a un parchemin[#parchemin]".
   La pièce est un objet caché sur le bureau.
   Le parchemin est un objet secret en dessous du bureau.
 `
 // états
-// mentionneID: 3, vuID: 4, connuID: 5, 
+// mentionneID: 3, vuID: 4, 
+// familierID: 5, 
 // discretID: 11,  cacheID: 12, secret: 13,
 // accessibleID: 18, adjacentID: 58
 
@@ -231,7 +236,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.discretID);
     expect(bibliotheque.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(bibliotheque.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(bibliotheque.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     // discret
     expect(ClasseUtils.getHierarchieClasse(livreCuisine.classe)).toEqual("objet → élément → concept → intitulé");
@@ -241,9 +246,8 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.mentionneID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.vuID);
-    expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    // TODO: faut-il empêcher d’examiner un objet pas encore mentionné/vu/connu ?
     ctxCommande = ctxPartie.com.executerCommande("examiner livre");
     expect(ctxCommande.sortie)
       .withContext("Le livre ne doit pas pouvoir être examiné car il n’a pas encore été vu")
@@ -260,18 +264,18 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner livre");
     expect(ctxCommande.sortie).toEqual("C’est un livre de cuisine.{N}");
 
-    // => connu
+    // => familier
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
     expect(livreCuisine.etats).not.toContain(ctxPartie.jeu.etats.discretID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.connuID);
+    expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.familierID);
   });
 
   it('examiner parchemin', () => {
@@ -300,7 +304,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.discretID);
     expect(bureau.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(bureau.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(bureau.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     // secret
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.secretID);
@@ -308,7 +312,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.mentionneID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.vuID);
-    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
     expect(ctxCommande.sortie)
@@ -323,7 +327,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.vuID);
-    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner sous bureau");
     expect(ctxCommande.sortie).toEqual(" Dessous, il y a un parchemin.{N}");
@@ -334,17 +338,17 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
     expect(ctxCommande.sortie).toEqual("C’est un parchemin.{N}");
-    // => connu
+    // => familier
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.discretID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(parchemin.etats).toContain(ctxPartie.jeu.etats.connuID);
+    expect(parchemin.etats).toContain(ctxPartie.jeu.etats.familierID);
 
   });
 
@@ -371,7 +375,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.discretID);
     expect(lettre.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(lettre.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(lettre.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     // cachée
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.secretID);
@@ -379,7 +383,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(piece.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.mentionneID);
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.vuID);
-    expect(piece.etats).not.toContain(ctxPartie.jeu.etats.connuID);
+    expect(piece.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     // on ne doit pas pouvoir examiner directement un objet caché
     ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
@@ -388,15 +392,15 @@ describe('Test du jeu avec secret, caché et discret', () => {
       .toEqual("Je ne l’ai pas encore vue.{N}");
 
     ctxCommande = ctxPartie.com.executerCommande("examiner lettre");
-    expect(ctxCommande.sortie).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}");
+    expect(ctxCommande.sortie).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}"); // [@pièce][&pièce]
 
-    // mention connu
+    // mention « vue » et « familière » sur la pièce quand on lit la lettre
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.cacheID);
-    expect(piece.etats).not.toContain(ctxPartie.jeu.etats.discretID);
+    expect(piece.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(piece.etats).toContain(ctxPartie.jeu.etats.mentionneID);
     expect(piece.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(piece.etats).toContain(ctxPartie.jeu.etats.connuID);
+    expect(piece.etats).toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
     expect(ctxCommande.sortie).toEqual("C’est une pièce.{N}");

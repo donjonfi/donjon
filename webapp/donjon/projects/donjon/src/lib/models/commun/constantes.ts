@@ -36,8 +36,8 @@ export enum EEtatsBase {
   mentionne = 'mentionné',
   /** vu */
   vu = 'vu',
-  /** connu */
-  connu = 'connu',
+  /** familier */
+  familier = 'familier',
 
   /** présent (calculé) (↔ absent) */
   present = 'présent',

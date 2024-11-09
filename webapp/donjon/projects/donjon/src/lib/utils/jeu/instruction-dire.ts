@@ -600,7 +600,7 @@ export class InstructionDire {
               case 'nom':
                 resultatCurBalise = cible.nom;
                 break;
-              // intitulé (connu forcé)
+              // intitulé (familier forcé)
               case 'intitulé':
               case 'intitule':
                 if (cible instanceof ElementJeu) {
@@ -609,7 +609,7 @@ export class InstructionDire {
                   resultatCurBalise = cible.intitule.toString();
                 }
                 break;
-              // Intitulé (maj forcée, connu forcé)
+              // Intitulé (majuscule forcée, familier forcé)
               case 'Intitulé':
               case 'Intitule':
                 if (cible instanceof ElementJeu) {
@@ -923,7 +923,7 @@ export class InstructionDire {
       }
 
       // ===================================================
-      // MENTIONNÉ (#), VU (@) et CONNU (&)
+      // MENTIONNÉ (#), VU (@) et FAMILIER (&)
       // ===================================================
       // #groupe nominal(1)
       const baliseHashtag = "(#|@|&)\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
@@ -948,7 +948,7 @@ export class InstructionDire {
           } else if (type == "@") {
             baliseResultante = '@@vu:' + elementJeu + '@@';
           } else if (type == '&') {
-            baliseResultante = '@@connu:' + elementJeu + '@@';
+            baliseResultante = '@@familier:' + elementJeu + '@@';
           } else {
             throw new Error(`Type balise pas prise en charge type=${type}`);
           }
@@ -1022,7 +1022,7 @@ export class InstructionDire {
     texteDynamique = texteDynamique.replace(ExprReg.xCaractereCrochetFermant, ']');
 
     // ======================================================================================================
-    // > Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@connu:xxxxx@@
+    // > Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@familier:xxxxx@@
     // ======================================================================================================
     texteDynamique = this.traiterMentions(texteDynamique, ctxTour);
 
@@ -1064,15 +1064,15 @@ export class InstructionDire {
   }
 
   /**
-   *  Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@connu:xxxxx@@
+   *  Traiter les mentions : @@mentionné:xxxxx@@, @@vu:xxxxx@@, @@familier:xxxxx@@
    */
   private traiterMentions(texteDynamique: string, ctxTour: ContexteTour): string {
 
     // ===================================================
-    // retrouvé les balises MENTIONNÉ, VU et CONNU
+    // retrouvé les balises MENTIONNÉ, VU et FAMILIER
     // ===================================================
     // type(1): groupe nominal(2)
-    const baliseHashtag = "@@(mentionné|vu|connu):\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)@@";
+    const baliseHashtag = "@@(mentionné|vu|familier):\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)@@";
     const xBaliseHashtagMulti = new RegExp(baliseHashtag, "gi");
     const xBaliseHashtagSolo = new RegExp(baliseHashtag, "i");
 
@@ -1095,8 +1095,8 @@ export class InstructionDire {
             this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.mentionne, this.eju);
           } else if (type == "vu") {
             this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.vu, this.eju);
-          } else if (type == 'connu') {
-            this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.connu, this.eju);
+          } else if (type == 'familier') {
+            this.jeu.etats.ajouterEtatElement(correspondance.unique as Concept, EEtatsBase.familier, this.eju);
           } else {
             throw new Error(`Type balise pas prise en charge type=${type}`);
           }
@@ -1874,7 +1874,7 @@ export class InstructionDire {
     const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
     if (obstacleID !== -1) {
       const obstacle = this.eju.getObjet(obstacleID);
-      // si aperçu dispo pour l’obstacle, on l’affiche.
+      // si aperçu disponible pour l’obstacle, on l’affiche.
       if (obstacle.apercu) {
         retVal = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
         // l’objet a été mentionné et vu par le joueur

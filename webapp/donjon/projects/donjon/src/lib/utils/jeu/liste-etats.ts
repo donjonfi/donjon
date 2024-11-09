@@ -16,9 +16,9 @@ import { MotUtils } from '../commun/mot-utils';
 
 export class ListeEtats {
 
-  public vuID = -1;
-  public connuID = -1;
   public mentionneID = -1;
+  public vuID = -1;
+  public familierID = -1;
 
   public presentID = -1;
   public visiteID = -1;
@@ -76,12 +76,11 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // mentionné (concept), vu (élément jeu) et connu (élément jeu)
+    // mentionné (concept), vu (élément jeu) et familier (élément jeu)
     this.mentionneID = this.creerEtat(EEtatsBase.mentionne).id;
     this.vuID = this.creerEtat(EEtatsBase.vu).id;
     this.ajouterImplication(EEtatsBase.vu, EEtatsBase.mentionne);
-    this.connuID = this.creerEtat(EEtatsBase.connu).id;
-    this.ajouterImplication(EEtatsBase.connu, EEtatsBase.vu);
+    this.familierID = this.creerEtat(EEtatsBase.familier).id;
     // visité (lieu)
     this.visiteID = this.creerEtat(EEtatsBase.visite).id;
     // intact, déplacé et modifié (objet, lieu)
@@ -94,16 +93,13 @@ export class ListeEtats {
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
     // secret, caché, couvert, couvrant, invisible (objet)
     this.discretID = this.creerEtat(EEtatsBase.discret).id;
-    this.ajouterContradiction(EEtatsBase.discret, EEtatsBase.connu);
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
     this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);    
     this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.vu);
-    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.connu);
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
     this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);
     this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.mentionne);
     this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.vu);
-    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.connu);
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
     this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;

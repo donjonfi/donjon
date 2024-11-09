@@ -212,10 +212,13 @@ export class Commandeur {
         let ceciRefuse: ElementJeu | Compteur | Localisation | Intitule = null;
         if (candidatCommande.correspondCeci) {
           if (candidatCommande.correspondCeci.nbCor) {
+            // rem: on ne rend pas l’objet « familier » lorsque l’action utilisant cet objet a été refusée.
             // élément
             if (candidatCommande.correspondCeci.elements.length) {
-              //(on ne considère pas qu’on a interagi avec l’élément alors que l’action a été refusée => on ne lui ajoute pas « connu »)
               ceciRefuse = candidatCommande.correspondCeci.elements[0];
+              // concept
+            } else if (candidatCommande.correspondCeci.concepts.length) {
+              ceciRefuse = candidatCommande.correspondCeci.concepts[0];
               // compteur
             } else if (candidatCommande.correspondCeci.compteurs.length) {
               ceciRefuse = candidatCommande.correspondCeci.compteurs[0];
@@ -233,10 +236,13 @@ export class Commandeur {
         let celaRefuse: ElementJeu | Compteur | Localisation | Intitule = null;
         if (candidatCommande.correspondCela) {
           if (candidatCommande.correspondCela.nbCor) {
+            // rem: on ne rend pas l’objet « familier » lorsque l’action utilisant cet objet a été refusée.
             // élément
             if (candidatCommande.correspondCela.elements.length) {
-              //(on ne considère pas qu’on a interagi avec l’élément alors que l’action a été refusée => on ne lui ajoute pas « connu »)
               celaRefuse = candidatCommande.correspondCela.elements[0];
+              // concept
+            } else if (candidatCommande.correspondCeci.concepts.length) {
+              ceciRefuse = candidatCommande.correspondCeci.concepts[0];
               // compteur
             } else if (candidatCommande.correspondCela.compteurs.length) {
               celaRefuse = candidatCommande.correspondCela.compteurs[0];

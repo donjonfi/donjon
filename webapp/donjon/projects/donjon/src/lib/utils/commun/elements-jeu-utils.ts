@@ -47,7 +47,7 @@ export class ElementsJeuUtils {
     return retVal;
   }
 
-  calculerIntituleElement(ceci: ElementJeu, forcerMajuscule: boolean, forcerConnu: boolean, forcerNombre: Nombre = null) {
+  calculerIntituleElement(ceci: ElementJeu, forcerMajuscule: boolean, forcerFamilier: boolean, forcerNombre: Nombre = null) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
 
@@ -88,8 +88,8 @@ export class ElementsJeuUtils {
               // il n’existe qu’un seul exemplaire
             } else {
 
-              // si l’élément est encore intact et inconnu
-              if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.connuID)) {
+              // si l’élément est encore intact et s’il n’est pas encore familier
+              if (!forcerFamilier && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.familierID)) {
                 if (ceci.genre === Genre.f) {
                   determinant = "une ";
                 } else {
@@ -115,12 +115,12 @@ export class ElementsJeuUtils {
         }
         // quantité infinie => des
         else if (ceci.quantite == -1 || forcerNombre === Nombre.p) {
-          // si l’élément est encore intact et inconnu
-          if (!forcerConnu && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.connuID)) {
+          // si l’élément est encore intact et s’il n’est pas encore familier
+          if (!forcerFamilier && this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.intactID) && !this.jeu.etats.possedeEtatIdElement(ceci, this.jeu.etats.familierID)) {
             determinant = 'des ';
             nom = ceci.intituleP.nom;
             epithete = ceci.intituleP.epithete ?? '';
-            // si le joueur a déjà interragi avec l'élément
+            // si le joueur a déjà interagi avec l'élément
           } else {
             determinant = 'les ';
             nom = ceci.intituleP.nom;
