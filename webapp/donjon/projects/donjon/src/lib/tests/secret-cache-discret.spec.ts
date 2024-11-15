@@ -6,6 +6,21 @@ import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
 import { Generateur } from "../utils/compilation/generateur";
 
+const scenario = `        
+Le salon est un lieu.
+
+La bibliothèque est un contenant ici.
+  Sa description est "Une bibliothèque. Un livre de cuisine [@livre de cuisine]dépasse.".
+  Le livre de cuisine est un objet discret dedans.
+
+Le bureau est un support ici.
+  La lettre est un objet dessus.
+    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[@pièce][&pièce]".
+    Son texte est "La saviez-vous ? Sous le bureau il y a un parchemin[#parchemin]".
+  La pièce est un objet caché sur le bureau.
+  Le parchemin est un objet secret en dessous du bureau.
+`
+
 const actions = `
 -- ======================
 --   COMMENCER (jeu, nouvelle partie)
@@ -171,20 +186,6 @@ fin action
 
 `;
 
-const scenario = `        
-La salon est un lieu.
-
-La bibliothèque est un contenant ici.
-  Sa description est "Une bibliothèque. Un livre de cuisine [@livre de cuisine]dépasse.".
-  Le livre de cuisine est un objet discret dedans.
-
-Le bureau est un support ici.
-  La lettre est un objet dessus.
-    Sa description est "En examinant la lettre vous remarquez une pièce cachée dessous.[@pièce][&pièce]".
-    Son texte est "La saviez-vous ? Sous le bureau il y a un parchemin[#parchemin]".
-  La pièce est un objet caché sur le bureau.
-  Le parchemin est un objet secret en dessous du bureau.
-`
 // états
 // mentionneID: 3, vuID: 4, 
 // familierID: 5, 
@@ -208,7 +209,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
 
     ctxCommande = ctxPartie.com.executerCommande("regarder");
-    expect(ctxCommande.sortie).toEqual("{_{*La salon*}_}{n}Vous êtes dans la salon.{N}{U}Vous apercevez une bibliothèque et un bureau.{U}Sur le bureau il y a une lettre.{N}{P}Il n’y a pas de sortie.{N}");
+    expect(ctxCommande.sortie).toEqual("{_{*Le salon*}_}{n}Vous êtes dans le salon.{N}{U}Vous apercevez une bibliothèque et un bureau.{U}Sur le bureau il y a une lettre.{N}{P}Il n’y a pas de sortie.{N}");
   });
 
   it('examiner bibliothèque et livre', () => {
