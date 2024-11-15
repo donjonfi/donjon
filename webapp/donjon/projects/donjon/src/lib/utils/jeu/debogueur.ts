@@ -177,8 +177,8 @@ export class Debogueur {
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
       "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucun') + infoContenant) +
-      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, true, false, true, PrepositionSpatiale.dans).sortie)) : '') +
-      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, true, false, true, PrepositionSpatiale.sur).sortie)) : '') +
+      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, true, false, true, PrepositionSpatiale.dans, []).sortie)) : '') +
+      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, true, false, true, PrepositionSpatiale.sur, []).sortie)) : '') +
       "";
     return sortie;
   }
@@ -194,7 +194,7 @@ export class Debogueur {
       "{n}{e}{_synonymes_}{n}" + (lieu.synonymes?.length ? lieu.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
-      ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(lieu, 'Il y a ', '(vide)', true, true, true, false, true, PrepositionSpatiale.inconnu).sortie)) +
+      ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(lieu, 'Il y a ', '(vide)', true, true, true, false, true, PrepositionSpatiale.inconnu, []).sortie)) +
       "";
     return sortie;
   }

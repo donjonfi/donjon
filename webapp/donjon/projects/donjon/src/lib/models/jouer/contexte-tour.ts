@@ -62,6 +62,8 @@ export class ContexteTour {
    */
   private listes = new Map<string, Liste>();
 
+  public elementsMentionnes: number[] = [];
+
   constructor(
     /** Ceci */
     public ceci: Intitule | undefined,

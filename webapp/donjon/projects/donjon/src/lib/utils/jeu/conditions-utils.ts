@@ -1153,7 +1153,6 @@ export class ConditionsUtils {
           retVal = true;
         }
       });
-      console.log("@@@@@@@@ Existe Concept: ", retVal);
     }
 
     return retVal;

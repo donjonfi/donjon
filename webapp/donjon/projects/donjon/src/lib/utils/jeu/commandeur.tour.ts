@@ -144,16 +144,18 @@ export class CommandeurTour {
   }
 
   private executerPhaseFin(tour: ContexteTour) {
-    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent familier.
+    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent familier et il n’est plus discret.
     if (tour.commande.actionChoisie.action.ceci
        && tour.commande.actionChoisie.action.cibleCeci.epithete?.includes('vu')
       && ClasseUtils.heriteDe(tour.commande.actionChoisie.ceci.classe, EClasseRacine.element)) {
       this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.familier, this.eju);
+      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.discret, this.eju);
     }
     if (tour.commande.actionChoisie.action.cela
       && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
       && ClasseUtils.heriteDe(tour.commande.actionChoisie.cela.classe, EClasseRacine.element)) {
       this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.familier, this.eju);
+      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.discret, this.eju);
     }
   }
 
