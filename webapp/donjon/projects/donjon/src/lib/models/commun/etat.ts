@@ -21,7 +21,7 @@ export class Etat {
    */
   groupe: number = null;
   /**
-   * Lorsqu’on ajoute élément de la bascule, son binome est retiré et inversément.
+   * Lorsqu’on ajoute élément de la bascule, son binome est retiré et inversement.
    */
   bascule: number = null;
   /**
@@ -32,4 +32,8 @@ export class Etat {
    * Les éléments impliqués sont automatiquement ajoutés.
    */
   implications: number[] = null;
+
+  toString(): string{
+    return this.nom;
+  }
 }

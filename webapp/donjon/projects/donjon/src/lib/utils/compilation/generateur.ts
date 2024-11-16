@@ -23,14 +23,15 @@ import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
-import { ProprieteElement } from '../../models/commun/propriete-element';
+import { ProprieteConcept } from '../../models/commun/propriete-element';
 import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../interfaces/compilateur/regle';
-import { RegleBeta } from '../../models/compilateur/regle-beta';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
+import { Commandeur } from 'donjon';
+import { Concept } from '../../models/compilateur/concept';
 
 export class Generateur {
 
@@ -74,10 +75,12 @@ export class Generateur {
     // ****************
     const jeuDansMonde = rc.monde.speciaux.find(x => x.nom === 'jeu');
     if (jeuDansMonde) {
-      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === 'ifid' || x.nom.toLowerCase() == 'identifiant' )?.valeur;
+      jeu.IFID = jeuDansMonde.proprietes.find(x => x.nom.toLowerCase() === 'ifid' || x.nom.toLowerCase() == 'identifiant')?.valeur;
       jeu.titre = jeuDansMonde.proprietes.find(x => x.nom === 'titre')?.valeur;
       jeu.auteur = jeuDansMonde.proprietes.find(x => x.nom === 'auteur')?.valeur;
       jeu.auteurs = jeuDansMonde.proprietes.find(x => x.nom === 'auteurs')?.valeur;
+      jeu.participants = jeuDansMonde.proprietes.find(x => x.nom === 'participants')?.valeur;
+      jeu.remerciements = jeuDansMonde.proprietes.find(x => x.nom === 'remerciements')?.valeur;
       jeu.version = jeuDansMonde.proprietes.find(x => x.nom === 'version')?.valeur;
     }
 
@@ -106,12 +109,75 @@ export class Generateur {
 
     // INVENTAIRE
     // **********
-    // (on l’ajoute pour pouvoir interragir avec)
+    // (on l’ajoute pour pouvoir interagir avec)
     let inventaire = new Objet(jeu.nextID++, "inventaire", new GroupeNominal("l’", "inventaire", null), ClassesRacines.Special, 1, Genre.m, Nombre.s);
     inventaire.intituleS = inventaire.intitule;
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.inaccessible, ctx);
     jeu.etats.ajouterEtatElement(inventaire, EEtatsBase.permeable, ctx);
     jeu.objets.push(inventaire);
+
+    // AJOUTER LES CONCEPTS
+    // ********************
+    rc.monde.concepts.forEach(curEle => {
+      // TODO: générer concepts
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let nouvConcept = new Concept(jeu.nextID++, intitule.nomEpithete, intitule);
+      nouvConcept.genre = curEle.genre;
+      nouvConcept.nombre = curEle.nombre;
+
+      // ajouter les états par défaut de la classe du lieu
+      //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
+      Generateur.attribuerEtatsParDefaut(nouvConcept.classe, nouvConcept, jeu.etats, ctx);
+      // ajouter les états du lieu définis explicitement
+      if (curEle.attributs) {
+        curEle.attributs.forEach(attribut => {
+          jeu.etats.ajouterEtatElement(nouvConcept, attribut, ctx);
+        });
+      }
+
+            // parcourir les propriétés du lieu
+            let nouvellesProp: ProprieteConcept[] = []
+            curEle.proprietes.forEach(pro => {
+              // spécial: intitulé
+              if (pro.nom == 'intitulé') {
+                // TODO: gérer groupe nominal ?
+                const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
+                nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
+                if (nouvConcept.nombre == Nombre.p) {
+                  nouvConcept.intituleP = nouvConcept.intitule;
+                } else {
+                  nouvConcept.intituleS = nouvConcept.intitule;
+                }
+                // autres propriétés
+              } else {
+                // fix ç de aperçu
+                if (pro.nom == 'apercu') {
+                  pro.nom = 'aperçu';
+                }
+                // ajouter ou mettre à jour
+                const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
+                if (proExistantDeja) {
+                  proExistantDeja.valeur = pro.valeur;
+                } else {
+                  pro.parent = nouvConcept;
+                  nouvellesProp.push(pro);
+                }
+              }
+            });
+            nouvConcept.proprietes.push(...nouvellesProp);
+      
+            // synonymes définis par l’auteur
+            if (curEle.synonymes?.length) {
+              nouvConcept.addSynonymes(curEle.synonymes)
+            }
+            // synonymes générés automatiquement
+            if (jeu.parametres.activerSynonymesAuto) {
+              Generateur.genererSynonymesAuto(nouvConcept);
+            }
+
+
+      jeu.concepts.push(nouvConcept);
+    });
 
     // AJOUTER LES LIEUX
     // ******************
@@ -126,7 +192,7 @@ export class Generateur {
       let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
-      nouvLieu.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
+
       // ajouter description éventuelle du lieu
       if (curEle.description) {
         nouvLieu.description = curEle.description;
@@ -134,7 +200,7 @@ export class Generateur {
       // ajouter les états par défaut de la classe du lieu
       //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
       Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats, ctx);
-      // ajouter les états du lieu définis explicitements
+      // ajouter les états du lieu définis explicitement
       if (curEle.attributs) {
         curEle.attributs.forEach(attribut => {
           jeu.etats.ajouterEtatElement(nouvLieu, attribut, ctx);
@@ -142,7 +208,7 @@ export class Generateur {
       }
 
       // parcourir les propriétés du lieu
-      let nouvellesProp: ProprieteElement[] = []
+      let nouvellesProp: ProprieteConcept[] = []
       curEle.proprietes.forEach(pro => {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
@@ -172,6 +238,15 @@ export class Generateur {
       });
       nouvLieu.proprietes.push(...nouvellesProp);
 
+      // synonymes définis par l’auteur
+      if (curEle.synonymes?.length) {
+        nouvLieu.addSynonymes(curEle.synonymes)
+      }
+      // synonymes générés automatiquement
+      if (jeu.parametres.activerSynonymesAuto) {
+        Generateur.genererSynonymesAuto(nouvLieu);
+      }
+
       // description par défaut du lieu (description automatique)
       if (nouvLieu.description === null) {
         nouvLieu.description = "Vous êtes dans " + nouvLieu.intitule + ".";
@@ -192,9 +267,7 @@ export class Generateur {
     let joueur = new Objet(jeu.nextID++, "joueur", new GroupeNominal("le ", "joueur"), ClassesRacines.Vivant, 1, Genre.m, Nombre.s);
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
-    joueur.synonymes = [
-      new GroupeNominal("", "moi", null)
-    ];
+    joueur.addSynonymes([new GroupeNominal("", "moi", null)]);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache, ctx);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact, ctx);
     // ajouter le joueur aux objets du jeu
@@ -211,7 +284,7 @@ export class Generateur {
       }
 
       // parcourir les propriétés du joueur
-      let nouvellesProp: ProprieteElement[] = []
+      let nouvellesProp: ProprieteConcept[] = []
       joueurDansMonde.proprietes.forEach(pro => {
         // spécial: intitulé
         if (pro.nom == 'intitulé') {
@@ -268,12 +341,11 @@ export class Generateur {
         }
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
-        newObjet.synonymes = (curEle.synonymes && curEle.synonymes.length) ? curEle.synonymes : null;
 
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
-        // ajouter les états de l'objet définis explicitements
+        // ajouter les états de l'objet définis explicitement
         if (curEle.attributs) {
           curEle.attributs.forEach(attribut => {
             jeu.etats.ajouterEtatElement(newObjet, attribut, ctx);
@@ -325,7 +397,7 @@ export class Generateur {
         }
 
         // parcourir les propriétés de l’objet
-        let nouvellesProp: ProprieteElement[] = []
+        let nouvellesProp: ProprieteConcept[] = []
         curEle.proprietes.forEach(pro => {
           // spécial: intitulé
           if (pro.nom == 'intitulé') {
@@ -358,6 +430,15 @@ export class Generateur {
           }
         });
         newObjet.proprietes.push(...nouvellesProp);
+
+        // synonymes définis par l’auteur
+        if (curEle.synonymes?.length) {
+          newObjet.addSynonymes(curEle.synonymes)
+        }
+        // synonymes générés automatiquement
+        if (jeu.parametres.activerSynonymesAuto) {
+          Generateur.genererSynonymesAuto(newObjet);
+        }
 
         // description par défaut
         if (newObjet.description === null) {
@@ -421,7 +502,7 @@ export class Generateur {
             }
 
             if (curEle.positionString.length > 1) {
-              ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
+              ctx.ajouterErreur('L’élément « ' + curEle.elIntitule + ' » : a été positionné à plusieurs endroits. Seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
             }
 
           };
@@ -440,21 +521,6 @@ export class Generateur {
       }
     }
 
-    // GÉNÉRER LES AUDITEURS
-    // *********************
-    rc.regles.forEach(regle => {
-      switch (regle.typeRegle) {
-        case TypeRegle.apres:
-        case TypeRegle.avant:
-        case TypeRegle.remplacer:
-          jeu.auditeurs.push(Generateur.getAuditeur(regle));
-          break;
-
-        default:
-          break;
-      }
-    });
-
     // GÉNÉRER LES ACTIONS
     // *******************
     rc.actions.forEach(action => {
@@ -463,7 +529,7 @@ export class Generateur {
 
     // GÉNÉRER LES ROUTINES
     // ********************
-    rc.routinesSimples.forEach(routineSimple =>{
+    rc.routinesSimples.forEach(routineSimple => {
       jeu.routines.push(routineSimple);
     });
 
@@ -513,6 +579,64 @@ export class Generateur {
       jeu.listes.push(curListe);
     });
 
+    // GÉNÉRER LES AUDITEURS
+    // *********************
+
+    let com = new Commandeur(jeu, null, null, true);
+
+    // ajouter les règles
+    rc.regles.forEach(regle => {
+      switch (regle.typeRegle) {
+        case TypeRegle.apres:
+        case TypeRegle.avant:
+        case TypeRegle.remplacer:
+
+          // découper les commandes qui déclenchent les règles
+          // à présent que l’on dispose des objets
+          regle.evenements.forEach(ev => {
+            let ctxCom = com.decomposerCommande(ev.commandeComprise);
+            // aucune commande trouvée
+            if (ctxCom.candidats.length == 0) {
+              ctx.ajouterErreur(`❌ Pas trouvé de commande pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+              // une commande se démarque
+            } else if ((ctxCom.candidats.length == 1) || (ctxCom.candidats[0].score > ctxCom.candidats[1].score)) {
+              const cmd = ctxCom.candidats[0];
+              ev.commandeComprise = undefined;
+
+              const ceci = cmd.els.sujet;
+              ev.isCeci = ceci ? true : false;
+              ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
+              ev.classeCeci = null;
+              ev.quantiteCeci = 0;
+              ev.prepositionCeci = cmd.els.preposition0;
+
+              const cela = cmd.els.sujetComplement1;
+              ev.isCela = cela ? true : false;
+              ev.cela = (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
+              ev.classeCela = null;
+              ev.quantiteCela = 0;
+              ev.prepositionCela = cmd.els.preposition1;
+
+              if (ctx.verbeux) {
+                console.warn(`🟢 Commande trouvée pour la règle ${regle.intitule}`);
+              }
+
+              // aucune commande  ne se démarque
+            } else {
+              ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+            }
+          });
+
+          // ajouter la règle
+          jeu.auditeurs.push(Generateur.getAuditeur(regle));
+          break;
+
+        default:
+          break;
+      }
+    });
+
+
     // ajouter les erreurs
     if (ctx.erreurs.length) {
       jeu.tamponErreurs.push(...ctx.erreurs);
@@ -559,14 +683,14 @@ export class Generateur {
         // ajouter au lieu trouvé, le voisin elVoisin
         const opposeVoisin = new Voisin(idElVoisin, classeRacine, localisation);
         const lieu = lieux.find(x => x.id == lieuTrouveID);
-        lieu.voisins.push(opposeVoisin);
+        lieu.ajouterVoisin(opposeVoisin);
 
         // le lieu trouvé, est le voisin du lieu elVoisin.
         if (classeRacine == EClasseRacine.lieu) {
           // ajouter le lieu trouvé aux voisins de elVoisin
           const newVoisin = new Voisin(lieuTrouveID, classeRacine, this.getOpposePosition(localisation));
           const lieuTrouve = lieux.find(x => x.id === idElVoisin);
-          lieuTrouve.voisins.push(newVoisin);
+          lieuTrouve.ajouterVoisin(newVoisin);
           // la porte trouvée, est également visible depuis le lieu voisin à priori…
         } else if (classeRacine == EClasseRacine.porte) {
           // todo: rendre la porte visible chez le voisin également
@@ -651,10 +775,10 @@ export class Generateur {
   }
 
   /**
-   * Atribuer les états par défaut de l’objet sur base de la classe spécifiée.
+   * Attribuer les états par défaut de l’objet sur base de la classe spécifiée.
    * Si la classe à un parent, on commence par attribuer les états par défaut du parent.
    */
-  static attribuerEtatsParDefaut(classe: Classe, ele: ElementJeu, etats: ListeEtats, ctx: ContexteGeneration) {
+  static attribuerEtatsParDefaut(classe: Classe, ele: Concept, etats: ListeEtats, ctx: ContexteGeneration) {
     // commencer par la classe parent (s’il y en a)
     if (classe.parent) {
       Generateur.attribuerEtatsParDefaut(classe.parent, ele, etats, ctx);
@@ -668,10 +792,11 @@ export class Generateur {
   /**
    * Obtenir la localisation correspondante.
    */
-  static getLocalisation(strPosition: string) {
+  static getLocalisation(strPosition: string): ELocalisation {
 
     strPosition = strPosition
       .trim()
+      .toLocaleLowerCase()
       .replace(/^((à (l’|l')|en |au( |\-)))/, "")
       .replace(/(du|de( la| l'| l’)?|des|le|la|les|l’|l')$/, "")
       .trim();
@@ -779,6 +904,31 @@ export class Generateur {
     if (el.nombre == Nombre.s && jeu.etats.possedeEtatIdElement(el, jeu.etats.indenombrableID, undefined)) {
       el.nombre = Nombre.i;
     }
+  }
+
+  public static genererSynonymesAuto(concept: Concept) {
+    // composé de au moins 2 mots
+    if (concept.intitule.motsCles.length > 1) {
+      for (let indexMotA = 0; indexMotA < concept.intitule.motsCles.length; indexMotA++) {
+        // chaque mot séparé est un synonyme
+        const motCleA = concept.intitule.motsCles[indexMotA];
+        const curSynonymeSimple = PhraseUtils.getGroupeNominalDefini(motCleA, true);
+        if (!concept.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
+          concept.synonymes.push(curSynonymeSimple);
+        }
+        // composé de au moins 3 mots
+        if (concept.intitule.motsCles.length > 2) {
+          for (let indexMotB = indexMotA + 1; indexMotB < concept.intitule.motsCles.length; indexMotB++) {
+            const motCleB = concept.intitule.motsCles[indexMotB];
+            const curSynonymeDouble = PhraseUtils.getGroupeNominalDefini(`${motCleA} ${motCleB}`, true);
+            if (!concept.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
+              concept.synonymes.push(curSynonymeDouble);
+            }
+          }
+        }
+      }
+    }
+
   }
 
 }

@@ -436,14 +436,14 @@ export class AnalyseurV8Controle {
             ctx.logResultatOk('choisir libre');
 
             // c. CHOISIR PARMIS UNE LISTE DYNAMIQUE
-            //    ex: choisir parmis les couleurs disponibles
+            //    ex: choisir parmi les couleurs disponibles
             //          choix rose:
             //            .......
             //          choix jaune:
             //            ....
             //        fin choisir
           } else {
-            const etiquetteParmis = AnalyseurV8Utils.chercherEtiquetteEtReste(['parmis'], premierChoixOuParmis, ObligatoireFacultatif.obligatoire);
+            const etiquetteParmis = AnalyseurV8Utils.chercherEtiquetteEtReste(['parmi'], premierChoixOuParmis, ObligatoireFacultatif.obligatoire);
             if (etiquetteParmis) {
               typeChoisir = TypeChoisir.dynamique;
               ctx.logResultatOk('choisir dynamique');

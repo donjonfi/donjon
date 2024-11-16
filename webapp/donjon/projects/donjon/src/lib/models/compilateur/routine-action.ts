@@ -14,11 +14,11 @@ export class RoutineAction extends Routine {
     super(ERoutine.action, ligneDebut, true);
     this.action = new Action(infinitif, prepositionCeci, ceci, prepositionCela, cela);
 
-    // par défaut, ceci et cela pointent chacun un objet visible et accessible
+    // par défaut, ceci et cela pointent chacun un objet vu, visible et accessible
     if (this.action.ceci) {
-      this.action.cibleCeci = new CibleAction('un', 'objet', 'visible et accessible');
+      this.action.cibleCeci = new CibleAction('un', 'objet', 'vu, visible et accessible');
       if (this.action.cela) {
-        this.action.cibleCela = new CibleAction('un', 'objet', 'visible et accessible');
+        this.action.cibleCela = new CibleAction('un', 'objet', 'vu, visible et accessible');
       }
     }
   }
@@ -36,7 +36,7 @@ export class RoutineAction extends Routine {
  * Les différentes phases d’une action.
  */
 export enum EtiquetteAction {
-  /** phase prérequis: cette phase peut empècher l’exécution de l’action si certains conditions sont remplies. */
+  /** phase prérequis: cette phase peut empêcher l’exécution de l’action si certains conditions sont remplies. */
   phasePrerequis = 1,
   /** phase exécution: cette phase permet de modifier le jeu suite à l’exécution de l’action. */
   phaseExecution = 2,

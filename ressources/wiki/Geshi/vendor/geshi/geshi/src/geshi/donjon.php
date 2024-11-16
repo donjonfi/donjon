@@ -58,7 +58,7 @@ $language_data = array (
 			'obstacle', 'obstacles', 'porte',     'portes', 
 			'vivant',   'vivants',   'animal',    'animaux', 
 			'personne', 'personnes', 'homme',     'hommes',      'femme', 'femmes',
-			'compteur', 'compteurs',
+			'compteur', 'compteurs', 'concept',   'concepts',
 			'\daction', '\dactions', 'question',  'questions',
 			'liste',    'listes',			
             ),
@@ -93,7 +93,8 @@ $language_data = array (
 			'nord', 'sud', 'ouest', 'haut', 'bas', 'dessus', 'dessous',
 
             'présent(e)?', 'absent(e)?', 'intact(e)?', 'déplacé(e)?', 'modifié(e)?', 
-            'caché(e)?', 'couvert(e)?', 'décorati(f|ve)',
+            'secr(et|ète)', 'caché(e)?', 'discr(et|ète)', 'couvert(e)?', 'décorati(f|ve)',
+            'mentionné(e)', 'vu(e)', 'famili(er|èr)',
             '(in)?dénombrable', 'mangeable', 'buvable',
 			'ouvert', 'ouverte', 'fermé', 'fermée', '(dé)?verrouillable', 'verrouillé', 'verrouillée',
 			'clair', 'obscur', 'allumé',

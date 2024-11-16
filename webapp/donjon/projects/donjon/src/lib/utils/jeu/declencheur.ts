@@ -56,7 +56,7 @@ export class Declencheur {
         break;
 
       case TypeRegle.remplacer:
-        auditeurs = this.auditeursApres;
+        auditeurs = this.auditeursRemplacer;
         break;
 
       default:

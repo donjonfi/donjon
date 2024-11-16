@@ -14,7 +14,7 @@ import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
-import { ProgrammationTemps } from "../../models/jeu/programation-temps";
+import { ProgrammationTemps } from "../../models/jeu/programmation-temps";
 import { Resultat } from "../../models/jouer/resultat";
 import { RoutineReaction } from "../../models/compilateur/routine-reaction";
 
@@ -144,7 +144,8 @@ export class InstructionExecuter {
     // on a trouvé une réaction
     if (reaction) {
       // TODO: faut-il fournir ceci,cela, l’évènement et déclenchements ?
-      resultat = this.ins.executerInstructions(reaction.instructions, undefined, undefined, undefined);
+      let ctxTour = new ContexteTour(undefined, undefined);
+      resultat = this.ins.executerInstructions(reaction.instructions, ctxTour, undefined, undefined);
       // on n’a pas trouvé de réaction
     } else {
       // si aucune réaction ce n’est pas normal: soit il faut une réaction par défaut, soit il ne faut pas passer par ici.
@@ -172,11 +173,11 @@ export class InstructionExecuter {
       const actionCela = InstructionsUtils.trouverCibleSpeciale(insCela, contexteTour, evenement, this.eju, this.jeu);
 
       // chercher les candidats en tenant compte des accents
-      let resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, true);
+      let resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, true, false);
 
       // si verbe pas trouvé, chercher candidat en ne tenant pas compte des accents
       if (!resChercherCandidats.verbeConnu) {
-        resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, false);
+        resChercherCandidats = this.act.chercherCandidatsActionSansControle(insInfinitif, insCeci ? true : false, insCela ? true : false, false, false);
       }
 
       // action pas trouvée
@@ -271,15 +272,21 @@ export class InstructionExecuter {
     }
 
     if (tempsMs > 0) {
-      let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
-      this.jeu.programmationsTemps.push(nouvelleProgrammation);
+      if (this.ins.restaurationPartieEnCours) {
+        if (this.verbeux) {
+          console.warn(`Programmation de routine ${routine} ignorée (restaurationPartieEnCours)`);
+        }
+      } else {
+        let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
+        this.jeu.programmationsTemps.push(nouvelleProgrammation);
+      }
     } else {
       contexteTour.ajouterErreurInstruction(instruction, `La programmation du chronomètre n’a pas pu être réalisée car incorrecte.`);
     }
   }
 
-  /** Exécuter l’instruction « Exécuter commande "xxxx…" */
-  public executerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+  /**  Envoyer la commande à exécuter au commandeur (l’instruction « Exécuter commande "xxxx…") */
+  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
@@ -293,6 +300,15 @@ export class InstructionExecuter {
       res.succes = false;
     }
     return res;
+  }
+
+  public executerDerniereCommande(): Resultat {
+    const ctxCom = this.com.executerDerniereCommande();
+    if (ctxCom) {
+      return new Resultat(true, ctxCom.sortie, 1);
+    } else {
+      return new Resultat(false, '', 0);
+    }
   }
 
 

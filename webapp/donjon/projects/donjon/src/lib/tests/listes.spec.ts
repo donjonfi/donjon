@@ -197,10 +197,10 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs.length).toBe(1);
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de métro");
+    expect(texteCalcule).toEqual("{E}Pas de métro{E}");
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Bus trouvé");
+    expect(texteCalcule).toEqual("{E}Bus trouvé{E}");
 
     ctx.com.executerCommande("tester");
 
@@ -210,10 +210,10 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("métro trouvé");
+    expect(texteCalcule).toEqual("{E}métro trouvé{E}");
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de bus");
+    expect(texteCalcule).toEqual("{E}Pas de bus{E}");
 
   });
 
@@ -235,7 +235,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Pas de Métro");
+    expect(texteCalcule).toEqual("{E}Pas de Métro{E}");
 
     ctx.com.executerCommande("tester");
 
@@ -243,7 +243,50 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
 
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("Métro trouvé");
+    expect(texteCalcule).toEqual("{E}Métro trouvé{E}");
+
+  });
+
+  it('Vérifier liste vide après avoir été vidée', () => {
+
+    const scenario = '' +
+      'Le métro est un lieu. ' +
+      'L’historique est une liste. ' +
+      'action remplir: ' +
+      '  changer l’historique contient "chinchilla". ' +
+      'fin action ' +
+      'action vider: ' +
+      '  changer l’historique ne contient plus "chinchilla". ' +
+      'fin action ' +
+      'action vérifier: ' +
+      '  si l’historique est vide :' +
+      '    changer le joueur est éteint. ' +
+      '  sinon ' + 
+      '    changer le joueur est allumé. ' +
+      '  finsi ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("vérifier");
+
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();
+
+
+    ctx.com.executerCommande("remplir");
+    ctx.com.executerCommande("vérifier");
+
+     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeFalse();
+   expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeTrue();
+
+
+    ctx.com.executerCommande("vider");
+    ctx.com.executerCommande("vérifier");
+
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();
 
   });
 

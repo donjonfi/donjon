@@ -14,6 +14,9 @@ import { PhraseUtils } from "../commun/phrase-utils";
 import { ResultatChercherCandidats } from "../../models/jeu/resultat-chercher-candidats";
 import { ResultatVerifierCandidat } from "../../models/jeu/resultat-verifier-candidat";
 import { StringUtils } from "../commun/string.utils";
+import { ERessemblance, RechercheUtils } from "../commun/recherche-utils";
+import { Concept } from "../../models/compilateur/concept";
+import { ClassesRacines } from "donjon";
 
 export class ActionsUtils {
 
@@ -26,27 +29,33 @@ export class ActionsUtils {
 
   private eju: ElementsJeuUtils;
 
-  public obtenirRaisonRefuCommande(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance) {
+  public obtenirRaisonRefusCommande(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance): string {
 
     let raisonRefu: string = "Inconnu.";
 
     // 1. trouver l’infinitif (en tenant compte des accents)
-    let resCherCand = this.chercherCandidatsCommandeSansControle(commande);
+    let resChercherCandidat = this.chercherCandidatsCommandeSansControle(commande);
+
+    // TODO: vérifier verbe similaires et demander
 
     // verbe inconnu
-    if (!resCherCand.verbeConnu) {
-      raisonRefu = "Désolé, je ne connais pas le verbe « " + commande.infinitif + " »";
+    if (!resChercherCandidat.verbeConnu) {
+      if (resChercherCandidat.verbesSimilaires.length) {
+        raisonRefu = `Verbes similaires:${resChercherCandidat.verbesSimilaires.join(',')}`;
+      } else {
+        raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ".";
+      }
       // verbe connu 
     } else {
       // I) plus aucun candidat en lice => problème ave le nombre d’arguments
-      if (resCherCand.candidatsEnLice.length == 0) {
+      if (resChercherCandidat.candidatsEnLice.length == 0) {
         //     I.A) 1 seul candidat refusé
-        if (resCherCand.candidatsRefuses.length == 1) {
-          raisonRefu = "Je sais " + this.expliquerRefuTropOuTropPeuArguments(resCherCand.candidatsRefuses[0], commande);
+        if (resChercherCandidat.candidatsRefuses.length == 1) {
+          raisonRefu = "Je sais " + this.expliquerRefuTropOuTropPeuArguments(resChercherCandidat.candidatsRefuses[0], commande);
           // I.B) plusieurs candidats refusés
         } else {
           raisonRefu = "Je sais :";
-          resCherCand.candidatsRefuses.forEach(candidat => {
+          resChercherCandidat.candidatsRefuses.forEach(candidat => {
             raisonRefu += "{n}{t}- " + this.expliquerRefuTropOuTropPeuArguments(candidat, commande);
           });
         }
@@ -68,7 +77,7 @@ export class ActionsUtils {
         // tester 1er argument (ceci):
         let candidatsOkCeci: Action[] = [];
         let candidatsKoCeci: Action[] = [];
-        resCherCand.candidatsEnLice.forEach(candidat => {
+        resChercherCandidat.candidatsEnLice.forEach(candidat => {
           const resCurCeci = this.verifierCandidatCeciCela(ceciCommande, candidat.cibleCeci);
           if (resCurCeci.elementsTrouves.length) {
             candidatsOkCeci.push(candidat);
@@ -86,7 +95,7 @@ export class ActionsUtils {
           // tester le 2e argument (cela)
           let candidatsOkCela: Action[] = [];
           let candidatsKoCela: Action[] = [];
-          resCherCand.candidatsEnLice.forEach(candidat => {
+          resChercherCandidat.candidatsEnLice.forEach(candidat => {
             const resCurCeci = this.verifierCandidatCeciCela(celaCommande, candidat.cibleCela);
             if (resCurCeci.elementsTrouves.length) {
               candidatsOkCela.push(candidat);
@@ -103,32 +112,32 @@ export class ActionsUtils {
         if (ceciToujoursRefuse || celaToujoursRefuse) {
 
           // si plusieurs candidats, prendre l’action la plus générique.
-          if (resCherCand.candidatsEnLice.length > 1) {
-            resCherCand.candidatsEnLice = [this.garderActionCompleteSiPossible(resCherCand.candidatsEnLice)];
+          if (resChercherCandidat.candidatsEnLice.length > 1) {
+            resChercherCandidat.candidatsEnLice = [this.garderActionCompleteSiPossible(resChercherCandidat.candidatsEnLice)];
           }
 
           // // un seul candidat
           // if (resCherCand.candidatsEnLice.length == 1) {
           // détaillé commande trouvée
-          raisonRefu = "Je sais " + this.afficherCandidatAction(resCherCand.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
+          raisonRefu = "Je sais " + this.afficherCandidatAction(resChercherCandidat.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
           // refu ceci
           if (ceciToujoursRefuse) {
             // expliquer refu CECI + CELA
             if (celaToujoursRefuse) {
-              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
-              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
+              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
               // expliquer refu CECI
             } else {
               if (argumentUnique) {
-                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
               } else {
-                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
+                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
               }
             }
             // expliquer refu CELA
           } else if (celaToujoursRefuse) {
             // expliquer refu cela
-            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resCherCand.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
+            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
           }
 
           // CECI et CELA sont OK à certains moments
@@ -136,7 +145,7 @@ export class ActionsUtils {
           // => il y a forcément plusieurs actions (sinon on n’arriverait pas ici)
         } else {
           raisonRefu = "Je sais :";
-          resCherCand.candidatsRefuses.forEach(candidat => {
+          resChercherCandidat.candidatsRefuses.forEach(candidat => {
             // détaillé commande trouvée
             raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
           });
@@ -149,7 +158,7 @@ export class ActionsUtils {
   }
 
   /**
-   * On garde l’action complete parmis la liste d’actions.
+   * On garde l’action complete parmi la liste d’actions.
    * S’il n’y en a pas on prend la première.
    * @param candidats 
    */
@@ -271,6 +280,17 @@ export class ActionsUtils {
             } else {
               retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un compteur.";
             }
+            // s’il doit s’agir d’un CONCEPT
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.concept)) {
+            // intitulé trouvé
+            if (commandeCeci.concepts.length) {
+              // TODO: check états
+              retVal = "L’état du concept {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              // pas de concept trouvé
+            } else {
+              // todo: afficher ceci ?
+              retVal = "L’argument n’est pas un concept connu.";
+            }
             // s’il doit s’agir d’un INTITULÉ
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
             // intitulé trouvé
@@ -358,6 +378,22 @@ export class ActionsUtils {
         }
         break;
 
+        case EEtatsBase.mentionne:
+        if (argumentUnique) {
+          retVal = "Je n’en ai pas encore entendu parler.";
+        } else {
+          retVal = "Je n’ai pas encore entendu parler de {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+
+      case EEtatsBase.vu:
+        if (argumentUnique) {
+          retVal = "Je ne [l’ " + tokenCeciOuCela + "]ai pas encore vu[es " + tokenCeciOuCela + "].";
+        } else {
+          retVal = "Je n’ai pas encore vu {/[intitulé " + tokenCeciOuCela + "]/}";
+        }
+        break;
+
       case EEtatsBase.disponible:
         if (argumentUnique) {
           retVal = "{/[Il " + tokenCeciOuCela + "] [v être ipr pas " + tokenCeciOuCela + "] disponible[s " + tokenCeciOuCela + "].";
@@ -424,7 +460,7 @@ export class ActionsUtils {
           retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
         }
       }
-    } else if (etatsNonVerifiesBruts.length == 2) {
+    } else if (etatsNonVerifiesBruts.length > 1) {
 
       let etatsNonVerifies: Etat[] = [];
       etatsNonVerifiesBruts.forEach(etatBrut => {
@@ -442,14 +478,21 @@ export class ActionsUtils {
             retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.visible, tokenCeciOuCela, argumentUnique);
           }
         } else {
+          // TODO: gérer autre attribut d’une liste OU
           retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
         }
       } else {
+        // TODO: gérer autre attributs que visible ET accessible
         retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
       }
 
+      // état requis pas trouvé
     } else {
-
+      if (argumentUnique) {
+        retVal = "Actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}.";
+      } else {
+        retVal = "actuellement, cette commande ne fonctionne pas avec {/[intitulé " + tokenCeciOuCela + "]/}";
+      }
     }
 
     return retVal;
@@ -482,7 +525,7 @@ export class ActionsUtils {
     return explication;
   }
 
-  /** Permet de ne pas divulgacher l’intrigue au joueur. */
+  /** Permet de ne pas divulgâcher l’intrigue au joueur. */
   private masquerNomPrecisDuComplement(actionCeci: CibleAction) {
     let retVal: string;
     //     A. classe
@@ -526,7 +569,7 @@ export class ActionsUtils {
   }
 
 
-  /** Permet de ne pas divulgacher l’intrigue au joueur. */
+  /** Permet de ne pas divulgâcher l’intrigue au joueur. */
   private afficherNomPrecisDuComplement(actionCeci: CibleAction) {
     let retVal: string;
     //     A. classe
@@ -570,16 +613,20 @@ export class ActionsUtils {
   }
 
   /**
-   * Vérifier dans les actions si l’infitif spécifié, avec le nombre d’arguments spécifiés, existe.
+   * Vérifier dans les actions si l’infinitif spécifié, avec le nombre d’arguments spécifiés, existe.
    * Retourne un score qui sera plus élevé si les prépositions sont celles prévues pour cette commande.
    */
   public scoreInfinitifExisteAvecCeciCela(infinitif: string, isCeci: boolean, isCela: boolean, prepositionCeci: string | undefined, prepositionCela: string | undefined): number {
     // chercher les candidats en tenant compte des accents
-    var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true);
+    var candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, false);
 
     // si verbe pas trouvé, chercher candidat en ne tenant pas compte des accents
     if (!candidats.verbeConnu) {
-      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false);
+      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false, false);
+    }
+    // si verbe pas trouvé, chercher candidat similaire
+    if (!candidats.verbeConnu) {
+      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, true);
     }
 
     var score = 0;
@@ -601,25 +648,43 @@ export class ActionsUtils {
   /**
    * On cherche une action qui correspond sur l’infinitif et le nombre d’arguments mais sans vérifier la nature des arguments.
    */
-  public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean, tenirCompteDesAccents: boolean) {
+  public chercherCandidatsActionSansControle(infinitif: string, isCeci: boolean, isCela: boolean, tenirCompteDesAccents: boolean, chercherVerbeSimilaire: boolean) {
     let candidatsEnLice: Action[] = [];
     let candidatsRefuses: Action[] = [];
     let verbeConnu: boolean = false;
+
+    // TODO: chercher si verbe similaire
+    let verbesSimilaires: string[] = [];
     const infinitifNormalise = StringUtils.normaliserMot(infinitif);
 
     // trouver les commande qui corresponde (sans vérifier le sujet (+complément) exacte)
     this.jeu.actions.forEach(action => {
       let infinitifOk = false;
+      let infinitifSimilaire = false;
       // vérifier infinitif => avec accents
       if (tenirCompteDesAccents) {
-        infinitifOk = (infinitif === action.infinitif);
-        // vérifier également les synonymes
-        if (!infinitifOk && action.synonymes) {
-          action.synonymes.forEach(synonyme => {
-            if (!infinitifOk && infinitif === synonyme) {
-              infinitifOk = true;
-            }
-          });
+        // chercher un verbe similaire
+        if (chercherVerbeSimilaire) {
+          infinitifSimilaire = RechercheUtils.ressemblanceMots(infinitif, action.infinitif) == ERessemblance.ressemblants;
+          // vérifier également les synonymes
+          if (!infinitifSimilaire && action.synonymes) {
+            action.synonymes.forEach(synonyme => {
+              if (!infinitifSimilaire && (RechercheUtils.ressemblanceMots(infinitif, synonyme) == ERessemblance.ressemblants)) {
+                infinitifSimilaire = true;
+              }
+            });
+          }
+          // chercher un verbe identique
+        } else {
+          infinitifOk = (infinitif === action.infinitif);
+          // vérifier également les synonymes
+          if (!infinitifOk && action.synonymes) {
+            action.synonymes.forEach(synonyme => {
+              if (!infinitifOk && infinitif === synonyme) {
+                infinitifOk = true;
+              }
+            });
+          }
         }
         // vérifier infinitif => sans accents
       } else {
@@ -649,12 +714,16 @@ export class ActionsUtils {
         } else {
           candidatsRefuses.push(action);
         }
+      } else if (infinitifSimilaire) {
+        if (!verbesSimilaires.includes(action.infinitif)) {
+          verbesSimilaires.push(action.infinitif);
+        }
       }
     });
     // if (this.verbeux) {
     //   console.warn("testerCommandePersonnalisee :", candidatsEnLice.length, "candidat(s) p1 :", candidatsEnLice);
     // }
-    return new ResultatChercherCandidats(verbeConnu, candidatsEnLice, candidatsRefuses);
+    return new ResultatChercherCandidats(verbeConnu, verbesSimilaires, candidatsEnLice, candidatsRefuses);
   }
 
   /**
@@ -666,12 +735,16 @@ export class ActionsUtils {
     const isCeci = commande.sujet ? true : false;
     const isCela = commande.sujetComplement1 ? true : false;
     // chercher candidats en tenant compte des accents
-    let candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true);
+    let resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, false);
     // si infinitif pas trouvé, essayer sans tenir compte des accents
-    if (!candidats.verbeConnu) {
-      candidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false);
+    if (!resultatChercherCandidats.verbeConnu) {
+      resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false, false);
     }
-    return candidats;
+    // si toujours pas trouvé, essayer de trouver verbe similaire
+    if (!resultatChercherCandidats.verbeConnu) {
+      resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, true);
+    }
+    return resultatChercherCandidats;
   }
 
   /** Trouver l’action personnalisée correspondant le mieux la la commande de l’utilisateur */
@@ -725,19 +798,6 @@ export class ActionsUtils {
             }
           }
 
-          /*
-   
-                 // B. plusieurs candidats se démarquent
-            } else if (matchCeci.elementsTrouves.length !== 1) {
-              console.warn(">>> Plusieurs candidats se démarquent pour ceci avec le candidat:", candidat, "ceci:", ceci);
-   
-   
-                 // B. plusieurs candidats se démarquent
-                  } else if (matchCela.elementsTrouves.length !== 1) {
-                    console.warn(">>> Plusieurs candidats se démarquent pour cela avec le candidat:", candidat, "cela:", cela);
-   
-          */
-
           if (candidatCorrespond) {
 
             const score = matchCeci.meilleurScore + (matchCela?.meilleurScore ?? 0);
@@ -770,34 +830,39 @@ export class ActionsUtils {
   }
 
   /**
-   * Vérifier si on trouve l’élément rechercher parmis les correspondances.
+   * Vérifier si on trouve l’élément rechercher parmi les correspondances.
    * @param ceciCelaCommande  correspondances
    * @param candidatCeciCelaAction  élément recherché
    * @returns élément éventuellement trouvé ou -1 si plusieurs éléments possibles.
    */
   private verifierCandidatCeciCela(ceciCelaCommande: Correspondance, candidatCeciCelaAction: CibleAction): ResultatVerifierCandidat {
-    let retVal: Array<ElementJeu | Intitule> = [];
+    let retVal: Array<ElementJeu | Concept | Intitule> = [];
 
-    // on donne un score aux correspondances : cela permet de départager plusieurs corresspondances.
+    // on donne un score aux correspondances : cela permet de départager plusieurs correspondances.
     let meilleurScore = 0;
 
     //   A. s’il s’agit d’une classe
     if (this.estCibleUneClasse(candidatCeciCelaAction)) {
-      ceciCelaCommande.elements.forEach(ele => {
-        // vérifier si l’ojet est du bon type
-        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom))) {
 
+      let tousLesConcepts = ceciCelaCommande.concepts.concat(ceciCelaCommande.elements);
+
+      tousLesConcepts.forEach(ele => {
+        // vérifier si l’objet est du bon type
+        if (ClasseUtils.heriteDe(ele.classe, ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom))) {
           // s’il n’y a pas d’état requis ou si l’état est respecté
-          // if (!candidatCeciCelaAction.epithete || this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.epithete, this.eju)) {
           if (this.controllerEtatsElement(ele, candidatCeciCelaAction.epithete)) {
-            let curScore = 125;
+            let curScore = 100;
+            // un élément du jeu vaut plus qu’un concept
+            if (ClasseUtils.heriteDe(ele.classe, EClasseRacine.element)) {
+              curScore += 125;
+            }
             // si priorité respectée, score augmente
             if (candidatCeciCelaAction.priorite) {
-              // if (this.jeu.etats.possedeEtatElement(ele, candidatCeciCelaAction.priorite, this.eju)) {
               if (this.controllerEtatsElement(ele, candidatCeciCelaAction.priorite)) {
                 curScore += 75; // prioritaire
               }
             }
+
             // meilleur score jusqu’à présent => remplace le précédent résultat
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
@@ -816,7 +881,7 @@ export class ActionsUtils {
         meilleurScore = 75;
         retVal = [ceciCelaCommande.localisation];
       }
-      //  - vérifier intitué
+      //  - vérifier intitulé
       if (meilleurScore === 0 && ClasseUtils.getIntituleNormalise(candidatCeciCelaAction.nom) === EClasseRacine.intitule) {
         meilleurScore = 50;
         retVal = [ceciCelaCommande.intitule];
@@ -827,7 +892,7 @@ export class ActionsUtils {
       // Vérifier s’il s’agit du sujet précis
       // PRIORITÉ 1 >> élément (objet ou lieu)
       if (ceciCelaCommande.elements.length) {
-        // console.log("verifierCandidatCeciCela > sujet précis > élements (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
+        // console.log("verifierCandidatCeciCela > sujet précis > éléments (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
         ceciCelaCommande.elements.forEach(ele => {
           // console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
@@ -852,28 +917,48 @@ export class ActionsUtils {
             }
           }
         });
-        // PRIORITÉ 2 >> compteur
+        // PRIORITÉ 2 >> concepts
+      } else if (ceciCelaCommande.concepts.length) {
+        // console.log("verifierCandidatCeciCela > sujet précis > concept (" + candidatCeciCelaAction.nom + (candidatCeciCelaAction.epithete ?? '') + ")");
+        // vérifier s’il s’agit du sujet précis
+        ceciCelaCommande.concepts.forEach(concept => {
+          // console.log("check for concept=", concept, "candidatCeciCela=", candidatCeciCelaAction);
+          // console.log("check for concept.intitule.nom=", concept.intitule.nom, "candidatCeciCela.nom=", candidatCeciCelaAction.nom);
+          // console.log("check for concept.intitule.epithete=", concept.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCelaAction.epithete);
+          if (concept.intitule.nom === candidatCeciCelaAction.nom && concept.intitule.epithete === candidatCeciCelaAction.epithete) {
+            let curScore = 500;
+            if (curScore > meilleurScore) {
+              meilleurScore = curScore;
+              retVal = [concept];
+            } else {
+              // déjà un match, on en a plusieurs
+              // (ici ils ont toujours la même valeur)
+              retVal.push(concept);
+            }
+          }
+        });
+        // PRIORITÉ 3 >> compteur
       } else if (ceciCelaCommande.compteurs.length) {
         // console.log("verifierCandidatCeciCela > sujet précis > compteurs (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
         // vérifier s’il s’agit du sujet précis
-        ceciCelaCommande.compteurs.forEach(cpt => {
+        ceciCelaCommande.compteurs.forEach(compteur => {
           // console.log("check for cpt=", cpt, "candidatCeciCela=", candidatCeciCela);
           // console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
           // console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-          if (cpt.intitule.nom === candidatCeciCelaAction.nom && cpt.intitule.epithete === candidatCeciCelaAction.epithete) {
+          if (compteur.intitule.nom === candidatCeciCelaAction.nom && compteur.intitule.epithete === candidatCeciCelaAction.epithete) {
             let curScore = 500;
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
-              retVal = [cpt];
+              retVal = [compteur];
             } else {
               // déjà un match, on en a plusieurs
               // (ici ils ont toujours la même valeur)
-              retVal.push(cpt);
+              retVal.push(compteur);
             }
           }
         });
-        // PRIORITÉ 3 >> intitulé
+        // PRIORITÉ 4 >> intitulé
       } else if (ceciCelaCommande.intitule) {
         // console.log("verifierCandidatCeciCela > sujet précis > intitulé (" + candidatCeciCela.nom + (candidatCeciCela.epithete ?? '') + ")");
 
@@ -912,7 +997,7 @@ export class ActionsUtils {
    * Si la liste d’états est vide, le résultat sera vrai.
    * Si la liste d’états contient plusieurs éléments, il doivent êtres séparés par des virgules et enfin de liste un « et » ou un « ou ».
    */
-  private controllerEtatsElement(element: ElementJeu, listeEtats: string) {
+  private controllerEtatsElement(element: Concept, listeEtats: string) {
     let etats: string[];
     // s’il y a des états à vérifire
     if (listeEtats) {

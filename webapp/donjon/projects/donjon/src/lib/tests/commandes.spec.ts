@@ -8,11 +8,13 @@ describe('Commande diverses', () => {
 
   it('Commande « tester » (objet présent, invisible et absent)', () => {
 
+    // on force les objets du premier lieu à « vu » étant donné que pas exécuté la commande regardé.
+
     const scenario =
       'La salle est un lieu.\n' +
-      '  le cube est un objet ici.\n' +
+      '  le cube est un objet vu ici.\n' +
       '  le triangle est un objet invisible ici.\n' +
-      '  le rectangle est un objet inaccessible ici.\n' +
+      '  le rectangle est un objet inaccessible et vu ici.\n' +
       'L’autre salle (f) est un lieu.\n' +
       '  le cercle est un objet ici.\n' +
       'action tester ceci:\n' +
@@ -534,7 +536,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
+  it('commande « offrir une tarte à la cerise »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la cerise');
     // la tarte à la cerise n’existe pas
     expect(ctxCom.candidats).toHaveSize(2);

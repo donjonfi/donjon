@@ -110,7 +110,7 @@ export class JouerComponent implements OnInit {
       this.chargerActions(false).then(actions => {
 
         // A. sauvegarde => scénario + commandes + graine
-        if (contenuFichier.startsWith('{"type":"sauvegarde"')) {
+        if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"sauvegarde"/)) {
           var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
 
           // enlever les commentaires afin de réduire un peu la taille du fichier
@@ -125,10 +125,14 @@ export class JouerComponent implements OnInit {
           if (sauvegarde.version > versionNum) {
             jeu.tamponErreurs.push("Cette sauvegarde a été effectuée avec une version plus récente de Donjon FI.");
           }
-          // rétablir la graine pour le générateur aléatoire
-          jeu.graine = sauvegarde.graine;
-          // exécuter les commandes de la sauvegarde
-          jeu.sauvegarde = sauvegarde.commandes;
+
+          if (sauvegarde.version >= 30000) {
+            jeu.sauvegarde = sauvegarde;
+            ((this.lecteurRef as any) as LecteurComponent).restaurerProchainJeu();
+          }else{
+            jeu.tamponErreurs.push("Ancienne sauvegarde.\n Pour continuer votre partie, veuillez vous rendre sur https://donjon.fi/v2/jouer/");
+          }
+
           // lancer le jeu
           this.jeu = jeu;
 
@@ -151,19 +155,8 @@ export class JouerComponent implements OnInit {
   }
 
   onSauvegarderJeu(): void {
-
-    let sauvegarde = new Sauvegarde();
-    // version
-    sauvegarde.version = versionNum;
-    // graine pour le générateur de nombres aléatoires
-    sauvegarde.graine = this.jeu.graine;
-    // commandes du joueur
-    sauvegarde.commandes = this.lecteurRef.getHistoriqueCommandesPartie();
-    // scénario
-    sauvegarde.scenario = this.scenario;
-
+    let sauvegarde = this.lecteurRef.creerSauvegardePartie(this.scenario);
     const contenuJson = JSON.stringify(sauvegarde);
-
     // Note: Ie and Edge don't support the new File constructor,
     // so it's better to construct blobs and use saveAs(blob, filename)
     const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sav"), { type: "text/plain;charset=utf-8" });
@@ -173,7 +166,7 @@ export class JouerComponent implements OnInit {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartie() {
+  onNouvellePartieOuAnnulerTour() {
     this.erreurs = [];
     // vérifier si on a déjà le fichier actions.djn
     this.chargerActions(false).then(actions => {

@@ -79,7 +79,6 @@ export * from './lib/utils/commun/phrase-utils';
 export * from './lib/utils/commun/positions-utils';
 export * from './lib/utils/commun/string.utils';
 
-export * from './lib/utils/compilation/analyseur/analyseur-beta';
 export * from './lib/utils/compilation/analyseur/analyseur-v8';
 export * from './lib/utils/compilation/analyseur/analyseur-v8.controle';
 export * from './lib/utils/compilation/analyseur/analyseur-v8.definitions';
@@ -98,7 +97,6 @@ export * from './lib/utils/compilation/analyseur/analyseur.propriete';
 export * from './lib/utils/compilation/analyseur/analyseur.synonymes';
 export * from './lib/utils/compilation/analyseur/analyseur.type';
 export * from './lib/utils/compilation/analyseur/analyseur.utils';
-export * from './lib/utils/compilation/compilateur-beta';
 export * from './lib/utils/compilation/compilateur-v8';
 export * from './lib/utils/compilation/compilateur-v8-utils';
 export * from './lib/utils/compilation/expr-reg';

@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver-es';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, StringUtils } from 'donjon';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -73,6 +73,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Faut-il activer le mode verbeux du compilateur Donjon FI ? */
   compilateurVerbeux = false;
+
+  solutionChargee: Sauvegarde | undefined;
 
   public config: AceConfigInterface = {
     // mode: 'text',
@@ -310,7 +312,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   /** Compiler (Analyser) le code source (scénario) */
-  onCompiler(): void {
+  onCompiler(restauration: Sauvegarde | undefined): void {
 
     this.compilationEnCours = true;
     this.compilationTerminee = false;
@@ -340,7 +342,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.codeSource = this.codeSource.replace(/(")$/gm, '".');
         if (this.sectionMode == 'tout') {
           this.sectionCodeSourceVisible = this.codeSource;
-        }else{
+        } else {
           this.sectionCodeSourceVisible = this.sectionCodeSourceVisible.replace(/(;)$/gm, '.').replace(/(")$/gm, '".');
         }
       }
@@ -373,7 +375,15 @@ export class EditeurComponent implements OnInit, OnDestroy {
         this.erreurs = resultatCompilation.erreurs;
         this.messages = resultatCompilation.messages;
         // générer le jeu
-        this.jeu = Generateur.genererJeu(resultatCompilation);
+        const jeuGenere = Generateur.genererJeu(resultatCompilation);
+        // fonctionnalité annuler (priorité 1)
+        if (restauration) {
+          jeuGenere.sauvegarde = restauration;
+          // fonctionnalité triche (priorité 2)
+        } else if (this.solutionChargee) {
+          jeuGenere.sauvegarde = restauration;
+        }
+        this.jeu = jeuGenere;
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -409,8 +419,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartie() {
-    this.onCompiler();
+  onNouvellePartieOuAnnulerTour(solution: Sauvegarde | undefined) {
+    this.onCompiler(solution);
   }
 
   // =============================================
@@ -527,7 +537,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
       const file = hie.files[0];
       if (file) {
 
-        console.warn("chargement de ", file.name);
+        console.warn("chargement du fichier", file.name);
 
         // A. CHARGEMENT SCÉNARIO
         if (file.name.endsWith(".djn") || file.name.endsWith(".txt")) {
@@ -542,13 +552,30 @@ export class EditeurComponent implements OnInit, OnDestroy {
           // lire le fichier
           fileReader.readAsText(file);
 
-          // B. CHARGEMENT FICHIER SOLUTION
+          // B. CHARGEMENT FICHIER SOLUTION (il s’agit d’un fichier sauvegarde sans le scénario)
         } else if (file.name.endsWith(".sol")) {
           const fileReader = new FileReader();
           // quand lu, définir les auto commandes
           fileReader.onloadend = (progressEvent) => {
-            ((this.lecteurRef as any) as LecteurComponent).setAutoCommandes(fileReader.result as string);
+
+            const contenuFichier = fileReader.result as string;
+
+            // A. sauvegarde => scénario + commandes + graine
+            if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"sauvegarde"/)) {
+              var sauvegarde = JSON.parse(contenuFichier) as Sauvegarde;
+              // informer si sauvegarde faite avec version plus récente de Donjon FI.
+              if (sauvegarde.version > versionNum) {
+                this.jeu.tamponErreurs.push("Cette solution a été effectuée avec une version plus récente de Donjon FI.");
+              }
+              if(this.jeu){
+                ((this.lecteurRef as any)as LecteurComponent).setSolution(sauvegarde);
+              }
+              this.solutionChargee = sauvegarde;
+            } else {
+              this.jeu.tamponErreurs.push("Ce fichier n’est pas une sauvegarde Donjon FI");
+            }
           };
+
           // lire le fichier
           fileReader.readAsText(file);
         }

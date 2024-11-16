@@ -6,6 +6,9 @@ import { ElementsJeuUtils } from "../../utils/commun/elements-jeu-utils";
 import { Instructions } from "../../utils/jeu/instructions";
 import { Jeu } from "../jeu/jeu";
 import { StringUtils } from "../../utils/commun/string.utils";
+import { Sauvegarde } from "./sauvegarde";
+import { versionNum } from "../commun/constantes";
+import { ExprReg } from "donjon";
 
 export class ContextePartie {
 
@@ -19,6 +22,9 @@ export class ContextePartie {
   public readonly ecran: ContexteEcran;
 
   private _dossierRessourcesComplet: string;
+
+  /** historique des commandes déjà exécutées depuis le début de la partie*/
+  private _etapesPartie: string[] = [];
 
   constructor(
     /** L’état du jeu correspondant à la partie. */
@@ -34,7 +40,7 @@ export class ContextePartie {
     this.ins = new Instructions(this.jeu, this.eju, this.document, this.verbeux);
     this.dec = new Declencheur(this.jeu.auditeurs, this.verbeux);
     this.com = new Commandeur(this.jeu, this.ins, this.dec, this.verbeux, this.debogueur);
-    // fournir le commandeur aux instructions (pour intsruction « exéctuter commande »)
+    // fournir le commandeur aux instructions (pour instruction « exécuter commande »)
     this.ins.commandeur = this.com;
 
     // définir le dossier qui contient les ressources du jeu (musiques, images, …)
@@ -49,28 +55,44 @@ export class ContextePartie {
 
     this.ecran = new ContexteEcran(this._dossierRessourcesComplet);
 
-    this.initialiserAleatoire();
   }
 
-  /** Initialiser le générateur de nombres aléatoires. */
-  private initialiserAleatoire() {
-    // graine pas encore définie: on en crée une nouvelle
-    if (this.jeu.graine == undefined) {
-      this.nouvelleGraineAleatoire();
-      // graine déjà définie : on la réutilise
-    } else {
-      AleatoireUtils.init(this.jeu.graine);
-    }
+  public get etapesPartie(): string[] {
+    return this._etapesPartie;
+  }
+
+  public ajouterCommandeDansSauvegarde(commandeBrute: string) {
+    this._etapesPartie.push(ExprReg.caractereCommande + ":" + commandeBrute);
+  }
+
+  public ajouterReponseDansSauvegarde(reponseBrute: string) {
+    this._etapesPartie.push(ExprReg.caractereReponse + ":" + reponseBrute);
   }
 
   /** 
    * Changer la graine pour la générateur de nombres aléatoires.
    */
-  public nouvelleGraineAleatoire(): void {
+  public nouvelleGraineAleatoire(graineForcee?: string | undefined): void {
     // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
-    // et le moment où on les à changer afin de pouvoir restaurer une partie sauvegardée !
-    this.jeu.graine = Math.random().toString();
-    AleatoireUtils.init(this.jeu.graine);
+    // et le moment où on les a changé afin de pouvoir restaurer une partie sauvegardée !
+
+    // création d’une nouvelle graine
+
+    let nouvelleGraine: string;
+
+    if (graineForcee !== undefined) {
+      nouvelleGraine = graineForcee;
+    } else {
+      nouvelleGraine = Math.random().toString();
+    }
+    AleatoireUtils.init(nouvelleGraine);
+
+    // sauvegarde de la graine
+    this.etapesPartie.push(`${ExprReg.caractereGraine}:${nouvelleGraine}`);
+  }
+
+  public ajouterDeclenchementDansSauvegarde(routine: string) {
+    this.etapesPartie.push(`${ExprReg.caractereDeclenchement}:${routine}`);
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
@@ -78,10 +100,27 @@ export class ContextePartie {
     return this._dossierRessourcesComplet;
   }
 
+  public creerSauvegardeSolution(): Sauvegarde {
 
+    let sauvegarde = new Sauvegarde();
+    // version
+    sauvegarde.version = versionNum;
+    // routines programmées pas encore déclenchées
+    sauvegarde.declenchementsFuturs = this.jeu.declenchementsFuturs;
+    // commandes du joueur
+    sauvegarde.etapesSauvegarde = this.etapesPartie;
+    // scénario (on ne le connait pas ici, il sera ajouté ensuite par Donjon Jouer)
+    sauvegarde.scenario = undefined;
+
+    return sauvegarde;
+  }
+
+  public enleverCommandeGenererSolution() {
+    this._etapesPartie.pop();
+  }
 
   public unload() {
-    // supprimer les musiques en court éventuelles
+    // supprimer les musiques en cours éventuelles
     this.ins.unload();
   }
 

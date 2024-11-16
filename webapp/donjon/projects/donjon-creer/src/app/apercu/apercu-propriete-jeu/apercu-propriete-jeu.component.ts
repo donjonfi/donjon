@@ -20,7 +20,7 @@ export class ApercuProprieteJeuComponent implements OnInit {
   }
 
   getPrepositionSpatiale(prep: PrepositionSpatiale) {
-    return PositionObjet.prepositionSpacialeToString(prep);
+    return PositionObjet.prepositionSpatialeToString(prep);
   }
 
   getDe(nom:string) {

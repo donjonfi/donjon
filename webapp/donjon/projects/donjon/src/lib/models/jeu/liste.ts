@@ -121,7 +121,7 @@ export class Liste extends Intitule {
         this._valeursNombre.splice(this._valeursNombre.findIndex(x => x == valeur), 1);
         // liste vide ?
         if (this._valeursNombre.length == 0) {
-          this.classe == ClassesRacines.ListeVide;
+          this.classe = ClassesRacines.ListeVide;
         }
         // liste mixte
       } else {
@@ -138,7 +138,7 @@ export class Liste extends Intitule {
         this._valeursTexte.splice(this._valeursTexte.findIndex(x => x == valeur), 1);
         // liste vide ?
         if (this._valeursTexte.length == 0) {
-          this.classe == ClassesRacines.ListeVide;
+          this.classe = ClassesRacines.ListeVide;
         }
         // liste mixte
       } else {
@@ -157,7 +157,7 @@ export class Liste extends Intitule {
         this._valeursIntitule.splice(this._valeursIntitule.findIndex(x => x.intitule == valeur.intitule), 1);
         // liste vide ?
         if (this._valeursIntitule.length == 0) {
-          this.classe == ClassesRacines.ListeVide;
+          this.classe = ClassesRacines.ListeVide;
         }
         // liste mixte
       } else {
@@ -379,16 +379,6 @@ export class Liste extends Intitule {
 
   /** Est-ce que la liste contient le texte spécifié ? */
   public contientTexte(valeur: string): boolean {
-
-    if(this._valeursTexte){
-      console.log(`contientTexte: test:${valeur}, contenu: [${this._valeursTexte.join(",")}]`);
-    }
-
-    // // enlever les "|Ƶ|ƶ  éventuels autours du texte
-    // const valeurNettoyee = valeur.replace(/^"|^Ƶ|"$|ƶ$/g, '');
-    //enlever les " éventuels autours du texte
-    // const valeurNettoyee = valeur.replace(/^"|"$/g, '');
-
     let texteTrouve = false;
     if (this.classe == ClassesRacines.ListeTexte) {
       texteTrouve = this._valeursTexte.includes(valeur);

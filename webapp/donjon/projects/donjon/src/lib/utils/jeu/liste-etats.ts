@@ -1,31 +1,37 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 
-import { ClasseUtils } from '../commun/classe-utils';
-import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
-import { ElementJeu } from '../../models/jeu/element-jeu';
-import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Etat } from '../../models/commun/etat';
 import { Genre } from '../../models/commun/genre.enum';
-import { LienCondition } from '../../models/compilateur/lien-condition';
-import { Lieu } from '../../models/jeu/lieu';
-import { MotUtils } from '../commun/mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
+import { Concept } from '../../models/compilateur/concept';
+import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
+import { LienCondition } from '../../models/compilateur/lien-condition';
+import { ElementJeu } from '../../models/jeu/element-jeu';
+import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
+import { ClasseUtils } from '../commun/classe-utils';
+import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
+import { MotUtils } from '../commun/mot-utils';
 
 export class ListeEtats {
 
-  public connuID = -1;
+  public mentionneID = -1;
+  public vuID = -1;
+  public familierID = -1;
+
   public presentID = -1;
   public visiteID = -1;
   public intactID = -1;
   public deplaceID = -1;
   public modifieID = -1;
   public cacheID = -1;
+  public discretID = -1;
   public couvrantID = -1;
   public couvertID = -1;
   public visibleID = -1;
   public invisibleID = -1;
+  public secretID = -1;
   public accessibleID = -1;
   public inaccessibleID = -1;
   public possedeID = -1;
@@ -40,6 +46,7 @@ export class ListeEtats {
   public fermeID = -1;
   public verrouilleID = -1;
   public verrouillableID = -1;
+  public lisibleID = -1;
   public opaqueID = -1;
   public transparentID = -1;
   public transportableID = -1;
@@ -69,8 +76,11 @@ export class ListeEtats {
     // présent et absent (objet)
     const presAbs = this.creerBasculeEtats(EEtatsBase.present, EEtatsBase.absent);
     this.presentID = presAbs[0].id;
-    // connu (élémentJeu)
-    this.connuID = this.creerEtat(EEtatsBase.connu).id;
+    // mentionné (concept), vu (élément jeu) et familier (élément jeu)
+    this.mentionneID = this.creerEtat(EEtatsBase.mentionne).id;
+    this.vuID = this.creerEtat(EEtatsBase.vu).id;
+    this.ajouterImplication(EEtatsBase.vu, EEtatsBase.mentionne);
+    this.familierID = this.creerEtat(EEtatsBase.familier).id;
     // visité (lieu)
     this.visiteID = this.creerEtat(EEtatsBase.visite).id;
     // intact, déplacé et modifié (objet, lieu)
@@ -81,12 +91,19 @@ export class ListeEtats {
     this.ajouterContradiction(EEtatsBase.intact, EEtatsBase.modifie);
     // décoratif (objet)
     this.decoratifID = this.creerEtat(EEtatsBase.decoratif).id;
-    // caché, couvert, couvrant, invisible (objet)
+    // secret, caché, couvert, couvrant, invisible (objet)
+    this.discretID = this.creerEtat(EEtatsBase.discret).id;
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
+    this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);    
+    this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.vu);
+    this.secretID = this.creerEtat(EEtatsBase.secret).id;
+    this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.mentionne);
+    this.ajouterContradiction(EEtatsBase.secret, EEtatsBase.vu);
     this.couvertID = this.creerEtat(EEtatsBase.couvert).id;
     this.couvrantID = this.creerEtat(EEtatsBase.couvrant).id;
-    this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     this.invisibleID = this.creerEtat(EEtatsBase.invisible).id;
+    this.visibleID = this.creerEtat(EEtatsBase.visible, Genre.m, Nombre.s, true).id;
     // accessible, inaccessible (objet)
     this.accessibleID = this.creerEtat(EEtatsBase.accessible, Genre.m, Nombre.s, true).id;
     this.inaccessibleID = this.creerEtat(EEtatsBase.inaccessible).id;
@@ -108,10 +125,10 @@ export class ListeEtats {
     this.creerBasculeEtats(EEtatsBase.unique, EEtatsBase.multiple);
     this.creerEtat(EEtatsBase.illimite);
     this.ajouterContradiction(EEtatsBase.unique, EEtatsBase.illimite);
-
-    // mangeable, buvable, portable (objet)
+    // mangeable, buvable
     this.creerEtat(EEtatsBase.mangeable);
     this.creerEtat(EEtatsBase.buvable);
+    // portable, enfilable, équipable, chaussable (vêtements, armes, bijoux, …)
     this.creerEtat(EEtatsBase.portable);
     this.creerEtat(EEtatsBase.enfilable);
     this.creerEtat(EEtatsBase.equipable);
@@ -125,6 +142,8 @@ export class ListeEtats {
     this.verrouillableID = this.creerEtat(EEtatsBase.verrouillable).id;
     const verrDeve = this.creerBasculeEtats(EEtatsBase.verrouille, EEtatsBase.deverrouille);
     this.verrouilleID = verrDeve[0].id;
+    // lisible (objet que l’on peut lire)
+    this.lisibleID = this.creerEtat(EEtatsBase.lisible).id;
     // transportable et fixe (objet)
     const transFixe = this.creerBasculeEtats(EEtatsBase.transportable, EEtatsBase.fixe);
     this.transportableID = transFixe[0].id;
@@ -164,9 +183,9 @@ export class ListeEtats {
 
   /**
    * Trouver un état sur base de son nom.
-   * @returns l'état correspondant ou null si pas touvé.
+   * @returns l'état correspondant ou null si pas trouvé.
    */
-  trouverEtat(nomEtat: string): Etat {
+  trouverEtat(nomEtat: string): Etat | null {
     // retirer le e et le s final
     // - cas particulier: si terminaison "ble"|"que" on retire pas le e final.
     const trouve = false;
@@ -188,6 +207,11 @@ export class ListeEtats {
         retVal = etat;
       }
     });
+
+    if (!retVal) {
+      console.log(`Pas trouvé état: ${nomEtat} \nétats:`, this.etats.join(", "));
+    }
+
     return retVal;
   }
 
@@ -222,44 +246,52 @@ export class ListeEtats {
     return this.suiteCreerEtat(nomEtat, genre, nombre, null, null, calcule);
   }
 
-  // /**
-  //  * spécifier que étatA implique étatB
-  //  */
-  // ajouterImplication(nomEtatA: string, nomEtatB: string) {
-  //   let etatA = this.trouverEtat(nomEtatA);
-  //   let etatB = this.trouverEtat(nomEtatB);
-  //   if (etatA && etatB) {
-  //     // ajouter etatB aux implications de etatA
-  //     if (!etatA.implications) {
-  //       etatA.implications = [etatB.id];
-  //     } else if (!etatA.implications.includes(etatB.id)) {
-  //       etatA.implications.push(etatB.id);
-  //     }
-  //     // ajouter également toutes les implications de etatB à celles de etatA
-  //     if (etatB.implications) {
-  //       etatB.implications.forEach(implication => {
-  //         if (!etatA.implications.includes(implication)) {
-  //           etatA.implications.push(implication);
-  //         }
-  //       });
-  //     }
-  //     // modifier tous les éléments qui impliquent etatA: ils doivent impliquer les implications de étatA
-  //     this.etats.forEach(autreEtat => {
-  //       // si implique etatA
-  //       if (autreEtat.implications && autreEtat.implications.includes(etatA.id)) {
-  //         // ajouter les implication de etatA
-  //         etatA.implications.forEach(implication => {
-  //           if (!autreEtat.implications.includes(implication)) {
-  //             autreEtat.implications.push(implication);
-  //           }
-  //         });
-  //       }
-  //     });
+  /**
+   * spécifier que étatImpliquant implique étatImpliqué
+   */
+  ajouterImplication(nomEtatImpliquant: string, nomEtatImplique: string) {
+    let etatImpliquant = this.trouverEtat(nomEtatImpliquant);
+    let etatImplique = this.trouverEtat(nomEtatImplique);
+    if (etatImpliquant && etatImplique) {      
+      // ajouter nomEtatImplique aux implications de nomEtatImpliquant
+      if (!etatImpliquant.implications) {
+        etatImpliquant.implications = [etatImplique.id];
+      } else if (!etatImpliquant.implications.includes(etatImplique.id)) {
+        etatImpliquant.implications.push(etatImplique.id);
+      }
+      // ajouter également toutes les implications de nomEtatImplique à celles de nomEtatImpliquant
+      if (etatImplique.implications) {
+        etatImplique.implications.forEach(implication => {
+          if (!etatImpliquant.implications.includes(implication)) {
+            etatImpliquant.implications.push(implication);
+          }
+        });
+      }
 
-  //   } else {
-  //     console.error("ajouterImplication >> pas trouvé au moins un des états:", nomEtatA, nomEtatB);
-  //   }
-  // }
+      // console.warn(`Implications de ${etatImpliquant.nom}: ${etatImpliquant.implications.join(',')}`);
+
+      // modifier tous les éléments qui impliquent nomEtatImpliquant: ils doivent impliquer les implications de étatA
+      this.etats.forEach(autreEtat => {
+        // si implique nomEtatImpliquant
+        if (autreEtat.implications && autreEtat.implications.includes(etatImpliquant.id)) {
+          // ajouter les implication de nomEtatImpliquant
+          etatImpliquant.implications.forEach(implication => {
+            if (!autreEtat.implications.includes(implication)) {
+              autreEtat.implications.push(implication);
+            }
+          });
+        }
+      });
+
+    } else {
+      if (!nomEtatImpliquant) {
+        console.error(`ajouterImplication >> pas trouvé état impliquant ${nomEtatImpliquant}`);
+      }
+      if (!nomEtatImplique) {
+        console.error(`ajouterImplication >> pas trouvé état impliqué ${nomEtatImplique}`);
+      }
+    }
+  }
 
   ajouterContradiction(nomEtatA: string, nomEtatB: string) {
     let etatA = this.trouverEtat(nomEtatA);
@@ -334,50 +366,64 @@ export class ListeEtats {
     return etat;
   }
 
-  /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions). */
-  ajouterEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils){
-    if(!this.possedeEtatIdElement(element, etatID, eju)){
+  /** Ajouter un état à l'élément (évite les doublons mais PAS de contrôle des états calculés ni des bascules ni des groupes ni des contradictions ni des implications). */
+  ajouterEtatIdElement(element: Concept, etatID: number, eju: ElementsJeuUtils) {
+    if (!this.possedeEtatIdElement(element, etatID, eju)) {
       element.etats.push(etatID);
     }
   }
 
   /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes et des contradictions). */
-  ajouterEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  ajouterEtatElement(conceptCible: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
 
-    const etat = this.trouverOuCreerEtat(nomEtat, element.genre, element.nombre);
+    const etatAjoute = this.trouverOuCreerEtat(nomEtat, conceptCible.genre, conceptCible.nombre);
 
-    if (etat.calcule && !forcerCalcul) {
-      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etat.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
+    if (etatAjoute.calcule && !forcerCalcul) {
+      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etatAjoute.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
       // état classique
     } else {
       // s'il s'agit d'un état faisant partie d'un groupe
-      if (etat.groupe !== null) {
+      if (etatAjoute.groupe !== null) {
         // retirer tous les états existants pour ce groupe
-        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etat.groupe).map(x => x.id);
-        element.etats = element.etats.filter(x => !idsEtatsDuGroupe.includes(x));
+        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etatAjoute.groupe).map(x => x.id);
+        conceptCible.etats = conceptCible.etats.filter(x => !idsEtatsDuGroupe.includes(x));
         // ajouter le nouvel état
-        element.etats.push(etat.id);
+        conceptCible.etats.push(etatAjoute.id);
         // sinon, ajouter l'état s'il n'y est pas encore
       } else {
-        if (!element.etats.includes(etat.id)) {
-          element.etats.push(etat.id);
+        if (!conceptCible.etats.includes(etatAjoute.id)) {
+          conceptCible.etats.push(etatAjoute.id);
           // s’il s’agit d’une bascule, enlever l’autre état
-          if (etat.bascule) {
+          if (etatAjoute.bascule) {
             // ne garder que les autres états
-            element.etats = element.etats.filter(x => x !== etat.bascule);
+            conceptCible.etats = conceptCible.etats.filter(x => x !== etatAjoute.bascule);
           }
         }
       }
+      // si le nouvel état a des implications
+      if (etatAjoute.implications?.length) {
+        this.appliquerImplications(conceptCible, etatAjoute.implications)
+      }
       // si le nouvel état a des contradictions
-      if (etat.contradictions) {
+      if (etatAjoute.contradictions?.length) {
         // retirer les contradictions
-        element.etats = element.etats.filter(x => !etat.contradictions.includes(x));
+        conceptCible.etats = conceptCible.etats.filter(x => !etatAjoute.contradictions.includes(x));
       }
     }
   }
 
+  /**
+   * Ajouter les nouvelles implications à l’état cible s’il ne les a pas encore
+   * @param etatCible 
+   * @param implicationsNouvelEtat 
+   */
+  private appliquerImplications(conceptCible: Concept, implicationsNouvelEtat: number[]) {
+    let implicationsManquantes = implicationsNouvelEtat.filter(x => !conceptCible.etats.includes(x));
+    conceptCible.etats.push(...implicationsManquantes);
+  }
+
   /** Retirer un état à un élément */
-  retirerEtatElement(element: ElementJeu, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
+  retirerEtatElement(element: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
     const etat = this.trouverEtat(nomEtat);
     // on ne peut le retirer que s'il existe...
     if (etat !== null) {
@@ -409,7 +455,7 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeEtatIdElement(element: ElementJeu, etatID: number, eju: ElementsJeuUtils = null) {
+  possedeEtatIdElement(element: Concept, etatID: number, eju: ElementsJeuUtils = null) {
     let retVal = false;
     if (element) {
       // A. VISIBLE
@@ -418,15 +464,25 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return element.id == eju.curLieu.id;
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVisible((element as Objet), eju);
+        } else {
+          return false;
         }
         // B. ACCESSIBLE
       } else if (etatID === this.accessibleID) {
-        return this.estAccessible((element as Objet), eju);
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
+          return this.estAccessible((element as Objet), eju);
+        } else {
+          return false;
+        }
         // C. VIDE
       } else if (etatID === this.videID) {
-        return this.estVide(element, eju);
+        if (ClasseUtils.heriteDe(element.classe, EClasseRacine.support) || ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
+          return this.estVide(element as ElementJeu, eju);
+        } else {
+          return false;
+        }
         // D. DIVERS
       } else {
         retVal = element.etats.includes(etatID);
@@ -442,7 +498,7 @@ export class ListeEtats {
    * @param element 
    * @param nomEtat 
    */
-  possedeEtatElement(element: ElementJeu, nomEtat: string, eju: ElementsJeuUtils) {
+  possedeEtatElement(element: Concept, nomEtat: string, eju: ElementsJeuUtils) {
     let retVal = false;
     if (element) {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
@@ -450,8 +506,11 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return element.id == eju.curLieu.id;
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVisible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
 
       } else if (nomEtat.match(/^accessible(s)?$/)) {
@@ -459,24 +518,33 @@ export class ListeEtats {
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estAccessible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else if (nomEtat.match(/^vide(s)?$/)) {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVide((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else if (nomEtat.match(/^obstrué(e)?(s)?$/)) {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
           return !eju.estLieuAccessible(element as Lieu);
           // objet
-        } else {
+        } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return !this.estAccessible((element as Objet), eju);
+          // simple concept
+        } else {
+          return false;
         }
       } else {
         let etat = this.trouverEtat(nomEtat);
@@ -573,6 +641,11 @@ export class ListeEtats {
       return false;
     }
 
+    // si secret -> pas visible
+    if (objet.etats.includes(this.secretID)) {
+      return false;
+    }
+
     // s’il s’agit d’un OBSTACLE (dont portes), il est visible (car jamais dans un contenant et présente, visible, non couverte)
     if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.obstacle)) {
       return true;
@@ -613,6 +686,10 @@ export class ListeEtats {
     if (objet.etats.includes(this.couvertID)) {
       return false;
     }
+    // si secret -> pas accessible
+    if (objet.etats.includes(this.secretID)) {
+      return false;
+    }
     // si inaccessible -> pas accessible
     if (objet.etats.includes(this.inaccessibleID)) {
       return false;
@@ -639,13 +716,13 @@ export class ListeEtats {
 
   }
 
-  estVide(element: ElementJeu, eju: ElementsJeuUtils) {
-    if (ClasseUtils.heriteDe(element.classe, EClasseRacine.support) || ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
-      return eju.obtenirContenu(element, PrepositionSpatiale.sur).length == 0;
-    } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.contenant)) {
-      return eju.obtenirContenu(element, PrepositionSpatiale.dans).length == 0;
+  estVide(objet: ElementJeu, eju: ElementsJeuUtils) {
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support) || ClasseUtils.heriteDe(objet.classe, EClasseRacine.lieu)) {
+      return eju.obtenirContenu(objet, PrepositionSpatiale.sur).length == 0;
+    } else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) {
+      return eju.obtenirContenu(objet, PrepositionSpatiale.dans).length == 0;
     } else {
-      console.warn("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", element);
+      console.warn("estVide: l'élément n'est ni un support ni un contenant ni un lieu:", objet);
       return false;
     }
   }
@@ -703,7 +780,7 @@ export class ListeEtats {
   }
 
   /** Obtenir les états liés à un élément du jeu. */
-  obtenirEtatsElementJeu(el: ElementJeu) {
+  obtenirEtatsElementJeu(el: Concept) {
     let elEtats: Etat[] = [];
     el.etats.forEach(etatID => {
       let curEtat = this.obtenirEtat(etatID);
@@ -741,8 +818,8 @@ export class ListeEtats {
     return retVal;
   }
 
-  /** Récupérer la liste des intitulés des états de l’élément spécéfié. */
-  obtenirIntitulesEtatsElementJeu(el: ElementJeu) {
+  /** Récupérer la liste des intitulés des états de l’élément spécifié. */
+  obtenirIntitulesEtatsElementJeu(el: Concept) {
     const elEtats = this.obtenirEtatsElementJeu(el);
     const feminin = el.genre === Genre.f;
     const pluriel = el.nombre === Nombre.p;

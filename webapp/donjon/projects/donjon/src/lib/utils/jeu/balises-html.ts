@@ -39,12 +39,15 @@ export class BalisesHtml {
     // souligner. texte avec une partie {_soulignée_} et le reste normal.
     retVal = retVal.replace(/\{_/g, '<u>');
     retVal = retVal.replace(/_\}/g, '</u>');
-    // texte IMPORTANT {+texte+}
-    retVal = retVal.replace(/\{\+/g, '<span class="t-important">');
-    retVal = retVal.replace(/\+\}/g, '</span>');
     // texte COMMANDE {-texte-}
     retVal = retVal.replace(/\{-/g, '<span class="t-commande">');
     retVal = retVal.replace(/-\}/g, '</span>');
+    // texte COMMANDE {=texte=}
+    retVal = retVal.replace(/\{=/g, '<span class="t-highlight">');
+    retVal = retVal.replace(/=\}/g, '</span>');
+    // texte IMPORTANT {+texte+}
+    retVal = retVal.replace(/\{\+/g, '<span class="t-important">');
+    retVal = retVal.replace(/\+\}/g, '</span>');
     // italique: CODE {@code@}
     retVal = retVal.replace(/\{@/g, '<span class="t-code-couleur">');
     retVal = retVal.replace(/@\}/g, '</span>');
@@ -89,6 +92,12 @@ export class BalisesHtml {
 
     // espace {e}
     retVal = retVal.replace(/\{e\}/g, ' ');
+    // un seul {E} d’affilé
+    retVal = retVal.replace(/(\{E\})+/g, '{E}');
+    // espace {E} si précédé d’une ponctuation {E}
+    retVal = retVal.replace(/(\.|\?|…|:|!)\{E\}(?=\w)/g, '$1 ');
+    // supprimer les {E} restants
+    retVal = retVal.replace(/\{E\}/g, '');
     // espace insécable {i}
     retVal = retVal.replace(/\{i\}/g, '&nbsp;');
 

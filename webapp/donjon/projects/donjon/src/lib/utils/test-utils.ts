@@ -16,6 +16,7 @@ export class TestUtils {
     const jeu = this.genererLeJeu(scenario, verbeux);
     // 2) démarrer la partie
     let ctxPartie = new ContextePartie(jeu);
+    ctxPartie.nouvelleGraineAleatoire();
     // --> définir visibilité des objets initiale
     ctxPartie.eju.majPresenceDesObjets();
     // --> définir adjacence des lieux initiale

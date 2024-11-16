@@ -58,6 +58,7 @@ export class Instructions {
     this.insDeplacerCopier = new InstructionDeplacerCopier(this.jeu, this.eju, this.verbeux);
     this.insChanger = new InstructionChanger(this.jeu, this.eju, this.verbeux);
     this.insChanger.instructionDeplacerCopier = this.insDeplacerCopier;
+    this.insChanger.instructionDire = this.insDire;
     this.insJouerArreter = new InstructionJouerArreter(this.jeu);
     this.insCharger = new InstructionCharger(this.jeu, this.document);
     this.insSelectionner = new InstructionSelectionner(this.verbeux);
@@ -71,6 +72,8 @@ export class Instructions {
   set commandeur(commandeur: Commandeur) {
     this.insExecuter.commandeur = commandeur;
   }
+
+  public restaurationPartieEnCours = false;
 
   /** Exécuter une liste d’instructions */
   public executerInstructions(instructions: Instruction[], contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
@@ -114,6 +117,10 @@ export class Instructions {
   private executerInstruction(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
 
     let resultat: Resultat;
+
+    if (!contexteTour) {
+      throw new Error("executerInstruction: ContexteTour pas fourni.");
+    }
     if (this.verbeux) {
       console.log(">>> ex instruction:", instruction, "contexteTour:", contexteTour);
     }
@@ -330,20 +337,24 @@ export class Instructions {
             // EXÉCUTER ACTION (ex: exécuter l’action pousser sur ceci avec cela)
           } else if (ExprReg.xActionExecuterAction.test(instruction.complement1)) {
             resultat = this.insExecuter.executerAction(instruction, nbExecutions, contexteTour, evenement, declenchements);
-            // EXÉCUTER COMMANDE
+            // EXÉCUTER DERNIÈRE COMMANDE
+          } else if (ExprReg.xActionExecuterDerniereCommande.test(instruction.complement1)) {
+            resultat = this.insExecuter.executerDerniereCommande();
+            // EXÉCUTER COMMANDE "…"
           } else if (ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
-            resultat = this.insExecuter.executerCommande(instruction, contexteTour);
+            resultat = this.insExecuter.envoyerCommande(instruction, contexteTour);
+
             // EXÉCUTER ROUTINE
           } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
             resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
           } else {
             // INCONNU
-            contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" » ou « la routine xxx » pas pris en charge.");
+            contexteTour.ajouterErreurInstruction(instruction, "Intruction « exécuter » : complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" », « la dernière commande » ou « la routine xxx » pas pris en charge. sujet=" + instruction.sujet + ", compl=" + instruction.complement1);
             resultat.succes = false;
           }
           // SANS COMPLÉMENT
         } else {
-          console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… » ou « la commande \"xxx…\" » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> exécuter >> complément autre que  « réaction de … », « l’action xxxx… », « la commande \"xxx…\" », « la dernière commande » ou « la routine xxx » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;

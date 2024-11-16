@@ -355,7 +355,7 @@ export class AnalyseurBetaInstructions {
         ctx.listeInstructions.splice(ctx.indexCurInstruction + 1, 0, premierChoixOuParmis.slice(resLibrement[1].length).trim());
 
         // c. CHOISIR PARMIS UNE LISTE DYNAMIQUE
-        //    ex: choisir parmis les couleurs disponibles
+        //    ex: choisir parmi les couleurs disponibles
         //          choix rose:
         //            .......
         //          choix jaune:

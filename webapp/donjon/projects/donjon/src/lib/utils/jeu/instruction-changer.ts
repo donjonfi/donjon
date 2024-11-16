@@ -17,14 +17,17 @@ import { Liste } from "../../models/jeu/liste";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
-import { ProprieteElement } from "../../models/commun/propriete-element";
+import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { RechercheUtils } from "../commun/recherche-utils";
 import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
+import { InstructionDire } from "./instruction-dire";
+import { Concept } from "../../models/compilateur/concept";
 
 export class InstructionChanger {
 
   private insDeplacerCopier: InstructionDeplacerCopier;
+  private insDire: InstructionDire;
 
   constructor(
     private jeu: Jeu,
@@ -35,6 +38,10 @@ export class InstructionChanger {
   /** Instructions */
   set instructionDeplacerCopier(instructionDeplacerCopier: InstructionDeplacerCopier) {
     this.insDeplacerCopier = instructionDeplacerCopier;
+  }
+
+  set instructionDire(instructionDire: InstructionDire) {
+    this.insDire = instructionDire;
   }
 
   /** Changer quelque chose dans le jeu */
@@ -59,10 +66,12 @@ export class InstructionChanger {
         case 'ceci':
           if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(contexteTour.ceci as ElementJeu, instruction, contexteTour);
+          } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.concept)){
+            resultat = this.changerConcept(contexteTour.ceci as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.ceci as Compteur, instruction, contexteTour, evenement, declenchements);
           } else {
-            console.error("executer changer ceci: ceci n'est pas un élément du jeu ou un compteur.");
+            console.error("executer changer ceci: ceci n'est pas un élément du jeu, un concept ou un compteur.");
           }
           break;
 
@@ -70,10 +79,12 @@ export class InstructionChanger {
         case 'cela':
           if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(contexteTour.cela as ElementJeu, instruction, contexteTour);
+          } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.concept)){
+            resultat = this.changerConcept(contexteTour.cela as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.cela as Compteur, instruction, contexteTour, evenement, declenchements);
           } else {
-            console.error("executer changer cela: cela n'est pas un élément du jeu ou un compteur.");
+            console.error("executer changer cela: cela n'est pas un élément du jeu, un concept ou un compteur.");
           }
           break;
 
@@ -131,34 +142,34 @@ export class InstructionChanger {
         case TypeProprieteJeu.nombreDeClasseAttributs:
         case TypeProprieteJeu.nombreDeClasseAttributsPosition:
           resultat.succes = false;
-          resultat.sortie = "{+[Je ne peut pas changer directement une propriété calculée]+}";
+          resultat.sortie = "{+[Je ne peux pas changer directement une propriété calculée]+}";
           break;
 
         // propriété d’un élément
         case TypeProprieteJeu.nombreDeProprieteElement:
         case TypeProprieteJeu.proprieteElement:
-          const propSujetTrouvee = InstructionsUtils.trouverProprieteCible(instruction.proprieteSujet, contexteTour, this.eju, this.jeu) as ProprieteElement;
+          const propSujetTrouvee = InstructionsUtils.trouverProprieteCible(instruction.proprieteSujet, contexteTour, this.eju, this.jeu) as ProprieteConcept;
           if (propSujetTrouvee) {
 
             switch (instruction.verbe.toLowerCase()) {
               case 'augmente':
               case 'augmentent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'diminue':
               case 'diminuent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'vaut':
               case 'valent':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               case 'est':
               case 'sont':
-                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+                CompteursUtils.changerValeurCompteurOuPropriete(propSujetTrouvee, 'est', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
                 break;
 
               default:
@@ -170,7 +181,7 @@ export class InstructionChanger {
 
             // si suite à la modification de la quantité d’un objet, la quantité atteint 0, effacer l’objet.
             if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement && RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(propSujetTrouvee.nom) === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité')) {
-              if (ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet) && instruction.proprieteSujet.element.quantite === 0) {
+              if (ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet) && (instruction.proprieteSujet.element as Objet).quantite === 0) {
                 const indexObjet = this.jeu.objets.indexOf((instruction.proprieteSujet.element as Objet));
                 if (indexObjet !== -1) {
                   this.jeu.objets.splice(indexObjet, 1);
@@ -266,7 +277,7 @@ export class InstructionChanger {
           if (objets) {
             resultat.succes = true;
             objets.forEach(el => {
-              resultat = (resultat.succes && this.insDeplacerCopier.exectuterDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur, el.quantite));
+              resultat = (resultat.succes && this.insDeplacerCopier.executerDeplacerObjetVersDestination(el, 'dans', this.jeu.joueur, el.quantite));
             });
           }
         }
@@ -286,7 +297,7 @@ export class InstructionChanger {
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
-            resultat = this.insDeplacerCopier.exectuterDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, objet.quantite);
+            resultat = this.insDeplacerCopier.executerDeplacerObjetVersDestination(objet, "dans", this.jeu.joueur, objet.quantite);
             // l'objet est enfilé, porté, chaussé, équipé, porté
             if (this.jeu.etats.possedeEtatElement(objet, EEtatsBase.enfilable, this.eju)) {
               this.jeu.etats.ajouterEtatElement(objet, EEtatsBase.enfile, this.eju, true);
@@ -323,17 +334,17 @@ export class InstructionChanger {
     switch (instruction.verbe.toLowerCase()) {
       case 'augmente':
       case 'augmentent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'augmente', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       case 'diminue':
       case 'diminuent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'diminue', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       case 'vaut':
       case 'valent':
-        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements)
+        CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
       default:
@@ -379,7 +390,7 @@ export class InstructionChanger {
           const cibleSpeciale: Intitule = InstructionsUtils.trouverCibleSpeciale(instruction.sujetComplement1.nom, contexteTour, evenement, this.eju, this.jeu);
           if (cibleSpeciale) {
             intitule = cibleSpeciale;
-            // ii) rechercher parmis tous les éléments du jeu
+            // ii) rechercher parmi tous les éléments du jeu
           } else {
             const cor = this.eju.trouverCorrespondance(instruction.sujetComplement1, TypeSujet.SujetEstNom, false, false);
             if (cor.nbCor == 1) {
@@ -421,6 +432,49 @@ export class InstructionChanger {
 
     return resultat;
 
+  }
+
+  private changerConcept(element: Concept, instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+
+    let resultat = new Resultat(true, '', 1);
+
+    switch (instruction.verbe.toLowerCase()) {
+      case 'est':
+      case 'sont':
+        const nEstPas = instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus');
+        // n'est pas => retirer un état
+        if (nEstPas) {
+          if (this.verbeux) {
+            console.log("executerElementJeu: retirer l’état '", instruction.complement1, "' ele=", element);
+          }
+          this.jeu.etats.retirerEtatElement(element, instruction.complement1, this.eju);
+          // est => ajouter un état
+        } else {
+          // s’il s’agit en réalité d’un déplacement
+          if (instruction.complement1.match(/^\b(ici|sous|sur|dans)\b/)) {
+            this.eju.ajouterErreur('Il n’est pas possible de déplacer un concept.');
+            resultat = this.insDeplacerCopier.executerDeplacer(instruction.sujet, instruction.preposition1 ?? 'dans', instruction.sujetComplement1, contexteTour);
+            // sinon ajouter l’état
+          } else {
+            if (this.verbeux) {
+              console.log("executerElementJeu: ajouter l’état '", instruction.complement1, "'");
+            }
+            // séparer les attributs, les séparateurs possibles sont «, », « et ».
+            const attributsSepares = PhraseUtils.separerListeIntitulesEt(instruction.complement1, true);
+            attributsSepares.forEach(attribut => {
+              this.jeu.etats.ajouterEtatElement(element, attribut, this.eju);
+            });
+          }
+        }
+        break;
+
+      default:
+        resultat.succes = false;
+        console.error("executerElementJeu: pas compris le verbe:", instruction.verbe, instruction);
+        resultat.sortie = "{n}{+[Instruction « changer » : concept « " + instruction.sujet + " » : verbe pas pris en charge: « " + instruction.verbe + " ».]+}";
+        break;
+    }
+    return resultat;
   }
 
   private changerElementJeu(element: ElementJeu, instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {

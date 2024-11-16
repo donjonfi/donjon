@@ -138,7 +138,7 @@ describe('Instructions − Lieux', () => {
     let lieuId = this.eju.getLieuObjet(this.joueur);
     expect(lieuId).toEqual(this.cuisine.id);
 
-    let resultat = this.insDeplacerCopier.exectuterDeplacerObjetVersDestination(this.joueur, "dans", this.chambre, 1);
+    let resultat = this.insDeplacerCopier.executerDeplacerObjetVersDestination(this.joueur, "dans", this.chambre, 1);
     expect(resultat.succes).toEqual(true);
 
     // le joueur est à présent dans la chambre
