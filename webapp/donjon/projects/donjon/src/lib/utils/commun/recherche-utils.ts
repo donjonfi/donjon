@@ -26,10 +26,11 @@ export class RechercheUtils {
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')
         .replace(/é|è|ê|ë/g, 'e')
-        .replace(/ï|î/g, 'i')
-        .replace(/à|ä|â/g, 'a')
-        .replace(/û|ù/g, 'u')
-        .replace(/ô/g, 'o')
+        .replace(/î|ï/g, 'i')
+        .replace(/à|â|ä/g, 'a')
+        .replace(/ù|û|ü/g, 'u')
+        .replace(/ô|ö/g, 'o')
+        .replace(/ÿ/g, 'y')
         .replace(/ç/g, 'c');
     }
     return retVal;
@@ -176,7 +177,7 @@ export class RechercheUtils {
       //   const motCleRecherche = recherche[indexMotCleRecherche];
       //   let trouveEgal = false;
       //   let trouveRessemblant = false;
-      //   // rechercher le mot parmis les mots du candidat
+      //   // rechercher le mot parmi les mots du candidat
       //   for (let indexMotCleCandidat = 0; indexMotCleCandidat < candidat.length; indexMotCleCandidat++) {
       //     switch (RechercheUtils.ressemblanceMots(motCleRecherche, candidat[indexMotCleCandidat])) {
       //       case ERessemblance.egaux:
@@ -231,9 +232,9 @@ export class RechercheUtils {
       score = 0.0;
     }
 
-    if (verbeux) {
-      console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
-    }
+    // if (verbeux) {
+    //   console.log(`🪞 corresp. rech=[${recherche}], cand:[${candidat}], score:${score}`);
+    // }
 
     return score;
   }

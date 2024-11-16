@@ -20,7 +20,7 @@
     </div>
     <small class="row m-0 p-0 pb-1">
       <div class="col p-1 astuce">
-        <p *ngIf="!interruptionEnCours && historiqueDernieresCommandes.length % 10 < 5" class="mb-0">
+        <p *ngIf="!interruptionEnCours && dernieresCommandesDistinctes.length % 10 < 5" class="mb-0">
           Tapez « <span class="t-commande">aide</span> » suivi de [<small>ENTER</small>] pour afficher les actions les
           plus courantes.
           <ng-container *ngIf="debogueur">
@@ -28,7 +28,7 @@
             pour déboguer l’épée.
           </ng-container>
         </p>
-        <p *ngIf="!interruptionEnCours && historiqueDernieresCommandes.length % 10 >= 5" class="mb-0">
+        <p *ngIf="!interruptionEnCours && dernieresCommandesDistinctes.length % 10 >= 5" class="mb-0">
           Naviguez dans l'historique de vos commandes avec les touches <i class="fa-solid fa-arrow-up"></i> et <i
             class="fas fa-arrow-down"></i>.
           <ng-container *ngIf="debogueur">

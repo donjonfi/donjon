@@ -77,8 +77,8 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
     expect(result).toBeNull();
   });
 
-  it('Phrase:  « choisir parmis la liste » (💥)', () => {
-    const result = ExprReg.xInstruction.exec("choisir parmis la liste");
+  it('Phrase:  « choisir parmi la liste » (💥)', () => {
+    const result = ExprReg.xInstruction.exec("choisir parmi la liste");
     expect(result).toBeNull();
   });
 

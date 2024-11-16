@@ -10,10 +10,12 @@ import { Liste } from './liste';
 import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
-import { ProgrammationTemps } from './programation-temps';
+import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
+import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
+import { Concept } from '../compilateur/concept';
 
 export class Jeu {
 
@@ -32,6 +34,12 @@ export class Jeu {
 
   /** Auteurs du jeu. */
   auteurs: string | undefined;
+
+  /** Participants au jeu */
+  participants: string | undefined;
+
+  /*** Remerciements */
+  remerciements: string | undefined;
 
   /** Titre du site web. */
   siteWebTitre: string | undefined;
@@ -106,6 +114,9 @@ export class Jeu {
   /** Règles ajoutées au jeu. */
   regles: RegleBeta[] = [];
 
+  /** Concepts ajoutés au jeu (qui ne sont pas plus que des concepts) */
+  concepts: Concept[] = [];
+
   /** Compteurs ajoutés au jeu */
   compteurs: Compteur[] = [];
 
@@ -133,22 +144,37 @@ export class Jeu {
   /** 
    * Graine utilisée pour initialiser le générateur de nombres aléatoires.
    * Lorsqu'on sauvegarde la partie, au sauvegarde également la graine.
+   * (sauvegarde V1)
    */
   graine: string | undefined;
 
-  /** 
-   * Commandes à exécuter à l'intialisation du jeu
-   * afin de rétablir la sauvegarde précédemment chargée.
+  /**
+   * Liste des routines programmées pas encore déclenchées.
+   * (sauvegarde V2)
    */
-  sauvegarde: string[] | undefined;
+  get declenchementsFuturs(): DeclenchementFutur[] {
+    let retVal = [];
+    const tempsActuel = Date.now();
+    this.programmationsTemps.forEach(pt => {
+      let curDec = new DeclenchementFutur();
+      curDec.routine = pt.routine;
+      // calculer le temps restant avant déclenchement
+      curDec.tempsMs = pt.duree - (tempsActuel - pt.debutTemps)
+
+      retVal.push(curDec);
+    });
+    return retVal;
+  };
 
   /**
    * Statistiques du jeu et de son scénario.
    */
   statistiques: Statistiques | undefined;
 
+  /** Sauvegarde à charger au début de la prochaine partie. */
+  sauvegarde: Sauvegarde | undefined;
 
-  ajouterErreur(erreur: string){
+  ajouterErreur(erreur: string) {
     console.error(erreur);
     this.tamponErreurs.push(erreur);
   }

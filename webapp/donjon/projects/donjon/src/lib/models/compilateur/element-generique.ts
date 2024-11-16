@@ -5,7 +5,7 @@ import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
-import { ProprieteElement } from '../commun/propriete-element';
+import { ProprieteConcept } from '../commun/propriete-element';
 import { RoutineReaction } from './routine-reaction';
 
 export class ElementGenerique implements ElementDonjon {
@@ -13,7 +13,7 @@ export class ElementGenerique implements ElementDonjon {
   public description: string = null;
   // public apercu: string = null;
   // public texte: string = null;
-  public proprietes = new Array<ProprieteElement>();
+  public proprietes = new Array<ProprieteConcept>();
   public capacites = new Array<Capacite>();
   public reactions = new Array<RoutineReaction>();
   public nomS: string = null;

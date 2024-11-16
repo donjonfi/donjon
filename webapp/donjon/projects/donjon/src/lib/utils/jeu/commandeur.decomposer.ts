@@ -5,17 +5,18 @@ import { CandidatCommande } from "../../models/jouer/candidat-commande";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
 import { MotUtils } from "../commun/mot-utils";
 import { PhraseUtils } from "../commun/phrase-utils";
+import { Jeu } from "../../models/jeu/jeu";
 
 export class CommandeurDecomposer {
 
   /** 
    * Décomposer une commande du joueur.
-   * La fonction renvoit éventuellement plusieurs candidats.
+   * La fonction renvoie éventuellement plusieurs candidats.
    * Les candidats sont triés par score décroissants.
    * Le score est basé sur le nombre d’arguments et la correspondance 
    * entre les arguments et les éléments existants dans le jeu.
    */
-  public static decomposerCommande(commande, eju: ElementsJeuUtils, act: ActionsUtils): ContexteCommande {
+  public static decomposerCommande(commande: string, jeu: Jeu, eju: ElementsJeuUtils, act: ActionsUtils): ContexteCommande {
     // 0. COMMANDE BRUTE
     let ctx = new ContexteCommande();
     ctx.brute = commande;
@@ -42,6 +43,46 @@ export class CommandeurDecomposer {
       candidat.celaQuantiteV1 = candidat.isCelaV1 ? (MotUtils.getQuantite(candidat.els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(candidat.els.sujetComplement1.nom) ? -1 : 1))) : 0;
       candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
 
+      // si 1er argument à 1 correspondance et que le 2e en a plusieurs, dont 1 qui est la même que le premier argument, 
+      // on peut l’effacer car le joueur ne va pas nommer de manière différentes le même objet!
+      if (candidat.correspondCeci?.elements.length == 1 && candidat.correspondCela?.elements.length > 1) {
+        for (let index = 0; index < candidat.correspondCela?.elements.length; index++) {
+          if (candidat.correspondCeci.elements[0] == candidat.correspondCela.elements[index]) {
+            candidat.correspondCela.elements.splice(index, 1);
+            candidat.correspondCela.nbCor -= 1;
+            break;
+          }
+        }
+      } else if (candidat.correspondCela?.elements.length == 1 && candidat.correspondCeci?.elements.length > 1) {
+        for (let index = 0; index < candidat.correspondCeci?.elements.length; index++) {
+          if (candidat.correspondCela.elements[0] == candidat.correspondCeci.elements[index]) {
+            candidat.correspondCeci.elements.splice(index, 1);
+            candidat.correspondCeci.nbCor -= 1;
+            break;
+          }
+        }
+      }
+
+      // TODO: tester secrets
+
+      // si une des correspondance est un élément secret, le retirer
+      for (let index = 0; index < candidat.correspondCeci?.elements.length; index++) {
+        if (jeu.etats.possedeEtatIdElement(candidat.correspondCeci.elements[index], jeu.etats.secretID)) {
+          candidat.correspondCeci.elements.splice(index, 1);
+          candidat.correspondCeci.nbCor -= 1;
+          index--;
+        }
+        break;
+      }
+      for (let index = 0; index < candidat.correspondCela?.elements.length; index++) {
+        if (jeu.etats.possedeEtatIdElement(candidat.correspondCela.elements[index], jeu.etats.secretID)) {
+          candidat.correspondCela.elements.splice(index, 1);
+          candidat.correspondCela.nbCor -= 1;
+          index--;
+        }
+        break;
+      }
+
       // 4. ÉTABLISSEMENT DU SCORE DU CANDIDAT
       // 4.1 - SCORE CORRESPONDANCE DES ARGUMENTS
       // a) 2 arguments
@@ -50,13 +91,30 @@ export class CommandeurDecomposer {
           if (candidat.correspondCela.nbCor > 0) {
             // les 2 arguments ont une correspondance (100% correspondance)
             candidat.score += 100;
+
+            // néanmoins, si les 2 arguments font référence au même élément du jeu mais ne sont pas nommés pareil, diminuer le score
+            if (
+              candidat.correspondCeci.elements.length
+              && candidat.correspondCela.elements.length
+              && candidat.correspondCeci.elements[0] == candidat.correspondCela.elements[0]
+              && candidat.ceciIntituleV1 != candidat.celaIntituleV1
+            ) {
+              candidat.score -= 70;
+            }
+
           } else {
             // 1 des 2 arguments a une correspondance (50% correspondance)
             candidat.score += 30;
+            // ajouter le nombre de token qui composent l’argument ayant une correspondance
+            // en effet, si un des découpage de la commande comprend plus de mots ayant une correspondance, il sera prioritaire.
+            candidat.score += candidat.ceciIntituleV1.motsCles.length;
           }
         } else if (candidat.correspondCela.nbCor > 0) {
           // 1 des 2 arguments a une correspondance (50% correspondance)
           candidat.score += 30;
+          // ajouter le nombre de token qui composent l’argument ayant une correspondance
+          // en effet, si un des découpage de la commande comprend plus de mots ayant une correspondance, il sera prioritaire.
+          candidat.score += candidat.celaIntituleV1.motsCles.length;
         }
         // b) 1 argument
       } else if (candidat.isCeciV1) {

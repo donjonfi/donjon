@@ -1,0 +1,249 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "variables";
+// bootstrap
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+// fontawesome
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/solid";
+
+
+#txtCommande:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+// ============================================
+// Thème jeu
+// ============================================
+
+.card.sortie-jeu {
+  /* couleur du texte par défaut */
+  color: #ffffff;
+
+  /* fond de la sortie du jeu */
+  background-color: #000000;
+
+  // /* image de fond */
+  // background-image: none;
+  // background-repeat: repeat;
+  // background-attachment: fixed;
+  // background-position: center;
+
+  /** bordure de la sortie du jeu **/
+  border: none;  
+}
+
+/* texte entre {- -} */
+.t-commande {
+  color: #65dbff;
+}
+/* texte entre {= =} */
+.t-highlight {
+  color: #ffeb76;
+}
+
+/* texte entre {+ +} */
+.t-important {
+  color: #ffa8ce;
+}
+
+.t-code-couleur{
+  font-family: Consolas,"courier new";
+  color: #000000;
+  // border: 1px solid #668899;
+  background-color: rgb(252, 237, 217);
+}
+
+.t-code{
+  font-family: Consolas,"courier new";
+  color: #000000;
+}
+
+/* invite de commandes */
+#txtCommande {
+  /* texte de l’invite de commandes */
+  color: #ffeb76;
+
+  /* fond de l’invite de commandes */
+  background-color: #000000;
+
+  /* bordure de l’invite de commandes */
+  border: 2px solid #ffeb76;
+}
+
+/* bordure de l’invite de commande (quand sélectionné) */
+#txtCommande:focus {
+  border: 2px solid #ffeb76;
+}
+
+/* astuce dans l’invite de commande */
+#txtCommande::placeholder {
+  color: #eaeaea;
+}
+
+/* astuce sous l’invite de commande */
+.subgrid-jouer .astuce,
+.grid-lecteur .astuce {
+
+  color: #eaeaea;
+}
+
+.card.sortie-jeu a {
+  /* couleur du texte des liens */
+  color: #ffeb76;
+}
+
+.card.sortie-jeu a:hover {
+  /* couleur du texte des liens (activé) */
+  color: #fff4b7;
+}
+
+
+// ============================================
+// APERÇU
+// ============================================
+
+.evenement {
+  font-weight: normal;
+}
+
+.objet {
+  color: $primary;
+  .epithete {
+    font-style: italic;
+  }
+}
+
+.preposition {
+  color: black;
+}
+
+.lieu {
+  color: red;
+}
+
+.infinitif {
+  color: $danger;
+  font-style: italic;
+}
+
+// ============================================
+// FONTS
+// ============================================
+
+@font-face {
+  font-family: "arapeyregular";
+  src: url("./assets/fonts/1-arapey/webkit/arapey-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/1-arapey/webkit/arapey-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "courier_primeregular";
+  src: url("./assets/fonts/2-courier-prime/webkit/courier_prime-webfont.woff2") format("woff2"),
+    url("./assets/fonts/2-courier-prime/webkit/courier_prime-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "kingthings_petrockregular";
+  src: url("./assets/fonts/3-kingthings-petrock/webkit/Kingthings_Petrock-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "alluraregular";
+  src: url("./assets/fonts/4-allura/webkit/allura-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/4-allura/webkit/allura-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "journalregular";
+  src: url("./assets/fonts/5-journal/webkit/journal-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "orbitronmedium";
+  src: url("./assets/fonts/6-orbitron/webkit/orbitron-medium-webfont.woff2") format("woff2"),
+    url("./assets/fonts/6-orbitron/webkit/orbitron-medium-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "bevanregular";
+  src: url("./assets/fonts/7-bevan/webkit/bevan-webfont.woff2") format("woff2"),
+    url("./assets/fonts/7-bevan/webkit/bevan-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-1 {
+  font-family: "arapeyregular", "Times New Roman", Times, serif;
+  font-size: large;
+}
+
+.font-2 {
+  font-family: "courier_primeregular", "Courier New", Courier, monospace;
+}
+
+.font-3 {
+  font-family: "kingthings_petrockregular", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: x-large;
+}
+
+.font-4 {
+  font-family: "alluraregular", "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting",
+    "Apple Chancery", cursive;
+  font-size: xx-large;
+}
+
+.font-5 {
+  font-family: "journalregular", "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting",
+    "Apple Chancery", cursive;
+  font-size: xx-large;
+}
+
+.font-6 {
+  font-family: "orbitronmedium", fantasy;
+  font-size: small;
+}
+
+.font-7 {
+  font-family: "bevanregular", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: large;
+}
+
+
+ul.no-bullet {
+  padding: 0;
+  list-style: none;
+}
+
+// .sans-serif {
+//   font-family: Arial, Verdana, Helvetica, sans-serif;
+// }
+
+// .serif {
+//   font-family: Constantia, Times, "Times New Roman", Georgia, serif;
+// }
+
+// .monospace {
+//   font-family: "Courier New", "FreeMono", "Consolas", "DejaVu Sans Mono", "Fira Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace;
+// }
+
+// .cursive {
+//   font-family: "Segoe Script", "Lucida Calligraphy", "Brush Script Std", "Lucida Handwriting", "Apple Chancery", cursive;
+// }
+
+// .fantasy {
+//   font-family: Luminari, "Copperplate Gothic", Herculanum, Papyrus, Party LET, Curlz MT, Harrington, fantasy;
+// }

@@ -86,6 +86,11 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageSorties = isActiver;
           break;
 
+        case 'affichage des sorties sur une ligne':
+        case 'affichage des sorties en ligne':
+          ctxAnalyse.parametres.activerSortiesEnLigne = isActiver;
+          break;
+
         case 'affichage des directions des sorties':
           ctxAnalyse.parametres.activerAffichageDirectionSorties = isActiver;
           break;
@@ -110,6 +115,12 @@ export class AnalyseurDivers {
         case 'remplacement de la destination des déplacements':
         case 'remplacement de la destination des deplacements':
           ctxAnalyse.parametres.activerRemplacementDestinationDeplacements = isActiver;
+          break;
+
+        case 'synonymes auto':
+        case 'synonymes automatiques':
+        case 'synonymes autos':
+          ctxAnalyse.parametres.activerSynonymesAuto = isActiver;
           break;
 
         default:

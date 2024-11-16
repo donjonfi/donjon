@@ -10,6 +10,7 @@ export class Monde {
     this.classes.push(ClassesRacines.Intitule);
     this.classes.push(ClassesRacines.Compteur);
     this.classes.push(ClassesRacines.Liste);
+    this.classes.push(ClassesRacines.Concept);
     this.classes.push(ClassesRacines.Element);
     this.classes.push(ClassesRacines.Special);
     this.classes.push(ClassesRacines.Lieu);
@@ -33,4 +34,6 @@ export class Monde {
   classiques: ElementGenerique[] = [];
   /** objets filtrés sur « spécial » (joueur, jeu, licence, ressources du jeu, …) */
   speciaux: ElementGenerique[] = [];
+  /** concepts (qui ne sont pas plus que ça) */
+  concepts: ElementGenerique[] = [];
 }

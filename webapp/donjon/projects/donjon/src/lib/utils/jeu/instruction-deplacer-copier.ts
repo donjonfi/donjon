@@ -38,7 +38,7 @@ export class InstructionDeplacerCopier {
     // trouver l’élément à déplacer
     const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
-    // retrouver le nombre d’occurence (quantité) à déplacer
+    // retrouver le nombre d’occurrence (quantité) à déplacer
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // console.log(">> sujet.determinant=", sujet.determinant);
@@ -48,18 +48,20 @@ export class InstructionDeplacerCopier {
     // trouver la destination
     const destination = InstructionsUtils.trouverElementCible(complement, contexteTour, this.eju, this.jeu);
 
-    // si on a trouver le sujet et la distination, effectuer le déplacement.
-    if (objets?.length == 1 && destination) {
-      const curQuantite = InstructionsUtils.corrigerQuantite(objets[0], quantiteSujet);
-      resultat = this.exectuterDeplacerObjetVersDestination(objets[0], preposition, destination, curQuantite);
-      // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
-    } else if (objets?.length > 1 && destination) {
-      resultat.succes = true;
-      // objets contenus trouvés
-      objets.forEach(el => {
-        const curQuantite = InstructionsUtils.corrigerQuantite(el, quantiteSujet);
-        resultat.succes = (resultat.succes && this.exectuterDeplacerObjetVersDestination(el, preposition, destination, curQuantite).succes);
-      });
+    if (destination && ClasseUtils.heriteDe(destination.classe, EClasseRacine.element)) {
+      // si on a trouver le sujet et la destination, effectuer le déplacement.
+      if (objets?.length == 1) {
+        const curQuantite = InstructionsUtils.corrigerQuantite(objets[0], quantiteSujet);
+        resultat = this.executerDeplacerObjetVersDestination(objets[0], preposition, destination as ElementJeu, curQuantite);
+        // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
+      } else if (objets?.length > 1) {
+        resultat.succes = true;
+        // objets contenus trouvés
+        objets.forEach(el => {
+          const curQuantite = InstructionsUtils.corrigerQuantite(el, quantiteSujet);
+          resultat.succes = (resultat.succes && this.executerDeplacerObjetVersDestination(el, preposition, destination as ElementJeu, curQuantite).succes);
+        });
+      }
     }
 
     return resultat;
@@ -80,22 +82,24 @@ export class InstructionDeplacerCopier {
     // trouver l’élément à copier
     const objets = this.trouverObjetsDeplacementCopie(sujet, contexteTour);
 
-    // retrouver le nombre d’occurence (quantité) à copier
+    // retrouver le nombre d’occurrence (quantité) à copier
     let quantiteSujet = MotUtils.getQuantite(sujet.determinant, 1);
 
     // trouver la destination
     const destination = InstructionsUtils.trouverElementCible(complement, contexteTour, this.eju, this.jeu);
 
-    // si on a trouvé le sujet et la distination, effectuer la copie.
-    if (objets?.length == 1 && destination) {
-      resultat = this.exectuterCopierObjetVersDestination(objets[0], preposition, destination, quantiteSujet);
-      // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
-    } else if (objets?.length > 1 && destination) {
-      resultat.succes = true;
-      // objets contenus trouvés
-      objets.forEach(el => {
-        resultat.succes = (resultat.succes && this.exectuterCopierObjetVersDestination(el, preposition, destination, quantiteSujet).succes);
-      });
+    if (destination && ClasseUtils.heriteDe(destination.classe, EClasseRacine.element)) {
+      // si on a trouvé le sujet et la destination, effectuer la copie.
+      if (objets?.length == 1) {
+        resultat = this.executerCopierObjetVersDestination(objets[0], preposition, destination as ElementJeu, quantiteSujet);
+        // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
+      } else if (objets?.length > 1) {
+        resultat.succes = true;
+        // objets contenus trouvés
+        objets.forEach(el => {
+          resultat.succes = (resultat.succes && this.executerCopierObjetVersDestination(el, preposition, destination as ElementJeu, quantiteSujet).succes);
+        });
+      }
     }
 
     return resultat;
@@ -104,7 +108,7 @@ export class InstructionDeplacerCopier {
   /**
    * Déplacer un élément du jeu.
    */
-  public exectuterDeplacerObjetVersDestination(objetSource: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
+  public executerDeplacerObjetVersDestination(objetSource: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
 
     let resultat = new Resultat(false, '', 1);
     let objetDeplace: Objet = null;
@@ -279,7 +283,7 @@ export class InstructionDeplacerCopier {
   /**
    * Copier un élément du jeu.
    */
-  private exectuterCopierObjetVersDestination(original: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
+  private executerCopierObjetVersDestination(original: Objet, preposition: string, destination: ElementJeu, quantite: number): Resultat {
     let resultat = new Resultat(false, '', 1);
 
     // interpréter "vers" comme "dans".
@@ -340,7 +344,7 @@ export class InstructionDeplacerCopier {
         copie.quantite = quantite; // définir la quantité
         copie.id = this.jeu.nextID++; // définir l’ID de la copie
         // remarque: on utilise la méthode déplacer afin de mettre à jour tous les attributs de l’objet et du contenant.
-        this.exectuterDeplacerObjetVersDestination(copie, preposition, destination, copie.quantite);
+        this.executerDeplacerObjetVersDestination(copie, preposition, destination, copie.quantite);
       }
     }
     resultat.succes = true;

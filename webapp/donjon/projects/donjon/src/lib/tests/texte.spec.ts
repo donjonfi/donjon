@@ -13,7 +13,7 @@ describe('Textes dynamiques', () => {
 
     const scenario = '' +
       'La pomme est un objet. ' +
-      'Sa description est "[1ère fois]première description[puis]autre description[fin choix].". ' +
+      'Sa description est "[1ère fois]première description.[puis]autre description.[fin choix]". ' +
       '';
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
@@ -22,9 +22,9 @@ describe('Textes dynamiques', () => {
     expect(ctx.jeu.objets[2].intitule.toString()).toEqual('la pomme');
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description pomme]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("première description.{N}");
+    expect(texteCalcule).toEqual("{E}première description.{E}{N}");
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description pomme]', 1, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("autre description.{N}");
+    expect(texteCalcule).toEqual("{E}autre description.{E}{N}");
 
   });
 
@@ -42,9 +42,9 @@ describe('Textes dynamiques', () => {
     expect(ctx.jeu.objets[2].intitule.toString()).toEqual('la pomme');
 
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[aperçu pomme]', 0, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("premier aperçu.{N}");
+    expect(texteCalcule).toEqual("{E}premier aperçu{E}.{N}");
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[aperçu pomme]', 1, undefined, undefined, undefined, undefined);
-    expect(texteCalcule).toEqual("autre aperçu.{N}");
+    expect(texteCalcule).toEqual("{E}autre aperçu{E}.{N}");
 
   });
 

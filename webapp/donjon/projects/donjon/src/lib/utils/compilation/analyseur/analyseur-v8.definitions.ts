@@ -1,7 +1,6 @@
 import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 
 import { AnalyseurAttributs } from "./analyseur.attributs";
-import { AnalyseurBeta } from "./analyseur-beta";
 import { AnalyseurCapacite } from "./analyseur.capacite";
 import { AnalyseurDivers } from "./analyseur.divers";
 import { AnalyseurElementPosition } from "./analyseur.element.position";

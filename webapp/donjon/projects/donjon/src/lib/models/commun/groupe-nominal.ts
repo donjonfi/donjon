@@ -15,7 +15,7 @@ export class GroupeNominal {
    * - la(2) canne à pèche(2)
    * - => préposition(1) déterminant article(2) nom(3) épithète(4).
    */
-  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?!")(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |d’|d'|des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en )\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
+  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?!")(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |d’|d'|des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui )\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
 
   /** Mots clés correspondants au groupe nominal (pour effectuer une recherche) */
   private _motsCles: string[];

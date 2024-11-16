@@ -1,0 +1,44 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Synonymes et mots composés".
+L’auteur du jeu est "donjon.fi".
+L’identifiant du jeu est "d0f1d9a5-31e9-45d0-8e5b-1357742f553d".
+
+-- LE SALON
+Le salon est un lieu.
+Sa description est "Vous êtes dans un salon.".
+
+
+Le ballon rouge est un objet dans le salon.
+Le ballon bleu est un objet dans le salon.
+
+La lettre rouge est une objet dans le salon.
+
+La grande chaise est un objet dans le salon.
+La petite chaise est un objet dans le salon.
+
+Monsieur Dubois est une personne ici.
+Monsieur Dupont est une personne ici.
+
+
+Le chateau d’if est un objet ici.
+Le comte du chateau est une personne ici.
+
+réactions du comte du chateau:
+  basique:
+    dire"Bonjour !".
+  concernant le chateau d’if:
+    dire "C’est mon chateau!".
+fin réactions
+
+La table est un support ici.
+Une pomme est un objet.
+La lettre est un objet caché sous la table.
+
+La cuisine est un lieu au nord du salon.
+
+
+action froisser la lettre:
+  changer l’intitulé de la lettre est "La lettre froissée".
+  dire "Vous froissez la lettre.".
+fin action
+

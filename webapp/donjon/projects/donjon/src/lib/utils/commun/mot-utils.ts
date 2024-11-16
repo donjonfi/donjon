@@ -60,25 +60,100 @@ export class MotUtils {
     if (nomM) {
       // p ou f => ve
       if (nomM.endsWith('p') || nomM.endsWith('f')) {
-        feminin = nomM.slice(0, nomM.length - 1) + 've';
+        if (nomM == 'bref') {
+          feminin = 'brève';
+        }else{
+          feminin = nomM.slice(0, nomM.length - 1) + 've';
+        }
         // x => se
       } else if (nomM.endsWith('x')) {
-        feminin = nomM.slice(0, nomM.length - 1) + 'se';
-        // el => + le (elle)
-      } else if (nomM.endsWith('el')) {
+        if (nomM == 'doux') {
+          feminin = 'douce';
+        } else if (nomM == 'faux') {
+          feminin = 'fausse';
+        } else if (nomM == 'roux') {
+          feminin = 'rousse';
+        } else if (nomM == 'vieux') {
+          feminin = 'vieille';
+        } else {
+          feminin = nomM.slice(0, nomM.length - 1) + 'se';
+        }
+        // el, eil => + le (elle, eille)
+      } else if (nomM.endsWith('el') || nomM.endsWith('eil')) {
         feminin = nomM + 'le';
+        // en => + ne (enne)
+      } else if (nomM.endsWith('en')) {
+        feminin = nomM + 'ne';
+        // on => + ne (onne)
+      } else if (nomM.endsWith('on')) {
+        feminin = nomM + 'ne';
         // et => + te (ette)
       } else if (nomM.endsWith('et')) {
-        feminin = nomM + 'te';
+        if (["complet", "concret", "désuet", "discret", "indiscret", "inquiet", "replet", "secret"].includes(nomM)) {
+          feminin = nomM.slice(0, nomM.length - 2) + 'ète';
+        } else {
+          feminin = nomM + 'te';
+        }
+        // ot => + te (otte)
+      } else if (nomM.endsWith('ot')) {
+        if (["idiot"].includes(nomM)) {
+          feminin = nomM + 'e';
+        } else {
+          feminin = nomM + 'te';
+        }
+        // ec => +he (eche) (ou que)
+      } else if (nomM.endsWith('ec')) {
+        if (["public"].includes(nomM)) {
+          feminin = nomM.slice(0, nomM.length - 1) + 'que';
+        } else if (nomM.endsWith('sec')) {
+          feminin = 'sèche';
+        } else {
+          feminin = nomM + 'he';
+        }
+        // er => ère
+      } else if (nomM.endsWith('er')) {
+        feminin = nomM.slice(0, nomM.length - 2) + 'ère';
         // eau => elle
       } else if (nomM.endsWith('eau')) {
         feminin = nomM.slice(0, nomM.length - 2) + 'lle';
+        // l => + e (le)
+      } else if (nomM.endsWith('l')) {
+        if (["gentil", "nul"].includes(nomM)) {
+          feminin = nomM + 'le';
+        } else {
+          feminin = nomM + 'e';
+        }
+        // s => -se ou -sse
+      } else if (nomM.endsWith('s')) {
+        if (["gras"].includes(nomM)) {
+          feminin = nomM + 'se';
+        } else {
+          feminin = nomM + 'e';
+        }
         // e => ne pas changer
       } else if (nomM.endsWith('e')) {
         feminin = nomM;
         // autres cas => +e
       } else {
-        feminin = nomM + 'e';
+        if (nomM == 'bénin') {
+          feminin = 'bénigne';
+        } else if (nomM == 'malin') {
+          feminin = 'maligne';
+        } else if (nomM == 'favori') {
+          feminin = 'favorite';
+        } else if (nomM == 'fou') {
+          feminin = 'folle';
+        } else if (nomM == 'mou') {
+          feminin = 'molle';
+        } else if (nomM == 'sympa') {
+          feminin = 'sympa';
+        } else if (nomM == 'chic') {
+          feminin = 'chic';
+        } else if (nomM == 'frais') {
+          feminin = 'fraîche';
+        } else {
+          feminin = nomM + 'e';
+        }
       }
     }
     return feminin;

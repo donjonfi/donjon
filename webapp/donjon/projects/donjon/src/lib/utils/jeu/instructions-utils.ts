@@ -19,13 +19,15 @@ import { Nombre } from "../../models/commun/nombre.enum";
 import { Objet } from "../../models/jeu/objet";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
-import { ProprieteElement } from "../../models/commun/propriete-element";
+import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
+import { Lieu } from "../../models/jeu/lieu";
+import { Concept } from "../../models/compilateur/concept";
 
 export class InstructionsUtils {
 
   /** Retrouver la cible spéciale sur base de son texte (ici, ceci, cela, quantitéCeci, quantitéCela, inventaire, joueur) */
-  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu | Intitule | Localisation | null {
+  public static trouverCibleSpeciale(cibleString: string, contexteTour: ContexteTour, evenement: Evenement, eju: ElementsJeuUtils, jeu: Jeu): ElementJeu | Concept | Intitule | Localisation | null {
     let cible: ElementJeu | Intitule | Localisation | null = null;
     if (cibleString) {
       // retrouver la cible
@@ -149,34 +151,39 @@ export class InstructionsUtils {
   }
 
   /**
-  * Trouver l’élément du jeu spécifié (par ex la destination d’une copie, l’élémen cible d’une propriété, …)
+  * Trouver l’élément du jeu spécifié (par ex la destination d’une copie, l’élément cible d’une propriété, …)
   */
-  public static trouverElementCible(recherche: GroupeNominal, contexteTour: ContexteTour, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): ElementJeu {
+  public static trouverElementCible(recherche: GroupeNominal, contexteTour: ContexteTour, eju: ElementsJeuUtils, jeu: Jeu, erreurSiPasTrouve: boolean = true): ElementJeu | Concept | undefined {
 
-    let resultat: ElementJeu = null;
+    let resultat: ElementJeu | Concept | undefined;
 
     // A) trouver ÉLÉMENT SPÉCIAL
     const cibleTrouvee = InstructionsUtils.trouverCibleSpeciale(recherche.nom, contexteTour, null, eju, jeu);
     if (cibleTrouvee) {
-      if (ClasseUtils.heriteDe(cibleTrouvee.classe, EClasseRacine.element)) {
+      if (ClasseUtils.heriteDe(cibleTrouvee.classe, EClasseRacine.concept)) {
         resultat = cibleTrouvee as ElementJeu;
       } else {
-        console.error("Instructions > trouverElementCible > la cible n’est pas un élément:", recherche);
+        console.error("Instructions > trouverElementCible > la cible n’est pas un concept:", recherche);
       }
-      // B) retrouver ÉLÉMENT CLASSIQUE
+      // B) retrouver CONCEPT CLASSIQUE
     } else {
-      let correspondanceCompl = eju.trouverCorrespondance(recherche, TypeSujet.SujetEstNom, false, false);
-      // un élément trouvé
-      if (correspondanceCompl.elements.length === 1) {
-        resultat = correspondanceCompl.elements[0];
-        // aucun élément trouvé
-      } else if (correspondanceCompl.elements.length === 0) {
+      let correspondance = eju.trouverCorrespondance(recherche, TypeSujet.SujetEstNom, false, false);
+
+      // au moins 1 correspondance trouvée
+      if (correspondance.nbCor) {
+        if (correspondance.elements.length === 1) {
+          resultat = correspondance.elements[0];
+        } else if (correspondance.elements.length === 0 && correspondance.concepts.length === 1) {
+          resultat = correspondance.concepts[0];
+          // plusieurs éléments trouvés
+        } else {
+          console.error("trouverElementCible >>> j’ai trouvé plusieurs correspondances pour l’élément:", recherche, correspondance);
+        }
+        // aucune correspondance
+      } else {
         if (erreurSiPasTrouve) {
           console.error("trouverElementCible >>> je n’ai pas trouvé l’élément:", recherche);
         }
-        // plusieurs éléments trouvés
-      } else {
-        console.error("trouverElementCible >>> j’ai trouvé plusieurs correspondances pour l’élément:", recherche, correspondanceCompl);
       }
     }
     return resultat;
@@ -235,8 +242,8 @@ export class InstructionsUtils {
    * @param ceci pour le cas où brute vaut « ceci ».
    * @param cela pour le cas où brute vaut « cela ».
    */
-  public static trouverProprieteCible(recherche: ProprieteJeu, contexteTour: ContexteTour | undefined, eju: ElementsJeuUtils, jeu: Jeu): ProprieteElement | Compteur {
-    let resultat: ProprieteElement | Compteur = null;
+  public static trouverProprieteCible(recherche: ProprieteJeu, contexteTour: ContexteTour | undefined, eju: ElementsJeuUtils, jeu: Jeu): ProprieteConcept | Compteur {
+    let resultat: ProprieteConcept | Compteur = null;
 
     // retrouver l’élément cible
     if (recherche.intituleElement) {
@@ -288,14 +295,14 @@ export class InstructionsUtils {
         break;
       // B. NOMBRE DE: CLASSE AVEC ATTRIBUTS + POSITION
       case TypeProprieteJeu.nombreDeClasseAttributsPosition:
-        // si la classe rechechée hérite de objet
+        // si la classe recherchée hérite de objet
         if (ClasseUtils.heriteDe(recherche.classe, EClasseRacine.objet)) {
           // si la classe de l’élément cible hérite de objet
           if (ClasseUtils.heriteDe(recherche.element.classe, EClasseRacine.objet)) {
-            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, false, recherche.prepositionSpatiale);
+            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element as Objet, true, true, true, true, false, recherche.prepositionSpatiale);
             // si la classe de l’élément cible hérite de lieu
           } else if (ClasseUtils.heriteDe(recherche.element.classe, EClasseRacine.lieu)) {
-            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element, true, true, true, false, PrepositionSpatiale.dans);
+            elementsOkEtapePrecedente = eju.trouverContenu(recherche.element as Lieu, true, true, true, true, false, PrepositionSpatiale.dans);
           }
           // si la classe recherchée n’hérite pas de objet
         } else {
@@ -328,11 +335,10 @@ export class InstructionsUtils {
 
       case TypeProprieteJeu.proprieteElement:
         // trouver la propriete
-        if(recherche.intituleProprieteElement.nom == 'intitulé' && recherche.element)
-        {
-          recherche.proprieteElement = new ProprieteElement(recherche.element, "intitulé", TypeValeur.mots, recherche.element.intitule.toString())
+        if (recherche.intituleProprieteElement.nom == 'intitulé' && recherche.element) {
+          recherche.proprieteElement = new ProprieteConcept(recherche.element, "intitulé", TypeValeur.mots, recherche.element.intitule.toString())
         }
-        else{
+        else {
           recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
         }
         if (!recherche.proprieteElement) {
@@ -410,7 +416,7 @@ export class InstructionsUtils {
 
     // copier les propriétés
     original.proprietes.forEach(prop => {
-      copie.proprietes.push(new ProprieteElement(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
+      copie.proprietes.push(new ProprieteConcept(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
     });
 
     // TODO: faut-il copier le contenu (support/contenant/…) ?

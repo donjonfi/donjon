@@ -1,0 +1,23 @@
+{
+	"versionDonjon": "020100",
+	"versionJeu": "1.5",
+	"partie": [
+		"g:0.25796434437940996",
+		"c:prendre clé",
+		"r:2",
+		"c:i",
+		"c:x porte",
+		"c:ouvrir la porte avec la clé",
+		"c:entrer",
+		"c:x trou",
+		"d:porteRougeSeReferme",
+		"c:manger baie",
+		"g:0.7474848097328197",
+		"c:x baie",
+		"c:p baie"
+	],
+	"declenchementsFuturs": [
+		"activationPiege:345"
+	],
+	"scenario": "Le joueur se trouve dans le salon.\r\n\r\nSa description est \"Vos vêtements sont sales. Vous avez perdu des kilos. Il est temps de sortir d’ici !\"."
+}

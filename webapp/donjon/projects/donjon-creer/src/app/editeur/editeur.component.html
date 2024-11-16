@@ -68,7 +68,7 @@
             </button>
             <!-- wiki -->
             <br>
-            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v2/" target="_blank" tooltip="Wiki"
+            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
               placement="right" container="body">
               <i class="fas fa-fw fa-question fa-lg"></i>
             </a>
@@ -77,7 +77,7 @@
           <ng-container *ngIf="tab == 'scenario'">
             <br>
             <!-- analyser -->
-            <button class="btn btn-warning mt-4 px-2" (click)="onCompiler()" tooltip="Analyser" placement="right"
+            <button class="btn btn-warning mt-4 px-2" (click)="onCompiler(undefined)" tooltip="Analyser" placement="right"
               title="Anaylser">
               <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
             </button>
@@ -91,7 +91,7 @@
 
             <!-- wiki -->
             <br>
-            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v2/" target="_blank" tooltip="Wiki"
+            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
               placement="right" container="body">
               <i class="fas fa-fw fa-question fa-lg"></i>
             </a>
@@ -323,7 +323,7 @@
 
           <!-- TAB: ACTIONS (COMMANDES) -->
           <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <h3>Actions de base</h3>
+            <h2>Actions de base</h2>
             <p>Ces actions sont chargées automatiquement avant votre scénario afin que vous puissiez disposer d’actions de base pour votre jeu.</p>
             <ul>
               <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
@@ -332,11 +332,11 @@
             </ul>
             
             <!-- charger actions.djn distant -->
-            <h4 class="mt-4">Actions originales</h4>
+            <h3 class="mt-4">Actions originales</h3>
             <button class="btn btn-primary ms-1" (click)="onRafraichirActions()"><i class="fas fa-rotate me-2"></i>Utiliser fichier actions original</button>
 
             <!-- charger actions.djn local -->
-            <h4 class="mt-4">Actions personnalisées</h4>
+            <h3 class="mt-4">Actions personnalisées</h3>
             <p>Vous pouvez utiliser votre propre fichier à la place du fichier original.
               Vous pouvez ainsi avoir vos propres actions de base pour l’ensemble de vos jeux.
               <br>Vous pouvez récupérer le fichier <code>actions.djn</code> original à l’adresse <a href="https:donjon.fi/creer/actions" target="_blank">donjon.fi/creer/actions</a> afin de l’adapter.
@@ -351,7 +351,7 @@
 
           <!-- TAB: TESTER LE JEU -->
           <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartie)="onNouvellePartie()"></djn-lecteur>
+            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)"></djn-lecteur>
           </div>
 
           <!-- TAB: APERÇU ÉLÉMENTS -->
@@ -397,7 +397,7 @@
 
               <div *ngIf="compilationTerminee">
 
-                <h5>Résultat de l’analyse</h5>
+                <h2>Résultat de l’analyse</h2>
 
                 <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
                   <div>
@@ -450,7 +450,7 @@
 
                     <p class="mb-0">
                       <span [innerHTML]="message.htmlCorps"></span>
-                      <a class="ms-2" [href]="'https://donjon.fi/doc/v2/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
+                      <a class="ms-2" [href]="'https://donjon.fi/doc/v3/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
                     </p>
                   </li>
                 </ul>

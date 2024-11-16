@@ -64,12 +64,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "(\\b(" +
             "désactiver|activer|" +
             "si|sinon|sinonsi|" +
-            "(autre )?choix|choisir( parmis)?|" +
+            "(autre )?choix|choisir( parmi)?|" +
             "phase (prérequis|exécution|épilogue)|" +
             "(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
             "interpréter|comme)\\b" +
             ")|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|finsi|finchoisir|finchoix)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|fin(?=\])|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
             "(^( )*(définition(s)?|basique)(?=( )*:))|" +
@@ -86,7 +86,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
             + "(\\b("
             + "présent|absent|intact|déplacé|modifié|"
-            + "caché|couvert|décorati(f|v)|"
+            + "mentionné|vu|famili(er|èr)|"
+            + "secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|"
             + "dénombrable|indénombrable|mangeable|buvable|"
             + "ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|"
             + "marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|"
@@ -101,8 +102,8 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|intitulé|élément)|" +
-            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)|" +
+          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|concept|intitulé|élément)|" +
+            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs|concepts)|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {
           // token: "support.variable",
@@ -113,7 +114,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
         }, {
           token: keywordMapper,
-          regex: "[a-zA-Zéèàêç_$][a-zA-Z0-9éèàêç_$]*"
+          regex: "[a-zA-Zàâäéèêëîïôöùûüÿçæœ_$][a-zA-Z0-9àâäéèêëîïôöùûüÿçæœ_$]*"
         },
 
         // {

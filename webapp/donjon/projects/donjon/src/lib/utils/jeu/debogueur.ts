@@ -12,6 +12,7 @@ import { Localisation } from '../../models/jeu/localisation';
 import { Objet } from '../../models/jeu/objet';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { TypeValeur } from '../../models/compilateur/type-valeur';
+import { Concept } from '../../models/compilateur/concept';
 
 export class Debogueur {
 
@@ -39,7 +40,7 @@ export class Debogueur {
         console.warn("#DEB# états=", this.jeu.etats.obtenirListeDesEtats());
       } else {
         const cor = this.eju.trouverCorrespondance(els.sujet, TypeSujet.SujetEstIntitule, true, true);
-        if (cor.elements.length !== 0 || cor.compteurs.length !== 0 || cor.listes.length !== 0 || cor.localisation !== null) {
+        if (cor.elements.length !== 0 || cor.concepts.length !== 0 || cor.compteurs.length !== 0 || cor.listes.length !== 0 || cor.localisation !== null) {
           // éléments
           if (cor.elements.length) {
             if (cor.elements.length > 1) {
@@ -54,6 +55,18 @@ export class Debogueur {
               } else {
                 retVal += "\n\n" + this.afficherDetailObjet((el as Objet));
               }
+            });
+          }
+
+          // concepts
+          if (cor.concepts.length) {
+            if (cor.concepts.length > 1) {
+              retVal += (cor.concepts.length + " concepts trouvés :");
+            } else {
+              retVal += (" 1 concept trouvé :");
+            }
+            cor.concepts.forEach(cpt => {
+              retVal += "\n\n" + this.afficherDetailConcept(cpt);
             });
           }
 
@@ -104,6 +117,7 @@ export class Debogueur {
   private afficherDetailObjet(objet: Objet) {
     // retrouver les états de l’élément
     const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(objet);
+    let proprietes = this.getProprietesConcept(objet);
     let contenant: Objet = null;
     let contenantPreposition = "";
     const estContenant = ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant);
@@ -154,21 +168,6 @@ export class Debogueur {
       infoContenant = (contenant ? (' (' + contenantPreposition + contenant.nom + ')') : '')
     }
 
-    let proprietes = (objet.proprietes.length > 0 ? "" : "(néant)");
-    if(objet.nom){
-      proprietes += '{-nom :-} "' + objet.nom + '"{u}';
-    }
-    if(objet.intitule){
-      proprietes += '{-intitulé :-} "' + objet.intitule + '"{u}';
-    }
-    objet.proprietes.forEach(prop => {
-      if (prop.type == TypeValeur.mots) {
-        proprietes += "{-" + prop.nom + " :-} \"" + prop.valeur + "\"{u}";
-      } else {
-        proprietes += "{-" + prop.nom + " :-} " + prop.valeur + "{u}";
-      }
-    });
-
     const sortie =
       "{* • " + this.eju.calculerIntituleElement(objet, false, true) + "*} (" + objet.genre + ", " + objet.nombre + ")" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(objet.classe) +
@@ -178,8 +177,8 @@ export class Debogueur {
       "{n}{e}{_états_}{n}" + etats +
       "{n}{e}{_propriétés_}{n}" + proprietes +
       "{n}{e}{_emplacement_}{n}" + ((emplacement ? emplacement.nom : 'aucun') + infoContenant) +
-      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, false, true, PrepositionSpatiale.dans).sortie)) : '') +
-      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, false, true, PrepositionSpatiale.sur).sortie)) : '') +
+      (estContenant ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dedans : ', '(dedans : vide)', true, true, true, false, true, PrepositionSpatiale.dans, []).sortie)) : '') +
+      (estSupport ? ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(objet, 'dessus : ', '(dessus : vide)', true, true, true, false, true, PrepositionSpatiale.sur, []).sortie)) : '') +
       "";
     return sortie;
   }
@@ -187,14 +186,47 @@ export class Debogueur {
   private afficherDetailLieu(lieu: Lieu) {
     // retrouver les états de l’élément
     const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(lieu);
+    const proprietes = this.getProprietesConcept(lieu);
     const sortie =
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(lieu, false) + "*} (" + lieu.genre + ", " + lieu.nombre + ")" +
       "{n}{e}{_titre_}{n}" + lieu.titre +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(lieu.classe) +
       "{n}{e}{_synonymes_}{n}" + (lieu.synonymes?.length ? lieu.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
       "{n}{e}{_états_}{n}" + etats +
-      ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(lieu, 'Il y a ', '(vide)', true, true, false, true, PrepositionSpatiale.inconnu).sortie)) +
+      "{n}{e}{_propriétés_}{n}" + proprietes +
+      ("{n}{e}{_contenu_}{n}" + (this.ins.dire.executerDecrireContenu(lieu, 'Il y a ', '(vide)', true, true, true, false, true, PrepositionSpatiale.inconnu, []).sortie)) +
+      "";
+    return sortie;
+  }
 
+private getProprietesConcept(concept: Concept): string{
+  let proprietes = (concept.proprietes.length > 0 ? "" : "(néant)");
+    if (concept.nom) {
+      proprietes += '{-nom :-} "' + concept.nom + '"{u}';
+    }
+    if (concept.intitule) {
+      proprietes += '{-intitulé :-} "' + concept.intitule + '"{u}';
+    }
+    concept.proprietes.forEach(prop => {
+      if (prop.type == TypeValeur.mots) {
+        proprietes += "{-" + prop.nom + " :-} \"" + prop.valeur + "\"{u}";
+      } else {
+        proprietes += "{-" + prop.nom + " :-} " + prop.valeur + "{u}";
+      }
+    });
+
+  return proprietes;
+}
+
+  private afficherDetailConcept(concept: Concept) {
+    const etats = this.jeu.etats.obtenirIntitulesEtatsElementJeu(concept);
+    const proprietes = this.getProprietesConcept(concept);
+    const sortie =
+      "{* • " + ElementsJeuUtils.calculerIntituleGenerique(concept, false) + "*}" +
+      "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(concept.classe) +
+      "{n}{e}{_synonymes_}{n}" + (concept.synonymes?.length ? concept.synonymes.map(x => x.toString()).join(", ") : '(aucun)') +
+      "{n}{e}{_états_}{n}" + etats +
+      "{n}{e}{_propriétés_}{n}" + proprietes +
       "";
     return sortie;
   }
@@ -203,7 +235,7 @@ export class Debogueur {
     const sortie =
       "{* • " + ElementsJeuUtils.calculerIntituleGenerique(compteur, false) + "*}" +
       "{n}{e}{_type_}{n}" + ClasseUtils.getHierarchieClasse(compteur.classe) +
-      "{n}{e}{_valeur_}{n}" + compteur.valeur?.toString() ?? '?' +
+      "{n}{e}{_valeur_}{n}" + compteur.valeur.toString() +
       "";
     return sortie;
   }

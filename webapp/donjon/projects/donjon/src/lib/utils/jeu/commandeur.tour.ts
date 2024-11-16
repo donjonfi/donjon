@@ -1,21 +1,25 @@
 import { ContexteTour, PhaseTour } from "../../models/jouer/contexte-tour";
-import { Interruption, TypeContexte } from "../../models/jeu/interruption";
+import { TypeContexte } from "../../models/jeu/interruption";
 
 import { ActionCeciCela } from "../../models/compilateur/action";
 import { ConditionsUtils } from "./conditions-utils";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
 import { Declencheur } from "./declencheur";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { Instructions } from "./instructions";
 import { InterruptionsUtils } from "./interruptions-utils";
 import { Jeu } from "../../models/jeu/jeu";
 import { Resultat } from "../../models/jouer/resultat";
+import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
+import { ClasseUtils } from "../commun/classe-utils";
+import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
+import { ElementJeu } from "../../models/jeu/element-jeu";
 
 export class CommandeurTour {
 
   /** Conditions Utils */
   private cond: ConditionsUtils;
+  private eju: ElementsJeuUtils;
 
   constructor(
     private jeu: Jeu,
@@ -24,6 +28,7 @@ export class CommandeurTour {
     private verbeux: boolean,
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
+    this.eju = new ElementsJeuUtils(this.jeu, this.verbeux);
   }
 
   public demarrerNouveauTour(commande: ContexteCommande) {
@@ -41,7 +46,7 @@ export class CommandeurTour {
     tour.commande.sortie = "";
 
     // terminer les instructions de la phase interrompue
-    // TODO: nombre de déclanchements s’il s’agit d’une règle
+    // TODO: nombre de déclenchements s’il s’agit d’une règle
     const resultatReste = this.ins.executerInstructions(tour.reste, tour, tour.commande.evenement, undefined);
     tour.commande.sortie += resultatReste.sortie;
 
@@ -107,12 +112,19 @@ export class CommandeurTour {
         break;
       case PhaseTour.continuer_apres:
       case PhaseTour.continuer_apres_interrompu:
+        // ajouter les erreurs à la sortie
+        tour.erreurs.forEach(erreur => {
+          tour.commande.sortie += `{+${erreur}+}{n}`
+        });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
       // ÉPLILOGUE (TERMINER)
       case PhaseTour.epilogue:
-        // case PhaseTour.terminer_avant_sortie_apres:
+        // ajouter les erreurs à la sortie
+        tour.erreurs.forEach(erreur => {
+          tour.commande.sortie += `{+${erreur}+}{n}`
+        });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
         break;
@@ -122,11 +134,28 @@ export class CommandeurTour {
         break;
       // FIN
       case PhaseTour.fin:
+        this.executerPhaseFin(tour);
         break;
 
       default:
         console.error("Phase inconnue:", tour.phase);
         break;
+    }
+  }
+
+  private executerPhaseFin(tour: ContexteTour) {
+    // si on a interagi avec un objet qui devait être vu, celui-ci est à présent familier et il n’est plus discret.
+    if (tour.commande.actionChoisie.action.ceci
+       && tour.commande.actionChoisie.action.cibleCeci.epithete?.includes('vu')
+      && ClasseUtils.heriteDe(tour.commande.actionChoisie.ceci.classe, EClasseRacine.element)) {
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.familier, this.eju);
+      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.discret, this.eju);
+    }
+    if (tour.commande.actionChoisie.action.cela
+      && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
+      && ClasseUtils.heriteDe(tour.commande.actionChoisie.cela.classe, EClasseRacine.element)) {
+      this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.familier, this.eju);
+      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.discret, this.eju);
     }
   }
 
@@ -156,7 +185,7 @@ export class CommandeurTour {
       if (sousResultatAvant.interrompreBlocInstruction) {
         InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatAvant, sousResultatAvant);
         if (declenchementsAvant.length > 1) {
-          this.jeu.tamponConseils.push("Déclanchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclanchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
+          this.jeu.tamponConseils.push("Déclenchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclenchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
         }
       }
       if (resultatAvant.arreterApresRegle) {
@@ -164,7 +193,7 @@ export class CommandeurTour {
       }
     }
 
-    // si on a fait appel à l’instruction « arrêter l’action »
+    // si on a fait appel à l’instruction « arrêter l’action » / « refuser l’action »
     if (resultatAvant.arreterApresRegle === true) {
       // cloturer le tour
       tour.phase = PhaseTour.fin;
@@ -297,7 +326,7 @@ export class CommandeurTour {
           if (sousResultatApres.interrompreBlocInstruction) {
             InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatApres, sousResultatApres);
             if (declenchementsApres.length > 1) {
-              this.jeu.tamponConseils.push("Déclanchement règle après: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « après » se déclanchent pour le même évènement.");
+              this.jeu.tamponConseils.push("Déclenchement règle après: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « après » se déclenchent pour le même évènement.");
             }
           }
         } // fin exécution des instructions des règles après

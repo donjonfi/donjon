@@ -46,7 +46,7 @@
         },
         {
           "name": "constant.language",
-          "match": "(\\b(présent|absent|intact|déplacé|modifié|caché|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -54,7 +54,7 @@
       "patterns": [
         {
           "name": "storage.type",
-          "match": "(une \\b(clé|porte|personne|action|direction|liste)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)\\b|(deux \\b(objets)\\b)"
+          "match": "(une \\b(clé|porte|personne|action|direction|liste)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|concept|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)\\b|(deux \\b(objets)\\b)"
         }
       ]
     },

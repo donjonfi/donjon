@@ -1,6 +1,6 @@
 
-export const version = "2.0-beta.24"
-export const versionNum = 1024;
+export const version = "3.0.3"
+export const versionNum = 30003;
 
 export enum EClasseRacine {
   intitule = 'intitule',
@@ -13,6 +13,7 @@ export enum EClasseRacine {
   listeIntitule = 'listeintitule',
   listeMixte = 'listemixte',
   direction = 'direction',
+  concept = 'concept',
   element = 'element',
   special = 'special',
   lieu = 'lieu',
@@ -30,30 +31,45 @@ export enum EClasseRacine {
 }
 
 export enum EEtatsBase {
-  /** connu */
-  connu = "connu",
+
+  /** mentionné */
+  mentionne = 'mentionné',
+  /** vu */
+  vu = 'vu',
+  /** familier */
+  familier = 'familier',
+
   /** présent (calculé) (↔ absent) */
   present = 'présent',
   /** absent (calculé) (↔ présent) */
   absent = 'absent',
+
   /** visité : lieu */
-  visite = "visité",
+  visite = 'visité',
+
   /** intact (≠ déplacé) */
-  intact = "intact",
+  intact = 'intact',
   /** déplacé (≠ intact) */
-  deplace = "déplacé",
+  deplace = 'déplacé',
   /** modifié (≠ intact) */
-  modifie = "modifié",
-  /** caché */
-  cache = 'caché',
-  /** couvert */
-  couvert = 'couvert',
-  /** couvrant */
-  couvrant = 'couvrant',
+  modifie = 'modifié',
+
   /** visible (calculé) */
   visible = 'visible',
   /** invisible */
   invisible = 'invisible',
+  /** secret */
+  secret = 'secret',
+  /** caché */
+  cache = 'caché',
+  /** discret */
+  discret = 'discret',
+  
+  /** couvert */
+  couvert = 'couvert',
+  /** couvrant */
+  couvrant = 'couvrant',
+
   /** accessible (calculé) */
   accessible = 'accessible',
   /** inaccessible */
@@ -110,6 +126,8 @@ export enum EEtatsBase {
   verrouille = 'verrouillé',
   /** déverrouillé (↔ verrouillé) : porte, cadenas, contenant, … */
   deverrouille = 'déverrouillé',
+  /** lisible (livre, panneau, …) */
+  lisible = 'lisible',
   /** clair (↔ obscur) : lieu */
   clair = 'clair',
   /** obscur (↔ clair) : lieu */
@@ -139,7 +157,7 @@ export enum EEtatsBase {
   /** adjacent : lieu */
   adjacent = 'adjacent',
   /** lu : objet */
-  lu = "lu",
+  lu = 'lu',
   /** vide: objet */
   vide = 'vide',
 
