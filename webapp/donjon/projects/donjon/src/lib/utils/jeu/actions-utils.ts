@@ -378,7 +378,7 @@ export class ActionsUtils {
         }
         break;
 
-        case EEtatsBase.mentionne:
+      case EEtatsBase.mentionne:
         if (argumentUnique) {
           retVal = "Je n’en ai pas encore entendu parler.";
         } else {
@@ -469,23 +469,27 @@ export class ActionsUtils {
 
       let estListeEt = cibleAction.epithete.match(/\bet\b/);
 
-      if (etatsNonVerifies.some(x => x.nom == EEtatsBase.visible) && etatsNonVerifies.some(x => x.nom == EEtatsBase.accessible)) {
-        if (estListeEt) {
-          //si ni visible, ni présent => dire qu’il n’est pas présent.
-          if (!this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
-            retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.present, tokenCeciOuCela, argumentUnique);
+      // si devrait être vu et jamais vu, on dit qu’on sait pas où il se trouve
+      if (etatsNonVerifies.some(x => x.nom == EEtatsBase.vu) && !this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.vuID)) {
+        retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.vu, tokenCeciOuCela, argumentUnique);
+      } else {
+        if (etatsNonVerifies.some(x => x.nom == EEtatsBase.visible) && etatsNonVerifies.some(x => x.nom == EEtatsBase.accessible)) {
+          if (estListeEt) {
+            //si ni visible, ni présent => dire qu’il n’est pas présent.
+            if (!this.jeu.etats.possedeEtatIdElement(elementCommande, this.jeu.etats.presentID)) {
+              retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.present, tokenCeciOuCela, argumentUnique);
+            } else {
+              retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.visible, tokenCeciOuCela, argumentUnique);
+            }
           } else {
-            retVal = this.obtenirPhraseRefuEtatElement(EEtatsBase.visible, tokenCeciOuCela, argumentUnique);
+            // TODO: gérer autre attribut d’une liste OU
+            retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
           }
         } else {
-          // TODO: gérer autre attribut d’une liste OU
+          // TODO: gérer autre attributs que visible ET accessible
           retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
         }
-      } else {
-        // TODO: gérer autre attributs que visible ET accessible
-        retVal = this.obtenirPhraseRefuEtatElement('xxx', tokenCeciOuCela, argumentUnique);
       }
-
       // état requis pas trouvé
     } else {
       if (argumentUnique) {

@@ -234,12 +234,12 @@ export class InstructionDeplacerCopier {
         this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.disponible, this.eju, true);
         // si la destination est un objet
       } else {
-        // si la destination est le joueur, l'objet est présent, possédé et n’est plus caché.
+        // si la destination est le joueur, l'objet est présent, possédé, a été vu par le joueur et n’est plus caché
         if (destination.id === this.jeu.joueur.id) {
           this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.present, this.eju, true);
           this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.possede, this.eju, true);
-          this.jeu.etats.retirerEtatElement(objetDeplace, EEtatsBase.cache, this.eju, true);
-
+          // (retrait auto de caché quand vu)
+          this.jeu.etats.ajouterEtatElement(objetDeplace, EEtatsBase.vu, this.eju, true);
           // sinon, on va analyser le contenant qui est forcément un objet.
         } else {
           // forcément l'objet n'est pas possédé ni porté

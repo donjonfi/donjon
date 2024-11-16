@@ -30,7 +30,7 @@ import { ResultatCompilation } from '../../models/compilateur/resultat-compilati
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
-import { Commandeur } from 'donjon';
+import { Commandeur, TypeEvenement } from 'donjon';
 import { Concept } from '../../models/compilateur/concept';
 
 export class Generateur {
@@ -135,45 +135,45 @@ export class Generateur {
         });
       }
 
-            // parcourir les propriétés du lieu
-            let nouvellesProp: ProprieteConcept[] = []
-            curEle.proprietes.forEach(pro => {
-              // spécial: intitulé
-              if (pro.nom == 'intitulé') {
-                // TODO: gérer groupe nominal ?
-                const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
-                nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
-                if (nouvConcept.nombre == Nombre.p) {
-                  nouvConcept.intituleP = nouvConcept.intitule;
-                } else {
-                  nouvConcept.intituleS = nouvConcept.intitule;
-                }
-                // autres propriétés
-              } else {
-                // fix ç de aperçu
-                if (pro.nom == 'apercu') {
-                  pro.nom = 'aperçu';
-                }
-                // ajouter ou mettre à jour
-                const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
-                if (proExistantDeja) {
-                  proExistantDeja.valeur = pro.valeur;
-                } else {
-                  pro.parent = nouvConcept;
-                  nouvellesProp.push(pro);
-                }
-              }
-            });
-            nouvConcept.proprietes.push(...nouvellesProp);
-      
-            // synonymes définis par l’auteur
-            if (curEle.synonymes?.length) {
-              nouvConcept.addSynonymes(curEle.synonymes)
-            }
-            // synonymes générés automatiquement
-            if (jeu.parametres.activerSynonymesAuto) {
-              Generateur.genererSynonymesAuto(nouvConcept);
-            }
+      // parcourir les propriétés du lieu
+      let nouvellesProp: ProprieteConcept[] = []
+      curEle.proprietes.forEach(pro => {
+        // spécial: intitulé
+        if (pro.nom == 'intitulé') {
+          // TODO: gérer groupe nominal ?
+          const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
+          nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
+          if (nouvConcept.nombre == Nombre.p) {
+            nouvConcept.intituleP = nouvConcept.intitule;
+          } else {
+            nouvConcept.intituleS = nouvConcept.intitule;
+          }
+          // autres propriétés
+        } else {
+          // fix ç de aperçu
+          if (pro.nom == 'apercu') {
+            pro.nom = 'aperçu';
+          }
+          // ajouter ou mettre à jour
+          const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
+          if (proExistantDeja) {
+            proExistantDeja.valeur = pro.valeur;
+          } else {
+            pro.parent = nouvConcept;
+            nouvellesProp.push(pro);
+          }
+        }
+      });
+      nouvConcept.proprietes.push(...nouvellesProp);
+
+      // synonymes définis par l’auteur
+      if (curEle.synonymes?.length) {
+        nouvConcept.addSynonymes(curEle.synonymes)
+      }
+      // synonymes générés automatiquement
+      if (jeu.parametres.activerSynonymesAuto) {
+        Generateur.genererSynonymesAuto(nouvConcept);
+      }
 
 
       jeu.concepts.push(nouvConcept);
@@ -488,9 +488,13 @@ export class Generateur {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
                 }
 
-                // si le contenant est le joueur, l’objet est possédé
+                // si le contenant est le joueur, l’objet est possédé (et vu)
                 if (contenantSupport === jeu.joueur) {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, ctx, true);
+                  // à moins que l’objet soit « caché » dans l’inventaire, celui-ci est forcément « vu » par le joueur.
+                  if (!jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.cacheID, null)) {
+                    jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.vu, ctx, true);
+                  }
                 }
 
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
@@ -594,36 +598,43 @@ export class Generateur {
           // découper les commandes qui déclenchent les règles
           // à présent que l’on dispose des objets
           regle.evenements.forEach(ev => {
-            let ctxCom = com.decomposerCommande(ev.commandeComprise);
-            // aucune commande trouvée
-            if (ctxCom.candidats.length == 0) {
-              ctx.ajouterErreur(`❌ Pas trouvé de commande pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
-              // une commande se démarque
-            } else if ((ctxCom.candidats.length == 1) || (ctxCom.candidats[0].score > ctxCom.candidats[1].score)) {
-              const cmd = ctxCom.candidats[0];
-              ev.commandeComprise = undefined;
 
-              const ceci = cmd.els.sujet;
-              ev.isCeci = ceci ? true : false;
-              ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
-              ev.classeCeci = null;
-              ev.quantiteCeci = 0;
-              ev.prepositionCeci = cmd.els.preposition0;
+            if (ev.type == TypeEvenement.action) {
+              if (!ev.commandeComprise) {
+                ctx.ajouterErreur(`❌ ev.commandeComprise n’est pas défini pour la règle: ${regle.intitule}`)
+              } else {
+                let ctxCom = com.decomposerCommande(ev.commandeComprise);
+                // aucune commande trouvée
+                if (ctxCom.candidats.length == 0) {
+                  ctx.ajouterErreur(`❌ Pas trouvé de commande pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+                  // une commande se démarque
+                } else if ((ctxCom.candidats.length == 1) || (ctxCom.candidats[0].score > ctxCom.candidats[1].score)) {
+                  const cmd = ctxCom.candidats[0];
+                  ev.commandeComprise = undefined;
 
-              const cela = cmd.els.sujetComplement1;
-              ev.isCela = cela ? true : false;
-              ev.cela = (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
-              ev.classeCela = null;
-              ev.quantiteCela = 0;
-              ev.prepositionCela = cmd.els.preposition1;
+                  const ceci = cmd.els.sujet;
+                  ev.isCeci = ceci ? true : false;
+                  ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
+                  ev.classeCeci = null;
+                  ev.quantiteCeci = 0;
+                  ev.prepositionCeci = cmd.els.preposition0;
 
-              if (ctx.verbeux) {
-                console.warn(`🟢 Commande trouvée pour la règle ${regle.intitule}`);
+                  const cela = cmd.els.sujetComplement1;
+                  ev.isCela = cela ? true : false;
+                  ev.cela = (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
+                  ev.classeCela = null;
+                  ev.quantiteCela = 0;
+                  ev.prepositionCela = cmd.els.preposition1;
+
+                  if (ctx.verbeux) {
+                    console.warn(`🟢 Commande trouvée pour la règle ${regle.intitule}`);
+                  }
+
+                  // aucune commande ne se démarque
+                } else {
+                  ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+                }
               }
-
-              // aucune commande  ne se démarque
-            } else {
-              ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
             }
           });
 

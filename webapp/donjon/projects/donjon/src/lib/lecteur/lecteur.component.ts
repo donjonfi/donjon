@@ -227,7 +227,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
         const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[++this.indexDerniereCommandeRestauration];
         let [type, graineRestauree] = prochaineEtape.split(":");
         if (type == ExprReg.caractereGraine) {
-          this.ajouteConseils("Graine du générateur de hasard restaurée.")
+          //this.ajouteConseils("Graine du générateur de hasard restaurée.")
           graineDeDepart = graineRestauree;
         } else {
           this.ajouteErreur("Restauration de partie : la première étape n’est pas la graine du générateur de hasard.");

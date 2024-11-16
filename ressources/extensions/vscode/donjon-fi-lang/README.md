@@ -12,6 +12,5 @@ Cette extension permet d’activer la mise en forme des scénarios Donjon FI (*.
 ## Pour plus d'informations
 
 * [Site web](https://donjon.fi)
-* [Wiki](https://donjon.fi/wiki/creer/start)
+* [Wiki](https://donjon.fi/doc/v3/start)
 * [Tester votre jeu](https://donjon.fi/creer/)
-
