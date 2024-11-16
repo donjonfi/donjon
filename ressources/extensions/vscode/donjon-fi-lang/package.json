@@ -8,8 +8,8 @@
   "publisher": "donjon-fi",
   "license": "MIT",
   "homepage": "https://donjon.fi",
-  "description": "Syntax highligthing and snippets for Donjon FI lang",
-  "version": "2.0.18",
+  "description": "Syntax highlighting and snippets for Donjon FI lang",
+  "version": "3.0.0",
   "icon": "donjon128.png",
   "preview": true,
   "engines": {
@@ -28,7 +28,9 @@
         "id": "donjon",
         "aliases": [
           "Donjon",
-          "donjon"
+          "donjon",
+          "Donjon FI",
+          "donjon.fi"
         ],
         "extensions": [
           ".djn"
