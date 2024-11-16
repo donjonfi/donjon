@@ -230,7 +230,7 @@ export class InstructionDire {
             let resultatCurBalise: string;
             if (cible instanceof ElementJeu) {
               if (isLister) {
-                resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, preposition).sortie;
+                resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
               } else {
                 resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
               }
@@ -1599,7 +1599,7 @@ export class InstructionDire {
    * Lister le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, retrait: number = 1): Resultat {
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[], retrait: number = 1): Resultat {
 
     let resultat = new Resultat(false, '', 1);
     const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
@@ -1615,6 +1615,11 @@ export class InstructionDire {
         objets.forEach(obj => {
           ++curObjIndex;
           resultat.sortie += "\n " + InstructionDire.getRetrait(retrait) + (retrait <= 1 ? "- " : "> ") + this.eju.calculerIntituleElement(obj, false, false);
+
+          // l’objet a été mentionné et vu par le joueur
+          this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
+          idElementsDejaMentionnes.push(obj.id);
+
           // ajouter « (porté) » aux objets portés
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.enfileID)) {
             resultat.sortie += " (" + this.jeu.etats.obtenirIntituleEtatPourElementJeu(obj, this.jeu.etats.enfileID) + ")";
@@ -1637,7 +1642,7 @@ export class InstructionDire {
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID) ||
               this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.transparentID)
             ) {
-              let contenu = this.executerListerContenu(obj, false, false, false, false, false, prepositionSpatiale, retrait + 1).sortie;
+              let contenu = this.executerListerContenu(obj, false, false, false, false, false, prepositionSpatiale, idElementsDejaMentionnes, (retrait + 1)).sortie;
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
@@ -1657,7 +1662,7 @@ export class InstructionDire {
         let supportsSansApercu = objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerListerContenu(support, false, false, false, false, false, PrepositionSpatiale.sur);
+          const sousRes = this.executerListerContenu(support, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
           resultat.sortie += sousRes.sortie;
         });
 
