@@ -53,7 +53,7 @@ PARTIE "Description du monde".
 
       -- coffre --
       Le coffre est un contenant fixé dans le salon. "Il s'agit d'un petit coffre surmonté d'un clavier.[si le coffre est verrouillé] Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.){U}[fin si]".
-      Il est invisible, fermé, ouvrable et verrouillé.
+      Il est secret, fermé, ouvrable et verrouillé.
       Interpréter le clavier comme le coffre.
 
       -- anneau
@@ -67,7 +67,7 @@ PARTIE "Description du monde".
       fin règle
       
       -- porte
-      La porte secrète est une porte fermée, verrouillée et invisible au nord du salon.
+      La porte secrète est une porte secrète, fermée et verrouillée au nord du salon.
 
       -- mur
       Le mur est un support décoratif dans le salon. "Les murs de la pièce sont peints en vert.".
@@ -78,7 +78,7 @@ PARTIE "Description du monde".
       Interpréter peinture et cadre comme le tableau.
 
       -- bouton --
-      Le bouton est un objet fixé sur le mur. Il est couvert. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
+      Le bouton est un objet fixé et secret sur le mur. "C’est un gros bouton rouge.{n}Juste au-dessus, il est écrit << NE PAS POUSSER SUR LE BOUTON S.V.P. >>".
       interpréter bouton rouge, gros bouton et bouton rond comme le bouton.
 
     SCÈNE "les actions".
@@ -89,9 +89,9 @@ PARTIE "Description du monde".
       -- > POUSSER/DÉPLACER FAUTEUIL
       règle avant pousser le fauteuil ou déplacer le fauteuil:
       -- modifier le déroulement normal des actions pousser et déplacer le fauteuil
+      -- [@coffre] permet de spécifier à Donjon que le coffre a été vu par le joueur, il n’est donc plus secret.
         si le fauteuil n'est pas déplacé:
           dire "Vous poussez difficilement le fauteuil. Vous découvrez un coffre[@coffre] qui était dissimulé sous le fauteuil.".
-          changer le coffre n’est plus invisible.
           changer le fauteuil est déplacé.
         sinon
           dire "Ce n'est plus nécessaire.".
@@ -163,8 +163,7 @@ PARTIE "Description du monde".
       -- > AVANT − PRENDRE, ENLEVER ou JETER le TABLEAU
       règle avant prendre le tableau, enlever le tableau, déplacer le tableau ou jeter le tableau:
         si le tableau se trouve sur le mur:
-          changer le bouton n’est plus couvert.
-          changer le tableau se trouve dans le salon.
+          déplacer le tableau vers le salon.
           dire "Vous décrochez le tableau et vous découvrez un gros bouton rouge.[@bouton]".
         sinon
           dire "Vous avez déjà décroché le tableau du mur.".
@@ -177,7 +176,6 @@ PARTIE "Description du monde".
         si la porte secrète est fermée:
           dire "Une porte[@porte secrète] s'ouvre dans le mur nord de la pièce.".
           changer la porte secrète est ouverte.
-          changer la porte secrète n'est plus invisible.
         fin si
       fin règle
 
@@ -188,16 +186,15 @@ PARTIE "Description du monde".
 
     Le cabinet est un lieu au nord du salon.
     -- si le joueur regarde alors qu’il est dans la pièce, il verra sa description
-    Sa description est "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées.".
+    -- [@toiles d’araignées] : on spécifie à Donjon que les toiles d’araignées sont déjà décrites et vues lors de la description du lieu.
+    Sa description est "Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées[@toiles d’araignées].".
     -- si le joueur regarde vers le nord, alors qu’il est dans le salon, il verra l’aperçu du cabinet
     Son aperçu est "Une pièce sombre.".
 
     SCÈNE "les décors".
       -- par défaut le joueur ne pourra pas déplacer un décor.
-      Les toiles d’araignées sont des décors dans le cabinet. "Brrr c'est n'est pas très rassurant.".
-      -- éviter qu’on décrive les araignées étant donné qu’elles le sont dans la description de la pièce.
-      Leur aperçu est "-".
-      interpréter araignées, araignée, toile et toiles comme les toiles d’araignées.
+      Les toiles d’araignées (f) sont des décors dans le cabinet. "Brrr ce n'est pas très rassurant.".
+      --interpréter araignées, araignée, toile et toiles comme les toiles d’araignées.
 
     SCÈNE "la magicienne".
       La magicienne est une femme dans le cabinet. "La magicienne vous observe.".
