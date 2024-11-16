@@ -135,45 +135,45 @@ export class Generateur {
         });
       }
 
-            // parcourir les propriétés du lieu
-            let nouvellesProp: ProprieteConcept[] = []
-            curEle.proprietes.forEach(pro => {
-              // spécial: intitulé
-              if (pro.nom == 'intitulé') {
-                // TODO: gérer groupe nominal ?
-                const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
-                nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
-                if (nouvConcept.nombre == Nombre.p) {
-                  nouvConcept.intituleP = nouvConcept.intitule;
-                } else {
-                  nouvConcept.intituleS = nouvConcept.intitule;
-                }
-                // autres propriétés
-              } else {
-                // fix ç de aperçu
-                if (pro.nom == 'apercu') {
-                  pro.nom = 'aperçu';
-                }
-                // ajouter ou mettre à jour
-                const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
-                if (proExistantDeja) {
-                  proExistantDeja.valeur = pro.valeur;
-                } else {
-                  pro.parent = nouvConcept;
-                  nouvellesProp.push(pro);
-                }
-              }
-            });
-            nouvConcept.proprietes.push(...nouvellesProp);
-      
-            // synonymes définis par l’auteur
-            if (curEle.synonymes?.length) {
-              nouvConcept.addSynonymes(curEle.synonymes)
-            }
-            // synonymes générés automatiquement
-            if (jeu.parametres.activerSynonymesAuto) {
-              Generateur.genererSynonymesAuto(nouvConcept);
-            }
+      // parcourir les propriétés du lieu
+      let nouvellesProp: ProprieteConcept[] = []
+      curEle.proprietes.forEach(pro => {
+        // spécial: intitulé
+        if (pro.nom == 'intitulé') {
+          // TODO: gérer groupe nominal ?
+          const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
+          nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
+          if (nouvConcept.nombre == Nombre.p) {
+            nouvConcept.intituleP = nouvConcept.intitule;
+          } else {
+            nouvConcept.intituleS = nouvConcept.intitule;
+          }
+          // autres propriétés
+        } else {
+          // fix ç de aperçu
+          if (pro.nom == 'apercu') {
+            pro.nom = 'aperçu';
+          }
+          // ajouter ou mettre à jour
+          const proExistantDeja = nouvConcept.proprietes.find(x => x.nom == pro.nom);
+          if (proExistantDeja) {
+            proExistantDeja.valeur = pro.valeur;
+          } else {
+            pro.parent = nouvConcept;
+            nouvellesProp.push(pro);
+          }
+        }
+      });
+      nouvConcept.proprietes.push(...nouvellesProp);
+
+      // synonymes définis par l’auteur
+      if (curEle.synonymes?.length) {
+        nouvConcept.addSynonymes(curEle.synonymes)
+      }
+      // synonymes générés automatiquement
+      if (jeu.parametres.activerSynonymesAuto) {
+        Generateur.genererSynonymesAuto(nouvConcept);
+      }
 
 
       jeu.concepts.push(nouvConcept);
@@ -488,9 +488,13 @@ export class Generateur {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
                 }
 
-                // si le contenant est le joueur, l’objet est possédé
+                // si le contenant est le joueur, l’objet est possédé (et vu)
                 if (contenantSupport === jeu.joueur) {
                   jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, ctx, true);
+                  // à moins que l’objet soit « caché » dans l’inventaire, celui-ci est forcément « vu » par le joueur.
+                  if (!jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.cacheID, null)) {
+                    jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.vu, ctx, true);
+                  }
                 }
 
                 newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
