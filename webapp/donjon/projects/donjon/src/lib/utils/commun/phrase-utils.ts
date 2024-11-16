@@ -17,104 +17,68 @@ export class PhraseUtils {
     let retVal: Evenement[] = [];
     evenementsSepares.forEach(evenementBrut => {
 
+      // A) TESTER S’IL S’AGIT D’UNE COMMANDE
       let commandesPossibles = PhraseUtils.obtenirLesCommandesPossibles(evenementBrut);
-
       if (commandesPossibles.length > 0) {
         // on ne décompose pas encore la commande maintenant, on va le faire quand on connaîtra les objets
         let ev = new Evenement(TypeEvenement.action, commandesPossibles[0].els.infinitif);
         ev.commandeComprise = evenementBrut;
         retVal.push(ev);
+        // B) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (IMPLIQUANT UN ÉLÉMENT PARTICULIER)
+      } else {
+        // règle générique pour « une action impliquant X [et Y] »
+        const actImp = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
 
+        if (actImp) {
+          const ceci = PhraseUtils.getGroupeNominalDefini(actImp[1], false);
+          const isCeci = true;
+          const ceciNom = (isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
+          const ceciClasse = null;
+          const prepCeci = null;
+          const quantiteCeci = 0;
 
-        // // OLD VERSION
+          const cela = PhraseUtils.getGroupeNominalDefini(actImp[2], false);
+          const isCela = cela ? true : false;
+          const celaNom = (isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
+          const celaClasse = null;
+          const prepCela = null;
+          const quantiteCela = 0;
 
-        // // A) TESTER S’IL S’AGIT D’UNE COMMANDE
-        // let els = PhraseUtils.decomposerCommande(evenementBrut.trim());
-        // // si on a trouvé une formulation correcte
-        // if (els) {
-        //   const isCeci = els.sujet ? true : false;
-        //   const ceci = els.sujet;
-        //   const ceciNom = (isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
-        //   const ceciClasse = null;
-        //   const prepCeci = els.preposition0;
-        //   const quantiteCeci = 0;
+          let ev = new Evenement(
+            TypeEvenement.action,
+            // verbe
+            null,
+            // ceci
+            isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
+            // cela
+            isCela, prepCela, quantiteCela, celaNom, celaClasse,
+          );
+          retVal.push(ev);
 
-        //   const isCela = els.sujetComplement1 ? true : false;
-        //   const cela = els.sujetComplement1;
-        //   const celaNom = (isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
-        //   const celaClasse = null;
-        //   const prepCela = els.preposition1;
-        //   const quantiteCela = 0;
-
-        //   let ev = new Evenement(
-        //     TypeEvenement.action,
-        //     // verbe
-        //     els.infinitif,
-        //     // ceci
-        //     isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
-        //     // cela
-        //     isCela, prepCela, quantiteCela, celaNom, celaClasse,
-        //   );
-
-        //   //   retVal.push(ev);
-
-          // B) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (IMPLIQUANT UN ÉLÉMENT PARTICULIER)
+          // C) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (ACTION QUELCONQUE)
         } else {
-          // règle générique pour « une action impliquant X [et Y] »
-          const actImp = ExprReg.rActionImpliquant.exec(evenementBrut.trim());
-
-          if (actImp) {
-            const ceci = PhraseUtils.getGroupeNominalDefini(actImp[1], false);
-            const isCeci = true;
-            const ceciNom = (isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
-            const ceciClasse = null;
-            const prepCeci = null;
-            const quantiteCeci = 0;
-
-            const cela = PhraseUtils.getGroupeNominalDefini(actImp[2], false);
-            const isCela = cela ? true : false;
-            const celaNom = (isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
-            const celaClasse = null;
-            const prepCela = null;
-            const quantiteCela = 0;
-
-            let ev = new Evenement(
-              TypeEvenement.action,
-              // verbe
-              null,
-              // ceci
-              isCeci, prepCeci, quantiteCeci, ceciNom, ceciClasse,
-              // cela
-              isCela, prepCela, quantiteCela, celaNom, celaClasse,
-            );
-
+          // règle générique pour « une action quelconque »
+          if (ExprReg.rActionQuelconque.test(evenementBrut.trim())) {
+            let ev = new Evenement(TypeEvenement.action, null);
             retVal.push(ev);
-
-            // C) TESTER S’IL S’AGIT D’UNE RÈGLE GÉNÉRIQUE (ACTION QUELCONQUE)
+            // D) DÉPLACEMENT VERS X
           } else {
-            // règle générique pour « une action quelconque »
-            if (ExprReg.rActionQuelconque.test(evenementBrut.trim())) {
-              let ev = new Evenement(TypeEvenement.action, null);
+            const deplacement = ExprReg.rDeplacementVers.exec(evenementBrut.trim());
+            if (deplacement) {
+              let ev = new Evenement(
+                TypeEvenement.deplacement,
+                // verbe => direction ou lieu
+                deplacement[1]
+              );
               retVal.push(ev);
-              // D) DÉPLACEMENT VERS X
+              // E) FORMULATION INCONNUE
             } else {
-              const deplacement = ExprReg.rDeplacementVers.exec(evenementBrut.trim());
-              if (deplacement) {
-                let ev = new Evenement(
-                  TypeEvenement.deplacement,
-                  // verbe => direction ou lieu
-                  deplacement[1]
-                );
-
-                retVal.push(ev);
-                // E) FORMULATION INCONNUE
-              } else {
-                console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
-              }
+              console.warn("getEvenements >> pas pu décomposer événement:", evenementBrut);
             }
           }
         }
-      });
+      }
+    });
     return retVal;
   }
 

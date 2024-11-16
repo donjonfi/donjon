@@ -713,11 +713,11 @@ export class ElementsJeuUtils {
         cor.nbCor +=  cor.concepts.length;
 
       }
-      if (this.verbeux) {
-        console.log(" >>>> éléments trouvés:", cor.elements);
-        console.log(" >>>> concepts trouvés:", cor.concepts);
-        console.log(" >>>> listes trouvées:", cor.listes);
-      }
+      // if (this.verbeux) {
+      //   console.log(" >>>> éléments trouvés:", cor.elements);
+      //   console.log(" >>>> concepts trouvés:", cor.concepts);
+      //   console.log(" >>>> listes trouvées:", cor.listes);
+      // }
 
     }
 
