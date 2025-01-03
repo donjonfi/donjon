@@ -1,0 +1,22 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Test visibilité portes".
+L’auteur du jeu est "DonjonFI".
+
+Activer l'affichage des lieux inconnus.
+
+La caverne est un lieu.
+
+La porte classiqueOuverte est une porte ouverte au nord de la caverne.
+Le cheminClassiqueAccessible est un lieu au nord de la caverne.
+
+La porte classiqueFermée est une porte fermée au nord-est de la caverne.
+Le cheminClassiqueObstrué est un lieu au nord-est de la caverne.
+
+La porte invisibleFermée est une porte invisible et fermée au sud de la caverne.
+Le cheminVisibleMaisSansAccès est un lieu au sud de la caverne.
+
+La porte invisibleOuverte est une porte invisible et ouverte à l’est de la caverne.
+Le cheminVisibleEtAccessible est un lieu à l’est de la caverne.
+
+La porte invisibleOuverte est une porte invisible et ouverte à l’ouest de la caverne.
+Le cheminInvisibleEtAccessible est un lieu invisible à l’ouest de la caverne.
