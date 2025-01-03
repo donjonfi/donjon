@@ -189,6 +189,7 @@ export class AnalyseurElementSimple {
         if (ClasseUtils.getIntituleNormalise(nouvelElementGenerique.classeIntitule) !== EClasseRacine.objet) {
           // s'il y avait déjà un type défini, c'est un autre élément donc finalement on va quand même l’ajouter
           if (ClasseUtils.getIntituleNormalise(elementGeneriqueTrouve.classeIntitule) !== EClasseRacine.objet) {
+            nouvelElementGenerique.numeroLigne = phrase.ligne;
             ctxAnalyse.elementsGeneriques.push(nouvelElementGenerique);
             // finalement c’est le nouvel élément qui est concerné
             elementConcerne = nouvelElementGenerique;
@@ -213,6 +214,7 @@ export class AnalyseurElementSimple {
         }
       } else {
         // ajouter le nouvel élément
+        nouvelElementGenerique.numeroLigne = phrase.ligne;
         ctxAnalyse.elementsGeneriques.push(nouvelElementGenerique);
       }
     }

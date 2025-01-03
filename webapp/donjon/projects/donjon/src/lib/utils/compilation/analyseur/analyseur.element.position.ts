@@ -290,6 +290,7 @@ export class AnalyseurElementPosition {
         }
 
       } else {
+        newElementGenerique.numeroLigne = phrase.ligne;
         // ajouter le nouvel élément
         ctx.elementsGeneriques.push(newElementGenerique);
       }

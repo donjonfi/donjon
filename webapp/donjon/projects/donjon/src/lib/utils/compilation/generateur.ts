@@ -674,9 +674,9 @@ export class Generateur {
       const lieuTrouveID = Generateur.getLieuID(lieux, curPositionString.complement, true);
 
       if (localisation === ELocalisation.inconnu) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : position pas trouvée : ' + curPositionString.position);
+        ctx.ajouterErreur(`positionnement lieu « ${elVoisin.elIntitule} » : position relative pas trouvée : « ${curPositionString.position} »`, elVoisin.numeroLigne);
       } else if (lieuTrouveID === -1) {
-        ctx.ajouterErreur('ajout du voisin « ' + elVoisin.elIntitule + ' » : lieu pas trouvé : ' + curPositionString.complement);
+        ctx.ajouterErreur(`positionnement lieu « ${elVoisin.elIntitule} » : lieu lié pas trouvé : « ${curPositionString.complement} »`, elVoisin.numeroLigne);
       } else {
         // on met la classe racine lieu, porte ou obstacle:
         let classeRacine: string;
