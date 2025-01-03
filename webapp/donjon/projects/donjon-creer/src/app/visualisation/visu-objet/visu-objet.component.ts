@@ -4,9 +4,10 @@ import { ElementsJeuUtils, ListeEtats, PrepositionSpatiale } from 'donjon';
 import { ObjetPresent } from '../models/objet-present';
 
 @Component({
-  selector: 'app-visu-objet',
-  templateUrl: './visu-objet.component.html',
-  styleUrls: ['./visu-objet.component.scss']
+    selector: 'app-visu-objet',
+    templateUrl: './visu-objet.component.html',
+    styleUrls: ['./visu-objet.component.scss'],
+    standalone: false
 })
 export class VisuObjetComponent implements OnInit {
 

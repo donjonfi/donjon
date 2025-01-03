@@ -3,9 +3,10 @@ import { PositionObjet, PrepositionSpatiale } from 'projects/donjon/src/public-a
 import { ProprieteJeu, TypeProprieteJeu } from 'donjon';
 
 @Component({
-  selector: 'app-apercu-propriete-jeu',
-  templateUrl: './apercu-propriete-jeu.component.html',
-  styleUrls: ['./apercu-propriete-jeu.component.scss']
+    selector: 'app-apercu-propriete-jeu',
+    templateUrl: './apercu-propriete-jeu.component.html',
+    styleUrls: ['./apercu-propriete-jeu.component.scss'],
+    standalone: false
 })
 export class ApercuProprieteJeuComponent implements OnInit {
 

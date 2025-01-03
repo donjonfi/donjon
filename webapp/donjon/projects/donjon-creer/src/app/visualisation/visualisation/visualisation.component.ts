@@ -4,9 +4,10 @@ import { ElementsJeuUtils, Jeu, Lieu } from 'donjon';
 import { ObjetPresent } from '../models/objet-present';
 
 @Component({
-  selector: 'app-visualisation',
-  templateUrl: './visualisation.component.html',
-  styleUrls: ['./visualisation.component.scss']
+    selector: 'app-visualisation',
+    templateUrl: './visualisation.component.html',
+    styleUrls: ['./visualisation.component.scss'],
+    standalone: false
 })
 export class VisualisationComponent implements OnInit {
 
