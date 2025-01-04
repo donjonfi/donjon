@@ -12,11 +12,17 @@ Le cheminClassiqueAccessible est un lieu au nord de la caverne.
 La porte classiqueFermée est une porte fermée au nord-est de la caverne.
 Le cheminClassiqueObstrué est un lieu au nord-est de la caverne.
 
-La porte invisibleFermée est une porte invisible et fermée au sud de la caverne.
-Le cheminVisibleMaisSansAccès est un lieu au sud de la caverne.
+La porte invisibleFermée est une porte invisible et fermée à l'intérieur de la caverne.
+Le cheminVisibleMaisSansAccès est un lieu à l'intérieur de la caverne.
 
 La porte invisibleOuverte est une porte invisible et ouverte à l’est de la caverne.
 Le cheminVisibleEtAccessible est un lieu à l’est de la caverne.
 
 La porte invisibleOuverte est une porte invisible et ouverte à l’ouest de la caverne.
 Le cheminInvisibleEtAccessible est un lieu invisible à l’ouest de la caverne.
+
+La porte visibleOuverteSurCheminInvisible est une porte ouverte au sud-est de la caverne.
+Le cheminInvisibleAccessible est un lieu invisible au sud-est de la caverne.
+
+La porte invisibleSurInvisible est une porte invisible au sud-ouest de la caverne.
+Le cheminInvisibleSurInvisible est un lieu invisible au sud-ouest de la caverne.

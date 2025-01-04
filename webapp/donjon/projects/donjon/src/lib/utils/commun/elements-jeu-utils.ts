@@ -395,10 +395,8 @@ export class ElementsJeuUtils {
               const curObstacle = this.getObjet(obstacle.id);
               // A) Porte
               if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
-                // si la porte est n’est ni visible ni ouverte, le voisin ne doit pas être ajouté à la liste (il est caché).
-                if (this.jeu.etats.possedeEtatIdElement(curObstacle, this.jeu.etats.fermeID) && !this.jeu.etats.estVisible(curObstacle, this)) {
-                  voisinInvisible = true;
-                }
+                // (une porte invisible ne rend pas le voisin invisible mais va empêcher d'y accéder)
+                
                 // B) Autre type d’obstacle
               } else {
                 // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).

@@ -1983,9 +1983,27 @@ export class InstructionDire {
     let titreLieu = majuscule ? lieu.titre : lieu.intitule;
     let obstacle = this.afficherObstacle(localisation, "");
     if (obstacle) {
-      obstacle = " ({/obstrué/})";
+      if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
+        obstacle = " ({/pas d'accès/})";
+      } else {
+        obstacle = " ({/obstrué/})";
+      }
     }
     retVal = titreLieu + obstacle;
+    return retVal;
+  }
+
+  private bloqueParPorteFermeeEtInvisible(localisation: ELocalisation): boolean {
+    let retVal = false;
+    const porteID = this.eju.getVoisinDirectionID(localisation, EClasseRacine.porte);
+    if (porteID !== -1) {
+      const porte = this.eju.getObjet(porteID);
+      const fermee = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.fermeID);
+      const invisible = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+      retVal = fermee && invisible;
+    } else {
+      retVal = false;
+    }
     return retVal;
   }
 
@@ -1996,7 +2014,11 @@ export class InstructionDire {
     let obstacle = this.afficherObstacle(localisation, "");
 
     if (obstacle) {
-      obstacle = " ({/obstrué/})";
+      if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
+        obstacle = " ({/pas d'accès/})";
+      } else {
+        obstacle = " ({/obstrué/})";
+      }
     }
 
     let lieuDejaVisite = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID);
