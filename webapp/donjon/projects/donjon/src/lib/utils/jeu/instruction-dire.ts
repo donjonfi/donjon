@@ -2015,54 +2015,33 @@ export class InstructionDire {
 
     if (obstacle) {
       if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
-        obstacle = " ({/pas d'accès/})";
+        obstacle = " ({/pas d’accès/})";
       } else {
         obstacle = " ({/obstrué/})";
       }
     }
 
     let lieuDejaVisite = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID);
+    const localisationMap = {
+      [ELocalisation.nord]: "nord",
+      [ELocalisation.nord_est]: "nord-est",
+      [ELocalisation.est]: "est",
+      [ELocalisation.sud_est]: "sud-est",
+      [ELocalisation.sud]: "sud",
+      [ELocalisation.sud_ouest]: "sud-ouest",
+      [ELocalisation.ouest]: "ouest",
+      [ELocalisation.nord_ouest]: "nord-ouest",
+      [ELocalisation.haut]: "monter",
+      [ELocalisation.bas]: "descendre",
+      [ELocalisation.interieur]: "entrer",
+      [ELocalisation.exterieur]: "sortir"
+    };
 
-    switch (localisation) {
-      case ELocalisation.nord:
-        retVal = "au nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.nord_est:
-        retVal = "au nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.est:
-        retVal = "à l’est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud_est:
-        retVal = "au sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud:
-        retVal = "au sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud_ouest:
-        retVal = "au sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.ouest:
-        retVal = "à l’ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.nord_ouest:
-        retVal = "au nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.haut:
-        retVal = "en haut" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.bas:
-        retVal = "en bas" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.interieur:
-        retVal = "devant" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.exterieur:
-        retVal = "dehors" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-
-      default:
-        retVal = localisation.toString();
+    const locString = localisationMap[localisation];
+    if (locString) {
+      retVal = `${locString} : ${(lieuDejaVisite || afficherLieuxInconnus || locString.match(/^monter|descendre|entrer$/)) ? `{+${titreLieu}+}` : '?'}` + obstacle;
+    } else {
+      retVal = localisation.toString();
     }
 
     return retVal;
