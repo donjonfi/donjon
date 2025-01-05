@@ -1277,8 +1277,6 @@ export class InstructionDire {
             if (statut.conditionDebutee === ConditionDebutee.si) {
               retVal = !statut.siVrai;
             } else if (statut.conditionDebutee === ConditionDebutee.fois) {
-              console.log("j’ai débuté un fois et là je suis dans le sinon !");
-
               retVal = !statut.siFois;
             } else {
               console.warn("[sinon] sans 'si' ou 'fois'.");

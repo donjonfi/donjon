@@ -771,8 +771,6 @@ export class ConditionsUtils {
             break;
 
           case 'existe':
-            console.log("@@@@@@@@@@@@@ existe ! condition=", condition);
-
             if (condition.complement == 'préposition') {
               if (condition.sujet.nom == 'ceci') {
                 // remarque: négation appliquée plus loin.
