@@ -227,6 +227,14 @@ export class ActionsUtils {
                   } else {
                     retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un être vivant";
                   }
+
+                  // devrait être un objet
+                } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
+                  if (argumentUnique) {
+                    retVal = "{/[Intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet.";
+                  } else {
+                    retVal = "{/[intitulé " + tokenCeciOuCela + "]/} [v être ipr pas " + tokenCeciOuCela + "] un objet.";
+                  }
                   // devrait être autre-chose
                 } else {
                   if (argumentUnique) {
@@ -290,6 +298,17 @@ export class ActionsUtils {
             } else {
               // todo: afficher ceci ?
               retVal = "L’argument n’est pas un concept connu.";
+            }
+            // s’il doit s’agir d’une direction
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.direction)) {
+            // direction trouvée
+            if (commandeCeci.localisation) {
+              // TODO: check états
+              retVal = "L’état de la direction {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              // pas de direction trouvée
+            } else {
+              // todo: on tombe ici avec commande examiner, l’erreur direction devrait pas être prioritaire mais bien objet.
+              retVal = "Je n’ai pas trouvé {/[Intitulé " + tokenCeciOuCela + "]/}.";
             }
             // s’il doit s’agir d’un INTITULÉ
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
@@ -540,14 +559,20 @@ export class ActionsUtils {
         // ÉLÉMENT
         if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.element)) {
           if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.personne)) {
-            // persone
+            // personne
             retVal = "quelqu’un";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.vivant)) {
             // vivant
             retVal = "un être vivant";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
             // objet
-            retVal = "quelque chose";
+            retVal = "un objet";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.lieu)) {
+            // lieu
+            retVal = "un lieu";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.special)) {
+            // inventaire
+            retVal = "l’inventaire";
           } else {
             // élément
             retVal = "quelque chose";
@@ -555,6 +580,8 @@ export class ActionsUtils {
         } else {
           if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
             retVal = "un compteur";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.direction)) {
+            retVal = "une direction";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
             retVal = "un sujet";
           } else {
@@ -591,7 +618,13 @@ export class ActionsUtils {
             retVal = "un être vivant";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.objet)) {
             // objet
-            retVal = "quelque chose";
+            retVal = "un objet";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.lieu)) {
+            // lieu
+            retVal = "un lieu";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.special)) {
+            // inventaire
+            retVal = "l’inventaire";
           } else {
             // élément
             retVal = "quelque chose";
@@ -599,6 +632,8 @@ export class ActionsUtils {
         } else {
           if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.compteur)) {
             retVal = "un compteur";
+          } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.direction)) {
+            retVal = "une direction";
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
             retVal = "un sujet";
           } else {
@@ -865,6 +900,11 @@ export class ActionsUtils {
               if (this.controllerEtatsElement(ele, candidatCeciCelaAction.priorite)) {
                 curScore += 75; // prioritaire
               }
+
+              // objets non visible moins prioritaires que ceux visibles
+              if (!this.controllerEtatsElement(ele, EEtatsBase.visible)) {
+                curScore -= 1; // secondaire car sur élément invisible
+              }
             }
 
             // meilleur score jusqu’à présent => remplace le précédent résultat
@@ -1003,7 +1043,7 @@ export class ActionsUtils {
    */
   private controllerEtatsElement(element: Concept, listeEtats: string) {
     let etats: string[];
-    // s’il y a des états à vérifire
+    // s’il y a des états à vérifier
     if (listeEtats) {
       let estListeEt = /\bet\b/.test(listeEtats);
       etats = PhraseUtils.separerListeIntitulesEtOu(listeEtats, true);
