@@ -143,10 +143,16 @@ export class Generateur {
           // TODO: gérer groupe nominal ?
           const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
           nouvConcept.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
-          if (nouvConcept.nombre == Nombre.p) {
-            nouvConcept.intituleP = nouvConcept.intitule;
-          } else {
-            nouvConcept.intituleS = nouvConcept.intitule;
+
+          switch (nouvConcept.nombre) {
+            case Nombre.tp:
+            case Nombre.p:
+              nouvConcept.intituleP = nouvConcept.intitule;
+              break;
+            case Nombre.s:
+            case Nombre.i:
+              nouvConcept.intituleS = nouvConcept.intitule;
+              break;
           }
           // autres propriétés
         } else {
@@ -215,7 +221,7 @@ export class Generateur {
           // TODO: gérer groupe nominal ?
           const groupeNominal = PhraseUtils.getGroupeNominalDefini(pro.valeur, false);
           nouvLieu.intitule = groupeNominal ? groupeNominal : new GroupeNominal(null, pro.valeur);
-          if (nouvLieu.nombre == Nombre.p) {
+          if (nouvLieu.nombre == Nombre.p || nouvLieu.nombre == Nombre.tp) {
             nouvLieu.intituleP = nouvLieu.intitule;
           } else {
             nouvLieu.intituleS = nouvLieu.intitule;
@@ -290,7 +296,7 @@ export class Generateur {
         if (pro.nom == 'intitulé') {
           // TODO: gérer groupe nominal ?
           joueur.intitule = new GroupeNominal(null, pro.valeur);
-          if (joueur.nombre == Nombre.p) {
+          if (joueur.nombre == Nombre.p || joueur.nombre == Nombre.tp) {
             joueur.intituleP = joueur.intitule;
           } else {
             joueur.intituleS = joueur.intitule;
@@ -394,6 +400,11 @@ export class Generateur {
           } else {
             newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
           }
+        } else if (curEle.nombre == Nombre.tp) {
+          // on a déjà le pluriel
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          // le singulier n’existe pas
+          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         }
 
         // parcourir les propriétés de l’objet
@@ -405,7 +416,7 @@ export class Generateur {
             const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(pro.valeur, false);
             if (intituleDecompose) {
               newObjet.intitule = intituleDecompose;
-              if (newObjet.nombre == Nombre.p) {
+              if (newObjet.nombre == Nombre.p || newObjet.nombre == Nombre.tp) {
                 newObjet.intituleP = newObjet.intitule;
               } else {
                 newObjet.intituleS = newObjet.intitule;
@@ -444,7 +455,7 @@ export class Generateur {
         if (newObjet.description === null) {
           // mettre un déterminant indéfini, sauf si intitulé sans déterminant.
           const detIndefini = newObjet.intitule.determinant ? ElementsJeuUtils.trouverDeterminantIndefini(newObjet) : "";
-          if (newObjet.nombre == Nombre.p) {
+          if (newObjet.nombre == Nombre.p || newObjet.nombre == Nombre.tp) {
             newObjet.description = "Ce sont " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
           } else {
             newObjet.description = "C’est " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";

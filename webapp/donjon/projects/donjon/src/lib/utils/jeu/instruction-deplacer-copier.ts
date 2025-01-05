@@ -157,6 +157,9 @@ export class InstructionDeplacerCopier {
         // définir la quantité et le nombre de la copie
         copie.quantite = quantite;
         copie.nombre = (quantite === 1) ? Nombre.s : Nombre.p; // quantité ne devrait jamais valoir 0 !
+        if (objetSource.nombre === Nombre.tp) {
+          copie.nombre = Nombre.tp;
+        }
         // définir la position de la copie
         copie.position = nouvellePosition;
         objetDeplace = copie;
@@ -174,6 +177,9 @@ export class InstructionDeplacerCopier {
             // console.log("exectuterDeplacerObjetVersDestination > cas 3b");
             exemplaireDejaContenu.quantite += quantite;
             exemplaireDejaContenu.nombre = Nombre.p;
+          }
+          if (objetSource.nombre === Nombre.tp) {
+            exemplaireDejaContenu.nombre = Nombre.tp;
           }
         } else {
           // console.log("exectuterDeplacerObjetVersDestination > cas 3c");
@@ -198,7 +204,7 @@ export class InstructionDeplacerCopier {
         // diminuer quantité
         objetSource.quantite -= quantite;
         // vérifier le genre
-        if (objetSource.quantite === 1) {
+        if (objetSource.quantite === 1 && objetSource.nombre != Nombre.tp) {
           objetSource.nombre = Nombre.s;
         }
       }

@@ -126,7 +126,7 @@ export class CompteursUtils {
                 const intituleDecompose = PhraseUtils.getGroupeNominalDefiniOuIndefini(nouvelleValeur, false);
                 if (intituleDecompose) {
                   compteurOuPropriete.parent.intitule = intituleDecompose;
-                  if (compteurOuPropriete.parent.nombre == Nombre.p) {
+                  if (compteurOuPropriete.parent.nombre == Nombre.p || compteurOuPropriete.parent.nombre == Nombre.tp) {
                     compteurOuPropriete.parent.intituleP = compteurOuPropriete.parent.intitule;
                     compteurOuPropriete.parent.intituleS = null;
                   } else {

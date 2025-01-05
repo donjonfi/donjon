@@ -36,29 +36,27 @@ export class AnalyseurElementSimple {
     if (result !== null) {
       let genreSingPlur = result[4];
       let estFeminin = false;
+      let estToujoursPluriel = false;
       let autreForme: string = null;
       if (genreSingPlur) {
         // retirer parenthèses
         genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
         // séparer les arguments sur la virgule
         const argSupp = genreSingPlur.split(',');
-        // le premier argument est le signe féminin
-        if (argSupp[0].trim() === 'f') {
-          estFeminin = true;
-          // le premier argument est l'autre forme (singulier ou pluriel)
-        } else {
-          autreForme = argSupp[0].trim();
-        }
-        // s'il y a 2 arguments
-        if (argSupp.length > 1) {
-          // le 2e argument est le signe féminin
-          if (argSupp[1].trim() === 'f') {
+
+        argSupp.forEach(arg => {
+          if (arg.trim() == 'f') {
+            // il s’agit d’un mot féminin (f)
             estFeminin = true;
-            // le 2e argument est l'autre forme (singulier ou pluriel)
+          } else if (arg.trim() == 'tp') {
+            // toujours pluriel (tp)
+            estToujoursPluriel = true;
           } else {
-            autreForme = argSupp[1].trim();
+            // autre forme (singulier ou pluriel)
+            autreForme = arg.trim();
           }
-        }
+        });
+
       }
 
       determinant = result[1] ? result[1].toLowerCase() : null;
@@ -66,12 +64,12 @@ export class AnalyseurElementSimple {
       epithete = result[3];
       intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
       genre = MotUtils.getGenre(result[1], estFeminin);
-      nombre = MotUtils.getNombre(result[1]);
+      nombre = MotUtils.getNombre(result[1], estToujoursPluriel);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
       initialiseA = result[7];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
-      if(initialiseA){
+      if (initialiseA) {
         attributs.push(initialiseA);
       }
       position = null;
@@ -107,29 +105,27 @@ export class AnalyseurElementSimple {
         // (f) / (f, autre forme) / (autre forme)
         let genreSingPlur = result[4];
         let estFeminin = false;
+        let estToujoursPluriel = false;
         let autreForme: string = null;
         if (genreSingPlur) {
           // retirer parenthèses
           genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
           // séparer les arguments sur la virgule
           const argSupp = genreSingPlur.split(',');
-          // le premier argument est le signe féminin
-          if (argSupp[0].trim() == 'f') {
-            estFeminin = true;
-            // le premier argument est l'autre forme (singulier ou pluriel)
-          } else {
-            autreForme = argSupp[0].trim();
-          }
-          // s'il y a 2 arguments
-          if (argSupp.length > 1) {
-            // le 2e argument est le signe féminin
-            if (argSupp[1].trim() == 'f') {
+
+          argSupp.forEach(arg => {
+            if (arg.trim() == 'f') {
+              // il s’agit d’un mot féminin (f)
               estFeminin = true;
-              // le 2e argument est l'autre forme (singulier ou pluriel)
+            } else if (arg.trim() == 'tp') {
+              // toujours pluriel (tp)
+              estToujoursPluriel = true;
             } else {
-              autreForme = argSupp[1].trim();
+              // autre forme (singulier ou pluriel)
+              autreForme = arg.trim();
             }
-          }
+          });
+
         }
 
         // attributs ?
@@ -147,7 +143,7 @@ export class AnalyseurElementSimple {
           null,
           [],
           MotUtils.getGenre(result[1], estFeminin),
-          MotUtils.getNombre(result[1]),
+          MotUtils.getNombre(result[1], estToujoursPluriel),
           MotUtils.getQuantite(result[1], 1),
           (attributs ? attributs : new Array<string>()),
         );

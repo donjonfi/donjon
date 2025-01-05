@@ -67,13 +67,21 @@ export class InstructionsUtils {
               // => identique à l’original (sauf si original est illimité)
             } else if (cibleEle.quantite == -1) {
               if ((contexteTour.ceci as Objet).quantite == -1) {
-                cibleEle.nombre = Nombre.s; // TODO: indénombrables
+                if ((contexteTour.ceci as Objet).nombre == Nombre.tp) {
+                  cibleEle.nombre = Nombre.tp; // TODO: indénombrables
+                }else {
+                  cibleEle.nombre = Nombre.s; // TODO: indénombrables
+                }
               } else {
                 cibleEle.nombre = (contexteTour.ceci as Objet).nombre;
               }
               // => 0 ou 1
             } else {
-              cibleEle.nombre = Nombre.s;
+              if ((contexteTour.ceci as Objet).nombre == Nombre.tp) {
+                cibleEle.nombre = Nombre.tp;
+              }else {
+                cibleEle.nombre = Nombre.s;
+              }
             }
           }
           break;

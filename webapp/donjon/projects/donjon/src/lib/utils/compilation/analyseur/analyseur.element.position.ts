@@ -30,6 +30,7 @@ export class AnalyseurElementPosition {
     let attributsString: string;
     let genreSingPlur: string;
     let estFeminin: boolean;
+    let estToujoursPluriel: boolean;
     let autreForme: string;
     let attributs: string[];
     let nombre: Nombre;
@@ -41,30 +42,27 @@ export class AnalyseurElementPosition {
       // console.log("testerPosition", result);
       genreSingPlur = result[4];
       estFeminin = false;
+      estToujoursPluriel = false;
       autreForme = null;
       if (genreSingPlur) {
         // retirer parenthèses
         genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
         // séparer les arguments sur la virgule
         const argSupp = genreSingPlur.split(',');
-        // le premier argument est le signe féminin
-        if (argSupp[0].trim() === 'f') {
-          estFeminin = true;
-          // le premier argument est l'autre forme (singulier ou pluriel)
-        } else {
-          autreForme = argSupp[0].trim();
-        }
-        // s'il y a 2 arguments
-        if (argSupp.length > 1) {
-          // le 2e argument est le signe féminin
-          // TODO: épithète
-          if (argSupp[1].trim() === 'f') {
+
+        argSupp.forEach(arg => {
+          if (arg.trim() == 'f') {
+            // il s’agit d’un mot féminin (f)
             estFeminin = true;
-            // le 2e argument est l'autre forme (singulier ou pluriel)
+          } else if (arg.trim() == 'tp') {
+            // toujours pluriel (tp)
+            estToujoursPluriel = true;
           } else {
-            autreForme = argSupp[1].trim();
+            // autre forme (singulier ou pluriel)
+            autreForme = arg.trim();
           }
-        }
+        });
+
       }
 
       determinant = result[1] ? result[1].toLowerCase() : null;
@@ -77,7 +75,7 @@ export class AnalyseurElementPosition {
       } else {
         attributs = [];
       }
-      
+
       position = null;
 
       // => ici (dernier lieu défini) ou dessus/dedans/dessous (dernier objet défini)
@@ -87,7 +85,7 @@ export class AnalyseurElementPosition {
           // ICI
           case 'ici':
             if (ctx.dernierLieu) {
-              if (ctx.dernierLieu.nom !== nom || ctx.dernierLieu.epithete !== epithete ) {
+              if (ctx.dernierLieu.nom !== nom || ctx.dernierLieu.epithete !== epithete) {
                 position = new PositionSujetString(
                   // sujet
                   nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
@@ -147,7 +145,7 @@ export class AnalyseurElementPosition {
         // genre
         MotUtils.getGenre(determinant, estFeminin),
         // nombre
-        MotUtils.getNombre(determinant),
+        MotUtils.getNombre(determinant, estToujoursPluriel),
         // quantité
         MotUtils.getQuantite(determinant, 1),
         attributs,
@@ -185,7 +183,6 @@ export class AnalyseurElementPosition {
         // selon le type de résultat ("il y a un xxx" ou "un xxx est")
         let offset = result[1] ? 0 : 4;
         determinant = result[1 + offset]?.toLowerCase() ?? null;
-        nombre = MotUtils.getNombre(determinant);
         nom = result[2 + offset];
         epithete = result[3 + offset];
         genreSingPlur = result[4 + offset];
@@ -195,6 +192,7 @@ export class AnalyseurElementPosition {
         // si la valeur d'attribut est entre parenthèses, ce n'est pas un attribut
         // mais une indication de genre et/ou singulier/pluriel.
         estFeminin = false;
+        estToujoursPluriel = false;
         autreForme = null;
 
         if (genreSingPlur) {
@@ -202,26 +200,23 @@ export class AnalyseurElementPosition {
           genreSingPlur = genreSingPlur.slice(1, genreSingPlur.length - 1);
           // séparer les arguments sur la virgule
           const argSupp = genreSingPlur.split(',');
-          // le premier argument est le signe féminin
-          if (argSupp[0].trim() === 'f') {
-            estFeminin = true;
-            // le premier argument est l'autre forme (singulier ou pluriel)
-          } else {
-            autreForme = argSupp[0].trim();
-          }
-          // s'il y a 2 arguments
-          if (argSupp.length > 1) {
-            // le 2e argument est le signe féminin
-            if (argSupp[1].trim() === 'f') {
+          argSupp.forEach(arg => {
+            if (arg.trim() == 'f') {
+              // il s’agit d’un mot féminin (f)
               estFeminin = true;
-              // le 2e argument est l'autre forme (singulier ou pluriel)
+            } else if (arg.trim() == 'tp') {
+              // toujours pluriel (tp)
+              estToujoursPluriel = true;
             } else {
-              autreForme = argSupp[1].trim();
+              // autre forme (singulier ou pluriel)
+              autreForme = arg.trim();
             }
-          }
+          });
         }
 
         genre = MotUtils.getGenre(determinant, estFeminin);
+        nombre = MotUtils.getNombre(determinant, estToujoursPluriel);
+
         // retrouver les attributs
         attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
 

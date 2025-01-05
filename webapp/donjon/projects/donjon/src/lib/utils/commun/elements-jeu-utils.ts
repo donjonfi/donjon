@@ -57,17 +57,29 @@ export class ElementsJeuUtils {
 
       // indénombrable
       if (this.jeu.etats.possedeEtatElement(ceci, EEtatsBase.indenombrable, this)) {
-        if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
-          determinant = "de l’";
+
+        console.log("Test TP:", ceci.nombre);
+        
+
+        if (ceci.nombre == Nombre.tp) {
+          determinant = "des ";
+          nom = ceci.intitule.nom;
+          epithete = ceci.intitule.epithete ?? "";
         } else {
-          if (ceci.genre === Genre.f) {
-            determinant = "de la ";
+          if (ExprReg.xCommenceParUneVoyelle.test(nom)) {
+            determinant = "de l’";
           } else {
-            determinant = "du ";
+            if (ceci.genre === Genre.f) {
+              determinant = "de la ";
+            } else {
+              determinant = "du ";
+            }
           }
+          nom = ceci.intituleS.nom;
+          epithete = ceci.intituleS.epithete ?? "";
         }
-        nom = ceci.intituleS.nom;
-        epithete = ceci.intituleS.epithete ?? "";
+
+
         // dénombrable
       } else {
         // 1 exemplaire => un/une ou le/la selon le contexte
@@ -153,6 +165,7 @@ export class ElementsJeuUtils {
     switch (el.nombre) {
       // pluriel
       case Nombre.p:
+      case Nombre.tp:
         return "des ";
 
       // singulier
@@ -396,7 +409,7 @@ export class ElementsJeuUtils {
               // A) Porte
               if (ClasseUtils.heriteDe(curObstacle.classe, EClasseRacine.porte)) {
                 // (une porte invisible ne rend pas le voisin invisible mais va empêcher d'y accéder)
-                
+
                 // B) Autre type d’obstacle
               } else {
                 // si l’obstacle est couvrant, le voisin ne doit pas être ajouté à la liste (il est caché).
@@ -661,7 +674,8 @@ export class ElementsJeuUtils {
         // 3. Chercher parmi les objets
 
         // déterminer si le mot à chercher est au pluriel
-        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
+        // TODO: tenir compte de ToujoursPluriel ?
+        const nombre = sujet.determinant ? MotUtils.getNombre(sujet.determinant, false) : ((MotUtils.estFormePlurielle(sujet.nom) && (!sujet.epithete || MotUtils.estFormePlurielle(sujet.epithete))) ? Nombre.p : Nombre.s);
 
         if (typeSujet === TypeSujet.SujetEstIntitule) {
           // TODO: comparer score des objets avec score des autres types d’éléments.
@@ -708,7 +722,7 @@ export class ElementsJeuUtils {
         } else {
           cor.concepts = this.trouverConceptSurIntituleAvecScore(sujet)[1];
         }
-        cor.nbCor +=  cor.concepts.length;
+        cor.nbCor += cor.concepts.length;
 
       }
       // if (this.verbeux) {
@@ -975,6 +989,7 @@ export class ElementsJeuUtils {
             intituleOriginal = obj.intituleS;
             break;
           case Nombre.p:
+          case Nombre.tp:
             intituleOriginal = obj.intituleP;
             break;
         }
@@ -1036,6 +1051,7 @@ export class ElementsJeuUtils {
           break;
 
         case Nombre.p:
+        case Nombre.tp:
           if (obj.intituleP?.nom?.toLowerCase() === sujetNom && (sujetEpithete == obj.intituleP?.epithete?.toLowerCase())) {
             retVal.push(obj);
             dejaAjoute = true;
@@ -1245,7 +1261,9 @@ export class ElementsJeuUtils {
    */
   copierObjet(original: Objet) {
     let copie = new Objet(0, original.nom, original.intitule, original.classe, 1, original.genre, Nombre.s);
-
+    if (original.nombre == Nombre.tp) {
+      copie.nombre = Nombre.tp;
+    }
     copie.intituleS = original.intituleS;
     copie.intituleP = original.intituleP;
     // retrouver id de l’objet original

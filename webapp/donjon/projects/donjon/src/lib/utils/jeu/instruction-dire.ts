@@ -450,12 +450,12 @@ export class InstructionDire {
                 // es ceci | accord ceci (féminin et pluriel)
                 case 'accord':
                 case 'es':
-                  resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // s ceci (pluriel)
                 case 's':
-                  resultat = (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // e ceci (féminin)
@@ -467,7 +467,7 @@ export class InstructionDire {
                 case 'pronom':
                 case 'il':
                   if (ClasseUtils.heriteDe(cibleElement.classe, EClasseRacine.element)) {
-                    resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                    resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   } else {
                     console.error("calculerTexteDynamique: pronom ceci: ceci n'est pas un élément.");
                   }
@@ -476,19 +476,19 @@ export class InstructionDire {
                 // pronom (majuscule)
                 case 'Pronom':
                 case 'Il':
-                  resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // cod: l’ ou les
                 case 'l’':
                 case 'l\'':
-                  resultat = (cibleElement.nombre === Nombre.p ? "les " : "l’");
+                  resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "les " : "l’");
                   break;
 
                 // cod: le, la ou les
                 case 'le':
                   // singulier
-                  if (cibleElement.nombre !== Nombre.p) {
+                  if (cibleElement.nombre !== Nombre.p && cibleElement.nombre !== Nombre.tp) {
                     // masculin
                     if (cibleElement.genre !== Genre.f) {
                       resultat = "le";
@@ -1364,7 +1364,7 @@ export class InstructionDire {
     if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
       console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
     }
-    const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
+    const personne = ((sujet as ElementJeu).nombre == Nombre.p || (sujet as ElementJeu).nombre == Nombre.tp) ? "3pp" : "3ps";
 
     // si temps avec auxiliaire c’est facile on doit juste conjuguer être/avoir puis ajouter le PP.
     // => on peut le traiter comme n’importe quel verbe régulier
@@ -1635,7 +1635,7 @@ export class InstructionDire {
           if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant)) {
             // si le contenant est fermé => (fermé)
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.fermeID)) {
-              resultat.sortie += " (fermé" + (obj.genre == Genre.f ? 'e' : '') + (obj.nombre == Nombre.p ? 's' : '') + ")";
+              resultat.sortie += " (fermé" + (obj.genre == Genre.f ? 'e' : '') + (obj.nombre == Nombre.p || obj.nombre == Nombre.tp ? 's' : '') + ")";
             }
 
             // si on peut voir le contenu du contenant => contenu / (vide)
@@ -1646,7 +1646,7 @@ export class InstructionDire {
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
-                resultat.sortie += " (vide" + (obj.nombre == Nombre.p ? 's' : '') + ")";
+                resultat.sortie += " (vide" + (obj.nombre == Nombre.p || obj.nombre == Nombre.tp ? 's' : '') + ")";
               }
             }
           }
@@ -1823,7 +1823,7 @@ export class InstructionDire {
                 // porte
                 if (ClasseUtils.heriteDe(curPorteObstacle.classe, EClasseRacine.porte)) {
                   // par défaut, afficher le nom de la porte et ouvert/fermé.
-                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " sont " : " est ");
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p || curPorteObstacle.nombre == Nombre.tp ? " sont " : " est ");
                   if (this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.ouvertID)) {
                     resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorteObstacle, this.jeu.etats.ouvertID)
                   } else {
@@ -1832,7 +1832,7 @@ export class InstructionDire {
                   resultat.sortie += ".";
                   // obstacle
                 } else {
-                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " bloquent" : " bloque") + " la sortie (" + Localisation.getLocalisation(voisin.localisation) + ").";
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p || curPorteObstacle.nombre == Nombre.tp ? " bloquent" : " bloque") + " la sortie (" + Localisation.getLocalisation(voisin.localisation) + ").";
                 }
 
               }
@@ -1888,7 +1888,7 @@ export class InstructionDire {
         // => idElementsDejaMentionnes.push(obstacle.id);
         // sinon on affiche texte auto.
       } else {
-        retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";
+        retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p || obstacle.nombre == Nombre.tp ? " sont" : " est") + " dans le chemin.";
       }
     } else {
       // trouver la porte qui est dans le chemin
