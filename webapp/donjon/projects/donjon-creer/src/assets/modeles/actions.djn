@@ -69,13 +69,38 @@ L'aide pour l'action afficher est "{*Afficher*}
   {+raccourcis+} : {-aide-}, {-sor-}, {-i-}".
 
 -- ================================
---   ALLER (vers direction, lieu)
+--   ALLER (vers direction)
 -- ================================
 
 action aller vers ceci:
 
   définitions:
-    ceci est un intitulé.
+    ceci est une direction.
+    Le joueur est déplacé vers ceci.
+    L’action déplace le joueur vers ceci.
+
+  phase prérequis:
+    si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
+    si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
+    si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
+
+  phase exécution:
+    déplacer le joueur vers ceci.
+
+  phase épilogue:
+    exécuter l’action regarder.
+
+fin action
+
+-- ================================
+--   ALLER (vers lieu)
+-- ================================
+
+action aller vers ceci:
+
+  définitions:
+    ceci est un lieu.
     Le joueur est déplacé vers ceci.
     L’action déplace le joueur vers ceci.
 
@@ -84,7 +109,7 @@ action aller vers ceci:
     si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
     si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
     si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
-    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas aller par là.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
 
   phase exécution:
     déplacer le joueur vers ceci.

@@ -1896,21 +1896,14 @@ export class InstructionDire {
       if (porteID !== -1) {
         const porte = this.eju.getObjet(porteID);
         const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
-        // const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
-        // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
-        if (porte.genre == Genre.f) {
-          if (ouvert) {
-            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
-            retVal = texteSiAucunObstacle;
-          } else {
-            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermée.";
-          }
+        const invisible = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+        if (ouvert) {
+          retVal = texteSiAucunObstacle;
         } else {
-          if (ouvert) {
-            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
-            retVal = texteSiAucunObstacle;
+          if (invisible) {
+            retVal = 'Je ne vois pas comment y accéder.';
           } else {
-            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermé.";
+            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + ` est fermé${porte.genre == Genre.f ? 'e' : ''}.`;
           }
         }
       }
