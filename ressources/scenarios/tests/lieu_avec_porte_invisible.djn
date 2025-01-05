@@ -1,0 +1,11 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Élément toujours pluriel".
+L’auteur du jeu est "DonjonFI".
+
+Activer l'affichage des lieux inconnus.
+
+Le salon est un lieu.
+Sa description est "Il y a un placard [@ placard] dans un coin mais vous ne voyez pas comment l’ouvrir.".
+La porte du placard est une porte invisible et fermée au nord du salon.
+Le placard est un lieu au nord du salon.
+L’aperçu du placard est "Un grand placard.".
