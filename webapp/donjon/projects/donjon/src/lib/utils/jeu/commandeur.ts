@@ -275,6 +275,9 @@ export class Commandeur {
     } else if (actionsCeciCela.length > 1) {
       ctx.commandeValidee = false;
 
+      console.warn("Plusieurs actions avec le même score trouvées pour cette commande : ", actionsCeciCela);
+      
+
       // ce candidat de commande ne peut pas être exécuté.
       ctx.sortie = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + candidatCommande.els.infinitif + ").+}";
 
