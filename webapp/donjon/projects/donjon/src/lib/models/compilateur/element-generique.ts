@@ -10,6 +10,11 @@ import { RoutineReaction } from './routine-reaction';
 
 export class ElementGenerique implements ElementDonjon {
 
+  /** Numéro de ligne dans le scénario où cet élément est défini. 
+   * -1 si l'élément n'est pas défini explicitement dans le scénario.
+   */
+  public numeroLigne: number = -1;
+
   public description: string = null;
   // public apercu: string = null;
   // public texte: string = null;
@@ -53,14 +58,14 @@ export class ElementGenerique implements ElementDonjon {
     return this._positionString;
   }
 
- // Ajoute les positions si elles ne sont pas déjà présente
- public ajouterPositionsString(nouvPositions: ReadonlyArray<PositionSujetString>) {
+  // Ajoute les positions si elles ne sont pas déjà présente
+  public ajouterPositionsString(nouvPositions: ReadonlyArray<PositionSujetString>) {
 
-  nouvPositions.forEach(nouvPosition => {
-    this.ajouterPositionString(nouvPosition);
-  });
+    nouvPositions.forEach(nouvPosition => {
+      this.ajouterPositionString(nouvPosition);
+    });
 
-}
+  }
 
 
   // Ajoute la position si elle n’est pas déjà présente

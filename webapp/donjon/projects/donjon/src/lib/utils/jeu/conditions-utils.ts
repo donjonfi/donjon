@@ -771,8 +771,6 @@ export class ConditionsUtils {
             break;
 
           case 'existe':
-            console.log("@@@@@@@@@@@@@ existe ! condition=", condition);
-
             if (condition.complement == 'préposition') {
               if (condition.sujet.nom == 'ceci') {
                 // remarque: négation appliquée plus loin.
@@ -1036,10 +1034,9 @@ export class ConditionsUtils {
             // une porte
           } else {
             const porte = this.eju.getObjet(porteID);
-            // si on teste « existe sortie » tout court, il y a une sortie (sauf si porte invisible fermée.)
+            // si on teste « existe sortie » tout court, il y a une sortie
             if (!condition.sujetComplement.epithete) {
-              // retVal = !this.jeu.etats.possedeCesEtatsElement(porte, EEtatsBase.invisible, EEtatsBase.ferme, LienCondition.et, this.eju);
-              retVal = !(!this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.visibleID, this.eju) && this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.fermeID, this.eju));
+              retVal = true;
               // si on test « existe sortie accessible », il faut que la porte soit ouverte pour retourner vrai.
             } else if (condition.sujetComplement.epithete == 'accessible') {
               retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ouvert, this.eju);

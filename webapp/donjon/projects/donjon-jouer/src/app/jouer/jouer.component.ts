@@ -9,9 +9,10 @@ import { environment } from '../../environments/environment';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-jouer',
-  templateUrl: './jouer.component.html',
-  styleUrls: ['./jouer.component.scss']
+    selector: 'app-jouer',
+    templateUrl: './jouer.component.html',
+    styleUrls: ['./jouer.component.scss'],
+    standalone: false
 })
 export class JouerComponent implements OnInit {
 

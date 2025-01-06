@@ -504,7 +504,8 @@ export class ListeEtats {
       if (nomEtat === 'visible' || nomEtat === 'visibles') {
         // lieu
         if (ClasseUtils.heriteDe(element.classe, EClasseRacine.lieu)) {
-          return element.id == eju.curLieu.id;
+          // lieu visible si lieu courant ou adjacent et pas invisible
+          return (element.id == eju.curLieu.id || (this.possedeEtatIdElement(element, this.adjacentID, eju) && !this.possedeEtatIdElement(element, this.invisibleID, eju))); ;
           // objet
         } else if (ClasseUtils.heriteDe(element.classe, EClasseRacine.objet)) {
           return this.estVisible((element as Objet), eju);

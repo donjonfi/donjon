@@ -4,9 +4,10 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { ObjetPresent } from '../models/objet-present';
 
 @Component({
-  selector: 'app-visu-detail-objet',
-  templateUrl: './visu-detail-objet.component.html',
-  styleUrls: ['./visu-detail-objet.component.scss']
+    selector: 'app-visu-detail-objet',
+    templateUrl: './visu-detail-objet.component.html',
+    styleUrls: ['./visu-detail-objet.component.scss'],
+    standalone: false
 })
 export class VisuDetailObjetComponent implements OnInit, OnChanges {
 

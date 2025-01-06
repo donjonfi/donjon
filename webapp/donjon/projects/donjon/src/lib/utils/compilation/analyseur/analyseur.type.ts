@@ -64,7 +64,7 @@ export class AnalyseurType {
                 ctxAnalyse.typesUtilisateur.set(nouveauTypeNom, new Definition(
                     nouveauTypeIntitule,
                     typeParent,
-                    MotUtils.getNombre(determinant),
+                    MotUtils.getNombre(determinant, false),
                     nouveauxAttributs
                 ));
             }
@@ -112,7 +112,7 @@ export class AnalyseurType {
                 ctxAnalyse.typesUtilisateur.set(typeNom, new Definition(
                     typeIntitule,
                     EClasseRacine.objet, // objet par défaut
-                    MotUtils.getNombre(determinant),
+                    MotUtils.getNombre(determinant, false),
                     nouveauxAttributs
                 ));
             }

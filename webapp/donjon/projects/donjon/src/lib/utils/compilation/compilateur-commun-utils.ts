@@ -87,7 +87,11 @@ export class CompilateurCommunUtils {
         }
         // lieux
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
-        ctx.monde.lieux.push(el);
+        if(ctx.monde.lieux.find(x => x.nom == el.nom)) {
+          ctx.analyse.ajouterErreur(el.numeroLigne, `Plusieurs lieux portent ce nom : « ${el.nom} ».`);
+        }else{
+          ctx.monde.lieux.push(el);
+        }
         // spécial
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.special)) {
         // spécial: sous-dossier pour les ressources du jeu

@@ -12,7 +12,10 @@ export class ContexteGeneration {
     return this._erreurs;
   }
 
-  public ajouterErreur(erreur: string) {
+  public ajouterErreur(erreur: string, ligne: number | undefined = undefined) {
+    if(ligne){
+      erreur = `ligne ${("0000" + ligne).slice(-5)} : ${erreur}`;
+    }
     this._erreurs.push("Génération: " + erreur);
     console.error(erreur);
   }

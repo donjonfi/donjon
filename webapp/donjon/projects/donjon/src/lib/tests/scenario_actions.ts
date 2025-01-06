@@ -1,5 +1,7 @@
+
+export const actions = `
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-01-05-030100
+-- Version: 2024-11-16-030004
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -69,38 +71,13 @@ L'aide pour l'action afficher est "{*Afficher*}
   {+raccourcis+} : {-aide-}, {-sor-}, {-i-}".
 
 -- ================================
---   ALLER (vers direction)
+--   ALLER (vers direction, lieu)
 -- ================================
 
 action aller vers ceci:
 
   définitions:
-    ceci est une direction.
-    Le joueur est déplacé vers ceci.
-    L’action déplace le joueur vers ceci.
-
-  phase prérequis:
-    si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
-    si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
-    si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
-    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
-
-  phase exécution:
-    déplacer le joueur vers ceci.
-
-  phase épilogue:
-    exécuter l’action regarder.
-
-fin action
-
--- ================================
---   ALLER (vers lieu)
--- ================================
-
-action aller vers ceci:
-
-  définitions:
-    ceci est un lieu.
+    ceci est un intitulé.
     Le joueur est déplacé vers ceci.
     L’action déplace le joueur vers ceci.
 
@@ -109,7 +86,7 @@ action aller vers ceci:
     si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
     si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
     si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
-    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas aller par là.".
 
   phase exécution:
     déplacer le joueur vers ceci.
@@ -518,56 +495,10 @@ fin action
 -- ============
 --   EXAMINER
 -- ============
-
 action examiner ceci:
 
   définitions:
-    Ceci est une direction.
-
-  phase prérequis:
-    si ceci n’est pas une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
-
-  phase exécution:
-    -- s’il n’y a rien dans cette direction
-    si aucune sortie n’existe vers ceci:
-      dire "Il n’y a rien dans cette direction.".
-    -- s’il y a un lieu avec un aperçu dans cette direction
-    sinonsi un aperçu existe pour ceci:
-      dire "[aperçu ceci]".
-    -- s’il y a un lieu sans aperçu dans cette direction
-    sinon
-      dire "Le mieux est de se rendre vers [intitulé ceci].".
-    fin si
-fin action
-
-action examiner ceci:
-
-  définitions:
-    Ceci est un lieu prioritairement visible et mentionné.
-
-  phase exécution:
-    -- > lieu actuel
-    si le joueur se trouve dans ceci:
-      exécuter l’action regarder.
-    -- > lieu adjacent
-    sinon
-      -- >> avec aperçu
-      si un aperçu existe pour ceci:
-        dire "[aperçu ceci]".
-      -- >> sans aperçu, déjà visité
-      sinonsi ceci est visité:
-        dire "Il faudrait y retourner.".
-      -- >> sans aperçu, pas encore visité
-      sinon
-        dire "Pour en savoir plus, il faut s’y rendre.".
-      fin si
-    fin si
-fin action
-
-action examiner ceci:
-
-  définitions:
-    Ceci est un objet prioritairement visible et mentionné.
+    Ceci est un intitulé prioritairement mentionné.
 
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
@@ -604,30 +535,51 @@ action examiner ceci:
         fin si
       fin si
       -- >> objet pas accessible
-      si ceci n'est pas accessible, 
+      si ceci n'est ni accessible ni l’inventaire, 
         dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
+      -- >> inventaire
+      si ceci est l’inventaire,
+        dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     -- lieu
     sinonsi ceci est un lieu :
-     
+      -- > lieu actuel
+      si le joueur se trouve dans ceci:
+        exécuter l’action regarder.
+      -- > lieu adjacent
+      sinon
+        -- >> avec aperçu
+        si un aperçu existe pour ceci:
+          dire "[aperçu ceci]".
+        -- >> sans aperçu, déjà visité
+        sinonsi ceci est visité:
+          dire "Il faudrait y retourner.".
+        -- >> sans aperçu, pas encore visité
+        sinon
+          dire "Pour en savoir plus, il faut s’y rendre.".
+        fin si
+      fin si
     -- direction
     sinonsi ceci est une direction:
-   
+      -- s’il n’y a rien dans cette direction
+      si aucune sortie n’existe vers ceci:
+        dire "Il n’y a rien dans cette direction.".
+      -- s’il y a un lieu avec un aperçu dans cette direction
+      sinonsi un aperçu existe pour ceci:
+        dire "[aperçu ceci]".
+      -- s’il y a un lieu sans aperçu dans cette direction
+      sinon
+        dire "Le mieux est de se rendre vers [intitulé ceci].".
+      fin si
+    -- inventaire
+    sinonsi ceci est l’inventaire:
+      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     -- inconnu
     sinon
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
     fin si    
 fin action
 
-action examiner ceci:
-  définitions:
-    Ceci est un spécial.
-  
-  phase prérequis:
-    si ceci n’est pas l’inventaire, refuser "Je ne comprends pas ce que vous voulez examiner.".
 
-  phase exécution:
-    exécuter la commande "afficher l’inventaire".
-fin action
 
 L'aide pour l'action examiner est "{*Examiner*}
   Permet d'examiner un élément du jeu pour avoir des détails ou trouver un objet.
@@ -1392,44 +1344,4 @@ interpréter observer comme regarder.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
 
--- -- ============
--- --   X
--- -- ============
-
--- action x:
-
---   phase prérequis:
-
---   phase exécution:
-
---   phase épilogue:
-
--- fin action
-
--- -- ============
--- --   X
--- -- ============
-
--- action x:
-
---   phase épilogue:
-
--- fin action
-
-
--- -- ============
--- --   X
--- -- ============
-
--- action x ceci:
-
---   définitions:
-
---   phase prérequis:
-
---   phase exécution:
-
---   phase épilogue:
-
--- fin action
-
+`;

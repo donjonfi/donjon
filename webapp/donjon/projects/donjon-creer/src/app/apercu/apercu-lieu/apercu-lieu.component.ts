@@ -2,9 +2,10 @@ import { Classe, ClasseUtils, ElementGenerique } from 'donjon';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-apercu-lieu',
-  templateUrl: './apercu-lieu.component.html',
-  styleUrls: ['./apercu-lieu.component.scss']
+    selector: 'app-apercu-lieu',
+    templateUrl: './apercu-lieu.component.html',
+    styleUrls: ['./apercu-lieu.component.scss'],
+    standalone: false
 })
 export class ApercuLieuComponent implements OnInit {
 

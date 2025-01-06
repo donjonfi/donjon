@@ -17,9 +17,10 @@ import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
 
 @Component({
-  selector: 'djn-lecteur',
-  templateUrl: './lecteur.component.html',
-  styleUrls: ['./lecteur.component.scss']
+    selector: 'djn-lecteur',
+    templateUrl: './lecteur.component.html',
+    styleUrls: ['./lecteur.component.scss'],
+    standalone: false
 })
 export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 

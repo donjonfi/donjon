@@ -6,9 +6,10 @@ import { ObjetPresent } from '../models/objet-present';
 import { ObstacleVoisin } from '../models/obstacle-voisin';
 
 @Component({
-  selector: 'app-visu-lieu',
-  templateUrl: './visu-lieu.component.html',
-  styleUrls: ['./visu-lieu.component.scss']
+    selector: 'app-visu-lieu',
+    templateUrl: './visu-lieu.component.html',
+    styleUrls: ['./visu-lieu.component.scss'],
+    standalone: false
 })
 export class VisuLieuComponent implements OnInit, OnChanges {
 

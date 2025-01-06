@@ -629,6 +629,7 @@ export class AnalyseurV8Routines {
     } else {
       resultatTrouve = ExprReg.rDefinitionComplementActionEtatPrioritaire.exec(phraseBrute);
       if (resultatTrouve) {
+        // prioritairement
         typeResultat = TypeResultatDefinitionAction.etatsPrioritaires
       } else {
         resultatTrouve = ExprReg.rDefinitionComplementActionElementJeu.exec(phraseBrute);
@@ -689,12 +690,12 @@ export class AnalyseurV8Routines {
           cibleSujet.nom = resultatTrouve[3];
           // états requis
           cibleSujet.epithete = resultatTrouve[4] ?? undefined;
-          // états prioritaires
+          // états prioritaires (prioritairement)
           cibleSujet.priorite = resultatTrouve[5] ?? undefined;
           break;
 
         case TypeResultatDefinitionAction.etatsPrioritaires:
-          // états prioritaires
+          // états prioritaires (prioritairement)
           cibleSujet.priorite = resultatTrouve[2] ?? undefined;
           break;
 

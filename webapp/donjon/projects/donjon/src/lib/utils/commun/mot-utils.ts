@@ -62,7 +62,7 @@ export class MotUtils {
       if (nomM.endsWith('p') || nomM.endsWith('f')) {
         if (nomM == 'bref') {
           feminin = 'brève';
-        }else{
+        } else {
           feminin = nomM.slice(0, nomM.length - 1) + 've';
         }
         // x => se
@@ -235,9 +235,12 @@ export class MotUtils {
     return retVal
   }
 
-  public static getNombre(determinant: string) {
+  public static getNombre(determinant: string, toujoursPluriel: boolean): Nombre {
     let retVal = Nombre.s;
-    if (determinant) {
+
+    if (toujoursPluriel) {
+      retVal = Nombre.tp;
+    } else if (determinant) {
       switch (determinant.trim().toLocaleLowerCase()) {
         case "le":
         case "la":

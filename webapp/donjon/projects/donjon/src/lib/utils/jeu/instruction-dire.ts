@@ -450,12 +450,12 @@ export class InstructionDire {
                 // es ceci | accord ceci (féminin et pluriel)
                 case 'accord':
                 case 'es':
-                  resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // s ceci (pluriel)
                 case 's':
-                  resultat = (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // e ceci (féminin)
@@ -467,7 +467,7 @@ export class InstructionDire {
                 case 'pronom':
                 case 'il':
                   if (ClasseUtils.heriteDe(cibleElement.classe, EClasseRacine.element)) {
-                    resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                    resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   } else {
                     console.error("calculerTexteDynamique: pronom ceci: ceci n'est pas un élément.");
                   }
@@ -476,19 +476,19 @@ export class InstructionDire {
                 // pronom (majuscule)
                 case 'Pronom':
                 case 'Il':
-                  resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p ? "s" : "");
+                  resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
                   break;
 
                 // cod: l’ ou les
                 case 'l’':
                 case 'l\'':
-                  resultat = (cibleElement.nombre === Nombre.p ? "les " : "l’");
+                  resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "les " : "l’");
                   break;
 
                 // cod: le, la ou les
                 case 'le':
                   // singulier
-                  if (cibleElement.nombre !== Nombre.p) {
+                  if (cibleElement.nombre !== Nombre.p && cibleElement.nombre !== Nombre.tp) {
                     // masculin
                     if (cibleElement.genre !== Genre.f) {
                       resultat = "le";
@@ -1277,8 +1277,6 @@ export class InstructionDire {
             if (statut.conditionDebutee === ConditionDebutee.si) {
               retVal = !statut.siVrai;
             } else if (statut.conditionDebutee === ConditionDebutee.fois) {
-              console.log("j’ai débuté un fois et là je suis dans le sinon !");
-
               retVal = !statut.siFois;
             } else {
               console.warn("[sinon] sans 'si' ou 'fois'.");
@@ -1364,7 +1362,7 @@ export class InstructionDire {
     if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
       console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
     }
-    const personne = ((sujet as ElementJeu).nombre == Nombre.p) ? "3pp" : "3ps";
+    const personne = ((sujet as ElementJeu).nombre == Nombre.p || (sujet as ElementJeu).nombre == Nombre.tp) ? "3pp" : "3ps";
 
     // si temps avec auxiliaire c’est facile on doit juste conjuguer être/avoir puis ajouter le PP.
     // => on peut le traiter comme n’importe quel verbe régulier
@@ -1635,7 +1633,7 @@ export class InstructionDire {
           if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant)) {
             // si le contenant est fermé => (fermé)
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.fermeID)) {
-              resultat.sortie += " (fermé" + (obj.genre == Genre.f ? 'e' : '') + (obj.nombre == Nombre.p ? 's' : '') + ")";
+              resultat.sortie += " (fermé" + (obj.genre == Genre.f ? 'e' : '') + (obj.nombre == Nombre.p || obj.nombre == Nombre.tp ? 's' : '') + ")";
             }
 
             // si on peut voir le contenu du contenant => contenu / (vide)
@@ -1646,7 +1644,7 @@ export class InstructionDire {
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
-                resultat.sortie += " (vide" + (obj.nombre == Nombre.p ? 's' : '') + ")";
+                resultat.sortie += " (vide" + (obj.nombre == Nombre.p || obj.nombre == Nombre.tp ? 's' : '') + ")";
               }
             }
           }
@@ -1823,7 +1821,7 @@ export class InstructionDire {
                 // porte
                 if (ClasseUtils.heriteDe(curPorteObstacle.classe, EClasseRacine.porte)) {
                   // par défaut, afficher le nom de la porte et ouvert/fermé.
-                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " sont " : " est ");
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p || curPorteObstacle.nombre == Nombre.tp ? " sont " : " est ");
                   if (this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.ouvertID)) {
                     resultat.sortie += this.jeu.etats.obtenirIntituleEtatPourElementJeu(curPorteObstacle, this.jeu.etats.ouvertID)
                   } else {
@@ -1832,7 +1830,7 @@ export class InstructionDire {
                   resultat.sortie += ".";
                   // obstacle
                 } else {
-                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p ? " bloquent" : " bloque") + " la sortie (" + Localisation.getLocalisation(voisin.localisation) + ").";
+                  resultat.sortie += "{U}" + ElementsJeuUtils.calculerIntituleGenerique(curPorteObstacle, true) + (curPorteObstacle.nombre == Nombre.p || curPorteObstacle.nombre == Nombre.tp ? " bloquent" : " bloque") + " la sortie (" + Localisation.getLocalisation(voisin.localisation) + ").";
                 }
 
               }
@@ -1888,7 +1886,7 @@ export class InstructionDire {
         // => idElementsDejaMentionnes.push(obstacle.id);
         // sinon on affiche texte auto.
       } else {
-        retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p ? " sont" : " est") + " dans le chemin.";
+        retVal = ElementsJeuUtils.calculerIntituleGenerique(obstacle, true) + (obstacle.nombre == Nombre.p || obstacle.nombre == Nombre.tp ? " sont" : " est") + " dans le chemin.";
       }
     } else {
       // trouver la porte qui est dans le chemin
@@ -1896,21 +1894,14 @@ export class InstructionDire {
       if (porteID !== -1) {
         const porte = this.eju.getObjet(porteID);
         const ouvert = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.ouvertID);
-        // const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
-        // const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
-        if (porte.genre == Genre.f) {
-          if (ouvert) {
-            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouverte.";
-            retVal = texteSiAucunObstacle;
-          } else {
-            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermée.";
-          }
+        const invisible = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+        if (ouvert) {
+          retVal = texteSiAucunObstacle;
         } else {
-          if (ouvert) {
-            // retVal = ElementsJeuUtils.calculerIntitule(porte, true) + " est ouvert.";
-            retVal = texteSiAucunObstacle;
+          if (invisible) {
+            retVal = 'Je ne vois pas comment y accéder.';
           } else {
-            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + " est fermé.";
+            retVal = ElementsJeuUtils.calculerIntituleGenerique(porte, true) + ` est fermé${porte.genre == Genre.f ? 'e' : ''}.`;
           }
         }
       }
@@ -1983,9 +1974,27 @@ export class InstructionDire {
     let titreLieu = majuscule ? lieu.titre : lieu.intitule;
     let obstacle = this.afficherObstacle(localisation, "");
     if (obstacle) {
-      obstacle = " ({/obstrué/})";
+      if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
+        obstacle = " ({/pas d'accès/})";
+      } else {
+        obstacle = " ({/obstrué/})";
+      }
     }
     retVal = titreLieu + obstacle;
+    return retVal;
+  }
+
+  private bloqueParPorteFermeeEtInvisible(localisation: ELocalisation): boolean {
+    let retVal = false;
+    const porteID = this.eju.getVoisinDirectionID(localisation, EClasseRacine.porte);
+    if (porteID !== -1) {
+      const porte = this.eju.getObjet(porteID);
+      const fermee = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.fermeID);
+      const invisible = this.jeu.etats.possedeEtatIdElement(porte, this.jeu.etats.invisibleID);
+      retVal = fermee && invisible;
+    } else {
+      retVal = false;
+    }
     return retVal;
   }
 
@@ -1996,51 +2005,34 @@ export class InstructionDire {
     let obstacle = this.afficherObstacle(localisation, "");
 
     if (obstacle) {
-      obstacle = " ({/obstrué/})";
+      if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
+        obstacle = " ({/pas d’accès/})";
+      } else {
+        obstacle = " ({/obstrué/})";
+      }
     }
 
     let lieuDejaVisite = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID);
+    const localisationMap = {
+      [ELocalisation.nord]: "nord",
+      [ELocalisation.nord_est]: "nord-est",
+      [ELocalisation.est]: "est",
+      [ELocalisation.sud_est]: "sud-est",
+      [ELocalisation.sud]: "sud",
+      [ELocalisation.sud_ouest]: "sud-ouest",
+      [ELocalisation.ouest]: "ouest",
+      [ELocalisation.nord_ouest]: "nord-ouest",
+      [ELocalisation.haut]: "monter",
+      [ELocalisation.bas]: "descendre",
+      [ELocalisation.interieur]: "entrer",
+      [ELocalisation.exterieur]: "sortir"
+    };
 
-    switch (localisation) {
-      case ELocalisation.nord:
-        retVal = "au nord" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.nord_est:
-        retVal = "au nord-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.est:
-        retVal = "à l’est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud_est:
-        retVal = "au sud-est" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud:
-        retVal = "au sud" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.sud_ouest:
-        retVal = "au sud-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.ouest:
-        retVal = "à l’ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.nord_ouest:
-        retVal = "au nord-ouest" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-      case ELocalisation.haut:
-        retVal = "en haut" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.bas:
-        retVal = "en bas" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.interieur:
-        retVal = "devant" + obstacle + ` : {+${titreLieu}+}`;
-        break;
-      case ELocalisation.exterieur:
-        retVal = "dehors" + obstacle + ((lieuDejaVisite || afficherLieuxInconnus) ? ` : {+${titreLieu}+}` : ' : ?');
-        break;
-
-      default:
-        retVal = localisation.toString();
+    const locString = localisationMap[localisation];
+    if (locString) {
+      retVal = `${locString} : ${(lieuDejaVisite || afficherLieuxInconnus || locString.match(/^monter|descendre|entrer$/)) ? `{+${titreLieu}+}` : '?'}` + obstacle;
+    } else {
+      retVal = localisation.toString();
     }
 
     return retVal;

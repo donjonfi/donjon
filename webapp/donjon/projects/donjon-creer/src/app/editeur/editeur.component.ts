@@ -27,9 +27,10 @@ import { lastValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
-  selector: 'app-editeur',
-  templateUrl: './editeur.component.html',
-  styleUrls: ['./editeur.component.scss']
+    selector: 'app-editeur',
+    templateUrl: './editeur.component.html',
+    styleUrls: ['./editeur.component.scss'],
+    standalone: false
 })
 export class EditeurComponent implements OnInit, OnDestroy {
 

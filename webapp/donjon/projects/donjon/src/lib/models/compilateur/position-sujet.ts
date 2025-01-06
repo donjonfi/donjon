@@ -1,4 +1,3 @@
-import { ElementDonjon } from './element-donjon';
 
 export class PositionSujetString {
   constructor(
