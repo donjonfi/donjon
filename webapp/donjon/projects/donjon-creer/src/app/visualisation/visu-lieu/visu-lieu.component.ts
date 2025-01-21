@@ -55,7 +55,7 @@ export class VisuLieuComponent implements OnInit, OnChanges {
   private updateObjetsPresents() {
     this.objetsPresents = [];
     if (this.curLieu) {
-      let objetsDans = this.eju.trouverContenu(this.curLieu, true, true, true, true, true, PrepositionSpatiale.dans);
+      let objetsDans = this.eju.trouverContenu(this.curLieu, true, true, true, true, true, true, PrepositionSpatiale.dans);
 
       objetsDans.forEach(curObjet => {
         const curObjetPresent = new ObjetPresent(curObjet, undefined, undefined, undefined);

@@ -59,7 +59,7 @@ export class ElementsJeuUtils {
       if (this.jeu.etats.possedeEtatElement(ceci, EEtatsBase.indenombrable, this)) {
 
         console.log("Test TP:", ceci.nombre);
-        
+
 
         if (ceci.nombre == Nombre.tp) {
           determinant = "des ";
@@ -1121,6 +1121,7 @@ export class ElementsJeuUtils {
     ceci: ElementJeu,
     inclureObjetsCachesDeCeci: boolean,
     inclureObjetsNonVisibles: boolean,
+    inclureObjetsDiscrets: boolean,
     inclureObjetsSecrets: boolean,
     inclureObjetsDansSurSous: boolean,
     inclureJoueur: boolean,
@@ -1140,6 +1141,10 @@ export class ElementsJeuUtils {
         // si on ne doit pas lister les objets cachés, garder uniquement les objets non cachés
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
+        }
+        // si on ne doit pas lister les objets discrets, garder uniquement les objets non discrets
+        if (!inclureObjetsDiscrets) {
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID));
         }
         // si on ne doit pas lister les objets secrets, garder uniquement les objets non secrets
         if (!inclureObjetsSecrets) {
@@ -1174,17 +1179,17 @@ export class ElementsJeuUtils {
       let objetsDansSurSous: Objet[] = [];
       objets.forEach(obj => {
         // ajouter les objets sur
-        const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.dans);
+        const objetsDans = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDiscrets, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.dans);
         if (objetsDans.length) {
           objetsDansSurSous.push(...objetsDans);
         }
         // ajouter les objets dans
-        const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sur);
+        const objetsSur = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDiscrets, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sur);
         if (objetsSur.length) {
           objetsDansSurSous.push(...objetsSur);
         }
         // ajouter les objets sous
-        const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sous);
+        const objetsSous = this.trouverContenu(obj, inclureObjetsCachesDeCeci, inclureObjetsNonVisibles, inclureObjetsDiscrets, inclureObjetsSecrets, inclureObjetsDansSurSous, inclureJoueur, PrepositionSpatiale.sous);
         if (objetsSous.length) {
           objetsDansSurSous.push(...objetsSous);
         }

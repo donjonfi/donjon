@@ -118,8 +118,9 @@ export class CommandeurTour {
         });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
+        this.executerPhaseFin(tour);
         break;
-      // ÉPLILOGUE (TERMINER)
+      // ÉPILOGUE (TERMINER)
       case PhaseTour.epilogue:
         // ajouter les erreurs à la sortie
         tour.erreurs.forEach(erreur => {
@@ -127,6 +128,7 @@ export class CommandeurTour {
         });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
+        this.executerPhaseFin(tour);
         break;
       case PhaseTour.terminer_avant_traiter_apres:
         tour.phase = PhaseTour.continuer_apres;
@@ -134,7 +136,6 @@ export class CommandeurTour {
         break;
       // FIN
       case PhaseTour.fin:
-        this.executerPhaseFin(tour);
         break;
 
       default:
