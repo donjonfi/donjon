@@ -432,7 +432,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   it('Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-      "La salon est un lieu. " +
+      "Le salon est un lieu. " +
       "La baguette est un objet maudit, rouge et magique ici."
     );
     expect(phrases).toHaveSize(2); // 1 phrase

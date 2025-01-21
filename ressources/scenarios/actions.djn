@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-01-05-030100
+-- Version: 2025-01-21-030101
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -581,26 +581,26 @@ action examiner ceci:
       changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
+      -- sous l’objet
+      si la préposition de ceci est sous:
+        dire "[décrire objets sous ceci]".
+      -- autre préposition ou absence de préposition
+      sinon
       -- > description de l’objet
-      si la préposition de ceci n’est pas sous:
         dire "[description ceci]".
-      fin si.
-      -- > statut de l’objet
-      si ceci est une porte ou un contenant,
-        dire "[statut ceci]".
-      -- > contenu de l’objet
-      -- >> contenant ouvert
-      si ceci est un contenant et ouvert :
-        dire "[décrire objets dans ceci]".
-      -- >> contenant fermé mais transparent
-      sinonsi ceci est un contenant et fermé et transparent :
-        dire "[décrire objets dans ceci]".
-      -- >> support
-      sinonsi ceci est un support :
-        si la préposition de ceci est sous:
-          dire "[décrire objets sous ceci]".
-        sinon
-          dire "[décrire objets sur ceci]".
+        -- > statut de l’objet
+        si ceci est une porte ou un contenant,
+          dire "[statut ceci]".
+        -- > contenu de l’objet
+        -- >> contenant ouvert
+        si ceci est un contenant et ouvert :
+          dire "[décrire objets dans ceci]".
+        -- >> contenant fermé mais transparent
+        sinonsi ceci est un contenant et fermé et transparent :
+          dire "[décrire objets dans ceci]".
+        -- >> support
+        sinonsi ceci est un support :
+            dire "[décrire objets sur ceci]".
         fin si
       fin si
       -- >> objet pas accessible
@@ -904,9 +904,9 @@ action mettre ceci dans cela:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
     si cela n'est ni un support ni un contenant ni un vivant, refuser "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.".
     si cela est un contenant et fermé, refuser "[Intitulé cela] [v être ipr cela] fermé[es cela].".
-    si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers."
-    si ceci est liquide et si cela est un support, refuser "Ça va couler."
-    si ceci est gazeux et si cela est un contenant ou un support, refuser "Ça va s'évaporer."
+    si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers.".
+    si ceci est liquide et si cela est un support, refuser "Ça va couler.".
+    si ceci est gazeux et si cela est un contenant ou un support, refuser "Ça va s'évaporer.".
 
   phase exécution:
     si cela est un support:

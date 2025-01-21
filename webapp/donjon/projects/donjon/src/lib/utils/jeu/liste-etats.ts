@@ -94,7 +94,6 @@ export class ListeEtats {
     // secret, caché, couvert, couvrant, invisible (objet)
     this.discretID = this.creerEtat(EEtatsBase.discret).id;
     this.cacheID = this.creerEtat(EEtatsBase.cache).id;
-    this.ajouterImplication(EEtatsBase.cache, EEtatsBase.discret);    
     this.ajouterContradiction(EEtatsBase.cache, EEtatsBase.vu);
     this.secretID = this.creerEtat(EEtatsBase.secret).id;
     this.ajouterImplication(EEtatsBase.secret, EEtatsBase.cache);

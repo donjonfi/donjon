@@ -1,7 +1,7 @@
 
 export const actions = `
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2024-11-16-030004
+-- Version: 2025-01-21-030101
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -71,13 +71,38 @@ L'aide pour l'action afficher est "{*Afficher*}
   {+raccourcis+} : {-aide-}, {-sor-}, {-i-}".
 
 -- ================================
---   ALLER (vers direction, lieu)
+--   ALLER (vers direction)
 -- ================================
 
 action aller vers ceci:
 
   définitions:
-    ceci est un intitulé.
+    ceci est une direction.
+    Le joueur est déplacé vers ceci.
+    L’action déplace le joueur vers ceci.
+
+  phase prérequis:
+    si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
+    si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
+    si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
+
+  phase exécution:
+    déplacer le joueur vers ceci.
+
+  phase épilogue:
+    exécuter l’action regarder.
+
+fin action
+
+-- ================================
+--   ALLER (vers lieu)
+-- ================================
+
+action aller vers ceci:
+
+  définitions:
+    ceci est un lieu.
     Le joueur est déplacé vers ceci.
     L’action déplace le joueur vers ceci.
 
@@ -86,7 +111,7 @@ action aller vers ceci:
     si ceci est un lieu mais pas adjacent, refuser "[Intitulé ceci] [v être ipr pas ceci] adjacent[es ceci] à ma position actuelle.".
     si ceci n’est ni une direction ni un lieu, refuser "Je peux aller vers une direction ou un lieu adjacent. Ex: « nord » pour aller vers le nord.".
     si aucune sortie n’existe vers ceci, refuser "Je ne peux pas aller par là.".
-    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas aller par là.".
+    si aucune sortie accessible n’existe vers ceci, refuser "[obstacle vers ceci] Je ne peux pas y aller.".
 
   phase exécution:
     déplacer le joueur vers ceci.
@@ -495,10 +520,56 @@ fin action
 -- ============
 --   EXAMINER
 -- ============
+
 action examiner ceci:
 
   définitions:
-    Ceci est un intitulé prioritairement mentionné.
+    Ceci est une direction.
+
+  phase prérequis:
+    si ceci n’est pas une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
+
+    phase exécution:
+    -- s’il n’y a rien dans cette direction
+    si aucune sortie n’existe vers ceci:
+      dire "Il n’y a rien dans cette direction.".
+    -- s’il y a un lieu avec un aperçu dans cette direction
+    sinonsi un aperçu existe pour ceci:
+      dire "[aperçu ceci]".
+    -- s’il y a un lieu sans aperçu dans cette direction
+    sinon
+      dire "Le mieux est de se rendre vers [intitulé ceci].".
+    fin si
+fin action
+
+action examiner ceci:
+
+  définitions:
+    Ceci est un lieu prioritairement visible et mentionné.
+
+  phase exécution:
+    -- > lieu actuel
+    si le joueur se trouve dans ceci:
+      exécuter l’action regarder.
+    -- > lieu adjacent
+    sinon
+      -- >> avec aperçu
+      si un aperçu existe pour ceci:
+        dire "[aperçu ceci]".
+      -- >> sans aperçu, déjà visité
+      sinonsi ceci est visité:
+        dire "Il faudrait y retourner.".
+      -- >> sans aperçu, pas encore visité
+      sinon
+        dire "Pour en savoir plus, il faut s’y rendre.".
+      fin si
+    fin si
+fin action
+
+action examiner ceci:
+
+  définitions:
+    Ceci est un objet prioritairement visible et mentionné.
 
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
@@ -512,74 +583,53 @@ action examiner ceci:
       changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
+      -- sous l’objet
+      si la préposition de ceci est sous:
+        dire "[décrire objets sous ceci]".
+      -- autre préposition ou absence de préposition
+      sinon
       -- > description de l’objet
-      si la préposition de ceci n’est pas sous:
         dire "[description ceci]".
-      fin si.
-      -- > statut de l’objet
-      si ceci est une porte ou un contenant,
-        dire "[statut ceci]".
-      -- > contenu de l’objet
-      -- >> contenant ouvert
-      si ceci est un contenant et ouvert :
-        dire "[décrire objets dans ceci]".
-      -- >> contenant fermé mais transparent
-      sinonsi ceci est un contenant et fermé et transparent :
-        dire "[décrire objets dans ceci]".
-      -- >> support
-      sinonsi ceci est un support :
-        si la préposition de ceci est sous:
-          dire "[décrire objets sous ceci]".
-        sinon
-          dire "[décrire objets sur ceci]".
+        -- > statut de l’objet
+        si ceci est une porte ou un contenant,
+          dire "[statut ceci]".
+        -- > contenu de l’objet
+        -- >> contenant ouvert
+        si ceci est un contenant et ouvert :
+          dire "[décrire objets dans ceci]".
+        -- >> contenant fermé mais transparent
+        sinonsi ceci est un contenant et fermé et transparent :
+          dire "[décrire objets dans ceci]".
+        -- >> support
+        sinonsi ceci est un support :
+            dire "[décrire objets sur ceci]".
         fin si
       fin si
       -- >> objet pas accessible
-      si ceci n'est ni accessible ni l’inventaire, 
+      si ceci n'est pas accessible, 
         dire " [Pronom ceci] [v être ipr pas ceci] accessible[s ceci].".
-      -- >> inventaire
-      si ceci est l’inventaire,
-        dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
     -- lieu
     sinonsi ceci est un lieu :
-      -- > lieu actuel
-      si le joueur se trouve dans ceci:
-        exécuter l’action regarder.
-      -- > lieu adjacent
-      sinon
-        -- >> avec aperçu
-        si un aperçu existe pour ceci:
-          dire "[aperçu ceci]".
-        -- >> sans aperçu, déjà visité
-        sinonsi ceci est visité:
-          dire "Il faudrait y retourner.".
-        -- >> sans aperçu, pas encore visité
-        sinon
-          dire "Pour en savoir plus, il faut s’y rendre.".
-        fin si
-      fin si
+     
     -- direction
     sinonsi ceci est une direction:
-      -- s’il n’y a rien dans cette direction
-      si aucune sortie n’existe vers ceci:
-        dire "Il n’y a rien dans cette direction.".
-      -- s’il y a un lieu avec un aperçu dans cette direction
-      sinonsi un aperçu existe pour ceci:
-        dire "[aperçu ceci]".
-      -- s’il y a un lieu sans aperçu dans cette direction
-      sinon
-        dire "Le mieux est de se rendre vers [intitulé ceci].".
-      fin si
-    -- inventaire
-    sinonsi ceci est l’inventaire:
-      dire "Votre inventaire [si l’inventaire contient un objet]contient : [lister objets inventaire][sinon]est vide.[fin si]".
+   
     -- inconnu
     sinon
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
     fin si    
 fin action
 
+action examiner ceci:
+  définitions:
+    Ceci est un spécial.
+  
+  phase prérequis:
+    si ceci n’est pas l’inventaire, refuser "Je ne comprends pas ce que vous voulez examiner.".
 
+  phase exécution:
+    exécuter la commande "afficher l’inventaire".
+fin action
 
 L'aide pour l'action examiner est "{*Examiner*}
   Permet d'examiner un élément du jeu pour avoir des détails ou trouver un objet.
@@ -856,9 +906,9 @@ action mettre ceci dans cela:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
     si cela n'est ni un support ni un contenant ni un vivant, refuser "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.".
     si cela est un contenant et fermé, refuser "[Intitulé cela] [v être ipr cela] fermé[es cela].".
-    si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers."
-    si ceci est liquide et si cela est un support, refuser "Ça va couler."
-    si ceci est gazeux et si cela est un contenant ou un support, refuser "Ça va s'évaporer."
+    si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers.".
+    si ceci est liquide et si cela est un support, refuser "Ça va couler.".
+    si ceci est gazeux et si cela est un contenant ou un support, refuser "Ça va s'évaporer.".
 
   phase exécution:
     si cela est un support:
@@ -1343,5 +1393,6 @@ interpréter ramasser comme prendre.
 interpréter observer comme regarder.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
+
 
 `;

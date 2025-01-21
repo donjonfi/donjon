@@ -213,12 +213,12 @@ export class InstructionDire {
               switch (preposition) {
                 case PrepositionSpatiale.sur:
                   phraseSiQuelqueChose = " Dessus, il y a ";
-                  phraseSiVide = "Il n’y a rien dessus.";
+                  phraseSiVide = "Il n’y a rien de particulier dessus.";
                   break;
 
                 case PrepositionSpatiale.sous:
                   phraseSiQuelqueChose = " Dessous, il y a ";
-                  phraseSiVide = "Il n’y a rien dessous.";
+                  phraseSiVide = "Il n’y a rien de particulier dessous.";
                   break;
                 case PrepositionSpatiale.dans:
                 default:
@@ -230,9 +230,9 @@ export class InstructionDire {
             let resultatCurBalise: string;
             if (cible instanceof ElementJeu) {
               if (isLister) {
-                resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+                resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
               } else {
-                resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+                resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
               }
             } else {
               resultatCurBalise = "{+(cible pas trouvée)+}";
@@ -1458,7 +1458,10 @@ export class InstructionDire {
               suivantEstContenuCrochets = false;
               // sinon remettre le bloc pour l’interpréter plus tard
             } else {
-              retVal += `[${curMorceau}]`;
+              // remettre le bloc uniquement s’il doit être affiché
+              if(afficherMorceauSuivant){
+                retVal += `[${curMorceau}]`;
+              }
               suivantEstContenuCrochets = false;
               // (on ne change pas afficherMorceauSuivant puisqu’il ne s’agit pas d’une condition.)
             }
@@ -1597,10 +1600,10 @@ export class InstructionDire {
    * Lister le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[], retrait: number = 1): Resultat {
+  public executerListerContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean,  afficherObjetsDiscretsDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[], retrait: number = 1): Resultat {
 
     let resultat = new Resultat(false, '', 1);
-    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
+    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDiscretsDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
 
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
@@ -1640,7 +1643,7 @@ export class InstructionDire {
             if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID) ||
               this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.transparentID)
             ) {
-              let contenu = this.executerListerContenu(obj, false, false, false, false, false, prepositionSpatiale, idElementsDejaMentionnes, (retrait + 1)).sortie;
+              let contenu = this.executerListerContenu(obj, false, false, false, false, false, false, prepositionSpatiale, idElementsDejaMentionnes, (retrait + 1)).sortie;
               if (contenu) {
                 resultat.sortie += contenu;
               } else {
@@ -1660,7 +1663,7 @@ export class InstructionDire {
         let supportsSansApercu = objets.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
         supportsSansApercu.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerListerContenu(support, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
+          const sousRes = this.executerListerContenu(support, false, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
           resultat.sortie += sousRes.sortie;
         });
 
@@ -1685,9 +1688,9 @@ export class InstructionDire {
    * Décrire le contenu d'un objet ou d'un lieu.
    * Remarque: le contenu invisible n'est pas affiché.
    */
-  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[]): Resultat {
+  public executerDecrireContenu(ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherObjetsCachesDeCeci: boolean, afficherObjetsNonVisiblesDeCeci: boolean, afficherObjetsDiscretsDeCeci: boolean, afficherObjetsSecretsDeCeci: boolean, afficherObjetsDansSurSous: boolean, inclureJoueur: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[]): Resultat {
     let resultat = new Resultat(false, '', 1);
-    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
+    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, afficherObjetsNonVisiblesDeCeci, afficherObjetsDiscretsDeCeci, afficherObjetsSecretsDeCeci, afficherObjetsDansSurSous, inclureJoueur, prepositionSpatiale);
 
     // TODO: ne pas décrire à nouveau les objets qui ont déjà été mentionnés précédemment dans le même texte. ([# nom de l’objet])
 
@@ -1695,18 +1698,25 @@ export class InstructionDire {
     if (objets !== undefined) {
       resultat.succes = true;
 
-      // - objets avec aperçu spécifique (n’inclure ni les éléments décoratifs ni les éléments déjà décrits):
-      let objetsAvecApercuSpecifique = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && !idElementsDejaMentionnes.includes(x.id));
+      // - objets avec aperçu spécifique (n’inclure ni les éléments décoratifs, ni les éléments discrets, ni les éléments déjà décrits):
+      let objetsAvecApercuSpecifique = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) && !idElementsDejaMentionnes.includes(x.id));
       // const nbObjetsAvecApercus = objetsAvecApercu.length;
-      // - objets avec apercu auto (n’inclure ni les éléments décoratifs ni les éléments déjà décrits)
-      let objetsAvecApercuAuto = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && !idElementsDejaMentionnes.includes(x.id));
+      // - objets avec apercu auto (n’inclure ni les éléments décoratifs, ni les éléments discrets, ni les éléments déjà décrits)
+      let objetsAvecApercuAuto = objets.filter(x => x.apercu === null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID)  && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) && !idElementsDejaMentionnes.includes(x.id));
       // - nombre d’objets avec aperçu auto (n’inclure ni les éléments décoratifs ni les éléments déjà décrits)
       let nbObjetsApercuAuto = objetsAvecApercuAuto.length;
       // - nombre d’objets sans aperçu (càd les objets décoratifs ou ceux qui ont déjà été cités)
-      let nbObjetsSansApercu = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) || idElementsDejaMentionnes.includes(x.id)).length;
+      let nbObjetsSansApercu = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) || this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) || idElementsDejaMentionnes.includes(x.id)).length;
 
       // - supports décoratifs (eux ne sont pas affichés, mais leur contenu bien !)
       let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
+
+      // - objets discrets et mentionnés (ils ne sont pas affichés, mais ils sont vus !)
+      let objetsDiscretsMentionnes = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) || this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.mentionneID));
+
+      objetsDiscretsMentionnes.forEach(obj => {
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
+      });
 
       // A.1 AFFICHER ÉLÉMENTS AVEC UN APERÇU
       objetsAvecApercuSpecifique.forEach(obj => {
@@ -1730,7 +1740,7 @@ export class InstructionDire {
                   resultat.sortie = resultat.sortie.slice(0, resultat.sortie.length - '{N}'.length);
                 }
                 // ne pas afficher objets cachés du support, on ne l’examine pas directement
-                const sousRes = this.executerDecrireContenu(obj, (" Dessus, il y a "), "", false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
+                const sousRes = this.executerDecrireContenu(obj, (" Dessus, il y a "), "", false, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
                 resultat.sortie += sousRes.sortie;
               }
             }
@@ -1748,7 +1758,7 @@ export class InstructionDire {
       if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {
         supportsDecoratifs.forEach(support => {
           // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
+          const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), "", false, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
           resultat.sortie += sousRes.sortie;
         });
       }
@@ -1781,7 +1791,7 @@ export class InstructionDire {
             // s’il s’agit d’un support
             if (ClasseUtils.heriteDe(objetsAvecApercuAuto[0].classe, EClasseRacine.support)) {
               // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-              const sousRes = this.executerDecrireContenu(objetsAvecApercuAuto[0], (" Dessus, il y a "), ("{U}Il n'y a rien de particulier dessus."), false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
+              const sousRes = this.executerDecrireContenu(objetsAvecApercuAuto[0], (" Dessus, il y a "), ("{U}Il n'y a rien de particulier dessus."), false, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
               resultat.sortie += sousRes.sortie;
             }
             // sinon il y en a plusieurs
@@ -1789,7 +1799,7 @@ export class InstructionDire {
             let supportsAvecApercuAuto = objetsAvecApercuAuto.filter(x => ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
             supportsAvecApercuAuto.forEach(support => {
               // ne pas afficher les objets cachés du support (on ne l’examine pas directement)
-              const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
+              const sousRes = this.executerDecrireContenu(support, ("{U}Sur " + this.eju.calculerIntituleElement(support, false, true) + " il y a "), ("{U}Il n'y a rien de particulier sur " + this.eju.calculerIntituleElement(support, false, true) + "."), false, false, false, false, false, false, PrepositionSpatiale.sur, idElementsDejaMentionnes);
               resultat.sortie += sousRes.sortie;
             });
           }
@@ -1814,7 +1824,7 @@ export class InstructionDire {
                 if (curPorteObstacle.apercu != '-') {
                   resultat.sortie += "{U}" + this.calculerTexteDynamique(curPorteObstacle.apercu, ++curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
                 } else {
-                  // TODO: faut-il considéré qu’un objet est vu quand son aperçu est « - » ?
+                  // TODO: faut-il considérer qu’un objet est vu quand son aperçu est « - » ?
                 }
                 // - si pas d’aperçu défini
               } else {

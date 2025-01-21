@@ -90,7 +90,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
 
   it('Phrases: 4 phrases, avec texte vide', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-      'La salon est un lieu. Sa description est "". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
+      'Le salon est un lieu. Sa description est "". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
     );
     expect(phrases).toHaveSize(4); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1);
@@ -101,7 +101,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
 
   it('Phrases: 4 phrases, avec texte plein', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-      'La salon est un lieu. Sa description est "Un grand salon.". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
+      'Le salon est un lieu. Sa description est "Un grand salon.". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
     );
     expect(phrases).toHaveSize(4); // 2 phrases
     expect(phrases[0].morceaux).toHaveSize(1);
