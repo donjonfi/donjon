@@ -1458,7 +1458,10 @@ export class InstructionDire {
               suivantEstContenuCrochets = false;
               // sinon remettre le bloc pour l’interpréter plus tard
             } else {
-              retVal += `[${curMorceau}]`;
+              // remettre le bloc uniquement s’il doit être affiché
+              if(afficherMorceauSuivant){
+                retVal += `[${curMorceau}]`;
+              }
               suivantEstContenuCrochets = false;
               // (on ne change pas afficherMorceauSuivant puisqu’il ne s’agit pas d’une condition.)
             }
