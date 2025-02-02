@@ -15,7 +15,7 @@ import { StringUtils } from "../commun/string.utils";
 
 export class CompilateurCommunUtils {
 
-  public static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2024 Jonathan Claes − https://donjon.fi";
+  public static readonly infoCopyright = "Jeu créé avec Donjon FI ©2018-2025 Jonathan Claes − https://donjon.fi";
   // rem: l’espace+point termine la dernière commande écrite par le joueur (au cas-où il l’aurait oublié).
   public static readonly regleInfoDonjonBeta = " .\naprès afficher aide: dire \"{n}{n}{+{/" + CompilateurCommunUtils.infoCopyright + "/}+}\"; terminer l’action avant.";
 
