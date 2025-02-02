@@ -1,7 +1,7 @@
 PARTIE "Informations sur le jeu".
   Le titre du jeu est "Coincé".
   L’auteur du jeu est "Jonathan Claes".
-  La version du jeu est "3.00".
+  La version du jeu est "3.01".
   L’identifiant du jeu est "d0f14d91-78ef-499d-890c-be88dd8f9a5d".
   Le titre de la licence est "CC BY 4.0".
   Le lien de la licence est "https://creativecommons.org/licenses/by/4.0/".
@@ -31,7 +31,7 @@ PARTIE "Description du monde".
       -- ==========
 
       -- lucarne
-      La lucarne est un objet décoratif et inaccessible dans le salon.
+      La lucarne est un objet inaccessible dans le salon.
       Sa description est "Impossible de l'atteindre : elle est bien trop haute.".
 
       interpréter la fenêtre comme la lucarne.
@@ -112,6 +112,15 @@ PARTIE "Description du monde".
       règle avant prendre le fauteuil ou jeter le fauteuil:
         dire "Il est trop lourd. Par contre vous devriez pouvoir le pousser.".
         arrêter l’action.
+      fin règle
+      
+      règle avant examiner le fauteuil:
+        -- si le joueur essaie d’examiner sous le fauteuil
+        si la préposition de ceci est sous:
+          dire "Il y a quelque chose d’étrange...".
+          exécuter la commande "pousser le fauteuil".
+          arrêter l’action.
+        fin si
       fin règle
       
       -- > JETER BILLE SUR LUCARNE
@@ -202,15 +211,15 @@ PARTIE "Description du monde".
       -- les conversations avec la magicienne
       réactions de la magicienne:
         basique:
-          dire "<< Sans mon anneau[#anneau], pas moyen de nous sortir d'ici. >>".
+          dire "<< Sans mon anneau, pas moyen de nous sortir d'ici. >>".
         concernant l’anneau:
-          dire "<< [en boucle]Mon anneau magique[#anneau] m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
+          dire "<< [en boucle]Mon anneau magique m'a été dérobé.[puis]C’est un anneau en or il amplifie ma magie.[puis]Vous finirez bien par le retrouver.[fin choix] >>".
         concernant la sortie:
-          dire "<< Grâce à mon anneau[#anneau], je pourrai nous faire sortir d’ici.".
+          dire "<< Grâce à mon anneau, je pourrai nous faire sortir d’ici.".
         concernant uaenna:
           dire "<< Oh ! Vous savez parler en verlan ! >>".
         concernant un sujet inconnu:
-          dire "<< L’important c’est que vous retrouviez mon anneau[#anneau] afin que je puisse nous sortir d’ici. >>".
+          dire "<< L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. >>".
       fin réaction
 
       -- les actions avec la magicienne
