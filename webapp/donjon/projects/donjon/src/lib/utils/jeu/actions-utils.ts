@@ -304,18 +304,18 @@ export class ActionsUtils {
             // direction trouvée
             if (commandeCeci.localisation) {
               // TODO: check états
-              retVal = "L’état de la direction {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              retVal = "L’état de la direction {/[intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
               // pas de direction trouvée
             } else {
               // todo: on tombe ici avec commande examiner, l’erreur direction devrait pas être prioritaire mais bien objet.
-              retVal = "Je n’ai pas trouvé {/[Intitulé " + tokenCeciOuCela + "]/}.";
+              retVal = "Je n’ai pas trouvé {/[intitulé " + tokenCeciOuCela + "]/}.";
             }
             // s’il doit s’agir d’un INTITULÉ
           } else if (ClasseUtils.heriteDe(classeCibleCeci, EClasseRacine.intitule)) {
             // intitulé trouvé
             if (commandeCeci.intitule) {
               // TODO: check états
-              retVal = "L’état de l’intitulé {/[Intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
+              retVal = "L’état de l’intitulé {/[intitulé " + tokenCeciOuCela + "]/} ne convient pas pour la commande.";
               // pas d’intitulé trouvé
             } else {
               // todo: afficher ceci ?
@@ -424,7 +424,7 @@ export class ActionsUtils {
       case EEtatsBase.possede:
         if (argumentUnique) {
           // retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
-          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/.}";
+          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]./}";
         } else {
           retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
         }

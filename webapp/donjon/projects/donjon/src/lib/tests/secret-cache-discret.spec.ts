@@ -181,7 +181,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
     expect(ctxCommande.sortie)
       .withContext("Le parchemin secret ne doit pas pouvoir être examiné")
-      .toEqual("Je n’ai pas trouvé {/Parchemin/}.{N}{u}{/Entrez « {-aide examiner-} » pour afficher l’aide de cette action./}");
+      .toEqual("Je n’ai pas trouvé {/parchemin/}.{N}{u}{/Entrez « {-aide examiner-} » pour afficher l’aide de cette action./}");
 
     ctxCommande = ctxPartie.com.executerCommande("lire lettre");
     expect(ctxCommande.sortie).toEqual("La saviez-vous ? Sous le bureau il y a un parchemin");
