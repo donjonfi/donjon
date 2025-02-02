@@ -424,7 +424,7 @@ export class ActionsUtils {
       case EEtatsBase.possede:
         if (argumentUnique) {
           // retVal = "Vous ne [le " + tokenCeciOuCela + "] possédez pas.";
-          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/.}";
+          retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]./}";
         } else {
           retVal = "vous ne possédez pas {/[intitulé " + tokenCeciOuCela + "]/}";
         }
