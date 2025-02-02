@@ -382,7 +382,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
           jeuGenere.sauvegarde = restauration;
           // fonctionnalité triche (priorité 2)
         } else if (this.solutionChargee) {
-          jeuGenere.sauvegarde = restauration;
+          jeuGenere.sauvegarde = this.solutionChargee;
         }
         this.jeu = jeuGenere;
 
