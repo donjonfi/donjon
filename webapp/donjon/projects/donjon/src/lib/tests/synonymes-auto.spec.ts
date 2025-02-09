@@ -35,7 +35,6 @@ describe('Synonymes auto − Découpe', () => {
 
     it('Clé verte rouillée', () => {
         const ej = new ElementJeu(1, "Clé de bois sec", PhraseUtils.getGroupeNominalDefini("Clé de bois sec", false), ClassesRacines.Objet);
-        console.log("@@@@@ rouillée ej = ", ej);
         
         expect(ej.intitule.nomEpithete).toEqual("Clé de bois sec");
         Generateur.genererSynonymesAuto(ej);

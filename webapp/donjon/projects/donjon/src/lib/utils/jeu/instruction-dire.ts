@@ -175,33 +175,16 @@ export class InstructionDire {
 
     let retVal = "";
     if (texteDynamique) {
-
-      console.log("@@@@@@@@@@ texte à découper:", texteDynamique);
-
       // séparer les textes et les blocs conditionnels
       const morceaux = texteDynamique.split(/(?=\[)/);
-
-      console.log("@@@@@@@@@@ texte découpé:", morceaux);
-
-
       for (let index = 0; index < morceaux.length; index++) {
         const curMorceau = morceaux[index];
-
-        console.log("@@@@@@@@@@ curMorceau:", curMorceau);
-
         let curResultat = this.calculerBalise(curMorceau, nbAffichage, intact, contexteTour, evenement, declenchements);
-
-        console.log("@@@@@@@@@@ curResultat:", curResultat);
-
-
         retVal += curResultat;
-
       }
     } else {
       retVal = "";
     }
-
-    console.log("@@@@@@@@@@ texte final:", retVal);
 
     return retVal;
   }
@@ -1750,9 +1733,6 @@ export class InstructionDire {
     // si la recherche n’a pas retourné d’erreur
     if (objets !== undefined) {
       resultat.succes = true;
-
-      console.log("@@@@@@ idElementsDejaMentionnes=", idElementsDejaMentionnes.join(), "texteSiQuelqueChose", texteSiQuelqueChose);
-
 
       // - objets avec aperçu spécifique (n’inclure ni les éléments décoratifs, ni les éléments discrets, ni les éléments déjà décrits):
       let objetsAvecApercuSpecifique = objets.filter(x => x.apercu !== null && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) && !idElementsDejaMentionnes.includes(x.id));
