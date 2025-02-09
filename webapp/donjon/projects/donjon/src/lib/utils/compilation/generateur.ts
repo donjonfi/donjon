@@ -274,7 +274,8 @@ export class Generateur {
     jeu.joueur = joueur;
     joueur.intituleS = joueur.intitule;
     joueur.addSynonymes([new GroupeNominal("", "moi", null)]);
-    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.cache, ctx);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.vu, ctx);
+    jeu.etats.ajouterEtatElement(joueur, EEtatsBase.familier, ctx);
     jeu.etats.ajouterEtatElement(joueur, EEtatsBase.intact, ctx);
     // ajouter le joueur aux objets du jeu
     jeu.objets.push(joueur);
