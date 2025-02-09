@@ -394,7 +394,7 @@ export class ElementsJeuUtils {
 
         let voisinInvisible = false;
 
-        // vérifier si le lieu n’est pas caché
+        // vérifier si le lieu n’est pas caché ou invisible
         const curLieuVoisin = this.getLieu(voisin.id);
         if (this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.cacheID) || this.jeu.etats.possedeEtatIdElement(curLieuVoisin, this.jeu.etats.invisibleID)) {
           voisinInvisible = true;

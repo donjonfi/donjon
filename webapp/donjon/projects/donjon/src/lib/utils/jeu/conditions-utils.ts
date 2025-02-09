@@ -1026,25 +1026,33 @@ export class ConditionsUtils {
           retVal = false;
           // voisin existe
         } else {
-          // trouver si porte sépare voisin
-          const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
-          // aucune porte => sortie existe et est accessible
-          if (porteID == -1) {
-            retVal = true;
-            // une porte
-          } else {
-            const porte = this.eju.getObjet(porteID);
-            // si on teste « existe sortie » tout court, il y a une sortie
-            if (!condition.sujetComplement.epithete) {
+
+          // Vérifier si le voisin n’est pas invisible ou caché
+          const voisin = this.eju.getLieu(voisinID);
+          if (!this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.invisibleID, this.eju) && !this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.cacheID, this.eju)) {
+            // trouver si porte sépare voisin
+            const porteID = this.eju.getVoisinDirectionID(loc, EClasseRacine.porte);
+            // aucune porte => sortie existe et est accessible
+            if (porteID == -1) {
               retVal = true;
-              // si on test « existe sortie accessible », il faut que la porte soit ouverte pour retourner vrai.
-            } else if (condition.sujetComplement.epithete == 'accessible') {
-              retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ouvert, this.eju);
-              // attribut pas pris en charge
+              // une porte
             } else {
-              console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
-              retVal = false; // => pas de sortie
+              const porte = this.eju.getObjet(porteID);
+              // si on teste « existe sortie » tout court, il y a une sortie
+              if (!condition.sujetComplement.epithete) {
+                retVal = true;
+                // si on test « existe sortie accessible », il faut que la porte soit ouverte pour retourner vrai.
+              } else if (condition.sujetComplement.epithete == 'accessible') {
+                retVal = this.jeu.etats.possedeEtatElement(porte, EEtatsBase.ouvert, this.eju);
+                // attribut pas pris en charge
+              } else {
+                console.error("siEstVrai sorties «", condition.sujetComplement.epithete, "» : attribut pas pris en charge.");
+                retVal = false; // => pas de sortie
+              }
             }
+            // la sortie n’est pas accessible quand le lieu n’est pas visible
+          } else {
+            retVal = false;
           }
 
           // s’il y a une sortie, vérifier qu’elle n’est pas obstruée par un obstacle
