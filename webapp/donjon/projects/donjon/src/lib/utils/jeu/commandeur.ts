@@ -44,6 +44,8 @@ export class Commandeur {
 
   private correctionCommandeEnCours: ContexteCommande;
 
+  private derniereCommandeEstInstruction = false;
+
   private commandeActuelle: string | undefined;
   private commandePrecedente: string | undefined;
   private contexteActuel: ContexteCommande | undefined;
@@ -67,7 +69,7 @@ export class Commandeur {
     let retVal: ContexteCommande | undefined;
     if (this.commandePrecedente) {
       this.correctionCommandeEnCours = this.contextePrecedent;
-      retVal = this.executerCommande(this.commandePrecedente);
+      retVal = this.executerCommande(this.commandePrecedente, false);
     }
     return retVal;
   }
@@ -83,15 +85,20 @@ export class Commandeur {
     this.correctionCommandeEnCours = commandeEnCours;
   }
 
-  /** Exécuter la commande */
-  public executerCommande(commande: string): ContexteCommande {
+  /** Exécuter la commande
+   * @param commande Commande à exécuter
+   * @param conserverCommandePrecedente Conserver la commande précédente plutôt que cette nouvelle commande (pour la commande "encore")
+   */
+  public executerCommande(commande: string, estInstruction: boolean): ContexteCommande {
 
-    // sauver commande précédente pour commande "encore"
-    this.commandePrecedente = this.commandeActuelle;
+    // sauver commande précédente pour commande "encore" sauf s’il s’agit d’une instruction
+    if (!this.derniereCommandeEstInstruction) {
+      this.commandePrecedente = this.commandeActuelle;
+      this.contextePrecedent = this.contexteActuel;
+    }
+    this.derniereCommandeEstInstruction = estInstruction;
     this.commandeActuelle = commande;
-    this.contextePrecedent = this.contexteActuel;
     this.contexteActuel = this.correctionCommandeEnCours;
-
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
     let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
@@ -276,7 +283,6 @@ export class Commandeur {
       ctx.commandeValidee = false;
 
       console.warn("Plusieurs actions avec le même score trouvées pour cette commande : ", actionsCeciCela);
-      
 
       // ce candidat de commande ne peut pas être exécuté.
       ctx.sortie = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + candidatCommande.els.infinitif + ").+}";

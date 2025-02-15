@@ -33,9 +33,9 @@ describe('Condition autours d’un décrire liste vide/remplie', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListePleine, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu");
+    ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    let ctxCommande = ctxPartie.com.executerCommande("examiner machine");
+    let ctxCommande = ctxPartie.com.executerCommande("examiner machine", false);
 
     expect(ctxCommande.sortie)
       .withContext("La liste n’est pas vide et le contenu de l’écran doit être listé.")
@@ -48,9 +48,9 @@ describe('Condition autours d’un décrire liste vide/remplie', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListeVide, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu");
+    ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    let ctxCommande = ctxPartie.com.executerCommande("examiner machine");
+    let ctxCommande = ctxPartie.com.executerCommande("examiner machine", false);
 
     expect(ctxCommande.sortie)
       .withContext("La liste est vide, il n’y a rien a lister.")

@@ -294,7 +294,7 @@ export class InstructionExecuter {
       let texteCommande = CommandesUtils.nettoyerCommande(tokens[1]);
       texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande.evenement, undefined);
       // exécuter la commande
-      res.sortie = this.com.executerCommande(texteCommande).sortie;
+      res.sortie = this.com.executerCommande(texteCommande, true).sortie;
     } else {
       console.error("executerCommande: format complément1 par reconnu:", instruction.complement1);
       res.succes = false;

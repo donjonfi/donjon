@@ -1,7 +1,7 @@
 
 export const actions = `
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-01-21-030101
+-- Version: 2025-02-15-030202
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -529,7 +529,7 @@ action examiner ceci:
   phase prérequis:
     si ceci n’est pas une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
 
-    phase exécution:
+  phase exécution:
     -- s’il n’y a rien dans cette direction
     si aucune sortie n’existe vers ceci:
       dire "Il n’y a rien dans cette direction.".
@@ -1390,9 +1390,7 @@ interpréter observer comme regarder.
 interpréter roter comme péter.
 interpréter appuyer et enfoncer comme pousser.
 interpréter ramasser comme prendre.
-interpréter observer comme regarder.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
-
 
 `;

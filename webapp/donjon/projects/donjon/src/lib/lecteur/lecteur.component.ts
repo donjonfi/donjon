@@ -1247,7 +1247,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       // EXÉCUTION DE LA COMMANDE
-      const contexteCommande = this.partie.com.executerCommande(commandeNettoyee);
+      const contexteCommande = this.partie.com.executerCommande(commandeNettoyee, false);
 
       if (ecrireCommande) {
         let affichageCommande: string;

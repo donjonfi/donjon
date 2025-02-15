@@ -46,9 +46,9 @@ describe('Test de la visibilité des portes', () => {
         const jeu = Generateur.genererJeu(rc);
         expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes et chemins
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
-        ctxCommande = ctxPartie.com.executerCommande("regarder");
+        ctxCommande = ctxPartie.com.executerCommande("regarder", true);
         expect(ctxCommande.sortie).toEqual("{_{*La caverne*}_}{n}Vous êtes dans la caverne.{N}{U}La porte classiqueOuverte est ouverte.{U}La porte classiqueFermée est fermée.{U}La porte visibleOuverteSurCheminInvisible est ouverte.{N}{P}Sorties : {n}{i}- nord : ?{n}{i}- nord-est : ? ({/obstrué/}){n}{i}- entrer : {+Le cheminVisibleMaisSansAccès+} ({/pas d’accès/}){n}{i}- est : ?{N}");
     });
 
@@ -58,9 +58,9 @@ describe('Test de la visibilité des portes', () => {
         const jeu = Generateur.genererJeu(rc);
         expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes et chemins
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
-        ctxCommande = ctxPartie.com.executerCommande("afficher sorties");
+        ctxCommande = ctxPartie.com.executerCommande("afficher sorties", false);
         expect(ctxCommande.sortie).toEqual("Sorties : {n}" +
             "{i}- nord : ?{n}" +
             "{i}- nord-est : ? ({/obstrué/}){n}" +
@@ -74,7 +74,7 @@ describe('Test de la visibilité des portes', () => {
         const jeu = Generateur.genererJeu(rc)
         expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
         let porteClassiqueOuverte = ctxPartie.jeu.objets[2];
         expect(porteClassiqueOuverte.nom).toEqual("porte classiqueouverte");
@@ -112,7 +112,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteClassiqueOuverte.etats).toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteClassiqueOuverte.etats).not.toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte ClassiqueOuverte");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte ClassiqueOuverte", false);
         expect(ctxCommande.sortie).toEqual("C’est une porte classiqueOuverte.{N}Elle est ouverte. Vous pouvez la fermer.{N}");
 
         // classique fermée
@@ -124,7 +124,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteClassiqueFermee.etats).not.toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteClassiqueFermee.etats).toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte ClassiqueFermee");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte ClassiqueFermee", false);
         expect(ctxCommande.sortie).toEqual("C’est une porte classiqueFermée.{N}Elle est fermée. Vous pouvez l’ouvrir.{N}");
 
         // invisible fermée
@@ -136,7 +136,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteInvisibleFermee.etats).not.toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteInvisibleFermee.etats).toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleFermee");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleFermee", false);
         expect(ctxCommande.sortie).toEqual("Je ne la vois pas actuellement.{N}");
 
         // invisible ouverte est
@@ -148,7 +148,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteInvisibleOuverteEst.etats).toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteInvisibleOuverteEst.etats).not.toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleOuverteEst");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleOuverteEst", false);
         expect(ctxCommande.sortie).toEqual("Je ne la vois pas actuellement.{N}");
 
         // invisible ouverte ouest
@@ -160,7 +160,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteInvisibleOuverteOuest.etats).toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteInvisibleOuverteOuest.etats).not.toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleOuverteOuest");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleOuverteOuest", false);
         expect(ctxCommande.sortie).toEqual("Je ne la vois pas actuellement.{N}");
 
         // visible ouverte sur chemin invisible
@@ -172,7 +172,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteVisibleOuverteSurCheminInvisible.etats).toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteVisibleOuverteSurCheminInvisible.etats).not.toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte VisibleOuverteSurCheminInvisible");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte VisibleOuverteSurCheminInvisible", false);
         expect(ctxCommande.sortie).toEqual("C’est une porte visibleOuverteSurCheminInvisible.{N}Elle est ouverte. Vous pouvez la fermer.{N}");
 
         // invisible sur invisible
@@ -184,7 +184,7 @@ describe('Test de la visibilité des portes', () => {
         expect(porteInvisibleSurInvisible.etats).toContain(ctxPartie.jeu.etats.ouvertID);
         expect(porteInvisibleSurInvisible.etats).not.toContain(ctxPartie.jeu.etats.fermeID);
 
-        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleSurInvisible");
+        ctxCommande = ctxPartie.com.executerCommande("examiner porte InvisibleSurInvisible", false);
         expect(ctxCommande.sortie).toEqual("Je ne la vois pas actuellement.{N}");
 
     });

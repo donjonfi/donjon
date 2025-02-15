@@ -44,9 +44,9 @@ describe('Test du jeu avec secret, caché et discret', () => {
     const jeu = Generateur.genererJeu(rc);
     expect(jeu.objets).toHaveSize(2 + 8); // (inventaire, joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const ctxPartie = new ContextePartie(jeu);
-    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    ctxCommande = ctxPartie.com.executerCommande("regarder");
+    ctxCommande = ctxPartie.com.executerCommande("regarder", true);
     expect(ctxCommande.sortie).toEqual("{_{*Le salon*}_}{n}Vous êtes dans le salon.{N}{U}Vous apercevez une bibliothèque et un bureau.{U}Sur le bureau il y a une lettre.{N}{P}Il n’y a pas de sortie.{N}");
   });
 
@@ -57,7 +57,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(jeu.objets).toHaveSize(2 + 8); // (inventaire, joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
 
     const ctxPartie = new ContextePartie(jeu);
-    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
     let bibliotheque = ctxPartie.jeu.objets[2];
     expect(bibliotheque.nom).toEqual("bibliotheque");
@@ -98,12 +98,12 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreSciences.etats).not.toContain(ctxPartie.jeu.etats.vuID);
     expect(livreSciences.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner livre de cuisine");
+    ctxCommande = ctxPartie.com.executerCommande("examiner livre de cuisine", false);
     expect(ctxCommande.sortie)
       .withContext("Le livre ne doit pas pouvoir être examiné car il n’a pas encore été vu")
       .toEqual("Je ne l’ai pas encore vu.{N}");
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner la bibliothèque");
+    ctxCommande = ctxPartie.com.executerCommande("examiner la bibliothèque", false);
     expect(ctxCommande.sortie)
       .withContext("Le livre, déjà mentionné dans bibliothèque, ne doit pas être décrit une seconde fois.")
       .toEqual("Une bibliothèque. Un livre de cuisine dépasse.{N}");
@@ -126,7 +126,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreSciences.etats).not.toContain(ctxPartie.jeu.etats.vuID);
     expect(livreSciences.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner livre de cuisine");
+    ctxCommande = ctxPartie.com.executerCommande("examiner livre de cuisine", false);
     expect(ctxCommande.sortie).toEqual("C’est un livre de cuisine.{N}");
 
     // => familier
@@ -137,7 +137,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.vuID);
     expect(livreCuisine.etats).toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner livre de sciences");
+    ctxCommande = ctxPartie.com.executerCommande("examiner livre de sciences", false);
     expect(ctxCommande.sortie).toEqual("Je ne l’ai pas encore vu.{N}");
 
   });
@@ -148,7 +148,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     const jeu = Generateur.genererJeu(rc);
     expect(jeu.objets).toHaveSize(2 + 8); // (inventaire, joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const ctxPartie = new ContextePartie(jeu);
-    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
     let bureau = ctxPartie.jeu.objets[6];
     expect(bureau.nom).toEqual("bureau");
@@ -178,12 +178,12 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.vuID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
+    ctxCommande = ctxPartie.com.executerCommande("examiner parchemin", false);
     expect(ctxCommande.sortie)
       .withContext("Le parchemin secret ne doit pas pouvoir être examiné")
       .toEqual("Je n’ai pas trouvé {/parchemin/}.{N}{u}{/Entrez « {-aide examiner-} » pour afficher l’aide de cette action./}");
 
-    ctxCommande = ctxPartie.com.executerCommande("lire lettre");
+    ctxCommande = ctxPartie.com.executerCommande("lire lettre", false);
     expect(ctxCommande.sortie).toEqual("La saviez-vous ? Sous le bureau il y a un parchemin");
     // => mentionné mais toujours caché
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.secretID);
@@ -193,10 +193,10 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.vuID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("prendre parchemin");
+    ctxCommande = ctxPartie.com.executerCommande("prendre parchemin", false);
     expect(ctxCommande.sortie).toEqual("Je ne l’ai pas encore vu.{N}{u}{/Entrez « {-aide prendre-} » pour afficher l’aide de cette action./}");
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner sous bureau");
+    ctxCommande = ctxPartie.com.executerCommande("examiner sous bureau", false);
     expect(ctxCommande.sortie).toEqual(" Dessous, il y a un parchemin.{N}");
 
     // => vu
@@ -207,7 +207,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.vuID);
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner parchemin");
+    ctxCommande = ctxPartie.com.executerCommande("examiner parchemin", false);
     expect(ctxCommande.sortie).toEqual("C’est un parchemin.{N}");
     // => familier
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.secretID);
@@ -225,7 +225,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     const jeu = Generateur.genererJeu(rc);
     expect(jeu.objets).toHaveSize(2 + 8); // (inventaire, joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const ctxPartie = new ContextePartie(jeu);
-    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
     let bureau = ctxPartie.jeu.objets[6];
     expect(bureau.nom).toEqual("bureau");
@@ -253,12 +253,12 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.familierID);
 
     // on ne doit pas pouvoir examiner directement un objet caché
-    ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
+    ctxCommande = ctxPartie.com.executerCommande("examiner pièce", false);
     expect(ctxCommande.sortie)
       .withContext("La pièce cachée ne doit pas pouvoir être examinée")
       .toEqual("Je ne l’ai pas encore vue.{N}");
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner lettre");
+    ctxCommande = ctxPartie.com.executerCommande("examiner lettre", false);
     expect(ctxCommande.sortie).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}"); // [@pièce][&pièce]
 
     // mention « vue » et « familière » sur la pièce quand on lit la lettre
@@ -269,7 +269,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(piece.etats).toContain(ctxPartie.jeu.etats.vuID);
     expect(piece.etats).toContain(ctxPartie.jeu.etats.familierID);
 
-    ctxCommande = ctxPartie.com.executerCommande("examiner pièce");
+    ctxCommande = ctxPartie.com.executerCommande("examiner pièce", false);
     expect(ctxCommande.sortie).toEqual("C’est une pièce.{N}");
 
   });

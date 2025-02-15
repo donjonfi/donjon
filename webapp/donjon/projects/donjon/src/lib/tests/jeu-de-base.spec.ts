@@ -226,13 +226,13 @@ describe('Test du jeu de base', () => {
         const jeu = Generateur.genererJeu(rc);
         expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
         // pomme
         const pomme = jeu.objets[3];
         expect(pomme.intitule.nomEpithete).toEqual("pomme");
         expect(pomme.description).toEqual("Vous avez envie de croquer dedans.");
-        ctxCommande = ctxPartie.com.executerCommande("examiner pomme");
+        ctxCommande = ctxPartie.com.executerCommande("examiner pomme", false);
         expect(ctxCommande.sortie).toEqual("Vous avez envie de croquer dedans.{N}");
     });
     
@@ -243,7 +243,7 @@ describe('Test du jeu de base', () => {
         const jeu = Generateur.genererJeu(rc);
         expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
         // magazine
         const magazine = jeu.objets[4];
@@ -251,9 +251,9 @@ describe('Test du jeu de base', () => {
         expect(magazine.description).toEqual("Il s'agit des programmes TV de la semaine dernière.");
         expect(magazine.apercu).toEqual("[initialement]Un magazine traîne sur le sol.[fin choix]");
         expect(magazine.texte).toEqual("Ils repassent un film de Noël ce soir.");
-        ctxCommande = ctxPartie.com.executerCommande("examiner magazine de récup");
+        ctxCommande = ctxPartie.com.executerCommande("examiner magazine de récup", false);
         expect(ctxCommande.sortie).toEqual("Il s'agit des programmes TV de la semaine dernière.{N}");
-        ctxCommande = ctxPartie.com.executerCommande("examiner magazine");
+        ctxCommande = ctxPartie.com.executerCommande("examiner magazine", false);
         expect(ctxCommande.sortie).toEqual("Il s'agit des programmes TV de la semaine dernière.{N}");
     });
 
@@ -264,15 +264,15 @@ describe('Test du jeu de base', () => {
         const jeu = Generateur.genererJeu(rc);
         expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
-        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu");
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
         // table basse
         const tableBasse = jeu.objets[2];
         expect(tableBasse.intitule.nomEpithete).toEqual("table basse");
         expect(tableBasse.description).toEqual("Il s'agit d'une table basse en bois clair.");
-        ctxCommande = ctxPartie.com.executerCommande("examiner table basse");
+        ctxCommande = ctxPartie.com.executerCommande("examiner table basse", false);
         expect(ctxCommande.sortie).toEqual("Il s'agit d'une table basse en bois clair.{N} Dessus, il y a une pomme.{N}");
-        ctxCommande = ctxPartie.com.executerCommande("examiner table");
+        ctxCommande = ctxPartie.com.executerCommande("examiner table", false);
         expect(ctxCommande.sortie).toEqual("Il s'agit d'une table basse en bois clair.{N} Dessus, il y a une pomme.{N}");
     });
 

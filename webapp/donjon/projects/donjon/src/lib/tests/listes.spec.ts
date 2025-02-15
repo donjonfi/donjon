@@ -164,12 +164,12 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     expect(ctx.jeu.listes[0].intitule.toString()).toEqual('l’historique');
     expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
 
-    ctx.com.executerCommande("vérifier");
+    ctx.com.executerCommande("vérifier", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'vérifié', ctx.eju)).toBeTrue();
 
@@ -202,7 +202,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     texteCalcule = ctx.ins.dire.calculerTexteDynamique('[texte métro]', 0, undefined, undefined, undefined, undefined);
     expect(texteCalcule).toEqual("{E}Bus trouvé{E}");
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"métro"');
@@ -237,7 +237,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
     let texteCalcule = ctx.ins.dire.calculerTexteDynamique('[description métro]', 0, undefined, undefined, undefined, undefined);
     expect(texteCalcule).toEqual("{E}Pas de Métro{E}");
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"Métro"');
@@ -269,21 +269,21 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
-    ctx.com.executerCommande("vérifier");
+    ctx.com.executerCommande("vérifier", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();
 
 
-    ctx.com.executerCommande("remplir");
-    ctx.com.executerCommande("vérifier");
+    ctx.com.executerCommande("remplir", false);
+    ctx.com.executerCommande("vérifier", false);
 
      expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeFalse();
    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeTrue();
 
 
-    ctx.com.executerCommande("vider");
-    ctx.com.executerCommande("vérifier");
+    ctx.com.executerCommande("vider", false);
+    ctx.com.executerCommande("vérifier", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'éteint', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeFalse();

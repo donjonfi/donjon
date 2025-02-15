@@ -12,7 +12,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
 
@@ -32,7 +32,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
 
@@ -51,7 +51,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
 
@@ -72,7 +72,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
@@ -94,7 +94,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
@@ -116,7 +116,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
@@ -138,7 +138,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
@@ -160,7 +160,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
@@ -185,7 +185,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
 
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
@@ -211,7 +211,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeTrue();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'cuisiné', ctx.eju)).toBeFalse();
@@ -236,7 +236,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'cuisiné', ctx.eju)).toBeTrue();
@@ -261,7 +261,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
-    ctx.com.executerCommande("tester");
+    ctx.com.executerCommande("tester", false);
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'saloné', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'chambré', ctx.eju)).toBeFalse();
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'cuisiné', ctx.eju)).toBeTrue();

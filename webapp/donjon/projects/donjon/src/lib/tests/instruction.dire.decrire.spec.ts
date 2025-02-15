@@ -23,15 +23,15 @@ describe('Lister et décrire le contenu', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListerContenu, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu");
+    ctxPartie.com.executerCommande("commencer le jeu", false);
 
-    let ctxCommande = ctxPartie.com.executerCommande("examiner table");
+    let ctxCommande = ctxPartie.com.executerCommande("examiner table", false);
 
     expect(ctxCommande.sortie)
       .withContext("Le contenu de la table doit être listé. Le livre ne doit être mentionné qu’une fois.")
       .toEqual('Une table en bois couverte de livres sur laquelle est adossée une chaise.{N}');
 
-    ctxCommande = ctxPartie.com.executerCommande("regarder");
+    ctxCommande = ctxPartie.com.executerCommande("regarder", false);
 
       expect(ctxCommande.sortie)
         .withContext("La chaise et la table ne doivent pas être mentionnées 2x.")

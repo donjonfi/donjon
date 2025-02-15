@@ -24,19 +24,19 @@ describe('Commande diverses', () => {
     let ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
     // 1) tester le cube qui est présent
-    let ctxCommande = ctxPartie.com.executerCommande('tester le cube');
+    let ctxCommande = ctxPartie.com.executerCommande('tester le cube', false);
     expect(ctxCommande.commandeValidee).toBeTrue();
     expect(ctxCommande.sortie).toEqual('Je teste le cube.{N}');
     // 2) tester le triangle qui est invisible
-    ctxCommande = ctxPartie.com.executerCommande('tester le triangle');
+    ctxCommande = ctxPartie.com.executerCommande('tester le triangle', false);
     expect(ctxCommande.commandeValidee).toBeFalse();
     expect(ctxCommande.sortie).toEqual('Je ne l’ai pas encore vu.{N}');
     // 3) tester le rectangle qui n’est pas accessible
-    ctxCommande = ctxPartie.com.executerCommande('tester le rectangle');
+    ctxCommande = ctxPartie.com.executerCommande('tester le rectangle', false);
     expect(ctxCommande.commandeValidee).toBeFalse();
     expect(ctxCommande.sortie).toEqual('Je n’y ai pas accès.{N}');
     // 4) tester le cercle qui n’est pas présent
-    ctxCommande = ctxPartie.com.executerCommande('tester le cercle');
+    ctxCommande = ctxPartie.com.executerCommande('tester le cercle', false);
     expect(ctxCommande.commandeValidee).toBeFalse();
     expect(ctxCommande.sortie).toEqual('Je ne l’ai pas encore vu.{N}');
 
