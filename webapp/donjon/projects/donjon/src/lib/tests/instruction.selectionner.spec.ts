@@ -11,7 +11,7 @@ describe('Instructions - Sélectionner', () => {
       'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
-    const ctxCom = ctx.com.executerCommande("tester");
+    const ctxCom = ctx.com.executerCommande("tester", false);
     expect(ctxCom.sortie).toEqual("3");
   });
 
@@ -28,7 +28,7 @@ describe('Instructions - Sélectionner', () => {
       'fin action '
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
-    const ctxCom = ctx.com.executerCommande("tester");
+    const ctxCom = ctx.com.executerCommande("tester", false);
     expect(ctxCom.sortie).toEqual("il vaut plus que 2");
   });
 
@@ -41,7 +41,7 @@ describe('Instructions - Sélectionner', () => {
       'fin action ' +
       '';
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
-    const ctxCom = ctx.com.executerCommande("tester");
+    const ctxCom = ctx.com.executerCommande("tester", false);
     expect(ctxCom.sortie).toEqual("5");
   });
 

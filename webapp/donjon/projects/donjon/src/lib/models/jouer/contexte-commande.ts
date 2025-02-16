@@ -31,4 +31,6 @@ export class ContexteCommande {
 
   public verbesSimilaires: string[] | undefined;
 
+  public estUneInstruction = false;
+
 }

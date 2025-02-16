@@ -44,6 +44,8 @@ export class Commandeur {
 
   private correctionCommandeEnCours: ContexteCommande;
 
+  private derniereCommandeEstInstruction = false;
+
   private commandeActuelle: string | undefined;
   private commandePrecedente: string | undefined;
   private contexteActuel: ContexteCommande | undefined;
@@ -67,7 +69,7 @@ export class Commandeur {
     let retVal: ContexteCommande | undefined;
     if (this.commandePrecedente) {
       this.correctionCommandeEnCours = this.contextePrecedent;
-      retVal = this.executerCommande(this.commandePrecedente);
+      retVal = this.executerCommande(this.commandePrecedente, false);
     }
     return retVal;
   }
@@ -83,19 +85,23 @@ export class Commandeur {
     this.correctionCommandeEnCours = commandeEnCours;
   }
 
-  /** Exécuter la commande */
-  public executerCommande(commande: string): ContexteCommande {
+  /** Exécuter la commande
+   * @param commande Commande à exécuter
+   * @param conserverCommandePrecedente Conserver la commande précédente plutôt que cette nouvelle commande (pour la commande "encore")
+   */
+  public executerCommande(commande: string, estInstruction: boolean): ContexteCommande {
 
-    // sauver commande précédente pour commande "encore"
-    this.commandePrecedente = this.commandeActuelle;
+    // sauver commande précédente pour commande "encore" sauf s’il s’agit d’une instruction
+    if (!this.derniereCommandeEstInstruction) {
+      this.commandePrecedente = this.commandeActuelle;
+      this.contextePrecedent = this.contexteActuel;
+    }
+    this.derniereCommandeEstInstruction = estInstruction;
     this.commandeActuelle = commande;
-    this.contextePrecedent = this.contexteActuel;
     this.contexteActuel = this.correctionCommandeEnCours;
-
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
-    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
-
+    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);    
     if (this.correctionCommandeEnCours) {
       ctxCmd.questions = this.correctionCommandeEnCours.questions;
       this.correctionCommandeEnCours = undefined;
@@ -134,8 +140,13 @@ export class Commandeur {
         } else {
           this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
-          if (!ctxCmd.commandeValidee) {
+          if (!ctxCmd.commandeValidee && ctxCmd.candidats[1].score > 0) {
             this.essayerLaCommande(1, ctxCmd);
+            // si le 2e candidat échoue également, remettre le contexte de celui avec le meilleur score
+            // pour avoir l’erreur la plus probable
+            if(!ctxCmd.commandeValidee){
+              this.essayerLaCommande(0, ctxCmd);
+            }
           }
         }
         // s’il y a plus de 2 candidats, c’est un cas qui n’est pas pris en charge (ça ne devrait pas arriver)
@@ -203,7 +214,7 @@ export class Commandeur {
 
       // verbe refusé mais verbe similaire trouvé => proposer alternative
       if (explicationRefus.startsWith("Verbes similaires:")) {
-        const verbesSimilaires = explicationRefus.replace(/^Verbes similaires:(\w+)$/g, '$1');
+        const verbesSimilaires = explicationRefus.replace(/^Verbes similaires:(.+)$/g, '$1');
         ctx.verbesSimilaires = verbesSimilaires.split(",");
 
         // verbe ou correspondance CECI/CELA refusés => donner l’explication
@@ -276,7 +287,6 @@ export class Commandeur {
       ctx.commandeValidee = false;
 
       console.warn("Plusieurs actions avec le même score trouvées pour cette commande : ", actionsCeciCela);
-      
 
       // ce candidat de commande ne peut pas être exécuté.
       ctx.sortie = "{+Erreur: plusieurs actions avec la même priorité trouvées (" + candidatCommande.els.infinitif + ").+}";
