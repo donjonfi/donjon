@@ -101,8 +101,7 @@ export class Commandeur {
     this.contexteActuel = this.correctionCommandeEnCours;
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
-    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
-
+    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);    
     if (this.correctionCommandeEnCours) {
       ctxCmd.questions = this.correctionCommandeEnCours.questions;
       this.correctionCommandeEnCours = undefined;
@@ -141,8 +140,13 @@ export class Commandeur {
         } else {
           this.essayerLaCommande(0, ctxCmd);
           // si le premier candidat n’a pas été validé, essayer le 2e
-          if (!ctxCmd.commandeValidee) {
+          if (!ctxCmd.commandeValidee && ctxCmd.candidats[1].score > 0) {
             this.essayerLaCommande(1, ctxCmd);
+            // si le 2e candidat échoue également, remettre le contexte de celui avec le meilleur score
+            // pour avoir l’erreur la plus probable
+            if(!ctxCmd.commandeValidee){
+              this.essayerLaCommande(0, ctxCmd);
+            }
           }
         }
         // s’il y a plus de 2 candidats, c’est un cas qui n’est pas pris en charge (ça ne devrait pas arriver)

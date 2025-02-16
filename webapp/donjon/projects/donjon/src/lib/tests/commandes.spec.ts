@@ -2,6 +2,7 @@ import { ActionsUtils, CompilateurV8, Generateur } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { TestUtils } from "../utils/test-utils";
+import { actions } from "./scenario_actions";
 
 describe('Commande diverses', () => {
 
@@ -625,6 +626,32 @@ describe('Décomposer des commandes', () => {
     expect(candidatsAction).toHaveSize(1);
     expect(candidatsAction[0].action.infinitif).toEqual('pêcher');
     expect(candidatsAction[0].action.infinitifSansAccent).toEqual('pecher');
+  });
+
+});
+
+
+
+describe('Contrôle priorité découpe action et message d’erreur', () => {
+
+  const scenario = `        
+  Le salon est un lieu.
+  La table est un support dans le salon.
+  La baguette en argent est un objet sur la table.
+  `;
+
+  it('prendre bâton en bois qui n’existe pas et la baguette en argent qui existe.', () => {
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", false);
+
+    ctxCommande = ctxPartie.com.executerCommande("prendre le bâton en bois", false);
+    expect(ctxCommande.sortie).toContain("Je n’ai pas trouvé « le bâton en bois ».{N}");
+
+    ctxCommande = ctxPartie.com.executerCommande("prendre la baguette en argent", false);
+    expect(ctxCommande.sortie).toContain("La baguette en argent a été ajoutée à votre inventaire.{N}");
+
   });
 
 });
