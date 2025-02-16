@@ -210,7 +210,7 @@ export class Commandeur {
 
       // verbe refusé mais verbe similaire trouvé => proposer alternative
       if (explicationRefus.startsWith("Verbes similaires:")) {
-        const verbesSimilaires = explicationRefus.replace(/^Verbes similaires:(\w+)$/g, '$1');
+        const verbesSimilaires = explicationRefus.replace(/^Verbes similaires:(.+)$/g, '$1');
         ctx.verbesSimilaires = verbesSimilaires.split(",");
 
         // verbe ou correspondance CECI/CELA refusés => donner l’explication
