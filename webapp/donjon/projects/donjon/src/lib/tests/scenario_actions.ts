@@ -1,7 +1,7 @@
 
 export const actions = `
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-02-15-030202
+-- Version: 2025-02-20-030203
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1392,5 +1392,4 @@ interpréter appuyer et enfoncer comme pousser.
 interpréter ramasser comme prendre.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
-
 `;
