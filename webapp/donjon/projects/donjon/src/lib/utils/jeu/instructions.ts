@@ -488,7 +488,6 @@ export class Instructions {
       case 'attendre':
         // ATTENDRE UNE TOUCHE
         if (instruction.sujet?.nom.toLocaleLowerCase() == 'touche') {
-          // resultat.sortie = "@@attendre touche@@";
           resultat.interrompreBlocInstruction = true;
           resultat.typeInterruption = TypeInterruption.attendreTouche;
           resultat.messageAttendre = TexteUtils.enleverGuillemets(instruction.complement1, true);

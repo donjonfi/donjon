@@ -17,10 +17,10 @@ import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
 
 @Component({
-    selector: 'djn-lecteur',
-    templateUrl: './lecteur.component.html',
-    styleUrls: ['./lecteur.component.scss'],
-    standalone: false
+  selector: 'djn-lecteur',
+  templateUrl: './lecteur.component.html',
+  styleUrls: ['./lecteur.component.scss'],
+  standalone: false
 })
 export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -163,14 +163,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     texteAuteur += '</h2>';
     this.partie.ecran.ajouterContenuHtml(texteAuteur);
 
-    if(this.partie.jeu.participants){
+    if (this.partie.jeu.participants) {
       let texteParticipants = '<h3>Avec la participation de ';
       texteParticipants += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.participants));
       texteParticipants += '</h3>';
       this.partie.ecran.ajouterContenuHtml(texteParticipants);
     }
 
-    if(this.partie.jeu.remerciements){
+    if (this.partie.jeu.remerciements) {
       let texteRemerciements = '<h3>Remerciements : ';
       texteRemerciements += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.remerciements));
       texteRemerciements += '</h3>';
@@ -390,7 +390,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     if (contenu) {
       // en mode auto-triche ou restauration partie, on n’attend pas !
-      if (this.autoTricheActif || this.restaurationSauvegardeEnAttente) {
+      if (this.autoTricheActif || this.autoTricheEnAttente || this.restaurationSauvegardeEnAttente) {
         // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
         contenu = contenu.replace(/@@attendre touche@@/g, '<br><span class="t-commande font-italic">Appuyez sur une touche…</span><br>')
       }
