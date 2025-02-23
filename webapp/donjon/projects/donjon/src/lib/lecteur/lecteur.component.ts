@@ -505,7 +505,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // focus sur l'entrée de commande
           this.focusCommande();
           // si restauration automatique doit être démarrée
-          if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+          if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || (this.interruptionEnCoursAvantAnnulation && !this.autoTricheActif)) {
             this.lancerAutoTriche();
           }
           break;
@@ -533,7 +533,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
               // focus sur l'entrée de commande
               this.focusCommande();
               // si restauration automatique doit être démarrée
-              if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+              if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || (this.interruptionEnCoursAvantAnnulation && !this.autoTricheActif)) {
                 this.lancerAutoTriche();
               }
             }
@@ -555,7 +555,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // si (on est en auto-triche) 
           // ou bien si (une sauvegarde est en cours de restauration ou un tour doit être annulé)
           // alors on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
             this.terminerInterruption(undefined);
           }
           break;
@@ -566,7 +566,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.focusCommande();
           // si on est en auto-triche où qu'une sauvegarde doit
           // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {
