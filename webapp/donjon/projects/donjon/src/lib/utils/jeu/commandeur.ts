@@ -91,6 +91,14 @@ export class Commandeur {
    */
   public executerCommande(commande: string, estInstruction: boolean): ContexteCommande {
 
+    // s’il s’agit d’un commentaire à destination de l’auteur
+    if (commande.startsWith("*") || commande.startsWith("@")) {
+      let specialContext = new ContexteCommande();
+      specialContext.commandeValidee = true;
+      specialContext.sortie = "@@commentaire@@";
+      return specialContext;
+    }
+
     // sauver commande précédente pour commande "encore" sauf s’il s’agit d’une instruction
     if (!this.derniereCommandeEstInstruction) {
       this.commandePrecedente = this.commandeActuelle;
@@ -101,7 +109,7 @@ export class Commandeur {
     this.contexteActuel = this.correctionCommandeEnCours;
     // COMPRENDRE LA COMMANDE
     // > décomposer la commande
-    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);    
+    let ctxCmd = CommandeurDecomposer.decomposerCommande(commande, this.jeu, this.eju, this.act);
     if (this.correctionCommandeEnCours) {
       ctxCmd.questions = this.correctionCommandeEnCours.questions;
       this.correctionCommandeEnCours = undefined;
@@ -144,7 +152,7 @@ export class Commandeur {
             this.essayerLaCommande(1, ctxCmd);
             // si le 2e candidat échoue également, remettre le contexte de celui avec le meilleur score
             // pour avoir l’erreur la plus probable
-            if(!ctxCmd.commandeValidee){
+            if (!ctxCmd.commandeValidee) {
               this.essayerLaCommande(0, ctxCmd);
             }
           }
@@ -195,7 +203,6 @@ export class Commandeur {
         // ctxCmd.sortie += "Vous pouvez entrer la commande {-aide-}.\n";
       }
     }
-
     return ctxCmd;
   }
 
