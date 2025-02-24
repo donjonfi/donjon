@@ -1261,8 +1261,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // -> afficher la commande entrée par le joueur + son interprétation
           affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
-        const texteIgnore = this.partie.ecran.ajouterParagrapheDonjonOuvert('{-' + affichageCommande + '-}');
-        this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+        // commentaire à l’auteur
+        if (commandeNettoyee.startsWith("*") || commandeNettoyee.startsWith("@")) {
+          const texteIgnore = this.partie.ecran.ajouterParagrapheDonjon('{+' + affichageCommande + '+}');
+          this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+          // commande normale
+        } else {
+          const texteIgnore = this.partie.ecran.ajouterParagrapheDonjonOuvert('{-' + affichageCommande + '-}');
+          this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+        }
       }
 
       let sortieCommande = contexteCommande.sortie;
@@ -1316,6 +1323,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           // sortie spéciale: nouvelle partie
         } else if (sortieCommande.includes("@nouvelle partie@")) {
           this.nouvellePartieOuAnnulerTour.emit();
+          // commentaire à destination de l’auteur
+        } else if (sortieCommande == "@@commentaire@@") {
+          // (ne rien faire)
           // sortie normale
         } else {
           const sortieCommandeHtml = (nouveauParagraphe ? "<p>" : "<br>") + BalisesHtml.convertirEnHtml(sortieCommande, this.partie.dossierRessourcesComplet);
