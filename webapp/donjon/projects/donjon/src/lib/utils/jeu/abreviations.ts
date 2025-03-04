@@ -290,9 +290,7 @@ export class Abreviations {
 
           case 'en':
           case 'entrer':
-            if (nombreDeMots == 1) {
-              retVal = 'aller dedans';
-            }
+            retVal = 'aller dedans';
             break;
 
           case 'enf':

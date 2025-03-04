@@ -43,7 +43,11 @@ export class ActionsUtils {
       if (resChercherCandidat.verbesSimilaires.length) {
         raisonRefus = `Verbes similaires:${resChercherCandidat.verbesSimilaires.join(',')}`;
       } else {
-        raisonRefus = "Je ne connais pas le verbe " + commande.infinitif + ".";
+        if (Dictionnaires.dictionnaireVerbes.includes(commande.infinitif)) {
+          raisonRefus = "Je ne supporte pas le verbe " + commande.infinitif + ".";
+        } else {
+          raisonRefus = "Je ne connais pas le verbe " + commande.infinitif + ".";
+        }
       }
       // verbe connu 
     } else {
