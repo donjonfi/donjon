@@ -16,7 +16,7 @@ import { ResultatVerifierCandidat } from "../../models/jeu/resultat-verifier-can
 import { StringUtils } from "../commun/string.utils";
 import { ERessemblance, RechercheUtils } from "../commun/recherche-utils";
 import { Concept } from "../../models/compilateur/concept";
-import { ClassesRacines } from "donjon";
+import { Dictionnaires } from "./dictionnaires";
 
 export class ActionsUtils {
 
@@ -31,7 +31,7 @@ export class ActionsUtils {
 
   public obtenirRaisonRefusCommande(commande: ElementsPhrase, ceciCommande: Correspondance, celaCommande: Correspondance): string {
 
-    let raisonRefu: string = "Inconnu.";
+    let raisonRefus: string = "Inconnu.";
 
     // 1. trouver l’infinitif (en tenant compte des accents)
     let resChercherCandidat = this.chercherCandidatsCommandeSansControle(commande);
@@ -41,9 +41,9 @@ export class ActionsUtils {
     // verbe inconnu
     if (!resChercherCandidat.verbeConnu) {
       if (resChercherCandidat.verbesSimilaires.length) {
-        raisonRefu = `Verbes similaires:${resChercherCandidat.verbesSimilaires.join(',')}`;
+        raisonRefus = `Verbes similaires:${resChercherCandidat.verbesSimilaires.join(',')}`;
       } else {
-        raisonRefu = "Je ne connais pas le verbe " + commande.infinitif + ".";
+        raisonRefus = "Je ne connais pas le verbe " + commande.infinitif + ".";
       }
       // verbe connu 
     } else {
@@ -51,12 +51,12 @@ export class ActionsUtils {
       if (resChercherCandidat.candidatsEnLice.length == 0) {
         //     I.A) 1 seul candidat refusé
         if (resChercherCandidat.candidatsRefuses.length == 1) {
-          raisonRefu = "Je sais " + this.expliquerRefuTropOuTropPeuArguments(resChercherCandidat.candidatsRefuses[0], commande);
+          raisonRefus = "Je sais " + this.expliquerRefusTropOuTropPeuArguments(resChercherCandidat.candidatsRefuses[0], commande);
           // I.B) plusieurs candidats refusés
         } else {
-          raisonRefu = "Je sais :";
+          raisonRefus = "Je sais :";
           resChercherCandidat.candidatsRefuses.forEach(candidat => {
-            raisonRefu += "{n}{t}- " + this.expliquerRefuTropOuTropPeuArguments(candidat, commande);
+            raisonRefus += "{n}{t}- " + this.expliquerRefusTropOuTropPeuArguments(candidat, commande);
           });
         }
         // II) il reste des candidats en lice => le nombre d’arguments est accepté
@@ -119,42 +119,42 @@ export class ActionsUtils {
           // // un seul candidat
           // if (resCherCand.candidatsEnLice.length == 1) {
           // détaillé commande trouvée
-          raisonRefu = "Je sais " + this.afficherCandidatAction(resChercherCandidat.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
-          // refu ceci
+          raisonRefus = "Je sais " + this.afficherCandidatAction(resChercherCandidat.candidatsEnLice[0], !ceciToujoursRefuse, !celaToujoursRefuse);
+          // refus ceci
           if (ceciToujoursRefuse) {
-            // expliquer refu CECI + CELA
+            // expliquer refus CECI + CELA
             if (celaToujoursRefuse) {
-              raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
-              raisonRefu += (" et " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
-              // expliquer refu CECI
+              raisonRefus += (" mais " + this.expliquerRefusClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+              raisonRefus += (" et " + this.expliquerRefusClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique)) + ".";
+              // expliquer refus CECI
             } else {
               if (argumentUnique) {
-                raisonRefu = (this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
+                raisonRefus = (this.expliquerRefusClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique));
               } else {
-                raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
+                raisonRefus += (" mais " + this.expliquerRefusClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCeci, ceciCommande, 'ceci', argumentUnique) + ".");
               }
             }
-            // expliquer refu CELA
+            // expliquer refus CELA
           } else if (celaToujoursRefuse) {
-            // expliquer refu cela
-            raisonRefu += (" mais " + this.expliquerRefuClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
+            // expliquer refus cela
+            raisonRefus += (" mais " + this.expliquerRefusClasseOuEtatArgument(resChercherCandidat.candidatsEnLice[0].cibleCela, celaCommande, 'cela', argumentUnique) + ".");
           }
 
           // CECI et CELA sont OK à certains moments
           // => combinaison refusée
           // => il y a forcément plusieurs actions (sinon on n’arriverait pas ici)
         } else {
-          raisonRefu = "Je sais :";
+          raisonRefus = "Je sais :";
           resChercherCandidat.candidatsRefuses.forEach(candidat => {
             // détaillé commande trouvée
-            raisonRefu += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
+            raisonRefus += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
           });
-          raisonRefu += "La combinaison de « " + ceciCommande.intitule + " » et « " + ceciCommande.intitule + " » ne convient pas.";
+          raisonRefus += "La combinaison de « " + ceciCommande.intitule + " » et « " + ceciCommande.intitule + " » ne convient pas.";
         }
 
       }
     }
-    return raisonRefu;
+    return raisonRefus;
   }
 
   /**
@@ -178,7 +178,7 @@ export class ActionsUtils {
    * @param actionCeci 
    * @param commandeCeci 
    */
-  private expliquerRefuClasseOuEtatArgument(actionCeci: CibleAction, commandeCeci: Correspondance, tokenCeciOuCela: 'ceci' | 'cela', argumentUnique: boolean) {
+  private expliquerRefusClasseOuEtatArgument(actionCeci: CibleAction, commandeCeci: Correspondance, tokenCeciOuCela: 'ceci' | 'cela', argumentUnique: boolean) {
 
     let retVal: string;
 
@@ -209,7 +209,7 @@ export class ActionsUtils {
                 //   TODO: gestion quand plusieurs objets ?
               } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
                 // expliquer souci avec l’état de l’objet
-                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                retVal = this.expliquerRefusEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // objet TROUVÉ et CLASSE KO
               } else {
 
@@ -253,7 +253,7 @@ export class ActionsUtils {
                 //   TODO: gestion quand plusieurs lieux ?
               } else if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
                 // expliquer souci avec l’état de l’objet
-                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                retVal = this.expliquerRefusEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
                 if (argumentUnique) {
@@ -266,7 +266,7 @@ export class ActionsUtils {
             } else {
               if (ClasseUtils.heriteDe(commandeCeci.elements[0].classe, classeCibleCeci.nom)) {
                 // expliquer souci avec l’état de l’objet
-                retVal = this.expliquerRefuEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
+                retVal = this.expliquerRefusEtatElement(commandeCeci.elements[0], tokenCeciOuCela, actionCeci, argumentUnique);
                 // lieu TROUVÉ et CLASSE KO
               } else {
                 if (argumentUnique) {
@@ -451,7 +451,7 @@ export class ActionsUtils {
     return retVal;
   }
 
-  private expliquerRefuEtatElement(elementCommande: ElementJeu, tokenCeciOuCela: 'ceci' | 'cela', cibleAction: CibleAction, argumentUnique: boolean) {
+  private expliquerRefusEtatElement(elementCommande: ElementJeu, tokenCeciOuCela: 'ceci' | 'cela', cibleAction: CibleAction, argumentUnique: boolean) {
 
     let retVal: string;
 
@@ -521,7 +521,7 @@ export class ActionsUtils {
     return retVal;
   }
 
-  private expliquerRefuTropOuTropPeuArguments(candidat: Action, commande: ElementsPhrase) {
+  private expliquerRefusTropOuTropPeuArguments(candidat: Action, commande: ElementsPhrase) {
     let explication: string;
     //     I.A.a) la seule action possible n’a pas d’argument
     if (!candidat.ceci) {
@@ -779,10 +779,12 @@ export class ActionsUtils {
     if (!resultatChercherCandidats.verbeConnu) {
       resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, false, false);
     }
-    // si toujours pas trouvé, essayer de trouver verbe similaire
-    if (!resultatChercherCandidats.verbeConnu) {
+
+    // si toujours pas trouvé et si le verbe ne fait pas partie du dictionnaire, essayer de trouver un verbe similaire
+    if (!resultatChercherCandidats.verbeConnu && !Dictionnaires.dictionnaireVerbes.includes(infinitif)) {
       resultatChercherCandidats = this.chercherCandidatsActionSansControle(infinitif, isCeci, isCela, true, true);
     }
+
     return resultatChercherCandidats;
   }
 
