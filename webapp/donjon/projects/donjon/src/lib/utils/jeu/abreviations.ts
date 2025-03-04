@@ -58,7 +58,7 @@ export class Abreviations {
 
     let mots = commandeModifiee.split(' ');
     if (mots.length > 0) {
-      let premierMotComplet = Abreviations.premierMotCommande(mots[0], true, abreviations);
+      let premierMotComplet = Abreviations.premierMotCommande(mots[0], true, abreviations, mots.length);
       let deuxiemeMotComplet: string = null;
 
       // si commande en plusieurs mots
@@ -82,7 +82,7 @@ export class Abreviations {
         // c’est un « me » par exemple « me regarder » 
         // => on va le transformer en « regarder le joueur ».
         if (premierMotComplet === 'moi') {
-          premierMotComplet = Abreviations.premierMotCommande(mots[1], true, abreviations);
+          premierMotComplet = Abreviations.premierMotCommande(mots[1], true, abreviations, mots.length);
           deuxiemeMotComplet = 'le joueur';
         }
 
@@ -121,7 +121,7 @@ export class Abreviations {
    * Transforme l’abréviation (1, 2 ou 3 lettres) en un mot complet.
    * @param premierMot abréviation en 1, 2 ou 3 lettres ou bien mot complet.
    */
-  static premierMotCommande(premierMot: string, avecEspaceFinal: boolean, abreviations: Abreviation[]) {
+  static premierMotCommande(premierMot: string, avecEspaceFinal: boolean, abreviations: Abreviation[], nombreDeMots: number) {
     let retVal = premierMot;
 
     if (premierMot && premierMot.length > 0 && premierMot.length <= 10) {
@@ -160,7 +160,9 @@ export class Abreviations {
             break;
 
           case 'again':
-            retVal = 'répéter la dernière commande';
+            if (nombreDeMots == 1) {
+              retVal = 'répéter la dernière commande';
+            }
             break;
 
           case 'a':
@@ -177,7 +179,9 @@ export class Abreviations {
           case 'av':
           case 'ava':
           case 'avancer':
-            retVal = "aller dedans";
+            if (nombreDeMots == 1) {
+              retVal = "aller dedans";
+            }
             break;
 
           case 'triche':
@@ -190,7 +194,9 @@ export class Abreviations {
 
           case 'b':
           case 'bas':
-            retVal = "aller en bas";
+            if (nombreDeMots == 1) {
+              retVal = "aller en bas";
+            }
             break;
 
           case 'bo':
@@ -223,7 +229,9 @@ export class Abreviations {
           case 'd': // (en: down)
           case 'de':
           case 'descendre':
-            retVal = "aller en bas";
+            if (nombreDeMots == 1) {
+              retVal = "aller en bas";
+            }
             break;
 
           case 'deb':
@@ -259,7 +267,9 @@ export class Abreviations {
 
           case 'e':
           case 'est':
-            retVal = "aller à l’est";
+            if (nombreDeMots == 1) {
+              retVal = "aller à l’est";
+            }
             break;
 
           // case 'ea': // (en: eat)
@@ -273,12 +283,16 @@ export class Abreviations {
 
           case 'enc':
           case 'encore':
-            retVal = 'répéter la dernière commande';
+            if (nombreDeMots == 1) {
+              retVal = 'répéter la dernière commande';
+            }
             break;
 
           case 'en':
           case 'entrer':
-            retVal = 'aller dedans';
+            if (nombreDeMots == 1) {
+              retVal = 'aller dedans';
+            }
             break;
 
           case 'enf':
@@ -313,7 +327,9 @@ export class Abreviations {
           // g (en: again, fr: répète)
 
           case 'g': //(en: again, fr: répète)
-            retVal = 'répéter la dernière commande';
+            if (nombreDeMots == 1) {
+              retVal = 'répéter la dernière commande';
+            }
             break;
 
           // case 'go': // (en: go)
@@ -326,7 +342,9 @@ export class Abreviations {
 
           case 'h':
           case 'haut':
-            retVal = "aller en haut";
+            if (nombreDeMots == 1) {
+              retVal = "aller en haut";
+            }
             break;
 
           // ======================
@@ -336,11 +354,15 @@ export class Abreviations {
           case 'i': // (en: inventory)
           case 'inv':
           case 'inventaire':
-            retVal = "afficher inventaire";
+            if (nombreDeMots == 1) {
+              retVal = "afficher inventaire";
+            }
             break;
 
           case 'in': // (en: in)
-            retVal = 'aller dedans';
+            if (nombreDeMots == 1) {
+              retVal = 'aller dedans';
+            }
             break;
 
           case 'int':
@@ -396,7 +418,9 @@ export class Abreviations {
 
           case 'mo':
           case 'monter':
-            retVal = "aller en haut";
+            if (nombreDeMots == 1) {
+              retVal = "aller en haut";
+            }
             break;
 
           case 'mon':
@@ -413,20 +437,26 @@ export class Abreviations {
 
           case 'n':
           case 'nord':
-            retVal = "aller au nord";
+            if (nombreDeMots == 1) {
+              retVal = "aller au nord";
+            }
             break;
 
           case 'n-e':
           case 'ne': // (en: north east)
           case 'nord-est':
-            retVal = "aller au nord-est";
+            if (nombreDeMots == 1) {
+              retVal = "aller au nord-est";
+            }
             break;
 
           case 'n-o':
           case 'no':
           case 'nw': // (en: north west)
           case 'nord-ouest':
-            retVal = "aller au nord-ouest";
+            if (nombreDeMots == 1) {
+              retVal = "aller au nord-ouest";
+            }
             break;
 
           case 'nombre':
@@ -438,7 +468,9 @@ export class Abreviations {
 
           case 'o':
           case 'ouest':
-            retVal = "aller à l’ouest";
+            if (nombreDeMots == 1) {
+              retVal = "aller à l’ouest";
+            }
             break;
 
           // case 'op': // (en: open)
@@ -451,7 +483,9 @@ export class Abreviations {
             break;
 
           case 'out': // (en: out)
-            retVal = 'aller dehors';
+            if (nombreDeMots == 1) {
+              retVal = 'aller dehors';
+            }
             break;
 
           // ======================
@@ -471,7 +505,9 @@ export class Abreviations {
 
           case 'pau':
           case 'pause':
-            retVal = "faire une pause";
+            if (nombreDeMots == 1) {
+              retVal = "faire une pause";
+            }
             break;
 
           case 'pos':
@@ -502,7 +538,9 @@ export class Abreviations {
           case 'ré':
           case 'rép':
           case 'répète':
-            retVal = 'répéter la dernière commande';
+            if (nombreDeMots == 1) {
+              retVal = 'répéter la dernière commande';
+            }
             break;
 
           // ======================
@@ -511,31 +549,41 @@ export class Abreviations {
 
           case 's':
           case 'sud':
-            retVal = "aller au sud";
+            if (nombreDeMots == 1) {
+              retVal = "aller au sud";
+            }
             break;
 
           case 's-e':
           case 'se': // (en: south east)
           case 'sud-est':
-            retVal = "aller au sud-est";
+            if (nombreDeMots == 1) {
+              retVal = "aller au sud-est";
+            }
             break;
 
           case 's-o':
           case 's-w': // (south west)
           case 'sw':// (south west)
           case 'sud-ouest':
-            retVal = "aller au sud-ouest";
+            if (nombreDeMots == 1) {
+              retVal = "aller au sud-ouest";
+            }
             break;
 
           case 'so':
           case 'sortir':
-            retVal = 'aller dehors';
+            if (nombreDeMots == 1) {
+              retVal = 'aller dehors';
+            }
             break;
 
           case 'sor':
           case 'sortie':
           case 'sorties':
-            retVal = "afficher sorties";
+            if (nombreDeMots == 1) {
+              retVal = "afficher sorties";
+            }
             break;
 
           // ======================
@@ -555,7 +603,9 @@ export class Abreviations {
           //           U
           // ======================
           case 'u': // (en: up)
-            retVal = "aller en haut";
+            if (nombreDeMots == 1) {
+              retVal = "aller en haut";
+            }
             break;
 
           case 'ut':
@@ -567,7 +617,9 @@ export class Abreviations {
           //           W
           // ======================
           case 'w': // (en: west)
-            retVal = "aller à l’ouest";
+            if (nombreDeMots == 1) {
+              retVal = "aller à l’ouest";
+            }
             break;
 
           // ======================
@@ -586,7 +638,9 @@ export class Abreviations {
           //           Z
           // ======================
           case 'z': // (en: wait)
-            retVal = "attendre";
+            if (nombreDeMots == 1) {
+              retVal = "attendre";
+            }
             break;
 
           // ======================
