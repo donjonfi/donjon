@@ -1,3 +1,4 @@
+import { Dictionnaires } from "../jeu/dictionnaires";
 
 export class RechercheUtils {
 
@@ -243,28 +244,45 @@ export class RechercheUtils {
    * Retourne la ressemblance entre les 2 mots parmi "égaux", "ressemblants" ou "différents"
    * Le calcul s’arrête à 2 différences : ils sont alors considérés comme 2 mots différents.
    * Si les mots font moins de 5 caractères la distance vaudra soit "égaux" soit "différents".
+   * Si le mot de la recherche existe dans le dictionnaire, il ne sera jamais « semblable ».
    */
-  public static ressemblanceMots(motA: string, motB: string): ERessemblance {
+  public static ressemblanceMots(recherche: string, candidat: string): ERessemblance {
     const tailleMinimum = 5;
 
-    if (motA.length < tailleMinimum || motB.length < tailleMinimum) {
-      return motA == motB ? ERessemblance.egaux : ERessemblance.differents;
-    }
+    let retVal: ERessemblance;
 
-    // mot A plus long de 1 caractère
-    if (motA.length - motB.length == 1) {
-      return this.ressemblanceMotsLettreEnPlus(motA, motB);
+    if (recherche.length < tailleMinimum || candidat.length < tailleMinimum) {
+      retVal = recherche == candidat ? ERessemblance.egaux : ERessemblance.differents;
+      // mot A plus long de 1 caractère
+    } else if (recherche.length - candidat.length == 1) {
+      retVal = this.ressemblanceMotsLettreEnPlus(recherche, candidat);
       // mot B plus long de 1 caractère
-    } else if (motB.length - motA.length == 1) {
-      return this.ressemblanceMotsLettreEnPlus(motB, motA);
+    } else if (candidat.length - recherche.length == 1) {
+      retVal = this.ressemblanceMotsLettreEnPlus(candidat, recherche);
       // mots de même taile
-    } else if (motA.length == motB.length) {
-      return this.ressemblanceMotsMemeTaille(motA, motB);
+    } else if (recherche.length == candidat.length) {
+      retVal = this.ressemblanceMotsMemeTaille(recherche, candidat);
       // taille différente de plus de 1 caractère
     } else {
-      return ERessemblance.differents;
+      retVal = ERessemblance.differents;
     }
+
+    // même si les mots sont semblables, considérer qu’ils sont différents 
+    // si le mot entré par le jouer existe dans le dictionnaire.
+    if (retVal == ERessemblance.ressemblants) {
+      if (RechercheUtils.dernierMotDictionnaire == recherche) {
+        retVal = ERessemblance.differents;
+      }
+      else if (Dictionnaires.dictionnaireMots.includes(recherche)) {
+        RechercheUtils.dernierMotDictionnaire = recherche;
+        retVal = ERessemblance.differents;
+      }
+    }
+
+    return retVal;
   }
+
+  public static dernierMotDictionnaire: string = "";
 
   /**
    * Est-ce qu’en ajoutant la lettre manquante dans le mot le plus court, les mots
