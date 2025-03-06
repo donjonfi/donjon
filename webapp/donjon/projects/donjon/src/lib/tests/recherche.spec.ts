@@ -37,7 +37,11 @@ describe('Ressemblance entre 2 mots', () => {
   });
 
   it('ressemblance: journée − jouréne (2 lettres interverties entre-elles consécutives)', () => {
-    expect(RechercheUtils.ressemblanceMots('journée', 'jouréne')).toBe(ERessemblance.ressemblants);
+    expect(RechercheUtils.ressemblanceMots('jouréne', 'journée')).toBe(ERessemblance.ressemblants);
+  });
+
+  it('ressemblance: journée − jouréne (2 lettres interverties entre-elles consécutives)', () => {
+    expect(RechercheUtils.ressemblanceMots('journée', 'jouréne')).toBe(ERessemblance.differents);
   });
 
   it('ressemblance: journée − jouréen (2 lettres interverties entre-elles non consécutives)', () => {
