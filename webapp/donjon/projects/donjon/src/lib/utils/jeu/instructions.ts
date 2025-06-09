@@ -33,6 +33,7 @@ import { StringUtils } from '../commun/string.utils';
 import { TexteUtils } from '../commun/texte-utils';
 import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
+import { Choix } from '../../models/compilateur/choix';
 
 export class Instructions {
 
@@ -141,7 +142,7 @@ export class Instructions {
         resultat = new Resultat(true, "", 1);
         resultat.interrompreBlocInstruction = true;
         resultat.typeInterruption = instruction.typeChoisir == TypeChoisir.libre ? TypeInterruption.attendreChoixLibre : TypeInterruption.attendreChoix;
-        resultat.choix = instruction.choix;
+        resultat.choix = this.garderChoixNonVides(instruction, contexteTour, evenement, declenchements);
       } else {
         this.jeu.tamponErreurs.push("executerInstruction : choisir : aucun choix")
         resultat = new Resultat(false, '', 0);
@@ -158,6 +159,23 @@ export class Instructions {
     return resultat;
   }
 
+  private garderChoixNonVides(instruction: Instruction, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Choix[] {
+    let retVal: Choix[] = [];
+    instruction.choix.forEach(curChoix => {
+      // dans le cas des textes, on ne garde que ceux dont le résultat
+      // n’est pas une chaîne vide (choix conditionnels)
+      if (typeof curChoix.valeurs[0] === 'string') {
+        let affichage = this.dire.calculerTexteDynamique(curChoix.valeurs[0], instruction.nbExecutions, undefined, contexteTour, evenement, declenchements);
+        if (affichage != '""') {
+          let choixResultant = new Choix([affichage], curChoix.instructions);
+          retVal.push(choixResultant);
+        }
+      } else {
+        retVal.push(curChoix);
+      }
+    });
+    return retVal;
+  }
 
   private executerInfinitif(instruction: ElementsPhrase, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number): Resultat {
     let resultat = new Resultat(true, '', 1);
@@ -503,7 +521,7 @@ export class Instructions {
           }
           resultat.succes = true;
         } else {
-          console.error("executerInfinitif >> attenre >> sujet autre que  « une touche » ou « nombre secondes » pas pris en charge. sujet=", instruction.sujet);
+          console.error("executerInfinitif >> attendre >> sujet autre que « une touche » ou « nombre secondes » pas pris en charge. sujet=", instruction.sujet);
           resultat.succes = false;
         }
         break;
