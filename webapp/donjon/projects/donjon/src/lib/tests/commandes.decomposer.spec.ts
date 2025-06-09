@@ -153,4 +153,17 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[1].els.sujetComplement1.nom).toEqual('table');
  });
 
+ // TODO: fix it
+ xit('commande « poser le Masque des Ombres sur le Socle de pierre »', () => {
+  const resultats = PhraseUtils.obtenirLesCommandesPossibles('poser le Masque des Ombres sur le Socle de pierre');
+  expect(resultats.length).toBe(1);
+  expect(resultats[0].els.infinitif).toEqual('poser');
+  expect(resultats[0].els.preposition0).toBeFalsy();
+  expect(resultats[0].els.sujet.determinant).toEqual('le ');
+  expect(resultats[0].els.sujet.nom).toEqual('Masque des Ombres');
+  expect(resultats[0].els.preposition1).toEqual('sur');
+  expect(resultats[0].els.sujetComplement1.determinant).toEqual('le ');
+  expect(resultats[0].els.sujetComplement1.nom).toEqual('Socle de pierre');
+});
+
 });
