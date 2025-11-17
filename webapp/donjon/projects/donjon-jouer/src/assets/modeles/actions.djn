@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-03-06-30207
+-- Version: 2025-11-17-30209
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -507,7 +507,7 @@ action enlever ceci:
   phase exécution:
     changer le joueur ne porte plus ceci.
   phase épilogue:
-    si ceci est portable:
+    si ceci est portable ou enfilable ou équipable ou chaussable:
       dire "Vous ne portez plus [intitulé ceci].".
     sinon
       dire "Essayons autre chose.".
