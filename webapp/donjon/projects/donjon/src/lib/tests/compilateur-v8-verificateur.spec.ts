@@ -114,7 +114,7 @@ describe('Vérificateur - verifierBlocs', () => {
 
     // 1 erreur: 1 bloc mal fermé
     expect(ctx.erreurs).toHaveSize(1);
-    // 1 rouine (action)
+    // 1 routine (action)
     expect(ctx.routines).toHaveSize(1);
     expect(ctx.routines[0]).toBe(ctx.getRoutineLigne(2));
     expect(ctx.getRoutineLigne(2)).toBeDefined();
