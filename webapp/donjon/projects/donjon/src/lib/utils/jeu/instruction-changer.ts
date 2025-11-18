@@ -291,9 +291,9 @@ export class InstructionChanger {
           if (instruction.negation) {
             // l'objet n’est plus porté
             this.jeu.etats.retirerEtatElement(objet, EEtatsBase.porte, this.eju, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.enfilable, this.eju, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.chaussable, this.eju, true);
-            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.equipable, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.enfile, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.chausse, this.eju, true);
+            this.jeu.etats.retirerEtatElement(objet, EEtatsBase.equipe, this.eju, true);
             // PORTE
           } else {
             // déplacer l'objet vers l'inventaire
