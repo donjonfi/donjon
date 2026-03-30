@@ -71,7 +71,12 @@
               "projects/donjon-creer/src/styles.scss"
             ],
             "scripts": [],
-            "browser": "projects/donjon-creer/src/main.ts"
+            "browser": "projects/donjon-creer/src/main.ts",
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": ["import", "global-builtin", "color-functions"]
+              }
+            }
           },
           "configurations": {
             "production": {
@@ -178,7 +183,12 @@
               "projects/donjon-jouer/src/styles.scss"
             ],
             "scripts": [],
-            "browser": "projects/donjon-jouer/src/main.ts"
+            "browser": "projects/donjon-jouer/src/main.ts",
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": ["import", "global-builtin", "color-functions"]
+              }
+            }
           },
           "configurations": {
             "multi": {
