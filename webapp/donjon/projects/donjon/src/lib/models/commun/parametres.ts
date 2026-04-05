@@ -5,6 +5,7 @@ export class Parametres {
     public activerAffichageDirectionSorties = true;
     public activerSortiesEnLigne = true;
     public activerAffichageLieuxInconnus = false;
+    public activerAffichageObstacles = true;
     public activerDescriptionDesObjetsSupportes = true;
     public activerAudio = false;
     public activerRemplacementDestinationDeplacements = true;

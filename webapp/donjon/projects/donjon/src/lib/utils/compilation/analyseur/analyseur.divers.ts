@@ -99,6 +99,10 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAffichageLieuxInconnus = isActiver;
           break;
 
+        case 'affichage des obstacles':
+          ctxAnalyse.parametres.activerAffichageObstacles = isActiver;
+          break;
+
         case 'description des objets sur les supports':
         case 'description des objets supportes':
           ctxAnalyse.parametres.activerDescriptionDesObjetsSupportes = isActiver;

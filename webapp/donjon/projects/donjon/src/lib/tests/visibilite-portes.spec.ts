@@ -68,6 +68,48 @@ describe('Test de la visibilité des portes', () => {
             "{i}- est : ?{N}");
     });
 
+    it('Afficher les sorties avec obstacles (option activée)', () => {
+        // Étendre le scénario de base avec un obstacle réel (non-porte) au sud
+        const scenarioEtendu = scenario + `
+Le rocher est un obstacle au sud de la caverne.
+Le cheminSud est un lieu au sud de la caverne.
+`;
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioEtendu, actions, true);
+        const jeu = Generateur.genererJeu(rc);
+        const ctxPartie = new ContextePartie(jeu);
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
+
+        ctxCommande = ctxPartie.com.executerCommande("afficher sorties", false);
+        expect(ctxCommande.sortie).toEqual("Sorties : {n}" +
+            "{i}- nord : ?{n}" +
+            "{i}- nord-est : ? ({/obstrué/}){n}" +
+            "{i}- entrer : {+Le cheminVisibleMaisSansAccès+} ({/pas d’accès/}){n}" +
+            "{i}- est : ?{n}" +
+            "{i}- sud : ? ({/obstrué/})");
+    });
+
+    it('Afficher les sorties sans obstacles (option désactivée)', () => {
+        // Même scénario étendu, mais avec la désactivation de l'affichage des obstacles
+        const scenarioEtendu = scenario + `
+Le rocher est un obstacle au sud de la caverne.
+Le cheminSud est un lieu au sud de la caverne.
+désactiver affichage des obstacles.
+`;
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioEtendu, actions, true);
+        const jeu = Generateur.genererJeu(rc);
+        const ctxPartie = new ContextePartie(jeu);
+        let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
+
+        ctxCommande = ctxPartie.com.executerCommande("afficher sorties", false);
+        // ({/obstrué/}) et ({/pas d'accès/}) ne doivent plus apparaître
+        expect(ctxCommande.sortie).toEqual("Sorties : {n}" +
+            "{i}- nord : ?{n}" +
+            "{i}- nord-est : ?{n}" +
+            "{i}- entrer : {+Le cheminVisibleMaisSansAccès+}{n}" +
+            "{i}- est : ?{n}" +
+            "{i}- sud : ?{N}");
+    });
+
     it('examiner portes', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes

@@ -2018,7 +2018,7 @@ export class InstructionDire {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = majuscule ? lieu.titre : lieu.intitule;
-    let obstacle = this.afficherObstacle(localisation, "");
+    let obstacle = this.jeu.parametres.activerAffichageObstacles ? this.afficherObstacle(localisation, "") : "";
     if (obstacle) {
       if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
         obstacle = " ({/pas d'accès/})";
@@ -2048,7 +2048,7 @@ export class InstructionDire {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;
-    let obstacle = this.afficherObstacle(localisation, "");
+    let obstacle = this.jeu.parametres.activerAffichageObstacles ? this.afficherObstacle(localisation, "") : "";
 
     if (obstacle) {
       if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
