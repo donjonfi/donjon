@@ -2,7 +2,7 @@
   <div class="rl-1 max ">
     <!-- resultat -->
     <div id="taResultat" #taResultat class="card sortie-jeu" [innerHTML]="ecran"
-      style="height: 100%; overflow: auto; padding:5px;">
+      [style.padding.px]="margeInterface" style="height: 100%; overflow: auto;">
     </div>
 
   </div>
@@ -61,6 +61,11 @@
           <input type="checkbox" class="form-check-input" [(ngModel)]="audioActif" id="ckAudio">
           <label class="form-check-label" for="ckAudio">Activer audio</label>
         </div>
+      </div>
+      <div class="col-auto p-1 pb-0">
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="diminuerMarge()" title="Réduire les marges">◁</button>
+        <small class="mx-1">Marges</small>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="augmenterMarge()" title="Agrandir les marges">▷</button>
       </div>
     </small>
   </div>

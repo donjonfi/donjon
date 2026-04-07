@@ -71,6 +71,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   /** Afficher la case à cocher pour activer/désactiver l’audio */
   private activerParametreAudio: boolean = false;
 
+  /** Marge de l’interface en pixels (paliers : 0, 5, 10, 20) */
+  margeInterface: number = 10;
+
+  augmenterMarge(): void {
+    const paliers = [0, 5, 10, 20];
+    const idx = paliers.indexOf(this.margeInterface);
+    if (idx < paliers.length - 1) this.margeInterface = paliers[idx + 1];
+  }
+
+  diminuerMarge(): void {
+    const paliers = [0, 5, 10, 20];
+    const idx = paliers.indexOf(this.margeInterface);
+    if (idx > 0) this.margeInterface = paliers[idx - 1];
+  }
+
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
