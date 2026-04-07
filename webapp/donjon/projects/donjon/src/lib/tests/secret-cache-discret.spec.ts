@@ -24,9 +24,16 @@ Le bureau est un support ici.
   Le parchemin est un objet secret en dessous du bureau.
 `
 
+const scenarioAvecDecrireBalle = scenario + `
+action balleDecrire:
+  phase exécution:
+    dire "Vous regardez autour de vous et apercevez une balle[@balle].".
+fin action
+`;
+
 // états
-// mentionneID: 3, vuID: 4, 
-// familierID: 5, 
+// mentionneID: 3, vuID: 4,
+// familierID: 5,
 // discretID: 11,  cacheID: 12, secret: 13,
 // accessibleID: 18, adjacentID: 58
 
@@ -142,6 +149,28 @@ describe('Test du jeu avec secret, caché et discret', () => {
 
   });
 
+  it('balle discret (dans le lieu) — pas vue après regarder', () => {
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
+
+    let balle = ctxPartie.jeu.objets[5];
+    expect(balle.nom).toEqual("balle");
+
+    // avant regarder : non vue
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.discretID);
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.vuID);
+
+    // regarder ne doit pas marquer les discrets comme vus
+    ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.vuID);
+
+    // examiner balle doit échouer (pas encore vue)
+    ctxCommande = ctxPartie.com.executerCommande("examiner balle", false);
+    expect(ctxCommande.sortie).toEqual("Je ne l’ai pas encore vue.{N}");
+  });
+
   it('examiner parchemin', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 8); // (joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
@@ -217,6 +246,53 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.vuID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.familierID);
 
+  });
+
+  it('balle discrète — mentionnée via action puis examinée', () => {
+    const rc = CompilateurV8.analyserScenarioEtActions(scenarioAvecDecrireBalle, actions, true);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+
+    const balle = ctxPartie.jeu.objets[5];
+    expect(balle.nom).toEqual("balle");
+
+    // === état initial ===
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.discretID);
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.vuID);
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.mentionneID);
+
+    // regarder : balle absente de la description (discret)
+    let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+    expect(ctxCommande.sortie).not.toContain("balle");
+
+    // examiner balle : refusé car pas encore vue
+    ctxCommande = ctxPartie.com.executerCommande("examiner balle", false);
+    expect(ctxCommande.sortie).toEqual("Je ne l’ai pas encore vue.{N}");
+
+    // === action balleDecrire : balle devient vue mais reste discrète ===
+    ctxCommande = ctxPartie.com.executerCommande("balleDecrire", false);
+    expect(ctxCommande.sortie).toEqual("Vous regardez autour de vous et apercevez une balle.{N}");
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.discretID);
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.vuID);
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.familierID);
+
+    // regarder : balle toujours absente (encore discrète)
+    ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+    expect(ctxCommande.sortie).not.toContain("balle");
+
+    // === examiner balle : interaction réussie → retire discret, ajoute familier ===
+    ctxCommande = ctxPartie.com.executerCommande("examiner balle", false);
+    expect(ctxCommande.sortie).toEqual("C’est une balle.{N}");
+    expect(balle.etats).not.toContain(ctxPartie.jeu.etats.discretID);
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.vuID);
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+    expect(balle.etats).toContain(ctxPartie.jeu.etats.familierID);
+
+    // regarder : balle maintenant visible dans la pièce
+    ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+    expect(ctxCommande.sortie).toContain("balle");
   });
 
   it('examiner pièce', () => {

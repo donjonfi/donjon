@@ -1850,7 +1850,7 @@ export class InstructionDire {
           if (voisin.type == EClasseRacine.porte || voisin.type == EClasseRacine.obstacle) {
             // vérifier si l’obstacle/porte est visible
             const curPorteObstacle = this.eju.getObjet(voisin.id);
-            if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
+            if (this.jeu.etats.estVisible(curPorteObstacle, this.eju) && !this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.discretID) && !idElementsDejaMentionnes.includes(curPorteObstacle.id)) {
               // décrire l’obstacle
               // - l’objet a été mentionné et vu par le joueur
               this.jeu.etats.ajouterEtatElement(curPorteObstacle, EEtatsBase.vu, this.eju, false);
