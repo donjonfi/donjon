@@ -129,7 +129,9 @@ export class JouerComponent implements OnInit {
 
           if (sauvegarde.version >= 30000) {
             jeu.sauvegarde = sauvegarde;
-            ((this.lecteurRef as any) as LecteurComponent).restaurerProchainJeu();
+            if (this.lecteurRef) {
+              this.lecteurRef.restaurerProchainJeu();
+            }
           }else{
             jeu.tamponErreurs.push("Ancienne sauvegarde.\n Pour continuer votre partie, veuillez vous rendre sur https://donjon.fi/v2/jouer/");
           }
@@ -167,14 +169,18 @@ export class JouerComponent implements OnInit {
   /**
    * Générer une nouvelle partie à partir du même scénario que précédemment.
    */
-  onNouvellePartieOuAnnulerTour() {
+  onNouvellePartieOuAnnulerTour(sauvegarde: Sauvegarde | undefined) {
     this.erreurs = [];
     // vérifier si on a déjà le fichier actions.djn
     this.chargerActions(false).then(actions => {
       // Analyser le scénario et les actions
       const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
-      // générer et lancer le jeu
-      this.jeu = Generateur.genererJeu(resultatCompilation);
+      // générer le jeu
+      const jeu = Generateur.genererJeu(resultatCompilation);
+      if (sauvegarde) {
+        jeu.sauvegarde = sauvegarde;
+      }
+      this.jeu = jeu;
     });
   }
 
