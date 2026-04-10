@@ -1850,7 +1850,7 @@ export class InstructionDire {
           if (voisin.type == EClasseRacine.porte || voisin.type == EClasseRacine.obstacle) {
             // vérifier si l’obstacle/porte est visible
             const curPorteObstacle = this.eju.getObjet(voisin.id);
-            if (this.jeu.etats.estVisible(curPorteObstacle, this.eju)) {
+            if (this.jeu.etats.estVisible(curPorteObstacle, this.eju) && !this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.discretID) && !idElementsDejaMentionnes.includes(curPorteObstacle.id)) {
               // décrire l’obstacle
               // - l’objet a été mentionné et vu par le joueur
               this.jeu.etats.ajouterEtatElement(curPorteObstacle, EEtatsBase.vu, this.eju, false);
@@ -2018,7 +2018,7 @@ export class InstructionDire {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = majuscule ? lieu.titre : lieu.intitule;
-    let obstacle = this.afficherObstacle(localisation, "");
+    let obstacle = this.jeu.parametres.activerAffichageObstacles ? this.afficherObstacle(localisation, "") : "";
     if (obstacle) {
       if (this.bloqueParPorteFermeeEtInvisible(localisation)) {
         obstacle = " ({/pas d'accès/})";
@@ -2048,7 +2048,7 @@ export class InstructionDire {
     let retVal: string = null;
     let lieu = this.eju.getLieu(voisinIndex);
     let titreLieu = lieu.titre;
-    let obstacle = this.afficherObstacle(localisation, "");
+    let obstacle = this.jeu.parametres.activerAffichageObstacles ? this.afficherObstacle(localisation, "") : "";
 
     if (obstacle) {
       if (this.bloqueParPorteFermeeEtInvisible(localisation)) {

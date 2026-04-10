@@ -1,0 +1,89 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Donjon FI is a French interactive fiction (text adventure) engine built with Angular 19. It consists of a reusable Angular library (`donjon`) and two applications: an editor (`donjon-creer`) and a player (`donjon-jouer`). All work happens under `webapp/donjon/`.
+
+## Commands
+
+All commands must be run from `webapp/donjon/`:
+
+```bash
+cd webapp/donjon
+
+# Install dependencies
+npm install
+
+# Development: build library in watch mode + serve editor
+ng build donjon --watch          # terminal 1 — rebuild library on changes
+ng serve donjon-creer            # terminal 2 — editor at localhost:4200
+ng serve donjon-jouer            # terminal 2 — player at localhost:4201
+
+# Build
+ng build donjon                  # build library
+ng build donjon-creer            # build editor app
+ng build donjon-jouer            # build player app (default config)
+ng build donjon-jouer --configuration=one   # single-game player build
+
+# Single-file distribution (after building donjon-jouer --configuration=one)
+npx gulp                         # inlines CSS/JS into a single HTML file → single-dist/
+
+# Tests
+npm run test                     # watch mode
+npm run test:prod                # headless Chrome, no watch, with coverage
+ng test donjon                   # run tests for the library only
+```
+
+## Architecture
+
+```
+webapp/donjon/projects/
+├── donjon/          # Angular library (published to npm)
+├── donjon-creer/    # Editor app (localhost:4200)
+└── donjon-jouer/    # Player app (localhost:4201), configs: multi/one/development
+```
+
+The `donjon` library is the core and is imported by both apps via the TypeScript path alias `donjon` → `projects/donjon/src/public-api.ts`.
+
+### Library internal structure (`projects/donjon/src/lib/`)
+
+```
+models/
+├── commun/         # Shared enums/types (Genre, Nombre, Classes, etc.)
+├── compilateur/    # Types for the compilation phase (AST, rules, actions)
+├── jeu/            # Compiled game objects (Monde, Élément, Classe…)
+└── jouer/          # Player runtime state
+
+utils/
+├── compilation/
+│   └── analyseur/  # Parser/analyzer — converts raw Donjon DSL text into models
+├── jeu/            # Game engine — executes actions, applies consequences
+└── commun/         # Shared utilities
+
+lecteur/            # LecteurComponent — the player UI (used by donjon-jouer)
+interfaces/         # compilateur interfaces (Reaction, Regle)
+```
+
+### Data flow
+
+1. Author writes a game in the Donjon DSL (a French-language custom syntax).
+2. **Compilateur** (`utils/compilation/analyseur/`) parses the DSL into a `Monde` object.
+3. **Jouer** (`utils/jeu/`) manages the live game state: resolves player commands, evaluates `Regle`/`Condition`/`Consequence` chains.
+4. **LecteurComponent** renders the current game state in the browser.
+
+### Key domain types
+
+- `Monde` — the compiled game world (elements, classes, rules, actions)
+- `Action` / `Réaction` / `Règle` — rule system triggered by player commands
+- `Condition` / `Conséquence` — condition checks and side-effects within rules
+- `Élément` / `Classe` / `Phrase` — base entity types in the game model
+
+## DSL Reference
+
+A DSL reference for the Donjon FI language may exist at `donjon-dsl-reference.md` at the root of the repository.
+
+## CI
+
+GitHub Actions (`.github/workflows/node.js.yml`) runs on push/PR to `master`: installs deps, builds `donjon` library, then runs `test:prod` (headless Chrome with coverage).

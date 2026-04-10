@@ -1164,6 +1164,10 @@ export class ElementsJeuUtils {
         if (!inclureObjetsCachesDeCeci) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.cacheID));
         }
+        // si on ne doit pas lister les objets discrets, garder uniquement les objets non discrets
+        if (!inclureObjetsDiscrets) {
+          objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID));
+        }
         // si on ne doit pas lister les objets secrets, garder uniquement les objets non secrets
         if (!inclureObjetsSecrets) {
           objets = objets.filter(x => !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.secretID));

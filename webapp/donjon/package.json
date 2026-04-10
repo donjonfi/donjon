@@ -1,6 +1,6 @@
 {
   "name": "donjon",
-  "version": "3.2.9",
+  "version": "3.3.0",
   "description": "Donjon FI",
   "author": {
     "name": "Jonathan Claes",
@@ -12,7 +12,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:prod": "ng test donjon --browsers=ChromeHeadless --watch=false --code-coverage"
+    "test:prod": "ng test donjon --browsers=ChromeHeadlessCI --watch=false --code-coverage"
   },
   "private": true,
   "dependencies": {
