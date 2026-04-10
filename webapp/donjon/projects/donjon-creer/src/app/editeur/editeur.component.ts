@@ -25,6 +25,8 @@ import { Location } from '@angular/common';
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
 import { lastValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+import { STANDALONE_MODE } from '../../environments/environment';
+import { ACTIONS_DJN, NOUVEAU_DJN } from '../standalone/modeles-standalone';
 
 @Component({
     selector: 'app-editeur',
@@ -494,6 +496,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   onChargerFichierCloud(nouveau: boolean = false): void {
+    if (STANDALONE_MODE) {
+      this.initCodeSource(NOUVEAU_DJN);
+      this.chargementFichierEnCours = false;
+      return;
+    }
     let nomFichierExemple: string;
     if (nouveau) {
       nomFichierExemple = "exemple.djn";
@@ -1093,6 +1100,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
   public async chargerActions(forcerMaj: boolean): Promise<string | null> {
     let sourceActions: string | null = sessionStorage.getItem("actions");
     if (!sourceActions || forcerMaj) {
+      if (STANDALONE_MODE) {
+        sourceActions = ACTIONS_DJN;
+        sessionStorage.setItem('actions', sourceActions);
+        sessionStorage.setItem('actionsPersonnalisees', '0');
+        this.problemeChargementFichierActions = false;
+        this.chargementActionsEnCours = false;
+        return sourceActions;
+      }
       this.problemeChargementFichierActions = undefined;
       try {
         this.chargementActionsEnCours = true;
