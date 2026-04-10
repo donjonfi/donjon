@@ -11,7 +11,8 @@
     <div class="input-group mt-2 px-1">
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
-        (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);" class="form-control"
+        (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);"
+        (keydown.escape)="onKeyDownEscape($event);" class="form-control"
         id="txtCommande" [placeholder]="placeHolder" [maxlength]="maxLen">
       <!-- <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
           id="btExecuter">Valider</button>
