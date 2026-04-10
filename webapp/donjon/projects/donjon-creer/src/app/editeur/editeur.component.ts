@@ -503,7 +503,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     }
     let nomFichierExemple: string;
     if (nouveau) {
-      nomFichierExemple = "exemple.djn";
+      nomFichierExemple = "nouveau.djn";
     } else {
       nomFichierExemple = StringUtils.nomDeFichierSecuriseExtensionForcee(this.nomExemple, "djn");
     }
