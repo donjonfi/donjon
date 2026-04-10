@@ -12,6 +12,15 @@ gulp.task("default", () => {
     .pipe(gulp.dest("./single-dist/donjon-one"));
 });
 
+gulp.task("creer-one", () => {
+  return gulp
+    .src("./dist/donjon-creer-one/browser/index.html")
+    .pipe(inline({
+      disabledTypes: ["svg", "img"],
+    }))
+    .pipe(gulp.dest("./single-dist/donjon-creer-one"));
+});
+
 // Install dependencies
 // npm install --save-dev gulp gulp-inline
 // Build Angular app with ng build
