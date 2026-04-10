@@ -16,7 +16,10 @@ interpréter la table comme la table basse.
 
 La pomme est un objet mangeable sur la table basse.
 Sa description est "Vous avez envie de croquer dedans.".
-interpréter croquer comme manger.
+action croquer la pomme:
+  effacer la pomme.
+  dire "Vous n’en avez fait qu’une bouchée !".
+fin action
 
 Le magazine est un objet dans le salon.
 Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
@@ -24,11 +27,12 @@ Sa description est "Il s'agit des programmes TV de la semaine dernière.".
 Le texte du magazine est "Ils repassent un film de Noël ce soir.".
 
 -- règle: sortie spécifique la 1ère et 2e fois que le joueur prend la pomme.
-après prendre la pomme:
+règle après prendre la pomme:
   si la règle se déclenche pour la première fois:
-    dire "D’un geste royal, vous prenez la pomme !";
+    dire "D’un geste royal, vous prenez la pomme !".
   sinonsi la règle se déclenche pour la deuxième fois:
-    dire "Avec toujours autant de manières, vous prenez la pomme.";
+    dire "Avec toujours autant de manières, vous prenez la pomme.".
   sinon
-    continuer l’action;
-  fin si.
+    continuer l’action.
+  fin si
+fin règle
