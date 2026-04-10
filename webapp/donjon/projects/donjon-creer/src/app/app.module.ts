@@ -1,4 +1,7 @@
 import { ACE_CONFIG, AceConfigInterface, AceModule } from 'ngx-ace-wrapper';
+import { LocationStrategy } from '@angular/common';
+import { NoopLocationStrategy } from './noop-location-strategy';
+import { STANDALONE_MODE } from '../environments/environment';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { ApercuActionComponent } from './apercu/apercu-action/apercu-action.component';
@@ -67,6 +70,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
       provide: ACE_CONFIG,
       useValue: DEFAULT_ACE_CONFIG
     },
+    ...(STANDALONE_MODE ? [{ provide: LocationStrategy, useClass: NoopLocationStrategy }] : []),
     provideHttpClient(withInterceptorsFromDi())
   ]
 })

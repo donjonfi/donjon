@@ -2,7 +2,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { EditeurComponent } from './editeur/editeur.component';
 import { NgModule } from '@angular/core';
-import { USE_HASH_ROUTING } from '../environments/environment';
 
 const routes: Routes = [
   {
@@ -18,7 +17,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: USE_HASH_ROUTING })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
