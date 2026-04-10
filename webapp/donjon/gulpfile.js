@@ -12,6 +12,15 @@ gulp.task("default", () => {
     .pipe(gulp.dest("./single-dist/donjon-one"));
 });
 
+gulp.task("jouer-bundle", () => {
+  return gulp
+    .src("./dist/donjon-jouer-bundle/browser/index.html")
+    .pipe(inline({
+      disabledTypes: ["svg", "img"],
+    }))
+    .pipe(gulp.dest("./single-dist/donjon-jouer-bundle"));
+});
+
 gulp.task("creer-one", () => {
   return gulp
     .src("./dist/donjon-creer-one/browser/index.html")
