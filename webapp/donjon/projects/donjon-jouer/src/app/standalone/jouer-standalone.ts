@@ -1,5 +1,8 @@
--- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-04-10-30301
+// FICHIER GÉNÉRÉ — ne pas modifier manuellement.
+// Relancer generate-jouer-bundle.js pour mettre à jour.
+
+export const ACTIONS_DJN = `-- Titre: "Actions de base pour Donjon FI".
+-- Version: 2026-04-10-30300
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1432,3 +1435,4 @@ interpréter actionner comme utiliser.
 
 -- fin action
 
+`;

@@ -1,10 +1,8 @@
 export const environment = {
   production: true,
-
-  /** Doit-on automatiquement charger jeu.djn au démarrage du jeu ? */
   chargementAutoJeu: true,
   banniere: true,
   piedDePage: false,
 };
 
-export const STANDALONE_MODE = false;
+export const STANDALONE_MODE = true;
