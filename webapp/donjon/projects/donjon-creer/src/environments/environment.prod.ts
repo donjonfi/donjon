@@ -4,4 +4,4 @@ export const environment = {
 
 export const DESACTIVER_SAUVEGARDE_SESSION = false;
 
-export const USE_HASH_ROUTING = false;
+export const STANDALONE_MODE = false;
