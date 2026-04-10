@@ -27,6 +27,7 @@ import { lastValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { STANDALONE_MODE } from '../../environments/environment';
 import { ACTIONS_DJN, NOUVEAU_DJN } from '../standalone/modeles-standalone';
+import { JOUER_ONE_HTML } from '../standalone/jouer-one-template';
 
 @Component({
     selector: 'app-editeur',
@@ -445,6 +446,18 @@ export class EditeurComponent implements OnInit, OnDestroy {
     } else {
       this.doSauvegarderSousWeb();
     }
+  }
+
+  /** Télécharger un HTML autonome contenant donjon-jouer + le scénario courant. */
+  onTelechargerJeu(): void {
+    const scenarioBase64 = btoa(unescape(encodeURIComponent(this.codeSource)));
+    const actions = sessionStorage.getItem('actions') ?? '';
+    const actionsBase64 = btoa(unescape(encodeURIComponent(actions)));
+    const injection = `<script>window.__djnScenario__=decodeURIComponent(escape(atob('${scenarioBase64}')));window.__djnActions__=decodeURIComponent(escape(atob('${actionsBase64}')));<\/script>`;
+    const html = JOUER_ONE_HTML.replace('</body>', injection + '\n</body>');
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const titre = this.jeu?.titre ? StringUtils.normaliserMot(this.jeu.titre) : 'mon-jeu';
+    FileSaver.saveAs(blob, titre + '.html');
   }
 
   /** Sauvegarder le code dans un fichier sur l’ordinateur de l’utilisateur (Navigateur). */
@@ -1293,7 +1306,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   genererIFID(): string {
     let uuid = 'd0f1' + uuidv4().slice(4);
-    return 'L’identifiant du jeu est "' + uuid + '".';
+    return `L’identifiant du jeu est "${uuid}".`;
   }
 
 }

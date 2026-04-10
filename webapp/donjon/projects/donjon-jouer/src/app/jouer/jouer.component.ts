@@ -6,6 +6,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { STANDALONE_MODE } from '../../environments/environment';
+import { ACTIONS_DJN } from '../standalone/jouer-standalone';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -36,7 +38,12 @@ export class JouerComponent implements OnInit {
 
   ngOnInit(): void {
 
-    if (environment.chargementAutoJeu) {
+    if (STANDALONE_MODE) {
+      const scenario = (window as any)['__djnScenario__'];
+      if (scenario) {
+        this.analyserContenuFichierJeu(scenario);
+      }
+    } else if (environment.chargementAutoJeu) {
       //essayer de charcher jeu.djn
       this.onChargerFichierSiteWeb("jeu");
     } else {
@@ -192,6 +199,11 @@ export class JouerComponent implements OnInit {
   public async chargerActions(forcerMaj: boolean): Promise<string | null> {
     let sourceActions: string | null = sessionStorage.getItem("actions");
     if (!sourceActions || forcerMaj) {
+      if (STANDALONE_MODE) {
+        sourceActions = (window as any)['__djnActions__'] || ACTIONS_DJN;
+        sessionStorage.setItem('actions', sourceActions);
+        return sourceActions;
+      }
       try {
         // this.chargementActionsEnCours = true;
         sourceActions = await lastValueFrom(this.http.get('assets/modeles/actions.djn', { responseType: 'text' }));

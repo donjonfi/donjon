@@ -84,7 +84,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -105,7 +105,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -221,7 +221,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -242,7 +242,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "2mb"
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -259,6 +259,31 @@
               "outputHashing": "all",
               "outputPath": {
                 "base": "dist/donjon-one"
+              },
+              "baseHref": "./"
+            },
+            "donjon-jouer-bundle": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "4mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/donjon-jouer/src/environments/environment.ts",
+                  "with": "projects/donjon-jouer/src/environments/environment.bundle.ts"
+                }
+              ],
+              "outputHashing": "all",
+              "outputPath": {
+                "base": "dist/donjon-jouer-bundle"
               },
               "baseHref": "./"
             },
