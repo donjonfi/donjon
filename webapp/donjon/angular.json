@@ -100,6 +100,31 @@
               ],
               "outputHashing": "all"
             },
+            "one": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/donjon-creer/src/environments/environment.ts",
+                  "with": "projects/donjon-creer/src/environments/environment.one.ts"
+                }
+              ],
+              "outputHashing": "all",
+              "outputPath": {
+                "base": "dist/donjon-creer-one"
+              },
+              "baseHref": "./"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
