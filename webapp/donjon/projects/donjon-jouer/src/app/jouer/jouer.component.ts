@@ -126,6 +126,7 @@ export class JouerComponent implements OnInit {
 
           // Analyser le scénario et générer le jeu
           const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
+          this._envoyerMessagesVSCode(resultatCompilation.messages);
 
           // générer le jeu
           let jeu = Generateur.genererJeu(resultatCompilation);
@@ -152,6 +153,7 @@ export class JouerComponent implements OnInit {
           this.scenario = CompilateurV8Utils.retirerCommentaires(contenuFichier);
           // Analyser le scénario et générer le jeu
           const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.scenario, actions, false);
+          this._envoyerMessagesVSCode(resultatCompilation.messages);
           // générer et lancer le jeu
           this.jeu = Generateur.genererJeu(resultatCompilation);
         }
@@ -193,6 +195,23 @@ export class JouerComponent implements OnInit {
 
   get version() {
     return version;
+  }
+
+  /** Envoyer les messages de compilation à VS Code si on est dans une WebView. */
+  private _envoyerMessagesVSCode(messages: any[]): void {
+    const vscodeApi = (window as any)['__vscodeApi__'];
+    if (vscodeApi) {
+      vscodeApi.postMessage({
+        type: 'compilationResult',
+        messages: messages.map(m => ({
+          ligne: m.numeroLigne,
+          titre: m.titre,
+          severite: m.type,
+          code: m.code,
+          phrase: m.phrase?.toString(),
+        }))
+      });
+    }
   }
 
   /** Charger le fichier contenant les actions de base. */
