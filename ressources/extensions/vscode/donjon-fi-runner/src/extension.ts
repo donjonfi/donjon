@@ -69,15 +69,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Recharger le jeu à la sauvegarde du fichier
-  context.subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument(doc => {
-      if (doc.languageId === 'donjon' && panel) {
-        currentDocUri = doc.uri;
-        panel.webview.html = buildHtml(context, doc.getText());
-      }
-    })
-  );
 }
 
 export function deactivate() {

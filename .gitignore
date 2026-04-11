@@ -339,3 +339,4 @@ webapp/donjon/projects/donjon-creer/src/app/standalone/modeles-standalone.ts
 webapp/donjon/projects/donjon-jouer/src/app/standalone/jouer-standalone.ts
 ressources/extensions/vscode/donjon-fi-runner/out/
 
+ressources/extensions/vscode/donjon-fi-runner/donjon-fi-runner-*.vsix
