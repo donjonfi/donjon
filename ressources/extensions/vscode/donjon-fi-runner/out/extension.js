@@ -71,9 +71,20 @@ function buildHtml(context, scenario) {
     }
     let html = fs.readFileSync(playerPath, 'utf8');
     // Injection avant le bootstrap Angular :
+    // - Reset CSS : annule les styles que VS Code injecte dans les WebViews (marges, padding, couleurs)
     // - __djnScenario__ : le contenu du fichier .djn actif
     // - __vscodeApi__   : l'API VS Code WebView pour postMessage vers l'extension
-    const injection = `<script>
+    const injection = `<style>
+    html, body { direction: ltr !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; overflow: hidden !important; }
+    app-root { display: block !important; background: #fff !important; }
+    nav.navbar { margin-bottom: 0 !important; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; background: #f0f0f0; }
+    ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #f0f0f0; }
+    ::-webkit-scrollbar-corner { background: #f0f0f0; }
+    * { scrollbar-color: #bbb #f0f0f0; scrollbar-width: thin; }
+  </style>
+  <script>
     window.__djnScenario__ = ${JSON.stringify(scenario)};
     window.__vscodeApi__ = acquireVsCodeApi();
   </script>`;
