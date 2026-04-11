@@ -1,0 +1,64 @@
+{
+  "name": "donjon-fi-runner",
+  "displayName": "Donjon FI Runner",
+  "author": {
+    "name": "Jonathan Claes",
+    "url": "https://donjon.fi"
+  },
+  "publisher": "donjon-fi",
+  "license": "MIT",
+  "homepage": "https://donjon.fi",
+  "description": "Test your Donjon FI game (.djn) directly inside VS Code",
+  "version": "1.0.0",
+  "icon": "donjon128.png",
+  "preview": false,
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donjonfi/donjon"
+  },
+  "activationEvents": [
+    "onLanguage:donjon"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "donjon.runGame",
+        "title": "Tester le jeu Donjon FI",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "donjon.runGame",
+          "when": "resourceExtname == .djn",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "donjon.runGame",
+        "key": "ctrl+F5",
+        "when": "resourceExtname == .djn"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.71.0",
+    "typescript": "^5.0.0"
+  }
+}
