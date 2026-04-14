@@ -627,14 +627,14 @@ export class Generateur {
                   const ceci = cmd.els.sujet;
                   ev.isCeci = ceci ? true : false;
                   ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
-                  ev.classeCeci = null;
+                  ev.classeCeci = (ceci.determinant?.match(/un(e)? /) ? ClasseUtils.trouverClasse(jeu.classes, ceci.nom) : null);
                   ev.quantiteCeci = 0;
                   ev.prepositionCeci = cmd.els.preposition0;
 
                   const cela = cmd.els.sujetComplement1;
                   ev.isCela = cela ? true : false;
                   ev.cela = (ev.isCela ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((cela.determinant?.match(/un(e)? /) ? cela.determinant : '') + cela.nom + (cela.epithete ? (" " + cela.epithete) : "")).trim() : null);
-                  ev.classeCela = null;
+                  ev.classeCela = (cela?.determinant?.match(/un(e)? /) ? ClasseUtils.trouverClasse(jeu.classes, cela.nom) : null);
                   ev.quantiteCela = 0;
                   ev.prepositionCela = cmd.els.preposition1;
 
