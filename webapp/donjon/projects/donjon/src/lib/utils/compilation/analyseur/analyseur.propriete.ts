@@ -45,7 +45,23 @@ export class AnalyseurPropriete {
           if (elementsTrouves.length === 1) {
             elementCible = elementsTrouves[0];
           } else {
-            console.warn("xPropriete: Pas trouvé le complément (" + elementsTrouves.length + "):", elementConcerneBrut);
+            // Signaler l'erreur uniquement si c'est clairement une affectation de propriété :
+            // - "vaut/valent" (valeur numérique) ou
+            // - phrase multi-morceaux (valeur entre guillemets)
+            const estSurementUnePropriete = (result[6] === "vaut" || result[6] === "valent") || phrase.morceaux.length > 1;
+            if (estSurementUnePropriete) {
+              const elementsSuggeres = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom);
+              let corps = "L'élément « " + elementConcerneBrut + " » n'a pas été trouvé.";
+              if (elementsSuggeres.length > 0) {
+                const noms = elementsSuggeres.map(x => x.epithete ? x.epithete + " " + x.nom : x.nom);
+                corps += " Élément(s) portant ce nom : « " + noms.join("», «") + " ».";
+              }
+              ctxAnalyse.erreur(phrase, undefined,
+                CategorieMessage.referenceElementGenerique, CodeMessage.elementCiblePasTrouve,
+                "élément « " + elementConcerneBrut + " » pas trouvé",
+                corps,
+              );
+            }
           }
         } else {
           ctxAnalyse.ajouterErreur(phrase.ligne, "l’élément concerné doit être un groupe nominal: " + elementConcerneBrut);
@@ -121,9 +137,10 @@ export class AnalyseurPropriete {
           // résultat
           elementTrouve = ResultatAnalysePhrase.propriete;
         }
-      // élément cible pas trouvé
-      } else {
-
+      // élément cible pas trouvé — si l'erreur a été signalée plus haut, retourner propriete
+      // (non-aucun) pour éviter le message générique "formulation inconnue"
+      } else if (result[3] && ((result[6] === "vaut" || result[6] === "valent") || phrase.morceaux.length > 1)) {
+        elementTrouve = ResultatAnalysePhrase.propriete;
       }
     }
     return elementTrouve;
