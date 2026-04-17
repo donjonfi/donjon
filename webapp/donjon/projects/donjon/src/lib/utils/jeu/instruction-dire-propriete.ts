@@ -30,22 +30,21 @@ export class InstructionDirePropriete {
 
   calculerBalisePropriete(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
     const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l\u2019|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
-    const balises = InstructionsUtils.extraireBalises(texteDynamique, balisePropriete);
-    if (balises) {
-      for (const decoupe of balises) {
-        const proprieteString = decoupe[1];
-        let cibleString = decoupe[2];
-        const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-        let resultat = '';
+    return InstructionsUtils.processBalises(texteDynamique, balisePropriete, decoupe => {
+      const proprieteString = decoupe[1];
+      const cibleString = decoupe[2];
+      const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+      let resultat = '';
+        const propNorm = InstructionsUtils.normaliserAccents(proprieteString);
         if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
           const cibleElement: ElementJeu = cible as ElementJeu;
-          switch (proprieteString) {
-            case 'Quantité': case 'quantité': case 'Quantite': case 'quantite':
+          switch (propNorm) {
+            case 'Quantite': case 'quantite':
               resultat = cibleElement.quantite.toString(); break;
-            case 'intitulé': case 'intitule':
+            case 'intitule':
               resultat = this.eju.calculerIntituleElement(cibleElement, false, true);
               ctxTour.elementsMentionnes.push(cibleElement.id); break;
-            case 'Intitulé': case 'Intitule':
+            case 'Intitule':
               resultat = this.eju.calculerIntituleElement(cibleElement, true, true);
               ctxTour.elementsMentionnes.push(cibleElement.id); break;
             case 'Singulier':
@@ -77,7 +76,7 @@ export class InstructionDirePropriete {
               if (cibleElement.nombre !== Nombre.p) {
                 resultat = cibleElement.genre !== Genre.f ? "lui" : "elle";
               } else { resultat = cibleElement.genre !== Genre.f ? "eux" : "elles"; } break;
-            case 'préposition': case 'preposition':
+            case 'preposition':
               if (cibleString == 'ceci' || cibleString == 'ceci?') { resultat = evenement?.prepositionCeci ?? ''; }
               else if (cibleString == 'cela' || cibleString == 'cela?') { resultat = evenement?.prepositionCela ?? ''; }
               else { resultat = "?!"; } break;
@@ -85,12 +84,12 @@ export class InstructionDirePropriete {
               console.error("calculerBalisePropriete: propriete non prise en charge (Element):", proprieteString); break;
           }
         } else if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.intitule)) {
-          switch (proprieteString) {
-            case 'intitulé': case 'intitule':
+          switch (propNorm) {
+            case 'intitule':
               resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, false); break;
-            case 'Intitulé': case 'Intitule':
+            case 'Intitule':
               resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, true); break;
-            case 'préposition': case 'preposition':
+            case 'preposition':
               if (cibleString == 'ceci' || cibleString == 'ceci?') { resultat = evenement?.prepositionCeci ?? ''; }
               else if (cibleString == 'cela' || cibleString == 'cela?') { resultat = evenement?.prepositionCela ?? ''; }
               else { resultat = "?!"; } break;
@@ -102,74 +101,49 @@ export class InstructionDirePropriete {
         } else {
           resultat = "?!?";
         }
-        if (cibleString == 'ceci?' || cibleString == 'cela?') {
-          cibleString = cibleString.replace("?", "\\?");
-        }
-        const xCurBalise = new RegExp("\\[" + proprieteString + " " + cibleString + "\\]", "g");
-        texteDynamique = texteDynamique.replace(xCurBalise, resultat);
-      }
-    }
-    return texteDynamique;
+      return resultat;
+    });
   }
 
   calculerBaliseP(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
-    if (texteDynamique.includes("[p ")) {
-      const balises = InstructionsUtils.extraireBalises(texteDynamique, "p (\\S+) (ici|ceci|cela)");
-      if (balises) {
-        for (const decoupe of balises) {
-          const proprieteString = decoupe[1];
-          const cibleString = decoupe[2];
-          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-          let resultatCurBalise: string = null;
-          if (cible) {
-            switch (proprieteString) {
-              case 'nom':
-                resultatCurBalise = cible.nom; break;
-              case 'intitulé': case 'intitule':
-                resultatCurBalise = cible instanceof ElementJeu
-                  ? this.eju.calculerIntituleElement(cible, false, true)
-                  : cible.intitule.toString();
-                break;
-              case 'Intitulé': case 'Intitule':
-                if (cible instanceof ElementJeu) {
-                  resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
-                } else {
-                  resultatCurBalise = cible.intitule.toString();
-                  if (resultatCurBalise.length > 0) {
-                    resultatCurBalise = resultatCurBalise[0].toUpperCase() + resultatCurBalise.slice(1);
-                  }
-                }
-                break;
-              case 'quantité': case 'quantite':
-                resultatCurBalise = cible instanceof ElementJeu
-                  ? cible.quantite.toString()
-                  : " (propriete quantite: pas un element du jeu) ";
-                break;
-              default:
-                if (cible instanceof Concept) {
-                  const propriete = cible.proprietes.find(x => x.nom == proprieteString);
-                  if (propriete) {
-                    resultatCurBalise = propriete.type == TypeValeur.mots
-                      ? this.calculerTexteDynamiqueFn(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ctxTour, evenement, declenchements)
-                      : propriete.valeur;
-                  } else {
-                    resultatCurBalise = " (propriete « " + proprieteString + " » de « " + cible.intitule + " » pas trouvee) ";
-                  }
-                } else {
-                  ctxTour.ajouterErreurDerniereInstruction("Texte dynamique => propriete => doit concerner un concept.");
-                  resultatCurBalise = " (propriete « " + proprieteString + " » de « " + cible.intitule + " » pas un concept) ";
-                }
-                break;
-            }
+    if (!texteDynamique.includes("[p ")) return texteDynamique;
+    return InstructionsUtils.processBalises(texteDynamique, "p (\\S+) (ici|ceci|cela)", decoupe => {
+      const proprieteString = decoupe[1];
+      const cibleString = decoupe[2];
+      const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+      if (!cible) return "(" + cibleString + " est null)";
+      switch (InstructionsUtils.normaliserAccents(proprieteString)) {
+        case 'nom':
+          return cible.nom;
+        case 'intitule':
+          return cible instanceof ElementJeu
+            ? this.eju.calculerIntituleElement(cible, false, true)
+            : cible.intitule.toString();
+        case 'Intitule':
+          if (cible instanceof ElementJeu) {
+            return this.eju.calculerIntituleElement(cible, true, true);
           } else {
-            resultatCurBalise = "(" + cibleString + " est null)";
+            const s = cible.intitule.toString();
+            return s.length > 0 ? s[0].toUpperCase() + s.slice(1) : s;
           }
-          const xCurBalise = new RegExp("\\[p " + proprieteString + " " + cibleString + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultatCurBalise);
-        }
+        case 'quantite':
+          return cible instanceof ElementJeu
+            ? cible.quantite.toString()
+            : " (propriete quantite: pas un element du jeu) ";
+        default:
+          if (cible instanceof Concept) {
+            const propriete = cible.proprietes.find(x => x.nom == proprieteString);
+            if (propriete) {
+              return propriete.type == TypeValeur.mots
+                ? this.calculerTexteDynamiqueFn(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ctxTour, evenement, declenchements)
+                : propriete.valeur;
+            }
+            return " (propriete « " + proprieteString + " » de « " + cible.intitule + " » pas trouvee) ";
+          }
+          ctxTour.ajouterErreurDerniereInstruction("Texte dynamique => propriete => doit concerner un concept.");
+          return " (propriete « " + proprieteString + " » de « " + cible.intitule + " » pas un concept) ";
       }
-    }
-    return texteDynamique;
+    });
   }
 
 }

@@ -451,6 +451,11 @@ export class InstructionsUtils {
     return quantite;
   }
 
+  /** Supprime les diacritiques (accents) d'une chaîne sans toucher à la casse. */
+  public static normaliserAccents(s: string): string {
+    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   /**
    * Extrait toutes les balises uniques correspondant au pattern et retourne le résultat exec() pour chacune.
    * Retourne null si aucune balise trouvée.
@@ -463,6 +468,25 @@ export class InstructionsUtils {
     const allBalises = texteDynamique.match(regexMulti);
     const balisesUniques = allBalises.filter((v, i, t) => t.indexOf(v) === i);
     return balisesUniques.map(b => regexSolo.exec(b));
+  }
+
+  /**
+   * Extrait les balises, calcule la valeur de remplacement via le callback, remplace dans le texte.
+   * Le callback reçoit le RegExpExecArray de la balise et retourne la valeur de remplacement.
+   */
+  public static processBalises(
+    texte: string,
+    pattern: string,
+    calculer: (decoupe: RegExpExecArray) => string
+  ): string {
+    const balises = InstructionsUtils.extraireBalises(texte, pattern);
+    if (balises) {
+      for (const decoupe of balises) {
+        const inner = decoupe[0].slice(1, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        texte = texte.replace(new RegExp("\\[" + inner + "\\]", "g"), calculer(decoupe));
+      }
+    }
+    return texte;
   }
 
 }

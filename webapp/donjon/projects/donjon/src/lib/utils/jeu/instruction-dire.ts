@@ -55,7 +55,7 @@ export class InstructionDire {
     this.numerique = new InstructionDireNumerique(this.eju);
     this.format = new InstructionDireFormat(this.jeu, this.eju, this.calculerConjugaison.bind(this));
     this.apercuStatut = new InstructionDireApercuStatut(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
-    this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this));
+    this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.afficherSorties.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this));
     this.propriete = new InstructionDirePropriete(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
   }
 
@@ -554,154 +554,61 @@ export class InstructionDire {
   }
 
   public calculerBalise(texteDynamique: string, nbAffichage: number, intact: boolean | undefined, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
+    if (!texteDynamique.includes("[")) return texteDynamique;
 
-    // TODO: Optimiser cette méthode à présent que les balises sont traitées une par une.
-    // TODO: Uniformiser les balises pour qu’elles soient toutes traitées de la même manière.
+    const pipeline: Array<(t: string) => string> = [
+      t => this.apercuStatut.calculerBaliseApercu(t, ctxTour, evenement, declenchements),
+      t => this.apercuStatut.calculerBaliseStatut(t, ctxTour),
+      t => this.contenu.calculerBaliseListerDecrireContenu(t, ctxTour, evenement),
+      t => this.contenu.calculerBaliseListerDecrireListe(t, ctxTour, evenement),
+      t => this.contenu.calculerBaliseObstacle(t, ctxTour),
+      t => this.contenu.calculerBaliseSortiesTitre(t),
+      t => this.apercuStatut.calculerBaliseAide(t, ctxTour),
+      t => this.propriete.calculerBalisePropriete(t, ctxTour, evenement),
+      t => this.propriete.calculerBaliseP(t, ctxTour, evenement, declenchements),
+      t => this.numerique.calculerBaliseCompteur(t, evenement),
+      t => this.numerique.calculerBaliseCalendrier(t),
+      t => this.numerique.calculerBaliseHorloge(t),
+      t => this.numerique.calculerBaliseMémoire(t, ctxTour),
+      t => this.format.calculerBaliseVerbe(t, ctxTour, evenement),
+      t => this.format.calculerBaliseImage(t),
+      t => this.format.calculerBaliseHashtag(t, ctxTour),
+      t => this.format.calculerBaliseInfinitifAction(t, evenement),
+      t => this.calculerBaliseNombreDeProprieteDe(t, ctxTour, evenement, declenchements),
+      t => this.calculerBaliseNombreDeClasseEtatPosition(t, ctxTour, evenement, declenchements),
+      t => this.calculerBaliseProprieteDeElement(t, ctxTour, evenement, declenchements),
+      t => this.calculerBaliseProprieteElement(t, ctxTour, evenement, declenchements),
+    ];
 
-    // s’il reste des crochets à interpréter
-    if (texteDynamique.includes('[')) {
-
-      // ===================================================
-      // > APERÇU
-      // ===================================================
-      texteDynamique = this.apercuStatut.calculerBaliseApercu(texteDynamique, ctxTour, evenement, declenchements);
-
-
-      // ================================================================================
-      // STATUT
-      // ================================================================================
-      texteDynamique = this.apercuStatut.calculerBaliseStatut(texteDynamique, ctxTour);
-
-      // ================================================================================
-      // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|origine|destination|ceci|cela|inventaire]
-      // ================================================================================
-      texteDynamique = this.contenu.calculerBaliseListerDecrireContenu(texteDynamique, ctxTour, evenement);
-
-
-      // ================================================================================
-      // LISTER/DÉCRIRE UNE LISTE
-      // ================================================================================
-      texteDynamique = this.contenu.calculerBaliseListerDecrireListe(texteDynamique, ctxTour, evenement);
-
-      // ================================================================================
-      // OBSTACLE
-      // ================================================================================
-      texteDynamique = this.contenu.calculerBaliseObstacle(texteDynamique, ctxTour);
-
-      // sorties
-      if (texteDynamique.includes("[sorties ici]")) {
-        const sortiesIci = this.afficherSorties(this.eju.curLieu);
-        texteDynamique = texteDynamique.replace(/\[sorties ici\]/g, sortiesIci);
-      }
-
-      // titre
-      if (texteDynamique.includes("[titre ici]")) {
-        const titreIci = this.eju.curLieu?.titre ?? "(Je ne sais pas où je suis)";
-        texteDynamique = texteDynamique.replace(/\[titre ici\]/g, titreIci);
-      }
-
-      // aide
-      texteDynamique = this.apercuStatut.calculerBaliseAide(texteDynamique, ctxTour);
-
-      // ======================================================================================================
-      // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci?|cela?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela
-      // ======================================================================================================
-
-      texteDynamique = this.propriete.calculerBalisePropriete(texteDynamique, ctxTour, evenement);
-
-      // ===================================================
-      // PROPRIÉTÉS [p nomPropriété ici|ceci|cela]
-      // ===================================================
-      texteDynamique = this.propriete.calculerBaliseP(texteDynamique, ctxTour, evenement, declenchements);
-
-      // ===================================================
-      // COMPTEURS [c nomCompteur]
-      // ===================================================
-      texteDynamique = this.numerique.calculerBaliseCompteur(texteDynamique, evenement);
-
-
-      // ===================================================
-      // Calendrier [calendrier], [mois], [date], …
-      // ===================================================
-      texteDynamique = this.numerique.calculerBaliseCalendrier(texteDynamique);
-
-
-      // ===================================================
-      // Horloge [horloge], [minutes], [secondes], …
-      // ===================================================
-      texteDynamique = this.numerique.calculerBaliseHorloge(texteDynamique);
-
-      // ===================================================
-      // Mémoire [mémoire nom de la mémoire]
-      // ===================================================
-      texteDynamique = this.numerique.calculerBaliseMémoire(texteDynamique, ctxTour);
-
-      // ===================================================
-      // CONJUGAISON
-      // ===================================================
-      texteDynamique = this.format.calculerBaliseVerbe(texteDynamique, ctxTour, evenement);
-
-
-      // ===================================================
-      // IMAGE
-      // ===================================================
-      texteDynamique = this.format.calculerBaliseImage(texteDynamique);
-
-      // ===================================================
-      // MENTIONNÉ (#), VU (@) et FAMILIER (&)
-      // ===================================================
-      texteDynamique = this.format.calculerBaliseHashtag(texteDynamique, ctxTour);
-
-      // ===================================================
-      // DIVERS
-      // ===================================================
-
-      texteDynamique = this.format.calculerBaliseInfinitifAction(texteDynamique, evenement);
-
-      // ===================================================
-      // PROPRIÉTÉS
-      // ===================================================
-
-      // Le nombre de propriété de élément
-      const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d\u2019|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+?))?\]/gi;
-      if (xBaliseNombreDeProprieteMulti.test(texteDynamique)) {
-        // retrouver toutes les balises nombre de propriété de élément
-        const allBalises = texteDynamique.match(xBaliseNombreDeProprieteMulti);
-        // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
-      }
-
-      // Le nombre de classe état1 état2 position
-      const xBaliseNombreDeClasseEtatPositionMulti = /\[(le )?nombre (de |d\u2019|d')(\S+)( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l\u2019|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d\u2019|d'|n\u2019|n'|s\u2019|s'|à))(\S+?))?)?\]/gi;
-      if (xBaliseNombreDeClasseEtatPositionMulti.test(texteDynamique)) {
-        // retrouver toutes les balises nombre de classe état1 état2 position
-        const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPositionMulti);
-        // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
-      }
-
-      // La propriété de élément
-      const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l\u2019)?(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+?))?\]/gi;
-      if (xBaliseProprieteDeElementMulti.test(texteDynamique)) {
-        // retrouver toutes les balises propriété de élément
-        const allBalises = texteDynamique.match(xBaliseProprieteDeElementMulti);
-        // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, false, ctxTour, evenement, declenchements);
-      }
-
-      // propriété élément
-      const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s'|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
-      if (xBaliseProprieteElementMulti.test(texteDynamique)) {
-        // retrouver toutes les balises  propriété élément
-        const allBalises = texteDynamique.match(xBaliseProprieteElementMulti);
-        // remplacer les balises par leur valeur
-        texteDynamique = this.suiteTraiterPropriete(texteDynamique, allBalises, true, ctxTour, evenement, declenchements);
-      }
-
+    for (const fn of pipeline) {
+      texteDynamique = fn(texteDynamique);
     }
 
     return texteDynamique;
+  }
 
+  private calculerBaliseNombreDeProprieteDe(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
+    const x = /\[(le )?nombre (de |d\u2019|d’)(\S+) (des |du |de la |de l(?:’|’)|de |d’|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l’|l\u2019)?|du |des |d’|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n’|d\u2019|d’|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s’)\b)(\S+?))?\]/gi;
+    if (!x.test(t)) return t;
+    return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
+  }
+
+  private calculerBaliseNombreDeClasseEtatPosition(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
+    const x = /\[(le )?nombre (de |d\u2019|d’)(\S+)( (?!\(|(ne|n\u2019|n’|d\u2019|d’|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s’)\b)(\S+))?(( (et )?)(?!\(|(ne|n\u2019|n’|d\u2019|d’|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s’)\b)(\S+))?( ((dans |sur |sous )(la |le |les |l\u2019|l’)?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l’|l\u2019)?|du |des |d’|d\u2019)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d\u2019|d’|n\u2019|n’|s\u2019|s’|à))(\S+?))?)?\]/gi;
+    if (!x.test(t)) return t;
+    return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
+  }
+
+  private calculerBaliseProprieteDeElement(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
+    const x = /\[(le |la |les |l’|l\u2019)?(?!(v|p|le|la|les|l’|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:’|’)|de |d’|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l’|l\u2019)?|du |des |d’|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n’|d\u2019|d’|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s’)\b)(\S+?))?\]/gi;
+    if (!x.test(t)) return t;
+    return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
+  }
+
+  private calculerBaliseProprieteElement(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
+    const x = /\[(?!(v|p|le|la|les|l’|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l’|l\u2019)?|du |des |d’|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n’|d\u2019|d’|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s’|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
+    if (!x.test(t)) return t;
+    return this.suiteTraiterPropriete(t, t.match(x), true, ctxTour, evenement, declenchements);
   }
 
   // ============================================================

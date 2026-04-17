@@ -28,31 +28,13 @@ export class InstructionDireFormat {
 
   calculerBaliseVerbe(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
     const baliseVerbe = "v ((?:se |s')?\\S+(?:ir|er|re)) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
-    const balises = InstructionsUtils.extraireBalises(texteDynamique, baliseVerbe);
-    if (balises) {
-      for (const decoupe of balises) {
-        const verbe = decoupe[1];
-        const modeTemps = decoupe[2];
-        const negation = decoupe[3];
-        const sujet = decoupe[4];
-        const verbeConjugue = this.calculerConjugaisonFn(verbe, modeTemps, negation, sujet, this.eju.curLieu, ctxTour, evenement);
-        const expression = `v ${verbe} ${modeTemps}${negation ? (" " + negation) : ""} ${sujet}`;
-        texteDynamique = texteDynamique.replace(new RegExp("\\[" + expression + "\\]", "g"), verbeConjugue);
-      }
-    }
-    return texteDynamique;
+    return InstructionsUtils.processBalises(texteDynamique, baliseVerbe, decoupe => {
+      return this.calculerConjugaisonFn(decoupe[1], decoupe[2], decoupe[3], decoupe[4], this.eju.curLieu, ctxTour, evenement);
+    });
   }
 
   calculerBaliseImage(texteDynamique: string): string {
-    const baliseImage = "image ([\\w.-]*\\w)";
-    const balises = InstructionsUtils.extraireBalises(texteDynamique, baliseImage);
-    if (balises) {
-      for (const decoupe of balises) {
-        const fichier = decoupe[1];
-        texteDynamique = texteDynamique.replace(new RegExp("\\[image " + fichier + "\\]", "g"), '@@image:' + fichier + '@@');
-      }
-    }
-    return texteDynamique;
+    return InstructionsUtils.processBalises(texteDynamique, "image ([\\w.-]*\\w)", decoupe => '@@image:' + decoupe[1] + '@@');
   }
 
   calculerBaliseHashtag(texteDynamique: string, ctxTour: ContexteTour | undefined): string {
