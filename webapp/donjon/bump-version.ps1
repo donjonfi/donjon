@@ -1,0 +1,119 @@
+# =======================================================
+# BUMP-VERSION - donjon FI
+# Met à jour la version dans tous les fichiers concernés,
+# puis lance sync-actions.ps1 pour propager actions.djn.
+# A executer depuis webapp/donjon/
+#
+# Usage :
+#   .\bump-version.ps1 3.3.2   # version explicite
+#   .\bump-version.ps1          # mode interactif
+# =======================================================
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$NouvelleVersion = ""
+)
+
+$ErrorActionPreference = "Stop"
+
+$Constantes = "projects/donjon/src/lib/models/commun/constantes.ts"
+
+# --- Mode interactif si pas de version fournie ---
+if ($NouvelleVersion -eq "") {
+    $contenuConst = Get-Content $Constantes -Raw -Encoding UTF8
+    if ($contenuConst -match 'export const version = "(\d+)\.(\d+)\.(\d+)"') {
+        $curMajor = [int]$Matches[1]
+        $curMinor = [int]$Matches[2]
+        $curPatch = [int]$Matches[3]
+    } else {
+        Write-Host "ERREUR : impossible de lire la version actuelle dans $Constantes" -ForegroundColor Red
+        exit 1
+    }
+    $versionActuelle = "$curMajor.$curMinor.$curPatch"
+    $choixPatch = "$curMajor.$curMinor.$($curPatch + 1)"
+    $choixMinor = "$curMajor.$($curMinor + 1).0"
+
+    Write-Host ""
+    Write-Host "Version actuelle : $versionActuelle" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  [1] Patch  -> $choixPatch"
+    Write-Host "  [2] Minor  -> $choixMinor"
+    Write-Host "  [3] Manuelle"
+    Write-Host ""
+    $choix = Read-Host "Choix (1/2/3)"
+
+    switch ($choix) {
+        "1" { $NouvelleVersion = $choixPatch }
+        "2" { $NouvelleVersion = $choixMinor }
+        "3" {
+            $NouvelleVersion = Read-Host "Nouvelle version (x.y.z)"
+        }
+        default {
+            Write-Host "Choix invalide." -ForegroundColor Red
+            exit 1
+        }
+    }
+}
+
+# --- Validation format x.y.z ---
+if ($NouvelleVersion -notmatch '^\d+\.\d+\.\d+$') {
+    Write-Host "ERREUR : format de version invalide '$NouvelleVersion' (attendu : x.y.z)" -ForegroundColor Red
+    exit 1
+}
+
+$parts = $NouvelleVersion -split '\.'
+$major = [int]$parts[0]
+$minor = [int]$parts[1]
+$patch = [int]$parts[2]
+$versionNum = $major * 10000 + $minor * 100 + $patch
+$dateAujourdhui = Get-Date -Format "yyyy-MM-dd"
+
+Write-Host ""
+Write-Host "Bump vers $NouvelleVersion (versionNum=$versionNum, date=$dateAujourdhui)" -ForegroundColor Cyan
+Write-Host ""
+
+# --- Fichiers ---
+$ActionsSource = "../../ressources/scenarios/actions.djn"
+$PackageJson   = "package.json"
+$PackageLock   = "package-lock.json"
+
+# 1. actions.djn
+$contenu = Get-Content $ActionsSource -Raw -Encoding UTF8
+$contenu = $contenu -replace '-- Version: [\d-]+', "-- Version: $dateAujourdhui-$versionNum"
+[System.IO.File]::WriteAllText((Resolve-Path $ActionsSource), $contenu, [System.Text.Encoding]::UTF8)
+Write-Host "OK  $ActionsSource" -ForegroundColor Green
+
+# 2. constantes.ts
+$contenu = Get-Content $Constantes -Raw -Encoding UTF8
+$contenu = $contenu -replace 'export const version = "[^"]+"', "export const version = `"$NouvelleVersion`""
+$contenu = $contenu -replace 'export const versionNum = \d+;', "export const versionNum = $versionNum;"
+[System.IO.File]::WriteAllText((Resolve-Path $Constantes), $contenu, [System.Text.Encoding]::UTF8)
+Write-Host "OK  $Constantes" -ForegroundColor Green
+
+# 3. package.json  (1re occurrence de "version")
+$contenu = Get-Content $PackageJson -Raw -Encoding UTF8
+$contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
+[System.IO.File]::WriteAllText((Resolve-Path $PackageJson), $contenu, [System.Text.Encoding]::UTF8)
+Write-Host "OK  $PackageJson" -ForegroundColor Green
+
+# 4. package-lock.json  (les 2 premières occurrences de "version" concernent le projet)
+$lignes = Get-Content $PackageLock -Encoding UTF8
+$compteur = 0
+$lignes = $lignes | ForEach-Object {
+    if ($compteur -lt 2 -and $_ -match '^\s+"version": "') {
+        $compteur++
+        $_ -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
+    } else {
+        $_
+    }
+}
+[System.IO.File]::WriteAllLines((Resolve-Path $PackageLock), $lignes, [System.Text.Encoding]::UTF8)
+Write-Host "OK  $PackageLock" -ForegroundColor Green
+
+# 5. Synchro actions.djn → creer / jouer / scenario_actions.ts
+Write-Host ""
+Write-Host "Synchro actions..." -ForegroundColor Cyan
+& "$PSScriptRoot/sync-actions.ps1"
+
+Write-Host ""
+Write-Host "Version $NouvelleVersion appliquee." -ForegroundColor Green

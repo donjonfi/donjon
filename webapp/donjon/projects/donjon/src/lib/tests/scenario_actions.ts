@@ -1,7 +1,6 @@
-
-export const actions = `
--- Titre: "Actions de base pour Donjon FI".
--- Version: 2025-03-06-30207
+﻿
+export const actions = `-- Titre: "Actions de base pour Donjon FI".
+-- Version: 2026-04-17-30400
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -503,13 +502,13 @@ action enlever ceci:
   définitions:
     ceci est prioritairement porté.
   phase prérequis:
-    si ceci est portable mais pas porté, refuser "Vous ne portez pas [intitulé ceci].".
+    si ceci est portable ou enfilable ou chaussable ou équipable mais pas porté, refuser "Vous ne portez pas [intitulé ceci].".
     si ceci est le joueur, refuser "Vous organisez votre enlèvement... et votre sauvetage.".
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
   phase exécution:
     changer le joueur ne porte plus ceci.
   phase épilogue:
-    si ceci est portable:
+    si ceci est portable ou enfilable ou équipable ou chaussable:
       dire "Vous ne portez plus [intitulé ceci].".
     sinon
       dire "Essayons autre chose.".
@@ -1392,5 +1391,46 @@ interpréter appuyer et enfoncer comme pousser.
 interpréter ramasser comme prendre.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x:
+
+--   phase prérequis:
+
+--   phase exécution:
+
+--   phase épilogue:
+
+-- fin action
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x:
+
+--   phase épilogue:
+
+-- fin action
+
+
+-- -- ============
+-- --   X
+-- -- ============
+
+-- action x ceci:
+
+--   définitions:
+
+--   phase prérequis:
+
+--   phase exécution:
+
+--   phase épilogue:
+
+-- fin action
 
 `;
