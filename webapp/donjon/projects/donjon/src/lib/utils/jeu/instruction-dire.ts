@@ -31,10 +31,20 @@ import { TexteUtils } from "../commun/texte-utils";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 import { Concept } from "../../models/compilateur/concept";
+import { InstructionDireNumerique } from "./instruction-dire-numerique";
+import { InstructionDireFormat } from "./instruction-dire-format";
+import { InstructionDireApercuStatut } from "./instruction-dire-apercu-statut";
+import { InstructionDireContenu } from "./instruction-dire-contenu";
+import { InstructionDirePropriete } from "./instruction-dire-propriete";
 
 export class InstructionDire {
 
   private cond: ConditionsUtils;
+  private numerique: InstructionDireNumerique;
+  private format: InstructionDireFormat;
+  private apercuStatut: InstructionDireApercuStatut;
+  private contenu: InstructionDireContenu;
+  private propriete: InstructionDirePropriete;
 
   constructor(
     private jeu: Jeu,
@@ -42,6 +52,11 @@ export class InstructionDire {
     private verbeux: boolean,
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
+    this.numerique = new InstructionDireNumerique(this.eju);
+    this.format = new InstructionDireFormat(this.jeu, this.eju, this.calculerConjugaison.bind(this));
+    this.apercuStatut = new InstructionDireApercuStatut(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
+    this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this));
+    this.propriete = new InstructionDirePropriete(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
   }
 
 
@@ -211,7 +226,7 @@ export class InstructionDire {
         curProprieteIntituleCorrige = curProprieteIntituleCorrige.replace(" ", " de "); // rem: seul premier espace est remplacé.
       }
       // ajouter déterminant « le » devant la propriété si pas déjà présent (ex: titre de la table => le titre de la table)
-      if (!curProprieteIntituleCorrige.match(/^(le |la |les |l'|l’)/i)) {
+      if (!curProprieteIntituleCorrige.match(/^(le |la |les |l'|l\u2019)/i)) {
         curProprieteIntituleCorrige = ("le " + curProprieteIntituleCorrige);
       }
 
@@ -458,8 +473,8 @@ export class InstructionDire {
     // retrouver et contrôler le sujet
     let sujet: ElementJeu | Intitule = null;
     let verbeConjugue: string = null;
-    let verbePronominal = /(se |s’|s')(.+)/.test(verbe);
-    let infinitifSansLeSe = verbePronominal ? verbe.replace(/^(se |s’|s')/i, "") : verbe;
+    let verbePronominal = /(se |s\u2019|s')(.+)/.test(verbe);
+    let infinitifSansLeSe = verbePronominal ? verbe.replace(/^(se |s\u2019|s')/i, "") : verbe;
     sujet = InstructionsUtils.trouverCibleSpeciale(sujetStr, contexteTour, evenement, this.eju, this.jeu);
     if (!sujet || !ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
       console.error("calculerConjugaison > «", sujetStr, "» n’est pas un élément du jeu");
@@ -549,280 +564,29 @@ export class InstructionDire {
       // ===================================================
       // > APERÇU
       // ===================================================
-      if (texteDynamique.includes("[aperçu") || texteDynamique.includes("[apercu")) {
-        if (texteDynamique.includes("[aperçu ceci]") || texteDynamique.includes("[apercu ceci]")) {
-          let apercuCeci = "???";
-          if (ctxTour?.ceci) {
-            if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.element)) {
-              const eleCeci = ctxTour.ceci as ElementJeu;
-              apercuCeci = this.calculerTexteDynamique(eleCeci.apercu, ++eleCeci.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCeci, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
-              texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
-              // l’objet a été mentionné et vu par le joueur
-              this.jeu.etats.ajouterEtatElement(eleCeci, EEtatsBase.vu, this.eju, false);
-              ctxTour.elementsMentionnes.push(eleCeci.id);
-            } else if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.direction)) {
-              const dirCeci = ctxTour.ceci as Localisation;
-              let voisinID = this.eju.getVoisinDirectionID(dirCeci, EClasseRacine.lieu);
-              if (voisinID !== -1) {
-                let voisin = this.eju.getLieu(voisinID);
-                apercuCeci = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
-                // le lieu a été mentionné et vu par le joueur
-                this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
-              } else {
-                console.error("calculerTexteDynamique: aperçu de ceci: voisin pas trouvé dans cette direction.");
-              }
-            } else {
-              console.error("calculerTexteDynamique: aperçu de ceci: ceci n'est pas un élément jeu");
-            }
-          } else {
-            console.error("calculerTexteDynamique: aperçu de ceci: ceci n'a pas été défini.");
-          }
-          texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) ceci\]/g, apercuCeci);
-        }
-        if (texteDynamique.includes("[aperçu cela]") || texteDynamique.includes("[apercu cela]")) {
-          let apercuCela = "???";
-          if (ctxTour?.cela) {
-            if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.element)) {
-              const eleCela = ctxTour.cela as ElementJeu;
-              apercuCela = this.calculerTexteDynamique(eleCela.apercu, ++eleCela.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(eleCela, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
-              texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
-              // l’objet a été mentionné et vu par le joueur
-              this.jeu.etats.ajouterEtatElement(eleCela, EEtatsBase.vu, this.eju, false);
-              ctxTour.elementsMentionnes.push(eleCela.id);
-            } else if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.direction)) {
-              const dirCela = ctxTour.cela as Localisation;
-              let voisinID = this.eju.getVoisinDirectionID(dirCela, EClasseRacine.lieu);
-              if (voisinID !== -1) {
-                let voisin = this.eju.getLieu(voisinID);
-                apercuCela = this.calculerTexteDynamique(voisin.apercu, ++voisin.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(voisin, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
-                // le lieu a été mentionné et vu par le joueur
-                this.jeu.etats.ajouterEtatElement(voisin, EEtatsBase.vu, this.eju, false);
-              } else {
-                console.error("calculerTexteDynamique: aperçu de cela: voisin pas trouvé dans cette direction.");
-              }
-            } else {
-              console.error("calculerTexteDynamique: aperçu de cela: cela n'est pas un élément jeu");
-            }
-          } else {
-            console.error("calculerTexteDynamique: aperçu de cela: cela n'a pas été défini.");
-          }
-          texteDynamique = texteDynamique.replace(/\[(aperçu|apercu) cela\]/g, apercuCela);
-        }
-      }
+      texteDynamique = this.apercuStatut.calculerBaliseApercu(texteDynamique, ctxTour, evenement, declenchements);
 
 
       // ================================================================================
       // STATUT
       // ================================================================================
-
-      // statut (porte, contenant)
-      if (texteDynamique.includes("[statut")) {
-        if (texteDynamique.includes("[statut ceci]")) {
-          if (ctxTour?.ceci && ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.objet)) {
-            const statutCeci = this.afficherStatut(ctxTour.ceci as Objet);
-            texteDynamique = texteDynamique.replace(/\[statut ceci\]/g, statutCeci);
-          } else {
-            console.error("calculerTexteDynamique: statut de ceci: ceci n'est pas un objet");
-          }
-        }
-        if (texteDynamique.includes("[statut cela]")) {
-          if (ctxTour?.cela && ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.objet)) {
-            const statutCela = this.afficherStatut(ctxTour.cela as Objet);
-            texteDynamique = texteDynamique.replace(/\[statut cela\]/g, statutCela);
-          } else {
-            console.error("calculerTexteDynamique: statut de cela: cela n'est pas un objet");
-          }
-        }
-      }
+      texteDynamique = this.apercuStatut.calculerBaliseStatut(texteDynamique, ctxTour);
 
       // ================================================================================
       // OBJETS (CONTENU) [liste|décrire objets sur|sous|dans ici|origine|destination|ceci|cela|inventaire]
       // ================================================================================
+      texteDynamique = this.contenu.calculerBaliseListerDecrireContenu(texteDynamique, ctxTour, evenement);
 
-      const baliseListerDecrireContenu = "(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire)(?: (sauf cachés))?";
-      const xBaliseListerDecrireContenuMulti = new RegExp("\\[" + baliseListerDecrireContenu + "\\]", "gi");
-      const xBaliseListerDecrireContenuSolo = new RegExp("\\[" + baliseListerDecrireContenu + "\\]", "i");
-
-
-      // if (texteDynamique.includes("[lister objets ") || texteDynamique.includes("[décrire objets ")) {
-      if (xBaliseListerDecrireContenuMulti.test(texteDynamique)) {
-
-        // retrouver toutes les balises lister/décrire
-        const allBalises = texteDynamique.match(xBaliseListerDecrireContenuMulti);
-
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = xBaliseListerDecrireContenuSolo.exec(curBalise);
-
-          const ListerDecrireString = decoupe[1];
-          let isLister = ListerDecrireString.toLowerCase() == 'lister';
-          const prepositionString = decoupe[2]; // dans par défaut
-          const cibleString = decoupe[3];
-          const exclureCaches = decoupe[4] && decoupe[4] == 'sauf cachés';
-
-          let phraseSiVide = "";
-          let phraseSiQuelqueChose = "";
-          let afficherObjetsCaches = !exclureCaches;
-
-          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-
-          // retrouver la préposition (dans par défaut)
-          let preposition = PrepositionSpatiale.dans;
-          if (prepositionString) {
-            preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
-          }
-
-          // cas particuliers
-          // > ici
-          if (cible == this.eju.curLieu) {
-            phraseSiQuelqueChose = "{U}Vous apercevez ";
-            // > inventaire / joueur
-          } else if (cible == this.jeu.joueur) {
-            phraseSiQuelqueChose = "";
-            phraseSiVide = "Votre inventaire est vide.";
-          } else {
-            switch (preposition) {
-              case PrepositionSpatiale.sur:
-                phraseSiQuelqueChose = " Dessus, il y a ";
-                phraseSiVide = "Il n’y a rien de particulier dessus.";
-                break;
-
-              case PrepositionSpatiale.sous:
-                phraseSiQuelqueChose = " Dessous, il y a ";
-                phraseSiVide = "Il n’y a rien de particulier dessous.";
-                break;
-              case PrepositionSpatiale.dans:
-              default:
-                phraseSiQuelqueChose = " Dedans, il y a ";
-                phraseSiVide = "[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
-            }
-          }
-
-          let resultatCurBalise: string;
-          if (cible instanceof ElementJeu) {
-            if (isLister) {
-              resultatCurBalise = this.executerListerContenu(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
-            } else {
-              resultatCurBalise = this.executerDecrireContenu(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
-            }
-          } else {
-            resultatCurBalise = "{+(cible pas trouvée)+}";
-          }
-
-          // remplacer la balise par le résultat
-          const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString + (exclureCaches ? " sauf cachés" : "") + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultatCurBalise);
-
-        });
-
-      }
 
       // ================================================================================
       // LISTER/DÉCRIRE UNE LISTE
       // ================================================================================
-      const baliseListerDecrireListe = "(lister|décrire) ((?:le |la |l(?:’|')|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l’)?|du |des |d'|d’)\\S+?))(?:(?: )(?!\\(|(?:ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\\b)(?:\\S+))?)";
-      const xBaliseListerDecrireListeMulti = new RegExp("\\[" + baliseListerDecrireListe + "\\]", "gi");
-      const xBaliseListerDecrireListeSolo = new RegExp("\\[" + baliseListerDecrireListe + "\\]", "i");
-      if (xBaliseListerDecrireListeMulti.test(texteDynamique)) {
-        // retrouver toutes les balises lister/décrire
-        const allBalises = texteDynamique.match(xBaliseListerDecrireListeMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = xBaliseListerDecrireListeSolo.exec(curBalise);
-
-          const verbeString = decoupe[1];
-          let cibleString = decoupe[2];
-          let cibleGN = PhraseUtils.getGroupeNominalDefini(cibleString, false);
-          const cible: Liste = InstructionsUtils.trouverListe(cibleGN, this.eju, this.jeu, true);
-
-          let resultat: string = '';
-
-          if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.liste)) {
-            const cibleElement: Liste = cible as Liste;
-
-            switch (verbeString) {
-
-              case 'lister':
-              case 'Lister':
-                resultat = cible.lister();
-                break;
-
-              case 'décrire':
-              case 'Décrire':
-                resultat = cible.decrire();
-                break;
-
-              // inconnu
-              default:
-                console.error("calculerTexteDynamique: lister/décrire une liste: verbe pas pris en charge :", verbeString);
-                break;
-            }
-            // ne rien metre si on cible ceci? ou cela? (car argument facultatif)
-          } else if (cibleString == 'ceci?' || cibleString == 'cela?') {
-            resultat = "";
-            // cible non trouvée
-          } else {
-            resultat = "?!?"
-          }
-
-          // echaper le ? à la fin de ceci? cela?
-          if (cibleString == 'ceci?' || cibleString == 'cela?') {
-            cibleString = cibleString.replace("?", "\\?");
-          }
-
-          // remplacer la balise par le résultat
-          const xCurBalise = new RegExp("\\[" + verbeString + " " + cibleString + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultat);
-
-        });
-
-      }
+      texteDynamique = this.contenu.calculerBaliseListerDecrireListe(texteDynamique, ctxTour, evenement);
 
       // ================================================================================
       // OBSTACLE
       // ================================================================================
-
-      if (texteDynamique.includes("[obstacle ")) {
-        if (texteDynamique.includes("[obstacle vers ceci]")) {
-          if (ctxTour?.ceci) {
-            let obstacleVersCeci: string = null;
-            if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.direction)) {
-              obstacleVersCeci = this.afficherObstacle((ctxTour.ceci as Localisation).id);
-              texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
-            } else if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.lieu)) {
-              obstacleVersCeci = this.afficherObstacle(ctxTour.ceci as Lieu);
-              texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, obstacleVersCeci);
-            } else {
-              console.error("calculerTexteDynamique: statut sortie vers ceci: ceci n’est ni une direction ni un lieu.");
-            }
-          } else {
-            console.error("calculerTexteDynamique: statut sortie vers ceci: ceci est null.");
-          }
-        }
-        if (texteDynamique.includes("[obstacle vers cela]")) {
-          if (ctxTour?.cela) {
-            let obstacleVersCela: string = null;
-            if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.direction)) {
-              obstacleVersCela = this.afficherObstacle((ctxTour.cela as Localisation).id);
-              texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
-            } else if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.lieu)) {
-              obstacleVersCela = this.afficherObstacle(ctxTour.cela as Lieu);
-              texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, obstacleVersCela);
-            } else {
-              console.error("calculerTexteDynamique: statut sortie vers cela: cela n’est ni une direction ni un lieu.");
-            }
-          } else {
-            console.error("calculerTexteDynamique: statut sortie vers cela: cela est null.");
-          }
-        }
-      }
+      texteDynamique = this.contenu.calculerBaliseObstacle(texteDynamique, ctxTour);
 
       // sorties
       if (texteDynamique.includes("[sorties ici]")) {
@@ -837,653 +601,69 @@ export class InstructionDire {
       }
 
       // aide
-      if (texteDynamique.includes("[aide")) {
-        if (texteDynamique.includes("[aide ceci]")) {
-          if (ctxTour) {
-            const aideCeci = this.recupererFicheAide(ctxTour.ceci);
-            texteDynamique = texteDynamique.replace(/\[aide ceci\]/g, aideCeci);
-          } else {
-            console.error("calculerTexteDynamique: aide ceci: pas de contexteTour");
-          }
-        }
-        if (texteDynamique.includes("[aide cela]")) {
-          if (ctxTour) {
-            const aideCela = this.recupererFicheAide(ctxTour.cela);
-            texteDynamique = texteDynamique.replace(/\[aide cela\]/g, aideCela);
-          } else {
-            console.error("calculerTexteDynamique: aide cela: pas de contexteTour");
-          }
-        }
-      }
+      texteDynamique = this.apercuStatut.calculerBaliseAide(texteDynamique, ctxTour);
 
       // ======================================================================================================
       // PROPRIÉTÉS [intitulé|intitule|singulier|pluriel|accord|es|e|s|pronom|Pronom|il|Il|l’|l'|le|lui ceci?|cela?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela
       // ======================================================================================================
 
-      const balisePropriete = "(quantité|quantite|intitulé|intitule|singulier|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l’|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
-      const xBaliseProprieteMulti = new RegExp("\\[" + balisePropriete + "\\]", "gi");
-      const xBaliseProprieteSolo = new RegExp("\\[" + balisePropriete + "\\]", "i");
-
-      if (xBaliseProprieteMulti.test(texteDynamique)) {
-        // retrouver toutes les balises propriétés
-        const allBalises = texteDynamique.match(xBaliseProprieteMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = xBaliseProprieteSolo.exec(curBalise);
-
-          const proprieteString = decoupe[1];
-          let cibleString = decoupe[2];
-          const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-
-          let resultat: string = '';
-
-          if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {
-            const cibleElement: ElementJeu = cible as ElementJeu;
-
-            switch (proprieteString) {
-
-              case 'Quantité':
-              case 'quantité':
-              case 'Quantite':
-              case 'quantite':
-                resultat = cibleElement.quantite.toString();
-                break;
-
-              case 'intitulé':
-              case 'intitule':
-                resultat = this.eju.calculerIntituleElement(cibleElement, false, true);
-                // l’objet a été mentionné
-                ctxTour.elementsMentionnes.push(cibleElement.id);
-                break;
-
-              case 'Intitulé':
-              case 'Intitule':
-                resultat = this.eju.calculerIntituleElement(cibleElement, true, true);
-                // l’objet a été mentionné
-                ctxTour.elementsMentionnes.push(cibleElement.id);
-                break;
-
-              case 'Singulier':
-                resultat = this.eju.calculerIntituleElement(cibleElement, true, true, Nombre.s);
-                break;
-
-              case 'singulier':
-                resultat = this.eju.calculerIntituleElement(cibleElement, false, true, Nombre.s);
-                break;
-
-              case 'Pluriel':
-                resultat = this.eju.calculerIntituleElement(cibleElement, true, true, Nombre.p);
-                break;
-
-              case 'pluriel':
-                resultat = this.eju.calculerIntituleElement(cibleElement, false, true, Nombre.p);
-                break;
-
-              // es ceci | accord ceci (féminin et pluriel)
-              case 'accord':
-              case 'es':
-                resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
-                break;
-
-              // s ceci (pluriel)
-              case 's':
-                resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
-                break;
-
-              // e ceci (féminin)
-              case 'e':
-                resultat = (cibleElement.genre === Genre.f ? "e" : "");
-                break;
-
-              // pronom
-              case 'pronom':
-              case 'il':
-                if (ClasseUtils.heriteDe(cibleElement.classe, EClasseRacine.element)) {
-                  resultat = (cibleElement.genre === Genre.f ? "elle" : "il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
-                } else {
-                  console.error("calculerTexteDynamique: pronom ceci: ceci n'est pas un élément.");
-                }
-                break;
-
-              // pronom (majuscule)
-              case 'Pronom':
-              case 'Il':
-                resultat = (cibleElement.genre === Genre.f ? "Elle" : "Il") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : "");
-                break;
-
-              // cod: l’ ou les
-              case 'l’':
-              case 'l\'':
-                resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "les " : "l’");
-                break;
-
-              // cod: le, la ou les
-              case 'le':
-                // singulier
-                if (cibleElement.nombre !== Nombre.p && cibleElement.nombre !== Nombre.tp) {
-                  // masculin
-                  if (cibleElement.genre !== Genre.f) {
-                    resultat = "le";
-                    // féminin
-                  } else {
-                    resultat = "la";
-                  }
-                  // pluriel
-                } else {
-                  resultat = "les";
-                }
-                break;
-
-              // lui, elle, eux, elles
-              case 'lui':
-                // singulier
-                if (cibleElement.nombre !== Nombre.p) {
-                  // masculin
-                  if (cibleElement.genre !== Genre.f) {
-                    resultat = "lui";
-                    // féminin
-                  } else {
-                    resultat = "elle";
-                  }
-                  // pluriel
-                } else {
-                  // masculin
-                  if (cibleElement.genre !== Genre.f) {
-                    resultat = "eux";
-                    // féminin
-                  } else {
-                    resultat = "elles";
-                  }
-                }
-                break;
-
-              // préposition (ceci/cela)
-              case 'préposition':
-              case 'preposition':
-                if (cibleString == 'ceci' || cibleString == 'ceci?') {
-                  resultat = evenement?.prepositionCeci ?? '';
-                } else if (cibleString == 'cela' || cibleString == 'cela?') {
-                  resultat = evenement?.prepositionCela ?? '';
-                } else {
-                  resultat = "?!";
-                }
-                break;
-
-              // inconnu
-              default:
-                console.error("calculerTexteDynamique: propriete pas prise en charge (Element) :", proprieteString);
-                break;
-            }
-          } else if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.intitule)) {
-            switch (proprieteString) {
-
-              case 'intitulé':
-              case 'intitule':
-                resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, false);
-                break;
-
-              case 'Intitulé':
-              case 'Intitule':
-                resultat = ElementsJeuUtils.calculerIntituleGenerique(cible, true);
-                break;
-
-              // préposition (ceci/cela)
-              case 'préposition':
-              case 'preposition':
-                if (cibleString == 'ceci' || cibleString == 'ceci?') {
-                  resultat = evenement?.prepositionCeci ?? '';
-                } else if (cibleString == 'cela' || cibleString == 'cela?') {
-                  resultat = evenement?.prepositionCela ?? '';
-                } else {
-                  resultat = "?!";
-                }
-                break;
-
-              // inconnu
-              default:
-                console.error("calculerTexteDynamique: propriete pas prise en charge (Intitulé) :", proprieteString);
-                break;
-            }
-            // ne rien metre si on cible ceci? ou cela? (car argument factultatif)
-          } else if (cibleString == 'ceci?' || cibleString == 'cela?') {
-            resultat = "";
-            // cible non trouvée
-          } else {
-            resultat = "?!?"
-          }
-
-          // echaper le ? à la fin de ceci? cela?
-          if (cibleString == 'ceci?' || cibleString == 'cela?') {
-            cibleString = cibleString.replace("?", "\\?");
-          }
-
-          // remplacer la balise par le résultat
-          const xCurBalise = new RegExp("\\[" + proprieteString + " " + cibleString + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultat);
-
-        });
-
-      }
+      texteDynamique = this.propriete.calculerBalisePropriete(texteDynamique, ctxTour, evenement);
 
       // ===================================================
       // PROPRIÉTÉS [p nomPropriété ici|ceci|cela]
       // ===================================================
-      if (texteDynamique.includes("[p ")) {
-        // retrouver toutes les balises de propriété [p xxx ceci]
-        const xBaliseGenerique = /\[p (\S+) (ici|ceci|cela)\]/gi;
-        const allBalises = texteDynamique.match(xBaliseGenerique);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la proppriété et la cible
-          const decoupe = /\[p (\S+) (ici|ceci|cela)\]/i.exec(curBalise);
-          const proprieteString = decoupe[1];
-          const cibleString = decoupe[2];
-          let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-          let resultatCurBalise: string = null;
-          if (cible) {
-            switch (proprieteString) {
-              // nom
-              case 'nom':
-                resultatCurBalise = cible.nom;
-                break;
-              // intitulé (familier forcé)
-              case 'intitulé':
-              case 'intitule':
-                if (cible instanceof ElementJeu) {
-                  resultatCurBalise = this.eju.calculerIntituleElement(cible, false, true);
-                } else {
-                  resultatCurBalise = cible.intitule.toString();
-                }
-                break;
-              // Intitulé (majuscule forcée, familier forcé)
-              case 'Intitulé':
-              case 'Intitule':
-                if (cible instanceof ElementJeu) {
-                  resultatCurBalise = this.eju.calculerIntituleElement(cible, true, true);
-                } else {
-                  resultatCurBalise = cible.intitule.toString();
-                  // forcer majuscule
-                  if (resultatCurBalise.length > 0) {
-                    resultatCurBalise = resultatCurBalise[0].toUpperCase() + resultatCurBalise.slice(1);
-                  }
-                }
-                break;
-              // quantité
-              case 'quantité':
-              case 'quantite':
-                if (cible instanceof ElementJeu) {
-                  resultatCurBalise = cible.quantite.toString();
-                } else {
-                  resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée car il ne s’agit pas d’un élément du jeu.) ";
-                }
-                break;
-
-              // Propriété
-              default:
-                if (cible instanceof Concept) {
-                  const propriete = cible.proprietes.find(x => x.nom == proprieteString);
-                  if (propriete) {
-                    // texte
-                    if (propriete.type == TypeValeur.mots) {
-                      resultatCurBalise = this.calculerTexteDynamique(propriete.valeur, ++propriete.nbAffichage, this.jeu.etats.possedeEtatIdElement(cible, this.jeu.etats.intactID), ctxTour, evenement, declenchements);
-                      // nombre
-                    } else {
-                      resultatCurBalise = propriete.valeur;
-                    }
-                  } else {
-                    resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée) ";
-                  }
-                } else {
-                  ctxTour.ajouterErreurDerniereInstruction("Texte dynamique => propriété => doit concerner un concept.");
-                  resultatCurBalise = " (propriété « " + proprieteString + " » de « " + cible.intitule + " » pas trouvée car il ne s’agit pas d’un concept.) ";
-                }
-                break;
-            }
-
-          } else {
-            resultatCurBalise = "(" + cibleString + " est null)";
-          }
-          // remplacer la balise par le résultat
-          const xCurBalise = new RegExp("\\[p " + proprieteString + " " + cibleString + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultatCurBalise);
-        });
-      }
+      texteDynamique = this.propriete.calculerBaliseP(texteDynamique, ctxTour, evenement, declenchements);
 
       // ===================================================
       // COMPTEURS [c nomCompteur]
       // ===================================================
-      if (texteDynamique.includes("[c ")) {
-        // retrouver toutes les balises de compteurs [c xxx]
-        const xBaliseGenerique = /\[c (.+?)\]/gi;
-        const allBalises = texteDynamique.match(xBaliseGenerique);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          let resultatCurBalise: string = null;
-          // retrouver la proppriété et la cible
-          const decoupe = /\[c (.+?)\]/i.exec(curBalise);
-          const compteurString = decoupe[1];
-          let compteur: Compteur = null;
-          // quantitéCeci
-          if (compteurString == 'quantitéCeci' || compteurString == 'quantiteCeci') {
-            compteur = new Compteur('quantitéCeci', evenement.quantiteCeci);
-            // quantitéCela
-          } else if (compteurString == 'quantitéCela' || compteurString == 'quantiteCela') {
-            compteur = new Compteur('quantitéCela', evenement.quantiteCela);
-            // compteur normal
-          } else {
-            compteur = this.eju.trouverCompteurAvecNom(compteurString);
-          }
-
-          if (compteur) {
-            resultatCurBalise = compteur.valeur.toString();
-          } else {
-            resultatCurBalise = "(compteur « " + compteurString + " » pas trouvée)";
-          }
-          // remplacer la balise par le résultat
-          const xCurBalise = new RegExp("\\[c " + compteurString + "\\]", "g");
-          texteDynamique = texteDynamique.replace(xCurBalise, resultatCurBalise);
-        });
-      }
+      texteDynamique = this.numerique.calculerBaliseCompteur(texteDynamique, evenement);
 
 
       // ===================================================
       // Calendrier [calendrier], [mois], [date], …
       // ===================================================
-      const baliseCalendrier = "(calendrier|(?:0?(?:jour|date|mois|ann(?:é|e|è)e)))";
-      const xBaliseCalendrierMulti = new RegExp("\\[" + baliseCalendrier + "\\]", "gi");
-      const xBaliseCalendrierSolo = new RegExp("\\[" + baliseCalendrier + "\\]", "i");
-
-      if (xBaliseCalendrierMulti.test(texteDynamique)) {
-        // retrouver toutes les balises conjugaison
-        const allBalises = texteDynamique.match(xBaliseCalendrierMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
-
-        const maintenant = new Date();
-        const zeroPad = (num, places) => String(num).padStart(places, '0');
-
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = curBalise.match(xBaliseCalendrierSolo);
-          const unite = decoupe[1]?.toLocaleLowerCase();
-          let valeurCalendrier: string;
-          switch (unite) {
-            case 'jour':
-              const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
-              valeurCalendrier = jours[maintenant.getDay()];
-              break;
-            case 'date':
-              valeurCalendrier = maintenant.getDate().toString();
-              break;
-            case 'mois':
-              const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-              valeurCalendrier = mois[maintenant.getMonth()];
-              break;
-            case 'année':
-            case 'annee':
-            case 'annèe':
-              valeurCalendrier = maintenant.getFullYear().toString();
-              break;
-            case '0jour':
-              // lundi = 1
-              const joursNombre = [7, 1, 2, 3, 4, 5, 6];
-              valeurCalendrier = joursNombre[maintenant.getDay()].toString();
-              break;
-            case '0date':
-              valeurCalendrier = zeroPad(maintenant.getDate(), 2);
-              break;
-            case '0mois':
-              // janvier = 1
-              valeurCalendrier = zeroPad((maintenant.getMonth() + 1), 2);
-              break;
-            case '0année':
-            case '0annee':
-            case '0annèe':
-              valeurCalendrier = maintenant.getFullYear().toString();
-              break;
-            case 'calendrier':
-            default:
-              valeurCalendrier = `${zeroPad(maintenant.getHours(), 2)}:${zeroPad(maintenant.getMinutes(), 2)}`;
-              break;
-          }
-
-          // remplacer la balise par l’horloge
-          const regExp = new RegExp("\\[" + (curBalise.slice(1, curBalise.length - 1)) + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, valeurCalendrier);
-        });
-      }
+      texteDynamique = this.numerique.calculerBaliseCalendrier(texteDynamique);
 
 
       // ===================================================
       // Horloge [horloge], [minutes], [secondes], …
       // ===================================================
-      const baliseHorloge = "(horloge|(?:0?(?:heure|minute|seconde)))s*";
-      const xBaliseHorlogeMulti = new RegExp("\\[" + baliseHorloge + "\\]", "gi");
-      const xBaliseHorlogeSolo = new RegExp("\\[" + baliseHorloge + "\\]", "i");
-
-      if (xBaliseHorlogeMulti.test(texteDynamique)) {
-        // retrouver toutes les balises conjugaison
-        const allBalises = texteDynamique.match(xBaliseHorlogeMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
-
-        const maintenant = new Date();
-        const zeroPad = (num, places) => String(num).padStart(places, '0');
-
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = curBalise.match(xBaliseHorlogeSolo);
-          const unite = decoupe[1]?.toLocaleLowerCase();
-          let valeurHorloge: string;
-          switch (unite) {
-            case 'heure':
-              valeurHorloge = maintenant.getHours().toString();
-              break;
-            case 'minute':
-              valeurHorloge = maintenant.getMinutes().toString();
-              break;
-            case 'seconde':
-              valeurHorloge = maintenant.getSeconds().toString();
-              break;
-            case '0heure':
-              valeurHorloge = zeroPad(maintenant.getHours(), 2);
-              break;
-            case '0minute':
-              valeurHorloge = zeroPad(maintenant.getMinutes(), 2);
-              break;
-            case '0seconde':
-              valeurHorloge = zeroPad(maintenant.getSeconds(), 2);
-              break;
-            case 'horloge':
-            default:
-              valeurHorloge = `${zeroPad(maintenant.getHours(), 2)}:${zeroPad(maintenant.getMinutes(), 2)}`;
-              break;
-          }
-
-          // remplacer la balise par l’horloge
-          const regExp = new RegExp("\\[" + (curBalise.slice(1, curBalise.length - 1)) + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, valeurHorloge);
-        });
-      }
+      texteDynamique = this.numerique.calculerBaliseHorloge(texteDynamique);
 
       // ===================================================
       // Mémoire [mémoire nom de la mémoire]
       // ===================================================
-      const baliseMemoire = "(mémoire|memoire) (.+?)";
-      const xBaliseMemoireMulti = new RegExp("\\[" + baliseMemoire + "\\]", "gi");
-      const xBaliseMemoireSolo = new RegExp("\\[" + baliseMemoire + "\\]", "i");
-
-      if (xBaliseMemoireMulti.test(texteDynamique)) {
-        // retrouver toutes les balises conjugaison
-        const allBalises = texteDynamique.match(xBaliseMemoireMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index);
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = curBalise.match(xBaliseMemoireSolo);
-
-          const memoire = decoupe[1];
-          const intituleValeurOuListe = decoupe[2];
-
-          let valeurMemoire: string;
-
-          const elementTrouve = ctxTour.trouverValeur(intituleValeurOuListe);
-          if (elementTrouve) {
-            valeurMemoire = elementTrouve.toString();
-          } else {
-            valeurMemoire = '(mémoire pas trouvée: ' + intituleValeurOuListe + ')';
-          }
-          // remplacer la balise par le verbe conjugué
-          const expression = `${memoire} ${intituleValeurOuListe}`;
-          const regExp = new RegExp("\\[" + expression + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, valeurMemoire);
-        });
-      }
+      texteDynamique = this.numerique.calculerBaliseMémoire(texteDynamique, ctxTour);
 
       // ===================================================
       // CONJUGAISON
       // ===================================================
+      texteDynamique = this.format.calculerBaliseVerbe(texteDynamique, ctxTour, evenement);
 
-      // verbe(1) modeTemps(2) [negation(3)] sujet(4)
-      const baliseVerbe = "v ((?:se |s’|s')?\\S+(?:ir|er|re)) (ipr|ipac|iimp|ipqp|ipas|ipaa|ifus|ifua|cpr|cpa|spr|spa|simp|spqp) (?:(pas|plus|que|ni) )?(ceci|cela|ici|quantitéCeci|quantitéCela)";
-      const xBaliseVerbeMulti = new RegExp("\\[" + baliseVerbe + "\\]", "gi");
-      const xBaliseVerbeSolo = new RegExp("\\[" + baliseVerbe + "\\]", "i");
-
-      if (xBaliseVerbeMulti.test(texteDynamique)) {
-
-        // retrouver toutes les balises conjugaison
-        const allBalises = texteDynamique.match(xBaliseVerbeMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver la préposition et la cible
-          const decoupe = xBaliseVerbeSolo.exec(curBalise);
-
-          const verbe = decoupe[1];
-          const modeTemps = decoupe[2];
-          const negation = decoupe[3];
-          const sujet = decoupe[4];
-
-          // retrouver le verbe conjugué
-          const verbeConjugue: string = this.calculerConjugaison(verbe, modeTemps, negation, sujet, this.eju.curLieu, ctxTour, evenement);
-
-          // remplacer la balise par le verbe conjugué
-          const expression = `v ${verbe} ${modeTemps}${(negation ? (" " + negation) : "")} ${sujet}`;
-          const regExp = new RegExp("\\[" + expression + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, verbeConjugue);
-
-        });
-      }
 
       // ===================================================
       // IMAGE
       // ===================================================
-      // image nom_fichier(1)
-      const baliseImage = "image ([\\w.-]*\\w)";
-      const xBaliseImageMulti = new RegExp("\\[" + baliseImage + "\\]", "gi");
-      const xBaliseImageSolo = new RegExp("\\[" + baliseImage + "\\]", "i");
-
-      if (xBaliseImageMulti.test(texteDynamique)) {
-        // retrouver toutes les balises image
-        const allBalises = texteDynamique.match(xBaliseImageMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver le nom du fichier
-          const decoupe = xBaliseImageSolo.exec(curBalise);
-          const fichier = decoupe[1];
-          // générer la balise image
-          const baliseImage = '@@image:' + fichier + '@@';
-          // remplacer les [] par une balise image
-          const expression = `image ${fichier}`;
-          const regExp = new RegExp("\\[" + expression + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, baliseImage);
-        });
-      }
+      texteDynamique = this.format.calculerBaliseImage(texteDynamique);
 
       // ===================================================
       // MENTIONNÉ (#), VU (@) et FAMILIER (&)
       // ===================================================
-      // #groupe nominal(1)
-      const baliseHashtag = "(#|@|&)\\s?((?:le |la |l(?:’|')|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d’|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui |sans )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d’|d'|n’|n'|s’|s'|à))(?:\\S+?))?)";
-      const xBaliseHashtagMulti = new RegExp("\\[" + baliseHashtag + "\\]", "gi");
-      const xBaliseHashtagSolo = new RegExp("\\[" + baliseHashtag + "\\]", "i");
-
-      if (xBaliseHashtagMulti.test(texteDynamique)) {
-        // retrouver toutes les balises image
-        const allBalises = texteDynamique.match(xBaliseHashtagMulti);
-        // ne garder qu’une seule occurrence de chaque afin de ne pas calculer plusieurs fois la même balise.
-        const balisesUniques = allBalises.filter((valeur, index, tableau) => tableau.indexOf(valeur) === index)
-        // parcourir chaque balise trouvée
-        balisesUniques.forEach(curBalise => {
-          // retrouver le nom du fichier
-          const decoupe = xBaliseHashtagSolo.exec(curBalise);
-          const type = decoupe[1];
-          const elementJeu = decoupe[2];
-
-          // retrouver la cible
-          let correspondance = this.eju.trouverCorrespondance(PhraseUtils.getGroupeNominalDefini(elementJeu, false), TypeSujet.SujetEstNom, false, false);
-          if (correspondance.nbCor == 1) {
-            let conceptCible = correspondance.unique as Concept;
-            // ajouter l’état correspondant à la cible
-            // - mentionné
-            if (type == '#') {
-              this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.mentionne, this.eju);
-              // console.warn(`@@@@@@@@@@@@@@@@@ mentionné ${conceptCible.intitule} (id=${conceptCible.id})`);
-              ctxTour.elementsMentionnes.push(conceptCible.id)
-              // - vu
-            } else if (type == '@') {
-              this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.vu, this.eju);
-              // console.warn(`@@@@@@@@@@@@@@@@@ vu ${conceptCible.intitule} (id=${conceptCible.id})`);
-              ctxTour.elementsMentionnes.push(conceptCible.id)
-              // - familier
-            } else if (type == '&') {
-              this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.familier, this.eju);
-              // - ???
-            } else {
-              throw new Error(`Type balise pas prise en charge type=${type}`);
-            }
-          } else {
-            if (correspondance.nbCor == 0) {
-              ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: aucune correspondance trouvée.`)
-            } else {
-              ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: plusieurs correspondances trouvées.`)
-            }
-          }
-
-          // remplacer les [] par balise résultante
-          const expression = `${type}\\s?${elementJeu}`;
-          const regExp = new RegExp("\\[" + expression + "\\]", "g");
-          texteDynamique = texteDynamique.replace(regExp, "");
-        });
-      }
+      texteDynamique = this.format.calculerBaliseHashtag(texteDynamique, ctxTour);
 
       // ===================================================
       // DIVERS
       // ===================================================
 
-      if (texteDynamique.includes("[infinitif action]")) {
-        texteDynamique = texteDynamique.replace(/\[infinitif action\]/g, evenement.infinitif ?? '?!');
-      }
+      texteDynamique = this.format.calculerBaliseInfinitifAction(texteDynamique, evenement);
 
       // ===================================================
       // PROPRIÉTÉS
       // ===================================================
 
       // Le nombre de propriété de élément
-      const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d’|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+      const xBaliseNombreDeProprieteMulti = /\[(le )?nombre (de |d\u2019|d')(\S+) (des |du |de la |de l(?:’|')|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+?))?\]/gi;
       if (xBaliseNombreDeProprieteMulti.test(texteDynamique)) {
         // retrouver toutes les balises nombre de propriété de élément
         const allBalises = texteDynamique.match(xBaliseNombreDeProprieteMulti);
@@ -1492,7 +672,7 @@ export class InstructionDire {
       }
 
       // Le nombre de classe état1 état2 position
-      const xBaliseNombreDeClasseEtatPositionMulti = /\[(le )?nombre (de |d’|d')(\S+)( (?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n’|n'|d’|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l’|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d’|d'|n’|n'|s’|s'|à))(\S+?))?)?\]/gi;
+      const xBaliseNombreDeClasseEtatPositionMulti = /\[(le )?nombre (de |d\u2019|d')(\S+)( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+))?(( (et )?)(?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+))?( ((dans |sur |sous )(la |le |les |l\u2019|l')?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d\u2019|d'|n\u2019|n'|s\u2019|s'|à))(\S+?))?)?\]/gi;
       if (xBaliseNombreDeClasseEtatPositionMulti.test(texteDynamique)) {
         // retrouver toutes les balises nombre de classe état1 état2 position
         const allBalises = texteDynamique.match(xBaliseNombreDeClasseEtatPositionMulti);
@@ -1501,7 +681,7 @@ export class InstructionDire {
       }
 
       // La propriété de élément
-      const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l’)?(?!(v|p|le|la|les|l'|l’|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d’)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s')\b)(\S+?))?\]/gi;
+      const xBaliseProprieteDeElementMulti = /\[(le |la |les |l'|l\u2019)?(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:’|')|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s')\b)(\S+?))?\]/gi;
       if (xBaliseProprieteDeElementMulti.test(texteDynamique)) {
         // retrouver toutes les balises propriété de élément
         const allBalises = texteDynamique.match(xBaliseProprieteDeElementMulti);
@@ -1510,7 +690,7 @@ export class InstructionDire {
       }
 
       // propriété élément
-      const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l’|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l’)?|du |des |d'|d’)\S+?))( (?!\(|(ne|n’|n'|d’|d'|et|ou|un|de|du|dans|sur|avec|se|s’|s'|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
+      const xBaliseProprieteElementMulti = /\[(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n\u2019|n'|d\u2019|d'|et|ou|un|de|du|dans|sur|avec|se|s\u2019|s'|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
       if (xBaliseProprieteElementMulti.test(texteDynamique)) {
         // retrouver toutes les balises  propriété élément
         const allBalises = texteDynamique.match(xBaliseProprieteElementMulti);
@@ -1524,113 +704,10 @@ export class InstructionDire {
 
   }
 
+  // ============================================================
+  // Méthodes privées — balises extraites de calculerBalise
+  // ============================================================
   /** Afficher la fiche d’aide. */
-  private recupererFicheAide(intitule: Intitule): string {
-
-    // A) Chercher si une fiche d’aide exacte existe (avec accents)
-    let ficheAide = this.jeu.aides.find(x => x.infinitif === intitule.nom);
-
-    // B) Chercher l’infinitif original de l’action
-    if (!ficheAide) {
-      let actionOriginaleTrouvee: Action | undefined;
-      for (const action of this.jeu.actions) {
-        for (const synonyme of action.synonymes) {
-          if (synonyme == intitule.nom) {
-            actionOriginaleTrouvee = action;
-            break;
-          }
-        }
-        if (actionOriginaleTrouvee) {
-          break;
-        }
-      }
-      if (actionOriginaleTrouvee) {
-        ficheAide = this.jeu.aides.find(x => x.infinitif == actionOriginaleTrouvee.infinitif);
-      }
-    }
-
-    // renvoyer l’aide trouvée
-    if (ficheAide) {
-      return ficheAide.informations;
-    } else {
-      return this.recupererFicheAideSansTenirCompteDesAccents(intitule);
-    }
-
-  }
-
-  private recupererFicheAideSansTenirCompteDesAccents(intitule: Intitule): string {
-
-    const nomNormalise = StringUtils.normaliserMot(intitule.nom)
-
-    // A) Chercher si une fiche d’aide exacte existe (avec accents)
-    let ficheAide = this.jeu.aides.find(x => StringUtils.normaliserMot(x.infinitif) === nomNormalise);
-
-    // B) Chercher l’inifitif original de l’action
-    if (!ficheAide) {
-      let actionOriginaleTrouvee: Action | undefined;
-      for (const action of this.jeu.actions) {
-        for (const synonymeSansAccent of action.synonymesSansAccent) {
-          if (synonymeSansAccent == nomNormalise) {
-            actionOriginaleTrouvee = action;
-            break;
-          }
-        }
-        if (actionOriginaleTrouvee) {
-          break;
-        }
-      }
-      if (actionOriginaleTrouvee) {
-        ficheAide = this.jeu.aides.find(x => x.infinitif == actionOriginaleTrouvee.infinitif);
-      }
-    }
-
-    // renvoyer l’aide trouvée
-    if (ficheAide) {
-      return ficheAide.informations;
-    } else {
-      return "Désolé, je n’ai pas de page d’aide concernant la commande « " + intitule.nom + " »";
-    }
-
-  }
-
-  /** Afficher le statut d'une porte ou d'un contenant (verrouillé, ouvrable, ouvert, fermé) */
-  private afficherStatut(obj: Objet) {
-    let retVal = "";
-    if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ClasseUtils.heriteDe(obj.classe, EClasseRacine.porte)) {
-
-      const ouvrable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvrableID);
-      const ouvert = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.ouvertID);
-      const verrouillable = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouillableID);;
-      const verrou = this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.verrouilleID);;
-
-      if (obj.genre == Genre.f) {
-        if (ouvert) {
-          // pas besoin de préciser qu’on contenant est ouvert, sauf s’il est ouvrable.
-          if (!ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ouvrable) {
-            retVal += "Elle est ouverte.";
-          }
-        } else {
-          retVal += "Elle est fermée" + (verrouillable ? (verrou ? " et verrouillée." : " mais pas verrouillée.") : ".");
-        }
-        if (ouvrable && !verrou) {
-          retVal += " Vous pouvez " + (ouvert ? 'la fermer.' : 'l’ouvrir.');
-        }
-      } else {
-        if (ouvert) {
-          // pas besoin de préciser qu’on contenant est ouvert, sauf s’il est ouvrable.
-          if (!ClasseUtils.heriteDe(obj.classe, EClasseRacine.contenant) || ouvrable) {
-            retVal += "Il est ouvert.";
-          }
-        } else {
-          retVal += "Il est fermé" + (verrouillable ? (verrou ? " et verrouillé." : " mais pas verrouillé.") : ".");
-        }
-        if (ouvrable && !verrou) {
-          retVal += " Vous pouvez " + (ouvert ? 'le fermer.' : 'l’ouvrir.');
-        }
-      }
-    }
-    return retVal;
-  }
 
   /**
    * Lister le contenu d'un objet ou d'un lieu.

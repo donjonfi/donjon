@@ -508,7 +508,7 @@ export class AnalyseurV8Routines {
     if (enteteReaction !== undefined) {
       // RETROUVER NOM INTERLOCUTEUR
       // retirer du/de/des qui débute le reste
-      let sansDeterminant = enteteReaction.replace(/^(du |des |de (?:la |les )?|d’|d')/, "");
+      let sansDeterminant = enteteReaction.replace(/^(du |des |de (?:la |les )?|d\u2019|d')/, "");
       let nomInterlocuteur = PhraseUtils.getGroupeNominalDefiniOuIndefini(sansDeterminant, false);
       if (nomInterlocuteur) {
         ctx.logResultatOk(`interlocuteur: ${nomInterlocuteur}`);

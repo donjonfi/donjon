@@ -367,7 +367,7 @@ export class ConditionsUtils {
           case 'incluent':
             // remarque: négation appliquée plus loin.
             if (condition.sujetComplement &&
-              condition.sujetComplement.determinant?.match(/un |des |d'|d’/i) &&
+              condition.sujetComplement.determinant?.match(/un |des |d'|d\u2019/i) &&
               condition.sujetComplement.nom.match(/objet(s)?/i)
             ) {
               retVal = this.eju.verifierContientObjet(sujet as ElementJeu);

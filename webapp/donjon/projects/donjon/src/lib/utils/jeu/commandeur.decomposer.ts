@@ -261,7 +261,7 @@ export class CommandeurDecomposer {
       case 'offrir':
       case 'montrer':
         // A. DEMANDER SUJET *À* INTERLOCUTEUR
-        if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d’|du|des/)) {
+        if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d\u2019|du|des/)) {
           // préposition
           if (candidat.els.preposition1) {
             // prépositon (à/au/aux)
@@ -309,7 +309,7 @@ export class CommandeurDecomposer {
                 candidat.els.sujet = sujet;
                 candidat.els.sujetComplement1 = interlocuteur;
                 candidat.score += 25;
-              } else if (candidat.els.preposition1.match(/de|d'|d’|du|des/)) {
+              } else if (candidat.els.preposition1.match(/de|d'|d\u2019|du|des/)) {
                 // changer l'ordre, peut être ambigu donc peu de points en plus
                 const interlocuteur = candidat.els.sujet;
                 const sujet = candidat.els.sujetComplement1;

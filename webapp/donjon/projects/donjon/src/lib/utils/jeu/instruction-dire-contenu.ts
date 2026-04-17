@@ -1,0 +1,181 @@
+import { ClasseUtils } from "../commun/classe-utils";
+import { ContexteTour } from "../../models/jouer/contexte-tour";
+import { EClasseRacine } from "../../models/commun/constantes";
+import { ELocalisation, Localisation } from "../../models/jeu/localisation";
+import { ElementJeu } from "../../models/jeu/element-jeu";
+import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
+import { Evenement } from "../../models/jouer/evenement";
+import { Genre } from "../../models/commun/genre.enum";
+import { InstructionsUtils } from "./instructions-utils";
+import { Jeu } from "../../models/jeu/jeu";
+import { Lieu } from "../../models/jeu/lieu";
+import { Liste } from "../../models/jeu/liste";
+import { Nombre } from "../../models/commun/nombre.enum";
+import { PhraseUtils } from "../commun/phrase-utils";
+import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
+import { Resultat } from "../../models/jouer/resultat";
+
+type AfficherObstacleFn = (direction: Lieu | ELocalisation, texteSiAucunObstacle?: string) => string;
+type ExecuterListerFn = (ceci: ElementJeu, afficherCaches: boolean, nonVisibles: boolean, discrets: boolean, secrets: boolean, dansSurSous: boolean, inclureJoueur: boolean, preposition: PrepositionSpatiale, idsDejaMentionnes: number[]) => Resultat;
+type ExecuterDecrireFn = (ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherCaches: boolean, nonVisibles: boolean, discrets: boolean, secrets: boolean, dansSurSous: boolean, inclureJoueur: boolean, preposition: PrepositionSpatiale, idsDejaMentionnes: number[]) => Resultat;
+
+const CIBLES_SPECIALES = ['ici', 'ceci', 'cela', 'inventaire', 'origine', 'destination'];
+
+export class InstructionDireContenu {
+
+  constructor(
+    private jeu: Jeu,
+    private eju: ElementsJeuUtils,
+    private afficherObstacleFn: AfficherObstacleFn,
+    private executerListerContenuFn: ExecuterListerFn,
+    private executerDecrireContenuFn: ExecuterDecrireFn,
+  ) { }
+
+  calculerBaliseObstacle(texteDynamique: string, ctxTour: ContexteTour | undefined): string {
+    if (texteDynamique.includes("[obstacle ")) {
+      if (texteDynamique.includes("[obstacle vers ceci]")) {
+        if (ctxTour?.ceci) {
+          if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.direction)) {
+            texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, this.afficherObstacleFn((ctxTour.ceci as Localisation).id));
+          } else if (ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.lieu)) {
+            texteDynamique = texteDynamique.replace(/\[obstacle vers ceci\]/g, this.afficherObstacleFn(ctxTour.ceci as Lieu));
+          } else {
+            console.error("calculerBaliseObstacle: ceci n'est ni une direction ni un lieu.");
+          }
+        } else {
+          console.error("calculerBaliseObstacle: obstacle vers ceci: ceci est null.");
+        }
+      }
+      if (texteDynamique.includes("[obstacle vers cela]")) {
+        if (ctxTour?.cela) {
+          if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.direction)) {
+            texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, this.afficherObstacleFn((ctxTour.cela as Localisation).id));
+          } else if (ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.lieu)) {
+            texteDynamique = texteDynamique.replace(/\[obstacle vers cela\]/g, this.afficherObstacleFn(ctxTour.cela as Lieu));
+          } else {
+            console.error("calculerBaliseObstacle: cela n'est ni une direction ni un lieu.");
+          }
+        } else {
+          console.error("calculerBaliseObstacle: obstacle vers cela: cela est null.");
+        }
+      }
+    }
+    return texteDynamique;
+  }
+
+  calculerBaliseListerDecrireContenu(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
+    // La cible peut être un mot-clé (ici|ceci|…) ou un élément nommé avec article (le coffre, la table…).
+    // Le .+? non-greedy est borné par \] et arrêté avant "sauf cachés" grâce à l'alternance optionnelle.
+    const baliseListerDecrireContenu = "(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire|(?:le |la |l(?:'|')|les ).+?)(?: (sauf cachés))?";
+    const balises = InstructionsUtils.extraireBalises(texteDynamique, baliseListerDecrireContenu);
+    if (balises) {
+      for (const decoupe of balises) {
+        const ListerDecrireString = decoupe[1];
+        const isLister = ListerDecrireString.toLowerCase() == 'lister';
+        const prepositionString = decoupe[2];
+        const cibleString = decoupe[3];
+        const exclureCaches = decoupe[4] && decoupe[4] == 'sauf cachés';
+        let phraseSiVide = "";
+        let phraseSiQuelqueChose = "";
+        const afficherObjetsCaches = !exclureCaches;
+        const estCibleSpeciale = CIBLES_SPECIALES.includes(cibleString.toLowerCase());
+
+        let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+        if (!cible) {
+          const cibleGN = PhraseUtils.getGroupeNominalDefini(cibleString, false);
+          if (cibleGN) {
+            const found = InstructionsUtils.trouverElementCible(cibleGN, ctxTour, this.eju, this.jeu, false);
+            if (found instanceof ElementJeu) { cible = found; }
+          }
+        }
+
+        let preposition = PrepositionSpatiale.dans;
+        if (prepositionString) {
+          preposition = PositionObjet.getPrepositionSpatiale(prepositionString);
+        }
+        if (cible == this.eju.curLieu) {
+          phraseSiQuelqueChose = "{U}Vous apercevez ";
+        } else if (cible == this.jeu.joueur) {
+          phraseSiQuelqueChose = "";
+          phraseSiVide = "Votre inventaire est vide.";
+        } else {
+          switch (preposition) {
+            case PrepositionSpatiale.sur:
+              phraseSiQuelqueChose = " Dessus, il y a ";
+              phraseSiVide = "Il n’y a rien de particulier dessus.";
+              break;
+            case PrepositionSpatiale.sous:
+              phraseSiQuelqueChose = " Dessous, il y a ";
+              phraseSiVide = "Il n’y a rien de particulier dessous.";
+              break;
+            case PrepositionSpatiale.dans:
+            default:
+              phraseSiQuelqueChose = " Dedans, il y a ";
+              if (estCibleSpeciale) {
+                phraseSiVide = "[Pronom " + cibleString + "] [v être ipr " + cibleString + "] vide[s " + cibleString + "].";
+              } else if (cible instanceof ElementJeu) {
+                const pronom = (cible.genre === Genre.f ? "Elle" : "Il")
+                  + (cible.nombre === Nombre.p || cible.nombre === Nombre.tp ? "s" : "");
+                phraseSiVide = pronom + " est vide.";
+              } else {
+                phraseSiVide = "(élément non trouvé)";
+              }
+          }
+        }
+        let resultatCurBalise: string;
+        if (cible instanceof ElementJeu) {
+          if (isLister) {
+            resultatCurBalise = this.executerListerContenuFn(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+          } else {
+            resultatCurBalise = this.executerDecrireContenuFn(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+          }
+        } else {
+          resultatCurBalise = "{+(cible pas trouvée)+}";
+        }
+        const xCurBalise = new RegExp("\\[" + ListerDecrireString + " objets " + (prepositionString ? (prepositionString + " ") : "") + cibleString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + (exclureCaches ? " sauf cachés" : "") + "\\]", "g");
+        texteDynamique = texteDynamique.replace(xCurBalise, resultatCurBalise);
+      }
+    }
+    return texteDynamique;
+  }
+
+  calculerBaliseListerDecrireListe(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
+    const baliseListerDecrireListe = "(lister|décrire) ((?:le |la |l(?:'|')|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l')?|du |des |d'|d')\\S+?))(?:(?: )(?!\\(|(?:ne|n'|n'|d'|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s')\\b)(?:\\S+))?)";
+    const balises = InstructionsUtils.extraireBalises(texteDynamique, baliseListerDecrireListe);
+    if (balises) {
+      for (const decoupe of balises) {
+        const verbeString = decoupe[1];
+        let cibleString = decoupe[2];
+        const cibleGN = PhraseUtils.getGroupeNominalDefini(cibleString, false);
+        const cible: Liste = InstructionsUtils.trouverListe(cibleGN, this.eju, this.jeu, true);
+        let resultat = '';
+        if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.liste)) {
+          switch (verbeString) {
+            case 'lister':
+            case 'Lister':
+              resultat = cible.lister();
+              break;
+            case 'décrire':
+            case 'Décrire':
+              resultat = cible.decrire();
+              break;
+            default:
+              console.error("calculerBaliseListerDecrireListe: verbe pas pris en charge :", verbeString);
+              break;
+          }
+        } else if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          resultat = "";
+        } else {
+          resultat = "?!?";
+        }
+        if (cibleString == 'ceci?' || cibleString == 'cela?') {
+          cibleString = cibleString.replace("?", "\\?");
+        }
+        const xCurBalise = new RegExp("\\[" + verbeString + " " + cibleString + "\\]", "g");
+        texteDynamique = texteDynamique.replace(xCurBalise, resultat);
+      }
+    }
+    return texteDynamique;
+  }
+
+}

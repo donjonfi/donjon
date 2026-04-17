@@ -2,12 +2,12 @@ import { RechercheUtils } from "../../utils/commun/recherche-utils";
 
 export class GroupeNominal {
 
-  static readonly xDeterminantsArticles = /(le |la |les |l'|l’|un |une |des |du |de la |de l(?:’|'))/i;
+  static readonly xDeterminantsArticles = /(le |la |les |l'|l\u2019|un |une |des |du |de la |de l(?:’|'))/i;
   static readonly xDeterminantsAdjectifsPossessifs = /(son |sa |ses |leur |leurs )/i;
   static readonly xPronomsPersonnels = /(il |elle |ils |elles )/i;
-  static readonly xPronomsDemonstratif = /(ce |c’|c')/i;
+  static readonly xPronomsDemonstratif = /(ce |c\u2019|c')/i;
 
-  static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l’|un |une |des |du |de la |de l(?:’|')|son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c’|c')/i;
+  static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l\u2019|un |une |des |du |de la |de l(?:’|')|son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c\u2019|c')/i;
 
   /**
    * - sur(1) la(2) table(3) basse(4)
@@ -15,7 +15,7 @@ export class GroupeNominal {
    * - la(2) canne à pèche(2)
    * - => préposition(1) déterminant article(2) nom(3) épithète(4).
    */
-  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?!")(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |d’|d'|des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l’)?|du |des |d'|d’|à |au(?:x)? |en |qui |sans )\S+?))(?:(?: )(?!\(|ne |n’|n'|d’|d'|et |un |de )(\S+))?$$/i;
+  static readonly xPrepositionDeterminantArticleNomEpithete = /^(?!")(?:(dans|sur|sous|vers) )?(le |la |l(?:’|')|les |un |une |d\u2019|d'|des |du |de la |de l(?:’|')|\d+)?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l’|'))|de (?:la |l'|l\u2019)?|du |des |d'|d\u2019|à |au(?:x)? |en |qui |sans )\S+?))(?:(?: )(?!\(|ne |n\u2019|n'|d\u2019|d'|et |un |de )(\S+))?$$/i;
 
   /** Mots clés correspondants au groupe nominal (pour effectuer une recherche) */
   private _motsCles: string[];

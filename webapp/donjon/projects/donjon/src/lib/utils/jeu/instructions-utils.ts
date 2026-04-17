@@ -451,5 +451,18 @@ export class InstructionsUtils {
     return quantite;
   }
 
+  /**
+   * Extrait toutes les balises uniques correspondant au pattern et retourne le résultat exec() pour chacune.
+   * Retourne null si aucune balise trouvée.
+   * Remplace le triplet boilerplate : test → match → dédupliquer → exec solo.
+   */
+  public static extraireBalises(texteDynamique: string, pattern: string): RegExpExecArray[] | null {
+    const regexMulti = new RegExp("\\[" + pattern + "\\]", "gi");
+    if (!regexMulti.test(texteDynamique)) return null;
+    const regexSolo = new RegExp("\\[" + pattern + "\\]", "i");
+    const allBalises = texteDynamique.match(regexMulti);
+    const balisesUniques = allBalises.filter((v, i, t) => t.indexOf(v) === i);
+    return balisesUniques.map(b => regexSolo.exec(b));
+  }
 
 }

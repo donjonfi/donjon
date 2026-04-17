@@ -3,11 +3,11 @@ import { ProprieteJeu } from '../jeu/propriete-jeu';
 
 export class ElementsPhrase {
 
-  static readonly xDeterminantsArticles = /(le |la |les |l'|l’|un |une |des |du |de la |de l(?:’|'))/i;
+  static readonly xDeterminantsArticles = /(le |la |les |l'|l\u2019|un |une |des |du |de la |de l(?:’|'))/i;
   static readonly xDeterminantsAdjectifsPossessifs = /(son |sa |ses |leur |leurs )/i;
   static readonly xPronomsPersonnels = /(il |elle |ils |elles )/i;
-  static readonly xPronomsDemonstratif = /(ce |c’|c')/i;
-  static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l’|un |une |des |du |de la |de l(?:’|')|son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c’|c')/i;
+  static readonly xPronomsDemonstratif = /(ce |c\u2019|c')/i;
+  static readonly xDeterminantsEtPronoms = /(le |la |les |l'|l\u2019|un |une |des |du |de la |de l(?:’|')|son |sa |ses |leur |leurs |il |elle |ils |elles |ce |c\u2019|c')/i;
 
   public proprieteSujet: ProprieteJeu | undefined;
   public proprieteComplement1: ProprieteJeu | undefined;
