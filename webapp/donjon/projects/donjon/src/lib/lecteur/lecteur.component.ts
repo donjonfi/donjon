@@ -526,8 +526,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           break;
         case TypeInterruption.attendreChoix:
           if (this.interruptionEnCours.choix?.length) {
-            const identifiantsChoix = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-            this.choixPossibles = identifiantsChoix.slice(0, this.interruptionEnCours.choix.length);
+            const nbChoix = this.interruptionEnCours.choix.length;
+            const identifiantsChoix = this.partie.jeu.parametres.activerChoixNumeriques
+              ? Array.from({ length: nbChoix }, (_, i) => String(i + 1))
+              : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            this.choixPossibles = identifiantsChoix.slice(0, nbChoix);
 
             let texteChoix = '<ul class="no-bullet">';
             for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {
