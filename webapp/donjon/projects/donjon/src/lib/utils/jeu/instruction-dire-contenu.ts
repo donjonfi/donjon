@@ -19,6 +19,7 @@ type AfficherObstacleFn = (direction: Lieu | ELocalisation, texteSiAucunObstacle
 type AfficherSortiesFn = (lieu: Lieu) => string;
 type ExecuterListerFn = (ceci: ElementJeu, afficherCaches: boolean, nonVisibles: boolean, discrets: boolean, secrets: boolean, dansSurSous: boolean, inclureJoueur: boolean, preposition: PrepositionSpatiale, idsDejaMentionnes: number[]) => Resultat;
 type ExecuterDecrireFn = (ceci: ElementJeu, texteSiQuelqueChose: string, texteSiRien: string, afficherCaches: boolean, nonVisibles: boolean, discrets: boolean, secrets: boolean, dansSurSous: boolean, inclureJoueur: boolean, preposition: PrepositionSpatiale, idsDejaMentionnes: number[]) => Resultat;
+type ExecuterEnumererFn = (ceci: ElementJeu, afficherCaches: boolean, preposition: PrepositionSpatiale, idsDejaMentionnes: number[]) => Resultat;
 
 const CIBLES_SPECIALES = ['ici', 'ceci', 'cela', 'inventaire', 'origine', 'destination'];
 
@@ -31,6 +32,7 @@ export class InstructionDireContenu {
     private afficherSortiesFn: AfficherSortiesFn,
     private executerListerContenuFn: ExecuterListerFn,
     private executerDecrireContenuFn: ExecuterDecrireFn,
+    private executerEnumererContenuFn: ExecuterEnumererFn,
   ) { }
 
   calculerBaliseObstacle(texteDynamique: string, ctxTour: ContexteTour | undefined): string {
@@ -68,10 +70,12 @@ export class InstructionDireContenu {
   calculerBaliseListerDecrireContenu(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
     // La cible peut être un mot-clé (ici|ceci|…) ou un élément nommé avec article (le coffre, la table…).
     // Le .+? non-greedy est borné par \] et arrêté avant "sauf cachés" grâce à l'alternance optionnelle.
-    const baliseListerDecrireContenu = "(décrire|lister) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire|(?:le |la |l(?:'|')|les ).+?)(?: (sauf cachés))?";
+    const baliseListerDecrireContenu = "(décrire|lister|énumérer) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire|(?:le |la |l(?:'|')|les ).+?)(?: (sauf cachés))?";
     return InstructionsUtils.processBalises(texteDynamique, baliseListerDecrireContenu, decoupe => {
       const ListerDecrireString = decoupe[1];
-      const isLister = ListerDecrireString.toLowerCase() == "lister";
+      const verbeLowerCase = ListerDecrireString.toLowerCase();
+      const isLister = verbeLowerCase == "lister";
+      const isEnumerer = verbeLowerCase == "énumérer";
       const prepositionString = decoupe[2];
       const cibleString = decoupe[3];
       const exclureCaches = decoupe[4] && decoupe[4] == "sauf cachés";
@@ -123,14 +127,18 @@ export class InstructionDireContenu {
         }
       }
       if (!(cible instanceof ElementJeu)) return "{+(cible pas trouvée)+}";
-      return isLister
-        ? this.executerListerContenuFn(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie
-        : this.executerDecrireContenuFn(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+      if (isEnumerer) {
+        return this.executerEnumererContenuFn(cible, afficherObjetsCaches, preposition, ctxTour.elementsMentionnes).sortie;
+      } else if (isLister) {
+        return this.executerListerContenuFn(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+      } else {
+        return this.executerDecrireContenuFn(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+      }
     });
   }
 
   calculerBaliseListerDecrireListe(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
-    const baliseListerDecrireListe = "(lister|décrire) ((?:le |la |l(?:'|')|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l')?|du |des |d'|d')\\S+?))(?:(?: )(?!\\(|(?:ne|n'|n'|d'|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s')\\b)(?:\\S+))?)";
+    const baliseListerDecrireListe = "(lister|décrire|énumérer) ((?:le |la |l(?:'|')|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l')?|du |des |d'|d')\\S+?))(?:(?: )(?!\\(|(?:ne|n'|n'|d'|d'|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s')\\b)(?:\\S+))?)";
     return InstructionsUtils.processBalises(texteDynamique, baliseListerDecrireListe, decoupe => {
       const verbeString = decoupe[1];
       const cibleString = decoupe[2];
@@ -140,6 +148,7 @@ export class InstructionDireContenu {
         switch (verbeString) {
           case 'lister': case 'Lister': return cible.lister();
           case 'décrire': case 'Décrire': return cible.decrire();
+          case 'énumérer': case 'Énumérer': return cible.enumerer();
           default:
             console.error("calculerBaliseListerDecrireListe: verbe pas pris en charge :", verbeString);
             return '';

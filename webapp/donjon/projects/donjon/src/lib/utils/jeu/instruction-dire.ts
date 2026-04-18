@@ -55,7 +55,7 @@ export class InstructionDire {
     this.numerique = new InstructionDireNumerique(this.eju);
     this.format = new InstructionDireFormat(this.jeu, this.eju, this.calculerConjugaison.bind(this));
     this.apercuStatut = new InstructionDireApercuStatut(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
-    this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.afficherSorties.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this));
+    this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.afficherSorties.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this), this.executerEnumererContenu.bind(this));
     this.propriete = new InstructionDirePropriete(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
   }
 
@@ -689,6 +689,33 @@ export class InstructionDire {
 
       }
 
+    }
+    return resultat;
+  }
+
+  /**
+   * Énumérer le contenu d'un objet ou d'un lieu sous forme de mots séparés par des virgules.
+   * Retourne une chaîne vide si le contenant est vide (intégrable dans une phrase).
+   */
+  public executerEnumererContenu(ceci: ElementJeu, afficherObjetsCachesDeCeci: boolean, prepositionSpatiale: PrepositionSpatiale, idElementsDejaMentionnes: number[]): Resultat {
+    const resultat = new Resultat(false, '', 1);
+    const objets = this.eju.trouverContenu(ceci, afficherObjetsCachesDeCeci, false, false, false, false, false, prepositionSpatiale);
+    if (objets !== undefined) {
+      resultat.succes = true;
+      const nbObjets = objets.length;
+      for (let i = 0; i < nbObjets; i++) {
+        const obj = objets[i];
+        const intitule = this.eju.calculerIntituleElement(obj, false, false);
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
+        idElementsDejaMentionnes.push(obj.id);
+        if (i === 0) {
+          resultat.sortie += intitule;
+        } else if (i === nbObjets - 1) {
+          resultat.sortie += " et " + intitule;
+        } else {
+          resultat.sortie += ", " + intitule;
+        }
+      }
     }
     return resultat;
   }
