@@ -38,7 +38,7 @@ export class InstructionDireFormat {
   }
 
   calculerBaliseHashtag(texteDynamique: string, ctxTour: ContexteTour | undefined): string {
-    const baliseHashtag = "(#|@|&)\\s?((?:le |la |l'|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d'|d')(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l'))|de (?:la |l')?|du |des |d'|à |au(?:x)? |en |qui |sans )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d'|n'|s'|à))(?:\\S+?))?)";
+    const baliseHashtag = "(#|@|&)\\s?((?:le |la |l'|les )?(?!(?:\\d|(?:un|une|de|du|des|le|la|les|l)\\b)|\"|d'|d\u2019)(?:\\S+?|(?:\\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l'))|de (?:la |l')?|du |des |d'|à |au(?:x)? |en |qui |sans )\\S+?))(?:(?: )(?!\\(?:|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\\b)|(?:d'|n'|s'|à))(?:\\S+?))?)";
     const balises = InstructionsUtils.extraireBalises(texteDynamique, baliseHashtag);
     if (balises) {
       for (const decoupe of balises) {
@@ -51,9 +51,11 @@ export class InstructionDireFormat {
           if (type == '#') {
             this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.mentionne, this.eju);
             ctxTour.elementsMentionnes.push(conceptCible.id);
+            this.jeu.derniersElementIds = [conceptCible.id];
           } else if (type == '@') {
             this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.vu, this.eju);
             ctxTour.elementsMentionnes.push(conceptCible.id);
+            this.jeu.derniersElementIds = [conceptCible.id];
           } else if (type == '&') {
             this.jeu.etats.ajouterEtatElement(conceptCible, EEtatsBase.familier, this.eju);
           } else {

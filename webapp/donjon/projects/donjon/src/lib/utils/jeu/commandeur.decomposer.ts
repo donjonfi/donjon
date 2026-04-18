@@ -3,9 +3,10 @@ import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { ActionsUtils } from "./actions-utils";
 import { CandidatCommande } from "../../models/jouer/candidat-commande";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
+import { Genre } from "../../models/commun/genre.enum";
+import { Jeu } from "../../models/jeu/jeu";
 import { MotUtils } from "../commun/mot-utils";
 import { PhraseUtils } from "../commun/phrase-utils";
-import { Jeu } from "../../models/jeu/jeu";
 
 export class CommandeurDecomposer {
 
@@ -16,10 +17,36 @@ export class CommandeurDecomposer {
    * Le score est basé sur le nombre d’arguments et la correspondance 
    * entre les arguments et les éléments existants dans le jeu.
    */
+  /** Résout "ce dernier/cette dernière/ces derniers" et "le [verbe]" avant parsing. */
+  private static resoudreDernier(commande: string, jeu: Jeu): string {
+    let cmd = commande;
+
+    // "l'[verbe] [reste]" collé → "[verbe] ce dernier [reste]"
+    const matchCollé = /^l(?:'|\u2019)(\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+    if (matchCollé) {
+      cmd = matchCollé[1] + ' ce dernier' + matchCollé[2];
+    } else {
+      // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] ce dernier [reste]" (seulement si infinitif)
+      const matchLeVerbe = /^(le|la|les|l(?:'|\u2019)) (\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+      if (matchLeVerbe) {
+        cmd = matchLeVerbe[2] + ' ce dernier' + matchLeVerbe[3];
+      }
+    }
+
+    // "ce dernier / cette dernière / ces derniers" → "[article] [nom]"
+    const reDernier = /\b(ce dernier|cette derni(?:è|e)re|ces derniers|ces derni(?:è|e)res)\b/i;
+    if (!reDernier.test(cmd) || jeu.derniersElementIds.length === 0) return cmd;
+    const id = jeu.derniersElementIds[0];
+    const el = jeu.objets.find(o => o.id === id) ?? jeu.lieux.find(l => l.id === id);
+    if (!el) return cmd;
+    const article = el.genre === Genre.f ? 'la ' : 'le ';
+    return cmd.replace(reDernier, article + el.nom);
+  }
+
   public static decomposerCommande(commande: string, jeu: Jeu, eju: ElementsJeuUtils, act: ActionsUtils): ContexteCommande {
     // 0. COMMANDE BRUTE
     let ctx = new ContexteCommande();
-    ctx.brute = commande;
+    ctx.brute = CommandeurDecomposer.resoudreDernier(commande, jeu);
     // 1. COMMANDE DÉCOMPOSÉE EN ÉLÉMENTS DE PHRASE
     ctx.candidats = PhraseUtils.obtenirLesCommandesPossibles(ctx.brute);
 
@@ -166,7 +193,7 @@ export class CommandeurDecomposer {
         // préposition après parler
         if (candidat.els.preposition0) {
           // du/de/des/à propos/concernant
-          if (candidat.els.preposition0.match(/(du|de(?: la| l(?:’|'))?|des|d(?:’|')(?:un|une)?|à propos|concernant)/)) {
+          if (candidat.els.preposition0.match(/(du|de(?: la| l(?:'|\u2019))?|des|d(?:'|\u2019)(?:un|une)?|à propos|concernant)/)) {
             // préposition 1
             if (candidat.els.preposition1) {
               // avec/à/au/aux

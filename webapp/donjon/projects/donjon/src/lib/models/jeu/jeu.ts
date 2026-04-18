@@ -105,6 +105,9 @@ export class Jeu {
   /** Prochain ID disponible pour un élément du jeu. */
   nextID: number = 1;
 
+  /** IDs des derniers éléments avec lesquels le joueur a interagi (ceci et cela de la dernière commande réussie). */
+  derniersElementIds: number[] = [];
+
   /** Un auditeur écoute un évènement en particulier.
    * Lorsque l'évènement se déclenche, on exécute les actions
    * de l'auditeur.

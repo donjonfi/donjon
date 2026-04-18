@@ -57,6 +57,21 @@ export class Abreviations {
     }
 
     let mots = commandeModifiee.split(' ');
+
+    // "l'[verbe]" collé (ex: "l'ouvrir avec la clé") → "[verbe] ce dernier [reste]"
+    const matchCollé = /^l(?:'|\u2019)(\S+(?:er|ir|re))(.*)$/i.exec(commandeModifiee);
+    if (matchCollé) {
+      return matchCollé[1] + ' ce dernier' + matchCollé[2];
+    }
+
+    // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] ce dernier [reste]" (seulement si infinitif)
+    if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l'")) {
+      if (/(?:er|ir|re)$/i.test(mots[1])) {
+        const reste = mots.slice(2).join(' ');
+        return mots[1] + ' ce dernier' + (reste ? ' ' + reste : '');
+      }
+    }
+
     if (mots.length > 0) {
       let premierMotComplet = Abreviations.premierMotCommande(mots[0], true, abreviations, mots.length);
       let deuxiemeMotComplet: string = null;
