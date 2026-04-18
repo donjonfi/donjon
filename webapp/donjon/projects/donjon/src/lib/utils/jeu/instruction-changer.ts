@@ -66,7 +66,7 @@ export class InstructionChanger {
         case 'ceci':
           if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(contexteTour.ceci as ElementJeu, instruction, contexteTour);
-          } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.concept)){
+          } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.concept)) {
             resultat = this.changerConcept(contexteTour.ceci as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.ceci as Compteur, instruction, contexteTour, evenement, declenchements);
@@ -79,7 +79,7 @@ export class InstructionChanger {
         case 'cela':
           if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.element)) {
             resultat = this.changerElementJeu(contexteTour.cela as ElementJeu, instruction, contexteTour);
-          } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.concept)){
+          } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.concept)) {
             resultat = this.changerConcept(contexteTour.cela as ElementJeu, instruction, contexteTour);
           } else if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.compteur)) {
             resultat = this.changerCompteur(contexteTour.cela as Compteur, instruction, contexteTour, evenement, declenchements);
@@ -411,15 +411,12 @@ export class InstructionChanger {
           }
           // C) TEXTE
         } else {
-          // console.log("=> texte");
-          // enlever le nombre
+          // résoudre les balises
+          const texteResolu = this.insDire.calculerBalise(instruction.complement1, 1, undefined, contexteTour, evenement, declenchements)
           if (nEstPas) {
-            // console.log("Je vais enlever de la liste:", instruction.complement1, instruction);
-            liste.retirerTexte(instruction.complement1);
-            // ajouter le nombre
+            liste.retirerTexte(texteResolu);
           } else {
-            // console.log("Je vais ajouter à la liste:", instruction.complement1, instruction);
-            liste.ajouterTexte(instruction.complement1);
+            liste.ajouterTexte(texteResolu);
           }
         }
         break;
