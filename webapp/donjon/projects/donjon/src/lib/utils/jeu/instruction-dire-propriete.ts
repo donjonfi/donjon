@@ -29,7 +29,7 @@ export class InstructionDirePropriete {
   ) { }
 
   calculerBalisePropriete(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
-    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l\u2019|l'|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
+    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l'|l\u2019|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
     return InstructionsUtils.processBalises(texteDynamique, balisePropriete, decoupe => {
       const proprieteString = decoupe[1];
       const cibleString = decoupe[2];

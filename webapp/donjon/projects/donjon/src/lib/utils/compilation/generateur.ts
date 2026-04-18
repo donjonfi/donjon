@@ -820,8 +820,8 @@ export class Generateur {
     strPosition = strPosition
       .trim()
       .toLocaleLowerCase()
-      .replace(/^((à (l\u2019|l')|en |au( |\-)))/, "")
-      .replace(/(du|de( la| l'| l’)?|des|le|la|les|l\u2019|l')$/, "")
+      .replace(/^((à (l'|l\u2019)|en |au( |\-)))/, "")
+      .replace(/(du|de( la| l'| l\u2019)?|des|le|la|les|l'|l\u2019)$/, "")
       .trim();
 
     let retVal = ELocalisation.inconnu;

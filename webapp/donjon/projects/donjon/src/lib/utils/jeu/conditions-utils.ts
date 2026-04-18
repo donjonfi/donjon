@@ -212,7 +212,7 @@ export class ConditionsUtils {
         }
         // action (c’est à dire l’action liée à l’événement)
         // => infinitif
-      } else if (conditionSujetNomNettoye.match(/infinitif (?:de l(?:'|’))?action/i)) {
+      } else if (conditionSujetNomNettoye.match(/infinitif (?:de l(?:'|\u2019))?action/i)) {
         sujet = new Intitule(evenement.infinitif, new GroupeNominal(null, evenement.infinitif, null), ClassesRacines.Intitule);
 
         // sortie/obstacle/porte vers ceci/cela
@@ -367,7 +367,7 @@ export class ConditionsUtils {
           case 'incluent':
             // remarque: négation appliquée plus loin.
             if (condition.sujetComplement &&
-              condition.sujetComplement.determinant?.match(/un |des |d'|d\u2019/i) &&
+              condition.sujetComplement.determinant?.match(/un |des |d'|d\u2019|/i) &&
               condition.sujetComplement.nom.match(/objet(s)?/i)
             ) {
               retVal = this.eju.verifierContientObjet(sujet as ElementJeu);

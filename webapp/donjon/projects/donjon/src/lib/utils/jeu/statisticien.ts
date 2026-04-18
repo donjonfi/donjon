@@ -80,7 +80,7 @@ export class Statisticien {
   public static compterMotsTexte(texte: string): number {
     // remplacer les apostrophes par des espaces
     let texteNettoye = texte
-      .replace(/'|’|\n|&nbsp;|&gt;|&lt;/g, ' ')
+      .replace(/'|\u2019|\n|&nbsp;|&gt;|&lt;/g, ' ')
       // supprimer les ponctuations
       .replace(/[.|…|,|;|:|!|?|<|>|(|)|$|€|\-|−]/g, "");
     // remplacer espaces insécables par des espaces classiques

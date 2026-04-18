@@ -23,7 +23,7 @@ export class CompteursUtils {
     if (compteurOuPropriete) {
 
       // enlever le de qui débute la nouvelle valeur
-      const valeurStr = operationStr.replace(/^(de |d\u2019|d'|du |des )/i, "");
+      const valeurStr = operationStr.replace(/^(de |d'|d\u2019|du |des )/i, "");
 
       // A) compteur
       if (compteurOuPropriete instanceof Compteur) {
