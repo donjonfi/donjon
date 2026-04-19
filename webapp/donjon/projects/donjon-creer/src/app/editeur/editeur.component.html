@@ -12,463 +12,489 @@
 
       <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
         <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
-          title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.txt"
-          style="display: none;" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
-      </label>
-    </nav>
-  </div>
+      title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.txt"
+      style="display: none;" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
+    </label>
+  </nav>
+</div>
 
-  <div class="rr2 max" style="height: 100%;">
-    <div class="container-fluid max" style="height: 100%;">
+<div class="rr2 max" style="height: 100%;">
+  <div class="container-fluid max" style="height: 100%;">
 
-      <div class="row max" style="height: 100%">
+    <div class="row max" style="height: 100%">
 
-        <!-- COL 1 : LISTE DES ONGLETS -->
-        <div class="col-auto ps-2 pe-0">
-          <div class="btn-group-vertical">
-            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'scenario') }"
-              (click)="showTab('scenario')" title="Scénario" tooltip="Scénario" placement="right">
-              <i class="fas fa-fw fa-book fa-lg"></i>
-            </button>
-            <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'actions') }"
-              (click)="showTab('actions')" title="Actions" tooltip="Actions (commandes)" placement="right">
-              <i class="fas fa-fw fa-person-walking fa-lg"></i>
-            </button>
-            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
-              (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
-              <i class="fas fa-fw fa-glasses fa-lg"></i>
-            </button>
-            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
-              (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
-              <i class="fas fa-fw fa-terminal fa-lg"></i>
-            </button>
-            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'visualisation') }"
-              (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
-              <i class="fas fa-fw fa-eye fa-lg"></i>
-            </button>
-            <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
-              (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
-              <i class="fas fa-fw fa-sitemap fa-lg"></i>
-            </button>
+      <!-- COL 1 : LISTE DES ONGLETS -->
+      <div class="col-auto ps-2 pe-0">
+        <div class="btn-group-vertical">
+          <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'scenario') }"
+            (click)="showTab('scenario')" title="Scénario" tooltip="Scénario" placement="right">
+            <i class="fas fa-fw fa-book fa-lg"></i>
+          </button>
+          <button class="btn btn-primary px-2" [ngClass]="{'active':(tab == 'actions') }"
+            (click)="showTab('actions')" title="Actions" tooltip="Actions (commandes)" placement="right">
+            <i class="fas fa-fw fa-person-walking fa-lg"></i>
+          </button>
+          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'analyse') }"
+            (click)="showTab('analyse')" title="Analyse" tooltip="Analyse" placement="right">
+            <i class="fas fa-fw fa-glasses fa-lg"></i>
+          </button>
+          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'jeu') }"
+            (click)="showTab('jeu')" title="Jeu" tooltip="Jeu" placement="right">
+            <i class="fas fa-fw fa-terminal fa-lg"></i>
+          </button>
+          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'visualisation') }"
+            (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
+            <i class="fas fa-fw fa-eye fa-lg"></i>
+          </button>
+          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
+            (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
+            <i class="fas fa-fw fa-sitemap fa-lg"></i>
+          </button>
 
-          </div>
+        </div>
 
-          <ng-container *ngIf="tab == 'analyse' && jeu">
-            <!-- jeu -->
-            <br>
+        @if (tab == 'analyse' && jeu) {
+          <!-- jeu -->
+          <br>
             <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu"
               tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
             <!-- aperçu -->
             <br>
-            <button class="btn btn-danger mt-4 px-2" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
-              tooltip="Aperçu" placement="right">
-              <i class="fas fa-fw fa-sitemap fa-lg"></i>
-            </button>
-            <!-- wiki -->
-            <br>
-            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
-              placement="right" container="body">
-              <i class="fas fa-fw fa-question fa-lg"></i>
-            </a>
-          </ng-container>
+              <button class="btn btn-danger mt-4 px-2" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
+                tooltip="Aperçu" placement="right">
+                <i class="fas fa-fw fa-sitemap fa-lg"></i>
+              </button>
+              <!-- wiki -->
+              <br>
+                <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
+                  placement="right" container="body">
+                  <i class="fas fa-fw fa-question fa-lg"></i>
+                </a>
+              }
 
-          <ng-container *ngIf="tab == 'scenario'">
-            <br>
-            <!-- analyser -->
-            <button class="btn btn-warning mt-4 px-2" (click)="onCompiler(undefined)" tooltip="Analyser" placement="right"
-              title="Anaylser">
-              <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
-            </button>
+              @if (tab == 'scenario') {
+                <br>
+                  <!-- analyser -->
+                  <button class="btn btn-warning mt-4 px-2" (click)="onCompiler(undefined)" tooltip="Analyser" placement="right"
+                    title="Anaylser">
+                    <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
+                  </button>
+                  <!-- sauvegarder fichier localement -->
+                  <br>
+                    <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder"
+                      placement="right" title="Sauvegarder">
+                      <i class="fas fa-fw fa-save fa-lg"></i>
+                    </button>
+                    <!-- télécharger jeu standalone -->
+                    <br>
+                      <button class="btn btn-success mt-1 px-2" (click)="onTelechargerJeu()"
+                        tooltip="Télécharger mon jeu" placement="right" title="Télécharger mon jeu">
+                        <i class="fas fa-fw fa-download fa-lg"></i>
+                      </button>
+                      <!-- wiki -->
+                      <br>
+                        <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
+                          placement="right" container="body">
+                          <i class="fas fa-fw fa-question fa-lg"></i>
+                        </a>
+                        <!-- préférences -->
+                        <br>
+                          <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()" tooltip="Préférences"
+                            placement="right" title="Préférences">
+                            <i class="fas fa-fw fa-sliders-h fa-lg"></i>
+                          </button>
+                          <!-- conversion -->
+                          <br>
+                            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherConvertisseur()" tooltip="V1 => V2"
+                              placement="right" title="Convertir votre scénario V1 vers V2">
+                              <i class="fas fa-fw fa-rotate fa-lg"></i>
+                            </button>
+                            <!-- sections -->
+                            <br>
+                              <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
+                              @if (false) {
+                                <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections"
+                                  tooltip="Sections" placement="right" title="Sections">
+                                  <i class="fas fa-fw fa-thumbtack fa-lg"></i>
+                                </button>
+                              }
+                            }
 
-            <!-- sauvegarder fichier localement -->
-            <br>
-            <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder"
-              placement="right" title="Sauvegarder">
-              <i class="fas fa-fw fa-save fa-lg"></i>
-            </button>
+                          </div>
 
-            <!-- télécharger jeu standalone -->
-            <br>
-            <button class="btn btn-success mt-1 px-2" (click)="onTelechargerJeu()"
-              tooltip="Télécharger mon jeu" placement="right" title="Télécharger mon jeu">
-              <i class="fas fa-fw fa-download fa-lg"></i>
-            </button>
+                          <!-- COL 2 : CONTENU ONGLET -->
+                          <div class="col pe-2" style="height: 100%;">
+                            <!-- TAB : Scénario (code source) -->
+                            <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
+                              <div class="grid-scenario">
+                                <div class="rs1">
+                                  @if (afficherPreferences) {
+                                    <div class="row mb-2">
+                                      <div class="col-auto">
+                                        <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-select" name="choixTheme">
+                                          <option disabled>*** Thèmes clairs ***</option>
+                                          <option [ngValue]="'chrome'">chrome</option>
+                                          <option [ngValue]="'crimson_editor'">crimson_editor</option>
+                                          <option [ngValue]="'katzenmilch'">katzenmilch</option>
+                                          <option [ngValue]="'solarized_light'">solarized_light</option>
+                                          <option [ngValue]="'tomorrow'">tomorrow</option>
+                                          <option disabled>*** Thèmes foncés ***</option>
+                                          <option [ngValue]="'ambiance'">ambiance</option>
+                                          <option [ngValue]="'dracula'">dracula</option>
+                                          <option [ngValue]="'monokai'">monokai</option>
+                                          <option [ngValue]="'solarized_dark'">solarized_dark</option>
+                                          <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+                                        </select>
+                                      </div>
+                                      <div class="col-auto">
+                                        <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-select"
+                                          name="choixNbLignesCodes">
+                                          <option [ngValue]="13">police 13</option>
+                                          <option [ngValue]="14">police 14</option>
+                                          <option [ngValue]="15">police 15</option>
+                                          <option [ngValue]="16">police 16</option>
+                                          <option [ngValue]="17">police 17</option>
+                                          <option [ngValue]="18">police 18</option>
+                                          <option [ngValue]="19">police 19</option>
+                                          <option [ngValue]="20">police 20</option>
+                                          <option [ngValue]="21">police 21</option>
+                                          <option [ngValue]="22">police 22</option>
+                                          <option [ngValue]="23">police 23</option>
+                                          <option [ngValue]="24">police 24</option>
+                                          <option [ngValue]="25">police 25</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="row mb-1">
+                                      <div class="col-12">
+                                        <div class="form-check">
+                                          <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerSinonSi"
+                                            (change)="onChangerCorrectionSinonSi()" id="ckCorrigerSinonSi">
+                                            <label class="form-check-label" for="ckCorrigerSinonSi">Corriger automatiquement « sinon si » en
+                                            « sinonsi ».</label>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row mb-1">
+                                        <div class="col-12">
+                                          <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint" (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
+                                            <label class="form-check-label" for="ckCorrigerPoint">Corriger automatiquement les « ; » en « . » en fin de ligne<br>Ajouter automatiquement un « . » lorsque la ligne se termine par « " »</label>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row mb-1">
+                                        <div class="col-12">
+                                          <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" [(ngModel)]="afficherNumerosLigne" (change)="onChangerAfficherNumerosLigne()" id="ckNumeroLigne">
+                                            <label class="form-check-label" for="ckNumeroLigne">Afficher les numéros de ligne</label>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row mb-2">
+                                        <div class="col-12">
+                                          <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" [(ngModel)]="sansMiseEnForme"
+                                              (change)="onChangerSansMiseEnForme()" id="ckSansMiseEnForme">
+                                              <label class="form-check-label" for="ckSansMiseEnForme">Éditeur de scénario sans mise en forme
+                                              (pour lecteur d'écran).</label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="row mb-1">
+                                          <div class="col-12">
+                                            <div class="form-check">
+                                              <input type="checkbox" class="form-check-input" [(ngModel)]="compilateurVerbeux"
+                                                (change)="onChangerCompilateurVerbeux()" id="ckCompilateurVerbeux">
+                                                <label class="form-check-label" for="ckCompilateurVerbeux">Compilateur verbeux (utile au débogage de Donjon FI)</label>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        }
 
-            <!-- wiki -->
-            <br>
-            <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
-              placement="right" container="body">
-              <i class="fas fa-fw fa-question fa-lg"></i>
-            </a>
+                                        @if (afficherConvertisseur) {
+                                          <h5 class="mt-3">Conversion Donjon V1 → V2</h5>
+                                          <p>Cet outil vous aide à adapter vos anciens scénarios Donjon (de la version 0.4xx vers la version 2.0)
+                                            <br><b>Important :</b> Pensez à prévoir au préalable une sauvegarde de votre scénario au cas où.
+                                          </p>
+                                          <div class="row">
+                                            <div class="col-5">
+                                              <h6>Étape 1 (automatique)</h6>
+                                              Cette étape adapte automatiquement les éléments suivants:
+                                              <ul>
+                                                <li>Format des <b>règles avant/après</b></li>
+                                                <li>Format des <b>actions simples</b> (celles qui commencent par « <code>le joueur peut …</code> »)</li>
+                                                <li><b>Points virgules</b> en fin de ligne remplacés par des points.</li>
+                                              </ul>
+                                            </div>
+                                            <div class= "col-7">
+                                              <h6>Étape 2 (semi-automatique)</h6>
+                                              <ul>
+                                                <li>Cette étape adapte au nouveau format certaines des <b>réactions</b> des personnes néammoins une partie manuelle reste à faire.</li>
+                                                <li>Seules les phrases commençant par « <code>sa réaction est</code> » et « <code>sa réaction concernant (sujet) est</code> » seront modifiées. Il faudra encore entourer les réactions des balises « <code>réactions de (personne):</code> » (…) « <code>fin réactions</code> ».)</li>
+                                              </ul>
+                                            </div>
+                                          </div>
+                                          <div class="row mb-2">
+                                            <div class= "col-5">
+                                              <button class="btn btn-primary ms-1" (click)="onConversionEtape1()"><i class="fas fa-rotate me-2"></i>Appliquer étape 1</button>
+                                            </div>
+                                            <div class= "col-7">
+                                              <button class="btn btn-primary ms-1" (click)="onConversionEtape2()"><i class="fas fa-rotate me-2"></i>Appliquer étape 2</button>
+                                            </div>
+                                          </div>
+                                        }
 
-            <!-- préférences -->
-            <br>
-            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()" tooltip="Préférences"
-              placement="right" title="Préférences">
-              <i class="fas fa-fw fa-sliders-h fa-lg"></i>
-            </button>
+                                        <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
+                                        @if (false && afficherSections) {
+                                          <div class="row mb-2">
+                                            @if (allPartiesIntitule?.length) {
+                                              <div class="col-12 col-md-4  pe-md-1 py-1">
+                                                <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-select"
+                                                  name="choixPartie">
+                                                  <option [ngValue]="null">(tout le scénario)</option>
+                                                  @for (intitule of allPartiesIntitule; track intitule; let i = $index) {
+                                                    @if (i != 0 || intitule != '(sans nom)') {
+                                                      <option [ngValue]="i">
+                                                        Partie « {{intitule}} »
+                                                      </option>
+                                                    }
+                                                  }
+                                                </select>
+                                              </div>
+                                            }
+                                            @if (allChapitresIntitule?.length) {
+                                              <div class="col-6 col-md-4 px-md-1 py-1 ">
+                                                <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
+                                                  class="form-select" name="choixChapitre">
+                                                  <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}
+                                                  </option>
+                                                  @for (intitule of allChapitresIntitule; track intitule; let i = $index) {
+                                                    @if (i != 0 || intitule != '(sans nom)') {
+                                                      <option [ngValue]="i">
+                                                        Chapitre « {{intitule}} »
+                                                      </option>
+                                                    }
+                                                  }
+                                                </select>
+                                              </div>
+                                            }
+                                            @if (allScenesIntitule?.length) {
+                                              <div class="col-6 col-md-4 ps-md-1 py-1">
+                                                <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-select"
+                                                  name="choixScene">
+                                                  <option [ngValue]="null">
+                                                    {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
+                                                  </option>
+                                                  @for (intitule of allScenesIntitule; track intitule; let i = $index) {
+                                                    @if (i != 0 || intitule != '(sans nom)') {
+                                                      <option [ngValue]="i">
+                                                        Scène « {{intitule}} »
+                                                      </option>
+                                                    }
+                                                  }
+                                                </select>
+                                              </div>
+                                            }
+                                            @if (!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length) {
+                                              <p
+                                                class="font-italic ms-4">
+                                                (Votre scénario n’est pas découpé en sections)
+                                              </p>
+                                            }
+                                          </div>
+                                        }
+                                      </div>
 
-            <!-- conversion -->
-            <br>
-            <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherConvertisseur()" tooltip="V1 => V2"
-              placement="right" title="Convertir votre scénario V1 vers V2">
-              <i class="fas fa-fw fa-rotate fa-lg"></i>
-            </button>
+                                      <!-- CODE SOURCE (Scénario) -->
+                                      @if (!sansMiseEnForme) {
+                                        <div class="rs2 max">
+                                          <div class="card max" style="height: 100%;">
+                                            <ace #codeEditor spellcheck="true" contenteditable [config]="config"
+                                            [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
+                                          </div>
+                                        </div>
+                                      }
+                                      @if (sansMiseEnForme) {
+                                        <div class="rs2 max">
+                                          <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true"
+                                            [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
+                                          </textarea>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
 
-            <!-- sections -->
-            <br>
-            <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
-            <button *ngIf="false" class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections"
-              tooltip="Sections" placement="right" title="Sections">
-              <i class="fas fa-fw fa-thumbtack fa-lg"></i>
-            </button>
+                                  <!-- TAB: ACTIONS (COMMANDES) -->
+                                  <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
+                                    <h2>Actions de base</h2>
+                                    <p>Ces actions sont chargées automatiquement avant votre scénario afin que vous puissiez disposer d’actions de base pour votre jeu.</p>
+                                    <ul>
+                                      <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
+                                      <li>Version chargée : <b>{{versionActions}}</b></li>
+                                      <li>Dernière tentative : <b>{{derniereTentativeFichierCommande}}</b></li>
+                                    </ul>
 
-          </ng-container>
+                                    <!-- charger actions.djn distant -->
+                                    <h3 class="mt-4">Actions originales</h3>
+                                    <button class="btn btn-primary ms-1" (click)="onRafraichirActions()"><i class="fas fa-rotate me-2"></i>Utiliser fichier actions original</button>
 
-        </div>
+                                    <!-- charger actions.djn local -->
+                                    <h3 class="mt-4">Actions personnalisées</h3>
+                                    <p>Vous pouvez utiliser votre propre fichier à la place du fichier original.
+                                      Vous pouvez ainsi avoir vos propres actions de base pour l’ensemble de vos jeux.
+                                      <br>Vous pouvez récupérer le fichier <code>actions.djn</code> original à l’adresse <a href="https://donjon.fi/creer/actions" target="_blank">donjon.fi/creer/actions</a> afin de l’adapter.
+                                    </p>
+                                    <p>Important: si vous utilisez votre propre fichier d’actions de base, pensez à remplacer le fichier <code>actions.djn</code> original par le vôtre lorsque vous publiez votre jeu sur un site web.</p>
+                                    <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
+                                      <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
+                                    title="Charger un scénario existant">Utiliser mon propre fichier actions</span><input type="file" accept=".djn,.txt"
+                                    style="display: none;" (change)="onChargerFichierActionsLocal($event.target)" onclick="this.value=null">
+                                  </label>
+                                </div>
 
-        <!-- COL 2 : CONTENU ONGLET -->
-        <div class="col pe-2" style="height: 100%;">
-          <!-- TAB : Scénario (code source) -->
-          <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
-            <div class="grid-scenario">
-              <div class="rs1">
-                <ng-container *ngIf="afficherPreferences">
-                  <div class="row mb-2">
-                    <div class="col-auto">
-                      <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-select" name="choixTheme">
-                        <option disabled>*** Thèmes clairs ***</option>
-                        <option [ngValue]="'chrome'">chrome</option>
-                        <option [ngValue]="'crimson_editor'">crimson_editor</option>
-                        <option [ngValue]="'katzenmilch'">katzenmilch</option>
-                        <option [ngValue]="'solarized_light'">solarized_light</option>
-                        <option [ngValue]="'tomorrow'">tomorrow</option>
-                        <option disabled>*** Thèmes foncés ***</option>
-                        <option [ngValue]="'ambiance'">ambiance</option>
-                        <option [ngValue]="'dracula'">dracula</option>
-                        <option [ngValue]="'monokai'">monokai</option>
-                        <option [ngValue]="'solarized_dark'">solarized_dark</option>
-                        <option [ngValue]="'vibrant_ink'">vibrant_ink</option>
+                                <!-- TAB: TESTER LE JEU -->
+                                <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
+                                  <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)"></djn-lecteur>
+                                </div>
 
-                      </select>
-                    </div>
-                    <div class="col-auto">
-                      <select [(ngModel)]="tailleTexte" (change)="onChangerTailleFont()" class="form-select"
-                        name="choixNbLignesCodes">
-                        <option [ngValue]="13">police 13</option>
-                        <option [ngValue]="14">police 14</option>
-                        <option [ngValue]="15">police 15</option>
-                        <option [ngValue]="16">police 16</option>
-                        <option [ngValue]="17">police 17</option>
-                        <option [ngValue]="18">police 18</option>
-                        <option [ngValue]="19">police 19</option>
-                        <option [ngValue]="20">police 20</option>
-                        <option [ngValue]="21">police 21</option>
-                        <option [ngValue]="22">police 22</option>
-                        <option [ngValue]="23">police 23</option>
-                        <option [ngValue]="24">police 24</option>
-                        <option [ngValue]="25">police 25</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="row mb-1">
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerSinonSi"
-                          (change)="onChangerCorrectionSinonSi()" id="ckCorrigerSinonSi">
-                        <label class="form-check-label" for="ckCorrigerSinonSi">Corriger automatiquement « sinon si » en
-                          « sinonsi ».</label>
+                                <!-- TAB: APERÇU ÉLÉMENTS -->
+                                @if (tab === 'apercu') {
+                                  <div class="card">
+                                    <div class="card-body">
+                                      @if (compilationTerminee) {
+                                        <div>
+                                          <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs"
+                                            [listes]="listes">
+                                          </app-apercu-monde>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                }
+
+                                <!-- TAB: VISUALISATION -->
+                                @if (tab === 'visualisation') {
+                                  <div class="card">
+                                    <div class="card-body">
+                                      @if (compilationTerminee) {
+                                        <div>
+                                          <app-visualisation [jeu]="jeu">
+                                          </app-visualisation>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                }
+
+                                <!-- TAB: ANALYSE -->
+                                <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">
+                                  <div class="card-body">
+
+                                    @if (chargementActionsEnCours) {
+                                      <div>
+                                        <p>Chargement des actions…
+                                        </p>
+                                        <div class="spinner-border text-primary" role="status">
+                                          <span class="sr-only">Loading...</span>
+                                        </div>
+                                      </div>
+                                    }
+
+                                    @if (compilationEnCours && !chargementActionsEnCours) {
+                                      <div>
+                                        <p>Analyse en cours…
+                                        </p>
+                                        <div class="spinner-border text-primary" role="status">
+                                          <span class="sr-only">Loading...</span>
+                                        </div>
+                                      </div>
+                                    }
+
+                                    @if (compilationTerminee) {
+                                      <div>
+                                        <h2>Résultat de l’analyse</h2>
+                                        @if (!codeSource || codeSource.trim() == '') {
+                                          <div>
+                                            <span class="text-warning">Moi je veux bien mais il n’y a aucun texte à analyser dans votre
+                                            scénario. 🙄</span><br>
+                                            <span class="text-primary">Pssst! Il est possible de charger un exemple pour
+                                            commencer. 😉</span>
+                                          </div>
+                                        }
+                                        @if (codeSource && codeSource.trim() != '' && monde) {
+                                          @if (monde.lieux.length == 0) {
+                                            <div class="text-warning">
+                                              🙄 Je n’ai pas trouvé les lieux à visiter !
+                                            </div>
+                                          }
+                                          @if (erreurs.length == 0 && messages.length == 0) {
+                                            <div class="text-success">
+                                              😀 Super ! Je pense que j’ai tout compris !
+                                            </div>
+                                          }
+                                          @if (erreurs.length > 0 || messages.length > 0) {
+                                            <div class="text-warning">
+                                              😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
+                                            </div>
+                                          }
+                                        }
+                                        <code class="text-danger">
+                                          @for (err of erreurs; track err) {
+                                            <span>
+                                              {{err}}<br>
+                                            </span>
+                                          }
+                                        </code>
+                                        <ul class="list-group mt-2">
+                                          @for (message of messages; track message) {
+                                            <li class="list-group-item p-1">
+                                              <div class="d-flex mb-0">
+                                                <div class="pe-1">
+                                                  @if (message.type == EMessageAnalyse.conseil) {
+                                                    <i class="fa-solid fa-circle-info me-2 text-info"></i>
+                                                  }
+                                                  @if (message.type == EMessageAnalyse.probleme) {
+                                                    <span class="me-1">🤔</span>
+                                                  }
+                                                  @if (message.type == EMessageAnalyse.erreur) {
+                                                    <i class="fa-solid fa-square-xmark me-2 text-danger"></i>
+                                                  }
+                                                  <b>{{message.titre}}</b>
+                                                </div>
+                                                <div class="ps-1 pe-1"> @if (message.titreRoutine) {
+                                                  <small>→ {{message.titreRoutine}}</small>
+                                                }</div>
+                                              </div>
+                                              @if (!message.fichierAction) {
+                                                <div>
+                                                  <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.numeroLigne)">{{message.numeroLigneFormate}}</button>&nbsp;</span>
+                                                  <small class="t-code">{{message.phrase.toString()}}</small>
+                                                </div>
+                                              }
+                                              @if (message.fichierAction) {
+                                                <div>
+                                                  <span class="pe-1">🚶‍♂️ {{message.numeroLigneFormate}}</span>
+                                                  <small class="t-code">{{message.phrase.toString()}}</small>
+                                                </div>
+                                              }
+                                              <p class="mb-0">
+                                                <span [innerHTML]="message.htmlCorps"></span>
+                                                <a class="ms-2" [href]="'https://donjon.fi/doc/v3/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
+                                              </p>
+                                            </li>
+                                          }
+                                        </ul>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div class="row mb-1">
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="corrigerPoint" (change)="onChangerCorrectionPoint()" id="ckCorrigerPoint">
-                        <label class="form-check-label" for="ckCorrigerPoint">Corriger automatiquement les « ; » en « . » en fin de ligne<br>Ajouter automatiquement un « . » lorsque la ligne se termine par « " »</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row mb-1">
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="afficherNumerosLigne" (change)="onChangerAfficherNumerosLigne()" id="ckNumeroLigne">
-                        <label class="form-check-label" for="ckNumeroLigne">Afficher les numéros de ligne</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row mb-2">
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="sansMiseEnForme"
-                          (change)="onChangerSansMiseEnForme()" id="ckSansMiseEnForme">
-                        <label class="form-check-label" for="ckSansMiseEnForme">Éditeur de scénario sans mise en forme
-                          (pour lecteur d'écran).</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row mb-1">
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" [(ngModel)]="compilateurVerbeux"
-                          (change)="onChangerCompilateurVerbeux()" id="ckCompilateurVerbeux">
-                        <label class="form-check-label" for="ckCompilateurVerbeux">Compilateur verbeux (utile au débogage de Donjon FI)</label>
-                      </div>
-                    </div>
-                  </div>
-
-                </ng-container>
-
-                <ng-container *ngIf="afficherConvertisseur">
-
-                  <h5 class="mt-3">Conversion Donjon V1 → V2</h5>
-                  <p>Cet outil vous aide à adapter vos anciens scénarios Donjon (de la version 0.4xx vers la version 2.0)
-                    <br><b>Important :</b> Pensez à prévoir au préalable une sauvegarde de votre scénario au cas où.
-                  </p>
-                  <div class="row">
-                    <div class="col-5">
-                      <h6>Étape 1 (automatique)</h6>
-                      Cette étape adapte automatiquement les éléments suivants:
-                        <ul>
-                          <li>Format des <b>règles avant/après</b></li>
-                          <li>Format des <b>actions simples</b> (celles qui commencent par « <code>le joueur peut …</code> »)</li>
-                          <li><b>Points virgules</b> en fin de ligne remplacés par des points.</li>
-                        </ul>
-                    </div>
-
-                    <div class= "col-7">
-                      <h6>Étape 2 (semi-automatique)</h6>
-                      <ul>
-                        <li>Cette étape adapte au nouveau format certaines des <b>réactions</b> des personnes néammoins une partie manuelle reste à faire.</li>
-                        <li>Seules les phrases commençant par « <code>sa réaction est</code> » et « <code>sa réaction concernant (sujet) est</code> » seront modifiées. Il faudra encore entourer les réactions des balises « <code>réactions de (personne):</code> » (…) « <code>fin réactions</code> ».)</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div class="row mb-2">
-                    <div class= "col-5">
-                      <button class="btn btn-primary ms-1" (click)="onConversionEtape1()"><i class="fas fa-rotate me-2"></i>Appliquer étape 1</button>
-                    </div>
-                    <div class= "col-7">
-                      <button class="btn btn-primary ms-1" (click)="onConversionEtape2()"><i class="fas fa-rotate me-2"></i>Appliquer étape 2</button>
-                    </div>
-                  </div>
-
-                </ng-container>
-
-                <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-                <div *ngIf="false && afficherSections" class="row mb-2">
-                  <div *ngIf="allPartiesIntitule?.length" class="col-12 col-md-4  pe-md-1 py-1">
-                    <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-select"
-                      name="choixPartie">
-                      <option [ngValue]="null">(tout le scénario)</option>
-                      <ng-container *ngFor="let intitule of allPartiesIntitule; index as i;">
-                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                          Partie « {{intitule}} »
-                        </option>
-                      </ng-container>
-                    </select>
-                  </div>
-
-                  <div *ngIf="allChapitresIntitule?.length" class="col-6 col-md-4 px-md-1 py-1 ">
-                    <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
-                      class="form-select" name="choixChapitre">
-                      <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}
-                      </option>
-                      <ng-container *ngFor="let intitule of allChapitresIntitule; index as i;">
-                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                          Chapitre « {{intitule}} »
-                        </option>
-                      </ng-container>
-                    </select>
-                  </div>
-
-                  <div *ngIf="allScenesIntitule?.length" class="col-6 col-md-4 ps-md-1 py-1">
-                    <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-select"
-                      name="choixScene">
-                      <option [ngValue]="null">
-                        {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
-                      </option>
-                      <ng-container *ngFor="let intitule of allScenesIntitule; index as i;">
-                        <option *ngIf="i != 0 || intitule != '(sans nom)'" [ngValue]="i">
-                          Scène « {{intitule}} »
-                        </option>
-                      </ng-container>
-                    </select>
-                  </div>
-
-                  <p *ngIf="!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length"
-                    class="font-italic ms-4">
-                    (Votre scénario n’est pas découpé en sections)
-                  </p>
-
-                </div>
-              </div>
-
-              <!-- CODE SOURCE (Scénario) -->
-              <div *ngIf="!sansMiseEnForme" class="rs2 max">
-                <div class="card max" style="height: 100%;">
-                  <ace #codeEditor spellcheck="true" contenteditable [config]="config"
-                    [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
-                </div>
-              </div>
-              <ng-container *ngIf="sansMiseEnForme">
-                <div class="rs2 max">
-                  <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true"
-                    [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
-                  </textarea>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-
-          <!-- TAB: ACTIONS (COMMANDES) -->
-          <div [style.display]="(tab === 'actions' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <h2>Actions de base</h2>
-            <p>Ces actions sont chargées automatiquement avant votre scénario afin que vous puissiez disposer d’actions de base pour votre jeu.</p>
-            <ul>
-              <li>Récupération des actions de base : <b>{{statutActions}}</b></li>
-              <li>Version chargée : <b>{{versionActions}}</b></li>
-              <li>Dernière tentative : <b>{{derniereTentativeFichierCommande}}</b></li>
-            </ul>
-            
-            <!-- charger actions.djn distant -->
-            <h3 class="mt-4">Actions originales</h3>
-            <button class="btn btn-primary ms-1" (click)="onRafraichirActions()"><i class="fas fa-rotate me-2"></i>Utiliser fichier actions original</button>
-
-            <!-- charger actions.djn local -->
-            <h3 class="mt-4">Actions personnalisées</h3>
-            <p>Vous pouvez utiliser votre propre fichier à la place du fichier original.
-              Vous pouvez ainsi avoir vos propres actions de base pour l’ensemble de vos jeux.
-              <br>Vous pouvez récupérer le fichier <code>actions.djn</code> original à l’adresse <a href="https://donjon.fi/creer/actions" target="_blank">donjon.fi/creer/actions</a> afin de l’adapter.
-            </p>
-            <p>Important: si vous utilisez votre propre fichier d’actions de base, pensez à remplacer le fichier <code>actions.djn</code> original par le vôtre lorsque vous publiez votre jeu sur un site web.</p>
-            <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
-              <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
-                title="Charger un scénario existant">Utiliser mon propre fichier actions</span><input type="file" accept=".djn,.txt"
-                style="display: none;" (change)="onChargerFichierActionsLocal($event.target)" onclick="this.value=null">
-            </label>
-          </div>
-
-          <!-- TAB: TESTER LE JEU -->
-          <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
-            <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)"></djn-lecteur>
-          </div>
-
-          <!-- TAB: APERÇU ÉLÉMENTS -->
-          <div *ngIf="tab === 'apercu'" class="card">
-            <div class="card-body">
-              <div *ngIf="compilationTerminee">
-                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs"
-                  [listes]="listes">
-                </app-apercu-monde>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB: VISUALISATION -->
-          <div *ngIf="tab === 'visualisation'" class="card">
-            <div class="card-body">
-              <div *ngIf="compilationTerminee">
-                <app-visualisation [jeu]="jeu">
-                </app-visualisation>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB: ANALYSE -->
-          <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">
-            <div class="card-body">
-
-              <div *ngIf="chargementActionsEnCours">
-                <p>Chargement des actions…
-                </p>
-                <div class="spinner-border text-primary" role="status">
-                  <span class="sr-only">Loading...</span>
-                </div>
-              </div>
-
-              <div *ngIf="compilationEnCours && !chargementActionsEnCours">
-                <p>Analyse en cours…
-                </p>
-                <div class="spinner-border text-primary" role="status">
-                  <span class="sr-only">Loading...</span>
-                </div>
-              </div>
-
-              <div *ngIf="compilationTerminee">
-
-                <h2>Résultat de l’analyse</h2>
-
-                <ng-container *ngIf="!codeSource || codeSource.trim() == ''">
-                  <div>
-                    <span class="text-warning">Moi je veux bien mais il n’y a aucun texte à analyser dans votre
-                      scénario. 🙄</span><br>
-                    <span class="text-primary">Pssst! Il est possible de charger un exemple pour
-                      commencer. 😉</span>
-                  </div>
-                </ng-container>
-                <ng-container *ngIf="codeSource && codeSource.trim() != '' && monde">
-                  <div class="text-warning" *ngIf="monde.lieux.length == 0">
-                    🙄 Je n’ai pas trouvé les lieux à visiter !
-                  </div>
-                  <div class="text-success" *ngIf="erreurs.length == 0 && messages.length == 0">
-                    😀 Super ! Je pense que j’ai tout compris !
-                  </div>
-                  <div class="text-warning" *ngIf="erreurs.length > 0 || messages.length > 0">
-                    😣 Aïe ! Il y a quelque chose qui n'a pas fonctionné. Je n'ai peut-être pas tout compris.
-                  </div>
-                </ng-container>
-
-                <code class="text-danger">
-                  <span *ngFor="let err of erreurs">
-                      {{err}}<br>
-                  </span>
-                </code>
-                <ul class="list-group mt-2">
-                  <li class="list-group-item p-1" *ngFor="let message of messages">
-
-                    <div class="d-flex mb-0">
-
-                      <div class="pe-1">
-                        <i *ngIf="message.type == EMessageAnalyse.conseil" class="fa-solid fa-circle-info me-2 text-info"></i>
-                        <span *ngIf="message.type == EMessageAnalyse.probleme" class="me-1">🤔</span>
-                        <i *ngIf="message.type == EMessageAnalyse.erreur" class="fa-solid fa-square-xmark me-2 text-danger"></i>  
-                        <b>{{message.titre}}</b>
-                      </div>
-                      <div class="ps-1 pe-1"> <small *ngIf="message.titreRoutine">→ {{message.titreRoutine}}</small></div>
-                    </div>
-
-                    <div *ngIf="!message.fichierAction">
-                      <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.numeroLigne)">{{message.numeroLigneFormate}}</button>&nbsp;</span>
-                      <small class="t-code">{{message.phrase.toString()}}</small>
-                    </div>
-
-                    <div *ngIf="message.fichierAction">
-                      <span class="pe-1">🚶‍♂️ {{message.numeroLigneFormate}}</span>
-                      <small class="t-code">{{message.phrase.toString()}}</small>
-                    </div>
-
-                    <p class="mb-0">
-                      <span [innerHTML]="message.htmlCorps"></span>
-                      <a class="ms-2" [href]="'https://donjon.fi/doc/v3/messages/' + message.code" target="_blank"><i class="fa-solid fa-square-arrow-up-right me-1"></i>wiki</a>
-                    </p>
-                  </li>
-                </ul>
-              
-              </div>
-            </div>
-          </div>
-
-
-        </div>
-      </div>
-    </div>
-  </div>
-</div>

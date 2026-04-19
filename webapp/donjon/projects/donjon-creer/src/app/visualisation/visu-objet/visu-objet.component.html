@@ -1,30 +1,50 @@
-<span *ngIf="objetPresent">
-  <a href="#" (click)="onObjetChoisi(objetPresent)">{{objetPresent.objet.intitule}}</a>
-  <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? ' (caché)':''}}</i>
-  <ul>
-    <li *ngIf="objetsSur.length">Dessus :
-      <ul *ngIf="objetsSur.length">
-        <li *ngFor="let objetSur of objetsSur">
-          <app-visu-objet [objetPresent]="objetSur" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+@if (objetPresent) {
+  <span>
+    <a href="#" (click)="onObjetChoisi(objetPresent)">{{objetPresent.objet.intitule}}</a>
+    <i>{{objetPresent.visible ? '':''}}{{objetPresent.cache ? ' (caché)':''}}</i>
+    <ul>
+      @if (objetsSur.length) {
+        <li>Dessus :
+          @if (objetsSur.length) {
+            <ul>
+              @for (objetSur of objetsSur; track objetSur) {
+                <li>
+                  <app-visu-objet [objetPresent]="objetSur" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+                </li>
+              }
+            </ul>
+          }
         </li>
-      </ul>
-    </li>
-    <li *ngIf="objetsDans.length">Dedans :
-      <ul *ngIf="objetsDans.length">
-        <li *ngFor="let objetDans of objetsDans">
-          <app-visu-objet [objetPresent]="objetDans" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+      }
+      @if (objetsDans.length) {
+        <li>Dedans :
+          @if (objetsDans.length) {
+            <ul>
+              @for (objetDans of objetsDans; track objetDans) {
+                <li>
+                  <app-visu-objet [objetPresent]="objetDans" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+                </li>
+              }
+            </ul>
+          }
         </li>
-      </ul>
-    </li>
-    <li *ngIf="objetsSous.length">Dessous :
-      <ul>
-        <li *ngFor="let objetSous of objetsSous">
-          <app-visu-objet [objetPresent]="objetSous" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+      }
+      @if (objetsSous.length) {
+        <li>Dessous :
+          <ul>
+            @for (objetSous of objetsSous; track objetSous) {
+              <li>
+                <app-visu-objet [objetPresent]="objetSous" [eju]="eju" (objetChoisi)="onObjetChoisi($event)"></app-visu-objet>
+              </li>
+            }
+          </ul>
         </li>
-      </ul>
-    </li>
-  </ul>
-</span>
-<span *ngIf="!objetPresent">
-  (aucun objet sélectionné)
-</span>
+      }
+    </ul>
+  </span>
+}
+@if (!objetPresent) {
+  <span>
+    (aucun objet sélectionné)
+  </span>
+}

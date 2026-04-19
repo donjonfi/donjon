@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -6,7 +6,7 @@ import { BalisesHtml } from '../utils/jeu/balises-html';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
-import { DOCUMENT } from '@angular/common';
+
 import { Choix } from '../models/compilateur/choix';
 import { ExprReg, Sauvegarde, StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';

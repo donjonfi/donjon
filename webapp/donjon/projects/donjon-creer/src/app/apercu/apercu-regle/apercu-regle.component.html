@@ -8,18 +8,26 @@
     </div>
 
     <div class="col">
-      <span *ngIf="regle.evenements?.length" class="evenement">
-        {{regle.typeRegle}}
-        <span *ngFor="let curEv of regle.evenements; index as i; first as first; last as last">
-          <!-- <span *ngIf="!first && !last">, </span> -->
-          <b *ngIf="!first"> ou </b>
-          {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}<span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</span>
-          <span class="preposition"> {{(curEv.prepositionCeci ? curEv.prepositionCeci :'')}}</span>          
-          <span class="objet"> {{curEv.ceci}}</span>
-          <span class="preposition"> {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.isCela ? 'et':''))}}</span>
-          <span *ngIf="curEv.isCela" class="objet"> {{curEv.cela}}</span>
+      @if (regle.evenements?.length) {
+        <span class="evenement">
+          {{regle.typeRegle}}
+          @for (curEv of regle.evenements; track curEv; let i = $index; let first = $first; let last = $last) {
+            <span>
+              <!-- <span *ngIf="!first && !last">, </span> -->
+              @if (!first) {
+                <b> ou </b>
+              }
+              {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}<span class="infinitif"> {{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</span>
+              <span class="preposition"> {{(curEv.prepositionCeci ? curEv.prepositionCeci :'')}}</span>
+              <span class="objet"> {{curEv.ceci}}</span>
+              <span class="preposition"> {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.isCela ? 'et':''))}}</span>
+              @if (curEv.isCela) {
+                <span class="objet"> {{curEv.cela}}</span>
+              }
+            </span>
+          }
         </span>
-      </span>
+      }
     </div>
 
   </div>
@@ -29,31 +37,43 @@
     <ul>
       <li>Type: <b>{{regle.typeRegle}}</b></li>
 
-      <li *ngIf="regle.evenements?.length">Événements :
-        <ul>
-          <li *ngFor="let curEv of regle.evenements; index as i;">
-            Événement {{(i+1)}} :
-            <ul>
-              <li>Infinitif : {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}{{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</li>
-              <li *ngIf="curEv.prepositionCeci">Preposition ceci : {{curEv.prepositionCeci}}</li>
-              <li *ngIf="curEv.ceci">
-                Ceci : {{curEv.ceci}} <i>{{(curEv.classeCeci ? '(classe)' : '')}}</i></li>
-              <li>Preposition cela : {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.cela ? 'et':''))}}</li>
-              <li *ngIf="curEv.cela">Cela : {{curEv.cela}} <i>{{(curEv.classeCela ? '(classe)' : '')}}</i></li>
+      @if (regle.evenements?.length) {
+        <li>Événements :
+          <ul>
+            @for (curEv of regle.evenements; track curEv; let i = $index) {
+              <li>
+                Événement {{(i+1)}} :
+                <ul>
+                  <li>Infinitif : {{(curEv.type == TypeEvenement.deplacement) ? 'un déplacement vers ' : ''}}{{(curEv.infinitif ? curEv.infinitif : (curEv.isCeci ? 'action impliquant' : 'action quelconque'))}}</li>
+                  @if (curEv.prepositionCeci) {
+                    <li>Preposition ceci : {{curEv.prepositionCeci}}</li>
+                  }
+                  @if (curEv.ceci) {
+                    <li>
+                      Ceci : {{curEv.ceci}} <i>{{(curEv.classeCeci ? '(classe)' : '')}}</i></li>
+                    }
+                    <li>Preposition cela : {{(curEv.prepositionCela ? curEv.prepositionCela : (curEv.cela ? 'et':''))}}</li>
+                    @if (curEv.cela) {
+                      <li>Cela : {{curEv.cela}} <i>{{(curEv.classeCela ? '(classe)' : '')}}</i></li>
+                    }
+                  </ul>
+                </li>
+              }
             </ul>
           </li>
-        </ul>
-      </li>
+        }
 
-      <li>Conséquences:
-        <ul>
-          <li *ngFor="let ins of regle.instructions; index as i">
-            Instruction {{(i+1)}} :
-            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-          </li>
-        </ul>
-      </li>
-    </ul>
+        <li>Conséquences:
+          <ul>
+            @for (ins of regle.instructions; track ins; let i = $index) {
+              <li>
+                Instruction {{(i+1)}} :
+                <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+              </li>
+            }
+          </ul>
+        </li>
+      </ul>
+    </div>
+
   </div>
-
-</div>

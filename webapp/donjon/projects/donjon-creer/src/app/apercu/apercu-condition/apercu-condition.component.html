@@ -1,19 +1,31 @@
 <ng-container>
-  <ul *ngIf="condition.condition">
-    <li>
-      <app-apercu-sujet [sujet]="condition.condition.sujet"></app-apercu-sujet>
-    </li>
-    <li>Verbe : {{condition.condition.verbe}}</li>
-    <li *ngIf="condition.condition.negation">Négation : {{condition.condition.negation}}</li>
-    <li *ngIf="condition.condition.complement && !condition.condition.sujetComplement">Complément : {{condition.condition.complement}}</li>
-    <li *ngIf="condition.condition.sujetComplement">
-      <app-apercu-sujet [sujet]="condition.condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
-    </li>
-  </ul>
-  <ul *ngIf="condition.sousConditions">
-    <li *ngFor="let sousCond of condition.sousConditions">
-        <b>{{sousCond.lienFrereAine}}</b>
-        <app-apercu-condition [condition]="sousCond"></app-apercu-condition>
-    </li>
-  </ul>
+  @if (condition.condition) {
+    <ul>
+      <li>
+        <app-apercu-sujet [sujet]="condition.condition.sujet"></app-apercu-sujet>
+      </li>
+      <li>Verbe : {{condition.condition.verbe}}</li>
+      @if (condition.condition.negation) {
+        <li>Négation : {{condition.condition.negation}}</li>
+      }
+      @if (condition.condition.complement && !condition.condition.sujetComplement) {
+        <li>Complément : {{condition.condition.complement}}</li>
+      }
+      @if (condition.condition.sujetComplement) {
+        <li>
+          <app-apercu-sujet [sujet]="condition.condition.sujetComplement" [titre]="'Complément'"></app-apercu-sujet>
+        </li>
+      }
+    </ul>
+  }
+  @if (condition.sousConditions) {
+    <ul>
+      @for (sousCond of condition.sousConditions; track sousCond) {
+        <li>
+          <b>{{sousCond.lienFrereAine}}</b>
+          <app-apercu-condition [condition]="sousCond"></app-apercu-condition>
+        </li>
+      }
+    </ul>
+  }
 </ng-container>

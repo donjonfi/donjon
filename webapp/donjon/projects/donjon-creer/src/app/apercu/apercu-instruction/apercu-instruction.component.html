@@ -1,63 +1,91 @@
-<ul *ngIf="!ins.condition && !ins.choix">
-  <ng-container *ngIf="ins.instruction">
-    <li>Action : {{ins.instruction.infinitif}}</li>
-    <li *ngIf="ins.instruction.sujet">
-      <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
-    </li>
-    <li *ngIf="ins.instruction.proprieteSujet">
-      <app-apercu-propriete-jeu [pro]="ins.instruction.proprieteSujet"></app-apercu-propriete-jeu>
-    </li>
-    <li *ngIf="ins.instruction.verbe">Verbe : {{ins.instruction.verbe}}</li>
-    <li *ngIf="ins.instruction.negation">Négation : {{ins.instruction.negation}}</li>
-    <li *ngIf="ins.instruction.preposition1">Préposition : {{ins.instruction.preposition1}}</li>
-    <li *ngIf="ins.instruction.complement1 && !ins.instruction.sujetComplement1">Complément :
-      {{ins.instruction.complement1}}</li>
-    <li *ngIf="ins.instruction.sujetComplement1">
-      <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
-    </li>
-  </ng-container>
-  <ng-container *ngIf="!ins.instruction">
-    <li><i class="text-error">Pas d’instruction</i></li>
-  </ng-container>
-
-</ul>
-
-<ul *ngIf="ins.condition">
-  <li>Condition :
-    <app-apercu-condition [condition]="ins.condition"></app-apercu-condition>
-  </li>
-
-  <li>Instructions (si condition remplie) :
-    <ul>
-      <li *ngFor="let ins of ins.instructionsSiConditionVerifiee; index as k">
-        Instruction {{(k+1)}} :
-        <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-      </li>
-    </ul>
-  </li>
-
-  <li *ngIf="ins.instructionsSiConditionPasVerifiee">Instructions (si condition <i>pas</i> remplie) :
-    <ul>
-      <li *ngFor="let ins of ins.instructionsSiConditionPasVerifiee; index as k">
-        Instruction {{(k+1)}} :
-        <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-      </li>
-    </ul>
-  </li>
-
-</ul>
-
-<div *ngIf="ins.choix">
+@if (!ins.condition && !ins.choix) {
   <ul>
-    <li>Action: choisir</li>
-    <li *ngFor="let choix of ins.choix; index as i">
-      Choix {{i+1}} : <span *ngFor="let valeur of choix.valeurs; index as j">{{(j > 0 ? ' ou ' : '') + valeur}}</span>
-      <ul>
-        <li *ngFor="let ins of choix.instructions; index as k">
-          Instruction {{(k+1)}} :
-          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+    @if (ins.instruction) {
+      <li>Action : {{ins.instruction.infinitif}}</li>
+      @if (ins.instruction.sujet) {
+        <li>
+          <app-apercu-sujet [sujet]="ins.instruction.sujet"></app-apercu-sujet>
         </li>
+      }
+      @if (ins.instruction.proprieteSujet) {
+        <li>
+          <app-apercu-propriete-jeu [pro]="ins.instruction.proprieteSujet"></app-apercu-propriete-jeu>
+        </li>
+      }
+      @if (ins.instruction.verbe) {
+        <li>Verbe : {{ins.instruction.verbe}}</li>
+      }
+      @if (ins.instruction.negation) {
+        <li>Négation : {{ins.instruction.negation}}</li>
+      }
+      @if (ins.instruction.preposition1) {
+        <li>Préposition : {{ins.instruction.preposition1}}</li>
+      }
+      @if (ins.instruction.complement1 && !ins.instruction.sujetComplement1) {
+        <li>Complément :
+        {{ins.instruction.complement1}}</li>
+      }
+      @if (ins.instruction.sujetComplement1) {
+        <li>
+          <app-apercu-sujet [sujet]="ins.instruction.sujetComplement1" [titre]="'Complément'"></app-apercu-sujet>
+        </li>
+      }
+    }
+    @if (!ins.instruction) {
+      <li><i class="text-error">Pas d’instruction</i></li>
+    }
+  </ul>
+}
+
+@if (ins.condition) {
+  <ul>
+    <li>Condition :
+      <app-apercu-condition [condition]="ins.condition"></app-apercu-condition>
+    </li>
+    <li>Instructions (si condition remplie) :
+      <ul>
+        @for (ins of ins.instructionsSiConditionVerifiee; track ins; let k = $index) {
+          <li>
+            Instruction {{(k+1)}} :
+            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+          </li>
+        }
       </ul>
     </li>
+    @if (ins.instructionsSiConditionPasVerifiee) {
+      <li>Instructions (si condition <i>pas</i> remplie) :
+      <ul>
+        @for (ins of ins.instructionsSiConditionPasVerifiee; track ins; let k = $index) {
+          <li>
+            Instruction {{(k+1)}} :
+            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+          </li>
+        }
+      </ul>
+    </li>
+  }
+</ul>
+}
+
+@if (ins.choix) {
+  <div>
+    <ul>
+      <li>Action: choisir</li>
+      @for (choix of ins.choix; track choix; let i = $index) {
+        <li>
+          Choix {{i+1}} : @for (valeur of choix.valeurs; track valeur; let j = $index) {
+          <span>{{(j > 0 ? ' ou ' : '') + valeur}}</span>
+        }
+        <ul>
+          @for (ins of choix.instructions; track ins; let k = $index) {
+            <li>
+              Instruction {{(k+1)}} :
+              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+            </li>
+          }
+        </ul>
+      </li>
+    }
   </ul>
 </div>
+}
