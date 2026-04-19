@@ -1,4 +1,4 @@
-﻿
+
 export const version = "3.4.0"
 export const versionNum = 30400;
 

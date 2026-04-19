@@ -61,6 +61,8 @@ if ($NouvelleVersion -notmatch '^\d+\.\d+\.\d+$') {
     exit 1
 }
 
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+
 $parts = $NouvelleVersion -split '\.'
 $major = [int]$parts[0]
 $minor = [int]$parts[1]
@@ -80,20 +82,20 @@ $PackageLock   = "package-lock.json"
 # 1. actions.djn
 $contenu = Get-Content $ActionsSource -Raw -Encoding UTF8
 $contenu = $contenu -replace '-- Version: [\d-]+', "-- Version: $dateAujourdhui-$versionNum"
-[System.IO.File]::WriteAllText((Resolve-Path $ActionsSource), $contenu, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText((Resolve-Path $ActionsSource), $contenu, $utf8NoBom)
 Write-Host "OK  $ActionsSource" -ForegroundColor Green
 
 # 2. constantes.ts
 $contenu = Get-Content $Constantes -Raw -Encoding UTF8
 $contenu = $contenu -replace 'export const version = "[^"]+"', "export const version = `"$NouvelleVersion`""
 $contenu = $contenu -replace 'export const versionNum = \d+;', "export const versionNum = $versionNum;"
-[System.IO.File]::WriteAllText((Resolve-Path $Constantes), $contenu, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText((Resolve-Path $Constantes), $contenu, $utf8NoBom)
 Write-Host "OK  $Constantes" -ForegroundColor Green
 
 # 3. package.json  (1re occurrence de "version")
 $contenu = Get-Content $PackageJson -Raw -Encoding UTF8
 $contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
-[System.IO.File]::WriteAllText((Resolve-Path $PackageJson), $contenu, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText((Resolve-Path $PackageJson), $contenu, $utf8NoBom)
 Write-Host "OK  $PackageJson" -ForegroundColor Green
 
 # 4. package-lock.json  (les 2 premières occurrences de "version" concernent le projet)
@@ -107,7 +109,7 @@ $lignes = $lignes | ForEach-Object {
         $_
     }
 }
-[System.IO.File]::WriteAllLines((Resolve-Path $PackageLock), $lignes, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllLines((Resolve-Path $PackageLock), $lignes, $utf8NoBom)
 Write-Host "OK  $PackageLock" -ForegroundColor Green
 
 # 5. Synchro actions.djn → creer / jouer / scenario_actions.ts
