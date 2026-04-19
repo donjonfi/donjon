@@ -64,11 +64,30 @@ export class Abreviations {
       return matchCollé[1] + ' ce dernier' + matchCollé[2];
     }
 
-    // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] ce dernier [reste]" (seulement si infinitif)
+    // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
     if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l'")) {
       if (/(?:er|ir|re)$/i.test(mots[1])) {
         const reste = mots.slice(2).join(' ');
-        return mots[1] + ' ce dernier' + (reste ? ' ' + reste : '');
+        let pronom: string;
+        if (mots[0] === 'la') pronom = 'cette dernière';
+        else if (mots[0] === 'les') pronom = 'ces derniers';
+        else pronom = 'ce dernier';
+        return mots[1] + ' ' + pronom + (reste ? ' ' + reste : '');
+      }
+    }
+
+    // "lui/leur [verbe-infinitif] [reste]" en tête
+    // sans argument : "[verbe] avec [pronom]"  — ex: "lui parler" → "parler avec ce dernier"
+    // avec argument : "[verbe] [objet] à [pronom]"  — ex: "lui montrer le coffre" → "montrer le coffre à ce dernier"
+    if (mots.length >= 2 && (mots[0] === 'lui' || mots[0] === 'leur')) {
+      if (/(?:er|ir|re)$/i.test(mots[1])) {
+        const reste = mots.slice(2).join(' ');
+        const pronom = mots[0] === 'leur' ? 'ces derniers' : 'ce dernier';
+        if (reste) {
+          return mots[1] + ' ' + reste + ' à ' + pronom;
+        } else {
+          return mots[1] + ' avec ' + pronom;
+        }
       }
     }
 

@@ -1,4 +1,5 @@
 import { TestUtils } from "../utils/test-utils";
+import { actions } from "./scenario_actions";
 
 // =====================================================
 // #174 — "ce dernier" et "le [verbe]"
@@ -153,6 +154,38 @@ describe('"ce dernier" — objet mentionné via [#] dans une description — #17
 
 });
 
+const scenarioContenant = `
+Le joueur se trouve dans la cuisine.
+La cuisine est un lieu.
+Le sac est un contenant dans la cuisine.
+Le sac est ouvert.
+La pomme rouge est un objet dans le sac.
+action examiner un contenant:
+  dire "Vous examinez [intitule ceci].{n}[lister objets dans ceci]".
+fin action
+action prendre un objet:
+  dire "Vous prenez [intitule ceci].{n}".
+fin action
+`;
+
+describe('"ce dernier" — objet dans un contenant listé via [lister contenu] — #174', () => {
+
+  it('après "examiner le sac", derniersElementIds contient la pomme rouge', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioContenant, false);
+    ctxPartie.com.executerCommande('examiner le sac', false);
+    const pomme = ctxPartie.jeu.objets.find(o => o.nom === 'pomme rouge');
+    expect(ctxPartie.jeu.derniersElementIds).toContain(pomme.id);
+  });
+
+  it('après "examiner le sac", "la prendre" prend la pomme rouge', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioContenant, false);
+    ctxPartie.com.executerCommande('examiner le sac', false);
+    const sortie = ctxPartie.com.executerCommande('la prendre', false);
+    expect(sortie.sortie).toContain('pomme rouge');
+  });
+
+});
+
 describe('"derniersElementIds" — persistance dans jeu — #174', () => {
 
   it('derniersElementIds est vide au départ', () => {
@@ -166,6 +199,79 @@ describe('"derniersElementIds" — persistance dans jeu — #174', () => {
     expect(ctxPartie.jeu.derniersElementIds.length).toBeGreaterThan(0);
     const pomme = ctxPartie.jeu.objets.find(o => o.nom === 'pomme');
     expect(ctxPartie.jeu.derniersElementIds).toContain(pomme.id);
+  });
+
+});
+
+// =====================================================
+// #174 — "lui", "elle", "leur" → dernier élément
+// =====================================================
+
+const scenarioPersonnes = actions + `
+Le joueur se trouve dans la clairière.
+La clairière est un lieu.
+Le druide est une personne vu dans la clairière.
+La druidesse est une personne vu dans la clairière.
+réactions du druide:
+  basique:
+    dire "Je connais les secrets de la forêt.{n}".
+fin réactions
+réactions de la druidesse:
+  basique:
+    dire "Je suis gardienne de ce lieu.{n}".
+fin réactions
+`;
+
+describe('"lui parler" — pronom indirect en tête résolu vers le dernier élément — #174', () => {
+
+  it('après "parler avec le druide", "lui parler" reparle au druide (masculin)', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec le druide', false);
+    const sortie = ctxPartie.com.executerCommande('lui parler', false);
+    expect(sortie.sortie).toContain('secrets de la forêt');
+  });
+
+  it('après "parler avec la druidesse", "lui parler" reparle à la druidesse (féminin)', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec la druidesse', false);
+    const sortie = ctxPartie.com.executerCommande('lui parler', false);
+    expect(sortie.sortie).toContain('gardienne de ce lieu');
+  });
+
+});
+
+describe('"parler avec lui/elle" — pronom tonique en complément résolu vers le dernier élément — #174', () => {
+
+  it('après "parler avec le druide", "parler avec lui" reparle au druide', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec le druide', false);
+    const sortie = ctxPartie.com.executerCommande('parler avec lui', false);
+    expect(sortie.sortie).toContain('secrets de la forêt');
+  });
+
+  it('après "parler avec la druidesse", "parler avec elle" reparle à la druidesse', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec la druidesse', false);
+    const sortie = ctxPartie.com.executerCommande('parler avec elle', false);
+    expect(sortie.sortie).toContain('gardienne de ce lieu');
+  });
+
+});
+
+describe('"leur parler" — pronom indirect pluriel résolu vers le dernier élément — #174', () => {
+
+  it('après "parler avec le druide", "leur parler" reparle au druide', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec le druide', false);
+    const sortie = ctxPartie.com.executerCommande('leur parler', false);
+    expect(sortie.sortie).toContain('secrets de la forêt');
+  });
+
+  it('après "parler avec la druidesse", "leur parler" reparle à la druidesse', () => {
+    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioPersonnes, false);
+    ctxPartie.com.executerCommande('parler avec la druidesse', false);
+    const sortie = ctxPartie.com.executerCommande('leur parler', false);
+    expect(sortie.sortie).toContain('gardienne de ce lieu');
   });
 
 });

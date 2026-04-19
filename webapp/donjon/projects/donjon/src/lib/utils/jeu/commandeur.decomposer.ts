@@ -21,17 +21,52 @@ export class CommandeurDecomposer {
   private static resoudreDernier(commande: string, jeu: Jeu): string {
     let cmd = commande;
 
-    // "l'[verbe] [reste]" collé → "[verbe] ce dernier [reste]"
+    // résoudre le pronom selon genre du dernier élément (ou de l'article si connu)
+    const pronoms = (art: string): string => {
+      if (art === 'la') return 'cette dernière';
+      if (art === 'les') return 'ces derniers';
+      if (art === "l'" || art === "l\u2019") {
+        if (jeu.derniersElementIds.length > 0) {
+          const idEl = jeu.derniersElementIds[0];
+          const elEl = jeu.objets.find(o => o.id === idEl) ?? jeu.lieux.find(l => l.id === idEl);
+          if (elEl && elEl.genre === Genre.f) return 'cette dernière';
+        }
+      }
+      return 'ce dernier';
+    };
+
+    // "l'[verbe] [reste]" collé → "[verbe] [pronom] [reste]"
     const matchCollé = /^l(?:'|\u2019)(\S+(?:er|ir|re))(.*)$/i.exec(cmd);
     if (matchCollé) {
-      cmd = matchCollé[1] + ' ce dernier' + matchCollé[2];
+      cmd = matchCollé[1] + ' ' + pronoms("l'") + matchCollé[2];
     } else {
-      // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] ce dernier [reste]" (seulement si infinitif)
+      // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
       const matchLeVerbe = /^(le|la|les|l(?:'|\u2019)) (\S+(?:er|ir|re))(.*)$/i.exec(cmd);
       if (matchLeVerbe) {
-        cmd = matchLeVerbe[2] + ' ce dernier' + matchLeVerbe[3];
+        cmd = matchLeVerbe[2] + ' ' + pronoms(matchLeVerbe[1].toLowerCase()) + matchLeVerbe[3];
       }
     }
+
+    // "lui/leur [verbe-infinitif] [reste]" en tête
+    // sans argument : "[verbe] avec [pronom]"   (ex: "lui parler" → "parler avec ce dernier")
+    // avec argument : "[verbe] [objet] à [pronom]"  (ex: "lui montrer le coffre" → "montrer le coffre à ce dernier")
+    const matchLuiLeur = /^(lui|leur) (\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+    if (matchLuiLeur) {
+      const pron = matchLuiLeur[1].toLowerCase() === 'leur' ? 'ces derniers' : pronoms("l'");
+      const rest = matchLuiLeur[3].trim();
+      if (rest) {
+        cmd = matchLuiLeur[2] + matchLuiLeur[3] + ' à ' + pron;
+      } else {
+        cmd = matchLuiLeur[2] + ' avec ' + pron;
+      }
+    }
+
+    // pronoms toniques/indirects en complément → pronom de référence accordé en genre
+    cmd = cmd.replace(/\blui\b/gi, pronoms("l'"));
+    cmd = cmd.replace(/\belle\b/gi, 'cette dernière');
+    cmd = cmd.replace(/\beux\b/gi, 'ces derniers');
+    cmd = cmd.replace(/\belles\b/gi, 'ces dernières');
+    cmd = cmd.replace(/\bleur\b/gi, 'ces derniers');
 
     // "ce dernier / cette dernière / ces derniers" → "[article] [nom]"
     const reDernier = /\b(ce dernier|cette derni(?:è|e)re|ces derniers|ces derni(?:è|e)res)\b/i;
