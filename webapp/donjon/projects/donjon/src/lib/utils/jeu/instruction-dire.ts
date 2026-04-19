@@ -640,6 +640,7 @@ export class InstructionDire {
           // l’objet a été mentionné et vu par le joueur
           this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
           idElementsDejaMentionnes.push(obj.id);
+          this.jeu.derniersElementIds = [obj.id];
 
           // ajouter « (porté) » aux objets portés
           if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.enfileID)) {
@@ -819,6 +820,7 @@ export class InstructionDire {
           // l’objet a été mentionné et vu par le joueur
           this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
           idElementsDejaMentionnes.push(obj.id);
+          this.jeu.derniersElementIds = [obj.id];
           // ajouter l’intitulé de l’objet à la liste
           resultat.sortie += this.eju.calculerIntituleElement(obj, false, false);
           if (curObjIndex < (nbObjetsApercuAuto - 1)) {
