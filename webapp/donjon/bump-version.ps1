@@ -99,17 +99,18 @@ $contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVers
 Write-Host "OK  $PackageJson" -ForegroundColor Green
 
 # 4. package-lock.json  (les 2 premières occurrences de "version" concernent le projet)
-$lignes = Get-Content $PackageLock -Encoding UTF8
-$compteur = 0
-$lignes = $lignes | ForEach-Object {
-    if ($compteur -lt 2 -and $_ -match '^\s+"version": "') {
-        $compteur++
-        $_ -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
+$contenu = Get-Content $PackageLock -Raw -Encoding UTF8
+$script:compteurLock = 0
+$contenu = [regex]::Replace($contenu, '"version": "[^"]+"', {
+    param($m)
+    if ($script:compteurLock -lt 2) {
+        $script:compteurLock++
+        "`"version`": `"$NouvelleVersion`""
     } else {
-        $_
+        $m.Value
     }
-}
-[System.IO.File]::WriteAllLines((Resolve-Path $PackageLock), $lignes, $utf8NoBom)
+})
+[System.IO.File]::WriteAllText((Resolve-Path $PackageLock), $contenu, $utf8NoBom)
 Write-Host "OK  $PackageLock" -ForegroundColor Green
 
 # 5. Synchro actions.djn → creer / jouer / scenario_actions.ts
