@@ -405,6 +405,7 @@ export class Commandeur {
         // index sera toujours 0 étant donné la manip ci-dessus.
         const actionChoisie = new ActionCeciCela(candidatActionChoisi.action, (candidatActionChoisi.ceci ? candidatActionChoisi.ceci[0] : null), (candidatActionChoisi.cela ? candidatActionChoisi.cela[0] : null));
 
+
         // plus de question en suspend à destination du joueur
         ctx.questions = undefined;
 
@@ -487,6 +488,21 @@ export class Commandeur {
     this.jeu.tamponInterruptions.push(InterruptionsUtils.creerInterruptionContexteTourOuRoutine(tour, TypeContexte.routine));
   }
 
+  private mettreAJourDerniersElementIds(actionChoisie: ActionCeciCela): void {
+    const ids: number[] = [];
+    const ceciEl = actionChoisie.ceci as any;
+    if (ceciEl && ceciEl !== this.jeu.joueur && typeof ceciEl.id === 'number') {
+      ids.push(ceciEl.id);
+    }
+    const celaEl = actionChoisie.cela as any;
+    if (celaEl && celaEl !== this.jeu.joueur && typeof celaEl.id === 'number' && !ids.includes(celaEl.id)) {
+      ids.push(celaEl.id);
+    }
+    if (ids.length > 0) {
+      this.jeu.derniersElementIds = ids;
+    }
+  }
+
   /**
    * Essayer de trouver une action correspondant à la commande.
    * Si une action est trouvée, elle est exécutée.
@@ -502,6 +518,7 @@ export class Commandeur {
     if (!ctxCmd.commandeValidee) {
       this.chercherParmiLesActions(ctxCmd.candidats[indexCandidat], ctxCmd);
       if (ctxCmd.actionChoisie) {
+        this.mettreAJourDerniersElementIds(ctxCmd.actionChoisie);
         this.comTour.demarrerNouveauTour(ctxCmd);
       } else if (ctxCmd.verbesSimilaires) {
         // correction infinitif déjà sélectionnée
@@ -510,6 +527,7 @@ export class Commandeur {
           console.warn(`Verbe similaire choisi: ${ctxCmd.candidats[indexCandidat].els.infinitif}`);
           this.chercherParmiLesActions(ctxCmd.candidats[indexCandidat], ctxCmd);
           if (ctxCmd.actionChoisie) {
+            this.mettreAJourDerniersElementIds(ctxCmd.actionChoisie);
             this.comTour.demarrerNouveauTour(ctxCmd);
           }
           // correction infinitif à proposer

@@ -10,4 +10,5 @@ export class Parametres {
     public activerAudio = false;
     public activerRemplacementDestinationDeplacements = true;
     public activerSynonymesAuto = true;
+    public activerChoixNumeriques = false;
 }

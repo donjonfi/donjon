@@ -353,7 +353,7 @@ export class Conjugaison {
 
   public static verbeAvecAuxiliaireEtre(infinitif: string, verbePronominal: boolean) {
     // voix pronominale et pronominaux
-    if (verbePronominal || /^(se |s’|s')(.+)$/.test(infinitif)) {
+    if (verbePronominal || /^(se |s'|s\u2019)(.+)$/.test(infinitif)) {
       return true;
       // autres
     } else {

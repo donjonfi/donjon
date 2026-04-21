@@ -86,7 +86,7 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
 
 describe('Epressions régulières − Complément instruction: Phrase simple avec un verbe conjugé', () => {
 
-  // [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n’|n'] ([se] verbe conjugé)(4) [pas|plus]\(5) complément(6).
+  // [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n'|n\u2019|] ([se] verbe conjugé)(4) [pas|plus]\(5) complément(6).
 
   it('Phrase:  « la porte secrète n’est plus fermée »', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("la porte secrète n’est plus fermée");

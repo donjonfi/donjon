@@ -57,6 +57,44 @@ export class Abreviations {
     }
 
     let mots = commandeModifiee.split(' ');
+
+    // "l'[abrev/verbe]" collé (ex: "l'x truc", "l're", "l'ouvrir avec la clé") → "[verbe] ce dernier [reste]"
+    const matchLApostrophe = /^l(?:'|\u2019)(\S+)(.*)$/i.exec(commandeModifiee);
+    if (matchLApostrophe) {
+      const expanded = Abreviations.premierMotCommande(matchLApostrophe[1], false, abreviations, 2);
+      if (/(?:er|ir|re)$/i.test(expanded)) {
+        return expanded + ' ce dernier' + matchLApostrophe[2];
+      }
+    }
+
+    // "le/la/les/l' [abrev/verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
+    if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l'")) {
+      const verbe = Abreviations.premierMotCommande(mots[1], false, abreviations, 2);
+      if (/(?:er|ir|re)$/i.test(verbe)) {
+        const reste = mots.slice(2).join(' ');
+        let pronom: string;
+        if (mots[0] === 'la') pronom = 'cette dernière';
+        else if (mots[0] === 'les') pronom = 'ces derniers';
+        else pronom = 'ce dernier';
+        return verbe + ' ' + pronom + (reste ? ' ' + reste : '');
+      }
+    }
+
+    // "lui/leur [verbe-infinitif] [reste]" en tête
+    // sans argument : "[verbe] avec [pronom]"  — ex: "lui parler" → "parler avec ce dernier"
+    // avec argument : "[verbe] [objet] à [pronom]"  — ex: "lui montrer le coffre" → "montrer le coffre à ce dernier"
+    if (mots.length >= 2 && (mots[0] === 'lui' || mots[0] === 'leur')) {
+      if (/(?:er|ir|re)$/i.test(mots[1])) {
+        const reste = mots.slice(2).join(' ');
+        const pronom = mots[0] === 'leur' ? 'ces derniers' : 'ce dernier';
+        if (reste) {
+          return mots[1] + ' ' + reste + ' à ' + pronom;
+        } else {
+          return mots[1] + ' avec ' + pronom;
+        }
+      }
+    }
+
     if (mots.length > 0) {
       let premierMotComplet = Abreviations.premierMotCommande(mots[0], true, abreviations, mots.length);
       let deuxiemeMotComplet: string = null;

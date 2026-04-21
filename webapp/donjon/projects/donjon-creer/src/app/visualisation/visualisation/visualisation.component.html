@@ -7,22 +7,26 @@
         <div class="row align-items-center">
           <label for="choixLieu" class="col-auto col-form-label">Lieu : </label>
           <select [(ngModel)]="curLieu" class="col form-select" id="choixLieu">
-            <option *ngFor="let lieu of jeu.lieux" class="list-group-item" [ngValue]="lieu">
-              {{lieu.intitule}}
-            </option>
+            @for (lieu of jeu.lieux; track lieu) {
+              <option class="list-group-item" [ngValue]="lieu">
+                {{lieu.intitule}}
+              </option>
+            }
           </select>
         </div>
         <app-visu-lieu [eju]="eju" [curLieu]="curLieu" [etats]="jeu.etats" (lieuChoisi)="onLieuChoisi($event)"
-          (objetChoisi)="onObjetChoisi($event)"></app-visu-lieu>
+        (objetChoisi)="onObjetChoisi($event)"></app-visu-lieu>
       </div>
     </div>
   </div>
   <div class="col-6">
     <div class="card">
-      <div *ngIf="curObjet" class="card-body">
-        <h3>Détail sélection</h3>
-        <app-visu-detail-objet [objetVisible]="curObjet" [eju]="eju" [etats]="jeu.etats"></app-visu-detail-objet>
-      </div>
+      @if (curObjet) {
+        <div class="card-body">
+          <h3>Détail sélection</h3>
+          <app-visu-detail-objet [objetVisible]="curObjet" [eju]="eju" [etats]="jeu.etats"></app-visu-detail-objet>
+        </div>
+      }
     </div>
   </div>
 </div>

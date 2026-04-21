@@ -1,86 +1,131 @@
 <h2>Éléments du donjon</h2>
-<p *ngIf="!monde">Veuillez commencer par interpréter le code.</p>
-<div *ngIf="monde">
-
-  <h3>Lieux</h3>
-  <p *ngIf="monde.lieux && monde.lieux.length == 0">Aucun lieu trouvé.</p>
-  <ul>
-    <li *ngFor="let el of monde.lieux">
-      <app-apercu-lieu [el]="el" [estLieu]="true"></app-apercu-lieu>
-    </li>
-  </ul>
-
-  <h3>Portes et obstacles</h3>
-  <p *ngIf="monde.portesEtObstacles && monde.portesEtObstacles.length == 0">Aucun obstacle trouvé.</p>
-  <ul>
-    <li *ngFor="let el of monde.portesEtObstacles">
-      <app-apercu-objet [el]="el"></app-apercu-objet>
-    </li>
-  </ul>
-
-  <h3>Objets, animaux et humains</h3>
-  <p *ngIf="monde.classiques && monde.classiques.length == 0">Aucun objet trouvé.</p>
-  <ul>
-    <li *ngFor="let el of monde.classiques">
-      <app-apercu-objet [el]="el"></app-apercu-objet>
-    </li>
-  </ul>
-
-  <h3>Éléments spéciaux</h3>
-  <p *ngIf="monde.speciaux && monde.speciaux.length == 0">Aucun élément spécial trouvé.</p>
-  <ul>
-    <li *ngFor="let el of monde.speciaux">
-      <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
-    </li>
-  </ul>
-
-</div>
+@if (!monde) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
+@if (monde) {
+  <div>
+    <h3>Lieux</h3>
+    @if (monde.lieux && monde.lieux.length == 0) {
+      <p>Aucun lieu trouvé.</p>
+    }
+    <ul>
+      @for (el of monde.lieux; track el) {
+        <li>
+          <app-apercu-lieu [el]="el" [estLieu]="true"></app-apercu-lieu>
+        </li>
+      }
+    </ul>
+    <h3>Portes et obstacles</h3>
+    @if (monde.portesEtObstacles && monde.portesEtObstacles.length == 0) {
+      <p>Aucun obstacle trouvé.</p>
+    }
+    <ul>
+      @for (el of monde.portesEtObstacles; track el) {
+        <li>
+          <app-apercu-objet [el]="el"></app-apercu-objet>
+        </li>
+      }
+    </ul>
+    <h3>Objets, animaux et humains</h3>
+    @if (monde.classiques && monde.classiques.length == 0) {
+      <p>Aucun objet trouvé.</p>
+    }
+    <ul>
+      @for (el of monde.classiques; track el) {
+        <li>
+          <app-apercu-objet [el]="el"></app-apercu-objet>
+        </li>
+      }
+    </ul>
+    <h3>Éléments spéciaux</h3>
+    @if (monde.speciaux && monde.speciaux.length == 0) {
+      <p>Aucun élément spécial trouvé.</p>
+    }
+    <ul>
+      @for (el of monde.speciaux; track el) {
+        <li>
+          <app-apercu-element-generique [el]="el"></app-apercu-element-generique>
+        </li>
+      }
+    </ul>
+  </div>
+}
 
 <h2>Concepts</h2>
-<p *ngIf="!monde.concepts">Veuillez commencer par interpréter le code.</p>
+@if (!monde.concepts) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
 
-<p *ngIf="monde.concepts && monde.concepts.length == 0">Aucun concept trouvé.</p>
+@if (monde.concepts && monde.concepts.length == 0) {
+  <p>Aucun concept trouvé.</p>
+}
 <ul>
-  <li *ngFor="let concept of monde.concepts">
-    <app-apercu-element-generique [el]="concept"></app-apercu-element-generique>
-  </li>
+  @for (concept of monde.concepts; track concept) {
+    <li>
+      <app-apercu-element-generique [el]="concept"></app-apercu-element-generique>
+    </li>
+  }
 </ul>
 
 <h2>Compteurs</h2>
-<p *ngIf="!compteurs">Veuillez commencer par interpréter le code.</p>
+@if (!compteurs) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
 
-<p *ngIf="compteurs && compteurs.length == 0">Aucun compteur trouvé.</p>
+@if (compteurs && compteurs.length == 0) {
+  <p>Aucun compteur trouvé.</p>
+}
 <ul>
-  <li *ngFor="let compteur of compteurs">
-    <app-apercu-element-generique [el]="compteur"></app-apercu-element-generique>
-  </li>
+  @for (compteur of compteurs; track compteur) {
+    <li>
+      <app-apercu-element-generique [el]="compteur"></app-apercu-element-generique>
+    </li>
+  }
 </ul>
 
 <h2>Listes</h2>
-<p *ngIf="!listes">Veuillez commencer par interpréter le code.</p>
+@if (!listes) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
 
-<p *ngIf="listes && listes.length == 0">Aucune liste trouvée.</p>
+@if (listes && listes.length == 0) {
+  <p>Aucune liste trouvée.</p>
+}
 <ul>
-  <li *ngFor="let liste of listes">
-    <app-apercu-element-generique [el]="liste"></app-apercu-element-generique>
-  </li>
+  @for (liste of listes; track liste) {
+    <li>
+      <app-apercu-element-generique [el]="liste"></app-apercu-element-generique>
+    </li>
+  }
 </ul>
 
 <h2>Règles</h2>
-<p *ngIf="!regles">Veuillez commencer par interpréter le code.</p>
+@if (!regles) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
 
-<p *ngIf="regles && regles.length == 0">Aucune règle trouvée.</p>
+@if (regles && regles.length == 0) {
+  <p>Aucune règle trouvée.</p>
+}
 <ul>
-  <li *ngFor="let regle of regles">
-    <app-apercu-regle [regle]="regle"></app-apercu-regle>
-  </li>
+  @for (regle of regles; track regle) {
+    <li>
+      <app-apercu-regle [regle]="regle"></app-apercu-regle>
+    </li>
+  }
 </ul>
 
 <h2>Actions</h2>
-<p *ngIf="!actions">Veuillez commencer par interpréter le code.</p>
-<p *ngIf="actions && actions.length == 0">Aucune action trouvée.</p>
+@if (!actions) {
+  <p>Veuillez commencer par interpréter le code.</p>
+}
+@if (actions && actions.length == 0) {
+  <p>Aucune action trouvée.</p>
+}
 <ul>
-  <li *ngFor="let action of actions">
-    <app-apercu-action [action]="action"></app-apercu-action>
-  </li>
+  @for (action of actions; track action) {
+    <li>
+      <app-apercu-action [action]="action"></app-apercu-action>
+    </li>
+  }
 </ul>

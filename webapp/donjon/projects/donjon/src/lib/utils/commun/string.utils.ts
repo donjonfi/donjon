@@ -88,7 +88,7 @@ export class StringUtils {
         .replace(/ô/g, 'o')
         .replace(/ç/g, 'c')
         // retirer déterminant qui débute la chaîne
-        .replace(/^(un |une |des |le |la |l'|l’|les )/, '');
+        .replace(/^(un |une |des |le |la |l'|l\u2019|les )/, '');
     }
     return retVal;
   }

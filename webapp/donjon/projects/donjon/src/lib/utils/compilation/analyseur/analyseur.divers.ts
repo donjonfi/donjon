@@ -127,6 +127,12 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerSynonymesAuto = isActiver;
           break;
 
+        case 'choix numeriques':
+        case 'choix numerotes':
+        case 'numerotation des choix':
+          ctxAnalyse.parametres.activerChoixNumeriques = isActiver;
+          break;
+
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,

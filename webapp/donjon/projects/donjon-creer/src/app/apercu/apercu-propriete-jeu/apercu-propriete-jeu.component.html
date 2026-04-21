@@ -1,12 +1,20 @@
 <!-- (Nombre de) Propriété élément -->
-<ng-container *ngIf="pro.type == TypeProprieteJeu.proprieteElement || pro.type == TypeProprieteJeu.nombreDeProprieteElement">
-  Propriété : <span *ngIf="pro.type == TypeProprieteJeu.nombreDeProprieteElement">nombre {{getDe(pro.intituleProprieteElement.nom)}}</span>{{pro.intituleProprieteElement}} → {{pro.intituleElement}}
-</ng-container>
+@if (pro.type == TypeProprieteJeu.proprieteElement || pro.type == TypeProprieteJeu.nombreDeProprieteElement) {
+  Propriété : @if (pro.type == TypeProprieteJeu.nombreDeProprieteElement) {
+  <span>nombre {{getDe(pro.intituleProprieteElement.nom)}}</span>
+  }{{pro.intituleProprieteElement}} → {{pro.intituleElement}}
+}
 
 <!-- nombre de Classe (position) -->
-<ng-container *ngIf="(pro.type == TypeProprieteJeu.nombreDeClasseAttributs || pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition)">
-  Propriété : nombre {{getDe(pro.intituleClasse) + pro.intituleClasse}} <i *ngIf="pro.nomsEtats?.length > 0"> {{pro.nomsEtats[0]}}<span *ngIf="pro.nomsEtats.length > 1"> et {{pro.nomsEtats[1]}}</span></i>
-  <span *ngIf="pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition">
+@if ((pro.type == TypeProprieteJeu.nombreDeClasseAttributs || pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition)) {
+  Propriété : nombre {{getDe(pro.intituleClasse) + pro.intituleClasse}} @if (pro.nomsEtats?.length > 0) {
+  <i> {{pro.nomsEtats[0]}}@if (pro.nomsEtats.length > 1) {
+    <span> et {{pro.nomsEtats[1]}}</span>
+  }</i>
+}
+@if (pro.type == TypeProprieteJeu.nombreDeClasseAttributsPosition) {
+  <span>
     {{getPrepositionSpatiale(pro.prepositionSpatiale)}} {{pro.intituleElement}}
   </span>
-</ng-container>
+}
+}

@@ -3,9 +3,10 @@ import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { ActionsUtils } from "./actions-utils";
 import { CandidatCommande } from "../../models/jouer/candidat-commande";
 import { ContexteCommande } from "../../models/jouer/contexte-commande";
+import { Genre } from "../../models/commun/genre.enum";
+import { Jeu } from "../../models/jeu/jeu";
 import { MotUtils } from "../commun/mot-utils";
 import { PhraseUtils } from "../commun/phrase-utils";
-import { Jeu } from "../../models/jeu/jeu";
 
 export class CommandeurDecomposer {
 
@@ -16,10 +17,71 @@ export class CommandeurDecomposer {
    * Le score est basé sur le nombre d’arguments et la correspondance 
    * entre les arguments et les éléments existants dans le jeu.
    */
+  /** Résout "ce dernier/cette dernière/ces derniers" et "le [verbe]" avant parsing. */
+  private static resoudreDernier(commande: string, jeu: Jeu): string {
+    let cmd = commande;
+
+    // résoudre le pronom selon genre du dernier élément (ou de l'article si connu)
+    const pronoms = (art: string): string => {
+      if (art === 'la') return 'cette dernière';
+      if (art === 'les') return 'ces derniers';
+      if (art === "l'" || art === "l\u2019") {
+        if (jeu.derniersElementIds.length > 0) {
+          const idEl = jeu.derniersElementIds[0];
+          const elEl = jeu.objets.find(o => o.id === idEl) ?? jeu.lieux.find(l => l.id === idEl);
+          if (elEl && elEl.genre === Genre.f) return 'cette dernière';
+        }
+      }
+      return 'ce dernier';
+    };
+
+    // "l'[verbe] [reste]" collé → "[verbe] [pronom] [reste]"
+    const matchCollé = /^l(?:'|\u2019)(\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+    if (matchCollé) {
+      cmd = matchCollé[1] + ' ' + pronoms("l'") + matchCollé[2];
+    } else {
+      // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
+      const matchLeVerbe = /^(le|la|les|l(?:'|\u2019)) (\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+      if (matchLeVerbe) {
+        cmd = matchLeVerbe[2] + ' ' + pronoms(matchLeVerbe[1].toLowerCase()) + matchLeVerbe[3];
+      }
+    }
+
+    // "lui/leur [verbe-infinitif] [reste]" en tête
+    // sans argument : "[verbe] avec [pronom]"   (ex: "lui parler" → "parler avec ce dernier")
+    // avec argument : "[verbe] [objet] à [pronom]"  (ex: "lui montrer le coffre" → "montrer le coffre à ce dernier")
+    const matchLuiLeur = /^(lui|leur) (\S+(?:er|ir|re))(.*)$/i.exec(cmd);
+    if (matchLuiLeur) {
+      const pron = matchLuiLeur[1].toLowerCase() === 'leur' ? 'ces derniers' : pronoms("l'");
+      const rest = matchLuiLeur[3].trim();
+      if (rest) {
+        cmd = matchLuiLeur[2] + matchLuiLeur[3] + ' à ' + pron;
+      } else {
+        cmd = matchLuiLeur[2] + ' avec ' + pron;
+      }
+    }
+
+    // pronoms toniques/indirects en complément → pronom de référence accordé en genre
+    cmd = cmd.replace(/\blui\b/gi, pronoms("l'"));
+    cmd = cmd.replace(/\belle\b/gi, 'cette dernière');
+    cmd = cmd.replace(/\beux\b/gi, 'ces derniers');
+    cmd = cmd.replace(/\belles\b/gi, 'ces dernières');
+    cmd = cmd.replace(/\bleur\b/gi, 'ces derniers');
+
+    // "ce dernier / cette dernière / ces derniers" → "[article] [nom]"
+    const reDernier = /\b(ce dernier|cette derni(?:è|e)re|ces derniers|ces derni(?:è|e)res)\b/i;
+    if (!reDernier.test(cmd) || jeu.derniersElementIds.length === 0) return cmd;
+    const id = jeu.derniersElementIds[0];
+    const el = jeu.objets.find(o => o.id === id) ?? jeu.lieux.find(l => l.id === id);
+    if (!el) return cmd;
+    const article = el.genre === Genre.f ? 'la ' : 'le ';
+    return cmd.replace(reDernier, article + el.nom);
+  }
+
   public static decomposerCommande(commande: string, jeu: Jeu, eju: ElementsJeuUtils, act: ActionsUtils): ContexteCommande {
     // 0. COMMANDE BRUTE
     let ctx = new ContexteCommande();
-    ctx.brute = commande;
+    ctx.brute = CommandeurDecomposer.resoudreDernier(commande, jeu);
     // 1. COMMANDE DÉCOMPOSÉE EN ÉLÉMENTS DE PHRASE
     ctx.candidats = PhraseUtils.obtenirLesCommandesPossibles(ctx.brute);
 
@@ -166,7 +228,7 @@ export class CommandeurDecomposer {
         // préposition après parler
         if (candidat.els.preposition0) {
           // du/de/des/à propos/concernant
-          if (candidat.els.preposition0.match(/(du|de(?: la| l(?:’|'))?|des|d(?:’|')(?:un|une)?|à propos|concernant)/)) {
+          if (candidat.els.preposition0.match(/(du|de(?: la| l(?:'|\u2019))?|des|d(?:'|\u2019)(?:un|une)?|à propos|concernant)/)) {
             // préposition 1
             if (candidat.els.preposition1) {
               // avec/à/au/aux
@@ -261,7 +323,7 @@ export class CommandeurDecomposer {
       case 'offrir':
       case 'montrer':
         // A. DEMANDER SUJET *À* INTERLOCUTEUR
-        if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d’|du|des/)) {
+        if (!candidat.els.preposition0 || candidat.els.preposition0.match(/de|d'|d\u2019|du|des/)) {
           // préposition
           if (candidat.els.preposition1) {
             // prépositon (à/au/aux)
@@ -309,7 +371,7 @@ export class CommandeurDecomposer {
                 candidat.els.sujet = sujet;
                 candidat.els.sujetComplement1 = interlocuteur;
                 candidat.score += 25;
-              } else if (candidat.els.preposition1.match(/de|d'|d’|du|des/)) {
+              } else if (candidat.els.preposition1.match(/de|d'|d\u2019|du|des/)) {
                 // changer l'ordre, peut être ambigu donc peu de points en plus
                 const interlocuteur = candidat.els.sujet;
                 const sujet = candidat.els.sujetComplement1;

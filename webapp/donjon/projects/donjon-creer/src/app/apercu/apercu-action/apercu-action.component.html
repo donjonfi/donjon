@@ -11,63 +11,89 @@
     <div class="col">
       <span class="infinitif"> {{action.infinitif}}</span>
 
-      <span *ngIf="action.ceci">
-        ceci (<span
-          class="objet">{{action.cibleCeci.nom}}<span *ngIf="action.cibleCeci.epithete" class="epithete"> {{action.cibleCeci.epithete}}</span></span>)
+      @if (action.ceci) {
+        <span>
+          ceci (<span
+          class="objet">{{action.cibleCeci.nom}}@if (action.cibleCeci.epithete) {
+          <span class="epithete"> {{action.cibleCeci.epithete}}</span>
+        }</span>)
       </span>
+    }
 
-      <span *ngIf="action.cela">
+    @if (action.cela) {
+      <span>
         cela (<span
-          class="objet">{{action.cibleCela.nom}}<span *ngIf="action.cibleCela.epithete" class="epithete"> {{action.cibleCela.epithete}}</span></span>)
-      </span>
+        class="objet">{{action.cibleCela.nom}}@if (action.cibleCela.epithete) {
+        <span class="epithete"> {{action.cibleCela.epithete}}</span>
+      }</span>)
+    </span>
+  }
 
-    </div>
+</div>
 
-  </div>
+</div>
 
-  <div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
+<div [collapse]="replie" [isAnimated]="true" class="bg-light my-2">
 
-    <ul>
-      <li *ngIf="action.cibleCeci && (action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 ')">
+  <ul>
+    @if (action.cibleCeci && (action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 ')) {
+      <li>
         ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
       </li>
-      <li *ngIf="action.cibleCela && action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 '">
+    }
+    @if (action.cibleCela && action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 ') {
+      <li>
         cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
-      <li *ngIf="action.cibleCeci && (action.cibleCeci.determinant == 'deux ' || action.cibleCeci.determinant == '2 ')">
+    }
+    @if (action.cibleCeci && (action.cibleCeci.determinant == 'deux ' || action.cibleCeci.determinant == '2 ')) {
+      <li>
         ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
-      <li>Phase prérequis : <i *ngIf="action.phasePrerequis.length == 0">(aucun prérequis)</i>
-        <ul>
-          <li *ngFor="let ins of action.phasePrerequis; index as i">
-            Instruction {{(i+1)}} :
-            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-          </li>
-        </ul>
-      </li>
-      <li>phase exécution :
-        <ul>
-          <li *ngFor="let ins of action.phaseExecution; index as i">
-            Instruction {{(i+1)}} :
-            <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-          </li>
-        </ul>
-      </li>
+    }
+    <li>Phase prérequis : @if (action.phasePrerequis.length == 0) {
+      <i>(aucun prérequis)</i>
+    }
+    <ul>
+      @for (ins of action.phasePrerequis; track ins; let i = $index) {
+        <li>
+          Instruction {{(i+1)}} :
+          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+        </li>
+      }
+    </ul>
+  </li>
+  <li>phase exécution :
+    <ul>
+      @for (ins of action.phaseExecution; track ins; let i = $index) {
+        <li>
+          Instruction {{(i+1)}} :
+          <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+        </li>
+      }
+    </ul>
+  </li>
 
-      <li>phase épilogue : <i *ngIf="action.phaseEpilogue.length == 0">(aucune instruction)</i>
-        <ul *ngIf="action.phaseEpilogue.length != 0">
-          <li>Instructions :
-            <ul>
-              <li *ngFor="let ins of action.phaseEpilogue; index as i">
-                Instruction {{(i+1)}} :
-                <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
-              </li>
-            </ul>
-          </li>
+  <li>phase épilogue : @if (action.phaseEpilogue.length == 0) {
+    <i>(aucune instruction)</i>
+  }
+  @if (action.phaseEpilogue.length != 0) {
+    <ul>
+      <li>Instructions :
+        <ul>
+          @for (ins of action.phaseEpilogue; track ins; let i = $index) {
+            <li>
+              Instruction {{(i+1)}} :
+              <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
+            </li>
+          }
         </ul>
       </li>
     </ul>
-  </div>
+  }
+</li>
+</ul>
+</div>
 
 
 </div>

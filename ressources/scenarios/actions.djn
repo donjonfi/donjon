@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-04-10-30300
+-- Version: 2026-04-19-30400
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -501,7 +501,7 @@ action enlever ceci:
   définitions:
     ceci est prioritairement porté.
   phase prérequis:
-    si ceci est portable mais pas porté, refuser "Vous ne portez pas [intitulé ceci].".
+    si ceci est portable ou enfilable ou chaussable ou équipable mais pas porté, refuser "Vous ne portez pas [intitulé ceci].".
     si ceci est le joueur, refuser "Vous organisez votre enlèvement... et votre sauvetage.".
     si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
   phase exécution:

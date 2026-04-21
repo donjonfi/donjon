@@ -69,15 +69,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Recharger le jeu à la sauvegarde du fichier
-  context.subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument(doc => {
-      if (doc.languageId === 'donjon' && panel) {
-        currentDocUri = doc.uri;
-        panel.webview.html = buildHtml(context, doc.getText());
-      }
-    })
-  );
 }
 
 export function deactivate() {
@@ -100,8 +91,7 @@ function buildHtml(context: vscode.ExtensionContext, scenario: string): string {
   const injection = `<style>
     html, body { direction: ltr !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #000 !important; overflow: hidden !important; }
     app-root { display: block !important; background: #fff !important; }
-    nav.navbar { margin-bottom: 0 !important; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; background: #f0f0f0; }
+::-webkit-scrollbar { width: 8px; height: 8px; background: #f0f0f0; }
     ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
     ::-webkit-scrollbar-track { background: #f0f0f0; }
     ::-webkit-scrollbar-corner { background: #f0f0f0; }

@@ -1,6 +1,6 @@
 {
   "name": "donjon",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "Donjon FI",
   "author": {
     "name": "Jonathan Claes",
@@ -16,19 +16,19 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^19.0.5",
-    "@angular/common": "^19.0.5",
-    "@angular/compiler": "^19.0.5",
-    "@angular/core": "^19.0.5",
-    "@angular/forms": "^19.0.5",
-    "@angular/platform-browser": "^19.0.5",
-    "@angular/platform-browser-dynamic": "^19.0.5",
-    "@angular/router": "^19.0.5",
+    "@angular/animations": "^21.2.9",
+    "@angular/common": "^21.2.9",
+    "@angular/compiler": "^21.2.9",
+    "@angular/core": "^21.2.9",
+    "@angular/forms": "^21.2.9",
+    "@angular/platform-browser": "^21.2.9",
+    "@angular/platform-browser-dynamic": "^21.2.9",
+    "@angular/router": "^21.2.9",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "bootstrap": "^5.3.8",
     "file-saver-es": "^2.0.5",
-    "ngx-ace-wrapper": "^13.0.0",
-    "ngx-bootstrap": "^19.0.1",
+    "ngx-ace-wrapper": "^17.0.0",
+    "ngx-bootstrap": "^21.0.1",
     "rand-seed": "^1.0.1",
     "rxjs": "~7.8.1",
     "tslib": "^2.4.0",
@@ -36,9 +36,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.0.6",
-    "@angular/cli": "^19.0.6",
-    "@angular/compiler-cli": "^19.0.5",
+    "@angular-devkit/build-angular": "^21.2.7",
+    "@angular/cli": "^21.2.7",
+    "@angular/compiler-cli": "^21.2.9",
     "@types/file-saver": "^2.0.5",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^18.7.16",
@@ -51,7 +51,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
-    "ng-packagr": "^19.0.1",
-    "typescript": "~5.6.3"
+    "ng-packagr": "^21.2.3",
+    "typescript": "~5.9.3"
   }
 }

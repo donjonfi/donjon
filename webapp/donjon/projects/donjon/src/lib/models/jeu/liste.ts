@@ -444,6 +444,23 @@ export class Liste extends Intitule {
     return retVal;
   }
 
+  /** Énumérer les valeurs séparées par des virgules, sans phrase autour (intégrable dans une phrase). */
+  public enumerer(): string {
+    if (this.vide) return "";
+    const nbElements = this.taille;
+    let retVal = "";
+    for (let index = 0; index < nbElements; index++) {
+      if (index === 0) {
+        retVal += this.valeurs[index];
+      } else if (index === nbElements - 1) {
+        retVal += " et " + this.valeurs[index];
+      } else {
+        retVal += ", " + this.valeurs[index];
+      }
+    }
+    return retVal;
+  }
+
   /** Décrire la liste. */
   public override toString(): string {
     return this.decrire();

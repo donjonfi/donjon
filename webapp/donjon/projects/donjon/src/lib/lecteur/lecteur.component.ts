@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -6,7 +6,7 @@ import { BalisesHtml } from '../utils/jeu/balises-html';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
 import { Jeu } from '../models/jeu/jeu';
-import { DOCUMENT } from '@angular/common';
+
 import { Choix } from '../models/compilateur/choix';
 import { ExprReg, Sauvegarde, StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
@@ -526,8 +526,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           break;
         case TypeInterruption.attendreChoix:
           if (this.interruptionEnCours.choix?.length) {
-            const identifiantsChoix = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-            this.choixPossibles = identifiantsChoix.slice(0, this.interruptionEnCours.choix.length);
+            const nbChoix = this.interruptionEnCours.choix.length;
+            const identifiantsChoix = this.partie.jeu.parametres.activerChoixNumeriques
+              ? Array.from({ length: nbChoix }, (_, i) => String(i + 1))
+              : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            this.choixPossibles = identifiantsChoix.slice(0, nbChoix);
 
             let texteChoix = '<ul class="no-bullet">';
             for (let indexChoix = 0; indexChoix < this.interruptionEnCours.choix.length; indexChoix++) {

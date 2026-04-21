@@ -112,7 +112,7 @@ export class RechercheUtils {
   public static transformerEnMotsCles(expressionEnMinuscules: string): string[] {
     let motsClesConserves: string[] = [];
     if (expressionEnMinuscules) {
-      const motsCles = expressionEnMinuscules.split(/ |'|’|-/);
+      const motsCles = expressionEnMinuscules.split(/ |'|\u2019|-/);
       motsCles.forEach(motCle => {
         if (!this.motsTropCommuns.test(motCle)) {
           motsClesConserves.push(motCle);
@@ -123,7 +123,7 @@ export class RechercheUtils {
   }
 
   public static readonly motsTropCommuns = /^(le|la|les|l|un|une|du|de|des|d|n|s|a|à|au|aux|et|ou|où|mais|avec|dans|sur|sous|vers)$/;
-  public static readonly determinants = /((?:\b(?:le|la|les|un|une|du|de|des)\b)|(?:\bl(?:’|')))/gi;
+  public static readonly determinants = /((?:\b(?:le|la|les|un|une|du|de|des)\b)|(?:\bl(?:'|\u2019)))/gi;
 
   /**
    * Retourne un nombre décimal compris entre 0.0 et 1.0 correspondant au pourcentage de correspondance

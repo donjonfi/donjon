@@ -3,9 +3,13 @@
   <li><b>Nom :</b> {{objetVisible.objet.nom}}</li>
   <li>
     <b>Intitulé : </b>
-    <span *ngIf="objetVisible.objet.intitule.determinant">({{objetVisible.objet.intitule.determinant}})</span>
+    @if (objetVisible.objet.intitule.determinant) {
+      <span>({{objetVisible.objet.intitule.determinant}})</span>
+    }
     {{objetVisible.objet.intitule.nom}}
-    <span *ngIf="objetVisible.objet.intitule.epithete"><i>{{objetVisible.objet.intitule.epithete}}</i></span>
+    @if (objetVisible.objet.intitule.epithete) {
+      <span><i>{{objetVisible.objet.intitule.epithete}}</i></span>
+    }
   </li>
   <li><b>Type :</b> {{hierachieClasse}}</li>
   <li><b>États :</b> {{listeEtats}}</li>

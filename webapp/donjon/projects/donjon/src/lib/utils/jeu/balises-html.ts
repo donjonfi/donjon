@@ -141,6 +141,9 @@ export class BalisesHtml {
     // convertir " :" en " :" (demi espace insécable)
     retVal = retVal.replace(/ :(?!\w)/g, ' :');
 
+    // apostrophes typographiques : remplacer ' (U+0027) par ’ (U+2019) dans les contractions FR
+    retVal = retVal.replace(/(?<=\w)'(?=\w)/g, '’');
+
     return retVal;
   }
 

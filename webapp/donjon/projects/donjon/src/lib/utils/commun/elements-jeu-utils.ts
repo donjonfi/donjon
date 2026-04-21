@@ -647,6 +647,28 @@ export class ElementsJeuUtils {
       cor = new Correspondance();
       cor.intitule = new Intitule(sujet.nomEpithete, sujet, ClassesRacines.Intitule);
 
+      // Résoudre "ce dernier / cette dernière / ces derniers"
+      const nomD = (sujet.nom ?? '').trim().toLowerCase();
+      const detD = (sujet.determinant ?? '').trim().toLowerCase();
+      const estDernier = (detD === 'ce' && nomD === 'dernier')
+        || (detD === 'cette' && (nomD === 'dernière' || nomD === 'derniere'))
+        || (detD === 'ces' && (nomD === 'derniers' || nomD === 'dernières' || nomD === 'dernieres'));
+      if (estDernier && this.jeu.derniersElementIds.length > 0) {
+        this.jeu.derniersElementIds.forEach(id => {
+          const el = (this.jeu.objets.find(o => o.id === id) as ElementJeu) ?? (this.jeu.lieux.find(l => l.id === id) as ElementJeu);
+          if (el) {
+            cor.elements.push(el);
+            if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
+              cor.objets.push(el as Objet);
+            } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
+              cor.lieux.push(el as Lieu);
+            }
+            cor.nbCor++;
+          }
+        });
+        if (cor.nbCor > 0) return cor;
+      }
+
       // 1. Chercher dans les directions.
       cor.localisation = ElementsJeuUtils.trouverLocalisation(sujet);
 
