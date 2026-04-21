@@ -182,6 +182,7 @@ export class CommandeurTour {
       resultatAvant.succes = resultatAvant.succes && sousResultatAvant.succes;
       resultatAvant.nombre += sousResultatAvant.nombre;
       resultatAvant.arreterApresRegle = resultatAvant.arreterApresRegle || sousResultatAvant.arreterApresRegle;
+      resultatAvant.refuse = resultatAvant.refuse || sousResultatAvant.refuse;
       // vérifier s’il y a une interruption
       if (sousResultatAvant.interrompreBlocInstruction) {
         InterruptionsUtils.definirProprietesInterruptionSousResultatAuResultat(resultatAvant, sousResultatAvant);
@@ -189,13 +190,13 @@ export class CommandeurTour {
           this.jeu.tamponConseils.push("Déclenchement règle avant: l’instruction choisir risque de ne pas fonctionner correctement si plusieurs règles « avant » se déclenchent pour le même évènement. Évènement: « " + tour.commande.evenement + " »");
         }
       }
-      if (resultatAvant.arreterApresRegle) {
+      if (resultatAvant.arreterApresRegle || resultatAvant.refuse) {
         break;
       }
     }
 
-    // si on a fait appel à l’instruction « arrêter l’action » / « refuser l’action »
-    if (resultatAvant.arreterApresRegle === true) {
+    // si on a fait appel à l’instruction « arrêter l’action » ou « refuser "raison" »
+    if (resultatAvant.arreterApresRegle === true || resultatAvant.refuse === true) {
       // cloturer le tour
       tour.phase = PhaseTour.fin;
     }

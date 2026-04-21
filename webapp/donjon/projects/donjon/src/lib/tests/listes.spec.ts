@@ -291,3 +291,243 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
   });
 
 });
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [2/2] INSTRUCTION AJOUTER PLUSIEURS ÉLÉMENTS À UNE LISTE (#108)
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Liste − ajouter plusieurs textes à une liste', () => {
+
+  xit('ajouter deux textes à la liste', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les coupables sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux coupables : "jean" et "marie". ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    expect(ctx.jeu.listes[0].valeurs.length).toBe(0);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"jean"');
+    expect(ctx.jeu.listes[0].valeurs[1]).toEqual('"marie"');
+  });
+
+  xit('ajouter trois textes avec virgule et "et"', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les suspects sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux suspects : "alice", "bob" et "charlie". ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(3);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"alice"');
+    expect(ctx.jeu.listes[0].valeurs[1]).toEqual('"bob"');
+    expect(ctx.jeu.listes[0].valeurs[2]).toEqual('"charlie"');
+  });
+
+});
+
+describe('Liste − ajouter plusieurs nombres à une liste', () => {
+
+  xit('ajouter deux nombres à la liste', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les scores sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux scores : 10 et 20. ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual(10);
+    expect(ctx.jeu.listes[0].valeurs[1]).toEqual(20);
+  });
+
+  xit('ajouter trois nombres avec virgule et "et"', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les points sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux points : 1, 2 et 3. ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(3);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual(1);
+    expect(ctx.jeu.listes[0].valeurs[1]).toEqual(2);
+    expect(ctx.jeu.listes[0].valeurs[2]).toEqual(3);
+  });
+
+});
+
+describe('Liste − ajouter plusieurs intitulés à une liste', () => {
+
+  xit('ajouter deux objets du jeu à la liste', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'La bougie est un objet dans le salon. ' +
+      'La clé est un objet dans le salon. ' +
+      'Les trouvailles sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux trouvailles : la bougie et la clé. ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+  });
+
+});
+
+describe('Liste − enlever des textes d\'une liste', () => {
+
+  xit('enlever un texte (des <liste>)', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les coupables sont une liste. ' +
+      'Elle contient "jean" et "marie". ' +
+      'action tester: ' +
+      '  enlever des coupables : "jean". ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"marie"');
+  });
+
+  xit('enlever deux textes (des <liste>)', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les suspects sont une liste. ' +
+      'Elle contient "alice", "bob" et "charlie". ' +
+      'action tester: ' +
+      '  enlever des suspects : "alice" et "charlie". ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"bob"');
+  });
+
+});
+
+describe('Liste − enlever des nombres d\'une liste', () => {
+
+  xit('enlever un nombre (des <liste>)', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les scores sont une liste. ' +
+      'Elle contient 10, 20 et 30. ' +
+      'action tester: ' +
+      '  enlever des scores : 20. ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+    expect(ctx.jeu.listes[0].valeurs[0]).toEqual(10);
+    expect(ctx.jeu.listes[0].valeurs[1]).toEqual(30);
+  });
+
+});
+
+describe('Liste − enlever des intitulés d\'une liste', () => {
+
+  xit('enlever un objet du jeu (de la <liste>)', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'La bougie est un objet dans le salon. ' +
+      'La clé est un objet dans le salon. ' +
+      'Les trouvailles sont une liste. ' +
+      'action init: ' +
+      '  ajouter aux trouvailles : la bougie et la clé. ' +
+      'fin action ' +
+      'action tester: ' +
+      '  enlever des trouvailles : la bougie. ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("init", false);
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
+
+    ctx.com.executerCommande("tester", false);
+    expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
+  });
+
+});
+
+describe('Liste − vérifier via condition après ajouter multiple', () => {
+
+  xit('vérifier que la liste contient les éléments ajoutés', () => {
+
+    const scenario = '' +
+      'Le salon est un lieu. ' +
+      'Les coupables sont une liste. ' +
+      'action tester: ' +
+      '  ajouter aux coupables : "jean" et "marie". ' +
+      'fin action ' +
+      'action vérifier: ' +
+      '  si les coupables contient "jean" : ' +
+      '    changer le joueur est allumé. ' +
+      '  finsi ' +
+      'fin action ' +
+      '';
+
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    ctx.com.executerCommande("tester", false);
+    ctx.com.executerCommande("vérifier", false);
+
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'allumé', ctx.eju)).toBeTrue();
+  });
+
+});

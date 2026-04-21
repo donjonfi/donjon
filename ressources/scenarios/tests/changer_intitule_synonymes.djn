@@ -1,0 +1,90 @@
+-- Scénario de test : changement d'intitulé et mise à jour des synonymes.
+Le titre du jeu est "Test − changer l'intitulé et les synonymes".
+L'auteur du jeu est "DonjonFI".
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+L'atelier du magicien est un lieu.
+Sa description est "Un atelier encombré d'objets étranges.
+Vous voyez ici : la boîte rouge, le vieux livre et le flacon vert.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+La boîte rouge est un objet ici.
+Sa description est "Une boîte rouge ordinaire.".
+
+Le vieux livre est un objet ici.
+Sa description est "Un livre poussiéreux aux pages jaunies.".
+
+Le flacon vert est un objet ici.
+Sa description est "Un flacon contenant un liquide verdâtre.".
+
+-- ======================================================
+-- TEST 1 : changer l'intitulé → synonymes auto recalculés
+-- Avant : accessible via "boîte" et "rouge"
+-- Après : accessible via "coffre" et "bleu"
+--         (plus accessible via "boîte" ni "rouge")
+-- ======================================================
+
+action transformer ceci:
+  définition:
+    ceci est un objet.
+  phase exécution:
+    dire "Vous prononcez les mots magiques...".
+    changer l'intitulé de ceci est "le coffre bleu".
+    dire "La [intitulé ceci] est apparu devant vous !".
+    dire "(Essayez maintenant : EXAMINER COFFRE, EXAMINER BLEU)".
+    dire "(Essayez aussi : EXAMINER BOÎTE → ne devrait plus fonctionner)".
+fin action
+
+-- ======================================================
+-- TEST 2 : changer les synonymes → remplacement complet
+-- Avant : "vieux livre", "livre", "vieux"
+-- Après : uniquement "grimoire" et "ancien"
+--         ("livre" et "vieux" ne fonctionnent plus)
+-- ======================================================
+
+action ensorceler ceci:
+  définition:
+    ceci est un objet.
+  phase exécution:
+    dire "Vous tracez un cercle de sel autour de l'objet...".
+    changer les synonymes de ceci sont "grimoire" et "ancien".
+    dire "Les noms de l'objet ont été remplacés.".
+    dire "(Essayez : EXAMINER GRIMOIRE, EXAMINER ANCIEN)".
+    dire "(Essayez aussi : EXAMINER LIVRE → ne devrait plus fonctionner)".
+fin action
+
+-- ======================================================
+-- TEST 3 : ajouter aux synonymes → ajout sans effacement
+-- Avant : "flacon", "vert"
+-- Après : "flacon", "vert" + "fiole" et "émeraude"
+-- ======================================================
+
+action enrichir ceci:
+  définition:
+    ceci est un objet.
+  phase exécution:
+    dire "Vous gravez de nouvelles runes sur l'objet...".
+    ajouter "fiole" et "émeraude" aux synonymes de ceci.
+    dire "De nouveaux noms ont été ajoutés à l'objet.".
+    dire "(Essayez : EXAMINER FIOLE, EXAMINER ÉMERAUDE)".
+    dire "(EXAMINER FLACON et EXAMINER VERT doivent toujours fonctionner)".
+fin action
+
+-- ======================================================
+-- DÉMARRAGE
+-- ======================================================
+
+règle avant commencer le jeu:
+  dire "=== Test : changement d'intitulé et synonymes ===".
+  dire "─────────────────────────────────────────────────────────────────".
+  dire "TRANSFORMER BOÎTE ROUGE   → changer l'intitulé (synonymes auto recalculés)".
+  dire "ENSORCELER VIEUX LIVRE    → changer les synonymes (remplacement complet)".
+  dire "ENRICHIR FLACON VERT      → ajouter aux synonymes (ajout sans effacement)".
+  dire "─────────────────────────────────────────────────────────────────".
+fin règle

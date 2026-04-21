@@ -133,6 +133,10 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerChoixNumeriques = isActiver;
           break;
 
+        case 'attendre':
+          ctxAnalyse.parametres.activerAttendre = isActiver;
+          break;
+
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,

@@ -40,7 +40,7 @@ export class TestUtils {
     if (rc.messages.length > 0) {
       let messages = "";
       rc.messages.forEach(message => {
-        messages += message.titre;
+        messages += "\n" +  message.numeroLigne + ": " + message.titre;
       });
 
       throw new Error("genererEtCommencerLeJeu: il y a un message suite à l’analyse du scénario:" + messages);

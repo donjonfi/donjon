@@ -570,10 +570,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           this.focusCommande();
 
-          // si (on est en auto-triche) 
+          // si (on est en auto-triche)
           // ou bien si (une sauvegarde est en cours de restauration ou un tour doit être annulé)
+          // ou bien si l'attente est désactivée
           // alors on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation || !this.partie.jeu.parametres.activerAttendre) {
             this.terminerInterruption(undefined);
           }
           break;
@@ -583,8 +584,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
           this.commande = "";
           this.focusCommande();
           // si on est en auto-triche où qu'une sauvegarde doit
-          // être restaurée, ou qu'un tour doit être annulé, on n'attend pas !
-          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
+          // être restaurée, ou qu'un tour doit être annulé, ou que l'attente est désactivée, on n'attend pas !
+          if (this.autoTricheActif || this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation || !this.partie.jeu.parametres.activerAttendre) {
             this.terminerInterruption(undefined);
             // sinon attendre avant de terminer l’interruption
           } else {

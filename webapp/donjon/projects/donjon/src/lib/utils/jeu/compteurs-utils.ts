@@ -1,4 +1,5 @@
 import { Compteur } from "../../models/compilateur/compteur";
+import { Generateur } from "../compilation/generateur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
@@ -132,6 +133,10 @@ export class CompteursUtils {
                   } else {
                     compteurOuPropriete.parent.intituleS = compteurOuPropriete.parent.intitule;
                     compteurOuPropriete.parent.intituleP = null;
+                  }
+                  if (jeu.parametres.activerSynonymesAuto) {
+                    compteurOuPropriete.parent.synonymes.splice(0);
+                    Generateur.genererSynonymesAuto(compteurOuPropriete.parent);
                   }
                 } else {
                   // console.error("L’intitulé « " + valeurStr + " » n’est pas un groupe nominal supporté.")
