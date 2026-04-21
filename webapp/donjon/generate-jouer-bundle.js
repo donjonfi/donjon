@@ -15,7 +15,7 @@ function echapper(contenu) {
   return contenu.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
-const actionsDjn = echapper(fs.readFileSync(path.join(modelesSrc, 'actions.djn'), 'utf8'));
+const actionsDjn = echapper(fs.readFileSync(path.join(modelesSrc, 'actions_mini.djn'), 'utf8'));
 
 const out = `// FICHIER GÉNÉRÉ — ne pas modifier manuellement.
 // Relancer generate-jouer-bundle.js pour mettre à jour.
