@@ -23,6 +23,7 @@ import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { InstructionDire } from "./instruction-dire";
 import { Concept } from "../../models/compilateur/concept";
+import { GroupeNominal } from "../../models/commun/groupe-nominal";
 
 export class InstructionChanger {
 
@@ -137,7 +138,12 @@ export class InstructionChanger {
       // on veut changer une propriété
     } else if (instruction.proprieteSujet) {
 
-      switch (instruction.proprieteSujet.type) {
+      // cas spécial : changer les synonymes de xxx sont "a", "b" et "c"
+      if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement
+          && instruction.proprieteSujet.intituleProprieteElement?.nom === 'synonymes') {
+        resultat = this.changerSynonymesDe(instruction, contexteTour);
+      } else {
+        switch (instruction.proprieteSujet.type) {
         // on ne peut pas changer une propriété calculée
         case TypeProprieteJeu.nombreDeClasseAttributs:
         case TypeProprieteJeu.nombreDeClasseAttributsPosition:
@@ -202,6 +208,7 @@ export class InstructionChanger {
         default:
           console.error("executerChanger > Type de propriété non pris en charge:", instruction.proprieteSujet.type);
           break;
+        }
       }
 
       // ni élément ni propriété
@@ -211,6 +218,235 @@ export class InstructionChanger {
     return resultat;
   }
 
+
+  /** Ajouter aux synonymes d'un élément : ajouter "a" et "b" aux synonymes de xxx
+   *  OU ajouter plusieurs éléments à une liste : ajouter x, y et z à <liste>
+   */
+  public executerAjouter(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(false, '', 1);
+
+    if (!instruction.complement1) {
+      resultat.sortie = '{n}{+[ajouter : complément manquant.]+}';
+      return resultat;
+    }
+
+    // A) ajouter "x" aux synonymes de <élément>
+    const xAuxSynonymesDE = /^(.*)\baux synonymes de\b\s+(.+)$/i;
+    const matchSyntaxe = xAuxSynonymesDE.exec(instruction.complement1);
+    if (!matchSyntaxe) {
+      // B) ajouter à <liste> : x, y et z
+      const xAListe = /^(?:à\s+(le|la|l'|les)|(au)|(aux))\s+(.+?)\s*:\s*(.+)$/i;
+      const matchListe = xAListe.exec(instruction.complement1);
+      if (matchListe) {
+        let article: string;
+        if (matchListe[2]) {
+          article = 'le';       // "au" → "le"
+        } else if (matchListe[3]) {
+          article = 'les';      // "aux" → "les"
+        } else {
+          article = matchListe[1]; // "à le/la/l'/les" → article seul
+        }
+        const sep = article.endsWith("'") ? '' : ' ';
+        const listePart = article + sep + matchListe[4].trim();
+        const itemsPart = matchListe[5].trim();
+        return this.ajouterAListe(itemsPart, listePart, resultat, contexteTour);
+      }
+      resultat.sortie = `{n}{+[ajouter : syntaxe non reconnue. Attendu : ajouter "x" aux synonymes de xxx  OU  ajouter à <liste> : x, y et z.]+}`;
+      return resultat;
+    }
+
+    const itemsPart = matchSyntaxe[1];
+    const elementPart = matchSyntaxe[2].trim().toLowerCase();
+
+    // résoudre l'élément cible
+    let elementCible: ElementJeu | null = null;
+    if (elementPart === 'ceci') {
+      elementCible = contexteTour.ceci as ElementJeu;
+    } else if (elementPart === 'cela') {
+      elementCible = contexteTour.cela as ElementJeu;
+    } else if (elementPart === 'ici') {
+      elementCible = this.eju.curLieu;
+    } else {
+      const gnElement = PhraseUtils.getGroupeNominalDefiniOuIndefini(elementPart, false);
+      if (gnElement) {
+        const corresp = this.eju.trouverCorrespondance(gnElement, TypeSujet.SujetEstNom, false, false);
+        if (corresp.objets.length === 1) {
+          elementCible = corresp.objets[0];
+        } else if (corresp.lieux.length === 1) {
+          elementCible = corresp.lieux[0];
+        }
+      }
+    }
+
+    if (!elementCible) {
+      resultat.sortie = `{n}{+[ajouter aux synonymes : élément « ${matchSyntaxe[2].trim()} » introuvable.]+}`;
+      return resultat;
+    }
+
+    // ajouter chaque valeur entre guillemets comme synonyme (sans doublon)
+    const xItem = /"([^"]+)"/g;
+    let match: RegExpExecArray | null;
+    while ((match = xItem.exec(itemsPart)) !== null) {
+      const valeur = match[1].trim();
+      if (valeur && !elementCible.synonymes.some(s => s.nomEpithete === valeur)) {
+        elementCible.synonymes.push(new GroupeNominal(null, valeur, null));
+      }
+    }
+
+    resultat.succes = true;
+    return resultat;
+  }
+
+  /** Ajouter plusieurs éléments à une liste : ajouter x, y et z à <liste> */
+  private ajouterAListe(itemsPart: string, listePart: string, resultat: Resultat, contexteTour: ContexteTour): Resultat {
+    const gnListe = PhraseUtils.getGroupeNominalDefiniOuIndefini(listePart, false);
+    if (!gnListe) {
+      resultat.sortie = `{n}{+[ajouter à liste : intitulé de liste non reconnu : « ${listePart} ».]+}`;
+      return resultat;
+    }
+    const cor = this.eju.trouverCorrespondance(gnListe, TypeSujet.SujetEstNom, false, false);
+    if (cor.listes.length !== 1) {
+      resultat.sortie = `{n}{+[ajouter à liste : liste « ${listePart} » introuvable.]+}`;
+      return resultat;
+    }
+    const liste = cor.listes[0];
+    const items = PhraseUtils.separerListeIntitulesEt(itemsPart, true);
+    for (const item of items) {
+      const itemTrimmed = item.trim();
+      if (!itemTrimmed) continue;
+      if (itemTrimmed.match(ExprReg.xNombre)) {
+        liste.ajouterNombre(Number.parseFloat(itemTrimmed));
+      } else {
+        const gnItem = PhraseUtils.getGroupeNominalDefiniOuIndefini(itemTrimmed, false);
+        if (gnItem) {
+          const corItem = this.eju.trouverCorrespondance(gnItem, TypeSujet.SujetEstNom, false, false);
+          if (corItem.nbCor === 1) {
+            liste.ajouterIntitule(corItem.unique);
+          } else {
+            liste.ajouterTexte(itemTrimmed);
+          }
+        } else {
+          liste.ajouterTexte(itemTrimmed);
+        }
+      }
+    }
+    resultat.succes = true;
+    return resultat;
+  }
+
+  /** Enlever plusieurs éléments d'une liste : enlever de <liste> : x, y et z */
+  public executerEnlever(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(false, '', 1);
+
+    if (!instruction.complement1) {
+      resultat.sortie = '{n}{+[enlever : complément manquant.]+}';
+      return resultat;
+    }
+
+    const xDeListe = /^(?:de\s+(le|la|l'|les)|(du)|(des))\s+(.+?)\s*:\s*(.+)$/i;
+    const matchListe = xDeListe.exec(instruction.complement1);
+    if (matchListe) {
+      let article: string;
+      if (matchListe[2]) {
+        article = 'le';       // "du" → "le"
+      } else if (matchListe[3]) {
+        article = 'les';      // "des" → "les"
+      } else {
+        article = matchListe[1]; // "de le/la/l'/les" → article seul
+      }
+      const sep = article.endsWith("'") ? '' : ' ';
+      const listePart = article + sep + matchListe[4].trim();
+      const itemsPart = matchListe[5].trim();
+      return this.enleverDeListe(itemsPart, listePart, resultat, contexteTour);
+    }
+    resultat.sortie = `{n}{+[enlever : syntaxe non reconnue. Attendu : enlever de <liste> : x, y et z.]+}`;
+    return resultat;
+  }
+
+  /** Enlever plusieurs éléments d'une liste */
+  private enleverDeListe(itemsPart: string, listePart: string, resultat: Resultat, contexteTour: ContexteTour): Resultat {
+    const gnListe = PhraseUtils.getGroupeNominalDefiniOuIndefini(listePart, false);
+    if (!gnListe) {
+      resultat.sortie = `{n}{+[enlever de liste : intitulé de liste non reconnu : « ${listePart} ».]+}`;
+      return resultat;
+    }
+    const cor = this.eju.trouverCorrespondance(gnListe, TypeSujet.SujetEstNom, false, false);
+    if (cor.listes.length !== 1) {
+      resultat.sortie = `{n}{+[enlever de liste : liste « ${listePart} » introuvable.]+}`;
+      return resultat;
+    }
+    const liste = cor.listes[0];
+    const items = PhraseUtils.separerListeIntitulesEt(itemsPart, true);
+    for (const item of items) {
+      const itemTrimmed = item.trim();
+      if (!itemTrimmed) continue;
+      if (itemTrimmed.match(ExprReg.xNombre)) {
+        liste.retirerNombre(Number.parseFloat(itemTrimmed));
+      } else {
+        const gnItem = PhraseUtils.getGroupeNominalDefiniOuIndefini(itemTrimmed, false);
+        if (gnItem) {
+          const corItem = this.eju.trouverCorrespondance(gnItem, TypeSujet.SujetEstNom, false, false);
+          if (corItem.nbCor === 1) {
+            liste.retirerIntitule(corItem.unique);
+          } else {
+            liste.retirerTexte(itemTrimmed);
+          }
+        } else {
+          liste.retirerTexte(itemTrimmed);
+        }
+      }
+    }
+    resultat.succes = true;
+    return resultat;
+  }
+
+  /** Remplacer les synonymes d'un élément : changer les synonymes de xxx sont "a", "b" et "c" */
+  private changerSynonymesDe(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(false, '', 1);
+
+    let elementCible: ElementJeu | null = null;
+    const nomElement = instruction.proprieteSujet.intituleElement?.nom?.toLowerCase();
+
+    if (nomElement === 'ceci') {
+      elementCible = contexteTour.ceci as ElementJeu;
+    } else if (nomElement === 'cela') {
+      elementCible = contexteTour.cela as ElementJeu;
+    } else if (nomElement === 'ici') {
+      elementCible = this.eju.curLieu;
+    } else {
+      const corresp = this.eju.trouverCorrespondance(
+        instruction.proprieteSujet.intituleElement, TypeSujet.SujetEstNom, false, false
+      );
+      if (corresp.objets.length === 1) {
+        elementCible = corresp.objets[0];
+      } else if (corresp.lieux.length === 1) {
+        elementCible = corresp.lieux[0];
+      }
+    }
+
+    if (!elementCible) {
+      resultat.sortie = `{n}{+[changer synonymes : élément « ${instruction.proprieteSujet.intituleElement} » introuvable.]+}`;
+      return resultat;
+    }
+
+    // remplacer tous les synonymes existants
+    elementCible.synonymes.splice(0);
+
+    // ajouter chaque valeur entre guillemets comme nouveau synonyme
+    if (instruction.complement1) {
+      const xItem = /"([^"]+)"/g;
+      let match: RegExpExecArray | null;
+      while ((match = xItem.exec(instruction.complement1)) !== null) {
+        const valeur = match[1].trim();
+        if (valeur) {
+          elementCible.synonymes.push(new GroupeNominal(null, valeur, null));
+        }
+      }
+    }
+
+    resultat.succes = true;
+    return resultat;
+  }
 
   /** Exécuter une instruction qui cible le joueur */
   private changerJoueur(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {

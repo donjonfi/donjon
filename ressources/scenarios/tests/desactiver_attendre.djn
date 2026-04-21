@@ -1,0 +1,82 @@
+-- Scénario de test : désactiver attendre.
+Le titre du jeu est "Test − désactiver attendre".
+L'auteur du jeu est "DonjonFI".
+
+-- ======================================================
+-- PARAMÈTRE À TESTER
+-- Commenter/décommenter la ligne ci-dessous pour comparer
+-- les deux comportements :
+--   activé  (par défaut) → attendre une touche et
+--                          attendre X secondes font une pause réelle.
+--   désactivé            → les deux instructions sont ignorées,
+--                          le texte s'affiche d'un seul bloc.
+-- ======================================================
+
+activer attendre.
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+L'antichambre est un lieu.
+Sa description est "Vous êtes dans l'antichambre. Deux portes s'offrent à vous : au nord la salle de touche, à l'est la salle des secondes.".
+
+La salle de touche est un lieu au nord de l'antichambre.
+Sa description est "Salle de touche. Tapez LIRE PANNEAU pour tester attendre une touche.".
+
+La salle des secondes est un lieu à l'est de l'antichambre.
+Sa description est "Salle des secondes. Tapez LIRE HORLOGE pour tester attendre 2 secondes.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+Le panneau est un objet fixé dans la salle de touche.
+L'horloge est un objet fixée dans la salle des secondes.
+
+-- ======================================================
+-- TEST 1 : attendre une touche
+-- Avec désactiver attendre → les trois lignes s'affichent
+-- d'un seul coup sans pause.
+-- Sans désactiver attendre → le lecteur fait une pause
+-- entre chaque ligne.
+-- ======================================================
+
+règle avant lire le panneau:
+  dire "Ligne 1 avant la pause.".
+  attendre une touche.
+  dire "Ligne 2 après la première pause.".
+  attendre une touche.
+  dire "Ligne 3 après la deuxième pause.".
+  arrêter l’action.
+fin règle
+
+-- ======================================================
+-- TEST 2 : attendre X secondes
+-- Avec désactiver attendre → les trois lignes s'affichent
+-- immédiatement sans délai.
+-- Sans désactiver attendre → le lecteur attend 2 secondes
+-- entre chaque ligne.
+-- ======================================================
+
+règle avant lire l'horloge:
+  dire "Il est midi.".
+  attendre 2 secondes.
+  dire "Il est midi et deux secondes.".
+  attendre 2 secondes.
+  dire "Il est midi et quatre secondes.".
+    arrêter l’action.
+fin règle
+
+-- ======================================================
+-- DÉMARRAGE
+-- ======================================================
+
+règle avant commencer le jeu:
+  dire "=== Test : désactiver attendre ===".
+  dire "Paramètre actuel : attendre est DÉSACTIVÉ.".
+  dire "(Pour tester avec attendre ACTIVÉ, commentez la ligne « désactiver attendre. »)".
+  dire "─────────────────────────────────────────────".
+  dire "  ALLER AU NORD  → salle de touche  (attendre une touche)".
+  dire "  ALLER À L'EST  → salle des secondes (attendre 2 secondes)".
+fin règle

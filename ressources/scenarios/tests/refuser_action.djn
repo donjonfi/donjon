@@ -1,0 +1,78 @@
+-- Scénario de test : refuser l'action et refuser "message".
+Le titre du jeu est "Test − refuser l'action".
+L'auteur du jeu est "DonjonFI".
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+La galerie du musée est un lieu.
+Sa description est "Vous êtes dans une galerie silencieuse du musée.
+Un gardien vous surveille du coin de l'œil.
+Vous voyez ici : la statue en marbre, le tableau ancien et le vase Ming.".
+
+La sortie est un lieu au nord de la galerie du musée.
+Sa description est "Vous êtes dehors. Vous avez réussi à partir sans déclencher l'alarme.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+La statue en marbre est un objet fixé dans la galerie du musée.
+Le tableau ancien est un objet fixé dans la galerie du musée.
+Le vase Ming est un objet fixé dans la galerie du musée.
+Le badge de visiteur est un objet dans la galerie du musée.
+
+-- ======================================================
+-- TEST 1 : refuser "message" directement
+-- Empêche de prendre la statue avec un message inline.
+-- ======================================================
+
+règle avant prendre la statue en marbre:
+  refuser "Ça ne fonctionne pas comme ça. La statue est boulonnée au sol.".
+fin règle
+
+-- ======================================================
+-- TEST 2 : refuser "message" directement
+-- Empêche de prendre le tableau avec un message inline.
+-- ======================================================
+
+règle avant prendre le tableau ancien:
+  refuser "Ça ne fonctionne pas comme ça. Le tableau est fixé au mur par un système d'alarme.".
+fin règle
+
+-- ======================================================
+-- TEST 3 : dire + refuser l'action
+-- Message contextuel puis blocage de l'action.
+-- ======================================================
+
+règle avant prendre le vase Ming:
+  dire "Le gardien lève les yeux et vous regarde fixement.".
+  refuser l'action.
+fin règle
+
+-- ======================================================
+-- TEST 4 : refuser l'action dans une condition
+-- On ne peut quitter la galerie qu'avec le badge.
+-- ======================================================
+
+règle avant aller vers la sortie:
+  si le badge de visiteur n'est pas possédé:
+    dire "L'agent de sécurité à l'entrée vous barre le passage.".
+    refuser l'action.
+  finsi
+fin règle
+
+-- ======================================================
+-- DÉMARRAGE
+-- ======================================================
+
+règle avant commencer le jeu:
+  dire "Bienvenue au Musée des Arts Interdits.".
+  dire "À tester :".
+  dire "  PRENDRE STATUE      → refuser \"message\" (objet non pris)".
+  dire "  PRENDRE TABLEAU     → refuser \"message\" (objet non pris)".
+  dire "  PRENDRE VASE        → dire + refuser l'action (objet non pris)".
+  dire "  ALLER AU NORD       → refuser conditionnel (bloqué sans le badge)".
+  dire "  PRENDRE BADGE puis ALLER AU NORD → doit fonctionner.".
+fin règle

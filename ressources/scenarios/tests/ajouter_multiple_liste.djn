@@ -1,0 +1,110 @@
+-- Scénario de test : ajouter plusieurs éléments à une liste (#108).
+Le titre du jeu est "Test − ajouter plusieurs éléments à une liste".
+L'auteur du jeu est "DonjonFI".
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+Le bureau du détective est un lieu.
+Sa description est "Le bureau du détective Moreau. Un tableau d'affichage couvre le mur nord, un carnet traîne sur le bureau. Au nord se trouve la salle du crime.".
+
+La salle du crime est un lieu au nord du bureau du détective.
+Sa description est "Une salle lugubre. Le couteau et le chandelier ont été retrouvés ici. Une ardoise de scores est accrochée au mur.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+Le tableau d'affichage est un objet fixé dans le bureau du détective.
+Le carnet est un objet dans le bureau du détective.
+
+Le couteau est un objet dans la salle du crime.
+Le chandelier est un objet dans la salle du crime.
+L'ardoise est un objet fixée dans la salle du crime.
+
+-- ======================================================
+-- LISTES (internes au jeu, invisibles pour le joueur)
+-- ======================================================
+
+Les suspects sont une liste.
+Les pièces à conviction sont une liste.
+Les scores de fiabilité sont une liste.
+
+-- ======================================================
+-- TEST 1 : ajouter plusieurs textes
+-- Le joueur examine le tableau → le jeu note trois suspects
+-- ======================================================
+
+règle après examiner le tableau d'affichage:
+  si les suspects est vide:
+    dire "Le tableau affiche trois noms encerclés en rouge.
+Vous notez les suspects dans votre carnet.".
+    ajouter aux suspects : "Jean Dupont", "Marie Curie" et "Victor Hugo".
+  sinon
+    dire "Vous avez déjà relevé les noms sur ce tableau.".
+  finsi
+fin règle
+
+-- ======================================================
+-- TEST 2 : ajouter plusieurs intitulés (objets du jeu)
+-- Le joueur examine la scène → le jeu enregistre deux preuves
+-- ======================================================
+
+règle après examiner la salle du crime:
+  si les pièces à conviction est vide:
+    dire "Vous inspectez soigneusement la pièce et relevez deux indices.
+Vous consignez le couteau et le chandelier comme pièces à conviction.".
+    ajouter aux pièces à conviction : le couteau et le chandelier.
+  sinon
+    dire "Vous avez déjà inspecté cette pièce.".
+  finsi
+fin règle
+
+-- ======================================================
+-- TEST 3 : ajouter plusieurs nombres
+-- Le joueur consulte l'ardoise → le jeu enregistre trois scores
+-- ======================================================
+
+règle après examiner l'ardoise:
+  si les scores de fiabilité est vide:
+    dire "L'ardoise indique les indices de fiabilité des témoignages : 3, 7 et 12.
+Vous recopiez ces chiffres.".
+    ajouter aux scores de fiabilité : 3, 7 et 12.
+  sinon
+    dire "Vous avez déjà relevé les scores.".
+  finsi
+fin règle
+
+-- ======================================================
+-- FEEDBACK : lire le carnet affiche le contenu des listes
+-- ======================================================
+
+règle après lire le carnet:
+  dire "=== Votre carnet d'enquête ===".
+  si les suspects est vide:
+    dire "Suspects : (aucun relevé pour l'instant)".
+  sinon
+    dire "Suspects : [lister les suspects]".
+  finsi
+  si les pièces à conviction est vide:
+    dire "Pièces à conviction : (aucune relevée pour l'instant)".
+  sinon
+    dire "Pièces à conviction : [lister les pièces à conviction]".
+  finsi
+  si les scores de fiabilité est vide:
+    dire "Scores de fiabilité : (aucun relevé pour l'instant)".
+  sinon
+    dire "Scores de fiabilité : [lister les scores de fiabilité]".
+  finsi
+fin règle
+
+-- ======================================================
+-- DÉMARRAGE
+-- ======================================================
+
+règle avant commencer le jeu:
+  dire "Vous êtes le détective Moreau. Une affaire vous attend.".
+  dire "Indices à relever : EXAMINER TABLEAU, ALLER AU NORD puis EXAMINER SALLE, EXAMINER ARDOISE.".
+  dire "Pour consulter vos notes : LIRE CARNET.".
+fin règle

@@ -195,13 +195,17 @@ export class Instructions {
         break;
 
       case 'refuser':
-        // refuser l’exécution de l’action + raison
-        // enlever le premier et le dernier caractères (") et les espaces aux extrémités.
-        const complementRepondre = instruction.complement1.trim();
-        let contenuRepondre = complementRepondre.slice(1, complementRepondre.length - 1).trim();
-        contenuRepondre = this.insDire.calculerTexteDynamique(contenuRepondre, nbExecutions, undefined, contexteTour, evenement, declenchements);
-        resultat.sortie += contenuRepondre;
-        resultat.refuse = true;
+        if (instruction.sujet?.nom?.toLowerCase() === 'action') {
+          // refuser l'action — sans message (à combiner avec dire)
+          resultat.refuse = true;
+          resultat.succes = true;
+        } else {
+          // refuser "raison" — afficher le message et refuser
+          resultat.sortie += this.insDire.calculerTexteDynamique(
+            instruction.complement1.trim().slice(1, instruction.complement1.trim().length - 1).trim(),
+            nbExecutions, undefined, contexteTour, evenement, declenchements);
+          resultat.refuse = true;
+        }
         break;
 
       case 'changer':
@@ -557,6 +561,18 @@ export class Instructions {
         } else {
           contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction)
         }
+        break;
+
+      case 'ajouter':
+        sousResultat = this.insChanger.executerAjouter(instruction, contexteTour);
+        resultat.sortie += sousResultat.sortie;
+        resultat.succes = sousResultat.succes;
+        break;
+
+      case 'enlever':
+        sousResultat = this.insChanger.executerEnlever(instruction, contexteTour);
+        resultat.sortie += sousResultat.sortie;
+        resultat.succes = sousResultat.succes;
         break;
 
       default:

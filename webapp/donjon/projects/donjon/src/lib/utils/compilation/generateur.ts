@@ -627,7 +627,7 @@ export class Generateur {
                   const ceci = cmd.els.sujet;
                   ev.isCeci = ceci ? true : false;
                   ev.ceci = (ev.isCeci ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules((ceci.determinant?.match(/un(e)? /) ? ceci.determinant : '') + ceci.nom + (ceci.epithete ? (" " + ceci.epithete) : "")).trim() : null);
-                  ev.classeCeci = (ceci.determinant?.match(/un(e)? /) ? ClasseUtils.trouverClasse(jeu.classes, ceci.nom) : null);
+                  ev.classeCeci = (ceci?.determinant?.match(/un(e)? /) ? ClasseUtils.trouverClasse(jeu.classes, ceci.nom) : null);
                   ev.quantiteCeci = 0;
                   ev.prepositionCeci = cmd.els.preposition0;
 
