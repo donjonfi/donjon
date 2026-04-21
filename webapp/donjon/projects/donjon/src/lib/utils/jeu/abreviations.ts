@@ -58,21 +58,25 @@ export class Abreviations {
 
     let mots = commandeModifiee.split(' ');
 
-    // "l'[verbe]" collé (ex: "l'ouvrir avec la clé") → "[verbe] ce dernier [reste]"
-    const matchCollé = /^l(?:'|\u2019)(\S+(?:er|ir|re))(.*)$/i.exec(commandeModifiee);
-    if (matchCollé) {
-      return matchCollé[1] + ' ce dernier' + matchCollé[2];
+    // "l'[abrev/verbe]" collé (ex: "l'x truc", "l're", "l'ouvrir avec la clé") → "[verbe] ce dernier [reste]"
+    const matchLApostrophe = /^l(?:'|\u2019)(\S+)(.*)$/i.exec(commandeModifiee);
+    if (matchLApostrophe) {
+      const expanded = Abreviations.premierMotCommande(matchLApostrophe[1], false, abreviations, 2);
+      if (/(?:er|ir|re)$/i.test(expanded)) {
+        return expanded + ' ce dernier' + matchLApostrophe[2];
+      }
     }
 
-    // "le/la/les/l' [verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
+    // "le/la/les/l' [abrev/verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
     if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l'")) {
-      if (/(?:er|ir|re)$/i.test(mots[1])) {
+      const verbe = Abreviations.premierMotCommande(mots[1], false, abreviations, 2);
+      if (/(?:er|ir|re)$/i.test(verbe)) {
         const reste = mots.slice(2).join(' ');
         let pronom: string;
         if (mots[0] === 'la') pronom = 'cette dernière';
         else if (mots[0] === 'les') pronom = 'ces derniers';
         else pronom = 'ce dernier';
-        return mots[1] + ' ' + pronom + (reste ? ' ' + reste : '');
+        return verbe + ' ' + pronom + (reste ? ' ' + reste : '');
       }
     }
 
