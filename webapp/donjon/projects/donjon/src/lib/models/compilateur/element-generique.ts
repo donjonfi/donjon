@@ -26,6 +26,8 @@ export class ElementGenerique implements ElementDonjon {
   public epitheteS: string = null;
   public epitheteP: string = null;
 
+  public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
+
   public synonymes: GroupeNominal[] = [];
   public valeursTexte: string[] = [];
   public valeursNombre: number[] = [];

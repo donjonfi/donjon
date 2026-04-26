@@ -9,6 +9,7 @@ export enum ResultatAnalysePhrase {
   abreviation,
   action,
   activerParametre,
+  afficherCompteur,
   elementAvecPosition,
   elementSansPosition,
   pronomDemontratifTypeAttribut,

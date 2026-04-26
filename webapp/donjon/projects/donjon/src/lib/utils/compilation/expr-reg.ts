@@ -161,6 +161,7 @@ export class ExprReg {
    * 2 compléments simples séparés par une préposition
    */
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
+  static readonly xAfficherCompteur = /^(.+?) (?:est|sont) affich[eé][e]?s? en (haut|bas)(?: [àa] (gauche|droite))?$/i;
 
 
   // ================================================================================================

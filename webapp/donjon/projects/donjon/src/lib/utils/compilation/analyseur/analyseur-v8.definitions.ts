@@ -159,6 +159,12 @@ export class AnalyseurV8Definitions {
         ctx.logResultatOk("trouvé (dé)activation paramètre");
       }
     }
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurDivers.testerAfficherCompteur(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.afficherCompteur) {
+        ctx.logResultatOk("trouvé afficher compteur");
+      }
+    }
     return elementTrouve;
   }
 

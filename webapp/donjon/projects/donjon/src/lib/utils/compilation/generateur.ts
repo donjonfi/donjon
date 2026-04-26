@@ -564,6 +564,9 @@ export class Generateur {
         }
       });
 
+      if (cpt.positionAffichage) {
+        curCompteur.positionAffichage = cpt.positionAffichage;
+      }
       jeu.compteurs.push(curCompteur);
     });
 

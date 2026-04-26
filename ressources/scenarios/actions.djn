@@ -583,7 +583,7 @@ action examiner ceci:
     si ceci est un objet:
       -- sous l’objet
       si la préposition de ceci est sous:
-        dire "[décrire objets sous ceci]".
+        dire "[décrire objets sous ceci sauf mentionnés]".
       -- autre préposition ou absence de préposition
       sinon
       -- > description de l’objet
@@ -594,13 +594,13 @@ action examiner ceci:
         -- > contenu de l’objet
         -- >> contenant ouvert
         si ceci est un contenant et ouvert :
-          dire "[décrire objets dans ceci]".
+          dire "[décrire objets dans ceci sauf mentionnés]".
         -- >> contenant fermé mais transparent
         sinonsi ceci est un contenant et fermé et transparent :
-          dire "[décrire objets dans ceci]".
+          dire "[décrire objets dans ceci sauf mentionnés]".
         -- >> support
         sinonsi ceci est un support :
-            dire "[décrire objets sur ceci]".
+            dire "[décrire objets sur ceci sauf mentionnés]".
         fin si
       fin si
       -- >> objet pas accessible
@@ -975,7 +975,7 @@ action ouvrir ceci:
     changer ceci n’est plus intact.
   phase épilogue:
     dire "[Pronom ceci] [v être ipr ceci] ouvert[es ceci].".
-    si ceci est un contenant, dire "[décrire objets dans ceci]".
+    si ceci est un contenant, dire "[décrire objets dans ceci sauf mentionnés]".
 fin action
 
 -- ouvrir ceci avec cela
@@ -1222,9 +1222,9 @@ action regarder:
   phase exécution:
     dire "{_{*[titre ici]*}_}".
     si l'infinitif de l'action est examiner:
-      dire "{n}[description ici][décrire objets ici]".
+      dire "{n}[description ici][décrire objets ici sauf mentionnés]".
     sinon
-      dire "{n}[description ici][décrire objets ici sauf cachés]".
+      dire "{n}[description ici][décrire objets ici sauf cachés et mentionnés]".
     fin si.
   phase épilogue:
     dire "{P}[sorties ici]".

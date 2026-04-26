@@ -151,4 +151,40 @@ export class AnalyseurDivers {
     return elementTrouve;
   }
 
+  /**
+   * La phrase demande d'afficher un compteur dans un coin de l'écran.
+   * Ex: La bourse est affichée en haut à droite.
+   */
+  public static testerAfficherCompteur(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
+
+    let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
+
+    const result = ExprReg.xAfficherCompteur.exec(phrase.morceaux[0]);
+
+    if (result) {
+      elementTrouve = ResultatAnalysePhrase.afficherCompteur;
+      const nomBrut = result[1].trim();
+      const verticalite = result[2].toLowerCase();
+      const lateralite = (result[3] ?? 'droite').toLowerCase();
+      const position = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
+      const nomNormalise = StringUtils.normaliserMot(nomBrut).trim();
+
+      const cpt = ctxAnalyse.elementsGeneriques.find(el =>
+        StringUtils.normaliserMot(el.nom).trim() === nomNormalise
+      );
+
+      if (cpt) {
+        cpt.positionAffichage = position;
+      } else {
+        ctxAnalyse.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          'Compteur inconnu',
+          `Afficher compteur: ce compteur n'existe pas : « ${nomBrut} ».`
+        );
+      }
+    }
+
+    return elementTrouve;
+  }
+
 }

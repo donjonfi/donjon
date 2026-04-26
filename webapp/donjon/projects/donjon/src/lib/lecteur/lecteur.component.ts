@@ -1419,6 +1419,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }, 100);
   }
 
+  get compteursHautGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-gauche") ?? []; }
+  get compteursHautDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-droite") ?? []; }
+  get compteursBasGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-gauche") ?? []; }
+  get compteursBasDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-droite") ?? []; }
+
+  get paddingTopCompteurs(): number {
+    return (this.compteursHautGauche.length > 0 || this.compteursHautDroite.length > 0) ? 36 : 0;
+  }
+  get paddingBottomCompteurs(): number {
+    return (this.compteursBasGauche.length > 0 || this.compteursBasDroite.length > 0) ? 36 : 0;
+  }
+
   /** afficher la case à cocher pour activer/désactiver l’audio */
   get afficherCheckActiverAudio(): boolean {
     return this.activerParametreAudio;

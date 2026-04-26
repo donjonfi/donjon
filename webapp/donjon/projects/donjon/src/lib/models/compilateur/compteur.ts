@@ -5,6 +5,8 @@ import { Intitule } from "../jeu/intitule";
 
 export class Compteur extends Intitule {
 
+  public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
+
   constructor(
     /** Nom du compteur */
     nom: string,

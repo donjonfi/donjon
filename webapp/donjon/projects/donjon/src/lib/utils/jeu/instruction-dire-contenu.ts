@@ -69,8 +69,8 @@ export class InstructionDireContenu {
 
   calculerBaliseListerDecrireContenu(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
     // La cible peut être un mot-clé (ici|ceci|…) ou un élément nommé avec article (le coffre, la table…).
-    // Le .+? non-greedy est borné par \] et arrêté avant "sauf cachés" grâce à l'alternance optionnelle.
-    const baliseListerDecrireContenu = "(décrire|lister|énumérer) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire|(?:le |la |l(?:'|\u2019)|les ).+?)(?: (sauf cachés))?";
+    // Le .+? non-greedy est borné par \] et arrêté avant "sauf …" grâce à l'alternance optionnelle.
+    const baliseListerDecrireContenu = "(décrire|lister|énumérer) objets (?:(sur|sous|dans|) )?(ici|origine|destination|ceci|cela|inventaire|(?:le |la |l(?:'|\u2019)|les ).+?)(?: (sauf (?:cachés(?: (?:et|ou) mentionnés)?|mentionnés)))?";
     return InstructionsUtils.processBalises(texteDynamique, baliseListerDecrireContenu, decoupe => {
       const ListerDecrireString = decoupe[1];
       const verbeLowerCase = ListerDecrireString.toLowerCase();
@@ -78,7 +78,9 @@ export class InstructionDireContenu {
       const isEnumerer = verbeLowerCase == "énumérer";
       const prepositionString = decoupe[2];
       const cibleString = decoupe[3];
-      const exclureCaches = decoupe[4] && decoupe[4] == "sauf cachés";
+      const saufClause = decoupe[4] ?? "";
+      const exclureCaches = saufClause.includes("cachés");
+      const exclureMentionnes = saufClause.includes("mentionnés");
       let phraseSiVide = "";
       let phraseSiQuelqueChose = "";
       const afficherObjetsCaches = !exclureCaches;
@@ -127,13 +129,21 @@ export class InstructionDireContenu {
         }
       }
       if (!(cible instanceof ElementJeu)) return "{+(cible pas trouvée)+}";
+      const ids = exclureMentionnes ? [...ctxTour.elementsMentionnes] : [];
+      let sortie: string;
       if (isEnumerer) {
-        return this.executerEnumererContenuFn(cible, afficherObjetsCaches, preposition, ctxTour.elementsMentionnes).sortie;
+        sortie = this.executerEnumererContenuFn(cible, afficherObjetsCaches, preposition, ids).sortie;
       } else if (isLister) {
-        return this.executerListerContenuFn(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+        sortie = this.executerListerContenuFn(cible, afficherObjetsCaches, false, false, false, false, false, preposition, ids).sortie;
       } else {
-        return this.executerDecrireContenuFn(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ctxTour.elementsMentionnes).sortie;
+        sortie = this.executerDecrireContenuFn(cible, phraseSiQuelqueChose, phraseSiVide, afficherObjetsCaches, false, false, false, false, false, preposition, ids).sortie;
       }
+      for (const id of ids) {
+        if (!ctxTour.elementsMentionnes.includes(id)) {
+          ctxTour.elementsMentionnes.push(id);
+        }
+      }
+      return sortie;
     });
   }
 
