@@ -28,6 +28,15 @@ export class ElementGenerique implements ElementDonjon {
 
   public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
 
+  /** Unité (forme singulière) pour un compteur. */
+  public unite?: string;
+
+  /** Compteur : ne pas afficher l'intitulé dans le cartouche. */
+  public sansIntitule?: boolean;
+
+  /** Compteur : ne pas afficher l'unité dans le cartouche. */
+  public sansUnite?: boolean;
+
   public synonymes: GroupeNominal[] = [];
   public valeursTexte: string[] = [];
   public valeursNombre: number[] = [];

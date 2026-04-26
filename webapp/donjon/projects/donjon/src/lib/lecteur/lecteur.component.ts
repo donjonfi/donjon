@@ -10,6 +10,7 @@ import { Jeu } from '../models/jeu/jeu';
 import { Choix } from '../models/compilateur/choix';
 import { ExprReg, Sauvegarde, StringUtils } from '../../public-api';
 import { TexteUtils } from '../utils/commun/texte-utils';
+import { MotUtils } from '../utils/commun/mot-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
 import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
@@ -1419,10 +1420,42 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
     }, 100);
   }
 
+  get titreLieuActuel(): string | undefined {
+    const lieu = this.partie?.eju?.curLieu;
+    if (!lieu) return undefined;
+    return lieu.titre ?? lieu.intitule?.nom;
+  }
+
+  get positionAffichageLieu(): 'haut' | 'bas' | 'aucun' {
+    return this.partie?.jeu?.parametres?.afficherTitreLieu ?? 'haut';
+  }
+
+  get afficherLieuDansCartoucheHaut(): boolean {
+    return this.positionAffichageLieu === 'haut' && !!this.titreLieuActuel;
+  }
+
+  get afficherLieuDansCartoucheBas(): boolean {
+    return this.positionAffichageLieu === 'bas' && !!this.titreLieuActuel;
+  }
+
+  get afficherCartoucheHaut(): boolean {
+    return this.afficherLieuDansCartoucheHaut || this.compteursHautGauche.length > 0 || this.compteursHautDroite.length > 0;
+  }
+
+  get afficherCartoucheBas(): boolean {
+    return this.afficherLieuDansCartoucheBas || this.compteursBasGauche.length > 0 || this.compteursBasDroite.length > 0;
+  }
+
   get compteursHautGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-gauche") ?? []; }
   get compteursHautDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-droite") ?? []; }
   get compteursBasGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-gauche") ?? []; }
   get compteursBasDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-droite") ?? []; }
+
+  /** Retourne l'unité accordée selon la valeur (singulier si |valeur| ≤ 1, pluriel sinon). */
+  uniteAccordee(compteur: { valeur: number, unite?: string }): string | null {
+    if (!compteur.unite) return null;
+    return Math.abs(compteur.valeur) <= 1 ? compteur.unite : MotUtils.getPluriel(compteur.unite);
+  }
 
   get paddingTopCompteurs(): number {
     return (this.compteursHautGauche.length > 0 || this.compteursHautDroite.length > 0) ? 36 : 0;

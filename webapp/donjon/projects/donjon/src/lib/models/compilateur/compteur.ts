@@ -7,6 +7,15 @@ export class Compteur extends Intitule {
 
   public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
 
+  /** Unité (forme singulière) affichée à côté de la valeur dans le cartouche. Ex: "pièce". */
+  public unite?: string;
+
+  /** Si vrai, ne pas afficher l'intitulé du compteur dans le cartouche. */
+  public sansIntitule?: boolean;
+
+  /** Si vrai, ne pas afficher l'unité du compteur dans le cartouche. */
+  public sansUnite?: boolean;
+
   constructor(
     /** Nom du compteur */
     nom: string,

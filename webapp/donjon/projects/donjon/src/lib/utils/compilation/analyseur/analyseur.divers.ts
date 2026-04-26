@@ -164,23 +164,72 @@ export class AnalyseurDivers {
     if (result) {
       elementTrouve = ResultatAnalysePhrase.afficherCompteur;
       const nomBrut = result[1].trim();
-      const verticalite = result[2].toLowerCase();
+      const verticalite = (result[2] ?? 'haut').toLowerCase();
       const lateralite = (result[3] ?? 'droite').toLowerCase();
       const position = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
-      const nomNormalise = StringUtils.normaliserMot(nomBrut).trim();
+      const options = (result[4] ?? '').toLowerCase();
+      const sansIntitule = /sans intitulé/.test(options);
+      const sansUnite = /sans unité/.test(options);
 
-      const cpt = ctxAnalyse.elementsGeneriques.find(el =>
-        StringUtils.normaliserMot(el.nom).trim() === nomNormalise
-      );
+      const motMinuscule = nomBrut.toLowerCase();
+      const estPronomPersonnel = motMinuscule === 'il' || motMinuscule === 'elle' || motMinuscule === 'ils' || motMinuscule === 'elles';
+
+      let cpt;
+      if (estPronomPersonnel) {
+        cpt = ctxAnalyse.dernierElementGenerique;
+      } else {
+        const nomNormalise = StringUtils.normaliserMot(nomBrut).trim();
+        cpt = ctxAnalyse.elementsGeneriques.find(el =>
+          StringUtils.normaliserMot(el.nom).trim() === nomNormalise
+        );
+      }
 
       if (cpt) {
         cpt.positionAffichage = position;
+        if (sansIntitule) cpt.sansIntitule = true;
+        if (sansUnite) cpt.sansUnite = true;
+      } else if (estPronomPersonnel) {
+        ctxAnalyse.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          'Compteur inconnu',
+          `Afficher compteur: aucun élément précédent auquel rattacher « ${nomBrut} ».`
+        );
       } else {
         ctxAnalyse.probleme(phrase, undefined,
           CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
           'Compteur inconnu',
           `Afficher compteur: ce compteur n'existe pas : « ${nomBrut} ».`
         );
+      }
+    }
+
+    return elementTrouve;
+  }
+
+  /**
+   * La phrase indique où afficher le titre du lieu actuel.
+   * Ex:
+   *  - Afficher le lieu dans le cartouche du haut.
+   *  - Afficher le titre du lieu dans le cartouche du bas.
+   *  - Ne pas afficher le titre du lieu dans le cartouche.
+   */
+  public static testerAfficherLieu(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
+
+    let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
+
+    const result = ExprReg.xAfficherLieuCartouche.exec(phrase.morceaux[0]);
+
+    if (result) {
+      elementTrouve = ResultatAnalysePhrase.afficherLieu;
+      const negation = !!result[1];
+      const position = result[2]?.toLowerCase();
+
+      if (negation) {
+        ctxAnalyse.parametres.afficherTitreLieu = 'aucun';
+      } else if (position === 'bas') {
+        ctxAnalyse.parametres.afficherTitreLieu = 'bas';
+      } else {
+        ctxAnalyse.parametres.afficherTitreLieu = 'haut';
       }
     }
 

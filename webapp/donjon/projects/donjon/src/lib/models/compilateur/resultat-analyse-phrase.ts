@@ -10,6 +10,7 @@ export enum ResultatAnalysePhrase {
   action,
   activerParametre,
   afficherCompteur,
+  afficherLieu,
   elementAvecPosition,
   elementSansPosition,
   pronomDemontratifTypeAttribut,

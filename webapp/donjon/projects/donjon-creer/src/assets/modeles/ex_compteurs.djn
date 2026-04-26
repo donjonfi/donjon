@@ -1,11 +1,16 @@
 Le titre du jeu est "Donjon des compteurs".
 
 -- Compteurs affichés dans les coins de l'écran
-Les vies sont un compteur initialisé à 3.
-La bourse est un compteur initialisé à 100.
-Les vies sont affichées en haut à gauche.
-La bourse est affichée en haut à droite.
-
+Les vies sont un compteur avec l'unité ❤️ initialisé à 3.
+La bourse est un compteur avec l'unité 🪙 initialisé à 100.
+Les vies sont affichées en bas à gauche sans intitulé.
+La bourse est affichée en bas à droite sans intitulé.
+La distance est un compteur avec l'unité km initialisé à 39.
+Il est affiché.
+Le score est un compteur initialisé à 42.
+Le score est affiché en haut.
+La collection est un compteur avec l'unité autocolant initialisé à 165.
+Il est affiché en haut sans unité et sans intitulé.
 -- Lieux
 L'entrée du donjon est un lieu.
   La description de l'entrée du donjon est "Vous êtes à l'entrée d'un sombre donjon. Un couloir part vers le nord. Un coffre trône au centre de la pièce.".

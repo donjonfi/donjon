@@ -165,6 +165,12 @@ export class AnalyseurV8Definitions {
         ctx.logResultatOk("trouvé afficher compteur");
       }
     }
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurDivers.testerAfficherLieu(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.afficherLieu) {
+        ctx.logResultatOk("trouvé afficher lieu");
+      }
+    }
     return elementTrouve;
   }
 

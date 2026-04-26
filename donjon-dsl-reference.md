@@ -799,6 +799,9 @@ fin réaction
 -- Définir un compteur
 Le score est un compteur.
 La vie est un compteur initialisé à 100.
+La bourse est un compteur avec l'unité pièce.                  -- unité affichée à côté de la valeur
+La bourse est un compteur initialisé à 100 avec l'unité pièce.
+La bourse est un compteur avec l'unité pièce initialisé à 100. -- ordre indifférent
 
 -- Afficher dans un coin de l'écran
 La vie est affichée en haut à droite.
@@ -806,6 +809,23 @@ Le score est affiché en haut à gauche.
 Les vies sont affichées en bas à droite.
 La bourse est affichée en bas à gauche.
 -- Positions : haut/bas + gauche/droite (sans direction latérale → droite par défaut)
+-- « en haut » est sous-entendu si omis :
+La bourse est affichée.              -- équivalent à « affichée en haut à droite »
+Le score est affiché à gauche.       -- équivalent à « affiché en haut à gauche »
+
+-- Référence par pronom personnel au dernier élément défini
+Le score est un compteur initialisé à 0.
+Il est affiché en haut.                       -- équivalent à "Le score est affiché en haut."
+La bourse est un compteur initialisé à 100.
+Elle est affichée en bas à gauche.
+Les vies sont un compteur initialisé à 3.
+Elles sont affichées en bas à droite.
+
+-- Options d'affichage : masquer l'intitulé et/ou l'unité
+La bourse est affichée en haut à droite sans intitulé.
+La bourse est affichée en haut à droite sans unité.
+La bourse est affichée en haut à droite sans intitulé sans unité.
+La bourse est affichée en haut à droite sans intitulé et sans unité. -- « et » optionnel
 
 -- Afficher la valeur dans un texte dynamique
 dire "Votre score est de [c score].".

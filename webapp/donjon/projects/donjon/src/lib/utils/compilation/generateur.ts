@@ -567,6 +567,15 @@ export class Generateur {
       if (cpt.positionAffichage) {
         curCompteur.positionAffichage = cpt.positionAffichage;
       }
+      if (cpt.unite) {
+        curCompteur.unite = cpt.unite;
+      }
+      if (cpt.sansIntitule) {
+        curCompteur.sansIntitule = true;
+      }
+      if (cpt.sansUnite) {
+        curCompteur.sansUnite = true;
+      }
       jeu.compteurs.push(curCompteur);
     });
 
