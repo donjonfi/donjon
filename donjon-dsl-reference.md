@@ -16,8 +16,20 @@ Les commentaires commencent par `--`.
 
 Le titre du jeu est "Mon jeu".
 L'auteur du jeu est "Anonyme".
-L'identifiant du jeu est "un-uuid-ici".
+Les auteurs du jeu sont "Alpha et Beta".   -- variante pluriel
+
+-- UUID unique identifiant le jeu sur les sites de fictions interactives.
+-- Généré automatiquement par l'éditeur Donjon.
+L'identifiant du jeu est "d0f16bc4-aa40-43f7-ba59-2b6909ba28d4".
+
+-- Champs optionnels
+Le titre du site web est "donjon.fi".
+Le lien du site web est "https://donjon.fi/".
+Le titre de la licence est "MIT".
+Le lien de la licence est "https://opensource.org/licenses/MIT".
 ```
+
+> Titre, auteur et identifiant sont **optionnels** — un scénario sans ces lignes est jouable.
 
 ---
 
@@ -28,9 +40,18 @@ Le salon est un lieu.
 Sa description est "Vous êtes dans un salon confortable.".
 Son titre est "Le grand salon".   -- optionnel, sinon le nom est utilisé
 
--- Lieu féminin
-La cuisine (f) est un lieu.
+-- Sans description, le moteur génère une description par défaut :
+-- « Vous êtes dans le salon. »
+
+-- Lieu féminin : (f) nécessaire seulement si le déterminant est ambigu (l')
+L'entrée (f) est un lieu.          -- (f) requis : "l'" est ambigu
+La cuisine est un lieu.            -- (f) inutile : "La" indique déjà le féminin
 Sa description est "Une cuisine bien équipée.".
+
+-- Les retours à la ligne dans le texte sont pris en compte par le moteur.
+Le grenier est un lieu.
+Sa description est "Un grenier poussiéreux.
+Des caisses s'empilent jusqu'au plafond.".
 
 -- Lieu avec plusieurs positions
 La forêt se trouve au nord du carrefour et à l'est du village.
@@ -64,8 +85,20 @@ Les connexions sont **bidirectionnelles** automatiquement.
 La pomme est un objet ici.
 Sa description est "Une pomme rouge et luisante.".
 
--- Objet avec genre féminin
-La clé dorée (f) est un objet ici.
+-- Genre féminin : (f) nécessaire seulement si le déterminant est ambigu (l')
+L'épée (f) est un objet ici.      -- (f) requis : "l'" est ambigu
+La clé est un objet ici.          -- (f) inutile : "La" indique déjà le féminin
+
+-- Pluriel : déduit automatiquement du déterminant ("les" → pluriel)
+Les pièces d'or sont un objet ici.   -- pluriel automatique, ne pas ajouter "sont plurielles"
+
+-- Localisation : "ici" et "dans [lieu]" sont mutuellement exclusifs
+-- "ici" dans une définition = dernier lieu défini avant cette ligne
+-- "ici" dans une routine (règle/action) = lieu où se trouve actuellement le personnage
+-- "dans [lieu]" = lieu nommé explicitement (utilisable partout)
+La pomme est un objet ici.            -- correct
+Le livre est un objet dans le salon.  -- correct
+-- INCORRECT : La pomme est un objet ici dans le salon.
 
 -- Objet dans un lieu précis
 Le livre est un objet dans le salon.
@@ -152,30 +185,82 @@ Les états se déclarent directement dans la définition ou via `changer`.
 
 ### États courants
 
-| État             | Opposé         | Description                                  |
-|------------------|----------------|----------------------------------------------|
-| `ouvert`         | `fermé`        | porte/contenant ouvert                       |
-| `fermé`          | `ouvert`       | porte/contenant fermé                        |
-| `verrouillé`     | `déverrouillé` | ne peut pas être ouvert                      |
-| `visible`        | `invisible`    | visible pour le joueur                       |
-| `invisible`      | `visible`      | caché, non décrit, non proposé               |
-| `secret`         | —              | invisible jusqu'à révélation explicite       |
-| `caché`          | —              | visible seulement à l'examen du contenant    |
-| `discret`        | —              | non décrit automatiquement                   |
-| `accessible`     | `inaccessible` | le joueur peut interagir avec                |
-| `intact`         | `pas intact`   | état initial de l'objet                      |
-| `ouvrable`       | —              | peut être ouvert                             |
-| `mangeable`      | —              | peut être mangé                              |
-| `buvable`        | —              | peut être bu                                 |
-| `parlant`        | —              | peut répondre à "parler à"                   |
-| `vu`             | —              | le joueur a déjà vu cet objet                |
-| `visité`         | —              | le joueur a déjà visité ce lieu              |
-| `présent`        | —              | calculé : l'objet est dans le lieu du joueur |
+Les états marqués *(calculé)* sont gérés automatiquement par le moteur et ne peuvent pas être appliqués directement.  
+`↔` = bascule : appliquer l'un retire l'autre.
+
+#### Visibilité et accès
+
+| État             | Opposé          | Description                                                        |
+|------------------|-----------------|--------------------------------------------------------------------|
+| `visible`        | `invisible`     | *(calculé)* visible pour le joueur                                |
+| `invisible`      | —               | non décrit, non proposé ; peut interagir en tant que concept      |
+| `secret`         | —               | invisible, non proposé, jamais décrit automatiquement             |
+| `caché`          | —               | visible seulement si le joueur regarde dans le contenant          |
+| `discret`        | —               | présent mais non décrit automatiquement                           |
+| `accessible`     | `inaccessible`  | *(calculé)* le joueur peut toucher l'objet                        |
+| `couvert`        | —               | non visible (recouvert par un autre objet)                        |
+| `présent`        | `absent`        | *(calculé)* l'objet est dans le lieu du joueur                    |
+| `possédé`        | —               | *(calculé)* l'objet est dans l'inventaire du joueur               |
+| `disponible`     | —               | *(calculé)* présent mais non possédé                              |
+| `porté`          | —               | *(calculé)* le joueur porte l'objet sur lui (vêtement)            |
+
+#### Connaissance du joueur
+
+| État         | Description                                                                       |
+|--------------|-----------------------------------------------------------------------------------|
+| `mentionné`  | *(calculé)* le joueur sait que l'objet existe (peut interagir avec)              |
+| `vu`         | *(calculé)* le joueur a vu l'objet (implique mentionné)                          |
+| `connu`      | *(calculé)* le joueur a manipulé l'objet (déterminant défini : « le/la »)        |
+| `visité`     | *(calculé)* le joueur a déjà visité ce lieu                                      |
+
+#### Ouverture et verrouillage
+
+| État           | Opposé          | Description                              |
+|----------------|-----------------|------------------------------------------|
+| `ouvert`       | `fermé` ↔       | porte/contenant ouvert                   |
+| `fermé`        | `ouvert` ↔      | porte/contenant fermé                    |
+| `ouvrable`     | —               | peut être ouvert par le joueur           |
+| `verrouillé`   | `déverrouillé` ↔| ne peut pas être ouvert sans clé         |
+| `verrouillable`| —               | peut être verrouillé                     |
+| `opaque`       | `transparent` ↔ | contenant : on ne voit pas l'intérieur   |
+
+#### Comportement physique
+
+| État              | Opposé         | Description                                              |
+|-------------------|----------------|----------------------------------------------------------|
+| `intact`          | `déplacé` ↔    | objet non encore déplacé/modifié par le joueur           |
+| `déplacé`         | `intact` ↔     | objet déplacé de sa position initiale                    |
+| `modifié`         | `intact`       | objet modifié (implique non intact)                      |
+| `portable`        | —              | le joueur peut le porter sur lui (se vêtir)              |
+| `mangeable`       | —              | peut être mangé                                          |
+| `buvable`         | —              | peut être bu                                             |
+| `décoratif`       | —              | fixe, le joueur ne peut pas l'emporter                   |
+| `dénombrable`     | `indénombrable`↔| l'objet est comptable (une épée, des épées)             |
+
+#### Lumière
+
+| État       | Opposé      | Description                               |
+|------------|-------------|-------------------------------------------|
+| `allumé`   | `éteint` ↔  | source de lumière active (lampe, bougie)  |
+| `éteint`   | `allumé` ↔  | source de lumière inactive               |
+| `éclairé`  | —           | lieu ou contenant éclairé                |
+| `clair`    | `obscur` ↔  | lieu : lumineux                          |
+| `obscur`   | `clair` ↔   | lieu : sombre                            |
+
+#### Personnages
+
+| État       | Opposé      | Description                              |
+|------------|-------------|------------------------------------------|
+| `parlant`  | `muet` ↔    | peut répondre à "parler à"               |
+| `muet`     | `parlant` ↔ | ne peut pas parler                       |
+| `actionné` | `arrêté` ↔  | appareil/machine en marche               |
+| `arrêté`   | `actionné` ↔| appareil/machine à l'arrêt              |
 
 ```
 -- Déclarer un état dans la définition
 La lampe est un objet éteint ici.
-Le coffre est un contenant fermé ici.
+Le coffre est un contenant fermé ici.         -- fermé, mais le joueur NE PEUT PAS l'ouvrir
+Le coffre est un contenant ouvrable et fermé ici.  -- le joueur PEUT l'ouvrir
 
 -- Changer un état dans une action/règle
 changer la lampe est allumée.
@@ -187,12 +272,46 @@ changer le coffre est ouvert.
 
 ## 6. Propriétés
 
+### Propriétés intégrées
+
 ```
-Sa description est "texte".
-Son aperçu est "texte".
-Son titre est "texte".
-Le texte de X est "texte".        -- texte lisible
+Sa description est "texte".       -- affiché lors de "examiner"
+Son aperçu est "texte".           -- affiché lors du "regarder" du lieu (remplace la mention automatique)
+Son titre est "texte".            -- optionnel, remplace le nom dans les titres
+Son texte est "texte".            -- affiché lors de "lire"
 La quantité de X est 3.           -- pour les objets quantifiables
+```
+
+### Propriétés personnalisées
+
+Vous pouvez définir vos propres propriétés sur n'importe quel objet ou lieu.
+
+- `est` → propriété de type **texte**
+- `vaut` → propriété de type **nombre**
+
+```
+-- Définir des propriétés personnalisées
+L'épée est un objet portable sur l'étale.
+Son prix vaut 45.
+Sa couleur est "bronze".
+
+-- Syntaxe alternative (utile pour définir après déclaration)
+Le prix du bouclier en bois vaut 10.
+La couleur du bouclier en bois est "brun".
+```
+
+### Afficher une propriété dans un texte
+
+```
+[p prix ceci]          -- valeur numérique de la propriété "prix" de ceci
+[p prix la hache]      -- valeur numérique de la propriété "prix" de la hache
+[c score]              -- valeur du compteur "score" (voir §17)
+
+-- Exemple avec accord automatique du pluriel
+dire "[intitulé ceci] coûte [p prix ceci] pièce[s prix ceci] d'or.".
+
+-- Test de l'existence d'une propriété dans un texte dynamique
+dire "[si aucun prix pour ceci]sans prix[sinon][p prix ceci] pièces[fin si]".
 ```
 
 ---
@@ -384,6 +503,30 @@ règle après prendre la pomme:
     continuer l'action.
   fin si
 fin règle
+
+-- Déclencheurs combinés (ou)
+règle après donner l'anneau au roi, donner l'anneau au prince ou donner l'anneau à la reine:
+  dire "<< Grâce à vous le royaume est sauvé ! >>".
+fin règle
+
+-- Déclencheur générique (sur une classe d'objet)
+règle après parler à un chien:
+  dire "<< Wouf ! >>".
+fin règle
+
+-- Déclencheur : commencer le jeu
+règle avant commencer le jeu:
+  changer le joueur possède la lampe.
+  changer la porte est déverrouillée.
+fin règle
+```
+
+### Tester si la règle s'est déjà déclenchée
+
+```
+si la règle se déclenche pour la première fois:
+si la règle se déclenche pour la deuxième fois:
+si la règle ne se déclenche pas pour la première fois:
 ```
 
 ---
@@ -423,15 +566,24 @@ si ceci est ouvert, dire "C'est ouvert.".
 si ceci n'est pas visible, refuser "Je ne le vois pas.".
 ```
 
-### Changements d'état
+### Changements d'état et de propriétés
 
 ```
 changer X est ouvert.
 changer X n'est plus fermé.
 changer X est invisible.
 changer le joueur se trouve dans le salon.
+-- place l'objet dans l'inventaire du joueur
+changer le joueur possède la lanterne.
+-- renomme l'objet (recalcule les synonymes automatiques)
+changer l'intitulé du coffre est "un vieux coffre".
+
+-- Propriétés numériques
 changer la quantité de X diminue de 1.
 changer la quantité de X augmente de 2.
+changer le score vaut 100.
+changer le score augmente de 10.
+changer le score diminue de 5.
 ```
 
 ### Déplacement
@@ -439,7 +591,8 @@ changer la quantité de X augmente de 2.
 ```
 déplacer le joueur vers le nord.
 déplacer X dans le salon.
-effacer X.                           -- retire X du jeu
+-- retire X du jeu
+effacer X.
 ```
 
 ### Exécution
@@ -447,9 +600,12 @@ effacer X.                           -- retire X du jeu
 ```
 exécuter la commande "regarder".
 exécuter l'action regarder.
-refuser "Message d'erreur.".
+exécuter routine nomDeLaRoutine.
+exécuter la routine nomDeLaRoutine dans 10 secondes.
+refuser "Message.".
 continuer l'action.
 arrêter l'action.
+terminer le jeu.
 ```
 
 ---
@@ -463,10 +619,27 @@ arrêter l'action.
 [aperçu ceci]            -- aperçu de l'objet
 [statut ceci]            -- statut (ouvert/fermé) d'une porte ou contenant
 [sorties ici]            -- liste des sorties du lieu actuel
+[titre ici]              -- titre du lieu actuel
 [obstacle vers ceci]     -- description de l'obstacle dans la direction ceci
 [décrire objets dans X]  -- liste les objets dans le contenant X
 [décrire objets sur X]   -- liste les objets sur le support X
 [lister objets inventaire]
+
+-- Mentions : empêchent la liste automatique de l'objet dans le lieu
+[@nom de l'objet]        -- vu + mentionné (objet actuellement visible dans le lieu)
+[#nom de l'objet]        -- mentionné uniquement (objet pas forcément visible)
+[&nom de l'objet]        -- connu + vu + mentionné (objet déjà connu du joueur)
+
+-- Propriétés et compteurs
+[p prix ceci]            -- valeur de la propriété numérique "prix" de ceci
+[p poids le sac]         -- valeur de la propriété numérique "poids" du sac
+[c score]                -- valeur du compteur "score"
+[s score]                -- "s" si la valeur du compteur est ≠ 1 (accord pluriel)
+
+-- Listes
+[lister maListe]         -- liste les éléments de la liste (intitulés)
+[décrire maListe]        -- décrit les éléments de la liste (descriptions)
+[énumérer maListe]       -- énumère les éléments de la liste
 
 -- Accord grammatical
 [pronom ceci]            -- "il", "elle", "ils", "elles"
@@ -489,10 +662,11 @@ arrêter l'action.
 
 ```
 {n}   -- saut de ligne
-{N}   -- saut de paragraphe (ligne vide)
-{P}   -- nouveau paragraphe
-{U}   -- retour à la ligne (ul style)
-{e}   -- indentation
+{N}   -- saut de ligne conditionnel (ignoré s'il n'est pas suivi de texte)
+{p}   -- nouveau paragraphe
+{U}   -- retour à la ligne (style liste)
+{e}   -- espace forcé en début ou fin de texte (évite que les espaces soient supprimés)
+{i}   -- espace insécable (empêche une coupure de ligne à cet endroit)
 
 {*texte*}    -- gras
 {/texte/}    -- italique
@@ -501,11 +675,23 @@ arrêter l'action.
 {-texte-}    -- commande (style monospace)
 {=texte=}    -- barré
 
--- Choix/conditions dans les textes
+-- Conditions et choix dans les textes
 [si X est Y]...[sinon]...[fin si]
-[initialement]texte premier affichage[fin choix]
-[aléatoirement]texte A[ou]texte B[ou]texte C[fin choix]
-[choisir]texte A[ou]texte B[fin choix]      -- rotation
+
+-- Affichage selon le nombre de fois que le texte a été rencontré
+[1ère fois]texte[fin]
+[1ère fois]texte A[2e fois]texte B[puis]texte suite[fin]
+[3e fois]texte rare[sinon]texte habituel[fin]
+
+-- Texte aléatoire
+[au hasard]texte A[ou]texte B[ou]texte C[fin]
+
+-- Rotation (en boucle)
+[en boucle]texte 1[puis]texte 2[puis]texte 3[fin]
+
+-- Selon l'état intact de l'objet
+[initialement]texte si intact[fin]
+[initialement]texte si intact[puis]texte si modifié/déplacé[fin]
 ```
 
 ---
@@ -514,7 +700,8 @@ arrêter l'action.
 
 ```
 -- Le joueur démarre dans le premier lieu défini par défaut.
--- Pour changer :
+-- Cette instruction n'est utile que lorsqu'il y a plusieurs lieux
+-- et que le lieu de départ n'est pas le premier déclaré.
 Le joueur se trouve dans le salon.
 ```
 
@@ -559,9 +746,165 @@ fin action
 
 ---
 
+## 17. Routines simples
+
+Une routine simple est un bloc d'instructions réutilisable, appelable depuis n'importe quelle action ou règle.
+
+```
+routine remercier:
+  dire "« Merci et à bientôt ! »".
+fin routine
+
+action acheter:
+  dire "Vous achetez l'objet.".
+  exécuter routine remercier.
+fin action
+```
+
+---
+
+## 18. Réactions (personnages)
+
+Les réactions permettent aux personnages de répondre quand le joueur leur parle.
+
+```
+Le berger est une personne.
+
+réactions du berger:
+  concernant la brebis:
+    dire "Elle s'est perdue. Il faut absolument la retrouver avant la tombée de la nuit !".
+
+  -- se déclenche si le joueur parle d'un sujet non prévu
+  concernant un sujet inconnu:
+    dire "Il faut se concentrer sur ma brebis.".
+
+  -- se déclenche si le joueur parle sans préciser de sujet
+  basique:
+    dire "J'ai égaré ma brebis. Je vous prie de m'aider à la retrouver !".
+fin réactions
+
+-- Réaction basique unique (forme courte, sans étiquette)
+Le chien est un vivant parlant.
+réaction du chien:
+  dire "Le chien vous a mordu ! Vous lui avez fait peur.".
+  changer le joueur est mordu.
+fin réaction
+```
+
+---
+
+## 19. Mémoire : compteurs
+
+```
+-- Définir un compteur
+Le score est un compteur.
+La vie est un compteur initialisé à 100.
+La bourse est un compteur avec l'unité pièce.                  -- unité affichée à côté de la valeur
+La bourse est un compteur initialisé à 100 avec l'unité pièce.
+La bourse est un compteur avec l'unité pièce initialisé à 100. -- ordre indifférent
+
+-- Afficher dans un coin de l'écran
+La vie est affichée en haut à droite.
+Le score est affiché en haut à gauche.
+Les vies sont affichées en bas à droite.
+La bourse est affichée en bas à gauche.
+-- Positions : haut/bas + gauche/droite (sans direction latérale → droite par défaut)
+-- « en haut » est sous-entendu si omis :
+La bourse est affichée.              -- équivalent à « affichée en haut à droite »
+Le score est affiché à gauche.       -- équivalent à « affiché en haut à gauche »
+
+-- Référence par pronom personnel au dernier élément défini
+Le score est un compteur initialisé à 0.
+Il est affiché en haut.                       -- équivalent à "Le score est affiché en haut."
+La bourse est un compteur initialisé à 100.
+Elle est affichée en bas à gauche.
+Les vies sont un compteur initialisé à 3.
+Elles sont affichées en bas à droite.
+
+-- Options d'affichage : masquer l'intitulé et/ou l'unité
+La bourse est affichée en haut à droite sans intitulé.
+La bourse est affichée en haut à droite sans unité.
+La bourse est affichée en haut à droite sans intitulé sans unité.
+La bourse est affichée en haut à droite sans intitulé et sans unité. -- « et » optionnel
+
+-- Afficher la valeur dans un texte dynamique
+dire "Votre score est de [c score].".
+dire "Votre bourse contient [c bourse] pièce[s bourse] d'or.".  -- [s X] → "s" si valeur ≠ 1
+
+-- Modifier (valeur fixe)
+changer le score augmente de 10.
+changer le score diminue de 5.
+changer le score vaut 100.
+
+-- Modifier (valeur d'une propriété)
+changer le total augmente du prix de l'épée d'argent.
+changer la bourse diminue du prix de ceci.
+changer la luminosité d'ici vaut la luminosité de la lampe.
+
+-- Tester (égalité)
+si le score vaut 100, dire "Score parfait !".
+si le score ne vaut pas 100, dire "Il y a moyen de faire mieux.".
+
+-- Tester (comparaison)
+si le score est supérieur à 50, dire "Bonne progression.".
+si le score est inférieur à 10, dire "Attention, score bas.".
+si le score n'atteint pas 10, dire "Vous ferez mieux la prochaine fois !".  -- strictement inférieur
+si le prix de ceci ne dépasse pas la bourse, dire "Vous pouvez l'acheter.".  -- inférieur ou égal
+```
+
+---
+
+## 20. Mémoire : listes et historique
+
+```
+-- Définir une liste
+Les suspects sont une liste.
+L'historique est une liste.
+
+-- Modifier une liste
+changer les suspects contiennent le majordome.
+changer les suspects ne contiennent plus le majordome.
+vider les suspects.
+
+-- Tester
+si les suspects contiennent le majordome:
+  dire "Le majordome est suspect.".
+fin si
+
+-- Historique : même syntaxe avec des chaînes de texte
+changer l'historique contient "grotte visitée".
+changer l'historique ne contient plus "grotte bloquée".
+si l'historique contient "grotte visitée":
+  dire "Vous connaissez déjà cette grotte.".
+fin si
+
+-- Afficher dans un texte dynamique
+sa description est "[si l'historique contient "grotte bloquée"]Pas moyen de sortir.[sinon]On peut sortir.[fin si]".
+```
+
+---
+
+## 21. Temps : programmer une routine
+
+```
+-- Déclencher une routine après un délai
+règle après commencer le jeu:
+  exécuter la routine boom dans 10 secondes.
+fin règle
+
+routine boom:
+  dire "La bombe a explosé ! Vous avez perdu.".
+fin routine
+```
+
+---
+
 ## 16. Ce que le moteur gère automatiquement
 
 - Bidirectionnalité des sorties entre lieux.
+- Description par défaut pour les lieux sans `Sa description est` (ex: « Vous êtes dans le salon. »).
+- Description du lieu affichée automatiquement au démarrage de la partie et après chaque déplacement du joueur.
+- Listing automatique des objets visibles dans la description du lieu. Si l'objet a un `aperçu`, celui-ci est utilisé à la place de la mention automatique.
 - Affichage des portes visibles dans `regarder` (ouverte/fermée).
 - Affichage des sorties avec statut d'obstruction.
 - Actions de base : `regarder`, `examiner`, `prendre`, `poser`, `inventaire`, `aller`, `ouvrir`, `fermer`, `parler à`, `donner`... (si le fichier d'actions est inclus).

@@ -1,0 +1,73 @@
+Le titre du jeu est "Donjon des compteurs".
+
+-- Compteurs affichés dans les coins de l'écran
+Les vies sont un compteur avec l'unité ❤️ initialisé à 3.
+La bourse est un compteur avec l'unité 🪙 initialisé à 100.
+Les vies sont affichées en bas à gauche sans intitulé.
+La bourse est affichée en bas à droite sans intitulé.
+La distance est un compteur avec l'unité km initialisé à 39.
+Il est affiché.
+Le score est un compteur initialisé à 42.
+Le score est affiché en haut.
+La collection est un compteur avec l'unité autocolant initialisé à 165.
+Il est affiché en haut sans unité et sans intitulé.
+-- Lieux
+L'entrée du donjon est un lieu.
+  La description de l'entrée du donjon est "Vous êtes à l'entrée d'un sombre donjon. Un couloir part vers le nord. Un coffre trône au centre de la pièce.".
+
+Le couloir sombre est un lieu au nord de l'entrée du donjon.
+  La description du couloir sombre est "Le couloir est étroit et humide. Une chauve-souris géante vous regarde. Une sortie mène vers le sud.".
+
+-- Objets
+Le coffre est un contenant ouvrable et fermé dans l'entrée du donjon.
+  La description du coffre est "Un vieux coffre en bois cerclé de fer.".
+
+Les pièces d'or sont un objet dans le coffre.
+  La description des pièces d'or est "Une poignée de pièces d'or qui brillent.".
+
+La chauve-souris est un animal dans le couloir sombre.
+  La description de la chauve-souris est "Une chauve-souris géante aux yeux rouges. Elle semble agressive.".
+
+La potion de soin est un objet dans le couloir sombre.
+  La description de la potion de soin est "Un petit flacon rempli d'un liquide rouge. Elle semble pouvoir restaurer vos points de vie.".
+
+-- Règle: prendre les pièces d'or → bourse augmente
+règle après prendre les pièces d'or:
+  dire "Vous ramassez les pièces d'or et les ajoutez à votre bourse.".
+  changer la bourse augmente de 50.
+fin règle
+
+-- Règle: boire la potion → vies restaurées
+règle avant boire la potion de soin:
+  si le joueur possède la potion de soin:
+    dire "Vous buvez la potion. Vos blessures se referment !".
+    changer les vies vaut 3.
+    effacer la potion de soin.
+    stopper l'action.
+  sinon:
+    dire "Vous n'avez pas de potion de soin.".
+    stopper l'action.
+  fin si
+fin règle
+
+-- Action personnalisée
+action attaquer ceci:
+  phase épilogue:
+    dire "Vous n'arrivez pas à attaquer [intitulé ceci].".
+fin action
+
+-- Règle: attaquer la chauve-souris → perte d'une vie
+règle avant attaquer la chauve-souris:
+  si les vies valent 0:
+    dire "Vous êtes déjà à terre…".
+    stopper l'action.
+  sinon:
+    dire "La chauve-souris vous griffe ! Vous perdez une vie.".
+    changer les vies diminue de 1.
+    si les vies valent 0:
+      dire "Vous avez perdu toutes vos vies. Game over !".
+      terminer le jeu.
+    fin si
+    stopper l'action.
+  fin si
+fin règle

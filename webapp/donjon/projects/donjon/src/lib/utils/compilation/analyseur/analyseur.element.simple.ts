@@ -67,7 +67,8 @@ export class AnalyseurElementSimple {
       nombre = MotUtils.getNombre(result[1], estToujoursPluriel);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
-      initialiseA = result[7];
+      initialiseA = result[7] ?? result[9];
+      const unite = result[8];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
       if (initialiseA) {
         attributs.push(initialiseA);
@@ -96,6 +97,10 @@ export class AnalyseurElementSimple {
         } else {
           nouvelElementGenerique.nomS = autreForme;
         }
+      }
+
+      if (unite) {
+        nouvelElementGenerique.unite = unite;
       }
 
     } else {

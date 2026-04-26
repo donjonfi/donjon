@@ -12,4 +12,5 @@ export class Parametres {
     public activerSynonymesAuto = true;
     public activerChoixNumeriques = false;
     public activerAttendre = true;
+    public afficherTitreLieu: 'haut' | 'bas' | 'aucun' = 'haut';
 }

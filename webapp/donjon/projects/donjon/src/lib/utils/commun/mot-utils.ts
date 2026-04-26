@@ -23,10 +23,39 @@ export class MotUtils {
     return singulier;
   }
 
+  /** abréviations d'unités de mesure communes qui restent invariables au pluriel */
+  static readonly abreviationsUnitesMesure = [
+    // longueur
+    'mm', 'cm', 'dm', 'm', 'dam', 'hm', 'km',
+    // masse
+    'mg', 'cg', 'dg', 'g', 'dag', 'hg', 'kg', 't',
+    // volume / capacité
+    'ml', 'cl', 'dl', 'l', 'dal', 'hl',
+    // surface
+    'mm²', 'cm²', 'dm²', 'm²', 'dam²', 'hm²', 'km²', 'a', 'ha',
+    // volume cube
+    'mm³', 'cm³', 'dm³', 'm³',
+    // temps
+    'ms', 's', 'min', 'h',
+    // température
+    '°C', '°F', '°K', 'K',
+    // informatique
+    'o', 'ko', 'Mo', 'Go', 'To', 'Po', 'b', 'kb', 'Mb', 'Gb', 'Tb',
+    // autres
+    'Hz', 'kHz', 'MHz', 'GHz', 'W', 'kW', 'MW', 'V', 'kV', 'A', 'mA', 'Pa', 'hPa', 'kPa', 'N', 'J', 'kJ', 'cal', 'kcal',
+  ];
+
   /** essayer de déterminer le pluriel sur base des règles les plus communes */
   static getPluriel(nomS: string) {
     let pluriel = nomS;
     if (nomS) {
+      // abréviations d'unités de mesure => invariables
+      if (MotUtils.abreviationsUnitesMesure.includes(nomS)) {
+        return nomS;
+      }
+      if (!/[a-zA-ZÀ-ÿ]$/.test(nomS)) {
+        return nomS;
+      }
       // al => aux
       if (nomS.endsWith('al')) {
         pluriel = nomS.slice(0, nomS.length - 1) + 'ux';

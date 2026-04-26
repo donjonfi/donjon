@@ -1,0 +1,143 @@
+====== 1. Les bases ======
+
+Dans ce premier chapitre, nous allons construire le point de départ de //La Tour Émeraude// : le village de Riveclair. Vous allez apprendre à :
+
+  * créer votre premier lieu et le décrire
+  * y placer un objet que le joueur pourra examiner et lire
+  * afficher un message d'introduction au démarrage de la partie
+  * donner un titre et un auteur à votre jeu
+
+===== 1.1 Un premier lieu =====
+
+Un scénario Donjon FI est un simple fichier texte. Chaque phrase se termine par un point. Une seule ligne suffit pour avoir un jeu jouable :
+
+<code donjon tuto_tour_emeraude_ch1_01.djn>
+La place du village est un lieu.
+</code>
+
+Essayez dès maintenant : [[djnc>tuto_tour_emeraude_ch1_01|tester cet exemple]]
+
+> **Astuce :** Pour lancer votre scénario, cliquez sur le bouton **baguette magique** (✨) dans la barre latérale gauche de l'éditeur. Donjon analysera votre scénario et démarrera le jeu. Vous utiliserez ce bouton pour tester chacun des exemples de ce tutoriel.
+
+> **Attention :** Chaque phrase doit se terminer par un point. Sans ce point, le moteur ne comprendra pas la phrase.
+
+La description du lieu s'affiche automatiquement au démarrage et à chaque déplacement — inutile de taper ''regarder''. Essayez plutôt : ''sauter''. Le moteur génère une description par défaut pour le lieu (« Vous êtes dans la place du village. »), mais on peut faire mieux.
+
+===== 1.2 Décrire un lieu =====
+
+⇒ article détaillé : [[reference:definitions:description_et_apercu|Description de vos lieux et objets]]
+
+La description d'un lieu s'affiche automatiquement au démarrage, après chaque déplacement, et quand le joueur tape ''regarder''. On l'ajoute avec ''Sa description est "..."'' juste après la déclaration du lieu. Les retours à la ligne dans le texte sont pris en compte par Donjon :
+
+<code donjon tuto_tour_emeraude_ch1_02.djn>
+La place du village est un lieu.
+Sa description est "Vous vous trouvez sur la place de Riveclair, un village blotti au pied de collines verdoyantes.
+La fontaine centrale murmure doucement.".
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_02|tester cet exemple]]
+
+N'hésitez pas à modifier la description pour la personnaliser à votre goût — changez le nom du village, l'ambiance, ajoutez des détails. C'est votre histoire !
+
+===== 1.3 Ajouter un objet =====
+
+⇒ article détaillé : [[reference:definitions:objets|Objets]]
+
+Ajoutons une pancarte que le joueur pourra examiner. Le mot-clé ''ici'' place l'objet dans le lieu défini juste au-dessus :
+
+<code donjon tuto_tour_emeraude_ch1_03.djn>
+La place du village est un lieu.
+Sa description est "Vous vous trouvez sur la place de Riveclair, un village blotti au pied de collines verdoyantes.
+La fontaine centrale murmure doucement.
+Une pancarte en bois est plantée près du chemin qui part vers l'est.".
+
+La pancarte est un objet ici.
+Sa description est "Une vieille pancarte en bois couverte d'une écriture tremblante.".
+Son texte est "Aventurier recherché d'urgence. Récupérez la Couronne des Anciens volée par le sorcier Malgur. Récompense : 500 pièces d'or. Parlez à Aldric, chef du village.".
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_03|tester cet exemple]]
+
+Essayez les commandes ''examiner pancarte'' et ''lire pancarte''.
+
+Vous remarquerez cependant un problème : **la pancarte apparaît deux fois** dans la description du lieu. Une première fois parce que nous l'avons mentionnée dans la description du lieu, et une deuxième fois parce que le moteur liste automatiquement tous les objets présents. Nous allons corriger ça.
+
+===== 1.4 Aperçu, description et texte =====
+
+Il existe deux façons de régler la double apparition.
+
+**Solution 1 : la balise ''[@...]''**
+
+On ajoute ''[@pancarte]'' directement dans la description du lieu, là où la pancarte est mentionnée. Donjon comprend que l'objet a déjà été décrit et ne le liste plus automatiquement :
+
+<code donjon tuto_tour_emeraude_ch1_03c.djn>
+La place du village est un lieu.
+Sa description est "Vous vous trouvez sur la place de Riveclair, un village blotti au pied de collines verdoyantes.
+La fontaine centrale murmure doucement.
+Une pancarte en bois est plantée près du chemin qui part vers l'est.[@pancarte]".
+
+La pancarte est un objet ici.
+Sa description est "Une vieille pancarte en bois couverte d'une écriture tremblante.".
+Son texte est "Aventurier recherché d'urgence. Récupérez la Couronne des Anciens volée par le sorcier Malgur. Récompense : 500 pièces d'or. Parlez à Aldric, chef du village.".
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_03c|tester cet exemple]]
+
+**Solution 2 : ''Son aperçu est''**
+
+On retire la mention de la pancarte dans la description du lieu, et on définit à la place un aperçu directement sur l'objet. Cet aperçu s'affiche lors du ''regarder'' du lieu à la place de la mention automatique :
+
+<code donjon tuto_tour_emeraude_ch1_03b.djn>
+La place du village est un lieu.
+Sa description est "Vous vous trouvez sur la place de Riveclair, un village blotti au pied de collines verdoyantes.
+La fontaine centrale murmure doucement.".
+
+La pancarte est un objet ici.
+Son aperçu est "Une pancarte en bois est plantée près du chemin qui part vers l'est.".
+Sa description est "Une vieille pancarte en bois couverte d'une écriture tremblante.".
+Son texte est "Aventurier recherché d'urgence. Récupérez la Couronne des Anciens volée par le sorcier Malgur. Récompense : 500 pièces d'or. Parlez à Aldric, chef du village.".
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_03b|tester cet exemple]]
+
+> **Note :** L'aperçu est plus flexible : il peut changer en cours de partie selon l'état de l'objet. Nous verrons cela dans les chapitres suivants.
+
+En résumé, pour un objet :
+
+  * **aperçu** → texte intégré à la description du lieu lors du ''regarder''
+  * **description** → texte affiché lors de ''examiner''
+  * **texte** → texte affiché lors de ''lire''
+
+===== 1.5 Le message de bienvenue =====
+
+Pour accueillir le joueur avec un texte d'introduction au tout début de la partie, on utilise une **règle**. Une règle s'exécute automatiquement à certains moments du jeu. Ici, on veut afficher un message une seule fois, juste après le premier ''regarder'' :
+
+<code donjon tuto_tour_emeraude_ch1_04.djn>
+règle après regarder:
+  si la règle se déclenche pour la première fois:
+    dire "Le soleil se lève à peine sur Riveclair quand on frappe à votre porte. Aldric, le chef du village, vous tend une bourse légère et un regard suppliant. Il vous dit : Lyra, vous êtes notre seul espoir. Retrouvez la Couronne avant que Malgur s'en serve. Vous voilà sur la place, sac sur l'épaule, prête à en découdre.".
+  fin si.
+fin règle
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_04|tester cet exemple]]
+
+> **Note :** Les règles font partie d'un ensemble plus large appelé les **routines**, qui comprend également les actions personnalisées. Ce sont des outils très puissants de Donjon FI que nous aborderons en détail dans les chapitres suivants.
+
+===== 1.6 Les informations du jeu =====
+
+⇒ article détaillé : [[reference:divers:informations_sur_le_jeu|Informations sur le jeu]]
+
+Pour finaliser votre jeu, ajoutez un titre, votre nom et un identifiant unique en début de fichier :
+
+<code donjon tuto_tour_emeraude_ch1_05.djn>
+Le titre du jeu est "La Tour Émeraude".
+L'auteur du jeu est "Votre nom".
+L'identifiant du jeu est "d0f16bc4-aa40-43f7-ba59-2b6909ba28d4".
+</code>
+
+[[djnc>tuto_tour_emeraude_ch1_05|tester cet exemple]]
+
+> **Astuce :** Donjon génère automatiquement un identifiant unique lorsque vous créez un nouveau scénario — vous n'avez pas à vous en préoccuper.
+
+Suite : [[tutoriels:tour_emeraude:partie2_lieux|2. Plusieurs lieux]]

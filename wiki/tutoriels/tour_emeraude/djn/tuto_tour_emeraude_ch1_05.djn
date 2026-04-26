@@ -1,0 +1,18 @@
+Le titre du jeu est "La Tour Émeraude".
+L'auteur du jeu est "Votre nom".
+L'identifiant du jeu est "d0f16bc4-aa40-43f7-ba59-2b6909ba28d4".
+
+La place du village est un lieu.
+Sa description est "Vous vous trouvez sur la place de Riveclair, un village blotti au pied de collines verdoyantes.
+La fontaine centrale murmure doucement.".
+
+La pancarte est un objet ici.
+Son aperçu est "Une pancarte en bois est plantée près du chemin qui part vers l'est.".
+Sa description est "Une vieille pancarte en bois couverte d'une écriture tremblante.".
+Son texte est "Aventurier recherché d'urgence. Récupérez la Couronne des Anciens volée par le sorcier Malgur. Récompense : 500 pièces d'or. Parlez à Aldric, chef du village.".
+
+règle après regarder:
+  si la règle se déclenche pour la première fois:
+    dire "Le soleil se lève à peine sur Riveclair quand on frappe à votre porte. Aldric, le chef du village, vous tend une bourse légère et un regard suppliant. Il vous dit : Lyra, vous êtes notre seul espoir. Retrouvez la Couronne avant que Malgur s'en serve. Vous voilà sur la place, sac sur l'épaule, prête à en découdre.".
+  fin si.
+fin règle

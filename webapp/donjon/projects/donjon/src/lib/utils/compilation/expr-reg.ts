@@ -161,6 +161,8 @@ export class ExprReg {
    * 2 compléments simples séparés par une préposition
    */
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
+  static readonly xAfficherCompteur = /^(.+?) (?:est|sont) affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans (?:intitulé|unité))*)$/i;
+  static readonly xAfficherLieuCartouche = /^(ne pas )?afficher le (?:titre du )?lieu dans le cartouche(?: du (haut|bas))?$/i;
 
 
   // ================================================================================================
@@ -179,7 +181,7 @@ export class ExprReg {
    *     - 💥 Ce sont des fruits
    *     - 💥 Le bucheron est une personne ici
    */
-  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c'|c\u2019|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l'|l\u2019)|les |du )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l'|\u2019))|de (?:la |l'|l\u2019)?|du |des |d'|d\u2019|à |au(?:x)? |en |qui |sans )\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d'|d\u2019|n'|n\u2019|s'|s\u2019|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?: ((?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)(?:(?:, (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?))*(?: et (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)))?))?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?$/i;
+  static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c'|c\u2019|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l'|l\u2019)|les |du )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l'|\u2019))|de (?:la |l'|l\u2019)?|du |des |d'|d\u2019|à |au(?:x)? |en |qui |sans )\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d'|d\u2019|n'|n\u2019|s'|s\u2019|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?: ((?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)(?:(?:, (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?))*(?: et (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)))?))?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?(?:(?: *)avec (?:l'|l’)unité (\S+))?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?$/i;
 
   /** élément générique positionné par rapport à complément
    * - Découpage :

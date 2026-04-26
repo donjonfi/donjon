@@ -1,0 +1,20 @@
+Le joueur se trouve dans la salle.
+La salle est un lieu.
+Sa description est "Vous êtes dans une salle de test.
+Ici se trouvent un coffre, un panneau A et un panneau B.".
+
+Le coffre est un contenant ouvert dans la salle.
+La pomme est un objet dans le coffre.
+Le livre est un objet dans le coffre.
+
+Le panneau A est un objet dans la salle.
+Sa description est "=== Ordre 1 : énumérer + lister + décrire ===
+[énumérer objets dans le coffre]
+[lister objets dans le coffre]
+[décrire objets dans le coffre]".
+
+Le panneau B est un objet dans la salle.
+Sa description est "=== Ordre 2 : décrire + lister + énumérer ===
+[décrire objets dans le coffre]
+[lister objets dans le coffre]
+[énumérer objets dans le coffre]".

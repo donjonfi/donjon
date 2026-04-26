@@ -24,3 +24,101 @@
   max-height: 100%;
   overflow: auto;
 }
+
+// Design A — Bandeau supérieur fixe (HUD)
+.sortie-jeu-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.375rem;
+  background-color: #fcf8ef;
+  overflow: hidden;
+}
+
+.cartouche-jeu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(to bottom, #fcf8ef, #edeae1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+
+.cartouche-jeu-bas {
+  border-bottom: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+  background: linear-gradient(to top, #fcf8ef, #edeae1);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.cartouche-compteurs-bas-gauche {
+  justify-content: flex-start;
+}
+
+.cartouche-lieu {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 0;
+
+  .cartouche-lieu-icone {
+    color: #6c757d;
+    font-size: 1.1em;
+    line-height: 1;
+  }
+
+  .cartouche-lieu-nom {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.cartouche-compteurs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cartouche-compteur {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.2;
+
+  .cartouche-compteur-nom {
+    color: #6c757d;
+    text-transform: lowercase;
+  }
+
+  .cartouche-compteur-valeur {
+    font-weight: 600;
+    color: #2c3e50;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cartouche-compteur-unite {
+    color: #6c757d;
+  }
+}
+
+.sortie-jeu-wrapper > #taResultat {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+  background-color: #fcf8ef;
+}
