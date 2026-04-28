@@ -30,10 +30,10 @@ import { ACTIONS_DJN, NOUVEAU_DJN } from '../standalone/modeles-standalone';
 import { JOUER_ONE_HTML } from '../standalone/jouer-one-template';
 
 @Component({
-    selector: 'app-editeur',
-    templateUrl: './editeur.component.html',
-    styleUrls: ['./editeur.component.scss'],
-    standalone: false
+  selector: 'app-editeur',
+  templateUrl: './editeur.component.html',
+  styleUrls: ['./editeur.component.scss'],
+  standalone: false
 })
 export class EditeurComponent implements OnInit, OnDestroy {
 
@@ -588,8 +588,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
               if (sauvegarde.version > versionNum) {
                 this.jeu.tamponErreurs.push("Cette solution a été effectuée avec une version plus récente de Donjon FI.");
               }
-              if(this.jeu){
-                ((this.lecteurRef as any)as LecteurComponent).setSolution(sauvegarde);
+              if (this.jeu) {
+                ((this.lecteurRef as any) as LecteurComponent).setSolution(sauvegarde);
               }
               this.solutionChargee = sauvegarde;
             } else {
@@ -1279,8 +1279,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
           this.codeEditorElmRef["directiveRef"].ace().resize();
           // this.codeEditorElmRef["directiveRef"].ace().setOption("maxLines", this.nbLignesCode);
           this.codeEditorElmRef["directiveRef"].ace().setOption("fontSize", this.tailleTexte);
-          this.codeEditorElmRef["directiveRef"].ace().setOption("showLineNumbers", true); // this.afficherNumerosLigne);
-          this.codeEditorElmRef["directiveRef"].ace().setOption("showGutter", true); // this.afficherNumerosLigne);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("showLineNumbers", this.afficherNumerosLigne);
+          this.codeEditorElmRef["directiveRef"].ace().setOption("showGutter", this.afficherNumerosLigne);
           this.codeEditorElmRef["directiveRef"].ace().setOption("showFoldWidgets", false);
           this.codeEditorElmRef["directiveRef"].ace().renderer.updateFull();
         }
