@@ -14,6 +14,7 @@ import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
 import { Instruction } from '../../models/compilateur/instruction';
+import { InstructionAjouterEnlever } from './instruction-ajouter-enlever';
 import { InstructionChanger } from './instruction-changer';
 import { InstructionCharger } from './instruction-charger';
 import { InstructionDeplacerCopier } from './instruction-deplacer-copier';
@@ -45,6 +46,7 @@ export class Instructions {
   private insCharger: InstructionCharger;
   private insSelectionner: InstructionSelectionner;
   private insDeplacerCopier: InstructionDeplacerCopier;
+  private insAjouterEnlever: InstructionAjouterEnlever;
 
   constructor(
     private jeu: Jeu,
@@ -63,6 +65,7 @@ export class Instructions {
     this.insJouerArreter = new InstructionJouerArreter(this.jeu);
     this.insCharger = new InstructionCharger(this.jeu, this.document);
     this.insSelectionner = new InstructionSelectionner(this.verbeux);
+    this.insAjouterEnlever = new InstructionAjouterEnlever(this.eju);
   }
 
   get dire() {
@@ -564,13 +567,14 @@ export class Instructions {
         break;
 
       case 'ajouter':
-        sousResultat = this.insChanger.executerAjouter(instruction, contexteTour);
+        sousResultat = this.insAjouterEnlever.executerAjouter(instruction, contexteTour);
         resultat.sortie += sousResultat.sortie;
         resultat.succes = sousResultat.succes;
         break;
 
       case 'enlever':
-        sousResultat = this.insChanger.executerEnlever(instruction, contexteTour);
+      case 'retirer':
+        sousResultat = this.insAjouterEnlever.executerEnlever(instruction, contexteTour);
         resultat.sortie += sousResultat.sortie;
         resultat.succes = sousResultat.succes;
         break;
