@@ -340,3 +340,4 @@ webapp/donjon/projects/donjon-jouer/src/app/standalone/jouer-standalone.ts
 ressources/extensions/vscode/donjon-fi-runner/out/
 
 ressources/extensions/vscode/donjon-fi-runner/donjon-fi-runner-*.vsix
+ressources/extensions/vscode/donjon-fi-runner/media/player.html

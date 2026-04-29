@@ -266,6 +266,7 @@ export class AnalyseurCondition {
     let resConditionLaSortieVers: RegExpExecArray = null;
     let resConditionTirage: RegExpExecArray = null;
     let resCondSimple: RegExpExecArray = null;
+    let resCondPropriete: RegExpExecArray = null;
 
     // console.log(">>>>>>>>>> CONDITION:", conditionBrute);
     
@@ -284,7 +285,12 @@ export class AnalyseurCondition {
           if (!resConditionTirage) {
             // E. tester la formulation simple
             resCondSimple = ExprReg.xCondition.exec(conditionBrute);
-            resCond = resCondSimple;
+            if (resCondSimple) {
+              resCond = resCondSimple;
+            } else {
+              // F. fallback: propriété avec sujet complexe (ex: la taille du groupe d'accusés atteint 5)
+              resCondPropriete = ExprReg.xConditionPropriete.exec(conditionBrute);
+            }
           }
         }
       }
@@ -358,6 +364,20 @@ export class AnalyseurCondition {
       const negation = reussit ? null : "pas";
       const complement1 = nbChances + ' chance' + (nbChances > 1 ? 's' : '') + ' sur ' + totalTirage;
       els = new ElementsPhrase(null, sujet, verbe, negation, complement1);
+    } else if (resCondPropriete) {
+      // ex: la taille du groupe d'accusés atteint 5
+      const sujet = new GroupeNominal(null, resCondPropriete[1], null);
+      const verbe = resCondPropriete[2];
+      const negation = resCondPropriete[3] ? resCondPropriete[3].trim() : null;
+      const compl1 = resCondPropriete[4];
+      els = new ElementsPhrase(null, sujet, verbe, negation, compl1);
+      if (els.complement1) {
+        const resCompl = GroupeNominal.xPrepositionDeterminantArticleNomEpithete.exec(els.complement1);
+        if (resCompl) {
+          els.sujetComplement1 = new GroupeNominal(resCompl[2], resCompl[3], (resCompl[4] ? resCompl[4] : null));
+          els.preposition1 = resCompl[1] ? resCompl[1] : null;
+        }
+      }
     }
 
     if (els) {

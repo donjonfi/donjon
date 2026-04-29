@@ -149,6 +149,50 @@ fin si
 sa description est "[si l'historique contient "grotte bloquée"]Pas moyen de sortir.[sinon]On peut sortir.[fin si]".
 ```
 
+### Taille d'une liste
+
+La taille d'une liste (nombre d'éléments) s'interroge via `la taille de X`.
+La forme de l'article contracté dépend du genre/nombre de l'intitulé de la liste :
+
+| Intitulé de la liste       | Forme dans la condition             |
+|----------------------------|-------------------------------------|
+| `le compteur`              | `la taille du compteur`             |
+| `la file`                  | `la taille de la file`              |
+| `l'archive`                | `la taille de l'archive`            |
+| `les éléments`             | `la taille des éléments`            |
+| `le groupe actif`          | `la taille du groupe actif`         |
+| `les notes importantes`    | `la taille des notes importantes`   |
+| `le groupe d'accusés actifs` | `la taille du groupe d'accusés actifs` |
+
+```
+Les suspects sont une liste.
+L'historique est une liste.
+Le groupe actif est une liste.
+
+-- Tester la taille (égalité)
+si la taille des suspects vaut 0, dire "Aucun suspect.".
+si la taille des suspects ne vaut pas 0, dire "Il y a des suspects.".
+
+-- Tester la taille (comparaison)
+si la taille des suspects atteint 3:    -- >= 3
+  dire "Trois suspects ou plus.".
+fin si
+si la taille des suspects dépasse 5:    -- > 5
+  dire "Trop de suspects !".
+fin si
+si la taille des suspects n'atteint pas 2:   -- < 2
+  dire "Pas encore assez de suspects.".
+fin si
+si la taille des suspects ne dépasse pas 4:  -- <= 4
+  dire "Nombre raisonnable.".
+fin si
+
+-- Afficher dans un texte dynamique
+dire "Il y a [c taille des suspects] suspect[s taille des suspects].".
+dire "L'archive contient [c taille de l'archive] document[s taille de l'archive].".
+dire "Le groupe actif a [c taille du groupe actif] membre[s taille du groupe actif].".
+```
+
 ---
 
 ## 21. Temps : programmer une routine
