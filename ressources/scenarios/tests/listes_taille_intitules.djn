@@ -1,0 +1,187 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Test taille de listes — intitulés variés".
+L'auteur du jeu est "DonjonFI".
+
+-- ============================================================
+-- Lieu unique
+-- ============================================================
+Le laboratoire est un lieu.
+Sa description est "Un lieu de test. Tapez 'aide' pour voir les commandes disponibles.".
+
+-- ============================================================
+-- Listes aux intitulés de complexité croissante
+-- ============================================================
+
+-- 1. Simple masculin (du compteur)
+Le compteur est une liste.
+
+-- 2. Simple féminin (de la file)
+La file est une liste.
+
+-- 3. Élidé (de l'archive)
+L'archive est une liste.
+
+-- 4. Pluriel (des éléments)
+Les éléments sont une liste.
+
+-- 5. Composé + épithète masc (du groupe actif)
+Le groupe actif est une liste.
+
+-- 6. Pluriel composé + épithète (des notes importantes)
+Les notes importantes sont une liste.
+
+-- 7. Nom composé avec apostrophe + épithète (du groupe d'accusés actifs)
+Le groupe d'accusés actifs est une liste.
+
+-- ============================================================
+-- Actions d'ajout
+-- ============================================================
+
+action compter:
+  changer le compteur contient "item".
+  dire "Compteur : [c taille du compteur] élément[s taille du compteur].".
+fin action
+
+action entrer:
+  changer la file contient "personne".
+  dire "File : [c taille de la file] élément[s taille de la file].".
+fin action
+
+action archiver:
+  changer l'archive contient "doc".
+  dire "Archive : [c taille de l'archive] élément[s taille de l'archive].".
+fin action
+
+action ajouter:
+  changer les éléments contient "item".
+  dire "Éléments : [c taille des éléments] élément[s taille des éléments].".
+fin action
+
+action recruter:
+  changer le groupe actif contient "membre".
+  dire "Groupe actif : [c taille du groupe actif] membre[s taille du groupe actif].".
+fin action
+
+action noter:
+  changer les notes importantes contient "note".
+  dire "Notes importantes : [c taille des notes importantes] note[s taille des notes importantes].".
+fin action
+
+action accuser:
+  changer le groupe d'accusés actifs contient "accusé".
+  dire "Groupe d'accusés actifs : [c taille du groupe d'accusés actifs] accusé[s taille du groupe d'accusés actifs].".
+fin action
+
+-- ============================================================
+-- Action de vérification : teste toutes les conditions
+-- ============================================================
+
+action vérifier:
+  dire "=== Résultats des conditions ===".
+
+  -- compteur
+  si la taille du compteur vaut 0:
+    dire "compteur: vaut 0 ✓".
+  sinon:
+    dire "compteur: ne vaut pas 0 (taille=[c taille du compteur])".
+  fin si
+  si la taille du compteur atteint 2:
+    dire "compteur: atteint 2 ✓".
+  sinon:
+    dire "compteur: n'atteint pas 2".
+  fin si
+  si la taille du compteur dépasse 3:
+    dire "compteur: dépasse 3 ✓".
+  sinon:
+    dire "compteur: ne dépasse pas 3".
+  fin si
+
+  -- file
+  si la taille de la file vaut 0:
+    dire "file: vaut 0 ✓".
+  sinon:
+    dire "file: ne vaut pas 0 (taille=[c taille de la file])".
+  fin si
+  si la taille de la file atteint 2:
+    dire "file: atteint 2 ✓".
+  sinon:
+    dire "file: n'atteint pas 2".
+  fin si
+
+  -- archive
+  si la taille de l'archive vaut 0:
+    dire "archive: vaut 0 ✓".
+  sinon:
+    dire "archive: ne vaut pas 0 (taille=[c taille de l'archive])".
+  fin si
+  si la taille de l'archive atteint 2:
+    dire "archive: atteint 2 ✓".
+  sinon:
+    dire "archive: n'atteint pas 2".
+  fin si
+
+  -- éléments
+  si la taille des éléments vaut 0:
+    dire "éléments: vaut 0 ✓".
+  sinon:
+    dire "éléments: ne vaut pas 0 (taille=[c taille des éléments])".
+  fin si
+  si la taille des éléments atteint 2:
+    dire "éléments: atteint 2 ✓".
+  sinon:
+    dire "éléments: n'atteint pas 2".
+  fin si
+
+  -- groupe actif
+  si la taille du groupe actif vaut 0:
+    dire "groupe actif: vaut 0 ✓".
+  sinon:
+    dire "groupe actif: ne vaut pas 0 (taille=[c taille du groupe actif])".
+  fin si
+  si la taille du groupe actif atteint 2:
+    dire "groupe actif: atteint 2 ✓".
+  sinon:
+    dire "groupe actif: n'atteint pas 2".
+  fin si
+
+  -- notes importantes
+  si la taille des notes importantes vaut 0:
+    dire "notes importantes: vaut 0 ✓".
+  sinon:
+    dire "notes importantes: ne vaut pas 0 (taille=[c taille des notes importantes])".
+  fin si
+  si la taille des notes importantes atteint 2:
+    dire "notes importantes: atteint 2 ✓".
+  sinon:
+    dire "notes importantes: n'atteint pas 2".
+  fin si
+
+  -- groupe d'accusés actifs
+  si la taille du groupe d'accusés actifs vaut 0:
+    dire "groupe d'accusés actifs: vaut 0 ✓".
+  sinon:
+    dire "groupe d'accusés actifs: ne vaut pas 0 (taille=[c taille du groupe d'accusés actifs])".
+  fin si
+  si la taille du groupe d'accusés actifs atteint 2:
+    dire "groupe d'accusés actifs: atteint 2 ✓".
+  sinon:
+    dire "groupe d'accusés actifs: n'atteint pas 2".
+  fin si
+
+fin action
+
+-- ============================================================
+-- Aide
+-- ============================================================
+
+action aide:
+  dire "Commandes disponibles :
+- compter       → ajoute dans 'le compteur'
+- entrer        → ajoute dans 'la file'
+- archiver      → ajoute dans 'l'archive'
+- ajouter       → ajoute dans 'les éléments'
+- recruter      → ajoute dans 'le groupe actif'
+- noter         → ajoute dans 'les notes importantes'
+- accuser       → ajoute dans 'le groupe d'accusés actifs'
+- vérifier      → affiche les conditions sur les tailles".
+fin action

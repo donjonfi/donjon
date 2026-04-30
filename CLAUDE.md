@@ -82,7 +82,17 @@ interfaces/         # compilateur interfaces (Reaction, Regle)
 
 ## DSL Reference
 
-A DSL reference for the Donjon FI language may exist at `donjon-dsl-reference.md` at the root of the repository.
+The Donjon FI DSL reference is split into thematic chunks under `dsl/`. Always load `dsl/dsl-00-index.md` first — it lists which file to load for each topic:
+
+| Fichier | Contenu |
+|---|---|
+| `dsl/dsl-00-index.md` | Index + comportements automatiques du moteur |
+| `dsl/dsl-01-monde.md` | Structure, Lieux, Objets, Portes/Obstacles |
+| `dsl/dsl-02-elements.md` | États, Propriétés, Paramètres du jeu |
+| `dsl/dsl-03-logique.md` | Synonymes, Actions personnalisées, Règles avant/après |
+| `dsl/dsl-04-texte.md` | Instructions courantes, Balises dynamiques, Mise en forme |
+| `dsl/dsl-05-avance.md` | Positions, Routines, Réactions (PNJ), Compteurs, Listes, Temps |
+| `dsl/dsl-06-exemple.md` | Exemple complet minimal |
 
 ## CI
 

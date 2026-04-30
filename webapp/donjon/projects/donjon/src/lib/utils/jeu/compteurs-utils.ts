@@ -63,7 +63,6 @@ export class CompteursUtils {
               case 'diminue':
                 // cas spécifique : quantité d’objet
                 if (compteurOuPropriete.nom == 'quantité') {
-                  console.log("dim quantité");
 
                   let valQuantite = parseInt(compteurOuPropriete.valeur);
                   // on ne peut diminuer la quantité que si elle n’est pas infinie
@@ -84,7 +83,6 @@ export class CompteursUtils {
               case 'augmente':
                 // cas spécifique : quantité d’objet
                 if (compteurOuPropriete.nom == 'quantité') {
-                  console.log("aug quantité");
                   let valQuantite = parseInt(compteurOuPropriete.valeur);
                   // on ne peut diminuer la quantité que si elle n’est pas infinie
                   if (valQuantite != -1) {

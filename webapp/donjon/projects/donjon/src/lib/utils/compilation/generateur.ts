@@ -624,9 +624,7 @@ export class Generateur {
           regle.evenements.forEach(ev => {
 
             if (ev.type == TypeEvenement.action) {
-              if (!ev.commandeComprise) {
-                ctx.ajouterErreur(`❌ ev.commandeComprise n’est pas défini pour la règle: ${regle.intitule}`)
-              } else {
+              if (ev.commandeComprise) {
                 let ctxCom = com.decomposerCommande(ev.commandeComprise);
                 // aucune commande trouvée
                 if (ctxCom.candidats.length == 0) {
@@ -658,6 +656,9 @@ export class Generateur {
                 } else {
                   ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
                 }
+              } else {
+                //TODO: check si on peut complètement supprimer l'erreur ou si elle est pertinante dans certains cas
+                //ctx.ajouterErreur(`❌ ev.commandeComprise n’est pas défini pour la règle: ${regle.intitule}`)
               }
             }
           });

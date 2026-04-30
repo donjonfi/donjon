@@ -1,0 +1,186 @@
+# Donjon DSL — Logique : Synonymes, Actions, Règles
+
+---
+
+## 8. Synonymes et interprétations
+
+```
+-- Noms alternatifs pour un objet (définis à la compilation)
+Interpréter la table comme la table basse.
+Interpréter le coffre comme le coffre du capitaine.
+
+-- Synonymes d'actions
+interpréter déchirer et détruire comme casser.
+interpréter fouiller comme examiner.
+```
+
+### Synonymes automatiques
+
+Par défaut, le moteur génère automatiquement des synonymes à partir des mots de l'intitulé d'un objet.
+Exemple : « la boîte rouge » génère les synonymes `boite` et `rouge`.
+
+Ces synonymes sont recalculés automatiquement quand l'intitulé est changé via `changer l'intitulé de xxx est "…"`.
+
+### Modifier les synonymes en cours de partie
+
+```
+-- Ajouter des synonymes sans effacer les existants
+ajouter "coffre" et "vieux" aux synonymes de ceci.
+ajouter "coffre", "grand" et "vieux" aux synonymes de ceci.
+ajouter "caisse" aux synonymes de la boîte rouge.
+
+-- Remplacer tous les synonymes d'un élément (auto ET explicites)
+changer les synonymes de ceci sont "coffre" et "vieux".
+changer les synonymes de ceci sont "coffre", "grand" et "vieux".
+
+-- Fonctionne aussi sur un élément nommé
+changer les synonymes de la boîte rouge sont "caisse" et "rouge".
+```
+
+> Les synonymes définis ainsi ne sont **pas** recalculés automatiquement lors d'un prochain changement d'intitulé — sauf si `activerSynonymesAuto` est activé, auquel cas `changer l'intitulé de xxx est "…"` écrase à nouveau les synonymes.
+
+---
+
+## 9. Actions personnalisées
+
+### Action simple (sans phases)
+
+```
+action sauter:
+  dire "Vous sautez sur place.".
+fin action
+```
+
+### Action complète (avec phases)
+
+```
+action pousser ceci:
+
+  phase prérequis:
+    si ceci n'est pas accessible, refuser "Je n'y ai pas accès.".
+
+  phase exécution:
+    changer ceci est déplacé.
+
+  phase épilogue:
+    dire "Je [l' ceci]ai poussé[es ceci] mais ça n'a servi à rien.".
+
+fin action
+```
+
+### Phases d'une action (dans l'ordre d'exécution)
+
+1. `phase prérequis` — conditions ; peut appeler `refuser "message".` pour bloquer l'action
+2. `phase exécution` — logique principale
+3. `phase épilogue` — toujours exécuté (même si l'action a été refusée)
+
+### Action avec 1 complément (ceci)
+
+```
+action examiner ceci:
+  définition:
+    ceci est un objet visible.
+  phase prérequis:
+    si ceci n'est pas visible, refuser "Je ne le vois pas.".
+  phase exécution:
+    dire "[description ceci]".
+fin action
+```
+
+### Action avec 2 compléments (ceci et cela)
+
+```
+action utiliser ceci sur cela:
+  définitions:
+    ceci est un objet visible et accessible.
+    cela est un objet visible et accessible.
+  phase épilogue:
+    dire "Vous utilisez [intitulé ceci] sur [intitulé cela].".
+fin action
+```
+
+### `définition` / `définitions` : types de cibles
+
+```
+ceci est un objet.
+ceci est un objet visible.
+ceci est un objet vu et visible.
+ceci est prioritairement possédé.    -- cherche d'abord dans l'inventaire
+ceci est prioritairement disponible. -- cherche d'abord hors inventaire
+ceci est un intitulé.                -- n'importe quel élément ou direction
+ceci est une direction.
+ceci est un lieu.
+```
+
+### Action qui déplace le joueur
+
+En ajoutant `L'action déplace le joueur vers ceci.` dans les définitions, les variables `origine`, `destination` et `orientation` sont disponibles dans les règles.
+
+```
+action aller vers ceci:
+
+  définitions:
+    ceci est un lieu.
+    L'action déplace le joueur vers ceci.
+
+  phase prérequis:
+    si le joueur se trouve dans ceci, refuser "Vous y êtes déjà.".
+
+  phase exécution:
+    déplacer le joueur vers ceci.
+
+  phase épilogue:
+    exécuter l'action regarder.
+
+fin action
+```
+
+---
+
+## 10. Règles (avant / après)
+
+```
+-- Avant une action (peut l'empêcher)
+règle avant prendre la pomme:
+  si la pomme est pourrie:
+    refuser "Cette pomme est pourrie.".
+  sinon
+    continuer l'action.
+  fin si
+fin règle
+
+-- Après une action
+règle après prendre la pomme:
+  si la règle se déclenche pour la première fois:
+    dire "Vous saisissez la pomme royalement.".
+  sinonsi la règle se déclenche pour la deuxième fois:
+    dire "Encore une pomme...".
+  sinon
+    continuer l'action.
+  fin si
+fin règle
+
+-- Déclencheurs combinés (ou)
+règle après donner l'anneau au roi, donner l'anneau au prince ou donner l'anneau à la reine:
+  dire "<< Grâce à vous le royaume est sauvé ! >>".
+fin règle
+
+-- Déclencheur générique (sur une classe d'objet)
+règle après parler à un chien:
+  dire "<< Wouf ! >>".
+fin règle
+
+-- Déclencheur : commencer le jeu
+règle avant commencer le jeu:
+  changer le joueur possède la lampe.
+  changer la porte est déverrouillée.
+fin règle
+```
+
+### Tester si la règle s'est déjà déclenchée
+
+```
+si la règle se déclenche pour la première fois:
+si la règle se déclenche pour la deuxième fois:
+si la règle ne se déclenche pas pour la première fois:
+```
