@@ -4,23 +4,41 @@ import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { InstructionsUtils } from "./instructions-utils";
 
+const xTailleListe = /^taille (du |de la |de l\S|des |de )(.+)$/i;
+
 export class InstructionDireNumerique {
 
   constructor(private eju: ElementsJeuUtils) { }
 
   calculerBaliseCompteur(texteDynamique: string, evenement: Evenement | undefined): string {
     return InstructionsUtils.processBalises(texteDynamique, "c (.+?)", decoupe => {
-      const compteurString = decoupe[1];
-      let compteur: Compteur = null;
-      if (compteurString == 'quantitéCeci' || compteurString == 'quantiteCeci') {
-        compteur = new Compteur('quantitéCeci', evenement.quantiteCeci);
-      } else if (compteurString == 'quantitéCela' || compteurString == 'quantiteCela') {
-        compteur = new Compteur('quantitéCela', evenement.quantiteCela);
-      } else {
-        compteur = this.eju.trouverCompteurAvecNom(compteurString);
-      }
-      return compteur ? compteur.valeur.toString() : "(compteur « " + compteurString + " » pas trouvé)";
+      const nomBalise = decoupe[1];
+      const val = this.obtenirValeurNumeriqueBalise(nomBalise, evenement);
+      return val !== null ? val.toString() : "(compteur « " + nomBalise + " » pas trouvé)";
     });
+  }
+
+  calculerBalisePluriel(texteDynamique: string, evenement: Evenement | undefined): string {
+    return InstructionsUtils.processBalises(texteDynamique, "s (.+?)", decoupe => {
+      const val = this.obtenirValeurNumeriqueBalise(decoupe[1], evenement);
+      return val !== null ? (val <= 1 ? "" : "s") : "";
+    });
+  }
+
+  private obtenirValeurNumeriqueBalise(nomBalise: string, evenement: Evenement | undefined): number | null {
+    const matchTaille = xTailleListe.exec(nomBalise);
+    if (matchTaille) {
+      const liste = this.eju.trouverListeAvecNom(matchTaille[2]);
+      return liste !== undefined ? liste.taille : null;
+    }
+    if (nomBalise === 'quantitéCeci' || nomBalise === 'quantiteCeci') {
+      return evenement?.quantiteCeci ?? null;
+    }
+    if (nomBalise === 'quantitéCela' || nomBalise === 'quantiteCela') {
+      return evenement?.quantiteCela ?? null;
+    }
+    const compteur = this.eju.trouverCompteurAvecNom(nomBalise);
+    return compteur !== undefined ? compteur.valeur : null;
   }
 
   calculerBaliseCalendrier(texteDynamique: string): string {

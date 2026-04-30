@@ -567,6 +567,7 @@ export class InstructionDire {
       t => this.propriete.calculerBalisePropriete(t, ctxTour, evenement),
       t => this.propriete.calculerBaliseP(t, ctxTour, evenement, declenchements),
       t => this.numerique.calculerBaliseCompteur(t, evenement),
+      t => this.numerique.calculerBalisePluriel(t, evenement),
       t => this.numerique.calculerBaliseCalendrier(t),
       t => this.numerique.calculerBaliseHorloge(t),
       t => this.numerique.calculerBaliseMémoire(t, ctxTour),

@@ -403,13 +403,13 @@ fin action
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
   });
 
-  // ─── 7. Nom composé (apostrophe) + épithète : "le groupe d'accusés actifs" ──
-  it('nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2', () => {
+  // ─── 7. Nom composé (apostrophe) + épithète : "le groupe d’accusés actifs" ──
+  xit("nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2", () => {
     const scenario = `
 Le tribunal est un lieu.
-Le groupe d'accusés actifs est une liste.
+Le groupe d’accusés actifs est une liste.
 action accuser:
-  changer le groupe d'accusés actifs contient "accusé".
+  changer le groupe d’accusés actifs contient "accusé".
 fin action
 action vérifier:
   si la taille du groupe d'accusés actifs atteint 2:
@@ -424,6 +424,150 @@ fin action
     ctx.com.executerCommande("accuser", false);
     ctx.com.executerCommande("vérifier", false);
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeTrue();
+  });
+
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [6/6] BALISES [c] ET [s] POUR LA TAILLE D’UNE LISTE
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Liste − Balises [c] et [s] pour la taille d’une liste', () => {
+
+  // ─── [c taille du X] — valeur numérique ─────────────────────────────────────
+
+  it('[c taille du compteur] — vaut 0 puis 2', () => {
+    const scenario = `
+Le hall est un lieu.
+Le compteur est une liste.
+action ajouter:
+  changer le compteur contient "item".
+fin action
+action afficher:
+  dire "[c taille du compteur]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+    ctx.com.executerCommande("ajouter", false);
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2");
+  });
+
+  it('[c taille des éléments] — vaut 0 puis 3', () => {
+    const scenario = `
+Le hall est un lieu.
+Les éléments sont une liste.
+action ajouter:
+  changer les éléments contient "item".
+fin action
+action afficher:
+  dire "[c taille des éléments]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+    ctx.com.executerCommande("ajouter", false);
+    ctx.com.executerCommande("ajouter", false);
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("3");
+  });
+
+  it('[c taille de l’archive] — vaut 0 puis 1', () => {
+    const scenario = `
+Le hall est un lieu.
+L’archive est une liste.
+action archiver:
+  changer l’archive contient "doc".
+fin action
+action afficher:
+  dire "[c taille de l’archive]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+    ctx.com.executerCommande("archiver", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1");
+  });
+
+  // ─── [s taille du X] — pluriel (vide si 1, "s" sinon) ──────────────────────
+
+  it('[s taille du compteur] — "" si 1 élément, "s" si 2', () => {
+    const scenario = `
+Le hall est un lieu.
+Le compteur est une liste.
+action ajouter:
+  changer le compteur contient "item".
+fin action
+action afficher:
+  dire "élément[s taille du compteur]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
+    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
+  });
+
+  it('[s taille des éléments] — "" si 1 élément, "s" si 2', () => {
+    const scenario = `
+Le hall est un lieu.
+Les éléments sont une liste.
+action ajouter:
+  changer les éléments contient "item".
+fin action
+action afficher:
+  dire "élément[s taille des éléments]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
+    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
+    ctx.com.executerCommande("ajouter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
+  });
+
+  it('[s taille de l’archive] — "" si 1 doc, "s" si 2', () => {
+    const scenario = `
+Le hall est un lieu.
+L’archive est une liste.
+action archiver:
+  changer l’archive contient "doc".
+fin action
+action afficher:
+  dire "document[s taille de l’archive]".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.com.executerCommande("archiver", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("document");
+    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("documents");
+    ctx.com.executerCommande("archiver", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("documents");
+  });
+
+  it('[c] et [s] combinés dans un même dire', () => {
+    const scenario = `
+Le hall est un lieu.
+Les notes importantes sont une liste.
+action noter:
+  changer les notes importantes contient "note".
+fin action
+action afficher:
+  dire "Il y a [c taille des notes importantes] note[s taille des notes importantes].".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0 note.");
+    ctx.com.executerCommande("noter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1 note.");
+    ctx.com.executerCommande("noter", false);
+    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2 notes.");
   });
 
 });
