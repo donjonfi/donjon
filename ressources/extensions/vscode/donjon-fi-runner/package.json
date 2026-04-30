@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Test your Donjon FI game (.djn) directly inside VS Code",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
