@@ -128,10 +128,15 @@ si le prix de ceci ne dépasse pas la bourse, dire "Vous pouvez l'acheter.".  --
 Les suspects sont une liste.
 L'historique est une liste.
 
--- Modifier une liste
-changer les suspects contiennent le majordome.
-changer les suspects ne contiennent plus le majordome.
+-- Modifier une liste : ajouter / retirer un ou plusieurs éléments
+ajouter le majordome à la liste suspects.
+ajouter le majordome, la cuisinière et le jardinier à la liste suspects.
+retirer le majordome de la liste suspects.
+retirer le majordome, la cuisinière et le jardinier de la liste suspects.
 vider les suspects.
+vider la liste suspects.        -- forme alternative équivalente
+vider la liste des suspects.    -- forme alternative équivalente
+-- « enlever » est accepté comme synonyme de « retirer »
 
 -- Tester
 si les suspects contiennent le majordome:
@@ -139,8 +144,8 @@ si les suspects contiennent le majordome:
 fin si
 
 -- Historique : même syntaxe avec des chaînes de texte
-changer l'historique contient "grotte visitée".
-changer l'historique ne contient plus "grotte bloquée".
+ajouter "grotte visitée" à la liste historique.
+retirer "grotte bloquée" de la liste historique.
 si l'historique contient "grotte visitée":
   dire "Vous connaissez déjà cette grotte.".
 fin si

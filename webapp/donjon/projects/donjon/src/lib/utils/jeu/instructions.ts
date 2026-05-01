@@ -552,7 +552,19 @@ export class Instructions {
         break;
 
       case 'vider':
-        const liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
+        let liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
+        
+        // formes « vider la liste <X> » et « vider la liste des <X> »
+        if (!liste) {
+          const ne = instruction.sujet.nomEpithete?.toLowerCase() ?? '';
+          const m = ne.match(/^liste(?:\s+(?:des |du |de la |de l['’]|de les |de ))?(.+)$/);
+          if (m) {
+            liste = this.eju.trouverListeAvecNom(m[1]);
+          }
+        }
+        if(!liste){
+                      liste = this.eju.trouverListeAvecNom(instruction.sujetComplement1.nomEpithete);
+        }
         if (liste) {
           liste.vider();
         } else if (instruction.sujet.motsCles.length == 1 && instruction.sujet.motsCles[0] == 'inventaire') {
@@ -562,7 +574,7 @@ export class Instructions {
             element.position = null;
           });
         } else {
-          contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction)
+          contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction.sujetComplement1)
         }
         break;
 
