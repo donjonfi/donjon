@@ -4,6 +4,7 @@ import { ConditionMulti } from "../models/compilateur/condition-multi";
 import { ConditionsUtils } from "../utils/jeu/conditions-utils";
 import { Jeu } from "../models/jeu/jeu";
 import { LienCondition } from "../models/compilateur/lien-condition";
+import { TestUtils } from "../utils/test-utils";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 // ——————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1251,6 +1252,90 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeTrue();
 
 
+  });
+
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [4/4] TAILLE D'UNE LISTE — NOM COMPOSÉ + ÉPITHÈTE
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Conditions − Parsing sujet taille de liste', () => {
+
+  // Quand la condition contient un sujet trop complexe pour xCondition (compound + épithète),
+  // c’est xConditionPropriete (fallback) qui matche, et le sujet est créé via
+  //   new GroupeNominal(null, resCondPropriete[1], null)
+  // ⇒ sujet.nom contient toute la phrase (avec « la ») et determinant/epithete sont null.
+
+  it('parsing: « la taille du groupe d\'accusés actifs atteint 2 » — nom composé (apostrophe) + épithète', () => {
+    const result = AnalyseurCondition.getConditionMulti("la taille du groupe d'accusés actifs atteint 2");
+    expect(result).not.toBeNull();
+    const cond = result.condition ?? result.sousConditions?.[0]?.condition;
+    expect(cond).not.toBeNull();
+    expect(cond.verbe).toEqual('atteint');
+    expect(cond.complement).toEqual('2');
+    // sujet construit via fallback xConditionPropriete : tout le texte va dans .nom
+    expect(cond.sujet.determinant).toBeNull();
+    expect(cond.sujet.nom).toEqual("la taille du groupe d'accusés actifs");
+    expect(cond.sujet.epithete).toBeNull();
+  });
+
+  it('parsing: « la taille du groupe d’accusés actifs atteint 2 » — apostrophe courbe', () => {
+    const result = AnalyseurCondition.getConditionMulti("la taille du groupe d’accusés actifs atteint 2");
+    expect(result).not.toBeNull();
+    const cond = result.condition ?? result.sousConditions?.[0]?.condition;
+    expect(cond).not.toBeNull();
+    expect(cond.sujet.nom).toEqual("la taille du groupe d’accusés actifs");
+  });
+
+});
+
+describe('Conditions − Taille de liste avec nom complexe', () => {
+
+  it('taille d\'une liste simple atteint N', () => {
+    const scenario = `
+Le tribunal est un lieu.
+La liste simple est une liste.
+action ajouter:
+  changer la liste simple contient "item".
+fin action
+action vérifier:
+  si la taille de la liste simple atteint 2:
+    changer le joueur est satisfait.
+  finsi
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.com.executerCommande("ajouter", false);
+    ctx.com.executerCommande("vérifier", false);
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
+    ctx.com.executerCommande("ajouter", false);
+    ctx.com.executerCommande("vérifier", false);
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
+  });
+
+  it('taille d\'une liste (nom composé apostrophe + épithète) atteint N', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le groupe d'accusés actifs est une liste.
+action accuser:
+  changer le groupe d'accusés actifs contient "accusé".
+fin action
+action vérifier:
+  si la taille du groupe d'accusés actifs atteint 2:
+    changer le joueur est coupable.
+  finsi
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.com.executerCommande("accuser", false);
+    ctx.com.executerCommande("vérifier", false);
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeFalse();
+    ctx.com.executerCommande("accuser", false);
+    ctx.com.executerCommande("vérifier", false);
+    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeTrue();
   });
 
 });

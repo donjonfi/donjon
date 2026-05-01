@@ -58,16 +58,16 @@ describe('Synonymes auto − Découpe', () => {
 describe('Synonymes auto − Découpe', () => {
 
     it('interroger comte du chateau sur chateau d’if', () => {
-        const scenario = '' +
-            'Le bois est un lieu. ' +
-            'Le chateau d’if est un objet ici. ' +
-            'Le comte du chateau est une personne ici. ' +
-            '';
+        const scenario = `
+            Le bois est un lieu.
+            Le chateau d’if est un objet ici.
+            Le comte du chateau est une personne ici.
+            `;
         const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
         // (index 0 et 1 utilisés pour inventaire et joueur)
         expect(ctx.jeu.objets).toHaveSize(4);
-        expect(ctx.jeu.objets[2].nom).toEqual('chateau d’if');
+        expect(ctx.jeu.objets[2].nom).toEqual("chateau d'if");
         expect(ctx.jeu.objets[2].synonymes).toHaveSize(2);
         expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('chateau');
         expect(ctx.jeu.objets[2].synonymes[0].epithete).toBeFalsy();
@@ -104,7 +104,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
         expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le chateau');
         expect(ctxCom.candidats[0].correspondCela.nbCor).toEqual(1);
-        expect(ctxCom.candidats[0].correspondCela.elements[0].nom).toEqual("chateau d’if");
+        expect(ctxCom.candidats[0].correspondCela.elements[0].nom).toEqual("chateau d'if");
 
         // infinitif
         expect(ctxCom.candidats[1].els.infinitif).toEqual('interroger');
@@ -118,8 +118,6 @@ describe('Synonymes auto − Découpe', () => {
         // cela
         expect(ctxCom.candidats[1].isCelaV1).toBeFalse();
         expect(ctxCom.candidats[1].celaIntituleV1).toBeUndefined();
-
-
 
     });
 

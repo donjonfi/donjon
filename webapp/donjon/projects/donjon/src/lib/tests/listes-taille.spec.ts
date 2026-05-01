@@ -404,7 +404,7 @@ fin action
   });
 
   // ─── 7. Nom composé (apostrophe) + épithète : "le groupe d’accusés actifs" ──
-  xit("nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2", () => {
+  it("nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2", () => {
     const scenario = `
 Le tribunal est un lieu.
 Le groupe d’accusés actifs est une liste.

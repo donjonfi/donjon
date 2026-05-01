@@ -148,7 +148,7 @@ export class InstructionDireContenu {
   }
 
   calculerBaliseListerDecrireListe(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
-    const baliseListerDecrireListe = "(lister|décrire|énumérer) ((?:le |la |l(?:'|\u2019)|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l\u2019)?|du |des |d'|d\u2019)\\S+?))(?:(?: )(?!\\(|(?:ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s\u2019)\\b)(?:\\S+))?)";
+    const baliseListerDecrireListe = "(lister|décrire|énumérer) ((?:le |la |l(?:'|\u2019)|les )?(?!\\d|un|une|des|le|la|les|l\\b)(?:\\S+?|(?:\\S+? (?:à |en |au(?:x)? |de (?:la |l'|l\u2019)?|du |des |d'|d\u2019)\\S+?))(?:(?: )(?!\\(|(?:ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|des|dans|sur|avec|se|s'|s\u2019)\\b)(?:\\S+))?)";
     return InstructionsUtils.processBalises(texteDynamique, baliseListerDecrireListe, decoupe => {
       const verbeString = decoupe[1];
       const cibleString = decoupe[2];

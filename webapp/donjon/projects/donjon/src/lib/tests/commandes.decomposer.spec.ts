@@ -20,7 +20,7 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[0].els.sujet.nom).toEqual('couteau à fromage');
     expect(resultats[0].els.preposition1).toBeUndefined();
     expect(resultats[0].els.sujetComplement1).toBeUndefined();
-  
+
     expect(resultats[1].els.infinitif).toEqual('donner');
     expect(resultats[1].els.preposition0).toBeUndefined();
     expect(resultats[1].els.sujet.determinant).toBeUndefined();
@@ -76,7 +76,7 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[0].els.sujet.nom).toEqual('table de papa');
     expect(resultats[0].els.preposition1).toBeUndefined();
     expect(resultats[0].els.sujetComplement1).toBeUndefined();
-    
+
     expect(resultats[1].els.infinitif).toEqual('parler');
     expect(resultats[1].els.preposition0).toEqual('avec');
     expect(resultats[1].els.sujet.determinant).toEqual('la ');
@@ -96,7 +96,7 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[0].els.preposition1).toEqual('de');
     expect(resultats[0].els.sujetComplement1.determinant).toEqual('la ');
     expect(resultats[0].els.sujetComplement1.nom).toEqual('table de papa');
-    
+
     expect(resultats[1].els.infinitif).toEqual('parler');
     expect(resultats[1].els.preposition0).toEqual('avec');
     expect(resultats[1].els.sujet.determinant).toBeUndefined();
@@ -122,7 +122,7 @@ describe('ObtenirLesCommandesPossibles', () => {
   it('commande « jeter l’avion par la fenêtre »', () => {
     const resultats = PhraseUtils.obtenirLesCommandesPossibles('jeter l’avion par la fenêtre');
     expect(resultats.length).toBe(1);
-    
+
     expect(resultats[0].els.infinitif).toEqual('jeter');
     expect(resultats[0].els.preposition0).toBeFalsy();
     expect(resultats[0].els.sujet.determinant).toEqual('l’');
@@ -135,7 +135,7 @@ describe('ObtenirLesCommandesPossibles', () => {
   it('commande « mettre la pomme sur la table »', () => {
     const resultats = PhraseUtils.obtenirLesCommandesPossibles('mettre la pomme sur la table');
     expect(resultats.length).toBe(2);
-    
+
 
     expect(resultats[0].els.infinitif).toEqual('mettre');
     expect(resultats[0].els.preposition0).toBeFalsy();
@@ -151,19 +151,18 @@ describe('ObtenirLesCommandesPossibles', () => {
     expect(resultats[1].els.preposition1).toEqual('sur');
     expect(resultats[1].els.sujetComplement1.determinant).toEqual('la ');
     expect(resultats[1].els.sujetComplement1.nom).toEqual('table');
- });
+  });
 
- // TODO: fix it
- xit('commande « poser le Masque des Ombres sur le Socle de pierre »', () => {
-  const resultats = PhraseUtils.obtenirLesCommandesPossibles('poser le Masque des Ombres sur le Socle de pierre');
-  expect(resultats.length).toBe(1);
-  expect(resultats[0].els.infinitif).toEqual('poser');
-  expect(resultats[0].els.preposition0).toBeFalsy();
-  expect(resultats[0].els.sujet.determinant).toEqual('le ');
-  expect(resultats[0].els.sujet.nom).toEqual('Masque des Ombres');
-  expect(resultats[0].els.preposition1).toEqual('sur');
-  expect(resultats[0].els.sujetComplement1.determinant).toEqual('le ');
-  expect(resultats[0].els.sujetComplement1.nom).toEqual('Socle de pierre');
-});
+  it('commande « poser le Masque des Ombres sur le Socle de pierre »', () => {
+    const resultats = PhraseUtils.obtenirLesCommandesPossibles('poser le Masque des Ombres sur le Socle de pierre');
+    expect(resultats.length).toBe(1);
+    expect(resultats[0].els.infinitif).toEqual('poser');
+    expect(resultats[0].els.preposition0).toBeFalsy();
+    expect(resultats[0].els.sujet.determinant).toEqual('le ');
+    expect(resultats[0].els.sujet.nom).toEqual('Masque des Ombres');
+    expect(resultats[0].els.preposition1).toEqual('sur');
+    expect(resultats[0].els.sujetComplement1.determinant).toEqual('le ');
+    expect(resultats[0].els.sujetComplement1.nom).toEqual('Socle de pierre');
+  });
 
 });
