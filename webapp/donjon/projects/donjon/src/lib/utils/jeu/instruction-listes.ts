@@ -2,16 +2,47 @@ import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
+import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
+import { InstructionHandler } from "./instruction-handler";
+import { Jeu } from "../../models/jeu/jeu";
 import { PhraseUtils } from "../commun/phrase-utils";
+import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { Resultat } from "../../models/jouer/resultat";
 
-export class InstructionAjouterEnlever {
+/**
+ * Instructions liées aux listes / synonymes / inventaire :
+ *  - ajouter (synonymes ou éléments à une liste)
+ *  - enlever / retirer (éléments d’une liste)
+ *  - vider (une liste ou l’inventaire)
+ */
+export class InstructionListes implements InstructionHandler {
 
   constructor(
+    private jeu: Jeu,
     private eju: ElementsJeuUtils,
   ) { }
+
+  executer(
+    instruction: ElementsPhrase,
+    nbExecutions: number,
+    contexteTour: ContexteTour,
+    evenement: Evenement | undefined,
+    declenchements: number,
+  ): Resultat {
+    switch (instruction.infinitif.toLowerCase()) {
+      case 'ajouter':
+        return this.executerAjouter(instruction, contexteTour);
+      case 'enlever':
+      case 'retirer':
+        return this.executerEnlever(instruction, contexteTour);
+      case 'vider':
+        return this.executerVider(instruction, contexteTour);
+      default:
+        return new Resultat(false, '', 1);
+    }
+  }
 
   /** Ajouter aux synonymes d’un élément : ajouter "a" et "b" aux synonymes de xxx
    *  OU ajouter plusieurs éléments à une liste : ajouter x, y et z à la liste <liste>
@@ -180,4 +211,33 @@ export class InstructionAjouterEnlever {
     return resultat;
   }
 
+  /** Vider une liste (par nom ou via complément) ou l’inventaire du joueur. */
+  public executerVider(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    let liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
+
+    // formes « vider la liste <X> » et « vider la liste des <X> »
+    if (!liste) {
+      const ne = instruction.sujet.nomEpithete?.toLowerCase() ?? '';
+      const m = ne.match(/^liste(?:\s+(?:des |du |de la |de l['’]|de les |de ))?(.+)$/);
+      if (m) {
+        liste = this.eju.trouverListeAvecNom(m[1]);
+      }
+    }
+    if (!liste) {
+      liste = this.eju.trouverListeAvecNom(instruction.sujetComplement1.nomEpithete);
+    }
+    if (liste) {
+      liste.vider();
+    } else if (instruction.sujet.motsCles.length == 1 && instruction.sujet.motsCles[0] == 'inventaire') {
+      // vider l’inventaire : les objets de l’inventaires ne sont plus positionnés dans le jeu.
+      const contenuInventaire = this.eju.obtenirContenu(this.jeu.joueur, PrepositionSpatiale.dans);
+      contenuInventaire.forEach(element => {
+        element.position = null;
+      });
+    } else {
+      contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction.sujetComplement1)
+    }
+    return resultat;
+  }
 }
