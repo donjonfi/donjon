@@ -23,6 +23,8 @@ export class RechercheUtils {
     let retVal: string = "";
     if (expressionEnMinuscules) {
       retVal = expressionEnMinuscules
+        // normaliser les apostrophes (courbe U+2019 → droite U+0027)
+        .replace(/’/g, "'")
         // transformer caractères spéciaux
         .replace(/œ/g, 'oe')
         .replace(/æ/g, 'ae')

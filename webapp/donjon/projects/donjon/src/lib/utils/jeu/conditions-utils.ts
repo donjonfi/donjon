@@ -256,7 +256,18 @@ export class ConditionsUtils {
       } else if ((ExprReg.oCalendrier).test(conditionSujetNomNettoye)) {
         sujet = this.getValeurCalendrier(conditionSujetNomNettoye, condition.verbe);
       } else {
+        // taille d'une liste (nom composé ou avec épithète trop long pour xProprieteElement)
+        // via xConditionPropriete (fallback), le nom contient toute la phrase sujet : "la taille du groupe d'accusés actifs"
+        const xTailleListeCondition = /^(?:la )?taille (du |de la |de l\S|des |de )(.+)$/i;
+        const matchTailleListe = xTailleListeCondition.exec(condition.sujet.nom);
+        if (matchTailleListe) {
+          const listeTailleCondition = this.eju.trouverListeAvecNom(matchTailleListe[2]);
+          if (listeTailleCondition !== undefined) {
+            sujet = new Compteur('taille', listeTailleCondition.taille);
+          }
+        }
         // chercher dans les valeurs
+        if (!sujet) {
         const valeurTrouvee = contexteTour?.trouverValeur(condition.sujet.nomEpithete);
 
         // valeur
@@ -299,7 +310,7 @@ export class ConditionsUtils {
               const proprieteCible = InstructionsUtils.trouverProprieteCible(proprieteJeu, contexteTour, this.eju, this.jeu);
               if (proprieteCible instanceof Compteur) {
                 sujet = proprieteCible;
-              } else {
+              } else if (proprieteCible !== null) {
                 if (proprieteCible.type == TypeValeur.nombre) {
                   sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
                 } else {
@@ -317,6 +328,7 @@ export class ConditionsUtils {
             }
           }
         }
+        } // if (!sujet)
       }
     }
     return sujet;

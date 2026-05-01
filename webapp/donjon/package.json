@@ -1,6 +1,6 @@
 {
   "name": "donjon",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Donjon FI",
   "author": {
     "name": "Jonathan Claes",
@@ -32,7 +32,7 @@
     "rand-seed": "^1.0.1",
     "rxjs": "~7.8.1",
     "tslib": "^2.4.0",
-    "uuid": "^9.0.0",
+    "uuid": "^14.0.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
@@ -41,7 +41,7 @@
     "@angular/compiler-cli": "^21.2.9",
     "@types/file-saver": "^2.0.5",
     "@types/jasmine": "^5.1.4",
-    "@types/node": "^18.7.16",
+    "@types/node": "^22.0.0",
     "@types/uuid": "^8.3.4",
     "gulp": "^5.0.1",
     "gulp-inline": "^0.1.2",

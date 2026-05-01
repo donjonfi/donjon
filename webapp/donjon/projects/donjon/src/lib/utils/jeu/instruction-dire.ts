@@ -589,25 +589,25 @@ export class InstructionDire {
   }
 
   private calculerBaliseNombreDeProprieteDe(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
-    const x = /\[(le )?nombre (de |d'|d\u2019)(\S+) (des |du |de la |de l(?:'|\u2019)|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s\u2019)\b)(\S+?))?\]/gi;
+    const x = /\[(le )?nombre (de |d'|d\u2019)(\S+) (des |du |de la |de l(?:'|\u2019)|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|des|dans|sur|avec|se|s'|s\u2019)\b)(\S+?))?\]/gi;
     if (!x.test(t)) return t;
     return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
   }
 
   private calculerBaliseNombreDeClasseEtatPosition(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
-    const x = /\[(le )?nombre (de |d'|d\u2019)(\S+)( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s\u2019)\b)(\S+))?(( (et )?)(?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|dans|sur|avec|se|s'|s\u2019)\b)(\S+))?( ((dans |sur |sous )(la |le |les |l'|l\u2019)?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|dans|sur|avec|concernant|se)\b)|(?:d'|d\u2019|n'|n\u2019|s'|s\u2019|à))(\S+?))?)?\]/gi;
+    const x = /\[(le )?nombre (de |d'|d\u2019)(\S+)( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|des|dans|sur|avec|se|s'|s\u2019)\b)(\S+))?(( (et )?)(?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|soit|mais|un|de|du|des|dans|sur|avec|se|s'|s\u2019)\b)(\S+))?( ((dans |sur |sous )(la |le |les |l'|l\u2019)?)(\S+?|(?:\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|des|dans|sur|avec|concernant|se)\b)|(?:d'|d\u2019|n'|n\u2019|s'|s\u2019|à))(\S+?))?)?\]/gi;
     if (!x.test(t)) return t;
     return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
   }
 
   private calculerBaliseProprieteDeElement(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
-    const x = /\[(le |la |les |l'|l\u2019)?(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:'|\u2019)|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|un|de|du|dans|sur|avec|se|s'|s\u2019)\b)(\S+?))?\]/gi;
+    const x = /\[(le |la |les |l'|l\u2019)?(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (des |du |de la |de l(?:'|\u2019)|de |d'|d\u2019)(\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|un|de|du|des|dans|sur|avec|se|s'|s\u2019)\b)(\S+?))?\]/gi;
     if (!x.test(t)) return t;
     return this.suiteTraiterPropriete(t, t.match(x), false, ctxTour, evenement, declenchements);
   }
 
   private calculerBaliseProprieteElement(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
-    const x = /\[(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|un|de|du|dans|sur|avec|se|s'|s\u2019|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
+    const x = /\[(?!(v|p|le|la|les|l'|l\u2019|si|sinon|sinonsi|ou|au|en|fin|puis|initialement|(([1-9][0-9]?)(?:e|eme|ème|ere|ère|re)))\b)(\S+?) (\S+?|(\S+? (à |en |au(x)? |de (la |l'|l\u2019)?|du |des |d'|d\u2019)\S+?))( (?!\(|(ne|n'|n\u2019|d'|d\u2019|et|ou|un|de|du|des|dans|sur|avec|se|s'|s\u2019|si|sinon|sinonsi|au|en|fin|puis|initialement)\b)(\S+?))?\]/gi;
     if (!x.test(t)) return t;
     return this.suiteTraiterPropriete(t, t.match(x), true, ctxTour, evenement, declenchements);
   }

@@ -2,19 +2,50 @@ import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
+import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
+import { InstructionHandler } from "./instruction-handler";
+import { Jeu } from "../../models/jeu/jeu";
 import { PhraseUtils } from "../commun/phrase-utils";
+import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { Resultat } from "../../models/jouer/resultat";
 
-export class InstructionAjouterEnlever {
+/**
+ * Instructions liées aux listes / synonymes / inventaire :
+ *  - ajouter (synonymes ou éléments à une liste)
+ *  - enlever / retirer (éléments d’une liste)
+ *  - vider (une liste ou l’inventaire)
+ */
+export class InstructionListes implements InstructionHandler {
 
   constructor(
+    private jeu: Jeu,
     private eju: ElementsJeuUtils,
   ) { }
 
+  executer(
+    instruction: ElementsPhrase,
+    nbExecutions: number,
+    contexteTour: ContexteTour,
+    evenement: Evenement | undefined,
+    declenchements: number,
+  ): Resultat {
+    switch (instruction.infinitif.toLowerCase()) {
+      case 'ajouter':
+        return this.executerAjouter(instruction, contexteTour);
+      case 'enlever':
+      case 'retirer':
+        return this.executerEnlever(instruction, contexteTour);
+      case 'vider':
+        return this.executerVider(instruction, contexteTour);
+      default:
+        return new Resultat(false, '', 1);
+    }
+  }
+
   /** Ajouter aux synonymes d’un élément : ajouter "a" et "b" aux synonymes de xxx
-   *  OU ajouter plusieurs éléments à une liste : ajouter à <liste> : x, y et z
+   *  OU ajouter plusieurs éléments à une liste : ajouter x, y et z à la liste <liste>
    */
   public executerAjouter(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
     const resultat = new Resultat(false, '', 1);
@@ -28,31 +59,18 @@ export class InstructionAjouterEnlever {
     const xAuxSynonymesDE = /^(.*)\baux synonymes de\b\s+(.+)$/i;
     const matchSyntaxe = xAuxSynonymesDE.exec(instruction.complement1);
     if (!matchSyntaxe) {
-      // B) ajouter à <liste> : x, y et z (variantes : à / à la / à l' / à les / au / aux)
-      const xAListe = /^(?:à(?:\s+(le|la|l'|les))?|(au)|(aux))\s+(.+?)\s*:\s*(.+)$/i;
-      const matchListe = xAListe.exec(instruction.complement1);
-      if (matchListe) {
-        let article: string | null;
-        if (matchListe[2]) {
-          article = 'le';       // "au" → "le"
-        } else if (matchListe[3]) {
-          article = 'les';      // "aux" → "les"
-        } else if (matchListe[1]) {
-          article = matchListe[1]; // "à le/la/l'/les" → article seul
-        } else {
-          article = null;       // "à" sans article
+      // B) ajouter x, y et z à la liste <liste>
+      // découpage sur la DERNIÈRE occurrence du marqueur pour gérer les intitulés contenant « la liste »
+      const marqueur = ' à la liste ';
+      const idx = instruction.complement1.toLowerCase().lastIndexOf(marqueur);
+      if (idx > 0) {
+        const itemsPart = instruction.complement1.slice(0, idx).trim();
+        const listePart = instruction.complement1.slice(idx + marqueur.length).trim();
+        if (itemsPart && listePart) {
+          return this.ajouterAListe(itemsPart, listePart, resultat, contexteTour);
         }
-        let listePart: string;
-        if (article) {
-          const sep = article.endsWith("'") ? '' : ' ';
-          listePart = article + sep + matchListe[4].trim();
-        } else {
-          listePart = matchListe[4].trim();
-        }
-        const itemsPart = matchListe[5].trim();
-        return this.ajouterAListe(itemsPart, listePart, resultat, contexteTour);
       }
-      resultat.sortie = `{n}{+[ajouter : syntaxe non reconnue. Attendu : ajouter "x" aux synonymes de xxx  OU  ajouter à <liste> : x, y et z (variantes : à / à la / au / aux).]+}`;
+      resultat.sortie = `{n}{+[ajouter : syntaxe non reconnue. Attendu : ajouter "x" aux synonymes de xxx  OU  ajouter x, y et z à la liste <liste>.]+}`;
       return resultat;
     }
 
@@ -134,9 +152,7 @@ export class InstructionAjouterEnlever {
     return resultat;
   }
 
-  /** Enlever (ou retirer) plusieurs éléments d’une liste : enlever de <liste> : x, y et z
-   *  Variantes acceptées pour la préposition : de / de la / de l' / de les / du / des / depuis
-   */
+  /** Retirer (ou enlever) plusieurs éléments d’une liste : retirer x, y et z de la liste <liste> */
   public executerEnlever(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
     const resultat = new Resultat(false, '', 1);
 
@@ -145,32 +161,17 @@ export class InstructionAjouterEnlever {
       return resultat;
     }
 
-    const xDeListe = /^(?:de(?:\s+(le|la|l'|les))?|(du)|(des)|(depuis))\s+(.+?)\s*:\s*(.+)$/i;
-    const matchListe = xDeListe.exec(instruction.complement1);
-    if (matchListe) {
-      let article: string | null;
-      if (matchListe[2]) {
-        article = 'le';       // "du" → "le"
-      } else if (matchListe[3]) {
-        article = 'les';      // "des" → "les"
-      } else if (matchListe[4]) {
-        article = null;       // "depuis" sans article
-      } else if (matchListe[1]) {
-        article = matchListe[1]; // "de le/la/l'/les" → article seul
-      } else {
-        article = null;       // "de" sans article
+    // découpage sur la DERNIÈRE occurrence du marqueur pour gérer les intitulés contenant « la liste »
+    const marqueur = ' de la liste ';
+    const idx = instruction.complement1.toLowerCase().lastIndexOf(marqueur);
+    if (idx > 0) {
+      const itemsPart = instruction.complement1.slice(0, idx).trim();
+      const listePart = instruction.complement1.slice(idx + marqueur.length).trim();
+      if (itemsPart && listePart) {
+        return this.enleverDeListe(itemsPart, listePart, resultat, contexteTour);
       }
-      let listePart: string;
-      if (article) {
-        const sep = article.endsWith("'") ? '' : ' ';
-        listePart = article + sep + matchListe[5].trim();
-      } else {
-        listePart = matchListe[5].trim();
-      }
-      const itemsPart = matchListe[6].trim();
-      return this.enleverDeListe(itemsPart, listePart, resultat, contexteTour);
     }
-    resultat.sortie = `{n}{+[${instruction.infinitif} : syntaxe non reconnue. Attendu : ${instruction.infinitif} de <liste> : x, y et z (variantes : de / de la / du / des / depuis).]+}`;
+    resultat.sortie = `{n}{+[${instruction.infinitif} : syntaxe non reconnue. Attendu : ${instruction.infinitif} x, y et z de la liste <liste>.]+}`;
     return resultat;
   }
 
@@ -210,4 +211,33 @@ export class InstructionAjouterEnlever {
     return resultat;
   }
 
+  /** Vider une liste (par nom ou via complément) ou l’inventaire du joueur. */
+  public executerVider(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    let liste = this.eju.trouverListeAvecNom(instruction.sujet.nomEpithete);
+
+    // formes « vider la liste <X> » et « vider la liste des <X> »
+    if (!liste) {
+      const ne = instruction.sujet.nomEpithete?.toLowerCase() ?? '';
+      const m = ne.match(/^liste(?:\s+(?:des |du |de la |de l['’]|de les |de ))?(.+)$/);
+      if (m) {
+        liste = this.eju.trouverListeAvecNom(m[1]);
+      }
+    }
+    if (!liste) {
+      liste = this.eju.trouverListeAvecNom(instruction.sujetComplement1.nomEpithete);
+    }
+    if (liste) {
+      liste.vider();
+    } else if (instruction.sujet.motsCles.length == 1 && instruction.sujet.motsCles[0] == 'inventaire') {
+      // vider l’inventaire : les objets de l’inventaires ne sont plus positionnés dans le jeu.
+      const contenuInventaire = this.eju.obtenirContenu(this.jeu.joueur, PrepositionSpatiale.dans);
+      contenuInventaire.forEach(element => {
+        element.position = null;
+      });
+    } else {
+      contexteTour.ajouterErreurInstruction(instruction, "vider liste: liste pas trouvée: " + instruction.sujetComplement1)
+    }
+    return resultat;
+  }
 }
