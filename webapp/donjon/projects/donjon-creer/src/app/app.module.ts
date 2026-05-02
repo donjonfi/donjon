@@ -60,8 +60,8 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     BrowserAnimationsModule,
     FormsModule,
     AppRoutingModule,
-    CollapseModule.forRoot(),
-    TooltipModule.forRoot(),
+    CollapseModule,
+    TooltipModule,
     AceModule,
     DonjonModule
   ],
