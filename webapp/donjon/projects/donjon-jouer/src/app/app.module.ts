@@ -24,7 +24,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
     BrowserAnimationsModule,
     FormsModule,
     AppRoutingModule,
-    TooltipModule.forRoot(),
+    TooltipModule,
     DonjonModule
   ],
   providers: [
