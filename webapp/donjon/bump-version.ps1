@@ -78,6 +78,7 @@ Write-Host ""
 $ActionsSource = "../../ressources/scenarios/actions.djn"
 $PackageJson   = "package.json"
 $PackageLock   = "package-lock.json"
+$VscodeExtPkg  = "../../ressources/extensions/vscode/donjon-fi-runner/package.json"
 
 # 1. actions.djn
 $contenu = Get-Content $ActionsSource -Raw -Encoding UTF8
@@ -113,7 +114,13 @@ $contenu = [regex]::Replace($contenu, '"version": "[^"]+"', {
 [System.IO.File]::WriteAllText((Resolve-Path $PackageLock), $contenu, $utf8NoBom)
 Write-Host "OK  $PackageLock" -ForegroundColor Green
 
-# 5. Synchro actions.djn → creer / jouer / scenario_actions.ts
+# 5. package.json extension VS Code donjon-fi-runner
+$contenu = Get-Content $VscodeExtPkg -Raw -Encoding UTF8
+$contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
+[System.IO.File]::WriteAllText((Resolve-Path $VscodeExtPkg), $contenu, $utf8NoBom)
+Write-Host "OK  $VscodeExtPkg" -ForegroundColor Green
+
+# 6. Synchro actions.djn → creer / jouer / scenario_actions.ts
 Write-Host ""
 Write-Host "Synchro actions..." -ForegroundColor Cyan
 & "$PSScriptRoot/sync-actions.ps1"
