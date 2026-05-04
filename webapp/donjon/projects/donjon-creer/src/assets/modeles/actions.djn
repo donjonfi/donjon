@@ -975,7 +975,7 @@ action ouvrir ceci:
     changer ceci n’est plus intact.
   phase épilogue:
     dire "[Pronom ceci] [v être ipr ceci] ouvert[es ceci].".
-    si ceci est un contenant, dire "[décrire objets dans ceci sauf mentionnés]".
+    si ceci est un contenant, dire "[décrire objets dans ceci]".
 fin action
 
 -- ouvrir ceci avec cela
