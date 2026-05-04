@@ -1,3 +1,5 @@
+import { CompilateurV8 } from "../../public-api";
+import { Generateur } from "../utils/compilation/generateur";
 import { TestUtils } from "../utils/test-utils";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -280,6 +282,204 @@ describe('Affichage compteur dans un coin', () => {
     const vies = ctx.jeu.compteurs.find(c => c.nom === 'vies');
     expect(bourse?.positionAffichage).toEqual('haut-droite');
     expect(vies?.positionAffichage).toEqual('bas-gauche');
+  });
+
+  it('Sans titre (alias de sans intitulé)', () => {
+    const scenario = `
+Le score est un compteur initialisé à 0.
+Le score est affiché en haut à droite sans titre.
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
+  });
+
+  it('Option « sans X » inconnue → message d’analyse, compteur tout de même affiché, option inconnue ignorée', () => {
+    const scenario = `
+Le score est un compteur initialisé à 0.
+Le score est affiché en haut à droite sans tiitre.
+`;
+    const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
+    expect(rc.erreurs).toHaveSize(0);
+    expect(rc.messages.some(m => m.titre === 'Option d\'affichage inconnue')).toBeTrue();
+    const jeu = Generateur.genererJeu(rc);
+    expect(jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
+    expect(jeu.compteurs[0].sansIntitule).toBeFalsy();
+  });
+
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [3/3] Titre d'un compteur
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Titre d\'un compteur', () => {
+
+  it('Pas de titre défini → titre undefined (fallback sur le nom à l\'affichage)', () => {
+    const scenario = `
+Le score est un compteur initialisé à 0.
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    expect(ctx.jeu.compteurs[0].titre).toBeUndefined();
+  });
+
+  it('Définition d\'un titre libre', () => {
+    const scenario = `
+Le score est un compteur initialisé à 0.
+Le titre du score est "Score final".
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    expect(ctx.jeu.compteurs[0].titre).toEqual('Score final');
+  });
+
+  it('Modification du titre à l\'exécution', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le score est un compteur initialisé à 0.
+Le titre du score est "Score initial".
+action renommer:
+  changer le titre du score est "Score final".
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.compteurs[0].titre).toEqual('Score initial');
+    ctx.com.executerCommande("renommer", false);
+    expect(ctx.jeu.compteurs[0].titre).toEqual('Score final');
+  });
+
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [4/4] Modifier l'affichage d'un compteur en cours de partie
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Affichage compteur — modification runtime', () => {
+
+  it('Masquer un compteur : « changer le score n\'est plus affiché »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le score est un compteur initialisé à 0.
+Le score est affiché en haut à droite.
+action masquer:
+  changer le score n'est plus affiché.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
+    ctx.com.executerCommande("masquer", false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toBeUndefined();
+  });
+
+  it('Repositionner un compteur : « changer le score est affiché en bas à gauche »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le score est un compteur initialisé à 0.
+Le score est affiché en haut à droite.
+action repositionner:
+  changer le score est affiché en bas à gauche.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
+    ctx.com.executerCommande("repositionner", false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-gauche');
+  });
+
+  it('Réafficher un compteur masqué avec options « sans titre »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le score est un compteur initialisé à 0.
+action afficher:
+  changer le score est affiché en bas à droite sans titre.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toBeUndefined();
+    ctx.com.executerCommande("afficher", false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-droite');
+    expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
+  });
+
+  it('Repositionner réinitialise les options : sansIntitule remis à false', () => {
+    const scenario = `
+Le tribunal est un lieu.
+Le score est un compteur initialisé à 0.
+Le score est affiché en haut à droite sans titre.
+action repositionner:
+  changer le score est affiché en bas à gauche.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
+    ctx.com.executerCommande("repositionner", false);
+    expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-gauche');
+    expect(ctx.jeu.compteurs[0].sansIntitule).toBeFalse();
+  });
+
+});
+
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// ——————————————————————————————————————————————————————————————————————————————————————————————————————————
+//    [5/5] Modifier l'affichage du lieu dans le cartouche en cours de partie
+// ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+describe('Affichage lieu cartouche — modification runtime', () => {
+
+  it('Masquer le lieu : « changer le lieu n\'est plus affiché »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+action masquer:
+  changer le lieu n'est plus affiché.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('haut');
+    ctx.com.executerCommande("masquer", false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('aucun');
+  });
+
+  it('Masquer le lieu avec précision du cartouche : « changer le lieu n\'est plus affiché dans le cartouche »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+action masquer:
+  changer le lieu n'est plus affiché dans le cartouche.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('haut');
+    ctx.com.executerCommande("masquer", false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('aucun');
+  });
+
+  it('Repositionner le lieu en bas : « changer le lieu est affiché dans le cartouche du bas »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+action descendre:
+  changer le lieu est affiché dans le cartouche du bas.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('haut');
+    ctx.com.executerCommande("descendre", false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('bas');
+  });
+
+  it('Réafficher le lieu après masquage : « changer le lieu est affiché »', () => {
+    const scenario = `
+Le tribunal est un lieu.
+ne pas afficher le lieu dans le cartouche.
+action remonter:
+  changer le lieu est affiché dans le cartouche du haut.
+fin action
+`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('aucun');
+    ctx.com.executerCommande("remonter", false);
+    expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('haut');
   });
 
 });

@@ -16,6 +16,9 @@ export class Compteur extends Intitule {
   /** Si vrai, ne pas afficher l'unité du compteur dans le cartouche. */
   public sansUnite?: boolean;
 
+  /** Titre libre du compteur, affiché dans le cartouche à la place du nom. Modifiable à l'exécution. */
+  public titre?: string;
+
   constructor(
     /** Nom du compteur */
     nom: string,

@@ -161,8 +161,12 @@ export class ExprReg {
    * 2 compléments simples séparés par une préposition
    */
   static readonly xInitialiseA = /(?: )?initialisé(?:e)?(?:s)? à (\d+)$/i;
-  static readonly xAfficherCompteur = /^(.+?) (?:est|sont) affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans (?:intitulé|unité))*)$/i;
+  static readonly xAfficherCompteur = /^(.+?) (?:est|sont) affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans \S+)*)$/i;
+  /** Affichage d'un compteur sans le sujet (utilisé runtime via « changer »). Ex: « affiché en haut à droite sans titre ». */
+  static readonly xAffichageCompteurSeul = /^affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans \S+)*)$/i;
   static readonly xAfficherLieuCartouche = /^(ne pas )?afficher le (?:titre du )?lieu dans le cartouche(?: du (haut|bas))?$/i;
+  /** Affichage du lieu sans le sujet (utilisé runtime via « changer »). Ex: « affiché dans le cartouche du haut ». */
+  static readonly xAffichageLieuSeul = /^affich[eé]e?s?(?: dans le cartouche(?: du (haut|bas))?)?$/i;
 
 
   // ================================================================================================
