@@ -576,6 +576,12 @@ export class Generateur {
       if (cpt.sansUnite) {
         curCompteur.sansUnite = true;
       }
+      // Titre libre : défini via la propriété "titre" (regex xProprieteReaction).
+      // Ex: « Le titre du score est "Score final". »
+      const proprieteTitre = cpt.proprietes.find(p => p.nom?.toLowerCase() === 'titre');
+      if (proprieteTitre?.valeur) {
+        curCompteur.titre = proprieteTitre.valeur;
+      }
       jeu.compteurs.push(curCompteur);
     });
 

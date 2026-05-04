@@ -10,14 +10,11 @@ Vous pouvez utiliser Donjon FI directement sur le site [donjon.fi](https://donjo
 ## Documentation et site officiel Donjon FI
 
 <a href="https://donjon.fi/" target="_blank">Site officiel</a> avec éditeur en ligne et exemples de jeux\
-<a href="https://vimeo.com/channels/1676422" target="_blank">Chaîne vidéo</a>  avec tutoriels\
 <a href="https://donjon.fi/doc/v3/" target="_blank">Wiki</a> avec documentation complète
 
 ## Publier votre jeu
 
-Actuellement il vous faut soit compiler Donjon IDE et le publier sur votre site web soit proposer votre jeu sur [donjon.xax.be](https://donjon.xax.be) .
-
-Une version pré-compilée de Donjon FI sera proposée prochainement.
+Le plus simple est d'utiliser le bouton pour exporter vote jeu qui est présent dans l'éditeur Donjon FI. Cela génère un fichier zip contenant le html avec votre jeu.
 
 ## Compilation de Donjon FI
 
@@ -48,14 +45,8 @@ npm install
 
 *Ouvrir un terminal* à la racine du projet (`webapp\donjon`).
 
-1. Lancer la compilation de la librairie et attendre qu’il ait terminé.
 
-```shell
-ng build donjon --watch
-```
-2. Lancer l’éditeur ou le lecteur
-
-*Dans un autre terminal :*
+Lancer l’éditeur ou le lecteur
 
 ```shell
 ng serve donjon-creer
@@ -78,13 +69,11 @@ Voir
 #### B. En compilant soi-même l’application
 Compiler l’éditeur :
 ```shell
-ng build donjon
 ng build donjon-creer --prod
 ```
 
 Compiler le lecteur :
 ```shell
-ng build donjon
 ng build donjon-jouer --prod
 ```
 

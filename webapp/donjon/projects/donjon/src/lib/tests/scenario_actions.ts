@@ -1,6 +1,6 @@
 ﻿
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-05-02-30402
+-- Version: 2026-05-04-30403
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -976,7 +976,7 @@ action ouvrir ceci:
     changer ceci n’est plus intact.
   phase épilogue:
     dire "[Pronom ceci] [v être ipr ceci] ouvert[es ceci].".
-    si ceci est un contenant, dire "[décrire objets dans ceci sauf mentionnés]".
+    si ceci est un contenant, dire "[décrire objets dans ceci]".
 fin action
 
 -- ouvrir ceci avec cela

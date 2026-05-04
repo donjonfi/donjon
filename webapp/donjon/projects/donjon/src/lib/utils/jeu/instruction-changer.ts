@@ -63,6 +63,11 @@ export class InstructionChanger {
           resultat = this.changerElementJeu(this.eju.curLieu, instruction, contexteTour);
           break;
 
+        // affichage du lieu dans le cartouche : « changer le lieu n'est plus affiché [dans le cartouche [du haut|du bas]] »
+        case 'lieu':
+          resultat = this.changerAffichageLieu(instruction);
+          break;
+
         // élément du jeu ou compteur (ceci)
         case 'ceci':
           if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.element)) {
@@ -142,6 +147,9 @@ export class InstructionChanger {
       if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement
           && instruction.proprieteSujet.intituleProprieteElement?.nom === 'synonymes') {
         resultat = this.changerSynonymesDe(instruction, contexteTour);
+      } else if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement
+          && instruction.proprieteSujet.intituleProprieteElement?.nom === 'titre') {
+        resultat = this.changerTitreDe(instruction, contexteTour);
       } else {
         switch (instruction.proprieteSujet.type) {
         // on ne peut pas changer une propriété calculée
@@ -263,6 +271,45 @@ export class InstructionChanger {
         }
       }
     }
+
+    resultat.succes = true;
+    return resultat;
+  }
+
+  /** Remplacer le titre d'un compteur : changer le titre du <compteur> est "..." */
+  private changerTitreDe(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(false, '', 1);
+
+    const intituleElement = instruction.proprieteSujet.intituleElement;
+    let compteurCible: Compteur | null = null;
+
+    const nomElement = intituleElement?.nom?.toLowerCase();
+    if (nomElement === 'ceci') {
+      if (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.compteur)) {
+        compteurCible = contexteTour.ceci as Compteur;
+      }
+    } else if (nomElement === 'cela') {
+      if (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.compteur)) {
+        compteurCible = contexteTour.cela as Compteur;
+      }
+    } else {
+      const corresp = this.eju.trouverCorrespondance(intituleElement, TypeSujet.SujetEstNom, false, false);
+      if (corresp.compteurs.length === 1) {
+        compteurCible = corresp.compteurs[0];
+      }
+    }
+
+    if (!compteurCible) {
+      resultat.sortie = `{n}{+[changer titre : compteur « ${intituleElement} » introuvable.]+}`;
+      return resultat;
+    }
+
+    let nouveauTitre = '';
+    if (instruction.complement1) {
+      const match = /^"(.*)"$/s.exec(instruction.complement1.trim());
+      nouveauTitre = match ? match[1] : instruction.complement1.trim();
+    }
+    compteurCible.titre = nouveauTitre;
 
     resultat.succes = true;
     return resultat;
@@ -404,6 +451,13 @@ export class InstructionChanger {
         CompteursUtils.changerValeurCompteurOuPropriete(compteur, 'vaut', instruction.complement1, this.eju, this.jeu, contexteTour, evenement, declenchements, this.insDire)
         break;
 
+      // « changer le score est affiché en haut à droite sans titre »
+      // « changer le score n'est plus affiché »
+      case 'est':
+      case 'sont':
+        resultat = this.changerAffichageCompteur(compteur, instruction);
+        break;
+
       default:
         resultat.succes = false;
         console.error("changerCompteur: pas compris le verbe:", instruction.verbe, instruction);
@@ -413,6 +467,98 @@ export class InstructionChanger {
 
     return resultat;
 
+  }
+
+  /** Changer l'affichage du titre du lieu dans le cartouche en cours de partie.
+   *  Ex: « changer le lieu n'est plus affiché », « changer le lieu est affiché dans le cartouche du bas ». */
+  private changerAffichageLieu(instruction: ElementsPhrase): Resultat {
+    const resultat = new Resultat(true, '', 1);
+
+    const verbe = (instruction.verbe ?? '').trim().toLowerCase();
+    if (verbe !== 'est' && verbe !== 'sont') {
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : lieu : verbe « ${instruction.verbe} » non supporté.]+}`;
+      return resultat;
+    }
+
+    const negation = !!(instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus'));
+    const complement = (instruction.complement1 ?? '').trim().toLowerCase();
+
+    if (negation) {
+      // « n'est plus/pas affiché [dans le cartouche [du haut|du bas]] » → masquer
+      if (ExprReg.xAffichageLieuSeul.test(complement)) {
+        this.jeu.parametres.afficherTitreLieu = 'aucun';
+        return resultat;
+      }
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : lieu : forme négative pas comprise : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    // Forme positive : « est affiché [dans le cartouche [du haut|du bas]] »
+    const match = ExprReg.xAffichageLieuSeul.exec(complement);
+    if (!match) {
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : lieu : affichage pas compris : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+    const position = match[1]?.toLowerCase();
+    this.jeu.parametres.afficherTitreLieu = (position === 'bas') ? 'bas' : 'haut';
+    return resultat;
+  }
+
+  /** Changer le mode d'affichage d'un compteur en cours de partie. */
+  private changerAffichageCompteur(compteur: Compteur, instruction: ElementsPhrase): Resultat {
+    const resultat = new Resultat(true, '', 1);
+
+    const complement = (instruction.complement1 ?? '').trim().toLowerCase();
+    const negation = !!(instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus'));
+
+    // Forme négative : « n'est plus/pas affiché[…] » → masquer le compteur
+    if (negation) {
+      if (/^affich[eé][e]?s?$/.test(complement)) {
+        compteur.positionAffichage = undefined;
+        return resultat;
+      }
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : compteur « ${instruction.sujet} » : forme négative pas comprise : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    // Forme positive : « est affiché[…] [en haut/bas] [à gauche/droite] [sans X]… »
+    const match = ExprReg.xAffichageCompteurSeul.exec(complement);
+    if (!match) {
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : compteur « ${instruction.sujet} » : affichage pas compris : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    const verticalite = (match[1] ?? 'haut').toLowerCase();
+    const lateralite = (match[2] ?? 'droite').toLowerCase();
+    compteur.positionAffichage = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
+
+    // réinitialiser puis appliquer les options « sans X »
+    compteur.sansIntitule = false;
+    compteur.sansUnite = false;
+    let optionInconnue: string | null = null;
+    const xSansItem = /sans (\S+)/g;
+    let mSans: RegExpExecArray | null;
+    const options = match[3] ?? '';
+    while ((mSans = xSansItem.exec(options)) !== null) {
+      const opt = mSans[1].toLowerCase();
+      if (opt === 'titre' || opt === 'intitulé') {
+        compteur.sansIntitule = true;
+      } else if (opt === 'unité') {
+        compteur.sansUnite = true;
+      } else if (!optionInconnue) {
+        optionInconnue = mSans[1];
+      }
+    }
+    if (optionInconnue) {
+      resultat.sortie = `{n}{+[changer affichage compteur : option « sans ${optionInconnue} » inconnue. Options valides : « sans titre », « sans unité ».]+}`;
+    }
+
+    return resultat;
   }
 
   private changerListe(liste: Liste, instruction: ElementsPhrase, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {

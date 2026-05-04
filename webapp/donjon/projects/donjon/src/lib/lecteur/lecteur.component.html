@@ -4,18 +4,20 @@
     <div class="sortie-jeu-wrapper">
       @if (afficherCartoucheHaut) {
         <div class="cartouche-jeu">
-          <div class="cartouche-lieu">
+          <div class="cartouche-compteurs cartouche-compteurs-haut-gauche">
             @if (afficherLieuDansCartoucheHaut) {
-              <span class="cartouche-lieu-icone" aria-hidden="true">⌖</span>
-              <span class="cartouche-lieu-nom">{{ titreLieuActuel }}</span>
+              <span class="cartouche-lieu">
+                <span class="cartouche-lieu-icone" aria-hidden="true">⌖</span>
+                <span class="cartouche-lieu-nom">{{ titreLieuActuel }}</span>
+              </span>
+            }
+            @for (c of compteursHautGauche; track c.nom) {
+              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.titre ?? c.intitule?.nom ?? c.nom }} :</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
             }
           </div>
           <div class="cartouche-compteurs">
-            @for (c of compteursHautGauche; track c.nom) {
-              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.intitule?.nom ?? c.nom }} :</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
-            }
             @for (c of compteursHautDroite; track c.nom) {
-              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.intitule?.nom ?? c.nom }} :</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
+              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.titre ?? c.intitule?.nom ?? c.nom }} :</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
             }
           </div>
         </div>
@@ -33,12 +35,12 @@
               </span>
             }
             @for (c of compteursBasGauche; track c.nom) {
-              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.intitule?.nom ?? c.nom }}</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
+              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.titre ?? c.intitule?.nom ?? c.nom }}</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
             }
           </div>
           <div class="cartouche-compteurs">
             @for (c of compteursBasDroite; track c.nom) {
-              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.intitule?.nom ?? c.nom }}</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
+              <span class="cartouche-compteur">@if (!c.sansIntitule) {<span class="cartouche-compteur-nom">{{ c.titre ?? c.intitule?.nom ?? c.nom }}</span>}<span class="cartouche-compteur-valeur">{{ c.valeur }}</span>@if (c.unite && !c.sansUnite) {<span class="cartouche-compteur-unite">{{ uniteAccordee(c) }}</span>}</span>
             }
           </div>
         </div>

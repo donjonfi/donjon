@@ -60,6 +60,30 @@ fin réaction
 
 ---
 
+## 18bis. Cartouche : afficher le lieu courant
+
+Le cartouche est la barre fixe en haut et/ou en bas du lecteur.
+Le titre du lieu actuel peut y être affiché (par défaut dans le cartouche du haut, à gauche).
+
+```
+-- Activer / désactiver l'affichage du lieu (en dehors de toute action ou règle)
+afficher le lieu dans le cartouche.              -- défaut : cartouche du haut
+afficher le titre du lieu dans le cartouche.     -- forme équivalente
+afficher le lieu dans le cartouche du bas.
+ne pas afficher le lieu dans le cartouche.
+ne pas afficher le lieu dans le cartouche du haut.
+
+-- Modifier l'affichage en cours de partie
+changer le lieu n'est plus affiché.                          -- masquer
+changer le lieu n'est plus affiché dans le cartouche.        -- forme équivalente
+changer le lieu est affiché dans le cartouche du bas.        -- repositionner
+changer le lieu est affiché dans le cartouche du haut.
+```
+
+Le lieu et les compteurs positionnés à la même verticalité-latéralité (p. ex. `haut-gauche`) partagent la même zone du cartouche.
+
+---
+
 ## 19. Mémoire : compteurs
 
 ```
@@ -88,11 +112,28 @@ Elle est affichée en bas à gauche.
 Les vies sont un compteur initialisé à 3.
 Elles sont affichées en bas à droite.
 
--- Options d'affichage : masquer l'intitulé et/ou l'unité
-La bourse est affichée en haut à droite sans intitulé.
+-- Options d'affichage : masquer le titre et/ou l'unité
+La bourse est affichée en haut à droite sans titre.
 La bourse est affichée en haut à droite sans unité.
-La bourse est affichée en haut à droite sans intitulé sans unité.
-La bourse est affichée en haut à droite sans intitulé et sans unité. -- « et » optionnel
+La bourse est affichée en haut à droite sans titre sans unité.
+La bourse est affichée en haut à droite sans titre et sans unité. -- « et » optionnel
+-- Seules « sans titre » (alias « sans intitulé ») et « sans unité » sont valides.
+-- Toute autre option « sans X » provoque une erreur d'analyse.
+
+-- Titre libre (chaîne de caractères affichée à la place du nom dans le cartouche)
+Le titre du score est "Score final".
+Le titre de la bourse est "Pièces d'or".
+-- Si aucun titre n'est défini, le nom du compteur est utilisé.
+
+-- Modifier le titre à l'exécution
+changer le titre du score est "Score : niveau 2".
+
+-- Modifier l'affichage en cours de partie
+changer le score n'est plus affiché.                          -- masquer
+changer le score n'est pas affiché.                           -- forme équivalente
+changer le score est affiché en bas à gauche sans titre.      -- repositionner et/ou changer les options
+-- À chaque réaffichage, toutes les options « sans X » sont réinitialisées :
+-- il faut les redéclarer explicitement si on veut les conserver.
 
 -- Afficher la valeur dans un texte dynamique
 dire "Votre score est de [c score].".

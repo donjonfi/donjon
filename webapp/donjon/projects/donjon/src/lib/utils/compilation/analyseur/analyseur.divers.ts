@@ -168,8 +168,29 @@ export class AnalyseurDivers {
       const lateralite = (result[3] ?? 'droite').toLowerCase();
       const position = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
       const options = (result[4] ?? '').toLowerCase();
-      const sansIntitule = /sans intitulé/.test(options);
-      const sansUnite = /sans unité/.test(options);
+      // Valider chaque option « sans X » et signaler les options inconnues
+      let sansIntitule = false;
+      let sansUnite = false;
+      let optionInconnue: string | null = null;
+      const xSansItem = /sans (\S+)/g;
+      let mSans: RegExpExecArray | null;
+      while ((mSans = xSansItem.exec(options)) !== null) {
+        const opt = mSans[1].toLowerCase();
+        if (opt === 'titre' || opt === 'intitulé') {
+          sansIntitule = true;
+        } else if (opt === 'unité') {
+          sansUnite = true;
+        } else if (!optionInconnue) {
+          optionInconnue = mSans[1];
+        }
+      }
+      if (optionInconnue) {
+        ctxAnalyse.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          'Option d\'affichage inconnue',
+          `Afficher compteur: option « sans ${optionInconnue} » inconnue. Options valides : « sans titre », « sans unité ».`
+        );
+      }
 
       const motMinuscule = nomBrut.toLowerCase();
       const estPronomPersonnel = motMinuscule === 'il' || motMinuscule === 'elle' || motMinuscule === 'ils' || motMinuscule === 'elles';
