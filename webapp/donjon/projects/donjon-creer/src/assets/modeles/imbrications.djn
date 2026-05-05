@@ -1,0 +1,11 @@
+Le jardin est un lieu.
+La serre est un lieu dans le jardin.
+La pelle est un objet dans la serre.
+
+action tester:
+  dire "Je connais [si la serre est visitée]les recoins[si la pelle est possédée] et les outils[sinon] mais j’ai pas tout[fin][sinon]peu[fin].".
+fin action
+
+action foiser:
+  dire "Je connais [si la serre est visitée][1ère fois]une serre[2e fois]les recoins[puis]tout[fin][sinon]rien[fin].".
+fin action

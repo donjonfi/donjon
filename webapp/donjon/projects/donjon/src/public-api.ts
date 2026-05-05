@@ -69,6 +69,7 @@ export * from './lib/models/jouer/declenchement';
 export * from './lib/models/jouer/evenement';
 export * from './lib/models/jouer/resultat';
 export * from './lib/models/jouer/statut-conditions';
+export * from './lib/models/jouer/cadre-condition';
 export * from './lib/models/jouer/sauvegarde';
 export * from './lib/models/jouer/type-evenement';
 

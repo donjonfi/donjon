@@ -125,6 +125,30 @@ Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
 
 Hiérarchie : `porte → obstacle → objet → élément → concept → intitulé`
 
+### Classes personnalisées
+
+Les classes sont **créées automatiquement** lorsqu'on les utilise dans une définition.
+Par défaut, une classe nouvellement rencontrée hérite d'`objet`, sauf si une autre filiation est déclarée explicitement.
+
+```
+-- Création implicite : "parchemin" est créé automatiquement et hérite d'objet
+Le parchemin de feu est un parchemin dans la bibliothèque.
+Sa description est "Un parchemin gravé d'une rune flamboyante.".
+Son texte est "Rune de feu : pointe la cible et prononce « Ignis ».".
+
+-- Filiation explicite (à déclarer avant la première utilisation)
+Un parchemin est un objet.            -- équivalent au comportement par défaut
+Un familier est un animal.            -- hérite d'animal au lieu d'objet
+Un sortilège est un concept.          -- hérite directement de concept (pas d'objet)
+```
+
+Une fois la classe utilisée, on peut tester l'appartenance dans une condition :
+
+```
+si ceci n'est pas un parchemin, refuser "Ce n'est pas un parchemin de sort.".
+si cela est un familier, dire "Le familier ronronne.".
+```
+
 ---
 
 ## 4. Portes et obstacles

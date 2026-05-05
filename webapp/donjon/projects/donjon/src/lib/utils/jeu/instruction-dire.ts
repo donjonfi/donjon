@@ -1,4 +1,6 @@
 import { ConditionDebutee, StatutCondition, xFois } from "../../models/jouer/statut-conditions";
+import { CadreCondition } from "../../models/jouer/cadre-condition";
+import { PileConditionsUtils, TypeMotCle } from "./pile-conditions-utils";
 import { ELocalisation, Localisation } from "../../models/jeu/localisation";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
@@ -135,52 +137,44 @@ export class InstructionDire {
 
   private calculerCrochetsConditions(texteDynamique: string, nbAffichage: number, intact: boolean, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
     let retVal = "";
-    if (texteDynamique) {
-      // séparer les textes et les blocs conditionnels
-      const morceaux = texteDynamique.split(/\[|\]/);
-      let statutCondition = new StatutCondition(nbAffichage, intact, morceaux, 0);
-      // on commence toujours par un texte avant les crochets (même si la chaine commence par des crochets car dans ce cas on a une chaîne vide avant)
-      let suivantEstContenuCrochets = false; // description.trim().startsWith("[");
-      let afficherMorceauSuivant = true;
-      let conditionQuiPrecede = '';
-      for (let index = 0; index < morceaux.length; index++) {
-        statutCondition.curMorceauIndex = index;
-        const curMorceau = morceaux[index];
-        if (suivantEstContenuCrochets) {
-          if (curMorceau.length) {
-            // n’interpréter que les conditions
-            if (InstructionDire.estBlocCondition(curMorceau)) {
-              conditionQuiPrecede = curMorceau;
-              afficherMorceauSuivant = this.estConditionDescriptionRemplie(curMorceau, statutCondition, contexteTour, evenement, declenchements);
-              suivantEstContenuCrochets = false;
-              // sinon remettre le bloc pour l’interpréter plus tard
-            } else {
-              // remettre le bloc uniquement s’il doit être affiché
-              if (afficherMorceauSuivant) {
-                retVal += `[${curMorceau}]`;
-              }
-              suivantEstContenuCrochets = false;
-              // (on ne change pas afficherMorceauSuivant puisqu’il ne s’agit pas d’une condition.)
+    if (!texteDynamique) return "";
+
+    // séparer les textes et les blocs conditionnels
+    const morceaux = texteDynamique.split(/\[|\]/);
+    const statut = new StatutCondition(nbAffichage, intact, morceaux, 0);
+    let suivantEstContenuCrochets = false;
+
+    for (let index = 0; index < morceaux.length; index++) {
+      statut.curMorceauIndex = index;
+      const curMorceau = morceaux[index];
+
+      if (suivantEstContenuCrochets) {
+        if (curMorceau.length) {
+          if (InstructionDire.estBlocCondition(curMorceau)) {
+            // mot-clé conditionnel : met à jour la pile via estConditionDescriptionRemplie
+            this.estConditionDescriptionRemplie(curMorceau, statut, contexteTour, evenement, declenchements);
+          } else {
+            // balise non conditionnelle (propriété, etc.) : on la rend telle quelle si visible
+            if (statut.pileVisible) {
+              retVal += `[${curMorceau}]`;
             }
           }
-        } else {
-          if (afficherMorceauSuivant) {
-            // ajouter le morceau s’il n’est pas vide
-            if (curMorceau?.length) {
-              // s’il s’agit d’un texte qui suit la fin d’une condition
-              if (conditionQuiPrecede.match(/^fin/gi) || conditionQuiPrecede == '') {
-                retVal += curMorceau;
-                // s’il s’agit d’un texte à l’intérieur d’une condition
-              } else {
-                retVal += "{E}" + curMorceau + "{E}";
-              }
-            }
-          }
-          suivantEstContenuCrochets = true;
+          suivantEstContenuCrochets = false;
         }
+      } else {
+        if (statut.pileVisible && curMorceau?.length) {
+          // texte au niveau top (pile vide) → pas de {E} ; sinon on encadre
+          if (statut.cadres.length === 0) {
+            retVal += curMorceau;
+          } else {
+            retVal += "{E}" + curMorceau + "{E}";
+          }
+        }
+        suivantEstContenuCrochets = true;
       }
-    } else {
-      retVal = "";
+    }
+    if (statut.cadres.length > 0) {
+      console.warn("calculerCrochetsConditions : [fin] manquant, cadres restants =", statut.cadres.length);
     }
     return retVal;
   }
@@ -286,182 +280,174 @@ export class InstructionDire {
     return estCondition;
   }
 
-  /** Vérifier si une condition [] est remplie. */
+  /**
+   * Met à jour la pile de cadres en fonction du mot-clé conditionnel rencontré.
+   * Retourne la visibilité globale courante (AND sur tous les cadres ouverts).
+   */
   private estConditionDescriptionRemplie(condition: string, statut: StatutCondition, contexteTour: ContexteTour, evenement: Evenement, declenchements: number): boolean {
 
-    let retVal = false;
-    let conditionLC = condition.toLowerCase();
-    const resultFois = conditionLC.match(xFois);
+    const conditionLC = condition.toLowerCase().trim();
+    const cat = PileConditionsUtils.categoriser(condition);
 
-    // X-ÈME FOIS
-    if (resultFois) {
-      statut.conditionDebutee = ConditionDebutee.fois;
-      const nbFois = Number.parseInt(resultFois[1], 10);
-      statut.nbChoix = InstructionDire.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage === nbFois);
-      statut.siFois = (statut.siFois || retVal); // est-ce que au moins 1 des Xe fois est validé ?
-      // AU HASARD
-    } else if (conditionLC === "au hasard") {
-      statut.conditionDebutee = ConditionDebutee.hasard;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = InstructionDire.calculerNbChoix(statut);
-      // choisir un choix au hasard
-      const rand = AleatoireUtils.nombre();
-      statut.choixAuHasard = Math.floor(rand * statut.nbChoix) + 1;
-      retVal = (statut.choixAuHasard == 1);
-      // EN BOUCLE
-    } else if (conditionLC === "en boucle") {
-      statut.conditionDebutee = ConditionDebutee.boucle;
-      statut.dernIndexChoix = 1;
-      // compter le nombre de choix
-      statut.nbChoix = InstructionDire.calculerNbChoix(statut);
-      retVal = (statut.nbAffichage % statut.nbChoix === 1);
-      // INITIALEMENT
-    } else if (conditionLC === "initialement") {
-      statut.conditionDebutee = ConditionDebutee.initialement;
-      retVal = statut.initial;
-      // SI
-    } else if (conditionLC.startsWith("si ")) {
-      statut.conditionDebutee = ConditionDebutee.si;
-      const conditionMulti = AnalyseurCondition.getConditionMulti(condition);
-      if (conditionMulti.nbErreurs) {
-        retVal = false;
-        console.error("Condition pas comprise: ", condition);
+    if (cat === TypeMotCle.ouverture) {
+      this._ouvrirCadre(condition, conditionLC, statut, contexteTour, evenement, declenchements);
+    } else if (cat === TypeMotCle.continuation) {
+      if (!statut.sommet) {
+        console.warn("Mot-clé de continuation hors d’une condition ouverte :", conditionLC);
       } else {
-        statut.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
-        retVal = statut.siVrai;
+        this._continuerCadre(condition, conditionLC, statut, contexteTour, evenement, declenchements);
       }
-      // SUITES
-    } else if (statut.conditionDebutee !== ConditionDebutee.aucune) {
-
-      // SINONSI
-      if (conditionLC.startsWith("sinonsi ") || conditionLC.startsWith("sinon si ")) {
-        if (statut.conditionDebutee === ConditionDebutee.si) {
-          // le si précédent était vrai => la suite sera fausse
-          if (statut.siVrai) {
-            // (on laisse le statut siVrai à true pour les sinonsi/sinon suivants)
-            retVal = false;
-            // le si précédent était faux => tester le sinonsi
-          } else {
-            // (on retire le « sinon » qui précède le si)
-            const conditionSansSinon = condition.substring('sinon'.length).trim()
-            // tester le si
-            const conditionMulti = AnalyseurCondition.getConditionMulti(conditionSansSinon);
-
-            if (conditionMulti.nbErreurs) {
-              retVal = false;
-              console.error("Condition pas comprise: ", condition);
-            } else {
-              statut.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
-              retVal = statut.siVrai;
-            }
-          }
-        } else {
-          console.warn("[sinonsi …] sans 'si'.");
-          retVal = false;
-        }
-      } else {
-        retVal = false;
-        switch (conditionLC) {
-          // OU
-          case 'ou':
-            if (statut.conditionDebutee === ConditionDebutee.hasard) {
-              retVal = (statut.choixAuHasard === ++statut.dernIndexChoix);
-            } else {
-              console.warn("[ou] sans 'au hasard'.");
-            }
-            break;
-          // PUIS
-          case 'puis':
-            if (statut.conditionDebutee === ConditionDebutee.fois) {
-              // toutes les fois suivant le dernier Xe fois
-              retVal = (statut.nbAffichage > statut.plusGrandChoix);
-            } else if (statut.conditionDebutee === ConditionDebutee.boucle) {
-              // boucler
-              statut.dernIndexChoix += 1;
-              retVal = (statut.nbAffichage % statut.nbChoix === (statut.dernIndexChoix == statut.nbChoix ? 0 : statut.dernIndexChoix));
-            } else if (statut.conditionDebutee === ConditionDebutee.initialement) {
-              // quand on est plus dans initialement
-              retVal = !statut.initial;
-            } else {
-              console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
-            }
-            break;
-
-          // SINON
-          case 'sinon':
-            if (statut.conditionDebutee === ConditionDebutee.si) {
-              retVal = !statut.siVrai;
-            } else if (statut.conditionDebutee === ConditionDebutee.fois) {
-              retVal = !statut.siFois;
-            } else {
-              console.warn("[sinon] sans 'si' ou 'fois'.");
-              retVal = false;
-            }
-            break;
-          // FIN CHOIX
-          case 'fin choix':
-          case 'finchoix':
-            if (statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
-              retVal = true;
-            } else {
-              console.warn("[fin choix] sans 'fois', 'boucle', 'hasard' ou 'initialement'.");
-            }
-            break;
-          // FIN SI
-          case 'fin si':
-          case 'finsi':
-            if (statut.conditionDebutee === ConditionDebutee.si) {
-              retVal = true;
-            } else {
-              console.warn("[fin si] sans 'si'.");
-            }
-            break;
-          // FIN
-          case 'fin':
-            if (statut.conditionDebutee === ConditionDebutee.si || statut.conditionDebutee === ConditionDebutee.boucle || statut.conditionDebutee === ConditionDebutee.fois || statut.conditionDebutee == ConditionDebutee.hasard || statut.conditionDebutee === ConditionDebutee.initialement) {
-              retVal = true;
-            } else {
-              console.warn("[fin choix] sans 'si', 'fois', 'boucle', 'hasard' ou 'initialement'.");
-            }
-            break;
-
-          default:
-            console.warn("estConditionDescriptionRemplie > je ne sais pas quoi faire pour cette balise :", conditionLC);
-            break;
-        }
-      }
+    } else if (cat === TypeMotCle.fermeture) {
+      this._fermerCadre(conditionLC, statut);
+    } else if (this.verbeux) {
+      console.log("estConditionDescriptionRemplie : balise non gérée", conditionLC);
     }
 
     if (this.verbeux) {
-      console.log("estConditionDescriptionRemplie", condition, statut, retVal);
+      console.log("estConditionDescriptionRemplie", condition, statut.cadres, statut.pileVisible);
     }
-    return retVal;
+    return statut.pileVisible;
   }
 
-  private static calculerNbChoix(statut: StatutCondition) {
-    let nbChoix = 0;
-    let index = statut.curMorceauIndex;
-    do {
-      index += 2;
-      nbChoix += 1;
-    } while (statut.morceaux[index] !== 'fin choix' && (index < (statut.morceaux.length - 3)));
+  /** Empile un nouveau cadre selon le type de mot-clé d’ouverture. */
+  private _ouvrirCadre(condition: string, conditionLC: string, statut: StatutCondition, contexteTour: ContexteTour, evenement: Evenement, declenchements: number) {
+    const resultFois = conditionLC.match(xFois);
 
-    // si on est dans une balise fois et si il y a un "puis"
-    // => récupérer le dernier élément fois pour avoir le plus élevé
-    if (statut.conditionDebutee == ConditionDebutee.fois) {
+    if (resultFois) {
+      const nbFois = Number.parseInt(resultFois[1], 10);
+      // Cas particulier : `[2eme fois]` qui suit `[1ere fois]` au même niveau
+      // doit prolonger le cadre `fois` courant, pas en empiler un nouveau.
+      if (statut.sommet && statut.sommet.type === ConditionDebutee.fois) {
+        const cadre = statut.sommet;
+        cadre.brancheVisible = (statut.nbAffichage === nbFois);
+        cadre.siFois = cadre.siFois || cadre.brancheVisible;
+        return;
+      }
+      const cadre = new CadreCondition(ConditionDebutee.fois, statut.curMorceauIndex);
+      const compte = PileConditionsUtils.compterChoixNiveauCourant(statut.morceaux, statut.curMorceauIndex);
+      cadre.nbChoix = compte.nbChoix;
+      // Le helper démarre son scan APRÈS le morceau d’ouverture, donc le `Xe fois`
+      // d’ouverture (ex: `[1ere fois]…[puis]…`) doit être réintégré ici.
+      cadre.plusGrandChoix = Math.max(compte.plusGrandFois, nbFois);
+      cadre.brancheVisible = (statut.nbAffichage === nbFois);
+      cadre.siFois = cadre.brancheVisible;
+      statut.cadres.push(cadre);
 
-      if (statut.morceaux[index - 2] === "puis") {
-        const result = statut.morceaux[index - 4].match(xFois);
-        if (result) {
-          statut.plusGrandChoix = Number.parseInt(result[1], 10);
+    } else if (conditionLC === "au hasard") {
+      const cadre = new CadreCondition(ConditionDebutee.hasard, statut.curMorceauIndex);
+      cadre.dernIndexChoix = 1;
+      const compte = PileConditionsUtils.compterChoixNiveauCourant(statut.morceaux, statut.curMorceauIndex);
+      cadre.nbChoix = compte.nbChoix;
+      const rand = AleatoireUtils.nombre();
+      cadre.choixAuHasard = Math.floor(rand * cadre.nbChoix) + 1;
+      cadre.brancheVisible = (cadre.choixAuHasard === 1);
+      statut.cadres.push(cadre);
+
+    } else if (conditionLC === "en boucle") {
+      const cadre = new CadreCondition(ConditionDebutee.boucle, statut.curMorceauIndex);
+      cadre.dernIndexChoix = 1;
+      const compte = PileConditionsUtils.compterChoixNiveauCourant(statut.morceaux, statut.curMorceauIndex);
+      cadre.nbChoix = compte.nbChoix;
+      cadre.brancheVisible = (statut.nbAffichage % cadre.nbChoix === 1);
+      statut.cadres.push(cadre);
+
+    } else if (conditionLC === "initialement") {
+      const cadre = new CadreCondition(ConditionDebutee.initialement, statut.curMorceauIndex);
+      cadre.brancheVisible = statut.initial;
+      statut.cadres.push(cadre);
+
+    } else if (conditionLC.startsWith("si ")) {
+      const cadre = new CadreCondition(ConditionDebutee.si, statut.curMorceauIndex);
+      const conditionMulti = AnalyseurCondition.getConditionMulti(condition);
+      if (conditionMulti.nbErreurs) {
+        console.error("Condition pas comprise: ", condition);
+        cadre.siVrai = false;
+      } else {
+        cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
+      }
+      cadre.brancheVisible = cadre.siVrai;
+      statut.cadres.push(cadre);
+    }
+  }
+
+  /** Met à jour le cadre au sommet selon le mot-clé de continuation. */
+  private _continuerCadre(condition: string, conditionLC: string, statut: StatutCondition, contexteTour: ContexteTour, evenement: Evenement, declenchements: number) {
+    const cadre = statut.sommet!;
+
+    if (conditionLC.startsWith("sinonsi ") || conditionLC.startsWith("sinon si ")) {
+      if (cadre.type !== ConditionDebutee.si) {
+        console.warn("[sinonsi …] sans 'si'.");
+        cadre.brancheVisible = false;
+        return;
+      }
+      if (cadre.siVrai) {
+        cadre.brancheVisible = false;
+      } else {
+        const conditionSansSinon = condition.substring('sinon'.length).trim();
+        const conditionMulti = AnalyseurCondition.getConditionMulti(conditionSansSinon);
+        if (conditionMulti.nbErreurs) {
+          console.error("Condition pas comprise: ", condition);
+          cadre.brancheVisible = false;
         } else {
-          console.warn("'puis' ne suit pas un 'Xe fois'");
+          cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
+          cadre.brancheVisible = cadre.siVrai;
         }
       }
+      return;
     }
-    return nbChoix;
+
+    switch (conditionLC) {
+      case 'ou':
+        if (cadre.type === ConditionDebutee.hasard) {
+          cadre.brancheVisible = (cadre.choixAuHasard === ++cadre.dernIndexChoix);
+        } else {
+          console.warn("[ou] sans 'au hasard'.");
+          cadre.brancheVisible = false;
+        }
+        break;
+      case 'puis':
+        if (cadre.type === ConditionDebutee.fois) {
+          cadre.brancheVisible = (statut.nbAffichage > cadre.plusGrandChoix);
+        } else if (cadre.type === ConditionDebutee.boucle) {
+          cadre.dernIndexChoix += 1;
+          cadre.brancheVisible = (statut.nbAffichage % cadre.nbChoix === (cadre.dernIndexChoix === cadre.nbChoix ? 0 : cadre.dernIndexChoix));
+        } else if (cadre.type === ConditionDebutee.initialement) {
+          cadre.brancheVisible = !statut.initial;
+        } else {
+          console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
+          cadre.brancheVisible = false;
+        }
+        break;
+      case 'sinon':
+        if (cadre.type === ConditionDebutee.si) {
+          cadre.brancheVisible = !cadre.siVrai;
+        } else if (cadre.type === ConditionDebutee.fois) {
+          cadre.brancheVisible = !cadre.siFois;
+        } else {
+          console.warn("[sinon] sans 'si' ou 'fois'.");
+          cadre.brancheVisible = false;
+        }
+        break;
+    }
+  }
+
+  /** Dépile le cadre au sommet (en vérifiant le type pour fin si / fin choix). */
+  private _fermerCadre(conditionLC: string, statut: StatutCondition) {
+    const cadre = statut.sommet;
+    if (!cadre) {
+      console.warn("[" + conditionLC + "] orphelin.");
+      return;
+    }
+    if (conditionLC === 'fin si' || conditionLC === 'finsi') {
+      if (cadre.type !== ConditionDebutee.si) {
+        console.warn("[fin si] alors que le cadre courant est de type", cadre.type);
+      }
+    } else if (conditionLC === 'fin choix' || conditionLC === 'finchoix') {
+      if (cadre.type === ConditionDebutee.si) {
+        console.warn("[fin choix] alors que le cadre courant est un 'si'.");
+      }
+    }
+    statut.cadres.pop();
   }
 
   // ===================================================

@@ -184,3 +184,29 @@ si la règle se déclenche pour la première fois:
 si la règle se déclenche pour la deuxième fois:
 si la règle ne se déclenche pas pour la première fois:
 ```
+
+### Sortie d'une règle « après » : remplacer, précéder ou suivre
+
+Par défaut, une **règle après** *remplace* la sortie de l'action déclenchante.
+Deux instructions permettent de réintroduire la sortie standard, selon l'ordre voulu :
+
+| Instruction                  | Effet                                                       |
+|------------------------------|-------------------------------------------------------------|
+| `continuer l'action avant.`  | la sortie standard s'affiche **avant** le texte de la règle |
+| `continuer l'action après.`  | la sortie standard s'affiche **après** le texte de la règle |
+
+```
+-- La description du nouveau lieu s'affiche AVANT le murmure
+règle après aller dans la crypte:
+  continuer l'action avant.
+  dire "Une voix murmure : « Sans le feu, tu ne survivras pas ici… »".
+fin règle
+
+-- La cinématique s'affiche AVANT la description du nouveau lieu
+règle après aller dans la crypte:
+  dire "Vous descendez prudemment dans l'obscurité.".
+  continuer l'action après.
+fin règle
+```
+
+Sans aucune de ces deux instructions, la sortie standard est totalement remplacée par celle de la règle (utile pour les cinématiques qui se substituent à la description automatique).

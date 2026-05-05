@@ -164,3 +164,23 @@ terminer le jeu.
 [initialement]texte si intact[fin]
 [initialement]texte si intact[puis]texte si modifié/déplacé[fin]
 ```
+
+### Imbrication des blocs conditionnels
+
+Tous les blocs ci-dessus (`[si …]`, `[Xe fois]`, `[au hasard]`, `[en boucle]`, `[initialement]`) peuvent être imbriqués les uns dans les autres. Chaque `[fin]` (ou `[fin si]` / `[fin choix]`) ferme uniquement le bloc le plus interne ; le bloc englobant reste ouvert jusqu’à son propre `[fin]`.
+
+```
+-- si dans si
+[si X est Y]ouiX [si Z est T]ouiZ[sinon]nonZ[fin si][sinon]nonX[fin si]
+
+-- si dans le sinon d’un autre si
+[si X est Y]ouiX[sinon][si Z est T]nonX-ouiZ[sinon]nonX-nonZ[fin si][fin si]
+
+-- au hasard contenant un si
+[au hasard]choix1[ou][si Z est T]ouiZ[sinon]nonZ[fin si][ou]choix3[fin]
+
+-- si contenant un Xe fois
+[si X est Y][1ère fois]premier passage[puis]passages suivants[fin][sinon]hors-condition[fin si]
+```
+
+Le contenu d’un bloc imbriqué n’est rendu que si **toutes** les conditions englobantes sont elles-mêmes satisfaites.
