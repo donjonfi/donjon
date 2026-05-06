@@ -114,7 +114,7 @@ export class CommandeurTour {
       case PhaseTour.continuer_apres_interrompu:
         // ajouter les erreurs à la sortie
         tour.erreurs.forEach(erreur => {
-          tour.commande.sortie += `{+${erreur}+}{n}`
+          this.jeu.tamponErreurs.push(erreur);
         });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;
@@ -124,7 +124,7 @@ export class CommandeurTour {
       case PhaseTour.epilogue:
         // ajouter les erreurs à la sortie
         tour.erreurs.forEach(erreur => {
-          tour.commande.sortie += `{+${erreur}+}{n}`
+          this.jeu.tamponErreurs.push(erreur);
         });
         // passer à la phase « fin »
         tour.phase = PhaseTour.fin;

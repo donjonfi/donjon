@@ -97,6 +97,9 @@ export class AnalyseurV8Instructions {
     // instruction simple a été trouvée
     if (instructionDecomposee) {
       let instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+      if (phrase instanceof Phrase) {
+        instruction.ligne = phrase.ligne;
+      }
       instructions.push(instruction)
       retVal = true;
       // instruction PAS correctement décomposée

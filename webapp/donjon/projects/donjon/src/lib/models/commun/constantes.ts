@@ -28,6 +28,7 @@ export enum EClasseRacine {
   // types spéciaux
   joueur = 'joueur',
   inventaire = 'inventaire',
+  regle = 'regle',
 }
 
 export enum EEtatsBase {

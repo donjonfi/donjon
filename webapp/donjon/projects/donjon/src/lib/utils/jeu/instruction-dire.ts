@@ -153,6 +153,13 @@ export class InstructionDire {
           if (InstructionDire.estBlocCondition(curMorceau)) {
             // mot-clé conditionnel : met à jour la pile via estConditionDescriptionRemplie
             this.estConditionDescriptionRemplie(curMorceau, statut, contexteTour, evenement, declenchements);
+            // injecter les erreurs inline collectées à la position du bracket fautif
+            if (statut.erreursInline.length) {
+              for (const err of statut.erreursInline) {
+                retVal += err;
+              }
+              statut.erreursInline.length = 0;
+            }
           } else {
             // balise non conditionnelle (propriété, etc.) : on la rend telle quelle si visible
             if (statut.pileVisible) {
@@ -174,7 +181,10 @@ export class InstructionDire {
       }
     }
     if (statut.cadres.length > 0) {
-      console.warn("calculerCrochetsConditions : [fin] manquant, cadres restants =", statut.cadres.length);
+      const msg = "[fin] manquant dans un texte dynamique : " + statut.cadres.length + " cadre(s) resté(s) ouvert(s).";
+      console.warn("calculerCrochetsConditions : " + msg);
+      this.jeu.tamponErreurs.push(msg);
+      retVal += "{+{/[fin manquant]/}+}";
     }
     return retVal;
   }
@@ -293,12 +303,15 @@ export class InstructionDire {
       this._ouvrirCadre(condition, conditionLC, statut, contexteTour, evenement, declenchements);
     } else if (cat === TypeMotCle.continuation) {
       if (!statut.sommet) {
-        console.warn("Mot-clé de continuation hors d’une condition ouverte :", conditionLC);
+        const msg = "[" + condition + "] hors d’une condition ouverte.";
+        console.warn(msg);
+        this.jeu.tamponErreurs.push(msg);
+        statut.erreursInline.push("{+{/[" + condition + " hors condition]/}+}");
       } else {
         this._continuerCadre(condition, conditionLC, statut, contexteTour, evenement, declenchements);
       }
     } else if (cat === TypeMotCle.fermeture) {
-      this._fermerCadre(conditionLC, statut);
+      this._fermerCadre(condition, conditionLC, statut);
     } else if (this.verbeux) {
       console.log("estConditionDescriptionRemplie : balise non gérée", conditionLC);
     }
@@ -360,10 +373,22 @@ export class InstructionDire {
       const cadre = new CadreCondition(ConditionDebutee.si, statut.curMorceauIndex);
       const conditionMulti = AnalyseurCondition.getConditionMulti(condition);
       if (conditionMulti.nbErreurs) {
-        console.error("Condition pas comprise: ", condition);
+        const msg = "condition pas comprise dans un texte dynamique : « " + condition + " »";
+        console.error(msg);
+        this.jeu.tamponErreurs.push(msg);
+        statut.erreursInline.push("{+{/[" + condition + " ?]/}+}");
         cadre.siVrai = false;
       } else {
-        cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
+        try {
+          cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
+        } catch (err) {
+          // ex. sujet introuvable : on ne fait pas planter le rendu, on reporte.
+          const msg = "condition pas évaluée dans un texte dynamique : « " + condition + " » (" + (err?.message ?? err) + ")";
+          console.error(msg);
+          this.jeu.tamponErreurs.push(msg);
+          statut.erreursInline.push("{+{/[" + condition + " ?]/}+}");
+          cadre.siVrai = false;
+        }
       }
       cadre.brancheVisible = cadre.siVrai;
       statut.cadres.push(cadre);
@@ -376,7 +401,10 @@ export class InstructionDire {
 
     if (conditionLC.startsWith("sinonsi ") || conditionLC.startsWith("sinon si ")) {
       if (cadre.type !== ConditionDebutee.si) {
-        console.warn("[sinonsi …] sans 'si'.");
+        const msg = "[" + condition + "] sans « si » correspondant.";
+        console.warn(msg);
+        this.jeu.tamponErreurs.push(msg);
+        statut.erreursInline.push("{+{/[" + condition + " sans si]/}+}");
         cadre.brancheVisible = false;
         return;
       }
@@ -386,11 +414,22 @@ export class InstructionDire {
         const conditionSansSinon = condition.substring('sinon'.length).trim();
         const conditionMulti = AnalyseurCondition.getConditionMulti(conditionSansSinon);
         if (conditionMulti.nbErreurs) {
-          console.error("Condition pas comprise: ", condition);
+          const msg = "condition pas comprise dans un texte dynamique : « " + condition + " »";
+          console.error(msg);
+          this.jeu.tamponErreurs.push(msg);
+          statut.erreursInline.push("{+{/[" + condition + " ?]/}+}");
           cadre.brancheVisible = false;
         } else {
-          cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
-          cadre.brancheVisible = cadre.siVrai;
+          try {
+            cadre.siVrai = this.cond.siEstVrai(null, conditionMulti, contexteTour, evenement, declenchements);
+            cadre.brancheVisible = cadre.siVrai;
+          } catch (err) {
+            const msg = "condition pas évaluée dans un texte dynamique : « " + condition + " » (" + (err?.message ?? err) + ")";
+            console.error(msg);
+            this.jeu.tamponErreurs.push(msg);
+            statut.erreursInline.push("{+{/[" + condition + " ?]/}+}");
+            cadre.brancheVisible = false;
+          }
         }
       }
       return;
@@ -401,7 +440,10 @@ export class InstructionDire {
         if (cadre.type === ConditionDebutee.hasard) {
           cadre.brancheVisible = (cadre.choixAuHasard === ++cadre.dernIndexChoix);
         } else {
-          console.warn("[ou] sans 'au hasard'.");
+          const msg = "[ou] sans « au hasard ».";
+          console.warn(msg);
+          this.jeu.tamponErreurs.push(msg);
+          statut.erreursInline.push("{+{/[ou hors hasard]/}+}");
           cadre.brancheVisible = false;
         }
         break;
@@ -414,7 +456,10 @@ export class InstructionDire {
         } else if (cadre.type === ConditionDebutee.initialement) {
           cadre.brancheVisible = !statut.initial;
         } else {
-          console.warn("[puis] sans 'fois', 'boucle' ou 'initialement'.");
+          const msg = "[puis] sans « fois », « en boucle » ou « initialement ».";
+          console.warn(msg);
+          this.jeu.tamponErreurs.push(msg);
+          statut.erreursInline.push("{+{/[puis hors cadre]/}+}");
           cadre.brancheVisible = false;
         }
         break;
@@ -424,7 +469,10 @@ export class InstructionDire {
         } else if (cadre.type === ConditionDebutee.fois) {
           cadre.brancheVisible = !cadre.siFois;
         } else {
-          console.warn("[sinon] sans 'si' ou 'fois'.");
+          const msg = "[sinon] sans « si » ou « fois ».";
+          console.warn(msg);
+          this.jeu.tamponErreurs.push(msg);
+          statut.erreursInline.push("{+{/[sinon hors cadre]/}+}");
           cadre.brancheVisible = false;
         }
         break;
@@ -432,19 +480,28 @@ export class InstructionDire {
   }
 
   /** Dépile le cadre au sommet (en vérifiant le type pour fin si / fin choix). */
-  private _fermerCadre(conditionLC: string, statut: StatutCondition) {
+  private _fermerCadre(condition: string, conditionLC: string, statut: StatutCondition) {
     const cadre = statut.sommet;
     if (!cadre) {
-      console.warn("[" + conditionLC + "] orphelin.");
+      const msg = "[" + condition + "] orphelin (aucun cadre conditionnel ouvert).";
+      console.warn(msg);
+      this.jeu.tamponErreurs.push(msg);
+      statut.erreursInline.push("{+{/[" + condition + " orphelin]/}+}");
       return;
     }
     if (conditionLC === 'fin si' || conditionLC === 'finsi') {
       if (cadre.type !== ConditionDebutee.si) {
-        console.warn("[fin si] alors que le cadre courant est de type", cadre.type);
+        const msg = "[fin si] alors que le cadre courant est de type « " + cadre.type + " ».";
+        console.warn(msg);
+        this.jeu.tamponErreurs.push(msg);
+        statut.erreursInline.push("{+{/[fin si incohérent]/}+}");
       }
     } else if (conditionLC === 'fin choix' || conditionLC === 'finchoix') {
       if (cadre.type === ConditionDebutee.si) {
-        console.warn("[fin choix] alors que le cadre courant est un 'si'.");
+        const msg = "[fin choix] alors que le cadre courant est un « si ».";
+        console.warn(msg);
+        this.jeu.tamponErreurs.push(msg);
+        statut.erreursInline.push("{+{/[fin choix incohérent]/}+}");
       }
     }
     statut.cadres.pop();

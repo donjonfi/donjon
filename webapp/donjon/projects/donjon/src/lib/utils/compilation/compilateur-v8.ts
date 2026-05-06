@@ -5,6 +5,7 @@ import { ContexteAnalyseV8 } from "../../models/compilateur/contexte-analyse-v8"
 import { ContexteCompilationV8 } from "../../models/compilateur/contexte-compilation-v8";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { Statisticien } from "../jeu/statisticien";
+import { ValidateurTextesDynamiques } from "./validateur-textes-dynamiques";
 
 /**
  * Il s’agit du deuxième compilateur Donjon FI.
@@ -90,6 +91,15 @@ export class CompilateurV8 {
   public static analyserCodeSource(source: string, contexteAnalyse: ContexteAnalyseV8, fichierActions: boolean): void {
 
     const phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(source);
+
+    // ********************************
+    // VALIDER LES TEXTES DYNAMIQUES
+    // ********************************
+    // Avant l’analyse syntaxique, on valide la structure des crochets de conditions
+    // (`[si …]`, `[sinon]`, `[fin]`, etc.) dans chaque chaîne entre guillemets, afin
+    // de signaler les erreurs de syntaxe avec le bon numéro de ligne du scénario.
+    contexteAnalyse.analyseFichierActionsEnCours = fichierActions;
+    ValidateurTextesDynamiques.validerPhrases(phrases, contexteAnalyse);
 
     // Verificateur.verifierBlocs(phrases, contexteAnalyse);
 

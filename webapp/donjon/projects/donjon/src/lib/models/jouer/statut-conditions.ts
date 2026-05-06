@@ -22,6 +22,14 @@ export class StatutCondition {
   /** Pile de cadres conditionnels (sommet = dernier élément). */
   public cadres: CadreCondition[] = [];
 
+  /**
+   * Erreurs détectées pendant l’interprétation du morceau courant et qui
+   * doivent être injectées telles quelles dans le texte rendu, à la position
+   * du bracket fautif (ex. condition non comprise, mot-clé orphelin).
+   * Vidée après chaque morceau par le moteur.
+   */
+  public erreursInline: string[] = [];
+
   constructor(
     public nbAffichage: number,
     public initial: boolean,

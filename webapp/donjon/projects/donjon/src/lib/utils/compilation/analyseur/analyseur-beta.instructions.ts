@@ -165,6 +165,7 @@ export class AnalyseurBetaInstructions {
   /** Traiter une instruction simple */
   private static traiterInstructionSimple(instructionDecomposee: ElementsPhrase, ctx: ContexteSeparerInstructions) {
     const instruction = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+    instruction.ligne = ctx.ligne;
     AnalyseurBetaInstructions.placerInstructionTraiteeAuBonEndroit(instruction, ctx);
   }
 
@@ -186,6 +187,7 @@ export class AnalyseurBetaInstructions {
     let nouvelleListeInstructionsSi = new Array<Instruction>();
     let nouvelleListeInstructionsSinon = new Array<Instruction>();
     let newInstruction = new Instruction(undefined, undefined, condition, nouvelleListeInstructionsSi, nouvelleListeInstructionsSinon);
+    newInstruction.ligne = ctx.ligne;
 
     // UN SI RAPIDE EST EN COURS
     if (ctx.prochaineInstructionAttenduePourSiRapide) {
@@ -317,6 +319,7 @@ export class AnalyseurBetaInstructions {
     // créer l’instruction choisir avec une liste de choix vide
     let nouvelleListeChoix = new Array<Choix>();
     let instructionChoisir = new Instruction(undefined, nouvelleListeChoix);
+    instructionChoisir.ligne = ctx.ligne;
     // palcer l’instruction au bon endroit
     this.placerInstructionTraiteeAuBonEndroit(instructionChoisir, ctx);
 

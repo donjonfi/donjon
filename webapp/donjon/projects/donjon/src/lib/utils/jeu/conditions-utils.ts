@@ -207,8 +207,7 @@ export class ConditionsUtils {
         if (!declenchements) {
           console.warn("siEstVraiSansLien: règle: il ne s’agit pas d’une règle (« déclenchements » pas défini).");
         } else {
-          const cpt = new Compteur("déclenchements règle", declenchements);
-          sujet = cpt;
+          sujet = new Intitule("règle", new GroupeNominal("la ", "règle", null), ClassesRacines.Regle);
         }
         // action (c’est à dire l’action liée à l’événement)
         // => infinitif
@@ -324,7 +323,13 @@ export class ConditionsUtils {
               // rien à dire ici
             } else {
               console.error("siEstVraiSansLien >>> pas d’élément trouvé pour pour le sujet:", condition.sujet, condition, correspondances);
-              contexteTour.ajouterErreurCondition(condition, `Sujet de la condition pas trouvé : ${condition.sujet}`);
+              const msgSujet = `Sujet de la condition pas trouvé : ${condition.sujet}`;
+              if (contexteTour) {
+                contexteTour.ajouterErreurCondition(condition, msgSujet);
+              } else {
+                this.jeu.tamponErreurs.push(msgSujet);
+                throw new Error(msgSujet);
+              }
             }
           }
         }
@@ -574,7 +579,34 @@ export class ConditionsUtils {
         }
 
         // *********************************************
-        //  C. COMPTEUR
+        //  C. RÈGLE
+        // *********************************************
+      } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.regle)) {
+
+        // 2 - Trouver le verbe
+        // ++++++++++++++++++++
+        switch (condition.verbe) {
+
+          case 'se déclenche':
+            // remarque: négation appliquée plus loin.
+            if (condition.complement === 'pour la première fois') {
+              retVal = (declenchements === 1);
+            } else if (condition.complement === 'pour la deuxième fois') {
+              retVal = (declenchements === 2);
+            } else if (condition.complement === 'pour la troisième fois') {
+              retVal = (declenchements === 3);
+            } else {
+              contexteTour.ajouterErreurCondition(condition, "Condition sur la règle : complément non supporté pour « se déclenche » : " + condition.complement + ". Formulation attendue : « la règle se déclenche pour la première/deuxième/troisième fois ».");
+            }
+            break;
+
+          default:
+            contexteTour.ajouterErreurCondition(condition, "Condition sur la règle : verbe pas supporté : " + condition.verbe + ". Formulation attendue : « la règle se déclenche pour la première/deuxième/troisième fois ».");
+            break;
+
+        }
+        // *********************************************
+        //  D. COMPTEUR
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.compteur)) {
 
@@ -615,26 +647,13 @@ export class ConditionsUtils {
             retVal = compteur.valeur >= CompteursUtils.intituleValeurVersNombre(condition.complement, contexteTour, evenement, this.eju, this.jeu);
             break;
 
-          case 'se déclenche':
-            // remarque: négation appliquée plus loin.
-            if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la première fois') {
-              retVal = (compteur.valeur === 1);
-            } else if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la deuxième fois') {
-              retVal = (compteur.valeur === 2);
-            } else if (compteur.nom === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('déclenchements règle') && condition.complement === 'pour la troisième fois') {
-              retVal = (compteur.valeur === 3);
-            } else {
-              console.error("Condition compteur: déclenche: supporté seulement pour « la règle se déclenche pour la première fois.");
-            }
-            break;
-
           default:
             contexteTour.ajouterErreurCondition(condition, "Condition sur un compteur : verbe pas supporté : " + condition.verbe + ".");
             break;
 
         }
         // *********************************************
-        //  D. LISTE
+        //  E. LISTE
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.liste)) {
 
@@ -700,7 +719,7 @@ export class ConditionsUtils {
 
         }
         // *********************************************
-        //  E. DIRECTION
+        //  F. DIRECTION
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.direction)) {
 
@@ -738,7 +757,7 @@ export class ConditionsUtils {
         }
 
         // *********************************************
-        //  F. INTITULÉ
+        //  G. INTITULÉ
         // *********************************************
       } else if (sujet && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
 
@@ -808,7 +827,7 @@ export class ConditionsUtils {
 
         }
         // *********************************************
-        //  G. AUCUN SUJET
+        //  H. AUCUN SUJET
         // *********************************************
       } else {
 

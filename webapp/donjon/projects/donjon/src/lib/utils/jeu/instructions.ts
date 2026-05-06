@@ -144,6 +144,8 @@ export class Instructions {
     }
     // incrémenter le nombre de fois que l’instruction a déjà été exécutée
     instruction.nbExecutions += 1;
+    // mémoriser l’instruction en cours (notamment pour le report d’erreur : ligne du scénario, etc.)
+    contexteTour.derniereInstruction = instruction;
 
     // instruction conditionnelle
     if (instruction.condition) {

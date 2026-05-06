@@ -74,13 +74,16 @@
                 </a>
               }
 
-              @if (tab == 'scenario') {
-                <br>
-                  <!-- analyser -->
-                  <button class="btn btn-warning mt-4 px-2" (click)="onCompiler(undefined)" tooltip="Analyser" placement="right"
-                    title="Anaylser">
-                    <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
-                  </button>
+              @if (tab == 'scenario' || tab == 'jeu') {
+                @if (!afficherPreferences) {
+                  @if (tab == 'scenario') {
+                    <br>
+                    <!-- analyser -->
+                    <button class="btn btn-warning mt-4 px-2" (click)="onCompiler(undefined)" tooltip="Analyser" placement="right"
+                      title="Anaylser">
+                      <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
+                    </button>
+                  }
                   <!-- sauvegarder fichier localement -->
                   <br>
                     <button class="btn btn-danger mt-4 px-2" (click)="onSauvegarderSous()" tooltip="Sauvegarder"
@@ -93,6 +96,7 @@
                         tooltip="Télécharger mon jeu" placement="right" title="Télécharger mon jeu">
                         <i class="fas fa-fw fa-download fa-lg"></i>
                       </button>
+                }
                       <!-- wiki -->
                       <br>
                         <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
@@ -105,12 +109,14 @@
                             placement="right" title="Préférences">
                             <i class="fas fa-fw fa-sliders-h fa-lg"></i>
                           </button>
-                          <!-- conversion -->
-                          <br>
+                          <!-- conversion (visible uniquement si préférences ouvertes) -->
+                          @if (afficherPreferences) {
+                            <br>
                             <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherConvertisseur()" tooltip="V1 => V2"
                               placement="right" title="Convertir votre scénario V1 vers V2">
                               <i class="fas fa-fw fa-rotate fa-lg"></i>
                             </button>
+                          }
                             <!-- sections -->
                             <br>
                               <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
@@ -130,7 +136,7 @@
                             <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
                               <div class="grid-scenario">
                                 <div class="rs1">
-                                  @if (afficherPreferences) {
+                                  @if (afficherPreferences && !afficherConvertisseur) {
                                     <div class="row mb-2">
                                       <div class="col-auto">
                                         <select [(ngModel)]="theme" (change)="onChangerTheme()" class="form-select" name="choixTheme">
