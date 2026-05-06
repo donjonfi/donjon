@@ -7,7 +7,7 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
 
   // Instruction : verbe + complément
 
-  it('Phrase:  « continuer l’action »', () => {
+  it('[F002-T001] Phrase:  « continuer l’action »', () => {
     const result = ExprReg.xInstruction.exec("continuer l’action");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("continuer"); // verbe
@@ -15,49 +15,49 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
   });
 
   
-  it('Phrase:  « annuler 1 tour »', () => {
+  it('[F002-T002] Phrase:  « annuler 1 tour »', () => {
     const result = ExprReg.xInstruction.exec("annuler 1 tour");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("annuler"); // verbe
     expect(result[2]).toEqual("1 tour"); // complément
   });
 
-  it('Phrase:  « changer le joueur possède la canne à pèche »', () => {
+  it('[F002-T003] Phrase:  « changer le joueur possède la canne à pèche »', () => {
     const result = ExprReg.xInstruction.exec("changer le joueur possède la canne à pèche");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("changer"); // verbe
     expect(result[2]).toEqual("le joueur possède la canne à pèche"); // complément
   });
 
-  it('Phrase:  « dire  »', () => {
+  it('[F002-T004] Phrase:  « dire  »', () => {
     const result = ExprReg.xInstruction.exec("dire ");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('dire'); // verbe
     expect(result[2]).toBeUndefined(); // complément
   });
 
-  it('Phrase:  « dire "Bonjour !" »', () => {
+  it('[F002-T005] Phrase:  « dire "Bonjour !" »', () => {
     const result = ExprReg.xInstruction.exec('dire "Bonjour !"');
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('dire'); // verbe
     expect(result[2]).toEqual('"Bonjour !"'); // complément
   });
 
-  it('Phrase:  « attendre touche "Veuillez appuyer sur une touche" »', () => {
+  it('[F002-T006] Phrase:  « attendre touche "Veuillez appuyer sur une touche" »', () => {
     const result = ExprReg.xInstruction.exec('attendre touche "Veuillez appuyer sur une touche"');
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('attendre'); // verbe
     expect(result[2]).toEqual('touche "Veuillez appuyer sur une touche"'); // complément
   });
 
-  it('Phrase: « changer le score augmente de 1 »', () => {
+  it('[F002-T007] Phrase: « changer le score augmente de 1 »', () => {
     const result = ExprReg.xInstruction.exec("changer le score augmente de 1");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("changer"); // verbe
     expect(result[2]).toEqual("le score augmente de 1"); // complément
   });
 
-  it('Phrase: « changer la liste des suspects contient "Alice" »', () => {
+  it('[F002-T008] Phrase: « changer la liste des suspects contient "Alice" »', () => {
     const result = ExprReg.xInstruction.exec('changer la liste des suspects contient "Alice"');
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('changer'); // verbe
@@ -65,19 +65,19 @@ describe('Epressions régulières − Instruction: verbe + complément', () => {
   });
 
 
-  it('Phrase: « Lancer un dé de 4 »', () => {
+  it('[F002-T009] Phrase: « Lancer un dé de 4 »', () => {
     const result = ExprReg.xInstruction.exec('Lancer un dé de 4');
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('Lancer'); // verbe
     expect(result[2]).toEqual('un dé de 4'); // complément
   });
 
-  it('Phrase:  « la pomme est verte » (💥)', () => {
+  it('[F002-T010] Phrase:  « la pomme est verte » (💥)', () => {
     const result = ExprReg.xInstruction.exec("la pomme est verte");
     expect(result).toBeNull();
   });
 
-  it('Phrase:  « choisir parmi la liste » (💥)', () => {
+  it('[F002-T011] Phrase:  « choisir parmi la liste » (💥)', () => {
     const result = ExprReg.xInstruction.exec("choisir parmi la liste");
     expect(result).toBeNull();
   });
@@ -88,7 +88,7 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
 
   // [le|la|les|...]\(1) (nom|ceci|cela)\(2) [attribut]\(3) [ne|n'|n\u2019|] ([se] verbe conjugé)(4) [pas|plus]\(5) complément(6).
 
-  it('Phrase:  « la porte secrète n’est plus fermée »', () => {
+  it('[F002-T012] Phrase:  « la porte secrète n’est plus fermée »', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("la porte secrète n’est plus fermée");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("la "); // déterminant
@@ -99,7 +99,7 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
     expect(result[6]).toEqual("fermée"); // complément
   });
 
-  it('Phrase:  « la canne à pèche rouge est ouverte »', () => {
+  it('[F002-T013] Phrase:  « la canne à pèche rouge est ouverte »', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("la canne à pèche rouge est ouverte");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("la "); // déterminant
@@ -110,7 +110,7 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
     expect(result[6]).toEqual("ouverte"); // complément
   });
 
-  it('Phrase:  « ceci n’est plus vide »', () => {
+  it('[F002-T014] Phrase:  « ceci n’est plus vide »', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("ceci n’est plus vide");
     expect(result).not.toBeNull();
     expect(result[1]).toBeUndefined(); // déterminant
@@ -121,7 +121,7 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
     expect(result[6]).toEqual("vide"); // complément
   });
 
-  it('Phrase:  « le score augmente de 1 »', () => {
+  it('[F002-T015] Phrase:  « le score augmente de 1 »', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("le score augmente de 1");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual('le '); // déterminant
@@ -132,17 +132,17 @@ describe('Epressions régulières − Complément instruction: Phrase simple ave
     expect(result[6]).toEqual("de 1"); // complément
   });
 
-  it('Phrase:  « l’action » (💥)', () => {
+  it('[F002-T016] Phrase:  « l’action » (💥)', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec("l’action");
     expect(result).toEqual(null);
   });
 
-  it('Phrase: « touche "enfoncez enter" » (💥)', () => {
+  it('[F002-T017] Phrase: « touche "enfoncez enter" » (💥)', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec('touche "enfoncez enter"');
     expect(result).toEqual(null);
   });
 
-  it('Phrase: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
+  it('[F002-T018] Phrase: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
     const result = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec('touche "Veuillez appuyer sur une touche"');
     expect(result).toEqual(null);
   });
@@ -153,7 +153,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
 
   // => déterminant(1) nom(2) épithète(3) préposition(4) déterminant(5) nom(6) épithète(7).
 
-  it('Complément:  « l\'action »', () => {
+  it('[F002-T019] Complément:  « l\'action »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("l'action");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("l'"); // déterminant 1
@@ -165,7 +165,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[7]).toBeUndefined(); // épithète 2
   });
 
-  it('Complément:  « le trésor vers le joueur »', () => {
+  it('[F002-T020] Complément:  « le trésor vers le joueur »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("le trésor vers le joueur");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("le "); // déterminant 1
@@ -178,7 +178,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
   });
 
 
-  it('Complément:  « l’arc à flèches rouillé avec la flèche rouge »', () => {
+  it('[F002-T021] Complément:  « l’arc à flèches rouillé avec la flèche rouge »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("l’arc à flèches rouillé avec la flèche rouge");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("l’"); // déterminant 1
@@ -190,7 +190,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[7]).toEqual("rouge"); // épithète 2
   });
 
-  it('Complément:  « tomate »', () => {
+  it('[F002-T022] Complément:  « tomate »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("tomate");
     expect(result).not.toBeNull();
     expect(result[1]).toBeUndefined(); // déterminant 1
@@ -202,7 +202,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[7]).toBeUndefined(); // épithète 2
   });
 
-  it('Complément:  « un dé de 4 »', () => {
+  it('[F002-T023] Complément:  « un dé de 4 »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("un dé de 4");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("un "); // déterminant 1
@@ -214,7 +214,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[7]).toBeUndefined(); // épithète 2
   });
 
-  it('Complément:  « une action »', () => {
+  it('[F002-T024] Complément:  « une action »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("une action");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("une "); // déterminant 1
@@ -222,7 +222,7 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[3]).toBeUndefined(); // épithète 1
   });
 
-  it('Complément:  « 1 tour »', () => {
+  it('[F002-T025] Complément:  « 1 tour »', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("1 tour");
     expect(result).not.toBeNull();
     expect(result[1]).toEqual("1 "); // déterminant 1
@@ -230,17 +230,17 @@ describe('Epressions régulières − Complément instruction (1 ou 2 éléments
     expect(result[3]).toBeUndefined(); // épithète 1
   });
   
-  it('Complément:  « manger le biscuit » (💥)', () => {
+  it('[F002-T026] Complément:  « manger le biscuit » (💥)', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec("manger le biscuit");
     expect(result).toBeNull();
   });
 
-  it('Complément: « touche "enfoncez enter" » (💥)', () => {
+  it('[F002-T027] Complément: « touche "enfoncez enter" » (💥)', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec('touche "enfoncez enter"');
     expect(result).toEqual(null);
   });
 
-  it('Complément: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
+  it('[F002-T028] Complément: « touche "Veuillez appuyer sur une touche" » (💥)', () => {
     const result = ExprReg.xComplementInstruction1ou2elements.exec('touche "Veuillez appuyer sur une touche"');
     expect(result).toEqual(null);
   });
@@ -252,7 +252,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   // TYPE UTILISATEUR > NOUVEAU TYPE
   // - un/une(1) nouveauType(2) est un/une typeParent(3) {attributs}(4)
 
-  it('Instruction :  « continuer l’action »', () => {
+  it('[F002-T029] Instruction :  « continuer l’action »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple("continuer l’action");
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("continuer");
@@ -267,7 +267,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
 
-  it('Instruction :  « changer le joueur possède la canne à pèche »', () => {
+  it('[F002-T030] Instruction :  « changer le joueur possède la canne à pèche »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple("changer le joueur possède la canne à pèche");
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("changer");
@@ -280,7 +280,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « changer la liste des suspects contient "Alice" »', () => {
+  it('[F002-T031] Instruction :  « changer la liste des suspects contient "Alice" »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('changer la liste des suspects contient "Alice"');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("changer");
@@ -293,7 +293,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « afficher l’image donjon.png »', () => {
+  it('[F002-T032] Instruction :  « afficher l’image donjon.png »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher l’image donjon.png');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('afficher');
@@ -309,7 +309,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
 
   // // TODO: support les chaînes de caractères dynamiques pour pouvoir choisir
   // // dynamiquement le nom de l’image.
-  // it('Instruction :  « afficher l’image "donjon.png" »', () => {
+  // it('[F002-T033] Instruction :  « afficher l’image "donjon.png" »', () => {
   //   const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher l’image "donjon.png"');
   //   expect(result).not.toBeNull();
   //   expect(result.infinitif).toEqual('afficher');
@@ -323,7 +323,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   //   expect(result.sujetComplement4).toBeUndefined();
   // });
 
-  it('Instruction :  « afficher image mon_image.gif »', () => {
+  it('[F002-T034] Instruction :  « afficher image mon_image.gif »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('afficher image mon_image.gif');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('afficher');
@@ -338,7 +338,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
 
-  it('Instruction :  « jouer le son epee »', () => {
+  it('[F002-T035] Instruction :  « jouer le son epee »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son epee');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('jouer');
@@ -352,7 +352,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « charger le thème néon.css »', () => {
+  it('[F002-T036] Instruction :  « charger le thème néon.css »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('charger le thème neon.css');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('charger');
@@ -366,7 +366,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « jouer le son coup_d_epee.flac »', () => {
+  it('[F002-T037] Instruction :  « jouer le son coup_d_epee.flac »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son coup_d_epee.flac');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('jouer');
@@ -380,7 +380,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « jouer le son coup_d_epee.wav 3 fois »', () => {
+  it('[F002-T038] Instruction :  « jouer le son coup_d_epee.wav 3 fois »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer le son coup_d_epee.wav 3 fois');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
@@ -394,7 +394,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « jouer la musique musique_classique.ogg »', () => {
+  it('[F002-T039] Instruction :  « jouer la musique musique_classique.ogg »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer la musique musique_classique.ogg');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
@@ -408,7 +408,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.sujetComplement4).toBeUndefined();
   });
 
-  it('Instruction :  « jouer la musique musique_classique.mp3 en boucle »', () => {
+  it('[F002-T040] Instruction :  « jouer la musique musique_classique.mp3 en boucle »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('jouer la musique musique_classique.mp3 en boucle');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual("jouer");
@@ -423,7 +423,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   
-  it('Instruction :  « attendre touche "Il faut appuyer à présent!" »', () => {
+  it('[F002-T041] Instruction :  « attendre touche "Il faut appuyer à présent!" »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche "Il faut appuyer à présent!"');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -434,7 +434,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre touche »', () => {
+  it('[F002-T042] Instruction :  « attendre touche »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -445,7 +445,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre 1 touche »', () => {
+  it('[F002-T043] Instruction :  « attendre 1 touche »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 1 touche');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -456,7 +456,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre touche "Veuillez entrer n’importe quelle touche." »', () => {
+  it('[F002-T044] Instruction :  « attendre touche "Veuillez entrer n’importe quelle touche." »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre touche "Veuillez entrer n’importe quelle touche."');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -467,7 +467,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre 0.5 seconde »', () => {
+  it('[F002-T045] Instruction :  « attendre 0.5 seconde »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0.5 seconde');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -480,7 +480,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
   });
 
   
-  it('Instruction :  « attendre 0,3 secondes »', () => {
+  it('[F002-T046] Instruction :  « attendre 0,3 secondes »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0,3 secondes');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -492,7 +492,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre 1 seconde »', () => {
+  it('[F002-T047] Instruction :  « attendre 1 seconde »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 1 seconde');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -504,7 +504,7 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre 5 secondes »', () => {
+  it('[F002-T048] Instruction :  « attendre 5 secondes »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 5 secondes');
     expect(result).not.toBeNull();
     expect(result.infinitif).toEqual('attendre');
@@ -516,12 +516,12 @@ describe('PhrasesUtils − decomposerInstruction', () => {
     expect(result.complement2).toBeUndefined();
   });
 
-  it('Instruction :  « attendre -1 seconde »', () => {
+  it('[F002-T049] Instruction :  « attendre -1 seconde »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre -1 seconde');
     expect(result).toBeNull();
   });
 
-  it('Instruction :  « attendre 0 seconde »', () => {
+  it('[F002-T050] Instruction :  « attendre 0 seconde »', () => {
     const result = AnalyseurCommunUtils.decomposerInstructionSimple('attendre 0 seconde');
     expect(result).toBeNull();
   });

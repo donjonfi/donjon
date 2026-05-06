@@ -2,7 +2,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Instructions - Sélectionner', () => {
 
-  it('Sélectionner - afficher mémoire nombre compris entre 3 et 3', () => {
+  it('[F038-T001] Sélectionner - afficher mémoire nombre compris entre 3 et 3', () => {
     const scenario =
       'le salon est un lieu. ' +
       'action tester: ' +
@@ -15,7 +15,7 @@ describe('Instructions - Sélectionner', () => {
     expect(ctxCom.sortie).toEqual("3");
   });
 
-  it('Sélectionner - condition sur nombre compris entre 200 et 200', () => {
+  it('[F038-T002] Sélectionner - condition sur nombre compris entre 200 et 200', () => {
     const scenario =
       'le salon est un lieu. ' +
       'action tester: ' +
@@ -32,7 +32,7 @@ describe('Instructions - Sélectionner', () => {
     expect(ctxCom.sortie).toEqual("il vaut plus que 2");
   });
 
-  it('Sélectionner - afficher mémoire dé1 compris entre cinq et cinq', () => {
+  it('[F038-T003] Sélectionner - afficher mémoire dé1 compris entre cinq et cinq', () => {
     const scenario =
       'le salon est un lieu. ' +
       'action tester: ' +

@@ -5,6 +5,7 @@ import { ContexteCommande } from "./contexte-commande";
 import { ElementsPhrase } from "../commun/elements-phrase";
 import { Instruction } from "../compilateur/instruction";
 import { Intitule } from "../jeu/intitule";
+import { Jeu } from "../jeu/jeu";
 import { Lieu } from "../jeu/lieu";
 import { Liste } from "../jeu/liste";
 import { Localisation } from "../jeu/localisation";
@@ -89,7 +90,7 @@ export class ContexteTour {
 
   ajouterErreurDerniereInstruction(erreur: string) {
     console.error(erreur, "\ninstruction: ", this.derniereInstruction);
-    this._erreurs.push(erreur);
+    this._erreurs.push(this.formaterMessageErreur(erreur, this.formaterContexteInstruction(this.derniereInstruction?.instruction), this.derniereInstruction?.ligne));
   }
 
   ajouterErreurInstruction(instruction: ElementsPhrase | undefined, erreur: string) {
@@ -98,7 +99,7 @@ export class ContexteTour {
     } else {
       console.error(erreur);
     }
-    this._erreurs.push(erreur);
+    this._erreurs.push(this.formaterMessageErreur(erreur, this.formaterContexteInstruction(instruction), this.derniereInstruction?.ligne));
   }
 
   ajouterErreurCondition(condition: ConditionSolo | undefined, erreur: string) {
@@ -107,7 +108,21 @@ export class ContexteTour {
     } else {
       console.error(erreur);
     }
-    this._erreurs.push(erreur);
+    const contexte = condition ? "« si " + condition.toString().trim() + " »" : undefined;
+    this._erreurs.push(this.formaterMessageErreur(erreur, contexte, this.derniereInstruction?.ligne));
+  }
+
+  /** Format : `{L}NNN{L} « contexte » — erreur` (les segments manquants sont omis). */
+  private formaterMessageErreur(erreur: string, contexte: string | undefined, ligne: number | undefined): string {
+    const prefixe = ligne != null ? `{L}${ligne}{L} ` : "";
+    const corps = contexte ? `${contexte} — ${erreur}` : erreur;
+    return prefixe + corps;
+  }
+
+  private formaterContexteInstruction(instruction: ElementsPhrase | undefined): string | undefined {
+    if (!instruction?.infinitif) return undefined;
+    const complement = instruction.complement1 ? " " + instruction.complement1 : "";
+    return "« " + instruction.infinitif + complement + " »";
   }
 
   /**

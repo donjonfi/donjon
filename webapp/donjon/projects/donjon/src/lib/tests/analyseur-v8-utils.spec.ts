@@ -6,7 +6,7 @@ import { ExprReg } from "../utils/compilation/expr-reg";
 
 describe('testerEtiquette', () => {
 
-  it('sinon: La table est un support grand et opaque dans la salle.', () => {
+  it('[F013-T001] sinon: La table est un support grand et opaque dans la salle.', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La table est un support grand et opaque dans la salle.'
     );
@@ -15,7 +15,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toBeUndefined();
   });
 
-  it('sinon facultatif: sinon', () => {
+  it('[F013-T002] sinon facultatif: sinon', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'sinon'
     );
@@ -25,7 +25,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('');
   });
 
-  it('sinon facultatif: sinon:', () => {
+  it('[F013-T003] sinon facultatif: sinon:', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'sinon:'
     );
@@ -35,7 +35,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('');
   });
 
-  it('sinon obligatoire: sinon', () => {
+  it('[F013-T004] sinon obligatoire: sinon', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'sinon'
     );
@@ -46,7 +46,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('');
   });
 
-  it('sinon obligatoire: sinon:', () => {
+  it('[F013-T005] sinon obligatoire: sinon:', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'sinon:'
     );
@@ -56,7 +56,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('');
   });
 
-  it('sinon: si le comte est présent: dire "ceci". sinon dire "cela".', () => {
+  it('[F013-T006] sinon: si le comte est présent: dire "ceci". sinon dire "cela".', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'si le comte est présent: dire "ceci". sinon dire "cela".'
     );
@@ -68,7 +68,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('');
   });
 
-  it('routine: Routine MaSuperRoutine: dire "Salut!".', () => {
+  it('[F013-T007] routine: Routine MaSuperRoutine: dire "Salut!".', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Routine MaSuperRoutine: dire "Salut!".'
     );
@@ -80,7 +80,7 @@ describe('testerEtiquette', () => {
     expect(resultat).toEqual('MaSuperRoutine');
   });
 
-  it('choix: choisir: choix "voiture": dire "Voiture!". choix "vélo": dire "Vélo!". fin choisir Le vélo est un objet.', () => {
+  it('[F013-T008] choix: choisir: choix "voiture": dire "Voiture!". choix "vélo": dire "Vélo!". fin choisir Le vélo est un objet.', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'choisir:\n' +
       '  choix "voiture":\n' +
@@ -107,7 +107,7 @@ describe('testerEtiquette', () => {
     expect(resultat3).toEqual('"vélo" ou "moto"');
   });
 
-  it('règle: règle après manger le poulet :', () => {
+  it('[F013-T009] règle: règle après manger le poulet :', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle après manger le poulet :'
     );
@@ -122,19 +122,19 @@ describe('testerEtiquette', () => {
 
 describe('contientExactement1Mot', () => {
 
-  it('""', () => {
+  it('[F013-T010] ""', () => {
     expect(AnalyseurV8Utils.contientExactement1Mot('')).toBeFalse();
   });
 
-  it('"le chat"', () => {
+  it('[F013-T011] "le chat"', () => {
     expect(AnalyseurV8Utils.contientExactement1Mot('le chat')).toBeFalse();
   });
 
-  it('"maison"', () => {
+  it('[F013-T012] "maison"', () => {
     expect(AnalyseurV8Utils.contientExactement1Mot('maison')).toBeTrue();
   });
 
-  it('"arc-en-ciel"', () => {
+  it('[F013-T013] "arc-en-ciel"', () => {
     expect(AnalyseurV8Utils.contientExactement1Mot('arc-en-ciel')).toBeTrue();
   });
 
@@ -142,7 +142,7 @@ describe('contientExactement1Mot', () => {
 
 describe('estFinRoutine', () => {
 
-  it('fin routine', () => {
+  it('[F013-T014] fin routine', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'fin routine'
     );
@@ -151,7 +151,7 @@ describe('estFinRoutine', () => {
     expect(resultat).toBe(ERoutine.simple);
   });
 
-  it('fin action.', () => {
+  it('[F013-T015] fin action.', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'fin action.'
     );
@@ -160,7 +160,7 @@ describe('estFinRoutine', () => {
     expect(resultat).toBe(ERoutine.action);
   });
 
-  it('réaction du pirate concernant le trésor: dire "Je le veux!". fin réaction', () => {
+  it('[F013-T016] réaction du pirate concernant le trésor: dire "Je le veux!". fin réaction', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'réaction du pirate concernant le trésor:\n' +
       'dire "Je le veux!".\n' +
@@ -175,7 +175,7 @@ describe('estFinRoutine', () => {
     expect(resultat2).toBe(ERoutine.reaction);
   });
 
-  it('règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.', () => {
+  it('[F013-T017] règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.\n'
     );
@@ -193,7 +193,7 @@ describe('estFinRoutine', () => {
 
 describe('estDebutRoutine', () => {
 
-  it('routine cloturerTransaction :', () => {
+  it('[F013-T018] routine cloturerTransaction :', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'routine cloturerTransaction :'
     );
@@ -202,7 +202,7 @@ describe('estDebutRoutine', () => {
     expect(resultat).toBe(ERoutine.simple);
   });
 
-  it('routine:', () => {
+  it('[F013-T019] routine:', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'routine:'
     );
@@ -211,7 +211,7 @@ describe('estDebutRoutine', () => {
     expect(resultat).toBe(ERoutine.simple);
   });
 
-  it('action sauter:', () => {
+  it('[F013-T020] action sauter:', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'action sauter:'
     );
@@ -220,7 +220,7 @@ describe('estDebutRoutine', () => {
     expect(resultat).toBe(ERoutine.action);
   });
 
-  it('réaction du pirate concernant le trésor: dire "Je le veux!". fin réaction', () => {
+  it('[F013-T021] réaction du pirate concernant le trésor: dire "Je le veux!". fin réaction', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'réaction du pirate concernant le trésor:\n' +
       'dire "Je le veux!".\n' +
@@ -238,7 +238,7 @@ describe('estDebutRoutine', () => {
     expect(resultat2).toBeUndefined();
   });
 
-  it('règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.', () => {
+  it('[F013-T022] règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle avant aller dans un lieu: dire "Je vais me déplacer.". fin règle.\n'
     );

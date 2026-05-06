@@ -9,7 +9,7 @@ import { TestUtils } from "../utils/test-utils";
 describe('Textes dynamiques', () => {
 
 
-  it('Test description 1ère fois, puis', () => {
+  it('[F050-T001] Test description 1ère fois, puis', () => {
 
     const scenario = '' +
       'La pomme est un objet. ' +
@@ -29,7 +29,7 @@ describe('Textes dynamiques', () => {
   });
 
 
-  it('Test aperçu 1ère fois, puis', () => {
+  it('[F050-T002] Test aperçu 1ère fois, puis', () => {
 
     const scenario = '' +
       'La pomme est un objet. ' +

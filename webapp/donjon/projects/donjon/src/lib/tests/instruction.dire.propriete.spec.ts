@@ -6,7 +6,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Balise [prop nomObjet] dans dire — #186', () => {
 
-  it('[affichage ceci] dans dire fonctionne (ceci = pomme)', () => {
+  it('[F036-T001] [affichage ceci] dans dire fonctionne (ceci = pomme)', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -21,7 +21,7 @@ fin action
     expect(ctx.sortie).toEqual('POMME{n}');
   });
 
-  it('[affichage nomObjet] dans dire fonctionne (nom direct)', () => {
+  it('[F036-T002] [affichage nomObjet] dans dire fonctionne (nom direct)', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -40,7 +40,7 @@ fin action
 
 describe('Balise [prop nomObjet] dans changer liste — #186', () => {
 
-  it('[affichage nomObjet] stocké dans liste, affiché via lister', () => {
+  it('[F036-T003] [affichage nomObjet] stocké dans liste, affiché via lister', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -58,7 +58,7 @@ fin action
     expect(ctx.sortie).toContain('"POMME"');
   });
 
-  it('[affichage ceci] stocké dans liste via changer, affiché via lister', () => {
+  it('[F036-T004] [affichage ceci] stocké dans liste via changer, affiché via lister', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.

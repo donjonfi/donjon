@@ -17,7 +17,7 @@ import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-ph
 
 describe('Epressions régulières − États (attributs) d’un élément jeu', () => {
 
-  it('Attribut ele : « Le bateau est vieux et troué » ', () => {
+  it('[F004-T001] Attribut ele : « Le bateau est vieux et troué » ', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('Le bateau est vieux et troué');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Le '); // déterminant
@@ -27,7 +27,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(result[5]).toEqual('vieux et troué'); // attributs
   });
 
-  it('Attribut ele : « Julien est grand » ', () => {
+  it('[F004-T002] Attribut ele : « Julien est grand » ', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('Julien est grand');
     expect(result).not.toBeNull();
     expect(result[1]).toBeUndefined(); // déterminant
@@ -37,7 +37,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(result[5]).toEqual('grand'); // attributs
   });
 
-  it('Attribut ele : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée » ', () => {
+  it('[F004-T003] Attribut ele : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée » ', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('L’aliance du lac rouge (f, aliances du lac) est petite, fragile, vieille et dorée');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('L’'); // déterminant
@@ -47,7 +47,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(result[5]).toEqual('petite, fragile, vieille et dorée'); // attributs
   });
 
-  it('Attribut ele : « Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides » ', () => {
+  it('[F004-T004] Attribut ele : « Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides » ', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('Les pommes de terre pourries (f, pomme de terre) sont mauves, odorantes et humides');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Les '); // déterminant
@@ -57,17 +57,17 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(result[5]).toEqual('mauves, odorantes et humides'); // attributs
   });
 
-  it('Attribut élé : « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
+  it('[F004-T005] Attribut élé : « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('La baguette est un objet maudit, rouge et magique ici"');
     expect(result).toEqual(null);
   });
 
-  it('Attribut élé : « La table est un support grand et opaque dans la salle » (💥)', () => {
+  it('[F004-T006] Attribut élé : « La table est un support grand et opaque dans la salle » (💥)', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('La table est un support grand et opaque dans la salle"');
     expect(result).toEqual(null);
   });
 
-  it('Attribut élé : « Sa réaction est "Bonjour !" » (💥)', () => {
+  it('[F004-T007] Attribut élé : « Sa réaction est "Bonjour !" » (💥)', () => {
     const result = ExprReg.xElementSimpleAttributs.exec('Sa réaction est "Bonjour !"');
     expect(result).toEqual(null);
   });
@@ -82,7 +82,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
 
 describe('Epressions régulières − États (attributs) d’un élément jeu', () => {
 
-  it('Attribut ele : « Le bateau est vieux et troué » ', () => {
+  it('[F004-T008] Attribut ele : « Le bateau est vieux et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -102,7 +102,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[1]).toEqual("troué");
   });
 
-  it('Analyse : « Le bateau est vieux, et troué » ', () => {
+  it('[F004-T009] Analyse : « Le bateau est vieux, et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -122,7 +122,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[1]).toEqual("troué");
   });
 
-  it('Analyse : « Le bateau est vieux, troué » ', () => {
+  it('[F004-T010] Analyse : « Le bateau est vieux, troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -143,7 +143,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[1]).toEqual("troué");
   });
 
-  it('Analyse : « Julien est grand » ', () => {
+  it('[F004-T011] Analyse : « Julien est grand » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -163,7 +163,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[0]).toEqual("grand");
   });
 
-  it('Analyse : « Le bateau est vieux et troué » ', () => {
+  it('[F004-T012] Analyse : « Le bateau est vieux et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -184,7 +184,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
 
-  it('Analyse : « Le bateau est vieux,et troué » ', () => {
+  it('[F004-T013] Analyse : « Le bateau est vieux,et troué » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -204,7 +204,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
     expect(ctxAnalyse.dernierElementGenerique.attributs[1]).toEqual("troué");
   });
 
-  it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. » ', () => {
+  it('[F004-T014] Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille et dorée. » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
@@ -228,7 +228,7 @@ describe('Epressions régulières − États (attributs) d’un élément jeu', 
   });
 
 
-  it('Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. » ', () => {
+  it('[F004-T015] Analyse : « L’aliance du lac rouge (f) est petite, fragile, vieille, et dorée. » ', () => {
 
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(

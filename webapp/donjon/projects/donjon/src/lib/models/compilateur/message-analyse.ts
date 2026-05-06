@@ -80,6 +80,7 @@ export enum CategorieMessage {
   syntaxeRegle = "syntaxe_regle",
   syntaxeRoutine = "syntaxe_routine",
   syntaxeReaction = "syntaxe_reaction",
+  syntaxeDynamique = "syntaxe_dynamique",
 
   erreurDonjon = "erreur_donjon",
 
@@ -167,5 +168,18 @@ export enum CodeMessage {
   nomElementCiblePasSupporte = "reference_element_generique/nom_element_cible_pas_supporte",
   /** Référence élément générique: position de l’autre élément pas supportée */
   positionElementCiblePasSupportee = "reference_element_generique/position_element_cible_pas_supportee",
+
+  /** syntaxe dynamique: crochet ouvrant `[` sans crochet fermant correspondant. */
+  crochetOuvrantNonFerme = "syntaxe_dynamique/crochet_ouvrant_non_ferme",
+  /** syntaxe dynamique: crochet fermant `]` orphelin (aucun `[` ouvert). */
+  crochetFermantOrphelin = "syntaxe_dynamique/crochet_fermant_orphelin",
+  /** syntaxe dynamique: mot-clé de continuation (sinon, sinonsi, ou, puis) hors d’un cadre conditionnel ouvert. */
+  motCleHorsCadre = "syntaxe_dynamique/mot_cle_hors_cadre",
+  /** syntaxe dynamique: [fin] / [fin si] / [fin choix] sans cadre correspondant ouvert. */
+  finBlocSansOuverture = "syntaxe_dynamique/fin_bloc_sans_ouverture",
+  /** syntaxe dynamique: [sinon] ou [sinonsi …] placé après un [sinon] du même cadre. */
+  sinonApresSinon = "syntaxe_dynamique/sinon_apres_sinon",
+  /** syntaxe dynamique: cadre conditionnel ouvert non fermé en fin de texte. */
+  cadreNonFerme = "syntaxe_dynamique/cadre_non_ferme",
 
 }

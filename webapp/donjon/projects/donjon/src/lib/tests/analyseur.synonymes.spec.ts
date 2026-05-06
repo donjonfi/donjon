@@ -10,35 +10,35 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Epressions régulières − Synonymes', () => {
 
-  it('Attribut ele : « interpréter Alain comme le capitaine » ', () => {
+  it('[F009-T001] Attribut ele : « interpréter Alain comme le capitaine » ', () => {
     const result = ExprReg.xSynonymes.exec('interpréter Alain comme le capitaine');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Alain'); // synonymes
     expect(result[2]).toEqual('le capitaine'); // original
   });
 
-  it('Attribut ele : « interpréter Alain et le marin comme l’apprenti du village » ', () => {
+  it('[F009-T002] Attribut ele : « interpréter Alain et le marin comme l’apprenti du village » ', () => {
     const result = ExprReg.xSynonymes.exec('interpréter Alain et le marin comme l’apprenti du village');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('Alain et le marin'); // synonymes
     expect(result[2]).toEqual('l’apprenti du village'); // original
   });
 
-  it('Attribut ele : « interpréter le marin, Alain et le boss comme le capitaine crochet » ', () => {
+  it('[F009-T003] Attribut ele : « interpréter le marin, Alain et le boss comme le capitaine crochet » ', () => {
     const result = ExprReg.xSynonymes.exec('interpréter le marin, Alain et le boss comme le capitaine crochet');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('le marin, Alain et le boss'); // synonymes
     expect(result[2]).toEqual('le capitaine crochet'); // original
   });
 
-  it('Attribut ele : « Interpréter marcher comme se déplacer » ', () => {
+  it('[F009-T004] Attribut ele : « Interpréter marcher comme se déplacer » ', () => {
     const result = ExprReg.xSynonymes.exec('Interpréter marcher comme se déplacer');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('marcher'); // synonymes
     expect(result[2]).toEqual('se déplacer'); // original
   });
 
-  it('Attribut ele : « interpréter marcher, courrir, sauter, s’étirer et danser comme s’exercer » ', () => {
+  it('[F009-T005] Attribut ele : « interpréter marcher, courrir, sauter, s’étirer et danser comme s’exercer » ', () => {
     const result = ExprReg.xSynonymes.exec('interpréter marcher, courrir, sauter, s’étirer et danser comme s’exercer');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('marcher, courrir, sauter, s’étirer et danser'); // synonymes
@@ -46,7 +46,7 @@ describe('Epressions régulières − Synonymes', () => {
   });
 
   // => Pas contrôlé dans l’expression régulière mais devra l’être par l’analyseur
-  // it('Attribut ele : « interpréter courir comme le pied de bois » (💥) ', () => {
+  // it('[F009-T006] Attribut ele : « interpréter courir comme le pied de bois » (💥) ', () => {
   //     const result = ExprReg.xSynonymes.exec('interpréter courir comme le pied de bois');
   //     expect(result).toEqual(null);
   // });
@@ -62,7 +62,7 @@ describe('Epressions régulières − Synonymes', () => {
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 describe('Synonymes − Scénario synonyme action)', () => {
 
-  it('courir comme marcher', () => {
+  it('[F009-T007] courir comme marcher', () => {
     const scenario = '' +
       'action marcher: fin action ' +
       'action sauter: fin action ' +
@@ -78,7 +78,7 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.actions[1].synonymes).toHaveSize(0);
   });
 
-  it('jumper et plonger comme sauter', () => {
+  it('[F009-T008] jumper et plonger comme sauter', () => {
     const scenario = '' +
       'action marcher: fin action ' +
       'action sauter: fin action ' +
@@ -95,7 +95,7 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.actions[1].synonymes[1]).toEqual('plonger');
   });
 
-  it('courir comme marcher et sauter (💥)', () => {
+  it('[F009-T009] courir comme marcher et sauter (💥)', () => {
     const scenario = '' +
       'Marcher est une action. ' +
       'Sauter est une action. ' +
@@ -107,7 +107,7 @@ describe('Synonymes − Scénario synonyme action)', () => {
   });
 
 
-  it('fruit et pomme comme pomme rouge (sans synonymes auto)', () => {
+  it('[F009-T010] fruit et pomme comme pomme rouge (sans synonymes auto)', () => {
     const scenario = '' +
       'Désactiver les synonymes auto. ' +
       'La pomme rouge est un fruit. ' +
@@ -128,7 +128,7 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
   });
 
-  it('fruit et pomme comme pomme rouge (avec synonymes auto)', () => {
+  it('[F009-T011] fruit et pomme comme pomme rouge (avec synonymes auto)', () => {
     const scenario = '' +
       'Activer les synonymes auto. ' +
       'La pomme rouge est un fruit. ' +

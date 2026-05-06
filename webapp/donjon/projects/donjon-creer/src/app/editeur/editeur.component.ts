@@ -1198,12 +1198,24 @@ export class EditeurComponent implements OnInit, OnDestroy {
   // =============================================
 
   onChangerAfficherPreferences(): void {
-    this.afficherPreferences = !this.afficherPreferences;
+    if (this.afficherConvertisseur) {
+      // depuis l'écran V1→V2 : on ferme le convertisseur et on revient aux préférences
+      this.afficherConvertisseur = false;
+      this.afficherPreferences = true;
+    } else {
+      this.afficherPreferences = !this.afficherPreferences;
+    }
     this.majTailleAce();
   }
 
   onChangerAfficherConvertisseur(): void {
-    this.afficherConvertisseur = !this.afficherConvertisseur;
+    if (this.afficherConvertisseur) {
+      // depuis l'écran V1→V2 : on ferme tout (convertisseur, préférences, et donc le bouton V1→V2)
+      this.afficherConvertisseur = false;
+      this.afficherPreferences = false;
+    } else {
+      this.afficherConvertisseur = true;
+    }
     this.majTailleAce();
   }
 

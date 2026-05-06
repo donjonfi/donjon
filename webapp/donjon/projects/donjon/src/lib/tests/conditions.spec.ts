@@ -17,28 +17,28 @@ describe('Conditions − Vérifier parenthèses', () => {
 
   // VÉRIFIER PARENTHÈSES
 
-  it('Parenthèses :  « (si a ou (b et c)) »', () => {
+  it('[F027-T001] Parenthèses :  « (si a ou (b et c)) »', () => {
     const result = AnalyseurCondition.parenthesesValides('(si a ou (b et c))');
     expect(result).toEqual(true);
   });
 
 
-  it('Parenthèses :  « si (a ou (b et c)) »', () => {
+  it('[F027-T002] Parenthèses :  « si (a ou (b et c)) »', () => {
     const result = AnalyseurCondition.parenthesesValides('si (a ou (b et c))');
     expect(result).toEqual(true);
   });
 
-  it('Parenthèses :  « si ((a ou b) et (c et (d ou a))) »', () => {
+  it('[F027-T003] Parenthèses :  « si ((a ou b) et (c et (d ou a))) »', () => {
     const result = AnalyseurCondition.parenthesesValides('si ((a ou b) et (c et (d ou a)))');
     expect(result).toEqual(true);
   });
 
-  it('Parenthèses :  « si ((a ou (c et (d ou a))) » (💥)', () => {
+  it('[F027-T004] Parenthèses :  « si ((a ou (c et (d ou a))) » (💥)', () => {
     const result = AnalyseurCondition.parenthesesValides('si ((a ou b et (c et (d ou a)))');
     expect(result).toEqual(false);
   });
 
-  it('Parenthèses :  « ( a )ou) b ( » (💥)', () => {
+  it('[F027-T005] Parenthèses :  « ( a )ou) b ( » (💥)', () => {
     const result = AnalyseurCondition.parenthesesValides('( a )ou) b (');
     expect(result).toEqual(false);
   });
@@ -57,19 +57,19 @@ describe('Conditions − Décomposer conditions', () => {
   // DÉCOUPER CONDITIONS
 
   // (cette condition est fausse (car il manque le verbe et le complément après le a) mais on ne le sait pas encore à ce niveau…)
-  it('Décomposer :  « si (a ou (b et c)) »', () => {
+  it('[F027-T006] Décomposer :  « si (a ou (b et c)) »', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('si (a ou (b et c))');
     expect(result).not.toBeNull();
     expect(result.nbErreurs).toEqual(0);
   });
 
   // (problème de parenthèses)
-  it('Décomposer :  « si (a ou b et c)) (💥)»', () => {
+  it('[F027-T007] Décomposer :  « si (a ou b et c)) (💥)»', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('si (a ou b et c))');
     expect(result).toBeNull();
   });
 
-  it('Décomposer : « (a ou (b et c)) et d ou (e et f ou (d et c)) »', () => {
+  it('[F027-T008] Décomposer : « (a ou (b et c)) et d ou (e et f ou (d et c)) »', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('(a ou (b et c)) et d ou (e et f ou (d et c)) ou g et f');
     expect(result).not.toBeNull();
     expect(result.sousConditions).not.toBeNull();
@@ -124,7 +124,7 @@ describe('Conditions − Décomposer conditions', () => {
     expect(result.sousConditions[2].sousConditions[1].conditionBrute).toEqual('f');
   });
 
-  it('Décomposer : « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
+  it('[F027-T009] Décomposer : « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
     const result = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
     expect(result).not.toBeNull();
     expect(result.sousConditions).toHaveSize(2); // 2 sous-conditions
@@ -199,20 +199,20 @@ describe('Conditions − Décomposer conditions', () => {
 
 describe('Conditions − Générer condition multi', () => {
 
-  it('Générer condition: « si ) a ( ou b ou c » (💥)', () => {
+  it('[F027-T010] Générer condition: « si ) a ( ou b ou c » (💥)', () => {
     const resultDec = AnalyseurCondition.decomposerConditionBrute('si ) a ( ou b ou c');
     const result = AnalyseurCondition.genererConditionMulti(resultDec);
     expect(result).toBeNull();
   });
 
-  it('Générer condition: « si a ou (b ou c) » (💥)', () => {
+  it('[F027-T011] Générer condition: « si a ou (b ou c) » (💥)', () => {
     const resultDec = AnalyseurCondition.decomposerConditionBrute('si a ou (b ou c)');
     const result = AnalyseurCondition.genererConditionMulti(resultDec);
     expect(result).not.toBeNull();
     expect(result.nbErreurs).toBeGreaterThan(0);
   });
 
-  it('Générer condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
+  it('[F027-T012] Générer condition: « le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici »', () => {
 
     const resultDec = AnalyseurCondition.decomposerConditionBrute('le ruban est rouge ou vert ainsi que porté mais pas usé ou décousu et si le joueur est ici');
     const result = AnalyseurCondition.genererConditionMulti(resultDec);
@@ -338,7 +338,7 @@ describe('Conditions − Générer condition multi', () => {
 
 describe('Conditions − Get condition multi', () => {
 
-  it('Get condition: « a dépasse soit b soit c »', () => {
+  it('[F027-T013] Get condition: « a dépasse soit b soit c »', () => {
     const result = AnalyseurCondition.getConditionMulti("a dépasse soit b soit c");
 
     expect(result).toBeInstanceOf(ConditionMulti);
@@ -379,7 +379,7 @@ describe('Conditions − Get condition multi', () => {
   });
 
 
-  it('Get condition: « x est a ou b mais pas c »', () => {
+  it('[F027-T014] Get condition: « x est a ou b mais pas c »', () => {
 
     // x est a ou b mais pas c <=> ((x est a) ou (x est b)) et (x n’est pas c)
     const result = AnalyseurCondition.getConditionMulti("x est a ou b mais pas c");
@@ -436,7 +436,7 @@ describe('Conditions − Get condition multi', () => {
 
   });
 
-  it('Get condition: « x possède a et b mais ni c ni d »', () => {
+  it('[F027-T015] Get condition: « x possède a et b mais ni c ni d »', () => {
 
     // x possède a et b mais ni c ni d <=> ((x possède a) et (x possède b)) et (x ne possède ni c ni d)
     const result = AnalyseurCondition.getConditionMulti("x possède a et b mais ni c ni d");
@@ -536,7 +536,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   jeu.compteurs.push(cptD);
   const condUtils = new ConditionsUtils(jeu, false);
 
-  it('vérifier résultat condition: « si a vaut b mais pas c »', () => {
+  it('[F027-T016] vérifier résultat condition: « si a vaut b mais pas c »', () => {
 
     // (A = B) et (A ≠ C)
     cptA.valeur = 1;
@@ -561,7 +561,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a vaut b mais pas c ou d »', () => {
+  it('[F027-T017] vérifier résultat condition: « si a vaut b mais pas c ou d »', () => {
 
     // (A = B) et (A ≠ (C ou D))
     cptA.valeur = 1;
@@ -598,7 +598,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a ne vaut pas b ou c ou d »', () => {
+  it('[F027-T018] vérifier résultat condition: « a ne vaut pas b ou c ou d »', () => {
     // A != (B ou C ou D)
     cptA.valeur = 0;
     cptB.valeur = 1;
@@ -637,7 +637,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a dépasse b et si c vaut d »', () => {
+  it('[F027-T019] vérifier résultat condition: « si a dépasse b et si c vaut d »', () => {
 
     // (A > B) ET (C = D)
     const condition = AnalyseurCondition.getConditionMulti('si a dépasse b et si c vaut d');
@@ -662,7 +662,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   });
 
   
-  it('vérifier résultat condition: « si a dépasse b et que c vaut d »', () => {
+  it('[F027-T020] vérifier résultat condition: « si a dépasse b et que c vaut d »', () => {
 
     // (A > B) ET (C = D)
     const condition = AnalyseurCondition.getConditionMulti('si a dépasse b et que c vaut d');
@@ -686,7 +686,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
     expect(condUtils.siEstVrai(undefined, condition, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
+  it('[F027-T021] vérifier résultat condition: « si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4 »', () => {
 
     // (A=1 et B=2) ou (C=3 et d=4)
     const condition = AnalyseurCondition.getConditionMulti('si a vaut 1 et si b vaut 2 ou si c vaut 3 et si d vaut 4');
@@ -718,7 +718,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   });
 
 
-  it('vérifier résultat condition: « si a vaut 1 et que b vaut 2 ou que c vaut 3 et que d vaut 4 »', () => {
+  it('[F027-T022] vérifier résultat condition: « si a vaut 1 et que b vaut 2 ou que c vaut 3 et que d vaut 4 »', () => {
 
     // (A=1 et B=2) ou (C=3 et d=4)
     const condition = AnalyseurCondition.getConditionMulti('si a vaut 1 et que b vaut 2 ou que c vaut 3 et que d vaut 4');
@@ -749,7 +749,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4 »', () => {
+  it('[F027-T023] vérifier résultat condition: « a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4 »', () => {
 
     // A=1 et (B=2 ou C=3) et D=4
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et si (b vaut 2 ou si c vaut 3.2) et si d vaut -4');
@@ -786,7 +786,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut 1 et que (b vaut 2 ou que c vaut 3.2) et si d vaut -4 »', () => {
+  it('[F027-T024] vérifier résultat condition: « a vaut 1 et que (b vaut 2 ou que c vaut 3.2) et si d vaut -4 »', () => {
 
     // A=1 et (B=2 ou C=3) et D=4
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et que (b vaut 2 ou que c vaut 3.2) et si d vaut -4');
@@ -823,7 +823,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a ne vaut pas b mais bien c et d »', () => {
+  it('[F027-T025] vérifier résultat condition: « si a ne vaut pas b mais bien c et d »', () => {
 
     // A != B mais A = C
     const condition = AnalyseurCondition.getConditionMulti('si a ne vaut pas b mais bien c et d');
@@ -866,7 +866,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a dépasse b ainsi que c ou d »', () => {
+  it('[F027-T026] vérifier résultat condition: « a dépasse b ainsi que c ou d »', () => {
 
     // (A > B) et (A > C ou D)
     const condition = AnalyseurCondition.getConditionMulti('a dépasse b ainsi que c ou d');
@@ -903,7 +903,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut soit b soit c mais pas d »', () => {
+  it('[F027-T027] vérifier résultat condition: « a vaut soit b soit c mais pas d »', () => {
 
     // A vaut (soit B soit C) mais pas D
     const condition = AnalyseurCondition.getConditionMulti('a vaut soit b soit c mais pas d');
@@ -934,7 +934,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a ne vaut ni b ni c »', () => {
+  it('[F027-T028] vérifier résultat condition: « a ne vaut ni b ni c »', () => {
 
     // A != B et A != C
     const condition = AnalyseurCondition.getConditionMulti('a ne vaut ni b ni c');
@@ -956,7 +956,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut 2 mais ni b ni c »', () => {
+  it('[F027-T029] vérifier résultat condition: « a vaut 2 mais ni b ni c »', () => {
 
     // A vaut 2 mais ni B ni C
     const condition = AnalyseurCondition.getConditionMulti('a vaut 2 mais ni b ni c');
@@ -988,7 +988,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut 1 ou 2 ou 3 »', () => {
+  it('[F027-T030] vérifier résultat condition: « a vaut 1 ou 2 ou 3 »', () => {
 
     // A vaut 1 ou 2 ou 3
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 ou 2 ou 3');
@@ -1011,7 +1011,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   });
 
 
-  it('vérifier résultat condition: « A vaut 1 ou si B dépasse 1 ou si c atteint 1 »', () => {
+  it('[F027-T031] vérifier résultat condition: « A vaut 1 ou si B dépasse 1 ou si c atteint 1 »', () => {
 
     // A vaut 1 ou B dépasse 1 ou C atteint 1
     const condition = AnalyseurCondition.getConditionMulti('A vaut 1 ou si B dépasse 1 ou si c atteint 1');
@@ -1054,7 +1054,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « a vaut 1 et si b vaut 1 et si c vaut 1 »', () => {
+  it('[F027-T032] vérifier résultat condition: « a vaut 1 et si b vaut 1 et si c vaut 1 »', () => {
 
     // A, B et C valent 1
     const condition = AnalyseurCondition.getConditionMulti('a vaut 1 et si b vaut 1 et si c vaut 1');
@@ -1077,7 +1077,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
   });
 
 
-  it('vérifier résultat condition: « a vaut -2 ou (soit b soit c) »', () => {
+  it('[F027-T033] vérifier résultat condition: « a vaut -2 ou (soit b soit c) »', () => {
 
     // A = -2 OU (soit B soit C)
     const condition = AnalyseurCondition.getConditionMulti('a vaut -2 ou (soit b soit c)');
@@ -1109,7 +1109,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a vaut soit b soit c soit d »', () => {
+  it('[F027-T034] vérifier résultat condition: « si a vaut soit b soit c soit d »', () => {
 
     // A = -2 OU (soit B soit C)
     const condition = AnalyseurCondition.getConditionMulti('si a vaut soit b soit c soit d');
@@ -1140,7 +1140,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si B vaut 2 ou 4 ou 6 ou si d dépasse 1000 »', () => {
+  it('[F027-T035] vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si B vaut 2 ou 4 ou 6 ou si d dépasse 1000 »', () => {
 
     // (A ≠ (1, 5 et 100) ET B = (2, 4 ou 6)) OU D > 1000
     const condition = AnalyseurCondition.getConditionMulti('si a ne vaut ni 1 ni 5 ni 100 et si B vaut 2 ou 4 ou 6 ou si d dépasse 1000');
@@ -1187,7 +1187,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si (B vaut 2 ou 4 ou 6 ou si d dépasse 1000) »', () => {
+  it('[F027-T036] vérifier résultat condition: « si a ne vaut ni 1 ni 5 ni 100 et si (B vaut 2 ou 4 ou 6 ou si d dépasse 1000) »', () => {
 
     // (A ≠ (1, 5 et 100) ET (B = (2, 4 ou 6)) OU D > 1000)
     const condition = AnalyseurCondition.getConditionMulti('si a ne vaut ni 1 ni 5 ni 100 et si (B vaut 2 ou 4 ou 6 ou si d dépasse 1000)');
@@ -1234,7 +1234,7 @@ describe('Conditions − Vérifier résultat sur des compteurs', () => {
 
   });
 
-  it('vérifier résultat condition: « A ne dépasse pas B mais soit C soit D »', () => {
+  it('[F027-T037] vérifier résultat condition: « A ne dépasse pas B mais soit C soit D »', () => {
 
     // (A <= B) ET (A > (C ou D))
     const condition = AnalyseurCondition.getConditionMulti('A ne dépasse pas B mais soit C soit D');
@@ -1269,7 +1269,7 @@ describe('Conditions − Parsing sujet taille de liste', () => {
   //   new GroupeNominal(null, resCondPropriete[1], null)
   // ⇒ sujet.nom contient toute la phrase (avec « la ») et determinant/epithete sont null.
 
-  it('parsing: « la taille du groupe d\'accusés actifs atteint 2 » — nom composé (apostrophe) + épithète', () => {
+  it('[F027-T038] parsing: « la taille du groupe d\'accusés actifs atteint 2 » — nom composé (apostrophe) + épithète', () => {
     const result = AnalyseurCondition.getConditionMulti("la taille du groupe d'accusés actifs atteint 2");
     expect(result).not.toBeNull();
     const cond = result.condition ?? result.sousConditions?.[0]?.condition;
@@ -1282,7 +1282,7 @@ describe('Conditions − Parsing sujet taille de liste', () => {
     expect(cond.sujet.epithete).toBeNull();
   });
 
-  it('parsing: « la taille du groupe d’accusés actifs atteint 2 » — apostrophe courbe', () => {
+  it('[F027-T039] parsing: « la taille du groupe d’accusés actifs atteint 2 » — apostrophe courbe', () => {
     const result = AnalyseurCondition.getConditionMulti("la taille du groupe d’accusés actifs atteint 2");
     expect(result).not.toBeNull();
     const cond = result.condition ?? result.sousConditions?.[0]?.condition;
@@ -1294,7 +1294,7 @@ describe('Conditions − Parsing sujet taille de liste', () => {
 
 describe('Conditions − Taille de liste avec nom complexe', () => {
 
-  it('taille d\'une liste simple atteint N', () => {
+  it('[F027-T040] taille d\'une liste simple atteint N', () => {
     const scenario = `
 Le tribunal est un lieu.
 La liste simple est une liste.
@@ -1316,7 +1316,7 @@ fin action
     expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
   });
 
-  it('taille d\'une liste (nom composé apostrophe + épithète) atteint N', () => {
+  it('[F027-T041] taille d\'une liste (nom composé apostrophe + épithète) atteint N', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le groupe d'accusés actifs est une liste.

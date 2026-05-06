@@ -39,13 +39,13 @@ fin action
 
 
 describe('Test du jeu avec secret, caché et discret', () => {
-  it('Nombre de phrases', () => {
+  it('[F046-T001] Nombre de phrases', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
     expect(phrases).toHaveSize(12); // nombre de phrases
   });
 
-  it('Regarder', () => {
+  it('[F046-T002] Regarder', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 8); // (joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const jeu = Generateur.genererJeu(rc);
@@ -57,7 +57,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(ctxCommande.sortie).toEqual("{_{*Le salon*}_}{n}Vous êtes dans le salon.{N}{U}Vous apercevez une bibliothèque et un bureau.{U}Sur le bureau il y a une lettre.{N}{P}Il n’y a pas de sortie.{N}");
   });
 
-  it('examiner bibliothèque et livre', () => {
+  it('[F046-T003] examiner bibliothèque et livre', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 8); // (joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const jeu = Generateur.genererJeu(rc);
@@ -149,7 +149,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
 
   });
 
-  it('balle discret (dans le lieu) — pas vue après regarder', () => {
+  it('[F046-T004] balle discret (dans le lieu) — pas vue après regarder', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -171,7 +171,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(ctxCommande.sortie).toEqual("Je ne l’ai pas encore vue.{N}");
   });
 
-  it('examiner parchemin', () => {
+  it('[F046-T005] examiner parchemin', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 8); // (joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const jeu = Generateur.genererJeu(rc);
@@ -248,7 +248,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
 
   });
 
-  it('balle discrète — mentionnée via action puis examinée', () => {
+  it('[F046-T006] balle discrète — mentionnée via action puis examinée', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioAvecDecrireBalle, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -295,7 +295,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(ctxCommande.sortie).toContain("balle");
   });
 
-  it('examiner pièce', () => {
+  it('[F046-T007] examiner pièce', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 8); // (joueur,) bibliothèque, livre de cuisine, livre de sciences, balle, bureau, lettre, pièce et parchemin
     const jeu = Generateur.genererJeu(rc);

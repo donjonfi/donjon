@@ -168,7 +168,7 @@ L'aide pour l'action examiner est "{*Examiner*}
 `;
 
 describe('Test du jeu de base', () => {
-    it('Nombre de phrases', () => {
+    it('[F040-T001] Nombre de phrases', () => {
 
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
@@ -178,7 +178,7 @@ describe('Test du jeu de base', () => {
         expect(phrases[16].morceaux).toHaveSize(2); //Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
     });
 
-    it('Action croquer la pomme', () => {
+    it('[F040-T002] Action croquer la pomme', () => {
         const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
         expect(rc.actions).toHaveSize(1); // action croquer la pomme
         expect(rc.actions[0].infinitif).toEqual("croquer");
@@ -197,7 +197,7 @@ describe('Test du jeu de base', () => {
         expect(jeu.actions[0].phaseEpilogue).toHaveSize(0);
     });
 
-    it('Règle après prendre la pomme', () => {
+    it('[F040-T003] Règle après prendre la pomme', () => {
         const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
         expect(rc.regles).toHaveSize(1); // règle après prendre la pomme
         expect(rc.regles[0].evenements).toHaveSize(1); // prendre la pomme
@@ -219,7 +219,7 @@ describe('Test du jeu de base', () => {
 
     });
 
-    it('Objets: pomme', () => {
+    it('[F040-T004] Objets: pomme', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
         expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine
@@ -236,7 +236,7 @@ describe('Test du jeu de base', () => {
         expect(ctxCommande.sortie).toEqual("Vous avez envie de croquer dedans.{N}");
     });
     
-    it('Objets: magazine', () => {
+    it('[F040-T005] Objets: magazine', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
         expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine
@@ -257,7 +257,7 @@ describe('Test du jeu de base', () => {
         expect(ctxCommande.sortie).toEqual("Il s'agit des programmes TV de la semaine dernière.{N}");
     });
 
-    it('Objets: table basse', () => {
+    it('[F040-T006] Objets: table basse', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
         expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine

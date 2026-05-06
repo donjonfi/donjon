@@ -2,10 +2,11 @@ export class BalisesHtml {
 
   /**
    * Retirer les balises HTML du texte et convertir les balises Donjon en balises HTML.
+   * @param liensCliquables si true, le tag {L}NNN{L} produit un lien cliquable, sinon un simple texte [NNN].
    */
-  public static convertirEnHtml(texte: string, dossierRessourcesComplet: string): string {
+  public static convertirEnHtml(texte: string, dossierRessourcesComplet: string, liensCliquables: boolean = false): string {
     texte = BalisesHtml.retirerBalisesHtml(texte);
-    texte = BalisesHtml.ajouterBalisesHtml(texte, dossierRessourcesComplet);
+    texte = BalisesHtml.ajouterBalisesHtml(texte, dossierRessourcesComplet, liensCliquables);
     return texte;
   }
 
@@ -20,8 +21,9 @@ export class BalisesHtml {
   /**
    * Ajouter des tags HTML à la place des tags Donjon.
    * @argument dossierRessources chaine vide ou bien "/jeu.sousDossier"
+   * @argument liensCliquables si true, le tag {L}NNN{L} produit un lien cliquable, sinon un simple texte [NNN].
    */
-  private static ajouterBalisesHtml(texte: string, dossierRessources: string): string {
+  private static ajouterBalisesHtml(texte: string, dossierRessources: string, liensCliquables: boolean = false): string {
 
     let retVal = texte;
 
@@ -122,6 +124,15 @@ export class BalisesHtml {
 
     // - remplacer les {U} restants par un {u}
     retVal = retVal.replace(/\{U\}/g, '{u}');
+
+    // lien vers une ligne du scénario {L}NNN{L} (cliquable depuis l’éditeur via délégation d’événement).
+    // Note : on encode la ligne dans `href="#LNNN"` car le DomSanitizer d’Angular retire les attributs `data-*`
+    // lors d’un binding `[innerHTML]`. Le href avec fragment passe la sanitization sans souci.
+    if (liensCliquables) {
+      retVal = retVal.replace(/\{L\}(\d+)\{L\}/g, '<a class="t-lien-ligne" href="#L$1" role="button" tabindex="0">[$1]</a>');
+    } else {
+      retVal = retVal.replace(/\{L\}(\d+)\{L\}/g, '[$1]');
+    }
 
     // remplacer nouvelle ligne {l} par un \n (pas documenté mais supporté)
     retVal = retVal.replace(/\{l\}/g, '\n');

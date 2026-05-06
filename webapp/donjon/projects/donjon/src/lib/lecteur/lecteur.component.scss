@@ -123,3 +123,14 @@
   min-height: 0;
   background-color: #fcf8ef;
 }
+
+// Lien vers une ligne du scénario, généré par le tag {L}NNN{L} dans les messages d’erreur runtime.
+.t-lien-ligne {
+  color: var(--bs-link-color, #0d6efd);
+  cursor: pointer;
+  font-family: monospace;
+  text-decoration: none;
+}
+.t-lien-ligne:hover {
+  text-decoration: underline;
+}

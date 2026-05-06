@@ -123,6 +123,7 @@ export class AnalyseurV8Controle {
       let nouvelleListeInstructionsSi = new Array<Instruction>();
       let nouvelleListeInstructionsSinon = new Array<Instruction>();
       instruction = new Instruction(undefined, undefined, condition, nouvelleListeInstructionsSi, nouvelleListeInstructionsSinon);
+      instruction.ligne = phraseAnalysee.ligne;
 
       // pointer la prochaine phrase
       ctx.indexProchainePhrase++;
@@ -279,6 +280,7 @@ export class AnalyseurV8Controle {
 
       instruction = new Instruction(undefined, []);
       instruction.typeChoisir = typeChoisir;
+      instruction.ligne = phraseAnalysee.ligne;
 
       let finBlocAtteinte = false;
 

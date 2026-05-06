@@ -15,6 +15,9 @@ export class Instruction {
   /** Nombre de fois que cette instruction a déjà été exécutée. */
   public nbExecutions = 0;
 
+  /** Ligne du scénario d’où provient l’instruction (si connue). */
+  public ligne?: number;
+
   /**
    * S’il s’agit d’une instruction de contrôle « choisir », 
    * son type (statique, dynamique, libre) 

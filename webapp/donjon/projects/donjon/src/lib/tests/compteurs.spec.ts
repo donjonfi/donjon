@@ -10,7 +10,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Compteurs', () => {
 
-  it('Le score est un compteur', () => {
+  it('[F025-T001] Le score est un compteur', () => {
 
     const scenario = '' +
       'Le score est un compteur. ' +
@@ -23,7 +23,7 @@ describe('Compteurs', () => {
     expect(ctx.jeu.compteurs[0].intitule.toString()).toEqual('le score');
   });
 
-  it('La bourse est un compteur initialisé à 100', () => {
+  it('[F025-T002] La bourse est un compteur initialisé à 100', () => {
 
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
@@ -47,7 +47,7 @@ describe('Compteurs', () => {
 
 describe('Affichage compteur dans un coin', () => {
 
-  it('La bourse est affichée en haut à droite', () => {
+  it('[F025-T003] La bourse est affichée en haut à droite', () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
       'La bourse est affichée en haut à droite. ' +
@@ -57,7 +57,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it('Le score est affiché en haut à gauche', () => {
+  it('[F025-T004] Le score est affiché en haut à gauche', () => {
     const scenario = '' +
       'Le score est un compteur initialisé à 0. ' +
       'Le score est affiché en haut à gauche. ' +
@@ -66,7 +66,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-gauche');
   });
 
-  it('Les vies sont affichées en bas à droite', () => {
+  it('[F025-T005] Les vies sont affichées en bas à droite', () => {
     const scenario = '' +
       'Les vies sont un compteur initialisé à 3. ' +
       'Les vies sont affichées en bas à droite. ' +
@@ -75,7 +75,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-droite');
   });
 
-  it('Sans direction latérale → droite par défaut (en haut)', () => {
+  it('[F025-T006] Sans direction latérale → droite par défaut (en haut)', () => {
     const scenario = '' +
       'Le score est un compteur initialisé à 0. ' +
       'Le score est affiché en haut. ' +
@@ -84,7 +84,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it('Compteur sans position → positionAffichage undefined', () => {
+  it('[F025-T007] Compteur sans position → positionAffichage undefined', () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 50. ' +
       '';
@@ -92,7 +92,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toBeUndefined();
   });
 
-  it('Compteur avec unité (sans initialisation)', () => {
+  it('[F025-T008] Compteur avec unité (sans initialisation)', () => {
     const scenario = '' +
       "La bourse est un compteur avec l'unité pièce. " +
       '';
@@ -102,7 +102,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].valeur).toEqual(0);
   });
 
-  it("Compteur avec unité après l'initialisation", () => {
+  it("[F025-T009] Compteur avec unité après l'initialisation", () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       '';
@@ -111,7 +111,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].unite).toEqual('pièce');
   });
 
-  it("Compteur avec unité avant l'initialisation", () => {
+  it("[F025-T010] Compteur avec unité avant l'initialisation", () => {
     const scenario = '' +
       "La bourse est un compteur avec l'unité pièce initialisé à 100. " +
       '';
@@ -120,7 +120,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].unite).toEqual('pièce');
   });
 
-  it('Compteur affiché sans intitulé', () => {
+  it('[F025-T011] Compteur affiché sans intitulé', () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
       'La bourse est affichée en haut à droite sans intitulé. ' +
@@ -131,7 +131,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeFalsy();
   });
 
-  it('Compteur affiché sans unité', () => {
+  it('[F025-T012] Compteur affiché sans unité', () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       'La bourse est affichée en haut à droite sans unité. ' +
@@ -142,7 +142,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansIntitule).toBeFalsy();
   });
 
-  it('Compteur affiché sans intitulé sans unité', () => {
+  it('[F025-T013] Compteur affiché sans intitulé sans unité', () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       'La bourse est affichée en haut à droite sans intitulé sans unité. ' +
@@ -153,7 +153,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeTrue();
   });
 
-  it('Compteur affiché sans intitulé et sans unité (avec « et »)', () => {
+  it('[F025-T014] Compteur affiché sans intitulé et sans unité (avec « et »)', () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       'La bourse est affichée en haut à droite sans intitulé et sans unité. ' +
@@ -164,7 +164,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeTrue();
   });
 
-  it('Compteur affiché sans unité et sans intitulé (avec « et », ordre inverse)', () => {
+  it('[F025-T015] Compteur affiché sans unité et sans intitulé (avec « et », ordre inverse)', () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       'La bourse est affichée en haut à droite sans unité et sans intitulé. ' +
@@ -175,7 +175,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeTrue();
   });
 
-  it('Compteur affiché sans unité sans intitulé (ordre inverse)', () => {
+  it('[F025-T016] Compteur affiché sans unité sans intitulé (ordre inverse)', () => {
     const scenario = '' +
       "La bourse est un compteur initialisé à 100 avec l'unité pièce. " +
       'La bourse est affichée en haut à droite sans unité sans intitulé. ' +
@@ -186,7 +186,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeTrue();
   });
 
-  it("« Il est affiché. » → en haut sous-entendu (droite par défaut)", () => {
+  it("[F025-T017] « Il est affiché. » → en haut sous-entendu (droite par défaut)", () => {
     const scenario = '' +
       'Le score est un compteur initialisé à 0. ' +
       'Il est affiché. ' +
@@ -195,7 +195,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it("« La bourse est affichée. » → en haut sous-entendu (droite par défaut)", () => {
+  it("[F025-T018] « La bourse est affichée. » → en haut sous-entendu (droite par défaut)", () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
       'La bourse est affichée. ' +
@@ -204,7 +204,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it("« Il est affiché à gauche. » → en haut sous-entendu", () => {
+  it("[F025-T019] « Il est affiché à gauche. » → en haut sous-entendu", () => {
     const scenario = '' +
       'Le score est un compteur initialisé à 0. ' +
       'Il est affiché à gauche. ' +
@@ -213,7 +213,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-gauche');
   });
 
-  it("« Il est affiché sans unité. » → en haut + droite par défaut + sans unité", () => {
+  it("[F025-T020] « Il est affiché sans unité. » → en haut + droite par défaut + sans unité", () => {
     const scenario = '' +
       "Le score est un compteur initialisé à 0 avec l'unité point. " +
       'Il est affiché sans unité. ' +
@@ -223,7 +223,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansUnite).toBeTrue();
   });
 
-  it('Il est affiché en haut (pronom personnel masculin)', () => {
+  it('[F025-T021] Il est affiché en haut (pronom personnel masculin)', () => {
     const scenario = '' +
       'Le score est un compteur initialisé à 0. ' +
       'Il est affiché en haut. ' +
@@ -232,7 +232,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it('Elle est affichée en bas à gauche (pronom personnel féminin)', () => {
+  it('[F025-T022] Elle est affichée en bas à gauche (pronom personnel féminin)', () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
       'Elle est affichée en bas à gauche. ' +
@@ -241,7 +241,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-gauche');
   });
 
-  it('Ils sont affichés en haut à droite (pronom personnel masculin pluriel)', () => {
+  it('[F025-T023] Ils sont affichés en haut à droite (pronom personnel masculin pluriel)', () => {
     const scenario = '' +
       'Les points sont un compteur initialisé à 0. ' +
       'Ils sont affichés en haut à droite. ' +
@@ -250,7 +250,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('haut-droite');
   });
 
-  it('Elles sont affichées en bas (pronom personnel féminin pluriel)', () => {
+  it('[F025-T024] Elles sont affichées en bas (pronom personnel féminin pluriel)', () => {
     const scenario = '' +
       'Les vies sont un compteur initialisé à 3. ' +
       'Elles sont affichées en bas. ' +
@@ -259,7 +259,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-droite');
   });
 
-  it('Il est affiché en haut sans intitulé (pronom personnel + options)', () => {
+  it('[F025-T025] Il est affiché en haut sans intitulé (pronom personnel + options)', () => {
     const scenario = '' +
       "Le score est un compteur initialisé à 0 avec l'unité point. " +
       'Il est affiché en haut sans intitulé. ' +
@@ -269,7 +269,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
   });
 
-  it('Deux compteurs dans des coins différents', () => {
+  it('[F025-T026] Deux compteurs dans des coins différents', () => {
     const scenario = '' +
       'La bourse est un compteur initialisé à 100. ' +
       'Les vies sont un compteur initialisé à 3. ' +
@@ -284,7 +284,7 @@ describe('Affichage compteur dans un coin', () => {
     expect(vies?.positionAffichage).toEqual('bas-gauche');
   });
 
-  it('Sans titre (alias de sans intitulé)', () => {
+  it('[F025-T027] Sans titre (alias de sans intitulé)', () => {
     const scenario = `
 Le score est un compteur initialisé à 0.
 Le score est affiché en haut à droite sans titre.
@@ -293,7 +293,7 @@ Le score est affiché en haut à droite sans titre.
     expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
   });
 
-  it('Option « sans X » inconnue → message d’analyse, compteur tout de même affiché, option inconnue ignorée', () => {
+  it('[F025-T028] Option « sans X » inconnue → message d’analyse, compteur tout de même affiché, option inconnue ignorée', () => {
     const scenario = `
 Le score est un compteur initialisé à 0.
 Le score est affiché en haut à droite sans tiitre.
@@ -316,7 +316,7 @@ Le score est affiché en haut à droite sans tiitre.
 
 describe('Titre d\'un compteur', () => {
 
-  it('Pas de titre défini → titre undefined (fallback sur le nom à l\'affichage)', () => {
+  it('[F025-T029] Pas de titre défini → titre undefined (fallback sur le nom à l\'affichage)', () => {
     const scenario = `
 Le score est un compteur initialisé à 0.
 `;
@@ -324,7 +324,7 @@ Le score est un compteur initialisé à 0.
     expect(ctx.jeu.compteurs[0].titre).toBeUndefined();
   });
 
-  it('Définition d\'un titre libre', () => {
+  it('[F025-T030] Définition d\'un titre libre', () => {
     const scenario = `
 Le score est un compteur initialisé à 0.
 Le titre du score est "Score final".
@@ -333,7 +333,7 @@ Le titre du score est "Score final".
     expect(ctx.jeu.compteurs[0].titre).toEqual('Score final');
   });
 
-  it('Modification du titre à l\'exécution', () => {
+  it('[F025-T031] Modification du titre à l\'exécution', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le score est un compteur initialisé à 0.
@@ -358,7 +358,7 @@ fin action
 
 describe('Affichage compteur — modification runtime', () => {
 
-  it('Masquer un compteur : « changer le score n\'est plus affiché »', () => {
+  it('[F025-T032] Masquer un compteur : « changer le score n\'est plus affiché »', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le score est un compteur initialisé à 0.
@@ -373,7 +373,7 @@ fin action
     expect(ctx.jeu.compteurs[0].positionAffichage).toBeUndefined();
   });
 
-  it('Repositionner un compteur : « changer le score est affiché en bas à gauche »', () => {
+  it('[F025-T033] Repositionner un compteur : « changer le score est affiché en bas à gauche »', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le score est un compteur initialisé à 0.
@@ -388,7 +388,7 @@ fin action
     expect(ctx.jeu.compteurs[0].positionAffichage).toEqual('bas-gauche');
   });
 
-  it('Réafficher un compteur masqué avec options « sans titre »', () => {
+  it('[F025-T034] Réafficher un compteur masqué avec options « sans titre »', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le score est un compteur initialisé à 0.
@@ -403,7 +403,7 @@ fin action
     expect(ctx.jeu.compteurs[0].sansIntitule).toBeTrue();
   });
 
-  it('Repositionner réinitialise les options : sansIntitule remis à false', () => {
+  it('[F025-T035] Repositionner réinitialise les options : sansIntitule remis à false', () => {
     const scenario = `
 Le tribunal est un lieu.
 Le score est un compteur initialisé à 0.
@@ -429,7 +429,7 @@ fin action
 
 describe('Affichage lieu cartouche — modification runtime', () => {
 
-  it('Masquer le lieu : « changer le lieu n\'est plus affiché »', () => {
+  it('[F025-T036] Masquer le lieu : « changer le lieu n\'est plus affiché »', () => {
     const scenario = `
 Le tribunal est un lieu.
 action masquer:
@@ -442,7 +442,7 @@ fin action
     expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('aucun');
   });
 
-  it('Masquer le lieu avec précision du cartouche : « changer le lieu n\'est plus affiché dans le cartouche »', () => {
+  it('[F025-T037] Masquer le lieu avec précision du cartouche : « changer le lieu n\'est plus affiché dans le cartouche »', () => {
     const scenario = `
 Le tribunal est un lieu.
 action masquer:
@@ -455,7 +455,7 @@ fin action
     expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('aucun');
   });
 
-  it('Repositionner le lieu en bas : « changer le lieu est affiché dans le cartouche du bas »', () => {
+  it('[F025-T038] Repositionner le lieu en bas : « changer le lieu est affiché dans le cartouche du bas »', () => {
     const scenario = `
 Le tribunal est un lieu.
 action descendre:
@@ -468,7 +468,7 @@ fin action
     expect(ctx.jeu.parametres.afficherTitreLieu).toEqual('bas');
   });
 
-  it('Réafficher le lieu après masquage : « changer le lieu est affiché »', () => {
+  it('[F025-T039] Réafficher le lieu après masquage : « changer le lieu est affiché »', () => {
     const scenario = `
 Le tribunal est un lieu.
 ne pas afficher le lieu dans le cartouche.

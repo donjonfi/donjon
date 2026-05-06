@@ -2,7 +2,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe("Synonymes − recalcul après changement d'intitulé", () => {
 
-  it("synonymes auto recalculés après changer intitulé", () => {
+  it("[F048-T001] synonymes auto recalculés après changer intitulé", () => {
 
     const scenario =
       'La salle est un lieu.\n' +
@@ -34,7 +34,7 @@ describe("Synonymes − recalcul après changement d'intitulé", () => {
     expect(synApres).not.toContain('rouge');
   });
 
-  it("changer les synonymes de ceci remplace les synonymes", () => {
+  it("[F048-T002] changer les synonymes de ceci remplace les synonymes", () => {
 
     const scenario =
       'La salle est un lieu.\n' +
@@ -58,7 +58,7 @@ describe("Synonymes − recalcul après changement d'intitulé", () => {
     expect(synApres).not.toContain('rouge');
   });
 
-  it("ajouter aux synonymes de ceci ajoute sans effacer les existants", () => {
+  it("[F048-T003] ajouter aux synonymes de ceci ajoute sans effacer les existants", () => {
 
     const scenario =
       'La salle est un lieu.\n' +
@@ -88,7 +88,7 @@ describe("Synonymes − recalcul après changement d'intitulé", () => {
     expect(synApres).toContain('vieux');
   });
 
-  it("ajouter aux synonymes d'un objet nommé ajoute sans effacer les existants", () => {
+  it("[F048-T004] ajouter aux synonymes d'un objet nommé ajoute sans effacer les existants", () => {
 
     const scenario =
       'La salle est un lieu.\n' +
@@ -114,7 +114,7 @@ describe("Synonymes − recalcul après changement d'intitulé", () => {
     expect(synApres).toContain('vieux');
   });
 
-  it("synonymes non recalculés si activerSynonymesAuto désactivé", () => {
+  it("[F048-T005] synonymes non recalculés si activerSynonymesAuto désactivé", () => {
 
     const scenario =
       'désactiver synonymes automatiques.\n' +

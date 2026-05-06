@@ -4,7 +4,7 @@ import { ContextePartie } from "../models/jouer/contexte-partie";
 
 describe('Expressions régulières', () => {
 
-  it('expression « le fermier concernant le baton »', () => {
+  it('[F016-T001] expression « le fermier concernant le baton »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementSimple.exec('le fermier concernant le baton');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -16,7 +16,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeUndefined(); // épithète
   });
 
-  it('expression « le fermier à propos du baton »', () => {
+  it('[F016-T002] expression « le fermier à propos du baton »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementSimple.exec('le fermier à propos du baton');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -28,7 +28,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeUndefined(); // épithète
   });
 
-  it('expression « magicien à propos d’une fiole »', () => {
+  it('[F016-T003] expression « magicien à propos d’une fiole »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementSimple.exec('magicien à propos d’une fiole');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toBeFalsy(); // déterminant
@@ -40,7 +40,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeUndefined(); // épithète
   });
 
-  it('expression « le baton du fermier sur la table »', () => {
+  it('[F016-T004] expression « le baton du fermier sur la table »', () => {
     const resultat = ExprReg.xComplementComposePrepositionComplementSimple.exec('le baton du fermier sur la table');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -52,7 +52,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeUndefined(); // épithète
   });
 
-  it('expression « le baton du fermier sur la table basse »', () => {
+  it('[F016-T005] expression « le baton du fermier sur la table basse »', () => {
     const resultat = ExprReg.xComplementComposePrepositionComplementSimple.exec('le baton du fermier sur la table basse');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -64,7 +64,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toEqual('basse'); // épithète
   });
 
-  it('expression « le baton du fermier colérique sur la table de la basse-cour »', () => {
+  it('[F016-T006] expression « le baton du fermier colérique sur la table de la basse-cour »', () => {
     const resultat = ExprReg.xComplementComposePrepositionComplementCompose.exec('le baton du fermier colérique sur la table de la basse-cour');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -77,7 +77,7 @@ describe('Expressions régulières', () => {
   });
 
 
-  it('expression « des petits pois dans la marmite »', () => {
+  it('[F016-T007] expression « des petits pois dans la marmite »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementSimple.exec('des petits pois dans la marmite');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('des '); // déterminant
@@ -89,7 +89,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeUndefined(); // épithète
   });
 
-  it('expression « le capitaine à propos de carte aux trésors »', () => {
+  it('[F016-T008] expression « le capitaine à propos de carte aux trésors »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementCompose.exec('le capitaine à propos de carte aux trésors');
     expect(resultat).toBeTruthy();
     expect(resultat[1]).toEqual('le '); // déterminant
@@ -101,7 +101,7 @@ describe('Expressions régulières', () => {
     expect(resultat[7]).toBeFalsy(); // épithète
   });
 
-  it('expression « magicien à propos d’une fiole »', () => {
+  it('[F016-T009] expression « magicien à propos d’une fiole »', () => {
     const resultat = ExprReg.xComplementSimplePrepositionComplementSimple.exec('magicien à propos d’une fiole')
     expect(resultat[1]).toBeFalsy() // déterminant
     expect(resultat[2]).toEqual('magicien'); // nom
@@ -116,12 +116,12 @@ describe('Expressions régulières', () => {
 
 describe('Nombre prépositions fin commande', () => {
 
-  it('fin: magicien à propos d’une fiole', () => {
+  it('[F016-T010] fin: magicien à propos d’une fiole', () => {
     const nbPrepositionsTrouvees = ('magicien à propos d’une fiole'.match(ExprReg.xPrepositions) || []).length;
     expect(nbPrepositionsTrouvees).toEqual(1);
   });
 
-  it('fin: le fermier à propos du baton', () => {
+  it('[F016-T011] fin: le fermier à propos du baton', () => {
     const nbPrepositionsTrouvees = ('le fermier à propos du baton'.match(ExprReg.xPrepositions) || []).length;
     expect(nbPrepositionsTrouvees).toEqual(1);
   });
@@ -130,7 +130,7 @@ describe('Nombre prépositions fin commande', () => {
 
 describe('Décomposer commande parler', () => {
 
-  it('commande « parler avec le fermier concernant le baton »', () => {
+  it('[F016-T012] commande « parler avec le fermier concernant le baton »', () => {
 
     const scenario =
       ' ' +
@@ -156,7 +156,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('baton');
   });
 
-  it('commande « parler avec le fermier à propos du baton »', function () {
+  it('[F016-T013] commande « parler avec le fermier à propos du baton »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -180,7 +180,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('baton');
   });
 
-  it('commande « parler du baton avec le fermier »', function () {
+  it('[F016-T014] commande « parler du baton avec le fermier »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -203,7 +203,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('baton');
   });
 
-  it('commande « parler du poisson rouge avec le pécheur énervé »', function () {
+  it('[F016-T015] commande « parler du poisson rouge avec le pécheur énervé »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -229,7 +229,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('rouge');
   });
 
-  it('commande « parler de la couronne magique avec le sorcier enflammé »', function () {
+  it('[F016-T016] commande « parler de la couronne magique avec le sorcier enflammé »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -256,7 +256,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('magique');
   });
 
-  it('commande « discuter de la table à manger avec le comte du bois »', function () {
+  it('[F016-T017] commande « discuter de la table à manger avec le comte du bois »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -283,7 +283,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler au marchand ambulant concernant l’argent perdu »', function () {
+  it('[F016-T018] commande « parler au marchand ambulant concernant l’argent perdu »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -311,7 +311,7 @@ describe('Décomposer commande parler', () => {
   });
 
 
-  it('commande «  discuter avec le coq au vin à propos de l’assaisonement »', function () {
+  it('[F016-T019] commande «  discuter avec le coq au vin à propos de l’assaisonement »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -338,7 +338,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande «  parler à pigeon intelligent concernant miettes de pain rassies »', function () {
+  it('[F016-T020] commande «  parler à pigeon intelligent concernant miettes de pain rassies »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -362,7 +362,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('rassies');
   });
 
-  it('commande «  parler avec le capitaine à propos de carte aux trésors »', function () {
+  it('[F016-T021] commande «  parler avec le capitaine à propos de carte aux trésors »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -386,7 +386,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande «  discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée »', function () {
+  it('[F016-T022] commande «  discuter avec le capitaine du bateau endormi concernant la cabine de navigation ensanglantée »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -412,7 +412,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('ensanglantée');
   });
 
-  it('commande «  interroger le fermier concernant la poule »', function () {
+  it('[F016-T023] commande «  interroger le fermier concernant la poule »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -438,7 +438,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « questionner le fermier géant à propos de la poule rousse »', function () {
+  it('[F016-T024] commande « questionner le fermier géant à propos de la poule rousse »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -464,7 +464,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('rousse');
   });
 
-  it('commande « questionner le boulanger sur de la farine grise »', function () {
+  it('[F016-T025] commande « questionner le boulanger sur de la farine grise »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -490,7 +490,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('grise');
   });
 
-  it('commande « questionner le marchand d’armes concernant une épée magique »', function () {
+  it('[F016-T026] commande « questionner le marchand d’armes concernant une épée magique »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -516,7 +516,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('magique');
   });
 
-  it('commande « interroger elf sur de l’eau douce »', function () {
+  it('[F016-T027] commande « interroger elf sur de l’eau douce »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -542,7 +542,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('douce');
   });
 
-  it('commande « interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques »', function () {
+  it('[F016-T028] commande « interroger le comte du bois sauvage sur les elfs aux pouvoirs maléfiques »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -568,7 +568,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('maléfiques');
   });
 
-  it('commande « questionner les lutins concernant du bois à brûler »', function () {
+  it('[F016-T029] commande « questionner les lutins concernant du bois à brûler »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -594,7 +594,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « interroger Dracula à propos d’une fiole »', function () {
+  it('[F016-T030] commande « interroger Dracula à propos d’une fiole »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -620,7 +620,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande «  montrer poisson au chat »', function () {
+  it('[F016-T031] commande «  montrer poisson au chat »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -649,7 +649,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande «  montrer poisson au chat »', function () {
+  it('[F016-T032] commande «  montrer poisson au chat »', function () {
 
     const scenario = 'Le poisson au chat est un animal. ';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -676,7 +676,7 @@ describe('Décomposer commande parler', () => {
 
   });
 
-  it('commande «  donner la pièce du trésor maudit à la princesse aux souhaits énervée »', function () {
+  it('[F016-T033] commande «  donner la pièce du trésor maudit à la princesse aux souhaits énervée »', function () {
 
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -705,7 +705,7 @@ describe('Décomposer commande parler', () => {
 
   });
 
-  it('commande « donner une pièce à la princesse »', function () {
+  it('[F016-T034] commande « donner une pièce à la princesse »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -746,7 +746,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[1].isCelaV1).toBeFalse();
   });
 
-  it('commande « demander de la nourriture à l’aubergiste »', function () {
+  it('[F016-T035] commande « demander de la nourriture à l’aubergiste »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -773,7 +773,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « commander poison à vendeur ambulant »', function () {
+  it('[F016-T036] commande « commander poison à vendeur ambulant »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -800,7 +800,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('ambulant');
   });
 
-  it('commande « parler du somnifère au magicien »', function () {
+  it('[F016-T037] commande « parler du somnifère au magicien »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -828,7 +828,7 @@ describe('Décomposer commande parler', () => {
   });
 
 
-  it('commande « parler du somnifère au magicien »', function () {
+  it('[F016-T038] commande « parler du somnifère au magicien »', function () {
     const scenario = 'Le somnifère au magicien est un objet.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -852,7 +852,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « parler d’une fiole de poison au magicien maléfique »', function () {
+  it('[F016-T039] commande « parler d’une fiole de poison au magicien maléfique »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -879,7 +879,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler magicien à propos d’une fiole »', function () {
+  it('[F016-T040] commande « parler magicien à propos d’une fiole »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -905,7 +905,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « donner saucisse à griller à vendeur »', function () {
+  it('[F016-T041] commande « donner saucisse à griller à vendeur »', function () {
     const scenario = 'La saucisse à griller est un objet.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -933,7 +933,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « montrer saucisse à griller à vendeur à viande »', function () {
+  it('[F016-T042] commande « montrer saucisse à griller à vendeur à viande »', function () {
     const scenario = 'La saucisse à griller est un objet.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -960,7 +960,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler de manger à l’aubergiste »', function () {
+  it('[F016-T043] commande « parler de manger à l’aubergiste »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -988,7 +988,7 @@ describe('Décomposer commande parler', () => {
   });
 
 
-  it('commande « demander à manger à l’aubergiste »', function () {
+  it('[F016-T044] commande « demander à manger à l’aubergiste »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1012,7 +1012,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.nom).toEqual('aubergiste');
   });
 
-  it('commande « demander à boire au tavernier »', function () {
+  it('[F016-T045] commande « demander à boire au tavernier »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1037,7 +1037,7 @@ describe('Décomposer commande parler', () => {
   });
 
 
-  it('commande « demander à dormir longtemps à l’aubergiste cupide »', function () {
+  it('[F016-T046] commande « demander à dormir longtemps à l’aubergiste cupide »', function () {
     const scenario = '';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1063,7 +1063,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('cupide');
   });
 
-  it('commande « demander à l’aubergiste à dormir »', function () {
+  it('[F016-T047] commande « demander à l’aubergiste à dormir »', function () {
     const scenario = 'action demander ceci à cela: fin action ' +
       'L\'aubergiste est une personne. ';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
@@ -1091,7 +1091,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler à mousse de mat »', function () {
+  it('[F016-T048] commande « parler à mousse de mat »', function () {
     const scenario = 'Le mousse est une personne.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1118,7 +1118,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler avec la magicienne étourdie du sort raté »', function () {
+  it('[F016-T049] commande « parler avec la magicienne étourdie du sort raté »', function () {
     const scenario = 'Le magicien est une personne.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1144,7 +1144,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('raté')
   });
 
-  it('commande « discuter avec Jean-Paul de Jason »', function () {
+  it('[F016-T050] commande « discuter avec Jean-Paul de Jason »', function () {
     const scenario = 'Jean-Paul est une personne. ';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1171,7 +1171,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler au magicien de la potion de vie »', function () {
+  it('[F016-T051] commande « parler au magicien de la potion de vie »', function () {
     const scenario = 'Le magicien est une personne.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1199,7 +1199,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toBeFalsy();
   });
 
-  it('commande « parler au magicien du bois de la potion magique »', function () {
+  it('[F016-T052] commande « parler au magicien du bois de la potion magique »', function () {
     const scenario = 'Le magicien du bois est une personne.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1226,7 +1226,7 @@ describe('Décomposer commande parler', () => {
     expect(ctxCom.candidats[0].els.sujetComplement1.epithete).toEqual('magique');
   });
 
-  it('commande « discuter avec le comte Dracula de la tournure inatendue »', function () {
+  it('[F016-T053] commande « discuter avec le comte Dracula de la tournure inatendue »', function () {
     const scenario = 'Le magicien du bois est une personne.';
     const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
     const jeu = Generateur.genererJeu(rc);
@@ -1255,7 +1255,7 @@ describe('Décomposer commande parler', () => {
 
 
 
-  it('commande « parler de la table à langer aux parents »', function () {
+  it('[F016-T054] commande « parler de la table à langer aux parents »', function () {
 
     const scenario =
       'La table à langer est un support. ' +

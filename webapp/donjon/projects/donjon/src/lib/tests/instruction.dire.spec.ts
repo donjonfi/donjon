@@ -29,7 +29,7 @@ const scenarioListePleine = `
 describe('Condition autours d’un décrire liste vide/remplie', () => {
 
 
-  it('condition autours d’une liste remplie', () => {
+  it('[F037-T001] condition autours d’une liste remplie', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListePleine, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -44,7 +44,7 @@ describe('Condition autours d’un décrire liste vide/remplie', () => {
   });
 
 
-  it('condition autours d’une liste vide', () => {
+  it('[F037-T002] condition autours d’une liste vide', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListeVide, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);

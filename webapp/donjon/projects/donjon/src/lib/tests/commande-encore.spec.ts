@@ -11,7 +11,7 @@ La table est un support dans le salon.
 
 describe('Test de l’action répéter (la dernière commande)', () => {
 
-  it('répéter la dernière commande', () => {
+  it('[F015-T001] répéter la dernière commande', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);

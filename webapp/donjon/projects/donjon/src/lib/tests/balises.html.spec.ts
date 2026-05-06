@@ -3,7 +3,7 @@ import { BalisesHtml } from "../../public-api";
 describe('Balises HTML > retirerBalisesHtml', () => {
 
 
-  it('retirer balises <p> <u> <b> <span>', () => {
+  it('[F014-T001] retirer balises <p> <u> <b> <span>', () => {
 
     const texteNettoye = BalisesHtml.retirerBalisesHtml(
       '<p>'

@@ -97,6 +97,7 @@ export class AnalyseurPropriete {
           // instruction simple a été trouvée
           if (instructionDecomposee) {
             let instructionDire = AnalyseurCommunUtils.creerInstructionSimple(instructionDecomposee);
+            instructionDire.ligne = phrase.ligne;
 
             if (instructionDire?.instruction?.infinitif == 'dire') {
               // - AJOUTER LA RÉACTION

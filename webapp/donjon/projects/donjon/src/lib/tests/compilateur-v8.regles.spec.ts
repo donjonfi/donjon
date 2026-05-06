@@ -23,7 +23,7 @@ fin règle
 
 describe('Règle', () => {
 
-  it('avant commencer le jeu', () => {
+  it('[F020-T001] avant commencer le jeu', () => {
 
     const scenario = '' +
       'règle avant commencer le jeu: ' +
@@ -44,7 +44,7 @@ describe('Règle', () => {
   });
 
 
-  it('ouvrir la porte avec la clé (existent)', () => {
+  it('[F020-T002] ouvrir la porte avec la clé (existent)', () => {
 
     const scenario = '' +
       'l’arc à flèche est un objet. ' +
@@ -66,7 +66,7 @@ describe('Règle', () => {
     expect(ctx.jeu.auditeurs[0].instructions[0].instruction.infinitif).toBe('changer');
   });
 
-  it('près prendre l’arc à flèche (existe)', () => {
+  it('[F020-T003] près prendre l’arc à flèche (existe)', () => {
 
     const scenario = '' +
       'l’arc à flèche est un objet. ' +
@@ -87,7 +87,7 @@ describe('Règle', () => {
     expect(ctx.jeu.auditeurs[0].instructions[0].instruction.infinitif).toBe('changer');
   });
 
-  it('près prendre l’arc à flèche (existe pas)', () => {
+  it('[F020-T004] près prendre l’arc à flèche (existe pas)', () => {
 
     const scenario = '' +
       'règle après prendre l’arc à flèche: ' +
@@ -105,7 +105,7 @@ describe('Règle', () => {
     expect(ctx.jeu.auditeurs[0].evenements[0].isCela).toBeFalse();
   });
 
-  it('après manger', () => {
+  it('[F020-T005] après manger', () => {
 
     const ctx = TestUtils.genererEtCommencerLeJeu(scenarioApresManger);
 
@@ -134,7 +134,7 @@ describe('Règle', () => {
 
   });
 
-  it('après manger — comportement (bogue #221)', () => {
+  it('[F020-T006] après manger — comportement (bogue #221)', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioApresManger, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctx = new ContextePartie(jeu);

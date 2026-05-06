@@ -1,0 +1,121 @@
+-- Informations
+Le titre du jeu est "Le grimoire de l'apprenti".
+L'auteur du jeu est "Donjon FI".
+
+-- Lieux
+La tour du mage est un lieu.
+Sa description est "Une tour ronde tapissée d'étagères couvertes de fioles. Une odeur de soufre flotte dans l'air.".
+
+La bibliothèque est un lieu au nord de la tour du mage.
+Sa description est "Des centaines de grimoires s'entassent jusqu'au plafond.".
+
+La crypte est un lieu en bas de la tour du mage.
+Sa description est "Une crypte glaciale où plane une présence maléfique.".
+
+-- Objets
+Le grimoire est un objet ici.
+Sa description est "Un vieux grimoire relié de cuir noir. On peut le {*lire*} ou le {*consulter*}.".
+Son texte est "Première page : « Que celui qui maîtrise les runes apprenne à les graver dans sa mémoire. »".
+
+Le parchemin de feu est un parchemin dans la bibliothèque.
+Sa description est "Un parchemin gravé d'une rune flamboyante. On peut le {*lire*} ou le {*apprendre*} le sort qu'il contient.".
+Son texte est "Rune de {*feu*} : pointe la cible, prononce « Ignis » et la flamme jaillira.".
+
+Le parchemin de glace est un parchemin dans la bibliothèque.
+Sa description est "Un parchemin gelé au toucher. On peut le {*lire*} ou le {*apprendre*} le sort qu'il contient.".
+Son texte est "Rune de {*glace*} : trace le givre dans l'air, prononce « Gelidus » et le froid frappera.".
+
+Le squelette est un vivant dans la crypte.
+Sa description est "Un squelette aux yeux rougeoyants vous fixe.".
+
+-- Mémoire : la liste des sorts connus, initialisée avec un sort de base
+Les sorts connus sont une liste.
+ajouter "lumière" à la liste sorts connus.
+
+-- Compteur de mana
+La mana est un compteur initialisé à 10 avec l'unité point.
+Elle est affichée en haut à droite.
+
+-- Action : consulter le grimoire (afficher la liste)
+action consulter le grimoire:
+  phase prérequis:
+    si le grimoire n'est pas visible, refuser "Je ne vois pas de grimoire ici.".
+  phase exécution:
+    si la taille des sorts connus vaut 0:
+      dire "Le grimoire est vide. Vous ne connaissez aucun sort.".
+    sinon:
+      dire "Vous connaissez [c taille des sorts connus] sort[s taille des sorts connus].".
+    fin si
+fin action
+
+-- Action : apprendre un sort à partir d'un parchemin
+action apprendre ceci:
+  phase prérequis:
+    si ceci n'est pas un parchemin, refuser "Ce n'est pas un parchemin de sort.".
+    si ceci n'est pas possédé, refuser "Il faut d'abord prendre le parchemin.".
+  phase exécution:
+    si ceci est le parchemin de feu:
+      si les sorts connus contiennent "feu":
+        dire "Vous connaissez déjà ce sort.".
+      sinon:
+        ajouter "feu" à la liste sorts connus.
+        dire "Vous mémorisez le sort de {*feu*}.".
+        déplacer ceci vers rien.
+      fin si
+    fin si
+    si ceci est le parchemin de glace:
+      si les sorts connus contiennent "glace":
+        dire "Vous connaissez déjà ce sort.".
+      sinon:
+        ajouter "glace" à la liste sorts connus.
+        dire "Vous mémorisez le sort de {*glace*}.".
+        déplacer ceci vers rien.
+      fin si
+    fin si
+fin action
+
+-- Action : lancer un sort sur une cible
+action lancer ceci sur cela:
+  phase prérequis:
+    si la mana n'atteint pas 3, refuser "Vous manquez de mana.".
+  phase exécution:
+    si ceci est "feu":
+      si les sorts connus ne contiennent pas "feu", refuser "Vous ne connaissez pas ce sort.".
+      changer la mana diminue de 3.
+      dire "Une boule de feu jaillit vers [le cela] !".
+      si cela est le squelette:
+        dire "Le squelette s'embrase et tombe en cendres.".
+        déplacer le squelette vers rien.
+      fin si
+    fin si
+    si ceci est "glace":
+      si les sorts connus ne contiennent pas "glace", refuser "Vous ne connaissez pas ce sort.".
+      changer la mana diminue de 3.
+      dire "Un éclat glacé file vers [le cela].".
+    fin si
+fin action
+
+-- Action : oublier un sort
+action oublier ceci:
+  phase exécution:
+    si les sorts connus ne contiennent pas ceci, refuser "Vous ne connaissez pas ce sort.".
+    enlever ceci de la liste sorts connus.
+    dire "Vous oubliez le sort de {*ceci*}.".
+fin action
+
+-- Action : purger le grimoire (vide la liste)
+action purger le grimoire:
+  phase prérequis:
+    si le grimoire n'est pas possédé, refuser "Je n'ai pas le grimoire.".
+  phase exécution:
+    vider la liste des sorts connus.
+    dire "Vous effacez toutes les pages. Le grimoire est vierge.".
+fin action
+
+-- Règle : récompense quand on entre dans la crypte
+règle après aller dans la crypte:
+    continuer l’action avant.
+  si les sorts connus ne contiennent pas "feu":
+    dire "{p}Une voix murmure : « Sans le feu, tu ne survivras pas ici… »".
+  fin si
+fin règle
