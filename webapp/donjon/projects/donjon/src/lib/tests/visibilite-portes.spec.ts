@@ -76,7 +76,7 @@ Sa description est "Un énorme rocher bloque le passage.".
 
 describe('Test obstacle discret', () => {
 
-  it('regarder — obstacle discret non affiché, classique affiché', () => {
+  it('[F052-T001] regarder — obstacle discret non affiché, classique affiché', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 2); // (joueur,) grand rocher, fossé
     const jeu = Generateur.genererJeu(rc);
@@ -105,7 +105,7 @@ describe('Test obstacle discret', () => {
     expect(fosse.etats).not.toContain(ctxPartie.jeu.etats.vuID);
   });
 
-  it('afficher sorties — obstacle discret toujours obstruant', () => {
+  it('[F052-T002] afficher sorties — obstacle discret toujours obstruant', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -120,7 +120,7 @@ describe('Test obstacle discret', () => {
     );
   });
 
-  it('obstacle discret mentionné dans description — pas affiché deux fois, interagissable', () => {
+  it('[F052-T003] obstacle discret mentionné dans description — pas affiché deux fois, interagissable', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourFosseMentionne, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -148,7 +148,7 @@ describe('Test obstacle discret', () => {
     expect(ctxCommande.sortie).toEqual("Un fossé profond coupe la route.{N}");
   });
 
-  it('obstacle non-discret mentionné dans description via [@] — pas affiché deux fois', () => {
+  it('[F052-T004] obstacle non-discret mentionné dans description via [@] — pas affiché deux fois', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourRocherMentionne, actions, true);
     expect(rc.monde.objets).toHaveSize(1 + 1); // (joueur,) grand rocher
     const jeu = Generateur.genererJeu(rc);
@@ -186,13 +186,13 @@ describe('Test obstacle discret', () => {
 });
 
 describe('Test de la visibilité des portes', () => {
-    it('Nombre de phrases', () => {
+    it('[F052-T005] Nombre de phrases', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
         expect(phrases).toHaveSize(15); // nombre de phrases
     });
 
-    it('Regarder', () => {
+    it('[F052-T006] Regarder', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes et chemins
         const jeu = Generateur.genererJeu(rc);
@@ -204,7 +204,7 @@ describe('Test de la visibilité des portes', () => {
         expect(ctxCommande.sortie).toEqual("{_{*La caverne*}_}{n}Vous êtes dans la caverne.{N}{U}La porte classiqueOuverte est ouverte.{U}La porte classiqueFermée est fermée.{U}La porte visibleOuverteSurCheminInvisible est ouverte.{N}{P}Sorties : {n}{i}- nord : ?{n}{i}- nord-est : ? ({/obstrué/}){n}{i}- entrer : {+Le cheminVisibleMaisSansAccès+} ({/pas d’accès/}){n}{i}- est : ?{N}");
     });
 
-    it('Afficher les sorties', () => {
+    it('[F052-T007] Afficher les sorties', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes et chemins
         const jeu = Generateur.genererJeu(rc);
@@ -220,7 +220,7 @@ describe('Test de la visibilité des portes', () => {
             "{i}- est : ?{N}");
     });
 
-    it('Afficher les sorties avec obstacles (option activée)', () => {
+    it('[F052-T008] Afficher les sorties avec obstacles (option activée)', () => {
         // Étendre le scénario de base avec un obstacle réel (non-porte) au sud
         const scenarioEtendu = scenario + `
 Le rocher est un obstacle au sud de la caverne.
@@ -240,7 +240,7 @@ Le cheminSud est un lieu au sud de la caverne.
             "{i}- sud : ? ({/obstrué/})");
     });
 
-    it('Afficher les sorties sans obstacles (option désactivée)', () => {
+    it('[F052-T009] Afficher les sorties sans obstacles (option désactivée)', () => {
         // Même scénario étendu, mais avec la désactivation de l'affichage des obstacles
         const scenarioEtendu = scenario + `
 Le rocher est un obstacle au sud de la caverne.
@@ -262,7 +262,7 @@ désactiver affichage des obstacles.
             "{i}- sud : ?{N}");
     });
 
-    it('examiner portes', () => {
+    it('[F052-T010] examiner portes', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes
         const jeu = Generateur.genererJeu(rc)

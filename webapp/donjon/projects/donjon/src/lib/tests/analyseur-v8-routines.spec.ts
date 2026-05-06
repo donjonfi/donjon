@@ -8,7 +8,7 @@ import { ERoutine } from "../models/compilateur/routine";
 
 describe('Traiter routine', () => {
 
-  it('Analyser routines d’un scénario avec 1 routine, 1 action et 1 règle.', function () {
+  it('[F012-T001] Analyser routines d’un scénario avec 1 routine, 1 action et 1 règle.', function () {
     let scenario =
       // ligne 1, phrase 1, index 0
       'routine afficherScore:\n' +
@@ -76,7 +76,7 @@ describe('Traiter routine', () => {
 
   });
 
-  it('routine avec une condition', function () {
+  it('[F012-T002] routine avec une condition', function () {
     let scenario =
       'routine maRoutine:\n' +
       '  si le joueur est présent:\n' +
@@ -101,7 +101,7 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
-  it('routine avec 1 condition dont le fin si est manquant', function () {
+  it('[F012-T003] routine avec 1 condition dont le fin si est manquant', function () {
     let scenario =
       'routine maRoutine:\n' +
       '  si le joueur est présent:\n' +
@@ -128,7 +128,7 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
-  it('routine avec 1 condition dont le fin routine est manquant', function () {
+  it('[F012-T004] routine avec 1 condition dont le fin routine est manquant', function () {
     let scenario =
       'routine maRoutine:\n' +
       '  si le joueur est présent:\n' +
@@ -156,7 +156,7 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
-  it('action avec 1 condition dont le fin action est différent', function () {
+  it('[F012-T005] action avec 1 condition dont le fin action est différent', function () {
     let scenario =
       'action sauter:\n' +
       '  si le joueur est présent:\n' +
@@ -185,7 +185,7 @@ describe('Traiter routine', () => {
     expect(condition.instructionsSiConditionPasVerifiee).toHaveSize(1);
   });
 
-  it('action avec 1 condition dont le fin action est différent', function () {
+  it('[F012-T006] action avec 1 condition dont le fin action est différent', function () {
     let scenario =
       'action sauter:\n' +
       '  si le joueur est présent:\n' +

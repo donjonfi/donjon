@@ -10,7 +10,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
   //  METTRE — attributs ajoutés
   // ============================================================
 
-  it('mettre une tunique enfilable → enfilé + porté', () => {
+  it('[F001-T001] mettre une tunique enfilable → enfilé + porté', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'La tunique est un objet enfilable dans la chambre. ' +
@@ -29,7 +29,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
     expect(ctx.jeu.etats.possedeEtatElement(tunique, EEtatsBase.porte, ctx.eju)).toBeTrue();
   });
 
-  it('mettre des bottes chaussables → chaussé + porté', () => {
+  it('[F001-T002] mettre des bottes chaussables → chaussé + porté', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'Les bottes sont un objet chaussable dans la chambre. ' +
@@ -48,7 +48,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
     expect(ctx.jeu.etats.possedeEtatElement(bottes, EEtatsBase.porte, ctx.eju)).toBeTrue();
   });
 
-  it('mettre un bouclier équipable → équipé + porté', () => {
+  it('[F001-T003] mettre un bouclier équipable → équipé + porté', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'Le bouclier est un objet équipable dans la chambre. ' +
@@ -71,7 +71,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
   //  ENLEVER — attributs retirés (issue #222)
   // ============================================================
 
-  it('enlever une tunique enfilée → enfilé + porté retirés', () => {
+  it('[F001-T004] enlever une tunique enfilée → enfilé + porté retirés', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'La tunique est un objet enfilable dans la chambre. ' +
@@ -92,7 +92,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
     expect(sortieEnlever.sortie).toContain('Vous ne portez plus la tunique.');
   });
 
-  it('enlever des bottes chaussées → chaussé + porté retirés', () => {
+  it('[F001-T005] enlever des bottes chaussées → chaussé + porté retirés', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'Les bottes sont un objet chaussable dans la chambre. ' +
@@ -112,7 +112,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
     expect(ctx.jeu.etats.possedeEtatElement(bottes, EEtatsBase.porte, ctx.eju)).toBeFalse();
   });
 
-  it('enlever un bouclier équipé → équipé + porté retirés', () => {
+  it('[F001-T006] enlever un bouclier équipé → équipé + porté retirés', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'Le bouclier est un objet équipable dans la chambre. ' +
@@ -136,7 +136,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
   //  ENLEVER — refus si pas porté (issue #222)
   // ============================================================
 
-  it('enlever une tunique non portée → refus', () => {
+  it('[F001-T007] enlever une tunique non portée → refus', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'La tunique est un objet enfilable dans la chambre. ' +
@@ -151,7 +151,7 @@ describe('Actions mettre / enlever (vêtements)', () => {
     expect(sortie.sortie).toContain('Vous ne portez pas la tunique.');
   });
 
-  it('enlever des bottes non portées → refus', () => {
+  it('[F001-T008] enlever des bottes non portées → refus', () => {
     const scenario =
       'La chambre est un lieu. ' +
       'Les bottes sont un objet chaussable dans la chambre. ' +

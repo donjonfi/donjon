@@ -2,7 +2,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
-  it('si le joueur se trouve dans le salon (court)', function () {
+  it('[F028-T001] si le joueur se trouve dans le salon (court)', function () {
     const scenario =
       'le salon est un lieu. ' +
       'le joueur se trouve dans le salon. ' +
@@ -19,7 +19,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
   });
 
 
-  it('si le joueur se trouve dans le salon (complet)', function () {
+  it('[F028-T002] si le joueur se trouve dans le salon (complet)', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -38,7 +38,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si le joueur se trouve dans la chambre (complet)', function () {
+  it('[F028-T003] si le joueur se trouve dans la chambre (complet)', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -57,7 +57,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/sinon le joueur se trouve dans le salon', function () {
+  it('[F028-T004] si/sinon le joueur se trouve dans le salon', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -79,7 +79,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('SI/sinon le joueur se trouve dans le salon', function () {
+  it('[F028-T005] SI/sinon le joueur se trouve dans le salon', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -101,7 +101,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/sinon le joueur se trouve dans la chambre', function () {
+  it('[F028-T006] si/sinon le joueur se trouve dans la chambre', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -123,7 +123,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/Sinon le joueur se trouve dans la chambre', function () {
+  it('[F028-T007] si/Sinon le joueur se trouve dans la chambre', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -145,7 +145,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('SI/SINON le joueur se trouve dans la chambre', function () {
+  it('[F028-T008] SI/SINON le joueur se trouve dans la chambre', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -167,7 +167,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/sinon/sinonsi le joueur se trouve dans le salon', function () {
+  it('[F028-T009] si/sinon/sinonsi le joueur se trouve dans le salon', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -193,7 +193,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/sinon/sinonsi le joueur se trouve dans la chambre', function () {
+  it('[F028-T010] si/sinon/sinonsi le joueur se trouve dans la chambre', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -218,7 +218,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('si/sinon/sinonsi le joueur se trouve dans la cuisine', function () {
+  it('[F028-T011] si/sinon/sinonsi le joueur se trouve dans la cuisine', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +
@@ -243,7 +243,7 @@ describe('Conditions: si/sinonsi/sinon durant le jeu', () => {
 
   });
 
-  it('Si/Sinon/SinonSi le joueur se trouve dans la cuisine', function () {
+  it('[F028-T012] Si/Sinon/SinonSi le joueur se trouve dans la cuisine', function () {
     const scenario =
       'le salon est un lieu. ' +
       'la chambre est un lieu. ' +

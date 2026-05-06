@@ -12,12 +12,12 @@ import { TypeInterruption } from "../models/jeu/interruption";
 
 describe('Paramètre activerChoixNumeriques — #187', () => {
 
-  it('activerChoixNumeriques est false par défaut', () => {
+  it('[F030-T001] activerChoixNumeriques est false par défaut', () => {
     const jeu = TestUtils.genererLeJeu('Le salon est un lieu.');
     expect(jeu.parametres.activerChoixNumeriques).toBeFalse();
   });
 
-  it('activer choix numériques positionne activerChoixNumeriques à true', () => {
+  it('[F030-T002] activer choix numériques positionne activerChoixNumeriques à true', () => {
     const jeu = TestUtils.genererLeJeu(
       'activer choix numériques.\n' +
       'Le salon est un lieu.'
@@ -25,7 +25,7 @@ describe('Paramètre activerChoixNumeriques — #187', () => {
     expect(jeu.parametres.activerChoixNumeriques).toBeTrue();
   });
 
-  it('activer choix numérotés positionne activerChoixNumeriques à true', () => {
+  it('[F030-T003] activer choix numérotés positionne activerChoixNumeriques à true', () => {
     const jeu = TestUtils.genererLeJeu(
       'activer choix numérotés.\n' +
       'Le salon est un lieu.'
@@ -33,7 +33,7 @@ describe('Paramètre activerChoixNumeriques — #187', () => {
     expect(jeu.parametres.activerChoixNumeriques).toBeTrue();
   });
 
-  it('désactiver choix numériques après activation positionne activerChoixNumeriques à false', () => {
+  it('[F030-T004] désactiver choix numériques après activation positionne activerChoixNumeriques à false', () => {
     const jeu = TestUtils.genererLeJeu(
       'activer choix numériques.\n' +
       'désactiver choix numériques.\n' +
@@ -62,7 +62,7 @@ action boire:
 fin action
 `;
 
-  it('choisir crée une interruption attendreChoix (mode lettres par défaut)', () => {
+  it('[F030-T005] choisir crée une interruption attendreChoix (mode lettres par défaut)', () => {
     const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
     expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBeFalse();
     ctxPartie.com.executerCommande('boire', false);
@@ -71,7 +71,7 @@ fin action
     expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
   });
 
-  it('choisir expose 3 choix dans l\'interruption (mode lettres)', () => {
+  it('[F030-T006] choisir expose 3 choix dans l\'interruption (mode lettres)', () => {
     const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
     ctxPartie.com.executerCommande('boire', false);
     const choix = ctxPartie.jeu.tamponInterruptions[0].choix;
@@ -81,7 +81,7 @@ fin action
     expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
   });
 
-  it('choisir crée une interruption attendreChoix (mode nombres)', () => {
+  it('[F030-T007] choisir crée une interruption attendreChoix (mode nombres)', () => {
     const scenario = 'activer choix numériques.\n' + scenarioBase;
     const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
     expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBeTrue();
@@ -91,7 +91,7 @@ fin action
     expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
   });
 
-  it('choisir expose 3 choix dans l\'interruption (mode nombres)', () => {
+  it('[F030-T008] choisir expose 3 choix dans l\'interruption (mode nombres)', () => {
     const scenario = 'activer choix numériques.\n' + scenarioBase;
     const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
     ctxPartie.com.executerCommande('boire', false);
@@ -102,7 +102,7 @@ fin action
     expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
   });
 
-  it('choisir avec plus de 9 choix (multi-chiffres) — interrupt correctement créée', () => {
+  it('[F030-T009] choisir avec plus de 9 choix (multi-chiffres) — interrupt correctement créée', () => {
     const scenario = `
 activer choix numériques.
 Le joueur se trouve dans le salon.

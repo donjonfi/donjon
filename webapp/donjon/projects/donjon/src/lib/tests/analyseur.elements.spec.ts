@@ -22,7 +22,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   // GROUPE NOMINAL
   // - Déterminant(1), Nom(2), Épithète(3)
 
-  it('Groupe Nominal : « La pomme de terre pourrie »', () => {
+  it('[F003-T001] Groupe Nominal : « La pomme de terre pourrie »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("La pomme de terre pourrie");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -30,7 +30,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toEqual("pourrie"); // attribut
   });
 
-  it('Groupe Nominal : « la canne à pèche »', () => {
+  it('[F003-T002] Groupe Nominal : « la canne à pèche »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("la canne à pèche");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("la "); // déterminant
@@ -38,7 +38,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toBeUndefined(); // attribut
   });
 
-  it('Groupe Nominal : « le chapeau gris »', () => {
+  it('[F003-T003] Groupe Nominal : « le chapeau gris »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("le chapeau gris");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("le "); // déterminant
@@ -47,7 +47,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
   });
 
 
-  it('Groupe Nominal : « chapeau »', () => {
+  it('[F003-T004] Groupe Nominal : « chapeau »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("chapeau");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
@@ -55,7 +55,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toBeUndefined(); // attribut
   });
 
-  it('Groupe Nominal : « le chapeau »', () => {
+  it('[F003-T005] Groupe Nominal : « le chapeau »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("le chapeau");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("le "); // déterminant
@@ -63,7 +63,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toBeUndefined(); // attribut
   });
 
-  it('Groupe Nominal : « l’arracheur de dents dorées »', () => {
+  it('[F003-T006] Groupe Nominal : « l’arracheur de dents dorées »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("l’arracheur de dents dorées");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("l’"); // déterminant
@@ -71,7 +71,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toEqual("dorées"); // attribut
   });
 
-  it('Groupe Nominal : « Bruxelles-Capitale »', () => {
+  it('[F003-T007] Groupe Nominal : « Bruxelles-Capitale »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("Bruxelles-Capitale");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
@@ -79,7 +79,7 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toBeUndefined(); // attribut
   });
 
-  it('Groupe Nominal : « lettre »', () => {
+  it('[F003-T008] Groupe Nominal : « lettre »', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("lettre");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
@@ -87,22 +87,22 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result[3]).toBeUndefined(); // attribut
   });
 
-  it('Élément générique simple: « 20 tomates » ', () => {
+  it('[F003-T009] Élément générique simple: « 20 tomates » ', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("20 tomates");
     expect(result).toEqual(null);
   });
 
-  it('Élément générique simple: « une tomate » ', () => {
+  it('[F003-T010] Élément générique simple: « une tomate » ', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("une tomate");
     expect(result).toEqual(null);
   });
 
-  it('Élément générique simple: « des pièces » ', () => {
+  it('[F003-T011] Élément générique simple: « des pièces » ', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec("des pièces");
     expect(result).toEqual(null);
   });
 
-  it('Groupe Nominal : « "texte" »  (💥)', () => {
+  it('[F003-T012] Groupe Nominal : « "texte" »  (💥)', () => {
     const result = ExprReg.xGroupeNominalArticleDefini.exec('"texte"');
     expect(result).toEqual(null);
   });
@@ -116,7 +116,7 @@ describe('Epressions régulières − Définition des éléments', () => {
   // - Déterminant(1), Nom(2), Épithète(3), Féminin et autre forme(4), Classe(5), Attribut(6).
 
 
-  it('Élément générique simple: « Paris est un lieu »', () => {
+  it('[F003-T013] Élément générique simple: « Paris est un lieu »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("Paris est un lieu");
     expect(result).not.toEqual(null);
     expect(result[1]).toBeUndefined(); // déterminant
@@ -131,13 +131,13 @@ describe('Epressions régulières − Définition des éléments', () => {
   });
 
 
-  it('Élément générique simple: « si ceci est un élément, dire "bla bla" »  (💥)', () => {
+  it('[F003-T014] Élément générique simple: « si ceci est un élément, dire "bla bla" »  (💥)', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec('si ceci est un élément, dire "bla bla"');
     expect(result).toEqual(null);
   });
 
 
-  it('Élément générique simple: « La table basse est un objet »', () => {
+  it('[F003-T015] Élément générique simple: « La table basse est un objet »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("La table basse est un objet");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -151,7 +151,7 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[9]).toBeUndefined(); // ici
   })
 
-  it('Élément générique simple: « Le champignon des bois odorant (champignons des bois) est un légume mangeable »', () => {
+  it('[F003-T016] Élément générique simple: « Le champignon des bois odorant (champignons des bois) est un légume mangeable »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("Le champignon des bois odorant (champignons des bois) est un légume mangeable");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le "); // déterminant
@@ -165,7 +165,7 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[9]).toBeUndefined(); // ici
   })
 
-  it('Élément générique simple: « L\'apprentie sorcière (f) est une personne fatiguée »', () => {
+  it('[F003-T017] Élément générique simple: « L\'apprentie sorcière (f) est une personne fatiguée »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("L'apprentie sorcière (f) est une personne fatiguée");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("L'"); // déterminant
@@ -176,12 +176,12 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[6]).toEqual("fatiguée"); // attribut
   })
 
-  it('Élément générique simple: « Ce sont des fruits » (💥)', () => {
+  it('[F003-T018] Élément générique simple: « Ce sont des fruits » (💥)', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("Ce sont des fruits");
     expect(result).toEqual(null);
   })
 
-  it('Élément générique simple: « Le bucheron est une personne ici » (💥)', () => {
+  it('[F003-T019] Élément générique simple: « Le bucheron est une personne ici » (💥)', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("Le bucheron est une personne ici");
     expect(result).toEqual(null);
   })
@@ -189,7 +189,7 @@ describe('Epressions régulières − Définition des éléments', () => {
   // ÉLÉMENT GÉNÉRIQUE POSITIONNÉ PAR RAPPORT À UN COMPLÉMENT
   // => determinant(1), nom(2), épithète(3) féminin et autre forme?(4), type(5), attributs(6), position(7), complément(8)
 
-  it('Élément générique positionné: « Les torches en bois enflamées sont des objets maudits dans le jardin »', () => {
+  it('[F003-T020] Élément générique positionné: « Les torches en bois enflamées sont des objets maudits dans le jardin »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("Les torches en bois enflamées sont des objets maudits dans le jardin");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Les "); // déterminant
@@ -204,7 +204,7 @@ describe('Epressions régulières − Définition des éléments', () => {
 
   });
 
-  it('Élément générique positionné: « La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée »', () => {
+  it('[F003-T021] Élément générique positionné: « La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("La pomme de terre (pommes de terre) est un légume pourri dans la grange encorcelée");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -219,7 +219,7 @@ describe('Epressions régulières − Définition des éléments', () => {
 
   });
 
-  it('Élément générique positionné: « L’allée principale (f) est un lieu au sud du départ »', () => {
+  it('[F003-T022] Élément générique positionné: « L’allée principale (f) est un lieu au sud du départ »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("L’allée principale (f) est un lieu au sud du départ");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("L’"); // déterminant
@@ -234,7 +234,7 @@ describe('Epressions régulières − Définition des éléments', () => {
 
   });
 
-  it('Élément générique positionné: « La gare est un lieu dans Lisbonne »', () => {
+  it('[F003-T023] Élément générique positionné: « La gare est un lieu dans Lisbonne »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("La gare est un lieu dans Lisbonne");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -249,7 +249,7 @@ describe('Epressions régulières − Définition des éléments', () => {
 
   });
 
-  it('Élément générique positionné: « Le bucheron est une personne ici »', () => {
+  it('[F003-T024] Élément générique positionné: « Le bucheron est une personne ici »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le bucheron est une personne ici");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le "); // déterminant
@@ -263,7 +263,7 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[9]).toEqual("ici"); // ici
   });
 
-  it('Élément générique positionné: « Le cadenas bleu est dans le labo »', () => {
+  it('[F003-T025] Élément générique positionné: « Le cadenas bleu est dans le labo »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le cadenas bleu est dans le labo");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le "); // déterminant
@@ -278,7 +278,7 @@ describe('Epressions régulières − Définition des éléments', () => {
   });
 
 
-  it('Élément générique positionné: « Le cadenas bleu est un objet dans le labo »', () => {
+  it('[F003-T026] Élément générique positionné: « Le cadenas bleu est un objet dans le labo »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("Le cadenas bleu est un objet dans le labo");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le "); // déterminant
@@ -292,7 +292,7 @@ describe('Epressions régulières − Définition des éléments', () => {
     expect(result[9]).toBeUndefined(); // ici
   });
   
-  it('Élément générique positionné: « La baguette est un objet maudit, rouge et magique ici »', () => {
+  it('[F003-T027] Élément générique positionné: « La baguette est un objet maudit, rouge et magique ici »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("La baguette est un objet maudit, rouge et magique ici");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -307,7 +307,7 @@ describe('Epressions régulières − Définition des éléments', () => {
   });
 
    
-  it('Élément générique positionné: « La table est un support grand et opaque dans la salle »', () => {
+  it('[F003-T028] Élément générique positionné: « La table est un support grand et opaque dans la salle »', () => {
     const result = ExprReg.xPositionElementGeneriqueDefini.exec("La table est un support grand et opaque dans la salle");
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La "); // déterminant
@@ -335,7 +335,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   // ÉLÉMENTS SANS POSITION
   // =========================================================
 
-  it('Élément sans pos: « La cuisine est un lieu. »', () => {
+  it('[F003-T029] Élément sans pos: « La cuisine est un lieu. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La cuisine est un lieu."
@@ -366,7 +366,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément sans pos: « Paris (f) est un lieu gris. "Vous êtes dans Paris.". »', () => {
+  it('[F003-T030] Élément sans pos: « Paris (f) est un lieu gris. "Vous êtes dans Paris.". »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Paris (f) est un lieu gris. "Vous êtes dans Paris.".'
@@ -397,7 +397,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément sans pos: « La château du comte est un lieu au nord du village. » (💥)', () => {
+  it('[F003-T031] Élément sans pos: « La château du comte est un lieu au nord du village. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La château du comte est un lieu au nord du village."
@@ -413,7 +413,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément sans pos: « Un lutin est une personne. » (💥)', () => {
+  it('[F003-T032] Élément sans pos: « Un lutin est une personne. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Un lutin est une personne."
@@ -429,7 +429,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
+  it('[F003-T033] Élément avec/sans pos: « La baguette est un objet maudit, rouge et magique ici » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le salon est un lieu. " +
@@ -454,7 +454,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
   
-  it('Élément avec/sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
+  it('[F003-T034] Élément avec/sans pos: « La table est un support grand et opaque dans la salle » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support grand et opaque dans la salle."
@@ -481,7 +481,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   // =========================================================
 
 
-  it('Élément pos: « Le château du comte est un lieu au nord du village. »', () => {
+  it('[F003-T035] Élément pos: « Le château du comte est un lieu au nord du village. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord du village."
@@ -513,7 +513,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
+  it('[F003-T036] Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
@@ -545,7 +545,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
 
   });
 
-  it('Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
+  it('[F003-T037] Élément pos: « Le château du comte est un lieu au nord de le village. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8(true);
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le château du comte est un lieu au nord de le village."
@@ -561,7 +561,7 @@ describe('Analyseur − Définition de nouveaux éléments', () => {
   });
 
 
-  it('Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
+  it('[F003-T038] Élément pos: « L’abri est un lieu sombre. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "L’abri est un lieu sombre."

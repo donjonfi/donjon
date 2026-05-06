@@ -14,7 +14,7 @@ import { actions } from "./scenario_actions";
 
 describe('Balise [énumérer maListe] — #185', () => {
 
-  it('[énumérer maListe] avec 1 élément : pas de virgule ni de "et"', () => {
+  it('[F033-T001] [énumérer maListe] avec 1 élément : pas de virgule ni de "et"', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -32,7 +32,7 @@ fin action
     expect(ctx.sortie).not.toContain('@problème balise@');
   });
 
-  it('[énumérer maListe] avec 2 éléments : séparés par "et" sans virgule', () => {
+  it('[F033-T002] [énumérer maListe] avec 2 éléments : séparés par "et" sans virgule', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -51,7 +51,7 @@ fin action
     expect(ctx.sortie).not.toContain(',');
   });
 
-  it('[énumérer maListe] avec 3 éléments : virgules + "et" avant le dernier', () => {
+  it('[F033-T003] [énumérer maListe] avec 3 éléments : virgules + "et" avant le dernier', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -72,7 +72,7 @@ fin action
     expect(ctx.sortie).toContain(' et ');
   });
 
-  it('[énumérer maListe] avec liste vide : produit une chaîne vide (intégrable dans une phrase)', () => {
+  it('[F033-T004] [énumérer maListe] avec liste vide : produit une chaîne vide (intégrable dans une phrase)', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -86,7 +86,7 @@ fin action
     expect(ctx.sortie).toContain('avantaprès');
   });
 
-  it('[énumérer maListe] intégré dans une phrase prédéfinie', () => {
+  it('[F033-T005] [énumérer maListe] intégré dans une phrase prédéfinie', () => {
     const scenario = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -114,7 +114,7 @@ fin action
 
 describe('Balise [énumérer objets dans <contenant>] — #185', () => {
 
-  it('[énumérer objets dans le coffre] — 1 objet : pas de virgule ni de "et"', () => {
+  it('[F033-T006] [énumérer objets dans le coffre] — 1 objet : pas de virgule ni de "et"', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -133,7 +133,7 @@ describe('Balise [énumérer objets dans <contenant>] — #185', () => {
     expect(sortie.sortie).not.toContain("•");
   });
 
-  it('[énumérer objets dans le coffre] — 2 objets : séparés par "et"', () => {
+  it('[F033-T007] [énumérer objets dans le coffre] — 2 objets : séparés par "et"', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -152,7 +152,7 @@ describe('Balise [énumérer objets dans <contenant>] — #185', () => {
     expect(sortie.sortie).not.toContain(",");
   });
 
-  it('[énumérer objets dans le coffre] — 3 objets : virgules + "et" avant le dernier', () => {
+  it('[F033-T008] [énumérer objets dans le coffre] — 3 objets : virgules + "et" avant le dernier', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -173,7 +173,7 @@ describe('Balise [énumérer objets dans <contenant>] — #185', () => {
     expect(sortie.sortie).toContain(" et ");
   });
 
-  it('[énumérer objets dans le coffre] — coffre vide : chaîne vide (intégrable dans une phrase)', () => {
+  it('[F033-T009] [énumérer objets dans le coffre] — coffre vide : chaîne vide (intégrable dans une phrase)', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -187,7 +187,7 @@ describe('Balise [énumérer objets dans <contenant>] — #185', () => {
     expect(sortie.sortie).toContain("avantaprès");
   });
 
-  it('[énumérer objets dans ceci] — cible spéciale', () => {
+  it('[F033-T010] [énumérer objets dans ceci] — cible spéciale', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -204,7 +204,7 @@ describe('Balise [énumérer objets dans <contenant>] — #185', () => {
     expect(sortie.sortie).toContain(" et ");
   });
 
-  it('[énumérer objets dans le coffre] intégré dans une phrase prédéfinie', () => {
+  it('[F033-T011] [énumérer objets dans le coffre] intégré dans une phrase prédéfinie', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +

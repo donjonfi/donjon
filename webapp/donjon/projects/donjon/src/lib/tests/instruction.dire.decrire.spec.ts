@@ -19,7 +19,7 @@ const scenarioListerContenu = `
 
 describe('Lister et décrire le contenu', () => {
 
-  it('lister le contenu d’un objet', () => {
+  it('[F032-T001] lister le contenu d’un objet', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenarioListerContenu, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);

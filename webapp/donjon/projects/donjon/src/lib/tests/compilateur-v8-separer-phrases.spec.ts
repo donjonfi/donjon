@@ -3,7 +3,7 @@ import { ExprReg } from "../../public-api";
 
 describe('Compilateur V8 − Convertir code source en phrases', () => {
 
-  it('Phrases: 1 phrase', () => {
+  it('[F023-T001] Phrases: 1 phrase', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.'
     );
@@ -11,7 +11,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[0].ligne).toEqual(1);
   });
 
-  it('Phrases: 2 phrases, 1 par ligne, sans texte', () => {
+  it('[F023-T002] Phrases: 2 phrases, 1 par ligne, sans texte', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\nElle est fixée.'
     );
@@ -20,7 +20,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[1].ligne).toEqual(2);
   });
 
-  it('Phrases: 3 phrases, 1 par ligne, sans texte, avec 2 lignes vides', () => {
+  it('[F023-T003] Phrases: 3 phrases, 1 par ligne, sans texte, avec 2 lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\n\nElle est fixée.\n\nElle est ici.'
     );
@@ -30,7 +30,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[2].ligne).toEqual(5);
   });
 
-  it('Phrases: 2 phrases, 1 par ligne, sans texte, avec ligne espaces', () => {
+  it('[F023-T004] Phrases: 2 phrases, 1 par ligne, sans texte, avec ligne espaces', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\n    \nElle est fixée.'
     );
@@ -39,7 +39,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[1].ligne).toEqual(3);
   });
 
-  it('Phrases: 4 phrases, 1 par ligne, avec textes et lignes vides', () => {
+  it('[F023-T005] Phrases: 4 phrases, 1 par ligne, avec textes et lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Son titre est "a".\n\nLe chapeau est un objet.\n\nLe titre du jeu est "Sauvons Noël !".\n\nIl est ici.'
     );
@@ -50,7 +50,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[3].ligne).toEqual(7);
   });
 
-  it('Phrases: 4 phrases, 1 par ligne, avec parties, textes et lignes vides', () => {
+  it('[F023-T006] Phrases: 4 phrases, 1 par ligne, avec parties, textes et lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'PARTIE "Informations sur le jeu".\n\nLe titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde".\n\nCHAPITRE "le joueur".'
     );
@@ -61,7 +61,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[3].ligne).toEqual(7);
   });
 
-  it('Phrases: 2 phrases, sur même ligne, sans texte', () => {
+  it('[F023-T007] Phrases: 2 phrases, sur même ligne, sans texte', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet. Elle est fixée.'
     );
@@ -70,7 +70,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[1].ligne).toEqual(1);
   });
 
-  it('Phrases: 2 phrases, 1 par ligne, avec textes', () => {
+  it('[F023-T008] Phrases: 2 phrases, 1 par ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le titre du jeu est "Sauvons Noël !".\nL’auteur du jeu est "JG".'
     );
@@ -79,7 +79,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[1].ligne).toEqual(2);
   });
 
-  it('Phrases: 2 phrases, sur même ligne, avec textes', () => {
+  it('[F023-T009] Phrases: 2 phrases, sur même ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le titre du jeu est "Sauvons Noël !". L’auteur du jeu est "JG".'
     );
@@ -88,7 +88,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[1].ligne).toEqual(1);
   });
 
-  it('Phrases: 4 phrases, avec texte vide', () => {
+  it('[F023-T010] Phrases: 4 phrases, avec texte vide', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le salon est un lieu. Sa description est "". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
     );
@@ -99,7 +99,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[3].morceaux).toHaveSize(2);
   });
 
-  it('Phrases: 4 phrases, avec texte plein', () => {
+  it('[F023-T011] Phrases: 4 phrases, avec texte plein', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le salon est un lieu. Sa description est "Un grand salon.". La chambre est un lieu. Sa description est "Il s’agit d’une grande chambre.".'
     );
@@ -110,7 +110,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[3].morceaux).toHaveSize(2);
   });
 
-  it('Phrases: 2 phrases, sur même ligne, avec textes', () => {
+  it('[F023-T012] Phrases: 2 phrases, sur même ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'action créer: exécution: dire "C’est fait!".'
     );
@@ -130,7 +130,7 @@ describe('Compilateur V8 − Convertir code source en phrases', () => {
     expect(phrases[2].morceaux[1]).toEqual(ExprReg.caractereDebutTexte + 'C’est fait!' + ExprReg.caractereFinTexte);
   });
 
-  it('Phrases: 2 phrases, sur même ligne, avec textes', () => {
+  it('[F023-T013] Phrases: 2 phrases, sur même ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle avant aller vers étang: si l’historique contient "natation": dire "Vous nagez !". sinon: dire "Vous ne savez pas nager !". fin si'
     );

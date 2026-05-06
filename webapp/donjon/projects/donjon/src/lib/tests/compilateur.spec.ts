@@ -4,42 +4,42 @@ import { RechercheUtils } from "../utils/commun/recherche-utils";
 
 describe('Compilateur − Nettoyer scénario', () => {
 
-  it('Nettoyer: 1 phrase simple', () => {
+  it('[F019-T001] Nettoyer: 1 phrase simple', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'La plante est un objet.'
     );
     expect(scenarioNettoye).toEqual("La plante est un objet.");
   });
 
-  it('Nettoyer: 1 phrase avec un texte', () => {
+  it('[F019-T002] Nettoyer: 1 phrase avec un texte', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'La description de la plante est "Une plante".'
     );
     expect(scenarioNettoye).toEqual('La description de la plante est "Une plante".');
   });
 
-  it('Nettoyer: 2 phrases, chacune sur une ligne différente', () => {
+  it('[F019-T003] Nettoyer: 2 phrases, chacune sur une ligne différente', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'La plante set un objet.\nSa description est "Une plante".'
     );
     expect(scenarioNettoye).toEqual('La plante set un objet.' + ExprReg.caractereRetourLigne + 'Sa description est "Une plante".');
   });
 
-  it('Nettoyer: 2 phrases, séparées par une ligne vide', () => {
+  it('[F019-T004] Nettoyer: 2 phrases, séparées par une ligne vide', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'La plante set un objet.\n\nSa description est "Une plante".'
     );
     expect(scenarioNettoye).toEqual('La plante set un objet.' + ExprReg.caractereRetourLigne + ExprReg.caractereRetourLigne + 'Sa description est "Une plante".');
   });
 
-  it('Nettoyer: 2 phrases, séparées par une ligne vide, avec partie sans point', () => {
+  it('[F019-T005] Nettoyer: 2 phrases, séparées par une ligne vide, avec partie sans point', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'Le titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde"'
     );
     expect(scenarioNettoye).toEqual('Le titre du jeu est "Sauvons Noël !".' + ExprReg.caractereRetourLigne + ExprReg.caractereRetourLigne + 'PARTIE "Description du monde".');
   });
 
-  it('Nettoyer: 2 phrases, séparées par une ligne avec des espaces', () => {
+  it('[F019-T006] Nettoyer: 2 phrases, séparées par une ligne avec des espaces', () => {
     const scenarioNettoye = CompilateurV8Utils.preparerCodeSource(
       'La plante set un objet.\n      \nSa description est "Une plante".'
     );
@@ -50,7 +50,7 @@ describe('Compilateur − Nettoyer scénario', () => {
 
 describe('Compilateur − Nombre de lignes', () => {
 
-  it('Nombre de lignes: 1 phrase', () => {
+  it('[F019-T007] Nombre de lignes: 1 phrase', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.'
     );
@@ -58,7 +58,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[0].ligne).toEqual(1);
   });
 
-  it('Nombre de lignes: 2 phrases, 1 par ligne, sans texte', () => {
+  it('[F019-T008] Nombre de lignes: 2 phrases, 1 par ligne, sans texte', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\nElle est fixée.'
     );
@@ -67,7 +67,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[1].ligne).toEqual(2);
   });
 
-  it('Nombre de lignes: 3 phrases, 1 par ligne, sans texte, avec 2 lignes vides', () => {
+  it('[F019-T009] Nombre de lignes: 3 phrases, 1 par ligne, sans texte, avec 2 lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\n\nElle est fixée.\n\nElle est ici.'
     );
@@ -77,7 +77,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[2].ligne).toEqual(5);
   });
 
-  it('Nombre de lignes: 2 phrases, 1 par ligne, sans texte, avec ligne espaces', () => {
+  it('[F019-T010] Nombre de lignes: 2 phrases, 1 par ligne, sans texte, avec ligne espaces', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.\n    \nElle est fixée.'
     );
@@ -86,7 +86,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[1].ligne).toEqual(3);
   });
 
-  it('Nombre de lignes: 4 phrases, 1 par ligne, avec textes et lignes vides', () => {
+  it('[F019-T011] Nombre de lignes: 4 phrases, 1 par ligne, avec textes et lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Son titre est "a".\n\nLe chapeau est un objet.\n\nLe titre du jeu est "Sauvons Noël !".\n\nIl est ici.'
     );
@@ -97,7 +97,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[3].ligne).toEqual(7);
   });
 
-  it('Nombre de lignes: 4 phrases, 1 par ligne, avec parties, textes et lignes vides', () => {
+  it('[F019-T012] Nombre de lignes: 4 phrases, 1 par ligne, avec parties, textes et lignes vides', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'PARTIE "Informations sur le jeu".\n\nLe titre du jeu est "Sauvons Noël !".\n\nPARTIE "Description du monde".\n\nCHAPITRE "le joueur".'
     );
@@ -108,7 +108,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[3].ligne).toEqual(7);
   });
 
-  it('Nombre de lignes: 2 phrases, sur même ligne, sans texte', () => {
+  it('[F019-T013] Nombre de lignes: 2 phrases, sur même ligne, sans texte', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet. Elle est fixée.'
     );
@@ -117,7 +117,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[1].ligne).toEqual(1);
   });
 
-  it('Nombre de lignes: 2 phrases, 1 par ligne, avec textes', () => {
+  it('[F019-T014] Nombre de lignes: 2 phrases, 1 par ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le titre du jeu est "Sauvons Noël !".\nL’auteur du jeu est "JG".'
     );
@@ -126,7 +126,7 @@ describe('Compilateur − Nombre de lignes', () => {
     expect(phrases[1].ligne).toEqual(2);
   });
 
-  it('Nombre de lignes: 2 phrases, sur même ligne, avec textes', () => {
+  it('[F019-T015] Nombre de lignes: 2 phrases, sur même ligne, avec textes', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Le titre du jeu est "Sauvons Noël !". L’auteur du jeu est "JG".'
     );
@@ -139,7 +139,7 @@ describe('Compilateur − Nombre de lignes', () => {
 
 describe('Compilateur − Analyser scénario', () => {
 
-  it('Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
+  it('[F019-T016] Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu.\n' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre.\n' +
@@ -164,7 +164,7 @@ describe('Compilateur − Analyser scénario', () => {
 
 describe('Compilateur − Analyser et Générer le jeu', () => {
 
-  it('Compilation scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
+  it('[F019-T017] Compilation scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu. ' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre. ' +

@@ -5,7 +5,7 @@ import { Verificateur } from "../utils/compilation/verificateur";
 
 describe('Vérificateur - début/fin routine', () => {
 
-  it('Phrase: La plante est un objet', () => {
+  it('[F024-T001] Phrase: La plante est un objet', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.'
     );
@@ -15,7 +15,7 @@ describe('Vérificateur - début/fin routine', () => {
     expect(Verificateur.estFinRoutine(phrases[0], new ContexteAnalyseV8())).toBeFalse();
   });
 
-  it('Phrases: « action nager: dire "vous nagez" fin action »', () => {
+  it('[F024-T002] Phrases: « action nager: dire "vous nagez" fin action »', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'action nager:\n' +
       '  dire "Vous nagez".\n' +
@@ -39,7 +39,7 @@ describe('Vérificateur - début/fin routine', () => {
   });
 
 
-  it('Phrases: « règle avant manger ceci: dire "Je n’ai pas faim". fin règle »', () => {
+  it('[F024-T003] Phrases: « règle avant manger ceci: dire "Je n’ai pas faim". fin règle »', () => {
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle avant manger ceci: dire "Je n’ai pas faim". fin règle.'
     );
@@ -64,7 +64,7 @@ describe('Vérificateur - début/fin routine', () => {
 
 describe('Vérificateur - verifierBlocs', () => {
 
-  it('Phrase: La plante est un objet', () => {
+  it('[F024-T004] Phrase: La plante est un objet', () => {
     let ctx = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'La plante est un objet.'
@@ -78,7 +78,7 @@ describe('Vérificateur - verifierBlocs', () => {
     expect(ctx.routines).toHaveSize(0);
   });
 
-  it('Phrase: action nager: dire "vous nagez" fin action', () => {
+  it('[F024-T005] Phrase: action nager: dire "vous nagez" fin action', () => {
     let ctx = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'action nager:\n' +
@@ -102,7 +102,7 @@ describe('Vérificateur - verifierBlocs', () => {
     expect(ctx.routines[0].correctementFini).toBeTrue();
   });
 
-  it('Règle pas finie: avant commencer le jeu: dire "On va commencer! Le palais enchanté est un lieu.', () => {
+  it('[F024-T006] Règle pas finie: avant commencer le jeu: dire "On va commencer! Le palais enchanté est un lieu.', () => {
     let ctx = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'règle avant commencer le jeu:\n' +
@@ -126,7 +126,7 @@ describe('Vérificateur - verifierBlocs', () => {
     expect(ctx.routines[0].correctementFini).toBeFalse(); // pas fermé par un fin bloc
   });
 
-  it('Action pas finie: nouvelle action débutée avant d’avoir clôturé la précédente.', () => {
+  it('[F024-T007] Action pas finie: nouvelle action débutée avant d’avoir clôturé la précédente.', () => {
     let ctx = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'action prendre ceci:\n' +

@@ -3,7 +3,7 @@ import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 
 describe('Compilateur V8 − Analyser scénario', () => {
 
-  it('Analyser scénario avec 3 lieux, 1 objet et 1 liste.', function () {
+  it('[F021-T001] Analyser scénario avec 3 lieux, 1 objet et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu. ' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre. ' +
@@ -23,7 +23,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
   });
 
-  it('Analyser scénario avec 1 lieu, 2 objets et 1 routine', function () {
+  it('[F021-T002] Analyser scénario avec 1 lieu, 2 objets et 1 routine', function () {
     let scenario =
       'Le salon est un lieu.\n' +
       'La table est un support dans le salon.\n' +
@@ -45,7 +45,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
   });
 
 
-  it('Analyser scénario avec 1 lieu, 2 objets et 1 routine PAS finie', function () {
+  it('[F021-T003] Analyser scénario avec 1 lieu, 2 objets et 1 routine PAS finie', function () {
     let scenario =
       'Le salon est un lieu.\n' +
       'La table est un support dans le salon.\n' +
@@ -70,7 +70,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation.listes).toHaveSize(0);
   });
 
-  it('Analyser scénario avec 1 lieu, 2 objets et 1 règle.', function () {
+  it('[F021-T004] Analyser scénario avec 1 lieu, 2 objets et 1 règle.', function () {
     let scenario =
       'Le salon est un lieu.\n' +
       'La table est un support dans le salon.\n' +
@@ -92,7 +92,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
   });
 
 
-  it('Analyser scénario avec 1 lieu, 2 objets et 1 règle MAL finie.', function () {
+  it('[F021-T005] Analyser scénario avec 1 lieu, 2 objets et 1 règle MAL finie.', function () {
     let scenario =
       'Le salon est un lieu.\n' +
       'La table est un support dans le salon.\n' +
@@ -115,7 +115,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation.listes).toHaveSize(0);
   });
 
-  it('Analyser scénario avec 1 lieu, 2 objets, 1 routine et 1 règle.', function () {
+  it('[F021-T006] Analyser scénario avec 1 lieu, 2 objets, 1 routine et 1 règle.', function () {
     let scenario =
       'Le salon est un lieu.\n' +
       'La table est un support dans le salon.\n' +
@@ -142,7 +142,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
     expect(resultatCompilation.listes).toHaveSize(0);
   });
 
-  it('Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
+  it('[F021-T007] Analyser scénario avec 3 lieux, 1 objet, 1 action et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu. \n' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre. \n' +
@@ -166,7 +166,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
   });
 
-  it('Analyser scénario avec 3 lieux, 1 objet, 1 règle et 1 liste.', function () {
+  it('[F021-T008] Analyser scénario avec 3 lieux, 1 objet, 1 règle et 1 liste.', function () {
     let scenario =
       'La chambre est un lieu. ' +
       'La chambre à coucher rouge est un lieu à l’est de la chambre. ' +
@@ -193,7 +193,7 @@ describe('Compilateur V8 − Analyser scénario', () => {
 
   });
 
-  it('Analyser scénario avec 1 lieu, 3 objets, 2 actions, 1 personne.', function () {
+  it('[F021-T009] Analyser scénario avec 1 lieu, 3 objets, 2 actions, 1 personne.', function () {
     let scenario =
       'La cuisine est un lieu.\n' +
       'La table est dans la cuisine.\n' +

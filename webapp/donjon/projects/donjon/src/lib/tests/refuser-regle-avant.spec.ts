@@ -30,7 +30,7 @@ fin règle
 
 describe('refuser dans règle avant', () => {
 
-  it('refuser "raison" arrête l\'action et affiche le message', () => {
+  it('[F045-T001] refuser "raison" arrête l\'action et affiche le message', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(regleAvantRefuser, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -40,7 +40,7 @@ describe('refuser dans règle avant', () => {
     expect(ctxCommande.sortie).toEqual("Défense de prendre quoi que ce soit.{N}");
   });
 
-  it('refuser "raison" empêche l\'exécution de l\'action (objet non pris)', () => {
+  it('[F045-T002] refuser "raison" empêche l\'exécution de l\'action (objet non pris)', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(regleAvantRefuser, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -51,7 +51,7 @@ describe('refuser dans règle avant', () => {
     expect(ctxInventaire.sortie).not.toContain("boîte");
   });
 
-  it('refuser l\'action arrête l\'action sans message propre (combiné avec dire)', () => {
+  it('[F045-T003] refuser l\'action arrête l\'action sans message propre (combiné avec dire)', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(regleAvantRefuserAction, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
@@ -64,7 +64,7 @@ describe('refuser dans règle avant', () => {
     expect(ctxInventaire.sortie).not.toContain("boîte");
   });
 
-  it('arrêter l\'action dans règle avant fonctionne toujours (régression)', () => {
+  it('[F045-T004] arrêter l\'action dans règle avant fonctionne toujours (régression)', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(regleAvantArreter, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);

@@ -5,7 +5,7 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Synonymes auto − Découpe', () => {
 
-    it('Ballon rouge', () => {
+    it('[F049-T001] Ballon rouge', () => {
         const ej = new ElementJeu(1, "Le Ballon rouge", PhraseUtils.getGroupeNominalDefini("Le Ballon rouge", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Ballon rouge");
         Generateur.genererSynonymesAuto(ej);
@@ -14,7 +14,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.synonymes[1].nomEpithete).toEqual("rouge");
     });
 
-    it('la lettre verte', () => {
+    it('[F049-T002] la lettre verte', () => {
         const ej = new ElementJeu(1, "la lettre verte", PhraseUtils.getGroupeNominalDefini("la lettre verte", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("lettre verte");
         Generateur.genererSynonymesAuto(ej);
@@ -24,7 +24,7 @@ describe('Synonymes auto − Découpe', () => {
     });
 
 
-    it('Monsieur Dubois', () => {
+    it('[F049-T003] Monsieur Dubois', () => {
         const ej = new ElementJeu(1, "Monsieur Dubois", PhraseUtils.getGroupeNominalDefini("Monsieur Dubois", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Monsieur Dubois");
         Generateur.genererSynonymesAuto(ej);
@@ -33,7 +33,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.synonymes[1].nomEpithete).toEqual("dubois");
     });
 
-    it('Clé verte rouillée', () => {
+    it('[F049-T004] Clé verte rouillée', () => {
         const ej = new ElementJeu(1, "Clé de bois sec", PhraseUtils.getGroupeNominalDefini("Clé de bois sec", false), ClassesRacines.Objet);
         
         expect(ej.intitule.nomEpithete).toEqual("Clé de bois sec");
@@ -47,7 +47,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.synonymes[5].nomEpithete).toEqual("sec");
     });
 
-    it('Jacques', () => {
+    it('[F049-T005] Jacques', () => {
         const ej = new ElementJeu(1, "Jacques", PhraseUtils.getGroupeNominalDefini("Jacques", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Jacques");
         Generateur.genererSynonymesAuto(ej);
@@ -57,7 +57,7 @@ describe('Synonymes auto − Découpe', () => {
 
 describe('Synonymes auto − Découpe', () => {
 
-    it('interroger comte du chateau sur chateau d’if', () => {
+    it('[F049-T006] interroger comte du chateau sur chateau d’if', () => {
         const scenario = `
             Le bois est un lieu.
             Le chateau d’if est un objet ici.

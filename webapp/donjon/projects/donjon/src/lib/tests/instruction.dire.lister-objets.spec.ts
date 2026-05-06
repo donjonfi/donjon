@@ -9,7 +9,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  RÉGRESSION — cibles spéciales (ceci, inventaire, ici)
   // ============================================================
 
-  it('[décrire objets dans ceci] — cible spéciale, coffre ouvert plein', () => {
+  it('[F035-T001] [décrire objets dans ceci] — cible spéciale, coffre ouvert plein', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -23,7 +23,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
     expect(sortie.sortie).withContext("Le contenu du coffre doit être décrit").toContain("pomme");
   });
 
-  it('[décrire objets inventaire] — cible spéciale, inventaire vide', () => {
+  it('[F035-T002] [décrire objets inventaire] — cible spéciale, inventaire vide', () => {
     const scenario =
       "La salle est un lieu. " +
       "La boite est un objet dans la salle. " +
@@ -40,7 +40,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  NOM SPÉCIFIQUE — contenu visible
   // ============================================================
 
-  it('[décrire objets dans le coffre] — nom spécifique, coffre plein', () => {
+  it('[F035-T003] [décrire objets dans le coffre] — nom spécifique, coffre plein', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -54,7 +54,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
     expect(sortie.sortie).withContext("Le contenu du coffre doit être décrit").toContain("pomme");
   });
 
-  it('[lister objets dans le coffre] — nom spécifique, coffre plein', () => {
+  it('[F035-T004] [lister objets dans le coffre] — nom spécifique, coffre plein', () => {
     // Le panneau isole le test : examiner le panneau n'ajoute pas de listing standard du coffre
     const scenario =
       "La salle est un lieu. " +
@@ -74,7 +74,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  NOM SPÉCIFIQUE — contenant vide, accord en genre
   // ============================================================
 
-  it('[décrire objets dans le coffre] — contenant vide, masculin → Il est vide.', () => {
+  it('[F035-T005] [décrire objets dans le coffre] — contenant vide, masculin → Il est vide.', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -87,7 +87,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
     expect(sortie.sortie).withContext("Coffre masculin vide").toContain("Il est vide.");
   });
 
-  it('[décrire objets dans la caisse] — contenant vide, féminin → Elle est vide.', () => {
+  it('[F035-T006] [décrire objets dans la caisse] — contenant vide, féminin → Elle est vide.', () => {
     const scenario =
       "La salle est un lieu. " +
       "La caisse est un contenant ouvert dans la salle. " +
@@ -104,7 +104,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  NOM SPÉCIFIQUE — support (sur)
   // ============================================================
 
-  it('[décrire objets sur la table] — support, objet posé dessus', () => {
+  it('[F035-T007] [décrire objets sur la table] — support, objet posé dessus', () => {
     const scenario =
       "La salle est un lieu. " +
       "La table est un support dans la salle. " +
@@ -122,7 +122,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  NOM SPÉCIFIQUE — sauf cachés
   // ============================================================
 
-  it('[décrire objets dans le coffre sauf cachés] — objets cachés exclus', () => {
+  it('[F035-T008] [décrire objets dans le coffre sauf cachés] — objets cachés exclus', () => {
     // Le panneau isole le test : examiner le panneau n'ajoute pas de listing standard du coffre
     // (examiner coffre relance [décrire objets dans ceci] sans sauf cachés → montrerait les cachés)
     const scenario =
@@ -145,7 +145,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
   //  COHÉRENCE — nom spécifique == ceci (même sortie)
   // ============================================================
 
-  it('[décrire objets dans le coffre] == [décrire objets dans ceci] pour le même coffre', () => {
+  it('[F035-T009] [décrire objets dans le coffre] == [décrire objets dans ceci] pour le même coffre', () => {
     const mkScenario = (balise: string) =>
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -173,7 +173,7 @@ describe('Balise [lister|décrire objets dans <contenant>]', () => {
 
 describe('Combinaison [énumérer] + [lister] + [décrire objets dans] dans la même description', () => {
 
-  it('ordre 1 : [énumérer] + [lister] + [décrire] — les trois balises cohabitent', () => {
+  it('[F035-T010] ordre 1 : [énumérer] + [lister] + [décrire] — les trois balises cohabitent', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +
@@ -196,7 +196,7 @@ describe('Combinaison [énumérer] + [lister] + [décrire objets dans] dans la m
     expect(s).not.toContain("@problème balise@");
   });
 
-  it('ordre 2 : [décrire] + [lister] + [énumérer] — les trois balises cohabitent', () => {
+  it('[F035-T011] ordre 2 : [décrire] + [lister] + [énumérer] — les trois balises cohabitent', () => {
     const scenario =
       "La salle est un lieu. " +
       "Le coffre est un contenant ouvert dans la salle. " +

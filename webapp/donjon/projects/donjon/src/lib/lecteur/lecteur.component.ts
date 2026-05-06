@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -23,7 +23,7 @@ import { ProgrammationTemps } from '../models/jeu/programmation-temps';
   styleUrls: ['./lecteur.component.scss'],
   standalone: false
 })
-export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
+export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
   static verbeux = true;
 
@@ -31,8 +31,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
   @Input() verbeux = false;
   /** Le débogueur est il actif ? */
   @Input() debogueur = false;
+  /** Si true, le tag {L}NNN{L} est rendu en lien cliquable et le clic émet `referenceLigne`. */
+  @Input() supportLiensLignes = false;
   /** Annuler un certain nombre de tours */
   @Output() nouvellePartieOuAnnulerTour = new EventEmitter();
+  /** Émet le numéro de ligne lorsqu’un lien `{L}NNN{L}` est cliqué dans la sortie. */
+  @Output() referenceLigne = new EventEmitter<number>();
 
   /** Le contexte de la partie en cours (jeu, commandeur, déclencheur, …) */
   private partie: ContextePartie | undefined;
@@ -116,6 +120,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void { }
 
+  ngAfterViewInit(): void {
+    // Délégation d’événement : un seul listener pour tous les liens {L}NNN{L} rendus dans la sortie.
+    // La ligne est encodée dans le href (`#LNNN`) car le sanitizer Angular retire les data-attributes.
+    this.resultatInputRef.nativeElement.addEventListener('click', (event: Event) => {
+      const lien = (event.target as HTMLElement).closest('.t-lien-ligne') as HTMLAnchorElement | null;
+      if (!lien) return;
+      event.preventDefault();
+      const match = (lien.getAttribute('href') ?? '').match(/^#L(\d+)$/);
+      if (match) {
+        const ligne = parseInt(match[1], 10);
+        if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
+      }
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     /** S'assurer de décharger la partie en cours (arrêter musiques par exemple) */
     if (this.partie) {
@@ -150,6 +169,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy {
 
     // initialiser le contexte de la partie
     this.partie = new ContextePartie(this.jeu, this.htmlDocument, this.verbeux, this.debogueur);
+    this.partie.ecran.supportLiensLignes = this.supportLiensLignes;
 
     this.verifierTamponErreurs();
 

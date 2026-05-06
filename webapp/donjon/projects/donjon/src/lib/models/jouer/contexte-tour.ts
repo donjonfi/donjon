@@ -112,9 +112,9 @@ export class ContexteTour {
     this._erreurs.push(this.formaterMessageErreur(erreur, contexte, this.derniereInstruction?.ligne));
   }
 
-  /** Format : `[NNN] « contexte » — erreur` (les segments manquants sont omis). */
+  /** Format : `{L}NNN{L} « contexte » — erreur` (les segments manquants sont omis). */
   private formaterMessageErreur(erreur: string, contexte: string | undefined, ligne: number | undefined): string {
-    const prefixe = ligne != null ? `[l.${ligne}] ` : "";
+    const prefixe = ligne != null ? `{L}${ligne}{L} ` : "";
     const corps = contexte ? `${contexte} — ${erreur}` : erreur;
     return prefixe + corps;
   }

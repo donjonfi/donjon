@@ -29,7 +29,7 @@ function preparerJeu(scenario: string) {
 
 describe("Erreurs runtime des crochets de conditions", () => {
 
-  it("condition non comprise → tamponErreurs alimenté + marqueur inline", () => {
+  it("[F034-T001] condition non comprise → tamponErreurs alimenté + marqueur inline", () => {
     // syntaxe clairement invalide : `getConditionMulti` ne pourra pas la parser.
     const desc = "Machine [si === ===]A[sinon]B[fin].";
     const ctx = preparerJeu(baseScenario(desc));
@@ -40,7 +40,7 @@ describe("Erreurs runtime des crochets de conditions", () => {
     expect(sortie).toContain("{+{/[si === === ?]/}+}");
   });
 
-  it("condition simple valide → aucune erreur runtime", () => {
+  it("[F034-T002] condition simple valide → aucune erreur runtime", () => {
     const desc = "Machine [si la machine est visible]ok[fin].";
     const ctx = preparerJeu(baseScenario(desc));
     const erreursAvant = ctx.jeu.tamponErreurs.length;
@@ -48,7 +48,7 @@ describe("Erreurs runtime des crochets de conditions", () => {
     expect(ctx.jeu.tamponErreurs.length).toBe(erreursAvant);
   });
 
-  it("sujet introuvable dans condition → tamponErreurs alimenté + pas de plantage", () => {
+  it("[F034-T003] sujet introuvable dans condition → tamponErreurs alimenté + pas de plantage", () => {
     // « pommet » n'existe pas dans le scénario ; la condition doit être
     // signalée dans le tampon d’erreurs mais le rendu doit continuer.
     const desc = "Machine [si pommet est disponible]A[sinon]B[fin].";
@@ -64,7 +64,7 @@ describe("Erreurs runtime des crochets de conditions", () => {
     expect(sortie).not.toContain("Machine A");
   });
 
-  it("sujet introuvable dans condition → message d'erreur nomme bien le sujet", () => {
+  it("[F034-T004] sujet introuvable dans condition → message d'erreur nomme bien le sujet", () => {
     const desc = "Machine [si licorne est visible]X[fin].";
     const ctx = preparerJeu(baseScenario(desc));
     const erreursAvant = ctx.jeu.tamponErreurs.length;

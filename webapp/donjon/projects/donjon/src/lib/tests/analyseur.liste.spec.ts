@@ -18,7 +18,7 @@ import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-ph
 
 describe('Epressions régulières − Définition d’une liste', () => {
 
-  it('Def. liste : « Les nombres gagnants sont une liste »', () => {
+  it('[F006-T001] Def. liste : « Les nombres gagnants sont une liste »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec('Les nombres gagnants sont une liste');
     expect(result[1]).toEqual("Les "); // déterminant
     expect(result[2]).toEqual("nombres"); // nom
@@ -31,7 +31,7 @@ describe('Epressions régulières − Définition d’une liste', () => {
     expect(result[9]).toBeUndefined(); // ici
   });
 
-  it('Def. liste : « Les vainqueurs sont une liste »', () => {
+  it('[F006-T002] Def. liste : « Les vainqueurs sont une liste »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec('Les vainqueurs sont une liste');
     expect(result[1]).toEqual("Les "); // déterminant
     expect(result[2]).toEqual("vainqueurs"); // nom
@@ -44,7 +44,7 @@ describe('Epressions régulières − Définition d’une liste', () => {
     expect(result[9]).toBeUndefined(); // ici
   });
 
-  it('Def. liste : « Bruxelles est une liste »', () => {
+  it('[F006-T003] Def. liste : « Bruxelles est une liste »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec('Bruxelles est une liste');
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("Bruxelles"); // nom
@@ -57,7 +57,7 @@ describe('Epressions régulières − Définition d’une liste', () => {
     expect(result[9]).toBeUndefined(); // ici
   });
 
-  it('Def. liste : « X est une liste »', () => {
+  it('[F006-T004] Def. liste : « X est une liste »', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec('X est une liste');
     expect(result[1]).toBeUndefined(); // déterminant
     expect(result[2]).toEqual("X"); // nom
@@ -74,37 +74,37 @@ describe('Epressions régulières − Définition d’une liste', () => {
 
 describe('Epressions régulières − Contenu d’une liste', () => {
 
-  it('Cont. liste : « Elle contient 200 »', () => {
+  it('[F006-T005] Cont. liste : « Elle contient 200 »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Elle contient 200');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("200") // élément jeu
   });
 
-  it('Cont. liste : « Ils incluent 7 »', () => {
+  it('[F006-T006] Cont. liste : « Ils incluent 7 »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Ils incluent 7');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("7") // élément jeu
   });
 
-  it('Cont. liste : « Elle inclut 7, 21 et 9 »', () => {
+  it('[F006-T007] Cont. liste : « Elle inclut 7, 21 et 9 »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Elle inclut 7, 21 et 9');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("7, 21 et 9") // élément jeu
   });
 
-  it('Cont. liste : « Elle contient la cuisine et le salon »', () => {
+  it('[F006-T008] Cont. liste : « Elle contient la cuisine et le salon »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Elle contient la cuisine et le salon');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("la cuisine et le salon") // élément jeu
   });
 
-  it('Cont. liste : « Ils contiennent "Alice", "Bob", "Carole" et "David" »', () => {
+  it('[F006-T009] Cont. liste : « Ils contiennent "Alice", "Bob", "Carole" et "David" »', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Ils contiennent "Alice", "Bob", "Carole" et "David"');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual('"Alice", "Bob", "Carole" et "David"') // élément jeu
   });
 
-  it('Cont. liste : « Bob contient 200 » (💥)', () => {
+  it('[F006-T010] Cont. liste : « Bob contient 200 » (💥)', () => {
     const result = ExprReg.xPronomPersonnelContenu.exec('Bob contient 200');
     expect(result).toEqual(null);
   });
@@ -119,7 +119,7 @@ describe('Epressions régulières − Contenu d’une liste', () => {
 
 describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
 
-  it('Élément sans pos: « Les nombres gagnants sont une liste. Elle contient 7, 21 et 9. »', () => {
+  it('[F006-T011] Élément sans pos: « Les nombres gagnants sont une liste. Elle contient 7, 21 et 9. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les nombres gagnants sont une liste. Elle contient 7, 21 et 9.'
@@ -145,7 +145,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(0); // ne doit pas contenir d’intitulé
   });
 
-  it('Élément sans pos: « Les suspects sont une liste. Ils incluent "Alice" et "Bob". »', () => {
+  it('[F006-T012] Élément sans pos: « Les suspects sont une liste. Ils incluent "Alice" et "Bob". »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les suspects sont une liste. Ils incluent "Alice" et "Bob".'
@@ -171,7 +171,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(0); // ne doit pas contenir d’intitulé
   });
 
-  it('Élément sans pos: « Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon. »', () => {
+  it('[F006-T013] Élément sans pos: « Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'Les pièces de la maison sont une liste. Elles contiennent la cuisine et le salon.'
@@ -197,7 +197,7 @@ describe('Analyseur − Définition d’une liste et de ses valeurs', () => {
     expect(ctxAnalyse.dernierElementGenerique.valeursIntitule).toHaveSize(2); // doit contenir des intitulés
   });
 
-  it('Élément sans pos: « X est une liste. Il inclut 1. »', () => {
+  it('[F006-T014] Élément sans pos: « X est une liste. Il inclut 1. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       'X est une liste. Il inclut 1.'

@@ -17,6 +17,9 @@ export class ContexteEcran {
   /** L’écran temporaire du jeu */
   private _ecranTemporaire = "";
 
+  /** Si true, le tag {L}NNN{L} est rendu en lien cliquable (réservé à l’éditeur). */
+  public supportLiensLignes = false;
+
   constructor(
     private dossierRessourcesComplet: string
   ) { }
@@ -91,7 +94,7 @@ export class ContexteEcran {
    * @returns contenu ajouté, converti en HTML.
    */
   public ajouterContenuDonjon(contenuBrut: string): string {
-    const contenuHtml = BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
+    const contenuHtml = BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet, this.supportLiensLignes);
     this.ajouterHtml(contenuHtml);
     return contenuHtml
   }
@@ -112,7 +115,7 @@ export class ContexteEcran {
    * @returns le paragraphe ajouté, converti en HTML.
    */
   public ajouterParagrapheDonjon(contenuBrut: string): string {
-    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet) + '</p>';
+    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet, this.supportLiensLignes) + '</p>';
     this.ajouterHtml(contenuHtml);
     return contenuHtml;
   }
@@ -123,7 +126,7 @@ export class ContexteEcran {
    * @returns le paragraphe ajouté, converti en HTML.
    */
   public ajouterParagrapheDonjonOuvert(contenuBrut: string): string {
-    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
+    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet, this.supportLiensLignes);
     this.ajouterHtml(contenuHtml);
     return contenuHtml;
   }
@@ -161,7 +164,7 @@ export class ContexteEcran {
    * @param contenuBrut Contenu qui sera converti en HTML.
    */
   public remplacerContenuDonjon(contenuBrut: string) {
-    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet);
+    const contenuHtml = '<p>' + BalisesHtml.convertirEnHtml(contenuBrut, this.dossierRessourcesComplet, this.supportLiensLignes);
     this.ajouterHtml(contenuHtml);
   }
 

@@ -38,7 +38,7 @@ function preparerJeu(scenario: string) {
 
 describe("Conditions sur la règle « se déclenche »", () => {
 
-  it("dispatch correct selon le nombre de déclenchements (1ère / 2ème / 3ème / suivantes)", () => {
+  it("[F026-T001] dispatch correct selon le nombre de déclenchements (1ère / 2ème / 3ème / suivantes)", () => {
     const scenario = scenarioAvecRegle(`
       si la règle se déclenche pour la première fois:
         dire "PREMIER".
@@ -80,7 +80,7 @@ describe("Conditions sur la règle « se déclenche »", () => {
     expect(sortie).toContain("SUIVANT");
   });
 
-  it("compteur de déclenchements correctement incrémenté sur l'auditeur", () => {
+  it("[F026-T002] compteur de déclenchements correctement incrémenté sur l'auditeur", () => {
     const scenario = scenarioAvecRegle(`
       si la règle se déclenche pour la première fois:
         dire "OK".
@@ -104,25 +104,27 @@ describe("Conditions sur la règle « se déclenche »", () => {
     expect(auditeur!.declenchements).toEqual(3);
   });
 
-  it("verbe inconnu (typo « se déiclenche ») → erreur runtime mentionnant la règle, pas un compteur", () => {
+  it("[F026-T003] verbe inconnu (typo « se déiclenche ») → erreur runtime mentionnant la règle, pas un compteur", () => {
     const scenario = scenarioAvecRegle(`
       si la règle se déiclenche pour la première fois:
         dire "BRANCHE-KO".
       fin si
     `);
     const ctx = preparerJeu(scenario);
+    const erreursAvant = ctx.jeu.tamponErreurs.length;
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
+    const erreurs = ctx.jeu.tamponErreurs.slice(erreursAvant).join("\n");
 
-    expect(sortie).toContain("Condition sur la règle");
-    expect(sortie).toContain("verbe pas supporté");
-    expect(sortie).toContain("se déiclenche");
+    expect(erreurs).toContain("Condition sur la règle");
+    expect(erreurs).toContain("verbe pas supporté");
+    expect(erreurs).toContain("se déiclenche");
     // Régression : le message ne doit plus passer par la branche compteur.
-    expect(sortie).not.toContain("Condition sur un compteur");
+    expect(erreurs).not.toContain("Condition sur un compteur");
     // La condition étant en erreur, la branche ne doit pas être prise.
     expect(sortie).not.toContain("BRANCHE-KO");
   });
 
-  it("le message d'erreur inclut la condition complète et le numéro de ligne", () => {
+  it("[F026-T004] le message d'erreur inclut la condition complète et le numéro de ligne", () => {
     const scenario = scenarioAvecRegle(`
       si la règle se déiclenche pour la première fois:
         dire "BRANCHE-KO".
@@ -132,41 +134,48 @@ describe("Conditions sur la règle « se déclenche »", () => {
     expect(ligneAttendue).toBeGreaterThan(0);
 
     const ctx = preparerJeu(scenario);
-    const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
+    const erreursAvant = ctx.jeu.tamponErreurs.length;
+    ctx.com.executerCommande("examiner machine", false);
+    const erreurs = ctx.jeu.tamponErreurs.slice(erreursAvant).join("\n");
 
     // La condition complète est citée dans le message (entre « si … »).
-    expect(sortie).toContain("« si la règle se déiclenche pour la première fois »");
-    // Le numéro de ligne du scénario apparaît au format `l.<n>`.
-    expect(sortie).toContain("l." + ligneAttendue);
+    expect(erreurs).toContain("« si la règle se déiclenche pour la première fois »");
+    // Le numéro de ligne du scénario apparaît au format `{L}<n>{L}` dans le tampon
+    // (rendu en lien cliquable « l.<n> » seulement à l'affichage par le lecteur).
+    expect(erreurs).toContain("{L}" + ligneAttendue + "{L}");
   });
 
-  it("verbe inadapté (« vaut ») → erreur runtime mentionnant la règle", () => {
+  it("[F026-T005] verbe inadapté (« vaut ») → erreur runtime mentionnant la règle", () => {
     const scenario = scenarioAvecRegle(`
       si la règle vaut 1:
         dire "BRANCHE-KO".
       fin si
     `);
     const ctx = preparerJeu(scenario);
+    const erreursAvant = ctx.jeu.tamponErreurs.length;
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
+    const erreurs = ctx.jeu.tamponErreurs.slice(erreursAvant).join("\n");
 
-    expect(sortie).toContain("Condition sur la règle");
-    expect(sortie).toContain("verbe pas supporté");
-    expect(sortie).toContain("vaut");
-    expect(sortie).not.toContain("Condition sur un compteur");
+    expect(erreurs).toContain("Condition sur la règle");
+    expect(erreurs).toContain("verbe pas supporté");
+    expect(erreurs).toContain("vaut");
+    expect(erreurs).not.toContain("Condition sur un compteur");
     expect(sortie).not.toContain("BRANCHE-KO");
   });
 
-  it("complément non supporté (« quatrième fois ») → erreur runtime explicite", () => {
+  it("[F026-T006] complément non supporté (« quatrième fois ») → erreur runtime explicite", () => {
     const scenario = scenarioAvecRegle(`
       si la règle se déclenche pour la quatrième fois:
         dire "BRANCHE-KO".
       fin si
     `);
     const ctx = preparerJeu(scenario);
+    const erreursAvant = ctx.jeu.tamponErreurs.length;
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
+    const erreurs = ctx.jeu.tamponErreurs.slice(erreursAvant).join("\n");
 
-    expect(sortie).toContain("Condition sur la règle");
-    expect(sortie).toContain("complément non supporté");
+    expect(erreurs).toContain("Condition sur la règle");
+    expect(erreurs).toContain("complément non supporté");
     expect(sortie).not.toContain("BRANCHE-KO");
   });
 

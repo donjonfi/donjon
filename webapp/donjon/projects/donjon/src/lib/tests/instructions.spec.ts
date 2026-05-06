@@ -86,7 +86,7 @@ describe('Instructions − Lieux', () => {
 
 
 
-  it('vérifier accessibilité lieux', function (this: ThisContext) {
+  it('[F039-T001] vérifier accessibilité lieux', function (this: ThisContext) {
 
     // vérifier que les lieux sont accessibles
     // cuisine est accessible (le joueur est dedans)
@@ -97,7 +97,7 @@ describe('Instructions − Lieux', () => {
     expect(this.eju.estLieuAccessible(this.chambre)).toBeFalse();
   });
 
-  it('vérifier getLieuxVoisinsVisibles()', function (this: ThisContext) {
+  it('[F039-T002] vérifier getLieuxVoisinsVisibles()', function (this: ThisContext) {
 
     // cuisine à coté de sdb
     let resultats = this.eju.getLieuxVoisinsVisibles(this.cuisine);
@@ -112,7 +112,7 @@ describe('Instructions − Lieux', () => {
     expect(resultats.some(x => x.id == this.sdb.id)).toBeFalse();
   });
 
-  it('vérifier trouverLieu', function (this: ThisContext) {
+  it('[F039-T003] vérifier trouverLieu', function (this: ThisContext) {
     // trouver la cuisine
     let resultats = this.eju.trouverLieuSurIntituleAvecScore(this.cuisine.intitule, false);
     expect(resultats[1].length).toBe(1);
@@ -127,12 +127,12 @@ describe('Instructions − Lieux', () => {
     expect(resultats[1][0]).toBe(this.chambre);
   });
 
-  it('vérifier getLieuObjet(joueur)', function (this: ThisContext) {
+  it('[F039-T004] vérifier getLieuObjet(joueur)', function (this: ThisContext) {
     let lieuId = this.eju.getLieuObjet(this.joueur);
     expect(lieuId).toEqual(this.cuisine.id);
   });
 
-  it('vérifier exectuterDeplacerObjetVersDestination(joueur)', function (this: ThisContext) {
+  it('[F039-T005] vérifier exectuterDeplacerObjetVersDestination(joueur)', function (this: ThisContext) {
 
     // le joueur est dans la cuisine
     let lieuId = this.eju.getLieuObjet(this.joueur);

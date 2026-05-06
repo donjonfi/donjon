@@ -23,42 +23,42 @@ import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-ph
 
 describe('Epressions régulières − Définition position d’un élément', () => {
 
-  it('def position : « Le chat se trouve sur le divan »', () => {
+  it('[F007-T001] def position : « Le chat se trouve sur le divan »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('Le chat se trouve sur le divan');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Le chat"); // élément
     expect(result[2]).toEqual("sur le divan"); // position
   });
 
-  it('def position : « Les haricots sauvages se trouvent ici »', () => {
+  it('[F007-T002] def position : « Les haricots sauvages se trouvent ici »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('Les haricots sauvages se trouvent ici');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Les haricots sauvages"); // élément
     expect(result[2]).toEqual("ici"); // position
   });
 
-  it('def position : « Bob se trouve à l’intérieur de la cabane hurlante »', () => {
+  it('[F007-T003] def position : « Bob se trouve à l’intérieur de la cabane hurlante »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('Bob se trouve à l’intérieur de la cabane hurlante');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Bob"); // élément
     expect(result[2]).toEqual("à l’intérieur de la cabane hurlante"); // position
   });
 
-  it('def position : « La forêt se trouve au nord du chemin et au sud de l’abri »', () => {
+  it('[F007-T004] def position : « La forêt se trouve au nord du chemin et au sud de l’abri »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('La forêt se trouve au nord du chemin et au sud de l’abri');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("La forêt"); // élément
     expect(result[2]).toEqual("au nord du chemin et au sud de l’abri"); // position
   });
 
-  it('def position : « Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest »', () => {
+  it('[F007-T005] def position : « Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Par rapport à la cabane, la forêt"); // élément
     expect(result[2]).toEqual("au nord, au sud et à l’ouest"); // position
   });
 
-  it('def position : « Il se trouve ici »', () => {
+  it('[F007-T006] def position : « Il se trouve ici »', () => {
     const result = ExprReg.xDefinirPositionElement.exec('Il se trouve ici');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("Il"); // élément
@@ -70,7 +70,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
 
 describe('Epressions régulières − Définition position d’un élément', () => {
 
-  it('def position : « sur le divan »', () => {
+  it('[F007-T007] def position : « sur le divan »', () => {
     const result = ExprReg.xPositionRelative.exec('sur le divan');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("sur le "); // position suivie
@@ -78,7 +78,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
     expect(result[3]).toBeFalsy(); // position solo
   });
 
-  it('def position : « ici »', () => {
+  it('[F007-T008] def position : « ici »', () => {
     const result = ExprReg.xPositionRelative.exec('ici');
     expect(result).not.toEqual(null);
     expect(result[1]).toBeFalsy(); // position suivie
@@ -86,7 +86,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
     expect(result[3]).toEqual("ici"); // position solo
   });
 
-  it('def position : « dessus »', () => {
+  it('[F007-T009] def position : « dessus »', () => {
     const result = ExprReg.xPositionRelative.exec('dessus');
     expect(result).not.toEqual(null);
     expect(result[1]).toBeFalsy(); // position suivie
@@ -94,7 +94,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
     expect(result[3]).toEqual("dessus"); // position solo
   });
 
-  it('def position : « à l’intérieur »', () => {
+  it('[F007-T010] def position : « à l’intérieur »', () => {
     const result = ExprReg.xPositionRelative.exec('à l’intérieur');
     expect(result).not.toEqual(null);
     expect(result[1]).toBeFalsy(); // position suivie
@@ -102,7 +102,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
     expect(result[3]).toEqual("à l’intérieur"); // position solo
   });
 
-  it('def position : « à l’intérieur de la cabane hurlante »', () => {
+  it('[F007-T011] def position : « à l’intérieur de la cabane hurlante »', () => {
     const result = ExprReg.xPositionRelative.exec('à l’intérieur de la cabane hurlante');
     expect(result).not.toEqual(null);
     expect(result[1]).toEqual("à l’intérieur de la "); // position suivie
@@ -110,12 +110,12 @@ describe('Epressions régulières − Définition position d’un élément', ()
     expect(result[3]).toBeFalsy(); // position solo
   });
 
-  it('def position : « au nord du chemin et au sud de l’abri » (💥)', () => {
+  it('[F007-T012] def position : « au nord du chemin et au sud de l’abri » (💥)', () => {
     const result = ExprReg.xPositionRelative.exec('La forêt se trouve au nord du chemin et au sud de l’abri');
     expect(result).toEqual(null);
   });
 
-  it('def position : « au nord, au sud et à l’ouest » (💥)', () => {
+  it('[F007-T013] def position : « au nord, au sud et à l’ouest » (💥)', () => {
     const result = ExprReg.xPositionRelative.exec('Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest');
     expect(result).toEqual(null);
   });
@@ -125,7 +125,7 @@ describe('Epressions régulières − Définition position d’un élément', ()
 
 describe('Analyseur: objets positionnés', () => {
 
-  it('Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
+  it('[F007-T014] Élément pos: « Le cadenas bleu est un objet dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet dans le labo."
@@ -159,7 +159,7 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  it('Élément pos: « Le cadenas bleu est un objet. Il se trouve dans le labo. »', () => {
+  it('[F007-T015] Élément pos: « Le cadenas bleu est un objet. Il se trouve dans le labo. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le cadenas bleu est un objet. " +
@@ -185,7 +185,7 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  it('Élément pos: « Le labo est un lieu. Le cadenas bleu est un objet. Il se trouve ici. »', () => {
+  it('[F007-T016] Élément pos: « Le labo est un lieu. Le cadenas bleu est un objet. Il se trouve ici. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le labo est un lieu. " +
@@ -216,7 +216,7 @@ describe('Analyseur: objets positionnés', () => {
   });
 
 
-  it('Élément pos: « La table est un support. Le cadenas bleu est un objet. Il se trouve sur la table. »', () => {
+  it('[F007-T017] Élément pos: « La table est un support. Le cadenas bleu est un objet. Il se trouve sur la table. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +
@@ -246,7 +246,7 @@ describe('Analyseur: objets positionnés', () => {
   });
 
 
-  it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
+  it('[F007-T018] Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
@@ -276,7 +276,7 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  it('Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
+  it('[F007-T019] Élément pos: « La grotte est un lieu. Le coffre est un contenant ici. L’or est un objet dedans. »', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La grotte est un lieu. \n" +
@@ -305,7 +305,7 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  it('Élément pos: « Le coffre est un contenant ici. » (💥)', () => {
+  it('[F007-T020] Élément pos: « Le coffre est un contenant ici. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le coffre est un contenant ici. \n" +
@@ -320,7 +320,7 @@ describe('Analyseur: objets positionnés', () => {
   });
 
 
-  it('Élément pos: « Le coffre est dedans. » (💥)', () => {
+  it('[F007-T021] Élément pos: « Le coffre est dedans. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "Le coffre est dedans. \n" +
@@ -334,7 +334,7 @@ describe('Analyseur: objets positionnés', () => {
 
   });
 
-  it('Élément pos: « a table est un support. Le cadenas bleu est un objet. Il se trouve dessus. » (💥)', () => {
+  it('[F007-T022] Élément pos: « a table est un support. Le cadenas bleu est un objet. Il se trouve dessus. » (💥)', () => {
     let ctxAnalyse = new ContexteAnalyseV8();
     let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
       "La table est un support. \n" +

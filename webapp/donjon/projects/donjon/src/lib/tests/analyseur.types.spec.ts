@@ -17,7 +17,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
     // TYPE UTILISATEUR > NOUVEAU TYPE
     // - un/une(1) nouveauType(2) est un/une typeParent(3) {attributs}(4)
 
-    it('Nouveau type :  « Un meuble est un objet »', () => {
+    it('[F010-T001] Nouveau type :  « Un meuble est un objet »', () => {
         const result = ExprReg.xNouveauType.exec("Un meuble est un objet");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("Un"); // déterminant
@@ -26,7 +26,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[4]).toBeUndefined(); // attribut(s)
     });
 
-    it('Nouveau type :  « Un fruit est un objet mangeable, léger et périssable »', () => {
+    it('[F010-T002] Nouveau type :  « Un fruit est un objet mangeable, léger et périssable »', () => {
         const result = ExprReg.xNouveauType.exec("Un fruit est un objet mangeable, léger et périssable");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("Un"); // déterminant
@@ -35,7 +35,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[4]).toEqual("mangeable, léger et périssable"); // attribut(s)
     });
 
-    it('Nouveau type :  « un lutin est une personne bavarde »', () => {
+    it('[F010-T003] Nouveau type :  « un lutin est une personne bavarde »', () => {
         const result = ExprReg.xNouveauType.exec("un lutin est une personne bavarde");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("un"); // déterminant
@@ -45,12 +45,12 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
     });
 
 
-    it('Nouveau type :  « le lutin est une personne bavarde » (💥)', () => {
+    it('[F010-T004] Nouveau type :  « le lutin est une personne bavarde » (💥)', () => {
         const result = ExprReg.xNouveauType.exec("le lutin est une personne bavarde");
         expect(result).toEqual(null);
     });
 
-    it('Nouveau type :  « Un meuble est fixé » (💥)', () => {
+    it('[F010-T005] Nouveau type :  « Un meuble est fixé » (💥)', () => {
         const result = ExprReg.xNouveauType.exec("Un meuble est fixé");
         expect(result).toEqual(null);
     });
@@ -58,7 +58,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
     // TYPE UTILISATEUR > PRÉCISION TYPE
     // - un/une(1) type(2) est {attributs}(3)
 
-    it('Précision type :  « Un meuble est fixé »', () => {
+    it('[F010-T006] Précision type :  « Un meuble est fixé »', () => {
         const result = ExprReg.xPrecisionType.exec("Un meuble est fixé");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("Un"); // déterminant
@@ -66,7 +66,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[3]).toEqual("fixé"); // attribut(s)
     });
 
-    it('Précision type :  « un chien est affectueux et poilu »', () => {
+    it('[F010-T007] Précision type :  « un chien est affectueux et poilu »', () => {
         const result = ExprReg.xPrecisionType.exec("un chien est affectueux et poilu");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("un"); // déterminant
@@ -74,7 +74,7 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[3]).toEqual("affectueux et poilu"); // attribut(s)
     });
 
-    it('Précision type :  « Un lutin est bavard, peureux et farceur »', () => {
+    it('[F010-T008] Précision type :  « Un lutin est bavard, peureux et farceur »', () => {
         const result = ExprReg.xPrecisionType.exec("Un lutin est bavard, peureux et farceur");
         expect(result).not.toEqual(null);
         expect(result[1]).toEqual("Un"); // déterminant
@@ -82,22 +82,22 @@ describe('Epressions régulières − Nouveaux types (classes)', () => {
         expect(result[3]).toEqual("bavard, peureux et farceur"); // attribut(s)
     });
 
-    it('Précision type :  « Un meuble est un objet » (💥)', () => {
+    it('[F010-T009] Précision type :  « Un meuble est un objet » (💥)', () => {
         const result = ExprReg.xPrecisionType.exec("Un meuble est un objet");
         expect(result).toEqual(null);
     });
 
-    it('Précision type :  « Un fruit est un objet mangeable, léger et périssable » (💥)', () => {
+    it('[F010-T010] Précision type :  « Un fruit est un objet mangeable, léger et périssable » (💥)', () => {
         const result = ExprReg.xPrecisionType.exec("Un fruit est un objet mangeable, léger et périssable");
         expect(result).toEqual(null);
     });
 
-    it('Précision type :  « Un lutin est une personne bavarde » (💥)', () => {
+    it('[F010-T011] Précision type :  « Un lutin est une personne bavarde » (💥)', () => {
         const result = ExprReg.xPrecisionType.exec("Un lutin est une personne bavarde");
         expect(result).toEqual(null);
     });
 
-    it('Précision type :  « Le meuble est fixé » (💥)', () => {
+    it('[F010-T012] Précision type :  « Le meuble est fixé » (💥)', () => {
         const result = ExprReg.xPrecisionType.exec("Le meuble est fixé");
         expect(result).toEqual(null);
     });
@@ -117,7 +117,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     // NOUVEAUX TYPES
     // =========================================================
 
-    it('Nouveau type : « Un meuble est un objet. » ', () => {
+    it('[F010-T013] Nouveau type : « Un meuble est un objet. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un meuble est un objet."
@@ -140,7 +140,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     });
 
-    it('Nouveau type : « Une fée est une personne magique. » ', () => {
+    it('[F010-T014] Nouveau type : « Une fée est une personne magique. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une fée est une personne magique."
@@ -164,7 +164,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     });
 
-    it('Nouveau type : « Une fée est magique. » (💥)', () => {
+    it('[F010-T015] Nouveau type : « Une fée est magique. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une fée est magique."
@@ -183,7 +183,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     });
 
 
-    it('Nouveau type : « La fée est une personne. » (💥)', () => {
+    it('[F010-T016] Nouveau type : « La fée est une personne. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "La fée est une personne."
@@ -205,7 +205,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
     // PRÉCISIONS TYPES
     // =========================================================
 
-    it('Précision type : « Une statue est fixée. » ', () => {
+    it('[F010-T017] Précision type : « Une statue est fixée. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Une statue est fixée."
@@ -228,7 +228,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     });
 
-    it('Précision type : « Un lutin est bavard, farceur et petit. » ', () => {
+    it('[F010-T018] Précision type : « Un lutin est bavard, farceur et petit. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un lutin est bavard, farceur et petit."
@@ -254,7 +254,7 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     });
 
-    it('Précision type : Type défini 2x doit générer erreur', () => {
+    it('[F010-T019] Précision type : Type défini 2x doit générer erreur', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
             "Un lutin est une personne farceuse. Un lutin est une créature-magique aimable."

@@ -7,7 +7,7 @@ import { actions } from "./scenario_actions";
 describe('Commande diverses', () => {
 
 
-  it('Commande « tester » (objet présent, invisible et absent)', () => {
+  it('[F018-T001] Commande « tester » (objet présent, invisible et absent)', () => {
 
     // on force les objets du premier lieu à « vu » étant donné que pas exécuté la commande regardé.
 
@@ -86,7 +86,7 @@ describe('Décomposer des commandes', () => {
     this.actionsUtils = new ActionsUtils(jeu, false);
   });
 
-  it('commande « chanter »', function (this: ThisContext) {
+  it('[F018-T002] commande « chanter »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('chanter');
     expect(ctxCom.brute).toEqual('chanter');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -102,7 +102,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « aller au nord »', function (this: ThisContext) {
+  it('[F018-T003] commande « aller au nord »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller au nord');
     expect(ctxCom.brute).toEqual('aller au nord');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -119,7 +119,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « aller dans salle de bain »', function (this: ThisContext) {
+  it('[F018-T004] commande « aller dans salle de bain »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller dans salle de bain');
     expect(ctxCom.brute).toEqual('aller dans salle de bain');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -136,7 +136,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « aller salle à manger »', function (this: ThisContext) {
+  it('[F018-T005] commande « aller salle à manger »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('aller salle à manger');
     expect(ctxCom.brute).toEqual('aller salle à manger');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -153,7 +153,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « utiliser la clé sur le coffre »', function (this: ThisContext) {
+  it('[F018-T006] commande « utiliser la clé sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé sur le coffre');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -172,7 +172,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « utiliser la clé sur le coffre du capitaine »', function (this: ThisContext) {
+  it('[F018-T007] commande « utiliser la clé sur le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé sur le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé sur le coffre du capitaine');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -208,7 +208,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « utiliser la clé avec le coffre du capitaine »', function (this: ThisContext) {
+  it('[F018-T008] commande « utiliser la clé avec le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé avec le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé avec le coffre du capitaine');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -228,7 +228,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « utiliser la clé du capitaine sur le coffre du capitaine »', function (this: ThisContext) {
+  it('[F018-T009] commande « utiliser la clé du capitaine sur le coffre du capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé du capitaine sur le coffre du capitaine');
     expect(ctxCom.brute).toEqual('utiliser la clé du capitaine sur le coffre du capitaine');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -246,7 +246,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le coffre du capitaine');
   });
 
-  it('commande « utiliser la clé du capitaine sur le coffre »', function (this: ThisContext) {
+  it('[F018-T010] commande « utiliser la clé du capitaine sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé du capitaine sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé du capitaine sur le coffre');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -280,7 +280,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « utiliser la clé de bronze sur le coffre »', function (this: ThisContext) {
+  it('[F018-T011] commande « utiliser la clé de bronze sur le coffre »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('utiliser la clé de bronze sur le coffre');
     expect(ctxCom.brute).toEqual('utiliser la clé de bronze sur le coffre');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -314,7 +314,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « parler au comte de berlin de la salle de bain »', function (this: ThisContext) {
+  it('[F018-T012] commande « parler au comte de berlin de la salle de bain »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au comte de berlin de la salle de bain');
     expect(ctxCom.brute).toEqual('parler au comte de berlin de la salle de bain');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -334,7 +334,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « parler de berlin au comte de berlin »', function (this: ThisContext) {
+  it('[F018-T013] commande « parler de berlin au comte de berlin »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler de berlin au comte de berlin');
     expect(ctxCom.brute).toEqual('parler de berlin au comte de berlin');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -367,7 +367,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('berlin');
   });
 
-  it('commande « parler au comte de berlin de berlin »', function (this: ThisContext) {
+  it('[F018-T014] commande « parler au comte de berlin de berlin »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au comte de berlin de berlin');
     expect(ctxCom.brute).toEqual('parler au comte de berlin de berlin');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -400,7 +400,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].celaIntituleV1.toString()).toEqual('berlin de berlin');
   });
 
-  it('commande « parler au capitaine du bateau »', function (this: ThisContext) {
+  it('[F018-T015] commande « parler au capitaine du bateau »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler au capitaine du bateau');
     expect(ctxCom.brute).toEqual('parler au capitaine du bateau');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -433,7 +433,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[1].celaIntituleV1).toBeUndefined();
   });
 
-  it('commande « parler du bateau au capitaine »', function (this: ThisContext) {
+  it('[F018-T016] commande « parler du bateau au capitaine »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('parler du bateau au capitaine');
     expect(ctxCom.brute).toEqual('parler du bateau au capitaine');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -467,7 +467,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « ouvrir boite aux lettres »', function (this: ThisContext) {
+  it('[F018-T017] commande « ouvrir boite aux lettres »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('ouvrir boite aux lettres');
     expect(ctxCom.brute).toEqual('ouvrir boite aux lettres');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -501,7 +501,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « poser une question »', function (this: ThisContext) {
+  it('[F018-T018] commande « poser une question »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('poser une question');
     expect(ctxCom.candidats).toHaveSize(1);
 
@@ -519,7 +519,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « commander une pomme rouge »', function (this: ThisContext) {
+  it('[F018-T019] commande « commander une pomme rouge »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('commander une pomme rouge');
     expect(ctxCom.candidats).toHaveSize(1);
 
@@ -537,7 +537,7 @@ describe('Décomposer des commandes', () => {
   });
 
 
-  it('commande « offrir une tarte à la cerise »', function (this: ThisContext) {
+  it('[F018-T020] commande « offrir une tarte à la cerise »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la cerise');
     // la tarte à la cerise n’existe pas
     expect(ctxCom.candidats).toHaveSize(2);
@@ -557,7 +557,7 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « offrir une tarte à la crème »', function (this: ThisContext) {
+  it('[F018-T021] commande « offrir une tarte à la crème »', function (this: ThisContext) {
     // la tarte à la crème existe
     const ctxCom = this.ctxPartie.com.decomposerCommande('offrir une tarte à la crème');
     expect(ctxCom.candidats).toHaveSize(2);
@@ -575,7 +575,7 @@ describe('Décomposer des commandes', () => {
     expect(ctxCom.candidats[0].isCelaV1).toBeFalse();
   });
 
-  it('commande « mettre la pomme sur la table basse »', function (this: ThisContext) {
+  it('[F018-T022] commande « mettre la pomme sur la table basse »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('mettre la pomme sur la table basse');
     expect(ctxCom.candidats).toHaveSize(2);
 
@@ -594,28 +594,28 @@ describe('Décomposer des commandes', () => {
 
   });
 
-  it('commande « tacher »', function (this: ThisContext) {
+  it('[F018-T023] commande « tacher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('tacher');
     expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('tacher');
   });
 
-  it('commande « tâcher »', function (this: ThisContext) {
+  it('[F018-T024] commande « tâcher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('tâcher');
     expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('tâcher');
   });
 
-  it('commande « pêcher »', function (this: ThisContext) {
+  it('[F018-T025] commande « pêcher »', function (this: ThisContext) {
     const ctxCom = this.ctxPartie.com.decomposerCommande('pêcher');
     expect(ctxCom.candidats).toHaveSize(1);
     // infinitif
     expect(ctxCom.candidats[0].els.infinitif).toEqual('pêcher');
   });
 
-  it('commande « pecher »', function (this: ThisContext) {
+  it('[F018-T026] commande « pecher »', function (this: ThisContext) {
     // décomposition
     const ctxCom = this.ctxPartie.com.decomposerCommande('pecher');
     expect(ctxCom.candidats).toHaveSize(1);
@@ -640,7 +640,7 @@ describe('Contrôle priorité découpe action et message d’erreur', () => {
   La baguette en argent est un objet sur la table.
   `;
 
-  it('prendre bâton en bois qui n’existe pas et la baguette en argent qui existe.', () => {
+  it('[F018-T027] prendre bâton en bois qui n’existe pas et la baguette en argent qui existe.', () => {
     const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);

@@ -19,7 +19,7 @@ import { LecteurComponent } from '../lecteur/lecteur.component';
   //   fixture.detectChanges();
   // });
 
-  // it('should create', () => {
+  // it('[F041-T001] should create', () => {
   //   expect(component).toBeTruthy();
   // });
 

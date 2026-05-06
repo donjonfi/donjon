@@ -27,73 +27,73 @@ describe("Validateur des textes dynamiques", () => {
 
   // ───────── cas valides : aucun message attendu ─────────
 
-  it("texte sans crochets → aucun message", () => {
+  it("[F051-T001] texte sans crochets → aucun message", () => {
     expect(valider("Bonjour le monde.").messages.length).toBe(0);
   });
 
-  it("[si …]…[sinon]…[fin] équilibré → aucun message", () => {
+  it("[F051-T002] [si …]…[sinon]…[fin] équilibré → aucun message", () => {
     expect(valider("[si X est Y]A[sinon]B[fin]").messages.length).toBe(0);
   });
 
-  it("imbrication [si]…[si]…[fin]…[fin] → aucun message", () => {
+  it("[F051-T003] imbrication [si]…[si]…[fin]…[fin] → aucun message", () => {
     expect(valider("[si A]ext[si B]int[fin]suite[fin]").messages.length).toBe(0);
   });
 
-  it("[au hasard]…[ou]…[fin] → aucun message", () => {
+  it("[F051-T004] [au hasard]…[ou]…[fin] → aucun message", () => {
     expect(valider("[au hasard]A[ou]B[ou]C[fin]").messages.length).toBe(0);
   });
 
-  it("[1ere fois]…[puis]…[fin] → aucun message", () => {
+  it("[F051-T005] [1ere fois]…[puis]…[fin] → aucun message", () => {
     expect(valider("[1ere fois]un[puis]plus[fin]").messages.length).toBe(0);
   });
 
-  it("balise propriété [nom de X] → ignorée (mot-clé inconnu)", () => {
+  it("[F051-T006] balise propriété [nom de X] → ignorée (mot-clé inconnu)", () => {
     expect(valider("Voici [nom de truc].").messages.length).toBe(0);
   });
 
-  it("crochets littéraux échappés \\[…\\] → aucun message", () => {
+  it("[F051-T007] crochets littéraux échappés \\[…\\] → aucun message", () => {
     expect(valider("Voir \\[exemple\\] pour plus.").messages.length).toBe(0);
   });
 
   // ───────── cas d'erreur ─────────
 
-  it("crochet ouvrant non fermé → crochetOuvrantNonFerme", () => {
+  it("[F051-T008] crochet ouvrant non fermé → crochetOuvrantNonFerme", () => {
     expect(codes(valider("hello [si A est B"))).toContain(CodeMessage.crochetOuvrantNonFerme);
   });
 
-  it("crochet fermant orphelin → crochetFermantOrphelin", () => {
+  it("[F051-T009] crochet fermant orphelin → crochetFermantOrphelin", () => {
     expect(codes(valider("hello]suite"))).toContain(CodeMessage.crochetFermantOrphelin);
   });
 
-  it("[fin] sans cadre ouvert → finBlocSansOuverture", () => {
+  it("[F051-T010] [fin] sans cadre ouvert → finBlocSansOuverture", () => {
     expect(codes(valider("hello[fin]"))).toContain(CodeMessage.finBlocSansOuverture);
   });
 
-  it("[sinon] sans [si] → motCleHorsCadre", () => {
+  it("[F051-T011] [sinon] sans [si] → motCleHorsCadre", () => {
     expect(codes(valider("hello[sinon]bye"))).toContain(CodeMessage.motCleHorsCadre);
   });
 
-  it("[sinon] dans [au hasard] → motCleHorsCadre", () => {
+  it("[F051-T012] [sinon] dans [au hasard] → motCleHorsCadre", () => {
     expect(codes(valider("[au hasard]A[sinon]B[fin]"))).toContain(CodeMessage.motCleHorsCadre);
   });
 
-  it("[ou] hors [au hasard] → motCleHorsCadre", () => {
+  it("[F051-T013] [ou] hors [au hasard] → motCleHorsCadre", () => {
     expect(codes(valider("[si A est B]hello[ou]bye[fin]"))).toContain(CodeMessage.motCleHorsCadre);
   });
 
-  it("[sinon] après un autre [sinon] → sinonApresSinon", () => {
+  it("[F051-T014] [sinon] après un autre [sinon] → sinonApresSinon", () => {
     expect(codes(valider("[si A]X[sinon]Y[sinon]Z[fin]"))).toContain(CodeMessage.sinonApresSinon);
   });
 
-  it("[sinonsi …] après un [sinon] → sinonApresSinon", () => {
+  it("[F051-T015] [sinonsi …] après un [sinon] → sinonApresSinon", () => {
     expect(codes(valider("[si A]X[sinon]Y[sinonsi B]Z[fin]"))).toContain(CodeMessage.sinonApresSinon);
   });
 
-  it("cadre ouvert non fermé → cadreNonFerme", () => {
+  it("[F051-T016] cadre ouvert non fermé → cadreNonFerme", () => {
     expect(codes(valider("[si A est B]hello"))).toContain(CodeMessage.cadreNonFerme);
   });
 
-  it("messages sont rattachés au numéro de ligne de la phrase source", () => {
+  it("[F051-T017] messages sont rattachés au numéro de ligne de la phrase source", () => {
     const ctx = new ContexteAnalyseV8(false);
     ValidateurTextesDynamiques.validerTexte("[si A est B]hello", fakePhrase(123), ctx);
     expect(ctx.messages.length).toBeGreaterThan(0);

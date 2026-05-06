@@ -31,7 +31,7 @@ function preparerJeu(scenario: string) {
 
 describe("Conditions imbriquées dans les textes dynamiques", () => {
 
-  it("si imbriqué dans si — branche externe vraie + branche interne vraie", () => {
+  it("[F031-T001] si imbriqué dans si — branche externe vraie + branche interne vraie", () => {
     const desc = "Une machine [si la machine est allumée]allumée[si la machine est ouverte] et ouverte[sinon] mais fermée[fin][sinon]éteinte[fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est allumée et ouverte."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -41,7 +41,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).not.toContain("fermée");
   });
 
-  it("si imbriqué dans si — branche externe vraie + branche interne fausse", () => {
+  it("[F031-T002] si imbriqué dans si — branche externe vraie + branche interne fausse", () => {
     const desc = "Une machine [si la machine est allumée]allumée[si la machine est ouverte] et ouverte[sinon] mais fermée[fin][sinon]éteinte[fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est allumée et fermée."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -51,7 +51,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).not.toContain("et ouverte");
   });
 
-  it("si imbriqué dans si — branche externe fausse (le si interne ne doit pas être affiché)", () => {
+  it("[F031-T003] si imbriqué dans si — branche externe fausse (le si interne ne doit pas être affiché)", () => {
     const desc = "Une machine [si la machine est allumée]allumée[si la machine est ouverte] et ouverte[sinon] mais fermée[fin][sinon]éteinte[fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est éteinte et ouverte."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -61,7 +61,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).not.toContain("mais fermée");
   });
 
-  it("si imbriqué dans le sinon d’un autre si", () => {
+  it("[F031-T004] si imbriqué dans le sinon d’un autre si", () => {
     const desc = "Une machine [si la machine est allumée]allumée[sinon][si la machine est ouverte]éteinte mais ouverte[sinon]éteinte et fermée[fin][fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est éteinte et ouverte."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -70,7 +70,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).not.toContain("éteinte et fermée");
   });
 
-  it("trois niveaux d’imbrication", () => {
+  it("[F031-T005] trois niveaux d’imbrication", () => {
     const desc = "Machine [si la machine est allumée]A[si la machine est ouverte]B[si la machine est cassée]C[fin][fin][fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est allumée, ouverte et cassée."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -79,7 +79,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).toContain("C");
   });
 
-  it("sinonsi à un niveau imbriqué — le sinonsi ne ferme pas le si externe", () => {
+  it("[F031-T006] sinonsi à un niveau imbriqué — le sinonsi ne ferme pas le si externe", () => {
     const desc = "M [si la machine est allumée]EXT[si la machine est ouverte]inner-O[sinonsi la machine est cassée]inner-V[sinon]inner-X[fin] suite-EXT[sinon]NON-EXT[fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est allumée. La machine est fermée. La machine est cassée."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -91,7 +91,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(sortie).not.toContain("inner-X");
   });
 
-  it("régression — Xe fois séquentiels au même niveau (pas une imbrication)", () => {
+  it("[F031-T007] régression — Xe fois séquentiels au même niveau (pas une imbrication)", () => {
     // [1ere fois]…[2eme fois]…[puis]…[fin] doit afficher un, puis deux, puis plus.
     const desc = "[1ere fois]un[2eme fois]deux[puis]plus[fin].";
     const ctx = preparerJeu(baseScenario(desc, ""));
@@ -100,7 +100,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(ctx.com.executerCommande("examiner machine", false).sortie).toContain("plus");
   });
 
-  it("régression — [1ere fois]A[puis]B[fin] (raccourci à deux branches)", () => {
+  it("[F031-T008] régression — [1ere fois]A[puis]B[fin] (raccourci à deux branches)", () => {
     const desc = "[1ere fois]A[puis]B[fin].";
     const ctx = preparerJeu(baseScenario(desc, ""));
     const s1 = ctx.com.executerCommande("examiner machine", false).sortie;
@@ -111,7 +111,7 @@ describe("Conditions imbriquées dans les textes dynamiques", () => {
     expect(s2).not.toContain("A");
   });
 
-  it("régression — condition simple à un seul niveau", () => {
+  it("[F031-T009] régression — condition simple à un seul niveau", () => {
     const desc = "Une machine [si la machine est allumée]allumée[sinon]éteinte[fin].";
     const ctx = preparerJeu(baseScenario(desc, "La machine est allumée."));
     const sortie = ctx.com.executerCommande("examiner machine", false).sortie;

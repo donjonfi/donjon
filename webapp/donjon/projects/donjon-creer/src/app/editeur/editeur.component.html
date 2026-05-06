@@ -363,7 +363,7 @@
 
                                 <!-- TAB: TESTER LE JEU -->
                                 <div [style.display]="(tab === 'jeu' ? 'block' : 'none' )" class="max" style="height: 100%;">
-                                  <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)"></djn-lecteur>
+                                  <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" [supportLiensLignes]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)" (referenceLigne)="referenceCode($event)"></djn-lecteur>
                                 </div>
 
                                 <!-- TAB: APERÇU ÉLÉMENTS -->

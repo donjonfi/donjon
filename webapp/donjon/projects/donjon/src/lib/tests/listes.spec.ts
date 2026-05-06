@@ -18,23 +18,23 @@ describe('Liste − Déclarer une liste vide', () => {
   jeu.listes.push(historique);
   const condUtils = new ConditionsUtils(jeu, false);
 
-  it('vérifier que la taille de la liste (vaut 0)', () => {
+  it('[F042-T001] vérifier que la taille de la liste (vaut 0)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier que la taille de la liste (vaut 2)', () => {
+  it('[F042-T002] vérifier que la taille de la liste (vaut 2)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 2', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier que la liste est vide (est vide)', () => {
+  it('[F042-T003] vérifier que la liste est vide (est vide)', () => {
     expect(condUtils.siEstVrai('l’historique est vide', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
+  it('[F042-T004] vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
     expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
+  it('[F042-T005] vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
     expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
@@ -50,43 +50,43 @@ describe('Liste − Déclarer une liste remplie', () => {
   jeu.listes.push(historique);
   const condUtils = new ConditionsUtils(jeu, false);
 
-  it('vérifier que la taille de la liste (vaut 0)', () => {
+  it('[F042-T006] vérifier que la taille de la liste (vaut 0)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier que la taille de la liste (vaut 1)', () => {
+  it('[F042-T007] vérifier que la taille de la liste (vaut 1)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier que la taille de la liste (vaut 2)', () => {
+  it('[F042-T008] vérifier que la taille de la liste (vaut 2)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 2', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier que la liste est vide (est vide)', () => {
+  it('[F042-T009] vérifier que la liste est vide (est vide)', () => {
     expect(condUtils.siEstVrai('l’historique est vide', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
+  it('[F042-T010] vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
     expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
+  it('[F042-T011] vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
     expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier un élément qui se trouve dans la liste (contient)', () => {
+  it('[F042-T012] vérifier un élément qui se trouve dans la liste (contient)', () => {
     expect(condUtils.siEstVrai('l’historique contient "bougie allumée"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier un élément qui se trouve dans la liste (inclut)', () => {
+  it('[F042-T013] vérifier un élément qui se trouve dans la liste (inclut)', () => {
     expect(condUtils.siEstVrai('l’historique inclut "bougie allumée"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier un élément qui se trouve dans la liste (ne contient pas)', () => {
+  it('[F042-T014] vérifier un élément qui se trouve dans la liste (ne contient pas)', () => {
     expect(condUtils.siEstVrai('l’historique ne contient pas "bougie allumée"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui se trouve dans la liste (n’inclut pas)', () => {
+  it('[F042-T015] vérifier un élément qui se trouve dans la liste (n’inclut pas)', () => {
     expect(condUtils.siEstVrai('l’historique n’inclut pas "bougie allumée"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
@@ -101,39 +101,39 @@ describe('Liste − Déclarer une liste remplie (Majuscule)', () => {
   jeu.listes.push(historique);
   const condUtils = new ConditionsUtils(jeu, false);
 
-  it('vérifier que la taille de la liste (vaut 0)', () => {
+  it('[F042-T016] vérifier que la taille de la liste (vaut 0)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier que la taille de la liste (vaut 1)', () => {
+  it('[F042-T017] vérifier que la taille de la liste (vaut 1)', () => {
     expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier que la liste est vide (est vide)', () => {
+  it('[F042-T018] vérifier que la liste est vide (est vide)', () => {
     expect(condUtils.siEstVrai('l’historique est vide', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
+  it('[F042-T019] vérifier un élément qui ne se trouve pas dans la liste (contient)', () => {
     expect(condUtils.siEstVrai('l’historique contient "élément pas présent"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
+  it('[F042-T020] vérifier un élément qui ne se trouve pas dans la liste (ne contient pas)', () => {
     expect(condUtils.siEstVrai('l’historique ne contient pas "élément pas présent"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier Un Élément qui se trouve dans la liste (contient)', () => {
+  it('[F042-T021] vérifier Un Élément qui se trouve dans la liste (contient)', () => {
     expect(condUtils.siEstVrai('l’historique contient "Metro"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier Un Élément qui se trouve dans la liste (inclut)', () => {
+  it('[F042-T022] vérifier Un Élément qui se trouve dans la liste (inclut)', () => {
     expect(condUtils.siEstVrai('l’historique inclut "Metro"', undefined, undefined, undefined, 0)).toBeTrue();
   });
 
-  it('vérifier Un Élément qui se trouve dans la liste (ne contient pas)', () => {
+  it('[F042-T023] vérifier Un Élément qui se trouve dans la liste (ne contient pas)', () => {
     expect(condUtils.siEstVrai('l’historique ne contient pas "Metro"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
-  it('vérifier Un Élément qui se trouve dans la liste (n’inclut pas)', () => {
+  it('[F042-T024] vérifier Un Élément qui se trouve dans la liste (n’inclut pas)', () => {
     expect(condUtils.siEstVrai('l’historique n’inclut pas "Metro"', undefined, undefined, undefined, 0)).toBeFalse();
   });
 
@@ -143,7 +143,7 @@ describe('Liste − Déclarer une liste remplie (Majuscule)', () => {
 describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
 
-  it('Test du Métro avec une instruction si', () => {
+  it('[F042-T025] Test du Métro avec une instruction si', () => {
 
     const scenario = '' +
       'Le métro est un lieu. ' +
@@ -176,7 +176,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
   });
 
-  it('Test du métro avec un texte conditionnel', () => {
+  it('[F042-T026] Test du métro avec un texte conditionnel', () => {
 
     const scenario = '' +
       'Le métro est un lieu. ' +
@@ -217,7 +217,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
   });
 
-  it('Test du Métro avec un texte conditionnel', () => {
+  it('[F042-T027] Test du Métro avec un texte conditionnel', () => {
 
     const scenario = '' +
       'Le métro est un lieu. ' +
@@ -247,7 +247,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
   });
 
-  it('Vérifier liste vide après avoir été vidée', () => {
+  it('[F042-T028] Vérifier liste vide après avoir été vidée', () => {
 
     const scenario = '' +
       'Le métro est un lieu. ' +
@@ -300,7 +300,7 @@ describe('Liste − Scénario: Déclarer une liste remplie (Majuscule)', () => {
 
 describe('Liste − ajouter plusieurs textes à une liste', () => {
 
-  it('ajouter un seul texte à la liste', () => {
+  it('[F042-T029] ajouter un seul texte à la liste', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -320,7 +320,7 @@ describe('Liste − ajouter plusieurs textes à une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"jean"');
   });
 
-  it('ajouter deux textes à la liste', () => {
+  it('[F042-T030] ajouter deux textes à la liste', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -341,7 +341,7 @@ describe('Liste − ajouter plusieurs textes à une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[1]).toEqual('"marie"');
   });
 
-  it('ajouter deux textes à la liste des', () => {
+  it('[F042-T031] ajouter deux textes à la liste des', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -362,7 +362,7 @@ describe('Liste − ajouter plusieurs textes à une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[1]).toEqual('"marie"');
   });
 
-  it('ajouter trois textes avec virgule et "et"', () => {
+  it('[F042-T032] ajouter trois textes avec virgule et "et"', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -386,7 +386,7 @@ describe('Liste − ajouter plusieurs textes à une liste', () => {
 
 describe('Liste − ajouter plusieurs nombres à une liste', () => {
 
-  it('ajouter deux nombres à la liste', () => {
+  it('[F042-T033] ajouter deux nombres à la liste', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -405,7 +405,7 @@ describe('Liste − ajouter plusieurs nombres à une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[1]).toEqual(20);
   });
 
-  it('ajouter trois nombres avec virgule et "et"', () => {
+  it('[F042-T034] ajouter trois nombres avec virgule et "et"', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -429,7 +429,7 @@ describe('Liste − ajouter plusieurs nombres à une liste', () => {
 
 describe('Liste − ajouter plusieurs intitulés à une liste', () => {
 
-  it('ajouter deux objets du jeu à la liste', () => {
+  it('[F042-T035] ajouter deux objets du jeu à la liste', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -448,7 +448,7 @@ describe('Liste − ajouter plusieurs intitulés à une liste', () => {
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(2);
   });
 
-  it('désambiguïsation : intitulé contenant " à " ne perturbe pas le découpage', () => {
+  it('[F042-T036] désambiguïsation : intitulé contenant " à " ne perturbe pas le découpage', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -470,7 +470,7 @@ describe('Liste − ajouter plusieurs intitulés à une liste', () => {
 
 describe('Liste − retirer des textes d\'une liste', () => {
 
-  it('retirer un texte (de la liste)', () => {
+  it('[F042-T037] retirer un texte (de la liste)', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -491,7 +491,7 @@ describe('Liste − retirer des textes d\'une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"marie"');
   });
 
-  it('retirer deux textes (de la liste)', () => {
+  it('[F042-T038] retirer deux textes (de la liste)', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -510,7 +510,7 @@ describe('Liste − retirer des textes d\'une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[0]).toEqual('"bob"');
   });
 
-  it('retirer un texte absent de la liste — pas d\'erreur', () => {
+  it('[F042-T039] retirer un texte absent de la liste — pas d\'erreur', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -534,7 +534,7 @@ describe('Liste − retirer des textes d\'une liste', () => {
 
 describe('Liste − retirer des nombres d\'une liste', () => {
 
-  it('retirer un nombre (de la liste)', () => {
+  it('[F042-T040] retirer un nombre (de la liste)', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -554,7 +554,7 @@ describe('Liste − retirer des nombres d\'une liste', () => {
     expect(ctx.jeu.listes[0].valeurs[1]).toEqual(30);
   });
 
-  it('retirer un nombre (de la liste des)', () => {
+  it('[F042-T041] retirer un nombre (de la liste des)', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -578,7 +578,7 @@ describe('Liste − retirer des nombres d\'une liste', () => {
 
 describe('Liste − retirer des intitulés d\'une liste', () => {
 
-  it('retirer un objet du jeu (de la liste)', () => {
+  it('[F042-T042] retirer un objet du jeu (de la liste)', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -602,7 +602,7 @@ describe('Liste − retirer des intitulés d\'une liste', () => {
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(1);
   });
 
-  it('alias enlever — équivalent à retirer', () => {
+  it('[F042-T043] alias enlever — équivalent à retirer', () => {
 
     const scenario = `
       Le salon est un lieu.
@@ -640,21 +640,21 @@ describe('Liste − vider une liste : 3 formes équivalentes', () => {
     `;
   }
 
-  it('vider les suspects', () => {
+  it('[F042-T044] vider les suspects', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenarioAvecAction('vider les suspects.'), false);
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(3);
     ctx.com.executerCommande("tester", false);
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(0);
   });
 
-  it('vider la liste suspects', () => {
+  it('[F042-T045] vider la liste suspects', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenarioAvecAction('vider la liste suspects.'), false);
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(3);
     ctx.com.executerCommande("tester", false);
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(0);
   });
 
-  it('vider la liste des suspects', () => {
+  it('[F042-T046] vider la liste des suspects', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenarioAvecAction('vider la liste des suspects.'), false);
     expect(ctx.jeu.listes[0].valeurs).toHaveSize(3);
     ctx.com.executerCommande("tester", false);
@@ -665,7 +665,7 @@ describe('Liste − vider une liste : 3 formes équivalentes', () => {
 
 describe('Liste − vérifier via condition après ajouter multiple', () => {
 
-  it('vérifier que la liste contient les éléments ajoutés', () => {
+  it('[F042-T047] vérifier que la liste contient les éléments ajoutés', () => {
 
     const scenario = `
       Le salon est un lieu.

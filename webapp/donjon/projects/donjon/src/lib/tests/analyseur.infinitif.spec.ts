@@ -12,59 +12,59 @@ describe('Epressions régulières − infinitifs (verbes)', () => {
   // VERBE À L’INFINITIF
   // - verbe(1)
 
-  it('Verbe infinitif :  « marcher »', () => {
+  it('[F005-T001] Verbe infinitif :  « marcher »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("marcher");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("marcher"); // infinitif
   });
 
-  it('Verbe infinitif :  « partir »', () => {
+  it('[F005-T002] Verbe infinitif :  « partir »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("partir");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("partir"); // infinitif
   });
 
-  it('Verbe infinitif :  « boire »', () => {
+  it('[F005-T003] Verbe infinitif :  « boire »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("boire");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("boire"); // infinitif
   });
 
-  it('Verbe infinitif :  « marcher »', () => {
+  it('[F005-T004] Verbe infinitif :  « marcher »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("marcher");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("marcher"); // infinitif
   });
 
-  it('Verbe infinitif :  « se brosser »', () => {
+  it('[F005-T005] Verbe infinitif :  « se brosser »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("se brosser");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("se brosser"); // infinitif
   });
 
-  it('Verbe infinitif :  « s’égosiller »', () => {
+  it('[F005-T006] Verbe infinitif :  « s’égosiller »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("s’égosiller");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("s’égosiller"); // infinitif
   })
 
-  it('Verbe infinitif :  « s\'éveiller »', () => {
+  it('[F005-T007] Verbe infinitif :  « s\'éveiller »', () => {
     const result = ExprReg.xVerbeInfinitif.exec("s'éveiller");
     expect(result).toBeTruthy();
     expect(result[1]).toEqual("s'éveiller"); // infinitif
   });
 
-  it('Verbe infinitif : « oiseau » (💥)', () => {
+  it('[F005-T008] Verbe infinitif : « oiseau » (💥)', () => {
     const result = ExprReg.xVerbeInfinitif.exec("oiseau");
     expect(result).toBeFalsy();
   });
 
-  it('Verbe infinitif : « un boucher » (💥)', () => {
+  it('[F005-T009] Verbe infinitif : « un boucher » (💥)', () => {
     const result = ExprReg.xVerbeInfinitif.exec("un boucher");
     expect(result).toBeFalsy();
   });
 
-  it('Verbe infinitif : « l’armurier » (💥)', () => {
+  it('[F005-T010] Verbe infinitif : « l’armurier » (💥)', () => {
     const result = ExprReg.xVerbeInfinitif.exec("l’armurier");
     expect(result).toBeFalsy();
   });
