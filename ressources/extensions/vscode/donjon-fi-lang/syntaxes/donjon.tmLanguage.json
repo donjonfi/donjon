@@ -9,6 +9,9 @@
       "include": "#keywords"
     },
     {
+      "include": "#temporal"
+    },
+    {
       "include": "#support"
     },
     {
@@ -16,6 +19,15 @@
     },
     {
       "include": "#variables"
+    },
+    {
+      "include": "#bracket-tag"
+    },
+    {
+      "include": "#format-braces"
+    },
+    {
+      "include": "#wait-key"
     },
     {
       "include": "#strings"
@@ -34,7 +46,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(attendre|changer|continuer|copier|déplacer|déverrouiller|dire|effacer|exécuter(?! (\\w)+(er|re|ir))|remplacer|refuser|sauver|stopper|terminer|jouer|arrêter|afficher|décharger|charger|déterminer|vider)\\b(?!\\.)"
+          "match": "\\b(afficher|ajouter|allumer|arrêter|attendre|augmenter|changer|charger|continuer|copier|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|stopper|terminer|verrouiller|vider)\\b(?!\\.)"
         },
         {
           "name": "support.constant",
@@ -46,7 +58,7 @@
         },
         {
           "name": "constant.language",
-          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|couvert|décorati(f|v)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|marche|arrêt|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|ajdacent|initialisé|multiple|unique|illimité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|marche|arrêt|arrêté|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|adjacent|initialisé|multiple|unique|illimité|cassé|actionné|connu|visité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -54,7 +66,7 @@
       "patterns": [
         {
           "name": "storage.type",
-          "match": "(une \\b(clé|porte|personne|action|direction|liste)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|concept|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs)\\b|(deux \\b(objets)\\b)"
+          "match": "(une \\b(clé|porte|personne|action|direction|liste|listevide|listenombre|listetexte|listeintitulé|listemixte|ressource)\\b)|(un \\b(obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|concept|intitulé|élément)\\b)|des \\b(clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs|directions|vivants|concepts|intitulés|éléments|ressources)\\b|(deux \\b(objets)\\b)"
         }
       ]
     },
@@ -82,11 +94,107 @@
         }
       ]
     },
+    "temporal": {
+      "patterns": [
+        {
+          "name": "support.constant.time.donjon",
+          "match": "\\b(dans|après) \\d+ (secondes?|tours?)\\b"
+        }
+      ]
+    },
+    "bracket-tag": {
+      "name": "meta.bracket-tag.donjon",
+      "begin": "(\\[)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.section.bracket.begin.donjon"
+        }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.bracket.end.donjon"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\G([pcsv])(?=\\s)",
+          "captures": {
+            "1": {
+              "name": "support.constant.bracket-prefix.donjon"
+            }
+          }
+        },
+        {
+          "name": "variable.other.reference.donjon",
+          "match": "[@#&][^\\s\\]]+"
+        },
+        {
+          "name": "support.function.bracket-tag.donjon",
+          "match": "\\b(intitulé|description|aperçu|statut|sorties|titre|obstacle vers|décrire objets (dans|sur)|lister objets inventaire)\\b"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#support"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "format-braces": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.donjon",
+          "match": "\\{[nNpeixU]\\}"
+        },
+        {
+          "name": "markup.bold.donjon",
+          "match": "\\{\\*[^*}]*\\*\\}"
+        },
+        {
+          "name": "markup.italic.donjon",
+          "match": "\\{/[^/}]*/\\}"
+        },
+        {
+          "name": "markup.underline.donjon",
+          "match": "\\{_[^_}]*_\\}"
+        },
+        {
+          "name": "markup.inserted.donjon",
+          "match": "\\{\\+[^+}]*\\+\\}"
+        },
+        {
+          "name": "markup.deleted.donjon",
+          "match": "\\{-[^\\-}]*-\\}"
+        },
+        {
+          "name": "markup.heading.donjon",
+          "match": "\\{=[^=}]*=\\}"
+        }
+      ]
+    },
+    "wait-key": {
+      "patterns": [
+        {
+          "name": "support.function.macro.donjon",
+          "match": "@@[^@]+@@"
+        }
+      ]
+    },
     "strings": {
       "name": "string.interpolated.donjon",
       "begin": "\"|\\]",
       "end": "\\[|\"",
       "patterns": [
+        {
+          "include": "#format-braces"
+        },
+        {
+          "include": "#wait-key"
+        },
         {
           "name": "constant.character.escape.donjon",
           "match": "\\{.\\}|\\{.|.\\}"
