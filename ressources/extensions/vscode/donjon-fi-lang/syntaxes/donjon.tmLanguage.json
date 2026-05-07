@@ -49,11 +49,11 @@
           "match": "\\b(afficher|ajouter|allumer|arrêter|attendre|augmenter|changer|charger|continuer|copier|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|stopper|terminer|verrouiller|vider)\\b(?!\\.)"
         },
         {
-          "name": "support.constant",
+          "name": "keyword.other.direction.donjon",
           "match": "(au (sud|nord)(?:-(?:est|ouest))?)|(au(\\-| )(dessus|dessous))|(en (haut|bas|dessous|dessus))|(à l('|’)(ouest|est|intérieur|extérieur))|sur |dans |sous"
         },
         {
-          "name": "entity.name.function",
+          "name": "support.type.property.donjon",
           "match": "\\b((i|I)ntitulé|(p|P)ronom|description|quantité|infinitif|préposition|titre|auteur(s)?|aperçu|texte|lien|capacité|accord|réaction|version|site|web|aide|commande|action|contenu|musique|image|thème|sortie(s)?)\\b"
         },
         {

@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Syntax highlighting and snippets for Donjon FI lang",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
@@ -21,6 +21,21 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/donjonfi/donjon"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:donjon"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "tsc -p ./ && node --test out/declarationScanner.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.71.0",
+    "typescript": "^5.4.0"
   },
   "contributes": {
     "languages": [
@@ -50,6 +65,28 @@
         "language": "donjon",
         "path": "./snippets/donjon.json"
       }
-    ]
+    ],
+    "semanticTokenScopes": [
+      {
+        "language": "donjon",
+        "scopes": {
+          "variable": ["entity.name.variable.donjon"],
+          "type": ["entity.name.type.donjon"]
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "editor.semanticTokenColorCustomizations": {
+        "enabled": true,
+        "rules": {
+          "variable:donjon": {
+            "fontStyle": "bold"
+          },
+          "type:donjon": {
+            "fontStyle": "bold"
+          }
+        }
+      }
+    }
   }
 }
