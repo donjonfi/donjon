@@ -40,6 +40,7 @@ const semanticTokensProvider_1 = require("./semanticTokensProvider");
 const symbolProvider_1 = require("./symbolProvider");
 const definitionProvider_1 = require("./definitionProvider");
 const hoverProvider_1 = require("./hoverProvider");
+const documentLinkProvider_1 = require("./documentLinkProvider");
 const analysis_1 = require("./analysis");
 function activate(context) {
     const output = vscode.window.createOutputChannel('Donjon');
@@ -51,6 +52,7 @@ function activate(context) {
     context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(selector, new symbolProvider_1.DonjonDocumentSymbolProvider()));
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(selector, new definitionProvider_1.DonjonDefinitionProvider()));
     context.subscriptions.push(vscode.languages.registerHoverProvider(selector, new hoverProvider_1.DonjonHoverProvider()));
+    context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(selector, new documentLinkProvider_1.DonjonDocumentLinkProvider()));
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((doc) => (0, analysis_1.clearAnalysisCache)(doc.uri)));
 }
 function deactivate() {

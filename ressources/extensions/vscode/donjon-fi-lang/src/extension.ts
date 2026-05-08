@@ -3,6 +3,7 @@ import { DonjonSemanticTokensProvider, legend, attachOutput } from './semanticTo
 import { DonjonDocumentSymbolProvider } from './symbolProvider';
 import { DonjonDefinitionProvider } from './definitionProvider';
 import { DonjonHoverProvider } from './hoverProvider';
+import { DonjonDocumentLinkProvider } from './documentLinkProvider';
 import { clearAnalysisCache } from './analysis';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -28,6 +29,9 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(
     vscode.languages.registerHoverProvider(selector, new DonjonHoverProvider())
+  );
+  context.subscriptions.push(
+    vscode.languages.registerDocumentLinkProvider(selector, new DonjonDocumentLinkProvider())
   );
 
   context.subscriptions.push(

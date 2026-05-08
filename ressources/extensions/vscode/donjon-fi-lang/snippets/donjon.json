@@ -48,6 +48,14 @@
       "{+raccourci+} : {-${4:abc}-}\"."
     ],
     "description": "fiche d’aide d’une action"
+  },
+
+  "inclure": {
+    "prefix": "inc",
+    "body": [
+      "inclure \"${1:fichier.djn}\"."
+    ],
+    "description": "Inclure le contenu d’un autre fichier .djn (résolution récursive, chemins relatifs au scénario racine)"
   }
 
 }

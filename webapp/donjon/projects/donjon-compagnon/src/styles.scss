@@ -1,0 +1,51 @@
+@import "variables";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+// Font Awesome (mêmes imports que donjon-creer pour conserver l'iconographie partagée)
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../node_modules/@fortawesome/fontawesome-free/scss/solid";
+
+.objet {
+  color: $primary;
+
+  .epithete {
+    font-style: italic;
+  }
+}
+
+.lieu {
+  color: red;
+}
+
+.infinitif {
+  color: $danger;
+  font-style: italic;
+}
+
+ul.no-bullet {
+  padding: 0;
+  list-style: none;
+}
+
+// Scrollbars : forcer un style clair aligné sur la palette
+// (la webview VS Code injecte par défaut des scrollbars sombres)
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #{$primary} #f1f1f1;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: $primary;
+  border-radius: 5px;
+  border: 2px solid #f1f1f1;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: darken($primary, 10%);
+}

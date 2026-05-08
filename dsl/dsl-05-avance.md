@@ -253,3 +253,24 @@ routine boom:
   dire "La bombe a explosé ! Vous avez perdu.".
 fin routine
 ```
+
+## 22. Découper un scénario en plusieurs fichiers
+
+L’instruction `inclure` permet de remplacer une ligne par le contenu d’un autre fichier `.djn`.
+
+```
+-- Dans le scénario racine (jeu.djn)
+inclure "intro.djn".
+inclure "salle1.djn".
+inclure "salle2.djn".
+```
+
+- Les chemins sont **relatifs au fichier `.djn` racine** (peu importe quel fichier porte l’instruction `inclure`).
+- La résolution est **récursive** : un fichier inclus peut lui-même utiliser `inclure`.
+- Les **cycles** sont détectés (`a.djn` qui inclut `b.djn` qui inclut `a.djn` produit une erreur).
+- La **profondeur maximale** est de 32 niveaux d’imbrication.
+- L’instruction `inclure` est résolue **avant la compilation** : le moteur ne la voit jamais. Les erreurs de compilation pointent sur le fichier d’origine et sa ligne d’origine.
+
+**Outils** :
+- VS Code (extension `donjon-fi-compagnon`) : la résolution est automatique, les diagnostics pointent au bon fichier.
+- Web (`donjon-creer`) : utiliser le bouton « Ajouter fichier inclus » à côté de « Charger », puis compiler.

@@ -172,6 +172,109 @@
         }
       }
     },
+    "donjon-compagnon": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "projects/donjon-compagnon",
+      "sourceRoot": "projects/donjon-compagnon/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": {
+              "base": "dist/donjon-compagnon"
+            },
+            "index": "projects/donjon-compagnon/src/index.html",
+            "polyfills": [
+              "projects/donjon-compagnon/src/polyfills.ts"
+            ],
+            "tsConfig": "projects/donjon-compagnon/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [],
+            "styles": [
+              "projects/donjon-compagnon/src/styles.scss"
+            ],
+            "scripts": [],
+            "browser": "projects/donjon-compagnon/src/main.ts",
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": ["import", "global-builtin", "color-functions", "if-function"]
+              }
+            }
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "4mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "bundle": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "4mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "projects/donjon-compagnon/src/environments/environment.ts",
+                  "with": "projects/donjon-compagnon/src/environments/environment.bundle.ts"
+                }
+              ],
+              "outputHashing": "all",
+              "outputPath": {
+                "base": "dist/donjon-compagnon-bundle"
+              },
+              "baseHref": "./"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "donjon-compagnon:build:production"
+            },
+            "development": {
+              "port": 4202,
+              "buildTarget": "donjon-compagnon:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
     "donjon-jouer": {
       "projectType": "application",
       "schematics": {

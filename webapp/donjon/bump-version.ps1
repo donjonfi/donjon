@@ -75,10 +75,11 @@ Write-Host "Bump vers $NouvelleVersion (versionNum=$versionNum, date=$dateAujour
 Write-Host ""
 
 # --- Fichiers ---
-$ActionsSource = "../../ressources/scenarios/actions.djn"
-$PackageJson   = "package.json"
-$PackageLock   = "package-lock.json"
-$VscodeExtPkg  = "../../ressources/extensions/vscode/donjon-fi-runner/package.json"
+$ActionsSource         = "../../ressources/scenarios/actions.djn"
+$PackageJson           = "package.json"
+$PackageLock           = "package-lock.json"
+$VscodeExtPkg          = "../../ressources/extensions/vscode/donjon-fi-runner/package.json"
+$VscodeExtCompagnonPkg = "../../ressources/extensions/vscode/donjon-fi-compagnon/package.json"
 
 # 1. actions.djn
 $contenu = Get-Content $ActionsSource -Raw -Encoding UTF8
@@ -120,7 +121,13 @@ $contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVers
 [System.IO.File]::WriteAllText((Resolve-Path $VscodeExtPkg), $contenu, $utf8NoBom)
 Write-Host "OK  $VscodeExtPkg" -ForegroundColor Green
 
-# 6. Synchro actions.djn → creer / jouer / scenario_actions.ts
+# 6. package.json extension VS Code donjon-fi-compagnon
+$contenu = Get-Content $VscodeExtCompagnonPkg -Raw -Encoding UTF8
+$contenu = $contenu -replace '"version": "[^"]+"', "`"version`": `"$NouvelleVersion`""
+[System.IO.File]::WriteAllText((Resolve-Path $VscodeExtCompagnonPkg), $contenu, $utf8NoBom)
+Write-Host "OK  $VscodeExtCompagnonPkg" -ForegroundColor Green
+
+# 7. Synchro actions.djn → creer / jouer / scenario_actions.ts
 Write-Host ""
 Write-Host "Synchro actions..." -ForegroundColor Cyan
 & "$PSScriptRoot/sync-actions.ps1"

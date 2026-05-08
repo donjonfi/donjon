@@ -6,6 +6,9 @@
       "include": "#comments"
     },
     {
+      "include": "#inclure-statement"
+    },
+    {
       "include": "#keywords"
     },
     {
@@ -39,6 +42,27 @@
         {
           "name": "comment.line",
           "match": "^(\\s*)--(.*)$"
+        }
+      ]
+    },
+    "inclure-statement": {
+      "patterns": [
+        {
+          "match": "^(\\s*)(inclure)\\s+([\"“])([^\"”]+)([\"”])\\s*\\.?\\s*$",
+          "captures": {
+            "2": {
+              "name": "keyword.control.import.donjon"
+            },
+            "3": {
+              "name": "punctuation.definition.string.begin.donjon"
+            },
+            "4": {
+              "name": "string.quoted.double.donjon"
+            },
+            "5": {
+              "name": "punctuation.definition.string.end.donjon"
+            }
+          }
         }
       ]
     },
