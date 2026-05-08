@@ -343,3 +343,4 @@ ressources/extensions/vscode/donjon-fi-runner/donjon-fi-runner-*.vsix
 ressources/extensions/vscode/donjon-fi-runner/media/player.html
 webapp/donjon/package-lock.json
 nul
+scripts/
