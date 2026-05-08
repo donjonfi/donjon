@@ -1,0 +1,130 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.compagnon-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
+.compagnon-tabs {
+  flex: 0 0 auto;
+  padding: 0 0.5rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.nav-link {
+  cursor: pointer;
+}
+
+.compagnon-toolbar-btn {
+  margin: 0 0.25rem 0.25rem 0;
+  white-space: nowrap;
+}
+
+// Badge cliquable dans l'onglet Analyse — pointe vers la ligne d'origine dans VS Code
+.compagnon-link {
+  cursor: pointer;
+  color: #fff;
+
+  &:hover {
+    filter: brightness(1.15);
+    text-decoration: underline !important;
+  }
+}
+
+// Onglet Aide
+.compagnon-aide {
+  max-width: 60rem;
+  line-height: 1.5;
+
+  h5 {
+    font-weight: 600;
+  }
+
+  code {
+    background: #f4f4f4;
+    padding: 0.05rem 0.3rem;
+    border-radius: 3px;
+    color: #c7254e;
+  }
+
+  kbd {
+    font-size: 0.85em;
+  }
+}
+
+.compagnon-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid #dee2e6;
+  border-top: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // Padding par défaut pour les onglets standards
+  padding: 0.75rem;
+
+  // L'onglet Jeu doit prendre toute la place sans marge
+  &.compagnon-content--jeu {
+    padding: 0;
+  }
+
+  // L'onglet Wiki : iframe en pleine surface
+  &.compagnon-content--wiki {
+    padding: 0;
+  }
+}
+
+.compagnon-pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+
+  // L'onglet Jeu : pas de scroll au niveau du pane (le lecteur gère son propre layout)
+  &.compagnon-pane--jeu {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    djn-lecteur {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: block;
+      width: 100%;
+    }
+  }
+
+  // L'onglet Wiki : iframe pleine surface
+  &.compagnon-pane--wiki {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+}
+
+.compagnon-wiki-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.compagnon-wiki-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  background: #fff;
+}

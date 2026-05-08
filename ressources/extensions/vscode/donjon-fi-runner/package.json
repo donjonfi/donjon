@@ -1,6 +1,6 @@
 {
   "name": "donjon-fi-runner",
-  "displayName": "Donjon FI Runner",
+  "displayName": "Donjon FI Runner (déprécié — installer Donjon FI Compagnon)",
   "author": {
     "name": "Jonathan Claes",
     "url": "https://donjon.fi"
@@ -8,8 +8,8 @@
   "publisher": "donjon-fi",
   "license": "MIT",
   "homepage": "https://donjon.fi",
-  "description": "Test your Donjon FI game (.djn) directly inside VS Code",
-  "version": "3.5.0",
+  "description": "[DÉPRÉCIÉE] Cette extension est remplacée par Donjon FI Compagnon, qui inclut le test du jeu et bien plus. L'installer installera automatiquement le compagnon.",
+  "version": "3.6.1",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
@@ -22,43 +22,7 @@
     "type": "git",
     "url": "https://github.com/donjonfi/donjon"
   },
-  "activationEvents": [
-    "onLanguage:donjon"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "donjon.runGame",
-        "title": "Tester le jeu Donjon FI",
-        "icon": "$(play)"
-      }
-    ],
-    "menus": {
-      "editor/title": [
-        {
-          "command": "donjon.runGame",
-          "when": "resourceExtname == .djn",
-          "group": "navigation"
-        }
-      ]
-    },
-    "keybindings": [
-      {
-        "command": "donjon.runGame",
-        "key": "ctrl+F5",
-        "when": "resourceExtname == .djn"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/vscode": "^1.71.0",
-    "typescript": "^5.0.0"
-  }
+  "extensionPack": [
+    "donjon-fi.donjon-fi-compagnon"
+  ]
 }

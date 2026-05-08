@@ -15,6 +15,32 @@
       title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.txt"
       style="display: none;" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
     </label>
+
+    <label class="btn btn-outline-light btn-file m-1 px-2 py-1 m-1"
+           tooltip="Ajouter un ou plusieurs fichiers .djn cibles d'un `inclure`" placement="right">
+      <i class="fas fa-plus"></i><span class="ms-2 d-none d-lg-inline">Ajouter fichier inclus</span>
+      <input type="file" accept=".djn,.txt" multiple style="display: none;"
+             (change)="onChargerFichiersInclus($event.target)" onclick="this.value=null">
+    </label>
+
+    @if (fichiersInclusListe.length > 0) {
+      <div class="text-light small ms-2 me-2" style="max-width: 50%;">
+        <span class="me-1">Inclus&nbsp;:</span>
+        @for (nom of fichiersInclusListe; track nom) {
+          <span class="badge bg-light text-dark me-1">
+            {{nom}}
+            <button type="button" class="btn btn-link p-0 ms-1 align-baseline" aria-label="Retirer"
+                    style="line-height: 1;" (click)="onRetirerFichierInclus(nom)">
+              <i class="fas fa-times"></i>
+            </button>
+          </span>
+        }
+        <button type="button" class="btn btn-sm btn-outline-light py-0 px-1 ms-1"
+                (click)="onEffacerFichiersInclus()" title="Tout effacer">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    }
   </nav>
 </div>
 
@@ -475,8 +501,17 @@
                                                 }</div>
                                               </div>
                                               @if (!message.fichierAction) {
+                                                @let origine = traduireMessage(message);
                                                 <div>
-                                                  <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.numeroLigne)">{{message.numeroLigneFormate}}</button>&nbsp;</span>
+                                                  @if (origine && estLigneRacine(origine)) {
+                                                    <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(origine.ligneOrigine)">{{origine.ligneOrigine}}</button>&nbsp;</span>
+                                                  } @else if (origine) {
+                                                    <span class="pe-1" tooltip="Ligne issue d'un fichier inclus — l'éditeur n'affiche que le scénario racine">
+                                                      📝 <span class="font-monospace">{{origine.nomFichier}}:{{origine.ligneOrigine}}</span>&nbsp;
+                                                    </span>
+                                                  } @else {
+                                                    <span class="pe-1">📝 <button class="btn btn-link btn-sm mt-0 pt-0 px-0 font-monospace"  (click)="referenceCode(message.numeroLigne)">{{message.numeroLigneFormate}}</button>&nbsp;</span>
+                                                  }
                                                   <small class="t-code">{{message.phrase.toString()}}</small>
                                                 </div>
                                               }

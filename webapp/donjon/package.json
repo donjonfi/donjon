@@ -1,6 +1,6 @@
 {
   "name": "donjon",
-  "version": "3.5.0",
+  "version": "3.6.1",
   "description": "Donjon FI",
   "author": {
     "name": "Jonathan Claes",
@@ -9,7 +9,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve donjon-creer --configuration development",
+    "start:compagnon": "ng serve donjon-compagnon --configuration development",
     "build": "ng build",
+    "build:compagnon": "ng build donjon-compagnon --configuration bundle && node ../../scripts/sync-compagnon.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:prod": "ng test donjon --browsers=ChromeHeadlessCI --watch=false --code-coverage"

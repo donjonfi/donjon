@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { STANDALONE_MODE } from '../../environments/environment';
 import { ACTIONS_DJN, NOUVEAU_DJN } from '../standalone/modeles-standalone';
 import { JOUER_ONE_HTML } from '../standalone/jouer-one-template';
+import { ErreurInclure, LineMapEntry, resoudreInclures, traduireLigne } from './inclure-resolveur';
 
 @Component({
   selector: 'app-editeur',
@@ -120,6 +121,13 @@ export class EditeurComponent implements OnInit, OnDestroy {
   selSceneIndex: number = null;
   actSceneIndex: number = null;
   sectionMode: "tout" | "partie" | "chapitre" | "scène" = null;
+
+  /** Fichiers .djn supplémentaires utilisés pour résoudre les `inclure "X.djn"`. */
+  fichiersIncluables = new Map<string, string>();
+  /** Mapping ligne du blob compilé → ligne d'origine + fichier (rempli si inclure utilisé). */
+  lineMapInclure: LineMapEntry[] = [];
+  /** Erreurs de résolution `inclure` (cycles, fichiers manquants…). */
+  erreursInclure: ErreurInclure[] = [];
 
   /** Code source complet. */
   codeSource = "";
@@ -365,8 +373,19 @@ export class EditeurComponent implements OnInit, OnDestroy {
       // vérifier si on a déjà le fichier actions.djn
       this.chargerActions(false).then(actions => {
 
+        // résoudre les `inclure "X.djn"` si des fichiers inclus sont chargés
+        let codeAcompiler = this.codeSource;
+        this.lineMapInclure = [];
+        this.erreursInclure = [];
+        if (this.fichiersIncluables.size > 0) {
+          const resolution = resoudreInclures(this.codeSource, this.fichiersIncluables);
+          codeAcompiler = resolution.contenu;
+          this.lineMapInclure = resolution.lineMap;
+          this.erreursInclure = resolution.erreurs;
+        }
+
         // interpréter le code
-        const resultatCompilation = CompilateurV8.analyserScenarioEtActions(this.codeSource, actions, verbeux)
+        const resultatCompilation = CompilateurV8.analyserScenarioEtActions(codeAcompiler, actions, verbeux)
         this.monde = resultatCompilation.monde;
         this.regles = resultatCompilation.regles;
         this.routinesSimples = resultatCompilation.routinesSimples;
@@ -377,6 +396,12 @@ export class EditeurComponent implements OnInit, OnDestroy {
         ));
         this.aides = resultatCompilation.aides;
         this.erreurs = resultatCompilation.erreurs;
+        // ajouter les erreurs de résolution `inclure` aux erreurs affichées
+        if (this.erreursInclure.length > 0) {
+          for (const e of this.erreursInclure) {
+            this.erreurs.push(`[inclure] ${e.fichierSource}:${e.ligne} — ${e.message}`);
+          }
+        }
         this.messages = resultatCompilation.messages;
         // générer le jeu
         const jeuGenere = Generateur.genererJeu(resultatCompilation);
@@ -603,6 +628,53 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
       }
     }
+  }
+
+  /** Charger un ou plusieurs fichiers `.djn` à utiliser comme cibles d'`inclure "X.djn"`. */
+  onChargerFichiersInclus(et: EventTarget): void {
+    const hie = et as HTMLInputElement;
+    if (!hie?.files?.length) { return; }
+    for (let i = 0; i < hie.files.length; i++) {
+      const file = hie.files[i];
+      if (!file.name.endsWith('.djn') && !file.name.endsWith('.txt')) { continue; }
+      const fileReader = new FileReader();
+      const nom = file.name;
+      fileReader.onloadend = () => {
+        this.fichiersIncluables.set(nom, fileReader.result as string);
+      };
+      fileReader.readAsText(file);
+    }
+  }
+
+  /** Retirer un fichier inclus précédemment chargé. */
+  onRetirerFichierInclus(nomFichier: string): void {
+    this.fichiersIncluables.delete(nomFichier);
+  }
+
+  /** Vider la liste des fichiers inclus. */
+  onEffacerFichiersInclus(): void {
+    this.fichiersIncluables.clear();
+  }
+
+  /** Liste triée des noms de fichiers inclus chargés (utilisée par le template). */
+  get fichiersInclusListe(): string[] {
+    return Array.from(this.fichiersIncluables.keys()).sort();
+  }
+
+  /**
+   * Traduit la ligne d'un message via le `lineMap` d'inclure.
+   * Retourne `null` si aucun fichier inclus n'a été utilisé ou si le message
+   * n'a pas d'entrée dans le map (ligne hors scope, ou message d'actions).
+   */
+  traduireMessage(message: MessageAnalyse): { nomFichier: string; ligneOrigine: number } | null {
+    if (this.lineMapInclure.length === 0) { return null; }
+    if (message.fichierAction) { return null; }
+    return traduireLigne(this.lineMapInclure, message.numeroLigne);
+  }
+
+  /** `true` si l'origine du message est le scénario racine (visible dans ACE). */
+  estLigneRacine(origine: { nomFichier: string }): boolean {
+    return origine.nomFichier === 'scenario.djn';
   }
 
   /** Initialiser le code source */

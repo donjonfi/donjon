@@ -1,0 +1,218 @@
+<div class="compagnon-root">
+
+  <ul class="nav nav-tabs compagnon-tabs">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'analyse'" href="javascript:void(0)" (click)="setTab('analyse')">
+        Analyse
+        @if (messages.length > 0) {
+          <span class="badge ms-1"
+                [class.bg-danger]="nbErreurs > 0"
+                [class.bg-warning]="nbErreurs === 0 && nbAvertissements > 0"
+                [class.bg-info]="nbErreurs === 0 && nbAvertissements === 0">
+            {{ messages.length }}
+          </span>
+        }
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'jeu'" href="javascript:void(0)" (click)="setTab('jeu')">Jeu</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'visualisation'" href="javascript:void(0)" (click)="setTab('visualisation')">Visualisation</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'apercu'" href="javascript:void(0)" (click)="setTab('apercu')">Aperçu</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'wiki'" href="javascript:void(0)" (click)="setTab('wiki')" title="Wiki Donjon FI">
+        <i class="fas fa-fw fa-book"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'aide'" href="javascript:void(0)" (click)="setTab('aide')" title="Aide">
+        <i class="fas fa-fw fa-circle-info"></i>
+      </a>
+    </li>
+    <li class="nav-item ms-auto d-flex align-items-center">
+      <!-- analyser : même bouton que dans donjon-creer -->
+      <button type="button" class="btn btn-warning px-2 compagnon-toolbar-btn" (click)="runGame()" title="Analyser">
+        <i class="fas fa-fw fa-wand-magic-sparkles fa-lg"></i>
+      </button>
+    </li>
+    <li class="nav-item d-flex align-items-center">
+      <!-- télécharger jeu standalone : même bouton que dans donjon-creer -->
+      <button type="button" class="btn btn-success px-2 compagnon-toolbar-btn" (click)="onTelechargerJeu()" title="Télécharger mon jeu">
+        <i class="fas fa-fw fa-download fa-lg"></i>
+      </button>
+    </li>
+  </ul>
+
+  <div class="compagnon-content"
+       [class.compagnon-content--jeu]="activeTab === 'jeu'"
+       [class.compagnon-content--wiki]="activeTab === 'wiki'">
+
+    <!-- Onglet Analyse -->
+    <div *ngIf="activeTab === 'analyse'" class="compagnon-pane">
+      @if (erreur) {
+        <div class="alert alert-danger">{{ erreur }}</div>
+      }
+      @if (messages.length === 0 && !erreur) {
+        <p class="text-muted">Aucun message — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
+      }
+      @if (messages.length > 0) {
+        <ul class="list-group">
+          @for (m of messages; track m) {
+            @let trad = traduireLigne(m.numeroLigne);
+            <li class="list-group-item">
+              @if (trad) {
+                <a class="badge me-2 compagnon-link text-decoration-none"
+                   [class.bg-danger]="m.type === EMessageAnalyse.erreur"
+                   [class.bg-warning]="m.type === EMessageAnalyse.probleme"
+                   [class.bg-info]="m.type === EMessageAnalyse.conseil"
+                   href="javascript:void(0)"
+                   title="Ouvrir {{ trad.nomFichier }} à la ligne {{ trad.ligneOrigine }}"
+                   (click)="openFile(trad.nomFichier, trad.ligneOrigine)">
+                  {{ trad.nomFichier }} : ligne {{ trad.ligneOrigine }}
+                </a>
+              } @else {
+                <span class="badge me-2"
+                      [class.bg-danger]="m.type === EMessageAnalyse.erreur"
+                      [class.bg-warning]="m.type === EMessageAnalyse.probleme"
+                      [class.bg-info]="m.type === EMessageAnalyse.conseil">
+                  ligne {{ m.numeroLigne }}
+                </span>
+              }
+              <strong>{{ m.titre }}</strong>
+              @if (m.corps) {
+                <div class="small text-muted">{{ m.corps }}</div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Onglet Jeu -->
+    <div *ngIf="activeTab === 'jeu'" class="compagnon-pane compagnon-pane--jeu">
+      @if (jeu) {
+        <djn-lecteur [jeu]="jeu" [debogueur]="false"></djn-lecteur>
+      } @else {
+        <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
+      }
+    </div>
+
+    <!-- Onglet Visualisation -->
+    <div *ngIf="activeTab === 'visualisation'" class="compagnon-pane">
+      @if (jeu) {
+        <app-visualisation [jeu]="jeu"></app-visualisation>
+      } @else {
+        <p class="text-muted">Visualisation indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
+      }
+    </div>
+
+    <!-- Onglet Aperçu -->
+    <div *ngIf="activeTab === 'apercu'" class="compagnon-pane">
+      @if (erreur) {
+        <div class="alert alert-danger">{{ erreur }}</div>
+      }
+
+      @if (monde) {
+        <app-apercu-monde
+          [monde]="monde"
+          [regles]="regles"
+          [actions]="actions"
+          [compteurs]="compteurs"
+          [listes]="listes">
+        </app-apercu-monde>
+      } @else if (!erreur) {
+        <p class="text-muted">Aucun monde compilé — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
+      }
+    </div>
+
+    <!-- Onglet Wiki -->
+    <div *ngIf="activeTab === 'wiki'" class="compagnon-pane compagnon-pane--wiki">
+      <div class="compagnon-wiki-toolbar">
+        <button type="button"
+                class="btn btn-sm btn-light"
+                (click)="wikiBack()"
+                [disabled]="wikiNavCount <= 1"
+                title="Précédent">
+          <i class="fas fa-fw fa-arrow-left"></i>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-light"
+                (click)="wikiHome()"
+                title="Accueil du wiki">
+          <i class="fas fa-fw fa-house"></i>
+        </button>
+      </div>
+      <iframe #wikiFrame
+              class="compagnon-wiki-frame"
+              [src]="wikiUrl"
+              (load)="onWikiLoad()"
+              referrerpolicy="no-referrer"
+              title="Wiki Donjon FI"></iframe>
+    </div>
+
+    <!-- Onglet Aide -->
+    <div *ngIf="activeTab === 'aide'" class="compagnon-pane compagnon-aide">
+      <h4>Donjon FI — Compagnon VS Code</h4>
+      <p class="text-muted">Aperçu, visualisation, analyse et test du jeu directement dans VS Code.</p>
+
+      <h5 class="mt-4">Démarrage</h5>
+      <ol>
+        <li>Ouvrir un fichier <code>.djn</code> dans VS Code.</li>
+        <li>Lancer le compagnon via <kbd>Ctrl</kbd>+<kbd>F5</kbd>, ou via l'une des deux icônes <i class="fas fa-fw fa-bug"></i> / <i class="fas fa-fw fa-wand-magic-sparkles"></i> dans la barre de titre de l'éditeur, ou via la palette de commandes (« Ouvrir le compagnon Donjon FI » ou « Tester le jeu Donjon FI »).</li>
+        <li>Le scénario est compilé une première fois automatiquement.</li>
+        <li>Après chaque modification du <code>.djn</code>, cliquer sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour relancer la compilation. La sauvegarde du fichier ne suffit pas — la recompilation est manuelle.</li>
+      </ol>
+
+      <h5 class="mt-4">Onglets</h5>
+      <ul>
+        <li><strong>Analyse</strong> — liste des erreurs, problèmes et conseils. Le badge affiche le nombre total de messages, coloré selon la sévérité maximale (rouge / orange / bleu). Cliquer sur le badge d'un message ouvre le fichier source à la bonne ligne dans VS Code.</li>
+        <li><strong>Jeu</strong> — lecteur en direct pour tester le scénario. Sélectionné automatiquement après une compilation sans erreur.</li>
+        <li><strong>Visualisation</strong> — exploration interactive du monde compilé (lieux, objets, classes, règles, actions).</li>
+        <li><strong>Aperçu</strong> — vue d'ensemble du monde compilé.</li>
+        <li><strong>Wiki</strong> <i class="fas fa-fw fa-book"></i> — documentation du DSL Donjon FI intégrée (chargée depuis <a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">donjon.fi/doc</a>).</li>
+      </ul>
+
+      <h5 class="mt-4">Boutons</h5>
+      <ul>
+        <li><strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> — (re)compile le scénario à partir du fichier sur disque. Sélectionne automatiquement l'onglet <strong>Analyse</strong> en cas d'erreur, sinon <strong>Jeu</strong>.</li>
+        <li><strong>Télécharger mon jeu</strong> <i class="fas fa-fw fa-download"></i> — produit un fichier HTML autonome contenant le lecteur Donjon FI + le scénario (multi-fichiers résolus) + les actions, distribuable et jouable hors ligne.</li>
+      </ul>
+
+      <h5 class="mt-4"><code>actions.djn</code> — résolution en 3 niveaux</h5>
+      <ol>
+        <li>Un <code>actions.djn</code> placé à côté du <code>.djn</code> édité (priorité maximale).</li>
+        <li>Un <code>actions.djn</code> partagé via le paramètre <code>donjon.actionsFile</code> (chemin absolu ou relatif au workspace).</li>
+        <li>La version par défaut livrée avec l'extension (toujours à jour avec la dernière version stable).</li>
+      </ol>
+
+      <h5 class="mt-4">Inclusion de fichiers</h5>
+      <p>La directive <code>inclure "fichier.djn"</code> permet de découper un gros scénario. Le compagnon résout récursivement tous les <code>inclure</code> avant compilation. Les erreurs sont remontées sur la ligne du bon fichier source. Astuce : <kbd>Ctrl</kbd>+<kbd>Clic</kbd> sur le nom de fichier dans la directive <code>inclure</code> ouvre le fichier dans VS Code (extension <em>Donjon FI Language</em> requise).</p>
+
+      <h5 class="mt-4">Paramètres VS Code</h5>
+      <ul>
+        <li><code>donjon.actionsFile</code> — chemin vers un <code>actions.djn</code> partagé.</li>
+        <li><code>donjon.compagnonViewColumn</code> — <code>"active"</code> (défaut, nouvel onglet du même groupe) ou <code>"beside"</code> (vue côte-à-côte).</li>
+      </ul>
+
+      <h5 class="mt-4">Pour aller plus loin</h5>
+      <ul>
+        <li><a href="https://donjon.fi" target="_blank" rel="noopener">donjon.fi</a> — site officiel</li>
+        <li><a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">Documentation du DSL</a> (également accessible via l'onglet <i class="fas fa-fw fa-book"></i> Wiki)</li>
+      </ul>
+
+      <hr class="mt-4">
+      <p class="text-muted small mb-0">
+        Moteur Donjon FI <strong>{{ donjonVersion }}</strong>
+        @if (extensionVersion) {
+          · Extension Compagnon <strong>{{ extensionVersion }}</strong>
+        }
+      </p>
+    </div>
+
+  </div>
+
+</div>

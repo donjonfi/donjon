@@ -6,6 +6,28 @@ export * from './lib/donjon.module';
 
 export * from './lib/lecteur/lecteur.component';
 
+export * from './lib/ui/apercu/apercu.module';
+export * from './lib/ui/apercu/apercu-action/apercu-action.component';
+export * from './lib/ui/apercu/apercu-condition/apercu-condition.component';
+export * from './lib/ui/apercu/apercu-element-generique/apercu-element-generique.component';
+export * from './lib/ui/apercu/apercu-instruction/apercu-instruction.component';
+export * from './lib/ui/apercu/apercu-lieu/apercu-lieu.component';
+export * from './lib/ui/apercu/apercu-monde/apercu-monde.component';
+export * from './lib/ui/apercu/apercu-objet/apercu-objet.component';
+export * from './lib/ui/apercu/apercu-propriete-jeu/apercu-propriete-jeu.component';
+export * from './lib/ui/apercu/apercu-reaction/apercu-reaction.component';
+export * from './lib/ui/apercu/apercu-regle/apercu-regle.component';
+export * from './lib/ui/apercu/apercu-sujet/apercu-sujet.component';
+
+export * from './lib/ui/visualisation/visualisation.module';
+export * from './lib/ui/visualisation/visualisation/visualisation.component';
+export * from './lib/ui/visualisation/visu-lieu/visu-lieu.component';
+export * from './lib/ui/visualisation/visu-objet/visu-objet.component';
+export * from './lib/ui/visualisation/visu-detail-objet/visu-detail-objet.component';
+export * from './lib/ui/visualisation/models/lieu-voisin';
+export * from './lib/ui/visualisation/models/objet-present';
+export * from './lib/ui/visualisation/models/obstacle-voisin';
+
 export * from './lib/models/commun/aide';
 export * from './lib/models/commun/capacite';
 export * from './lib/models/commun/classe';

@@ -1,0 +1,97 @@
+{
+  "name": "donjon-fi-compagnon",
+  "displayName": "Donjon FI Compagnon",
+  "author": {
+    "name": "Jonathan Claes",
+    "url": "https://donjon.fi"
+  },
+  "publisher": "donjon-fi",
+  "license": "MIT",
+  "homepage": "https://donjon.fi",
+  "description": "Aperçu, visualisation, erreurs et test du jeu Donjon FI directement dans VS Code.",
+  "version": "3.6.1",
+  "icon": "donjon128.png",
+  "preview": false,
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donjonfi/donjon"
+  },
+  "extensionPack": [
+    "donjon-fi.donjon-fi-language"
+  ],
+  "activationEvents": [
+    "onLanguage:donjon"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "donjon.openCompagnon",
+        "title": "Ouvrir le compagnon Donjon FI",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "donjon.runGame",
+        "title": "Tester le jeu Donjon FI",
+        "icon": "$(wand)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "donjon.runGame",
+          "when": "resourceExtname == .djn",
+          "group": "navigation@1"
+        },
+        {
+          "command": "donjon.openCompagnon",
+          "when": "resourceExtname == .djn",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "donjon.openCompagnon",
+        "key": "ctrl+F5",
+        "when": "resourceExtname == .djn"
+      }
+    ],
+    "configuration": {
+      "title": "Donjon FI",
+      "properties": {
+        "donjon.actionsFile": {
+          "type": "string",
+          "default": "",
+          "description": "Chemin (absolu ou relatif au workspace) vers un fichier actions.djn personnalisé. Utilisé si aucun actions.djn n'est trouvé à côté du .djn édité."
+        },
+        "donjon.compagnonViewColumn": {
+          "type": "string",
+          "enum": ["active", "beside"],
+          "enumDescriptions": [
+            "Ouvre le compagnon dans un nouvel onglet du même groupe que le .djn (par défaut)",
+            "Ouvre le compagnon dans un nouveau groupe à droite (vue côte-à-côte)"
+          ],
+          "default": "active",
+          "description": "Où ouvrir le panneau compagnon par rapport à l'éditeur .djn actif."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.71.0",
+    "typescript": "^5.0.0"
+  }
+}
