@@ -37,9 +37,7 @@ Par défaut, le compagnon s'ouvre dans **un nouvel onglet du même groupe** que 
 
 - [Site web](https://donjon.fi)
 - [Documentation](https://donjon.fi/doc/v3/start)
-- [Tester votre jeu en ligne](https://donjon.fi/creer/)
 
 ## Extensions associées
 
 - **Donjon FI Language** — coloration syntaxique, sémantique et navigation
-- **Donjon FI Runner** — exécution / packaging du jeu

@@ -77,6 +77,11 @@
   &.compagnon-content--jeu {
     padding: 0;
   }
+
+  // L'onglet Wiki : iframe en pleine surface
+  &.compagnon-content--wiki {
+    padding: 0;
+  }
 }
 
 .compagnon-pane {
@@ -97,4 +102,29 @@
       width: 100%;
     }
   }
+
+  // L'onglet Wiki : iframe pleine surface
+  &.compagnon-pane--wiki {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+}
+
+.compagnon-wiki-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.compagnon-wiki-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  background: #fff;
 }

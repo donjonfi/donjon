@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Aperçu, visualisation, erreurs et test du jeu Donjon FI directement dans VS Code.",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
@@ -22,6 +22,9 @@
     "type": "git",
     "url": "https://github.com/donjonfi/donjon"
   },
+  "extensionPack": [
+    "donjon-fi.donjon-fi-language"
+  ],
   "activationEvents": [
     "onLanguage:donjon"
   ],
@@ -31,12 +34,12 @@
       {
         "command": "donjon.openCompagnon",
         "title": "Ouvrir le compagnon Donjon FI",
-        "icon": "$(open-preview)"
+        "icon": "$(debug-alt)"
       },
       {
         "command": "donjon.runGame",
         "title": "Tester le jeu Donjon FI",
-        "icon": "$(play)"
+        "icon": "$(wand)"
       }
     ],
     "menus": {

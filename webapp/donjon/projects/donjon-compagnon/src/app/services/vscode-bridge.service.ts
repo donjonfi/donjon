@@ -19,6 +19,7 @@ declare global {
     __djnScenario__?: string;
     __djnActions__?: string;
     __djnLineMap__?: LineMapEntry[];
+    __djnExtensionVersion__?: string;
   }
 }
 

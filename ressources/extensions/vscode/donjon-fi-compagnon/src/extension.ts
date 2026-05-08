@@ -161,6 +161,8 @@ function construireHtml(context: vscode.ExtensionContext, webview: vscode.Webvie
     assetsBaseUri,
   };
 
+  const extensionVersion: string = context.extension?.packageJSON?.version ?? '';
+
   const injection = `<style>
     html, body { direction: ltr !important; margin: 0 !important; padding: 0 !important; height: 100% !important; background: #fff !important; color: #000 !important; }
     app-root { display: flex !important; flex-direction: column !important; height: 100vh !important; width: 100% !important; background: #fff !important; }
@@ -170,6 +172,7 @@ function construireHtml(context: vscode.ExtensionContext, webview: vscode.Webvie
     window.__djnActions__ = ${JSON.stringify(actions)};
     window.__djnInit__ = ${JSON.stringify(init)};
     window.__djnLineMap__ = ${JSON.stringify(currentLineMap)};
+    window.__djnExtensionVersion__ = ${JSON.stringify(extensionVersion)};
     window.__vscodeApi__ = acquireVsCodeApi();
   </script>`;
 

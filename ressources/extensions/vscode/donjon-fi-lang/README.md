@@ -13,4 +13,7 @@ Support de l'écriture de scénarios pour le moteur d'aventure textuelle [Donjon
 
 - [Site web](https://donjon.fi)
 - [Documentation](https://donjon.fi/doc/v3/start)
-- [Tester votre jeu en ligne](https://donjon.fi/creer/)
+
+## Extensions associées
+
+- **Donjon FI Compagnon** *(recommandée)* — analyse, test du jeu, visualisation et aperçu du scénario directement dans VS Code (webview)

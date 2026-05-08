@@ -1,14 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import * as FileSaver from 'file-saver-es';
 
-import { Action, ElementGenerique, EMessageAnalyse, Jeu, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils } from 'donjon';
+import { Action, ElementGenerique, EMessageAnalyse, Jeu, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils, version as DONJON_VERSION } from 'donjon';
 
 import { CompilationService } from './services/compilation.service';
 import { LineMapEntry, VsCodeBridgeService } from './services/vscode-bridge.service';
 import { JOUER_ONE_HTML } from '../../../donjon-creer/src/app/standalone/jouer-one-template';
 
-type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'apercu' | 'aide';
+type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'apercu' | 'wiki' | 'aide';
+
+const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 
 @Component({
   selector: 'app-root',
@@ -28,12 +31,23 @@ export class AppComponent implements OnInit, OnDestroy {
   public messages: MessageAnalyse[] = [];
   public erreur: string | null = null;
 
+  public readonly wikiUrl: SafeResourceUrl;
+  public wikiNavCount = 0;
+
+  public readonly donjonVersion = DONJON_VERSION;
+  public readonly extensionVersion = window.__djnExtensionVersion__ ?? '';
+
+  @ViewChild('wikiFrame') private wikiFrame?: ElementRef<HTMLIFrameElement>;
+
   private sub: Subscription | undefined;
 
   constructor(
     private compilation: CompilationService,
     private bridge: VsCodeBridgeService,
-  ) { }
+    sanitizer: DomSanitizer,
+  ) {
+    this.wikiUrl = sanitizer.bypassSecurityTrustResourceUrl(WIKI_URL);
+  }
 
   ngOnInit(): void {
     this.sub = this.compilation.state$.subscribe(state => {
@@ -62,6 +76,22 @@ export class AppComponent implements OnInit, OnDestroy {
 
   setTab(tab: CompagnonTab): void {
     this.activeTab = tab;
+  }
+
+  onWikiLoad(): void {
+    this.wikiNavCount++;
+  }
+
+  /** Précédent dans l'historique joint du tab — navigue d'un cran l'iframe wiki. */
+  wikiBack(): void {
+    if (this.wikiNavCount <= 1) { return; }
+    window.history.back();
+  }
+
+  /** Retour à l'accueil du wiki — `location` est accessible en écriture cross-origin. */
+  wikiHome(): void {
+    const win = this.wikiFrame?.nativeElement.contentWindow;
+    if (win) { win.location.replace(WIKI_URL); }
   }
 
   runGame(): void {

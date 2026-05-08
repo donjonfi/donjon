@@ -24,6 +24,11 @@
       <a class="nav-link" [class.active]="activeTab === 'apercu'" href="javascript:void(0)" (click)="setTab('apercu')">Aperçu</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'wiki'" href="javascript:void(0)" (click)="setTab('wiki')" title="Wiki Donjon FI">
+        <i class="fas fa-fw fa-book"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'aide'" href="javascript:void(0)" (click)="setTab('aide')" title="Aide">
         <i class="fas fa-fw fa-circle-info"></i>
       </a>
@@ -42,7 +47,9 @@
     </li>
   </ul>
 
-  <div class="compagnon-content" [class.compagnon-content--jeu]="activeTab === 'jeu'">
+  <div class="compagnon-content"
+       [class.compagnon-content--jeu]="activeTab === 'jeu'"
+       [class.compagnon-content--wiki]="activeTab === 'wiki'">
 
     <!-- Onglet Analyse -->
     <div *ngIf="activeTab === 'analyse'" class="compagnon-pane">
@@ -122,6 +129,31 @@
       }
     </div>
 
+    <!-- Onglet Wiki -->
+    <div *ngIf="activeTab === 'wiki'" class="compagnon-pane compagnon-pane--wiki">
+      <div class="compagnon-wiki-toolbar">
+        <button type="button"
+                class="btn btn-sm btn-light"
+                (click)="wikiBack()"
+                [disabled]="wikiNavCount <= 1"
+                title="Précédent">
+          <i class="fas fa-fw fa-arrow-left"></i>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-light"
+                (click)="wikiHome()"
+                title="Accueil du wiki">
+          <i class="fas fa-fw fa-house"></i>
+        </button>
+      </div>
+      <iframe #wikiFrame
+              class="compagnon-wiki-frame"
+              [src]="wikiUrl"
+              (load)="onWikiLoad()"
+              referrerpolicy="no-referrer"
+              title="Wiki Donjon FI"></iframe>
+    </div>
+
     <!-- Onglet Aide -->
     <div *ngIf="activeTab === 'aide'" class="compagnon-pane compagnon-aide">
       <h4>Donjon FI — Compagnon VS Code</h4>
@@ -130,7 +162,7 @@
       <h5 class="mt-4">Démarrage</h5>
       <ol>
         <li>Ouvrir un fichier <code>.djn</code> dans VS Code.</li>
-        <li>Lancer le compagnon via <kbd>Ctrl</kbd>+<kbd>F5</kbd>, ou via l'icône <i class="fas fa-fw fa-play"></i> dans la barre de titre de l'éditeur, ou via la palette de commandes (« Tester le jeu Donjon FI »).</li>
+        <li>Lancer le compagnon via <kbd>Ctrl</kbd>+<kbd>F5</kbd>, ou via l'une des deux icônes <i class="fas fa-fw fa-bug"></i> / <i class="fas fa-fw fa-wand-magic-sparkles"></i> dans la barre de titre de l'éditeur, ou via la palette de commandes (« Ouvrir le compagnon Donjon FI » ou « Tester le jeu Donjon FI »).</li>
         <li>Le scénario est compilé une première fois automatiquement.</li>
         <li>Après chaque modification du <code>.djn</code>, cliquer sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour relancer la compilation. La sauvegarde du fichier ne suffit pas — la recompilation est manuelle.</li>
       </ol>
@@ -141,6 +173,7 @@
         <li><strong>Jeu</strong> — lecteur en direct pour tester le scénario. Sélectionné automatiquement après une compilation sans erreur.</li>
         <li><strong>Visualisation</strong> — exploration interactive du monde compilé (lieux, objets, classes, règles, actions).</li>
         <li><strong>Aperçu</strong> — vue d'ensemble du monde compilé.</li>
+        <li><strong>Wiki</strong> <i class="fas fa-fw fa-book"></i> — documentation du DSL Donjon FI intégrée (chargée depuis <a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">donjon.fi/doc</a>).</li>
       </ul>
 
       <h5 class="mt-4">Boutons</h5>
@@ -168,9 +201,16 @@
       <h5 class="mt-4">Pour aller plus loin</h5>
       <ul>
         <li><a href="https://donjon.fi" target="_blank" rel="noopener">donjon.fi</a> — site officiel</li>
-        <li><a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">Documentation du DSL</a></li>
-        <li><a href="https://donjon.fi/creer/" target="_blank" rel="noopener">Tester votre jeu en ligne</a></li>
+        <li><a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">Documentation du DSL</a> (également accessible via l'onglet <i class="fas fa-fw fa-book"></i> Wiki)</li>
       </ul>
+
+      <hr class="mt-4">
+      <p class="text-muted small mb-0">
+        Moteur Donjon FI <strong>{{ donjonVersion }}</strong>
+        @if (extensionVersion) {
+          · Extension Compagnon <strong>{{ extensionVersion }}</strong>
+        }
+      </p>
     </div>
 
   </div>
