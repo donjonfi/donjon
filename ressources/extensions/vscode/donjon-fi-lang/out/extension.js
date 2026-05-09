@@ -41,11 +41,14 @@ const symbolProvider_1 = require("./symbolProvider");
 const definitionProvider_1 = require("./definitionProvider");
 const hoverProvider_1 = require("./hoverProvider");
 const documentLinkProvider_1 = require("./documentLinkProvider");
+const renameProvider_1 = require("./renameProvider");
 const analysis_1 = require("./analysis");
+const workspaceIndex_1 = require("./workspaceIndex");
 function activate(context) {
     const output = vscode.window.createOutputChannel('Donjon');
     output.appendLine(`[${new Date().toISOString()}] Extension Donjon FI activée.`);
     (0, semanticTokensProvider_1.attachOutput)(output);
+    (0, workspaceIndex_1.attachOutput)(output);
     const selector = { language: 'donjon' };
     context.subscriptions.push(output);
     context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider(selector, new semanticTokensProvider_1.DonjonSemanticTokensProvider(), semanticTokensProvider_1.legend));
@@ -53,9 +56,13 @@ function activate(context) {
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(selector, new definitionProvider_1.DonjonDefinitionProvider()));
     context.subscriptions.push(vscode.languages.registerHoverProvider(selector, new hoverProvider_1.DonjonHoverProvider()));
     context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(selector, new documentLinkProvider_1.DonjonDocumentLinkProvider()));
+    context.subscriptions.push(vscode.languages.registerRenameProvider(selector, new renameProvider_1.DonjonRenameProvider()));
+    (0, workspaceIndex_1.activateWatcher)(context);
+    void (0, workspaceIndex_1.ensureScanned)();
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((doc) => (0, analysis_1.clearAnalysisCache)(doc.uri)));
 }
 function deactivate() {
     (0, analysis_1.clearAnalysisCache)();
+    (0, workspaceIndex_1.disposeIndex)();
 }
 //# sourceMappingURL=extension.js.map

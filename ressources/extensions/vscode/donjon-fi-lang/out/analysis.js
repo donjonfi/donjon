@@ -5,26 +5,31 @@ exports.findOccurrenceAt = findOccurrenceAt;
 exports.declarationForOccurrence = declarationForOccurrence;
 exports.clearAnalysisCache = clearAnalysisCache;
 const declarationScanner_1 = require("./declarationScanner");
+const workspaceIndex_1 = require("./workspaceIndex");
 const cache = new Map();
 function getAnalysis(document) {
     const key = document.uri.toString();
+    const globalVersion = (0, workspaceIndex_1.getGlobalDeclVersion)();
     const cached = cache.get(key);
-    if (cached && cached.version === document.version) {
+    if (cached && cached.version === document.version && cached.globalVersion === globalVersion) {
         return cached;
     }
     const text = document.getText();
     const declarations = (0, declarationScanner_1.findDeclarations)(text);
     const declarationsByName = new Map();
     for (const d of declarations) {
-        // Une instance écrase un type homonyme (cas le plus spécifique).
-        const existing = declarationsByName.get(declarationKey(d));
+        const k = declarationKey(d);
+        const existing = declarationsByName.get(k);
         if (!existing || (existing.kind === 'type' && d.kind === 'variable')) {
-            declarationsByName.set(declarationKey(d), d);
+            declarationsByName.set(k, d);
         }
     }
-    const occurrences = (0, declarationScanner_1.findOccurrences)(text, declarations);
+    // Occurrences calculées contre les déclarations GLOBALES (toutes celles du workspace),
+    // afin que les références à un objet défini dans un autre fichier soient détectées.
+    const occurrences = (0, declarationScanner_1.findOccurrences)(text, (0, workspaceIndex_1.getAllDeclarations)());
     const result = {
         version: document.version,
+        globalVersion,
         declarations,
         declarationsByName,
         occurrences,
