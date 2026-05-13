@@ -107,6 +107,29 @@ describe('Epressions régulières − Groupes nominaux', () => {
     expect(result).toEqual(null);
   });
 
+  it('[F003-T039] Groupe Nominal : « Léon »', () => {
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("Léon");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toBeUndefined(); // déterminant
+    expect(result[2]).toEqual("Léon"); // nom
+    expect(result[3]).toBeUndefined(); // attribut
+  });
+
+  it('[F003-T040] Groupe Nominal : « Lætitia »', () => {
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("Lætitia");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toBeUndefined(); // déterminant
+    expect(result[2]).toEqual("Lætitia"); // nom
+    expect(result[3]).toBeUndefined(); // attribut
+  });
+
+  it('[F003-T043] Groupe Nominal (runtime « parler au Léon ») : « le Léon »', () => {
+    const result = ExprReg.xGroupeNominalArticleDefini.exec("le Léon");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual("le "); // déterminant
+    expect(result[2]).toEqual("Léon"); // nom
+    expect(result[3]).toBeUndefined(); // attribut
+  });
 
 });
 
@@ -184,6 +207,31 @@ describe('Epressions régulières − Définition des éléments', () => {
   it('[F003-T019] Élément générique simple: « Le bucheron est une personne ici » (💥)', () => {
     const result = ExprReg.xDefinitionElementAvecType.exec("Le bucheron est une personne ici");
     expect(result).toEqual(null);
+  })
+
+  it('[F003-T041] Élément générique simple: « Léon est un personnage »', () => {
+    const result = ExprReg.xDefinitionElementAvecType.exec("Léon est un personnage");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toBeUndefined(); // déterminant
+    expect(result[2]).toEqual("Léon"); // nom
+    expect(result[3]).toBeUndefined(); // épithète
+    expect(result[4]).toBeUndefined(); // féminin et autre forme
+    expect(result[5]).toEqual("personnage"); // classe
+    expect(result[6]).toBeUndefined(); // attribut
+    expect(result[7]).toBeUndefined(); // position
+    expect(result[8]).toBeUndefined(); // complément
+    expect(result[9]).toBeUndefined(); // ici
+  })
+
+  it('[F003-T042] Élément générique simple: « Françoise (f) est une personne »', () => {
+    const result = ExprReg.xDefinitionElementAvecType.exec("Françoise (f) est une personne");
+    expect(result).not.toEqual(null);
+    expect(result[1]).toBeUndefined(); // déterminant
+    expect(result[2]).toEqual("Françoise"); // nom
+    expect(result[3]).toBeUndefined(); // épithète
+    expect(result[4]).toEqual("(f)"); // féminin et autre forme
+    expect(result[5]).toEqual("personne"); // classe
+    expect(result[6]).toBeUndefined(); // attribut
   })
 
   // ÉLÉMENT GÉNÉRIQUE POSITIONNÉ PAR RAPPORT À UN COMPLÉMENT
