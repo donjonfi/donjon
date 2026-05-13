@@ -968,13 +968,40 @@ export class ConditionsUtils {
     let resultCondition: boolean = null;
 
     if (!condition.sujetComplement || !condition.sujetComplement.determinant) {
-      // vérifier la liste des états (si c’est un concept)
-      if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
+      // a) comparer d'abord l'intitulé du sujet avec le complément.
+      // Permet « si ceci est Léon » sans article, et évite un warning parasite
+      // « état introuvable » dans la console quand le complément est un élément valide.
+      if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
+        if (condition.sujetComplement) {
+          resultCondition = (sujet.intitule.nom === condition.sujetComplement.nom)
+            && (sujet.intitule.epithete === condition.sujetComplement.epithete);
+        } else {
+          resultCondition = (sujet.intitule.toString() == condition.complement);
+        }
+      }
+      // b) si l'intitulé n'a pas matché, tester la liste des états
+      // (les ÉlémentJeu héritent de concept et peuvent porter des états).
+      if (!resultCondition && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
         resultCondition = this.jeu.etats.possedeEtatElement((sujet as ElementJeu), condition.complement, this.eju);
-        // sinon comparer l’intitulé du sujet avec le complément
-      } else if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
-        resultCondition = (sujet.intitule.toString() == condition.complement);
-      } else {
+      }
+      // c) si rien n’a matché, que le sujet peut avoir des états (= concept) et que le
+      // complément n’est ni un état connu ni un élément connu, on conseille au créateur
+      // (visible dans le lecteur en mode débug uniquement). On ne conseille pas pour les
+      // simples intitulés (ex. « si l’infinitif de l’action est examiner ») qui ne portent
+      // pas d’états et dont le complément est souvent un mot quelconque (verbe, etc.).
+      if (!resultCondition && condition.complement
+        && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
+        const etatExiste = this.jeu.etats.trouverEtat(condition.complement) !== null;
+        let elementExiste = false;
+        if (!etatExiste && condition.sujetComplement) {
+          const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
+          elementExiste = (cor.elements.length + cor.concepts.length + cor.compteurs.length) > 0;
+        }
+        if (!etatExiste && !elementExiste) {
+          this.eju.ajouterConseil("État introuvable : « " + condition.complement + " ».");
+        }
+      }
+      if (resultCondition === null) {
         console.error("verbe « est » utilisé sur un type non supporté.");
         resultCondition = false;
       }
