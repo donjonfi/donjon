@@ -163,6 +163,10 @@ function construireHtml(context: vscode.ExtensionContext, webview: vscode.Webvie
 
   const extensionVersion: string = context.extension?.packageJSON?.version ?? '';
 
+  // Identifiant unique par rebuild : VS Code ne recharge la webview que si webview.html change réellement.
+  // Sans ce marqueur, recliquer « Analyser » sans modifier le scénario produit un HTML identique → pas de reload → pas de recompilation.
+  const buildId = Date.now();
+
   const injection = `<style>
     html, body { direction: ltr !important; margin: 0 !important; padding: 0 !important; height: 100% !important; background: #fff !important; color: #000 !important; }
     app-root { display: flex !important; flex-direction: column !important; height: 100vh !important; width: 100% !important; background: #fff !important; }
@@ -173,6 +177,7 @@ function construireHtml(context: vscode.ExtensionContext, webview: vscode.Webvie
     window.__djnInit__ = ${JSON.stringify(init)};
     window.__djnLineMap__ = ${JSON.stringify(currentLineMap)};
     window.__djnExtensionVersion__ = ${JSON.stringify(extensionVersion)};
+    window.__djnBuildId__ = ${buildId};
     window.__vscodeApi__ = acquireVsCodeApi();
   </script>`;
 

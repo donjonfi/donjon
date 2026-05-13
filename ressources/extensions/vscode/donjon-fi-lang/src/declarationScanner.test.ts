@@ -76,6 +76,74 @@ describe('findDeclarations — instances (article défini)', () => {
   });
 });
 
+describe('findDeclarations — instances (nom propre, sans article)', () => {
+  it('détecte « Céline (f) est une personne dans le salon. »', () => {
+    const text = 'Céline (f) est une personne dans le salon.';
+    const decls = byKind(findDeclarations(text), 'variable');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'céline');
+    assert.equal(decls[0].displayName, 'Céline');
+    assert.equal(decls[0].parent, 'personne');
+    assert.equal(text.slice(decls[0].nameStart, decls[0].nameEnd), 'Céline');
+  });
+
+  it('détecte un nom propre sans suffixe de genre', () => {
+    const decls = byKind(findDeclarations('Élise est une magicienne.'), 'variable');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'élise');
+    assert.equal(decls[0].parent, 'magicienne');
+  });
+
+  it('gère un nom propre composé avec trait d’union', () => {
+    const decls = byKind(findDeclarations('Jean-Pierre est un voisin.'), 'variable');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'jean-pierre');
+    assert.equal(decls[0].displayName, 'Jean-Pierre');
+    assert.equal(decls[0].parent, 'voisin');
+  });
+
+  it('gère un nom propre avec apostrophe', () => {
+    const decls = byKind(findDeclarations("D'Artagnan est un mousquetaire."), 'variable');
+    const found = decls.find((d) => d.name === "d'artagnan");
+    assert.ok(found, "D'Artagnan doit être détecté");
+    assert.equal(found!.parent, 'mousquetaire');
+  });
+
+  it('gère un nom propre composé avec espace', () => {
+    const decls = byKind(findDeclarations('Marie Curie est une physicienne.'), 'variable');
+    const found = decls.find((d) => d.name === 'marie curie');
+    assert.ok(found, 'Marie Curie doit être détecté');
+    assert.equal(found!.parent, 'physicienne');
+  });
+
+  it("ne double pas une déclaration déjà introduite par un article défini", () => {
+    // « Le bouton est un objet. » commence par une majuscule (« Le »), mais
+    // est déjà couvert par INSTANCE_DECLARATION : un seul match attendu.
+    const decls = byKind(findDeclarations('Le bouton est un objet.'), 'variable');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'bouton');
+  });
+
+  it('ne déclenche pas sur une amorce de type indéfini', () => {
+    // « Un sac est un contenant. » reste un type ; la regex nom propre est
+    // bloquée par le lookahead négatif sur « Un\s ».
+    const variables = byKind(findDeclarations('Un sac est un contenant.'), 'variable');
+    assert.equal(variables.length, 0);
+  });
+
+  it('détecte les occurrences ultérieures d’un nom propre', () => {
+    const text = `Céline (f) est une personne dans le salon.
+Céline porte un chapeau.
+le joueur regarde céline.`;
+    const decls = findDeclarations(text);
+    const occurrences = findOccurrences(text, decls);
+    const celineOcc = occurrences.filter((o) => o.name === 'céline');
+    // 1 dans la déclaration + 2 dans le corps = 3 occurrences au moins
+    assert.ok(celineOcc.length >= 3, `attendu ≥ 3 occurrences, reçu ${celineOcc.length}`);
+    assert.ok(celineOcc.every((o) => o.kind === 'variable'));
+  });
+});
+
 describe('findDeclarations — types (article indéfini)', () => {
   it('détecte « Un X est un Y »', () => {
     const decls = byKind(findDeclarations('Un sac est un contenant.'), 'type');

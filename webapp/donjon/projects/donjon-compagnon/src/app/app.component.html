@@ -95,7 +95,7 @@
     <!-- Onglet Jeu -->
     <div *ngIf="activeTab === 'jeu'" class="compagnon-pane compagnon-pane--jeu">
       @if (jeu) {
-        <djn-lecteur [jeu]="jeu" [debogueur]="false"></djn-lecteur>
+        <djn-lecteur [jeu]="jeu" [debogueur]="true"></djn-lecteur>
       } @else {
         <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }

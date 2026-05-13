@@ -1,28 +1,39 @@
 import * as vscode from 'vscode';
-import { getAnalysis, findOccurrenceAt, declarationForOccurrence } from './analysis';
+import { getAnalysis, findOccurrenceAt } from './analysis';
+import { ensureScanned, getDeclarationsForName } from './workspaceIndex';
 
 export class DonjonDefinitionProvider implements vscode.DefinitionProvider {
-  provideDefinition(
+  async provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position
-  ): vscode.Definition | undefined {
+  ): Promise<vscode.Definition | undefined> {
+    await ensureScanned();
     const analysis = getAnalysis(document);
-    if (analysis.declarations.length === 0) {
-      return undefined;
-    }
     const offset = document.offsetAt(position);
     const occ = findOccurrenceAt(analysis, offset);
     if (!occ) {
       return undefined;
     }
-    const decl = declarationForOccurrence(analysis, occ);
-    if (!decl) {
+    const matches = getDeclarationsForName(occ.kind, occ.name);
+    if (matches.length === 0) {
       return undefined;
     }
-    const target = new vscode.Range(
-      document.positionAt(decl.nameStart),
-      document.positionAt(decl.nameEnd)
-    );
-    return new vscode.Location(document.uri, target);
+
+    const locations: vscode.Location[] = [];
+    for (const dl of matches) {
+      const targetDoc = await openOrFind(dl.uri);
+      const start = targetDoc.positionAt(dl.decl.nameStart);
+      const end = targetDoc.positionAt(dl.decl.nameEnd);
+      locations.push(new vscode.Location(dl.uri, new vscode.Range(start, end)));
+    }
+    return locations;
   }
+}
+
+async function openOrFind(uri: vscode.Uri): Promise<vscode.TextDocument> {
+  const opened = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri.toString());
+  if (opened) {
+    return opened;
+  }
+  return vscode.workspace.openTextDocument(uri);
 }

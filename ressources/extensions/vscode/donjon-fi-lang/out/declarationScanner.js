@@ -8,6 +8,9 @@ const DEFINITE_ARTICLE = "(?:(?:Le|La|Les)\\s+|L['’])";
 const INDEFINITE_ARTICLE = "(?:Un|Une|Des|Deux)\\s+";
 // Nom : commence par une lettre, peut contenir lettres, marques, tirets, apostrophes, espaces
 const NAME = "[\\p{L}][\\p{L}\\p{M}\\-'’ ]*?";
+// Nom propre (sans article) : doit démarrer par une majuscule unicode.
+// Utilisé sans le flag « i » sinon \p{Lu} y matche aussi les minuscules.
+const PROPER_NAME = "[\\p{Lu}][\\p{L}\\p{M}\\-'’ ]*?";
 // Suffixe de genre optionnel : « (f) », « (m) », « (n) », « (p) »
 const GENDER_SUFFIX = "(?:\\s*\\([fmnp]+\\))?";
 // Article suivant le verbe « est/sont »
@@ -18,6 +21,10 @@ const PARENT_NAME = "[\\p{L}][\\p{L}\\p{M}\\-]*";
 const IDENT = "[\\p{L}_][\\p{L}\\p{M}\\p{N}_-]*";
 const INSTANCE_DECLARATION = new RegExp(`^\\s*${DEFINITE_ARTICLE}(${NAME})${GENDER_SUFFIX}\\s+(?:est|sont)\\s+${TYPE_ARTICLE}\\s+(${PARENT_NAME})`, 'gmiud');
 const TYPE_DECLARATION = new RegExp(`^\\s*${INDEFINITE_ARTICLE}(${NAME})${GENDER_SUFFIX}\\s+(?:est|sont)\\s+${TYPE_ARTICLE}\\s+(${PARENT_NAME})`, 'gmiud');
+// Instance déclarée par un nom propre (sans article) : « Céline (f) est une personne. »
+// Le lookahead exclut les amorces déjà couvertes par INSTANCE_DECLARATION / TYPE_DECLARATION
+// pour éviter une double-détection. Pas de flag « i » : voir PROPER_NAME.
+const PROPER_NOUN_INSTANCE_DECLARATION = new RegExp(`^\\s*(?!(?:Le|La|Les|Un|Une|Des|Deux)\\s|L['’])(${PROPER_NAME})${GENDER_SUFFIX}\\s+(?:est|sont)\\s+${TYPE_ARTICLE}\\s+(${PARENT_NAME})`, 'gmud');
 const ROUTINE_DECLARATION = new RegExp(`^\\s*routine\\s+(${IDENT})\\s*:`, 'gmiud');
 // Action : « action <signature> : » où la signature est l'ensemble verbe + ceci/cela + prépositions.
 // On capture toute la signature jusqu'au « : » pour préserver l'arité.
@@ -30,6 +37,7 @@ function findDeclarations(text) {
     const declarations = [];
     collectVarType(cleaned, INSTANCE_DECLARATION, declarations, 'variable');
     collectVarType(cleaned, TYPE_DECLARATION, declarations, 'type');
+    collectVarType(cleaned, PROPER_NOUN_INSTANCE_DECLARATION, declarations, 'variable');
     collectRoutines(cleaned, declarations);
     collectActions(cleaned, declarations);
     return declarations;

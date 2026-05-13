@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { getAnalysis } from './analysis';
+import { ensureScanned } from './workspaceIndex';
 
 const tokenTypes = ['variable', 'type'];
 const tokenModifiers: string[] = [];
@@ -13,20 +14,23 @@ export function attachOutput(channel: vscode.OutputChannel): void {
 }
 
 export class DonjonSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider {
-  provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.SemanticTokens {
+  async provideDocumentSemanticTokens(
+    document: vscode.TextDocument
+  ): Promise<vscode.SemanticTokens> {
+    await ensureScanned();
     const { declarations, occurrences } = getAnalysis(document);
 
     if (firstCall && output) {
       firstCall = false;
       output.appendLine(
-        `[${new Date().toISOString()}] Premier scan : ${declarations.length} déclarations, ${occurrences.length} occurrences (${document.uri.fsPath}).`
+        `[${new Date().toISOString()}] Premier scan : ${declarations.length} déclarations locales, ${occurrences.length} occurrences (${document.uri.fsPath}).`
       );
       for (const d of declarations) {
         output.appendLine(`  ${d.kind}\t${d.name}\t(${d.parent})`);
       }
     } else if (output) {
       output.appendLine(
-        `[${new Date().toISOString()}] Scan : ${declarations.length} déclarations, ${occurrences.length} occurrences.`
+        `[${new Date().toISOString()}] Scan : ${declarations.length} déclarations locales, ${occurrences.length} occurrences.`
       );
     }
 

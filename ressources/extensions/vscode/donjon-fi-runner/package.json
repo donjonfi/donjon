@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "[DÉPRÉCIÉE] Cette extension est remplacée par Donjon FI Compagnon, qui inclut le test du jeu et bien plus. L'installer installera automatiquement le compagnon.",
-  "version": "3.6.1",
+  "version": "3.6.3",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {

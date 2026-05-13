@@ -36,24 +36,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DonjonDefinitionProvider = void 0;
 const vscode = __importStar(require("vscode"));
 const analysis_1 = require("./analysis");
+const workspaceIndex_1 = require("./workspaceIndex");
 class DonjonDefinitionProvider {
-    provideDefinition(document, position) {
+    async provideDefinition(document, position) {
+        await (0, workspaceIndex_1.ensureScanned)();
         const analysis = (0, analysis_1.getAnalysis)(document);
-        if (analysis.declarations.length === 0) {
-            return undefined;
-        }
         const offset = document.offsetAt(position);
         const occ = (0, analysis_1.findOccurrenceAt)(analysis, offset);
         if (!occ) {
             return undefined;
         }
-        const decl = (0, analysis_1.declarationForOccurrence)(analysis, occ);
-        if (!decl) {
+        const matches = (0, workspaceIndex_1.getDeclarationsForName)(occ.kind, occ.name);
+        if (matches.length === 0) {
             return undefined;
         }
-        const target = new vscode.Range(document.positionAt(decl.nameStart), document.positionAt(decl.nameEnd));
-        return new vscode.Location(document.uri, target);
+        const locations = [];
+        for (const dl of matches) {
+            const targetDoc = await openOrFind(dl.uri);
+            const start = targetDoc.positionAt(dl.decl.nameStart);
+            const end = targetDoc.positionAt(dl.decl.nameEnd);
+            locations.push(new vscode.Location(dl.uri, new vscode.Range(start, end)));
+        }
+        return locations;
     }
 }
 exports.DonjonDefinitionProvider = DonjonDefinitionProvider;
+async function openOrFind(uri) {
+    const opened = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri.toString());
+    if (opened) {
+        return opened;
+    }
+    return vscode.workspace.openTextDocument(uri);
+}
 //# sourceMappingURL=definitionProvider.js.map

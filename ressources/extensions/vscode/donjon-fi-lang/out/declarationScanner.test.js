@@ -57,6 +57,66 @@ function names(decls) {
         strict_1.default.equal(text.slice(decl.declarationStart, decl.declarationEnd).trim().startsWith('Le boucher'), true);
     });
 });
+(0, node_test_1.describe)('findDeclarations — instances (nom propre, sans article)', () => {
+    (0, node_test_1.it)('détecte « Céline (f) est une personne dans le salon. »', () => {
+        const text = 'Céline (f) est une personne dans le salon.';
+        const decls = byKind((0, declarationScanner_1.findDeclarations)(text), 'variable');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'céline');
+        strict_1.default.equal(decls[0].displayName, 'Céline');
+        strict_1.default.equal(decls[0].parent, 'personne');
+        strict_1.default.equal(text.slice(decls[0].nameStart, decls[0].nameEnd), 'Céline');
+    });
+    (0, node_test_1.it)('détecte un nom propre sans suffixe de genre', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('Élise est une magicienne.'), 'variable');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'élise');
+        strict_1.default.equal(decls[0].parent, 'magicienne');
+    });
+    (0, node_test_1.it)('gère un nom propre composé avec trait d’union', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('Jean-Pierre est un voisin.'), 'variable');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'jean-pierre');
+        strict_1.default.equal(decls[0].displayName, 'Jean-Pierre');
+        strict_1.default.equal(decls[0].parent, 'voisin');
+    });
+    (0, node_test_1.it)('gère un nom propre avec apostrophe', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)("D'Artagnan est un mousquetaire."), 'variable');
+        const found = decls.find((d) => d.name === "d'artagnan");
+        strict_1.default.ok(found, "D'Artagnan doit être détecté");
+        strict_1.default.equal(found.parent, 'mousquetaire');
+    });
+    (0, node_test_1.it)('gère un nom propre composé avec espace', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('Marie Curie est une physicienne.'), 'variable');
+        const found = decls.find((d) => d.name === 'marie curie');
+        strict_1.default.ok(found, 'Marie Curie doit être détecté');
+        strict_1.default.equal(found.parent, 'physicienne');
+    });
+    (0, node_test_1.it)("ne double pas une déclaration déjà introduite par un article défini", () => {
+        // « Le bouton est un objet. » commence par une majuscule (« Le »), mais
+        // est déjà couvert par INSTANCE_DECLARATION : un seul match attendu.
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('Le bouton est un objet.'), 'variable');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'bouton');
+    });
+    (0, node_test_1.it)('ne déclenche pas sur une amorce de type indéfini', () => {
+        // « Un sac est un contenant. » reste un type ; la regex nom propre est
+        // bloquée par le lookahead négatif sur « Un\s ».
+        const variables = byKind((0, declarationScanner_1.findDeclarations)('Un sac est un contenant.'), 'variable');
+        strict_1.default.equal(variables.length, 0);
+    });
+    (0, node_test_1.it)('détecte les occurrences ultérieures d’un nom propre', () => {
+        const text = `Céline (f) est une personne dans le salon.
+Céline porte un chapeau.
+le joueur regarde céline.`;
+        const decls = (0, declarationScanner_1.findDeclarations)(text);
+        const occurrences = (0, declarationScanner_1.findOccurrences)(text, decls);
+        const celineOcc = occurrences.filter((o) => o.name === 'céline');
+        // 1 dans la déclaration + 2 dans le corps = 3 occurrences au moins
+        strict_1.default.ok(celineOcc.length >= 3, `attendu ≥ 3 occurrences, reçu ${celineOcc.length}`);
+        strict_1.default.ok(celineOcc.every((o) => o.kind === 'variable'));
+    });
+});
 (0, node_test_1.describe)('findDeclarations — types (article indéfini)', () => {
     (0, node_test_1.it)('détecte « Un X est un Y »', () => {
         const decls = byKind((0, declarationScanner_1.findDeclarations)('Un sac est un contenant.'), 'type');
