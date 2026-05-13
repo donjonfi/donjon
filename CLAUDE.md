@@ -94,6 +94,44 @@ The Donjon FI DSL reference is split into thematic chunks under `dsl/`. Always l
 | `dsl/dsl-05-avance.md` | Positions, Routines, Réactions (PNJ), Compteurs, Listes, Temps |
 | `dsl/dsl-06-exemple.md` | Exemple complet minimal |
 
+## Scripts (`scripts/`)
+
+Scripts PowerShell utilitaires (build des apps Angular, build des extensions VS Code, bump de version, sync `actions.djn`). Deux conventions à respecter pour tout nouveau script :
+
+### 1. Résolution robuste de la racine du repo
+
+L'ancrage naïf `Split-Path -Parent $PSScriptRoot` casse si le dossier `scripts/` est copié hors repo (cas réel : raccourci utilisateur où `scripts/` vit dans le dossier parent du repo). Pattern à utiliser :
+
+```powershell
+$RepoMarker = "webapp/donjon"   # ou autre marker stable pour ce script
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path (Join-Path $RepoRoot $RepoMarker))) {
+    $candidate = Get-ChildItem -Path $RepoRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { Test-Path (Join-Path $_.FullName $RepoMarker) } |
+        Select-Object -First 1
+    if ($candidate) { $RepoRoot = $candidate.FullName }
+}
+Set-Location (Join-Path $RepoRoot $RepoMarker)
+```
+
+Si le parent direct ne contient pas le marker, on cherche un sous-dossier qui le contient. Le script reste invocable depuis `<repo>/scripts/` ou depuis une copie hors repo.
+
+### 2. Restauration du `cwd` initial
+
+Les scripts modifient le `cwd` avec `Set-Location`. Restaurer en fin de script — succès **et** erreurs :
+
+```powershell
+$InitialLocation = Get-Location
+# ... corps du script ...
+# avant chaque exit :
+Set-Location $InitialLocation
+exit 1
+# a la fin :
+Set-Location $InitialLocation
+```
+
+Note : `exit N` ne déclenche pas `try { } finally { }` en PowerShell — d'où la restauration explicite avant chaque `exit`. Les exceptions non gérées peuvent encore laisser le `cwd` souillé mais c'est marginal sur ces scripts.
+
 ## CI
 
 GitHub Actions (`.github/workflows/node.js.yml`) runs on push/PR to `master`: installs deps, builds `donjon` library, then runs `test:prod` (headless Chrome with coverage).
