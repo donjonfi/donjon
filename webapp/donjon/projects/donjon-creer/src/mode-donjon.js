@@ -35,20 +35,11 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     this.$rules = {
       "start": [
         {
-          token: "comment",
-          regex: "^( *)--.*$"
-        }, {
-          token: "comment",
-          start: "/\\*",
-          end: "\\*/"
-        }, {
           token: "string", // multi line string
-          //regex : "\\/\\*",
           regex: '"|\\]',
           next: [
             {
               token: "string", // closing string
-              //regex : "\\*\\/",
               regex: '"|\\[',
               next: "start"
             }, {
@@ -58,6 +49,9 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
         }, {
           token: "string",           // " string
           regex: '".*?"'
+        }, {
+          token: "comment",
+          regex: "--.*$"
         },
         {
           token: "keyword",

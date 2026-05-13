@@ -4,8 +4,14 @@
 
 ## 1. Structure d'un scénario
 
-Un scénario est un fichier texte composé de **phrases** séparées par des points.  
-Les commentaires commencent par `--`.
+Un scénario est un fichier texte composé de **phrases** séparées par des points.
+
+Les commentaires commencent par `--` et vont jusqu'à la fin de la ligne. Ils peuvent être :
+
+- sur une ligne entière (`-- ceci est un commentaire`)
+- en fin de ligne après une instruction (`Le héros est un objet. -- inline`)
+
+Un `--` à l'intérieur d'une chaîne `"…"` n'est **pas** un commentaire — il fait partie du texte. Un commentaire de fin de ligne termine aussi la phrase courante si celle-ci n'était pas déjà terminée par `.` ou `:`, ce qui évite que l'instruction suivante soit absorbée par la précédente.
 
 ```
 -- Ceci est un commentaire.

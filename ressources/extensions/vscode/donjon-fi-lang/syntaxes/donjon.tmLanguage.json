@@ -3,6 +3,9 @@
   "name": "Donjon",
   "patterns": [
     {
+      "include": "#strings"
+    },
+    {
       "include": "#comments"
     },
     {
@@ -31,9 +34,6 @@
     },
     {
       "include": "#wait-key"
-    },
-    {
-      "include": "#strings"
     }
   ],
   "repository": {
@@ -41,7 +41,7 @@
       "patterns": [
         {
           "name": "comment.line",
-          "match": "^(\\s*)--(.*)$"
+          "match": "--(.*)$"
         }
       ]
     },

@@ -92,7 +92,60 @@ describe('Compilateur V8 − Préparer code source', () => {
     );
   });
 
-  
+  it('[F022-T013] Préparer: commentaire -- en début de ligne (régression)', () => {
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'Le héros est un objet.\n-- commentaire seul'
+    );
+    expect(scenarioPrepare).toEqual('Le héros est un objet.' + ExprReg.caractereRetourLigne);
+  });
+
+  it('[F022-T014] Préparer: commentaire -- inline après instruction', () => {
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'Le héros est un objet. -- mon commentaire inline'
+    );
+    expect(scenarioPrepare).toEqual('Le héros est un objet.');
+  });
+
+  it('[F022-T015] Préparer: -- à lintérieur dune chaîne préservé', () => {
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'La description du héros est "il dit -- bonjour".'
+    );
+    expect(scenarioPrepare).toEqual('La description du héros est "il dit -- bonjour".');
+  });
+
+  it('[F022-T016] Préparer: -- à lintérieur dune chaîne multi-ligne préservé', () => {
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'dire "il dit\n-- vraiment\nbonjour".'
+    );
+    expect(scenarioPrepare).toEqual(
+      'dire "il dit' + ExprReg.caractereRetourLigne +
+      '-- vraiment' + ExprReg.caractereRetourLigne +
+      'bonjour".'
+    );
+  });
+
+  it('[F022-T017] Préparer: -- inline après chaîne ajoute un terminateur "."', () => {
+    // Quand la phrase nest pas terminée par « . » ou « : » avant le « -- »
+    // inline, on insère un « . » pour terminer la phrase (sinon linstruction
+    // suivante serait absorbée comme suite de la phrase précédente, voir
+    // le bug rapporté pour `description est "...." -- commentaire`).
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'Sa description est "Un champignon." -- commentaire\nLe champignon est un objet.'
+    );
+    expect(scenarioPrepare).toEqual(
+      'Sa description est "Un champignon." . ' +
+      ExprReg.caractereRetourLigne +
+      'Le champignon est un objet.'
+    );
+  });
+
+  it('[F022-T018] Préparer: -- inline après phrase déjà terminée pas de "." ajouté', () => {
+    const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
+      'Le héros est un objet. -- commentaire'
+    );
+    expect(scenarioPrepare).toEqual('Le héros est un objet.');
+  });
+
   it('[F022-T012] Préparer: bloc choisir', () => {
     const scenarioPrepare = CompilateurV8Utils.preparerCodeSource(
       'dire "Boire ou conduire, il faut choisir !"\n' +

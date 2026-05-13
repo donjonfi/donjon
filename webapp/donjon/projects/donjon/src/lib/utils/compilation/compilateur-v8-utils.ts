@@ -9,9 +9,36 @@ import { Phrase } from "../../models/compilateur/phrase";
 export class CompilateurV8Utils {
 
   public static retirerCommentaires(source: string): string {
-    // on retire les commentaire mais pas les lignes car il faut
-    // que les numéros de lignes de changent pas !
-    return source.replace(/^((?: *)--(?:.*))$/gm, " ");
+    // on retire les commentaires (« -- » jusqu'à la fin de ligne) mais on conserve
+    // les sauts de ligne pour ne pas décaler les numéros de ligne.
+    // « -- » à l'intérieur d'une chaîne "…" (potentiellement multi-ligne) est préservé.
+    // Si du contenu non-terminé (pas de « . » ou « : ») précède un « -- » inline, on
+    // insère un « . » pour que le commentaire de fin de ligne agisse aussi comme
+    // terminateur de phrase (comportement naturel des commentaires de ligne).
+    let inString = false;
+    const lines = source.split('\n');
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li];
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') {
+          inString = !inString;
+          continue;
+        }
+        if (!inString && line[i] === '-' && line[i + 1] === '-') {
+          const before = line.substring(0, i);
+          const trimmedBefore = before.trimEnd();
+          const lastChar = trimmedBefore[trimmedBefore.length - 1];
+          const padLen = line.length - i;
+          if (trimmedBefore.length > 0 && lastChar !== '.' && lastChar !== ':') {
+            lines[li] = before + '.' + ' '.repeat(padLen - 1);
+          } else {
+            lines[li] = before + ' '.repeat(padLen);
+          }
+          break;
+        }
+      }
+    }
+    return lines.join('\n');
   }
 
   /**
@@ -49,9 +76,9 @@ export class CompilateurV8Utils {
     // terminer par un « . » les « dire "bla bla" » et les refuser "".
     resultat = resultat.replace(/((dire|refuser) "[\S\s]*?") *\.*/mig, "$1.");
 
-    // on retire les commentaire mais pas les lignes car il faut
-    // que les numéros de lignes de changent pas !
-    resultat = resultat.replace(/^((?: *)--(?:.*))$/gm, " ");
+    // on retire les commentaires (« -- » inline ou en début de ligne) en
+    // conservant les chaînes "…" et les numéros de ligne.
+    resultat = CompilateurV8Utils.retirerCommentaires(resultat);
 
     // remplacer les retours à la ligne par un caractereRetourLigne.
     // remplacer les deux points par un caractereDeuxPointsDouble (en effet lors de la découpe en phrases, on va perdre le caractère « : » mais on souhaite le garder)
