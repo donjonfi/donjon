@@ -818,8 +818,8 @@ export class InstructionDire {
         idElementsDejaMentionnes.push(obj.id);
         // si l'aperçu n'est pas vide, l'ajouter.
         if (apercuCalcule) {
-          // ignorer les objets dont l'aperçu vaut "-"
-          if (apercuCalcule == '-') {
+          // ignorer les objets dont l'aperçu vaut "-" (après évaluation des balises de style et conditionnelles)
+          if (TexteUtils.enleverBalisesStyleDonjon(apercuCalcule).trim() === '-') {
             nbObjetsSansApercu += 1;
           } else {
             resultat.sortie += "{U}" + apercuCalcule;
@@ -913,9 +913,11 @@ export class InstructionDire {
               this.jeu.etats.ajouterEtatElement(curPorteObstacle, EEtatsBase.vu, this.eju, false);
               // - si aperçu défini
               if (curPorteObstacle.apercu) {
-                // afficher l'aperçu.
-                if (curPorteObstacle.apercu != '-') {
-                  resultat.sortie += "{U}" + this.calculerTexteDynamique(curPorteObstacle.apercu, ++curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+                // calculer l’aperçu (résolution des balises [1ère fois]/[fin], etc.)
+                const apercuPorteObstacleCalcule = this.calculerTexteDynamique(curPorteObstacle.apercu, ++curPorteObstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(curPorteObstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+                // afficher l’aperçu, sauf s’il vaut « - » (après évaluation des balises de style et conditionnelles)
+                if (TexteUtils.enleverBalisesStyleDonjon(apercuPorteObstacleCalcule).trim() !== '-') {
+                  resultat.sortie += "{U}" + apercuPorteObstacleCalcule;
                 } else {
                   // TODO: faut-il considérer qu’un objet est vu quand son aperçu est « - » ?
                 }
@@ -983,7 +985,13 @@ export class InstructionDire {
       const obstacle = this.eju.getObjet(obstacleID);
       // si aperçu disponible pour l’obstacle, on l’affiche.
       if (obstacle.apercu) {
-        retVal = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+        const apercuObstacleCalcule = this.calculerTexteDynamique(obstacle.apercu, ++obstacle.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obstacle, this.jeu.etats.intactID), undefined, undefined, undefined);
+        // aperçu volontairement supprimé via « - » (après évaluation des balises de style et conditionnelles)
+        if (TexteUtils.enleverBalisesStyleDonjon(apercuObstacleCalcule).trim() === '-') {
+          retVal = "";
+        } else {
+          retVal = apercuObstacleCalcule;
+        }
         // l’objet a été mentionné et vu par le joueur
         this.jeu.etats.ajouterEtatElement(obstacle, EEtatsBase.vu, this.eju, false);
         // TODO: faut-il considéré que l’objet a déjà été mentionné ici ?
