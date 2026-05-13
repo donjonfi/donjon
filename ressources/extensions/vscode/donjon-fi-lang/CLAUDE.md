@@ -38,10 +38,12 @@ src/
 ### Modèle de données (`declarationScanner.ts`)
 
 `Declaration` = un objet déclaré dans le DSL. Quatre `kind` :
-- `variable` — instance (`Le X est un Y` / `La X est une Y` / `L'X est…`)
+- `variable` — instance (`Le X est un Y` / `La X est une Y` / `L'X est…` **ou** `Nom est un Y` pour les noms propres : amorce sans article, majuscule initiale requise)
 - `type` — sous-type (`Un X est un Y` / `Une X est une Y` / `Des X sont…`)
 - `routine` — `routine <ident>:`
 - `action` — `action <signature>:` (la signature complète sert de `name` — voir `normalizeSignature`)
+
+Pour les noms propres, on dispose de **deux** regex distinctes : `INSTANCE_DECLARATION` (article défini, flag `i`) et `PROPER_NOUN_INSTANCE_DECLARATION` (pas d'article, pas de flag `i`, début par `\p{Lu}`). Cette dernière n'utilise pas `i` parce que `\p{Lu}` y matcherait aussi les minuscules — ce qui défait la contrainte « majuscule initiale ». Le double-comptage entre les deux regex est évité par un lookahead négatif `(?!(?:Le|La|Les|Un|Une|Des|Deux)\s|L['’])` côté nom propre.
 
 `Occurrence` = mention référençant une déclaration. Trois familles :
 - variables/types : matchés par regex sur le mot lui-même (frontière unicode `(?<![\\p{L}\\p{M}])…(?![\\p{L}\\p{M}])`)
