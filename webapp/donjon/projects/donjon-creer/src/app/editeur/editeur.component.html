@@ -12,7 +12,7 @@
 
       <label class="btn btn-secondary btn-file m-1 px-2 py-1 m-1" tooltip="Charger scénario existant" placement="right">
         <i class="fas fa-folder-open"></i><span class="ms-2 d-none d-lg-inline"
-      title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.txt"
+      title="Charger un scénario existant">Charger</span><input type="file" accept=".djn,.sol,.tst,.txt"
       style="display: none;" (change)="onChargerFichierLocal($event.target)" onclick="this.value=null">
     </label>
 
@@ -72,30 +72,24 @@
             (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
             <i class="fas fa-fw fa-eye fa-lg"></i>
           </button>
-          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'carte') }"
-            (click)="showTab('carte')" title="Carte du scénario" tooltip="Carte du scénario" placement="right">
-            <i class="fas fa-fw fa-map fa-lg"></i>
-          </button>
-          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
-            (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
-            <i class="fas fa-fw fa-sitemap fa-lg"></i>
-          </button>
 
         </div>
 
-        @if (tab == 'analyse' && jeu) {
+        @if ((tab == 'analyse' || tab == 'visualisation') && jeu) {
           <!-- jeu -->
           <br>
             <button class="btn btn-secondary mt-4 px-2" [disabled]="!jeu" (click)="showTab('jeu')" title="Jeu"
               tooltip="Jeu" placement="right">
               <i class="fas fa-fw fa-terminal fa-lg"></i>
             </button>
-            <!-- aperçu -->
-            <br>
+            <!-- aperçu (redondant en visualisation où c'est déjà un sous-onglet) -->
+            @if (tab == 'analyse') {
+              <br>
               <button class="btn btn-danger mt-4 px-2" [disabled]="!jeu" (click)="showTab('apercu')" title="Aperçu"
                 tooltip="Aperçu" placement="right">
                 <i class="fas fa-fw fa-sitemap fa-lg"></i>
               </button>
+            }
               <!-- wiki -->
               <br>
                 <a class="btn btn-primary mt-4 px-2" href="https://donjon.fi/doc/v3/" target="_blank" tooltip="Wiki"
@@ -133,8 +127,9 @@
                           placement="right" container="body">
                           <i class="fas fa-fw fa-question fa-lg"></i>
                         </a>
-                        <!-- préférences -->
-                        <br>
+                        <!-- préférences (uniquement dans l'éditeur de code, pas en mode jeu) -->
+                        @if (tab == 'scenario') {
+                          <br>
                           <button class="btn btn-secondary mt-4 px-2" (click)="onChangerAfficherPreferences()" tooltip="Préférences"
                             placement="right" title="Préférences">
                             <i class="fas fa-fw fa-sliders-h fa-lg"></i>
@@ -147,6 +142,7 @@
                               <i class="fas fa-fw fa-rotate fa-lg"></i>
                             </button>
                           }
+                        }
                             <!-- sections -->
                             <br>
                               <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
@@ -396,41 +392,72 @@
                                   <djn-lecteur #lecteur [jeu]="jeu" [verbeux]="this.compilateurVerbeux" [debogueur]="true" [supportLiensLignes]="true" (nouvellePartieOuAnnulerTour)="onNouvellePartieOuAnnulerTour($event)" (referenceLigne)="referenceCode($event)"></djn-lecteur>
                                 </div>
 
-                                <!-- TAB: APERÇU ÉLÉMENTS -->
-                                @if (tab === 'apercu') {
-                                  <div class="card">
-                                    <div class="card-body">
-                                      @if (compilationTerminee) {
-                                        <div>
-                                          <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions" [compteurs]="compteurs"
-                                            [listes]="listes">
-                                          </app-apercu-monde>
-                                        </div>
-                                      }
-                                    </div>
-                                  </div>
-                                }
-
-                                <!-- TAB: VISUALISATION -->
+                                <!-- TAB: VISUALISATION (sous-onglets carte / visualisation / aperçu) -->
                                 @if (tab === 'visualisation') {
-                                  <div class="card">
-                                    <div class="card-body">
-                                      @if (compilationTerminee) {
-                                        <div>
-                                          <app-visualisation [jeu]="jeu">
-                                          </app-visualisation>
+                                  <div class="d-flex flex-column" style="height: 100%; min-height: 0;">
+                                    <ul class="nav nav-tabs flex-shrink-0 mb-2">
+                                      <li class="nav-item">
+                                        <a class="nav-link" href="javascript:void(0)"
+                                           [class.active]="visualisationTab === 'carte'"
+                                           (click)="visualisationTab = 'carte'">
+                                          <i class="fas fa-fw fa-map me-1"></i> Carte
+                                        </a>
+                                      </li>
+                                      <li class="nav-item">
+                                        <a class="nav-link" href="javascript:void(0)"
+                                           [class.active]="visualisationTab === 'visualisation'"
+                                           (click)="visualisationTab = 'visualisation'">
+                                          <i class="fas fa-fw fa-eye me-1"></i> Visualisation
+                                        </a>
+                                      </li>
+                                      <li class="nav-item">
+                                        <a class="nav-link" href="javascript:void(0)"
+                                           [class.active]="visualisationTab === 'apercu'"
+                                           (click)="visualisationTab = 'apercu'">
+                                          <i class="fas fa-fw fa-sitemap me-1"></i> Aperçu
+                                        </a>
+                                      </li>
+                                    </ul>
+
+                                    <div class="flex-grow-1" style="min-height: 0; min-width: 0;">
+                                      <!-- SOUS-TAB: VISUALISATION (fiche mono-lieu) -->
+                                      @if (visualisationTab === 'visualisation') {
+                                        <div class="card">
+                                          <div class="card-body">
+                                            @if (compilationTerminee) {
+                                              <div>
+                                                <app-visualisation [jeu]="jeu"></app-visualisation>
+                                              </div>
+                                            }
+                                          </div>
                                         </div>
                                       }
+
+                                      <!-- SOUS-TAB: APERÇU -->
+                                      @if (visualisationTab === 'apercu') {
+                                        <div class="card">
+                                          <div class="card-body">
+                                            @if (compilationTerminee) {
+                                              <div>
+                                                <app-apercu-monde [monde]="monde" [regles]="regles" [actions]="actions"
+                                                                  [compteurs]="compteurs" [listes]="listes">
+                                                </app-apercu-monde>
+                                              </div>
+                                            }
+                                          </div>
+                                        </div>
+                                      }
+
+                                      <!-- SOUS-TAB: CARTE (toujours monté pour préserver la position du popup) -->
+                                      <div [style.display]="(visualisationTab === 'carte' ? 'block' : 'none')"
+                                           class="max" style="height: 100%;">
+                                        @if (compilationTerminee) {
+                                          <app-carte-scenario [jeu]="jeu"></app-carte-scenario>
+                                        }
+                                      </div>
                                     </div>
                                   </div>
                                 }
-
-                                <!-- TAB: CARTE -->
-                                <div [style.display]="(tab === 'carte' ? 'block' : 'none')" class="max" style="height: 100%;">
-                                  @if (compilationTerminee) {
-                                    <app-carte-scenario [jeu]="jeu"></app-carte-scenario>
-                                  }
-                                </div>
 
                                 <!-- TAB: ANALYSE -->
                                 <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">

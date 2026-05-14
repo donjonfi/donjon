@@ -3,7 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import * as FileSaver from 'file-saver-es';
 
-import { Action, ElementGenerique, EMessageAnalyse, Jeu, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils, version as DONJON_VERSION } from 'donjon';
+import { Action, ElementGenerique, EMessageAnalyse, FichierTest, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils, version as DONJON_VERSION, versionNum } from 'donjon';
 
 import { CompilationService } from './services/compilation.service';
 import { LineMapEntry, VsCodeBridgeService } from './services/vscode-bridge.service';
@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public readonly extensionVersion = window.__djnExtensionVersion__ ?? '';
 
   @ViewChild('wikiFrame') private wikiFrame?: ElementRef<HTMLIFrameElement>;
+  @ViewChild('lecteurRef') private lecteurRef?: LecteurComponent;
 
   private sub: Subscription | undefined;
 
@@ -76,6 +77,30 @@ export class AppComponent implements OnInit, OnDestroy {
 
   setTab(tab: CompagnonTab): void {
     this.activeTab = tab;
+  }
+
+  /** Charge un fichier .tst et lance la vérification dans le lecteur intégré. */
+  onChargerFichierTest(et: EventTarget | null): void {
+    const hie = et as HTMLInputElement;
+    if (!hie?.files?.length) return;
+    const file = hie.files[0];
+    if (!file.name.endsWith('.tst')) return;
+    const fileReader = new FileReader();
+    fileReader.onloadend = () => {
+      const contenuFichier = fileReader.result as string;
+      if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
+        console.warn("Le fichier n'est pas un .tst Donjon FI");
+        return;
+      }
+      const fichierTest = JSON.parse(contenuFichier) as FichierTest;
+      if (fichierTest.version > versionNum) {
+        console.warn("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
+      }
+      this.lecteurRef?.setVerification(fichierTest);
+    };
+    fileReader.readAsText(file);
+    // permettre de recharger le même fichier
+    hie.value = '';
   }
 
   onWikiLoad(): void {

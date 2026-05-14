@@ -98,7 +98,14 @@
     <!-- Onglet Jeu -->
     <div *ngIf="activeTab === 'jeu'" class="compagnon-pane compagnon-pane--jeu">
       @if (jeu) {
-        <djn-lecteur [jeu]="jeu" [debogueur]="true"></djn-lecteur>
+        <div class="p-2 d-flex align-items-center gap-2">
+          <label class="btn btn-sm btn-outline-secondary mb-0">
+            Charger un .tst…
+            <input type="file" accept=".tst" hidden (change)="onChargerFichierTest($event.target)">
+          </label>
+          <small class="text-muted">Vérifier les sorties du jeu par rapport à un fichier de vérification.</small>
+        </div>
+        <djn-lecteur #lecteurRef [jeu]="jeu" [debogueur]="true"></djn-lecteur>
       } @else {
         <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }

@@ -706,6 +706,10 @@ action générer solution:
   dire "@générer-solution@".
 fin action
 
+action générer vérification:
+  dire "@générer-vérification@".
+fin action
+
 -- ============
 --   INSULTER
 -- ============

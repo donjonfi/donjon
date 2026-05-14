@@ -7,6 +7,7 @@ import { Instructions } from "../../utils/jeu/instructions";
 import { Jeu } from "../jeu/jeu";
 import { StringUtils } from "../../utils/commun/string.utils";
 import { Sauvegarde } from "./sauvegarde";
+import { EtapeTest, FichierTest } from "./fichier-test";
 import { versionNum } from "../commun/constantes";
 import { ExprReg } from "donjon";
 
@@ -25,6 +26,24 @@ export class ContextePartie {
 
   /** historique des commandes déjà exécutées depuis le début de la partie*/
   private _etapesPartie: string[] = [];
+
+  /**
+   * Sortie textuelle produite par chaque étape (aligné par index sur _etapesPartie).
+   * - Pour c/r : la sortie brute de ContexteCommande après exécution.
+   * - Pour g/d : null (placeholder pour conserver l'alignement d'index).
+   * Utilisé pour générer un FichierTest.
+   */
+  private _sortiesParEtape: (string | null)[] = [];
+
+  /**
+   * Sortie textuelle de l'intro du jeu — accumulée avant la première commande joueur.
+   * Inclut les sorties produites par « commencer le jeu », « regarder » initial,
+   * et les routines déclenchées au démarrage. Stockée dans FichierTest.sortieIntro.
+   */
+  private _sortieIntro: string = '';
+
+  /** Indique si une première étape c/r a déjà été enregistrée (= fin de la phase intro). */
+  private _phaseIntroTerminee: boolean = false;
 
   constructor(
     /** L’état du jeu correspondant à la partie. */
@@ -63,10 +82,50 @@ export class ContextePartie {
 
   public ajouterCommandeDansSauvegarde(commandeBrute: string) {
     this._etapesPartie.push(ExprReg.caractereCommande + ":" + commandeBrute);
+    this._sortiesParEtape.push(null);
   }
 
   public ajouterReponseDansSauvegarde(reponseBrute: string) {
     this._etapesPartie.push(ExprReg.caractereReponse + ":" + reponseBrute);
+    this._sortiesParEtape.push(null);
+  }
+
+  /**
+   * Enregistre la sortie textuelle produite par la dernière étape c/r exécutée.
+   * Cherche le slot c/r le plus récent sans sortie déjà enregistrée et le remplit.
+   * Les étapes g/d éventuellement poussées entre l'ajout de la commande/réponse
+   * et l'enregistrement de sa sortie sont ignorées (elles ne portent pas de sortie).
+   * Avant la première c/r (phase intro), les sorties sont accumulées dans _sortieIntro.
+   */
+  public enregistrerSortieEtapeCourante(sortie: string) {
+    this._derniereSortieEnregistree = sortie;
+    for (let i = this._sortiesParEtape.length - 1; i >= 0; i--) {
+      if (this._sortiesParEtape[i] !== null) continue;
+      const brut = this._etapesPartie[i];
+      if (brut?.startsWith('c:') || brut?.startsWith('r:')) {
+        this._sortiesParEtape[i] = sortie;
+        this._phaseIntroTerminee = true;
+        return;
+      }
+    }
+    // Aucun slot c/r vide trouvé : on est en phase intro (avant la première commande joueur)
+    // ou la sortie correspond à une routine déclenchée. Pour l'intro, accumuler.
+    if (!this._phaseIntroTerminee) {
+      this._sortieIntro += (this._sortieIntro ? '\n' : '') + sortie;
+    }
+  }
+
+  public get sortieIntro(): string {
+    return this._sortieIntro;
+  }
+
+  /** Dernière sortie enregistrée via enregistrerSortieEtapeCourante. */
+  private _derniereSortieEnregistree: string | null = null;
+  public get derniereSortieEnregistree(): string | null {
+    return this._derniereSortieEnregistree;
+  }
+  public reinitialiserDerniereSortieEnregistree() {
+    this._derniereSortieEnregistree = null;
   }
 
   /** 
@@ -89,10 +148,12 @@ export class ContextePartie {
 
     // sauvegarde de la graine
     this.etapesPartie.push(`${ExprReg.caractereGraine}:${nouvelleGraine}`);
+    this._sortiesParEtape.push(null);
   }
 
   public ajouterDeclenchementDansSauvegarde(routine: string) {
     this.etapesPartie.push(`${ExprReg.caractereDeclenchement}:${routine}`);
+    this._sortiesParEtape.push(null);
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
@@ -117,6 +178,42 @@ export class ContextePartie {
 
   public enleverCommandeGenererSolution() {
     this._etapesPartie.pop();
+    this._sortiesParEtape.pop();
+  }
+
+  /**
+   * Crée un FichierTest à partir de l'historique courant et des sorties capturées.
+   * À appeler après enleverCommandeGenererSolution si la dernière commande est
+   * la commande déclencheuse de la génération (« sauver verification »).
+   */
+  public creerFichierTest(): FichierTest {
+    const fichier = new FichierTest();
+    fichier.version = versionNum;
+    fichier.declenchementsFuturs = this.jeu.declenchementsFuturs;
+    fichier.scenario = undefined;
+
+    const etapes: EtapeTest[] = [];
+    let graineInitiale: string | undefined;
+
+    for (let i = 0; i < this._etapesPartie.length; i++) {
+      const brut = this._etapesPartie[i];
+      const idxSep = brut.indexOf(':');
+      const type = brut.substring(0, idxSep) as EtapeTest['type'];
+      const valeur = brut.substring(idxSep + 1);
+      const etape: EtapeTest = { type, valeur };
+      if ((type === 'c' || type === 'r') && this._sortiesParEtape[i] != null) {
+        etape.sortie = this._sortiesParEtape[i]!;
+      }
+      etapes.push(etape);
+      if (type === 'g' && graineInitiale === undefined) {
+        graineInitiale = valeur;
+      }
+    }
+
+    fichier.graine = graineInitiale;
+    fichier.etapesTest = etapes;
+    fichier.sortieIntro = this._sortieIntro;
+    return fichier;
   }
 
   public unload() {

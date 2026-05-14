@@ -96,6 +96,7 @@ export * from './lib/models/jouer/resultat';
 export * from './lib/models/jouer/statut-conditions';
 export * from './lib/models/jouer/cadre-condition';
 export * from './lib/models/jouer/sauvegarde';
+export * from './lib/models/jouer/fichier-test';
 export * from './lib/models/jouer/type-evenement';
 
 export * from './lib/utils/commun/classe-utils';

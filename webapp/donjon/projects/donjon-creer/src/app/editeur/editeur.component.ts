@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver-es';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, FichierTest, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -52,6 +52,9 @@ export class EditeurComponent implements OnInit, OnDestroy {
   EMessageAnalyse = EMessageAnalyse;
 
   tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'carte' | 'actions' = 'scenario';
+
+  /** Sous-onglet actif sous l'onglet « visualisation » (carte / visualisation / aperçu). */
+  visualisationTab: 'carte' | 'visualisation' | 'apercu' = 'carte';
 
   nbLignesCode = 30;
   tailleTexte = 18;
@@ -624,6 +627,30 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
           // lire le fichier
           fileReader.readAsText(file);
+
+          // C. CHARGEMENT FICHIER DE VÉRIFICATION (.tst) — sauvegarde + sorties attendues
+        } else if (file.name.endsWith(".tst")) {
+          const fileReader = new FileReader();
+          fileReader.onloadend = () => {
+            const contenuFichier = fileReader.result as string;
+            if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
+              const fichierTest = JSON.parse(contenuFichier) as FichierTest;
+              if (fichierTest.version > versionNum) {
+                this.jeu.tamponErreurs.push("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
+              }
+              if (this.jeu) {
+                // Bascule sur l'onglet jeu pour rendre le lecteur visible, puis lance le magnéto
+                // une fois que le composant lecteur est rendu (un cycle Angular).
+                this.showTab('jeu');
+                setTimeout(() => {
+                  ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest);
+                }, 0);
+              }
+            } else {
+              this.jeu.tamponErreurs.push("Ce fichier n’est pas un fichier de vérification Donjon FI (.tst)");
+            }
+          };
+          fileReader.readAsText(file);
         }
 
       }
@@ -1133,6 +1160,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   }
 
   showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'carte' | 'actions' = 'scenario'): void {
+    // Les anciens onglets `carte` et `apercu` sont des sous-onglets de `visualisation`.
+    if (tab === 'carte' || tab === 'apercu') {
+      this.visualisationTab = tab;
+      tab = 'visualisation';
+    }
     this.tab = tab;
 
     /** focus sur le champ commandes si on est sur le tab jeu */
