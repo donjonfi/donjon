@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Extension VS Code qui apporte le support du langage Donjon FI (`.djn`) : coloration syntaxique (TextMate), snippets, **semantic tokens**, **document symbols**, **definition / hover / document links**. Pas de webview, pas de moteur — pur côté éditeur, sans dépendance runtime sur le moteur Donjon.
+Extension VS Code qui apporte le support du langage Donjon FI (`.djn`) : coloration syntaxique (TextMate), snippets, **semantic tokens**, **document symbols**, **definition / hover / document links**, **formatter**. Pas de webview, pas de moteur — pur côté éditeur, sans dépendance runtime sur le moteur Donjon.
 
 Elle est listée comme `extensionPack` dans `donjon-fi-compagnon`, donc installée automatiquement avec lui.
 
@@ -32,7 +32,10 @@ src/
 ├── documentLinkProvider.ts     # rend cliquables `inclure "X.djn"` (résolu relativement au .djn courant)
 ├── renameProvider.ts           # F2 / Renommer ; rename cross-workspace (var, type, routine ; pas action)
 ├── symbolProvider.ts           # outline / breadcrumb / Ctrl+T (reste single-file — outline du doc courant)
-└── semanticTokensProvider.ts   # surligne variables/types détectés (legend exporté), workspace-aware
+├── semanticTokensProvider.ts   # surligne variables/types détectés (legend exporté), workspace-aware
+├── formatter.ts                # logique pure : formatLines() stack-based, indente après `:` et désindente sur `fin`
+├── formatter.test.ts           # tests unitaires de formatLines (node:test)
+└── formattingProvider.ts       # wrap formatLines en DocumentFormattingEditProvider VS Code
 ```
 
 ### Modèle de données (`declarationScanner.ts`)
@@ -118,6 +121,8 @@ API : `getDeclarationsForName(kind, name) → DeclarationLocation[]`, `getAllDec
 | `src/renameProvider.ts` | F2 / Renommer ; cross-workspace (var/type/routine, pas action) |
 | `src/symbolProvider.ts` | DocumentSymbol pour outline du document courant (volontairement single-file) |
 | `src/semanticTokensProvider.ts` | Tokens `variable`/`type` workspace-aware ; `legend` exporté ; `attachOutput` pour debug |
+| `src/formatter.ts` | `formatLines()` : indentation stack-based ; `:` ouvre, `fin <kind>` ferme ; `sinon`/`sinonsi` désindentent sans toucher au stack ; `phase`/`définition`/`concernant`/`basique` sont des sous-blocs sœurs sans `fin` |
+| `src/formattingProvider.ts` | `DocumentFormattingEditProvider` qui wrap `formatLines` ; respecte `tabSize` / `insertSpaces` de VS Code |
 | `package.json` | `contributes.languages/grammars/snippets/semanticTokenScopes` ; pas de `commands` |
 | `syntaxes/donjon.tmLanguage.json` | Coloration TextMate (statique) |
 | `snippets/donjon.json` | Snippets DSL |

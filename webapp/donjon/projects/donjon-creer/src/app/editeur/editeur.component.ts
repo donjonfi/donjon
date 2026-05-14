@@ -51,7 +51,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   EMessageAnalyse = EMessageAnalyse;
 
-  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario';
+  tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'carte' | 'actions' = 'scenario';
 
   nbLignesCode = 30;
   tailleTexte = 18;
@@ -1132,7 +1132,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   }
 
-  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'actions' = 'scenario'): void {
+  showTab(tab: 'scenario' | 'analyse' | 'jeu' | 'apercu' | 'visualisation' | 'carte' | 'actions' = 'scenario'): void {
     this.tab = tab;
 
     /** focus sur le champ commandes si on est sur le tab jeu */

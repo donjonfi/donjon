@@ -2,7 +2,7 @@ import { LocationStrategy } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { ApercuModule, DonjonModule, VisualisationModule } from 'donjon';
+import { ApercuModule, CarteScenarioModule, DonjonModule, VisualisationModule } from 'donjon';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
@@ -26,6 +26,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
     DonjonModule,
     ApercuModule,
     VisualisationModule,
+    CarteScenarioModule,
   ],
   providers: [
     ...(STANDALONE_MODE ? [{ provide: LocationStrategy, useClass: NoopLocationStrategy }] : []),

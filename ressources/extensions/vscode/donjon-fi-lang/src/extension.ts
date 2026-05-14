@@ -5,6 +5,7 @@ import { DonjonDefinitionProvider } from './definitionProvider';
 import { DonjonHoverProvider } from './hoverProvider';
 import { DonjonDocumentLinkProvider } from './documentLinkProvider';
 import { DonjonRenameProvider } from './renameProvider';
+import { DonjonDocumentFormattingProvider } from './formattingProvider';
 import { clearAnalysisCache } from './analysis';
 import {
   activateWatcher,
@@ -43,6 +44,12 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(
     vscode.languages.registerRenameProvider(selector, new DonjonRenameProvider())
+  );
+  context.subscriptions.push(
+    vscode.languages.registerDocumentFormattingEditProvider(
+      selector,
+      new DonjonDocumentFormattingProvider()
+    )
   );
 
   activateWatcher(context);

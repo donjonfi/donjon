@@ -21,6 +21,9 @@
       <a class="nav-link" [class.active]="activeTab === 'visualisation'" href="javascript:void(0)" (click)="setTab('visualisation')">Visualisation</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'carte'" href="javascript:void(0)" (click)="setTab('carte')">Carte</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'apercu'" href="javascript:void(0)" (click)="setTab('apercu')">Aperçu</a>
     </li>
     <li class="nav-item">
@@ -107,6 +110,15 @@
         <app-visualisation [jeu]="jeu"></app-visualisation>
       } @else {
         <p class="text-muted">Visualisation indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
+      }
+    </div>
+
+    <!-- Onglet Carte -->
+    <div *ngIf="activeTab === 'carte'" class="compagnon-pane">
+      @if (jeu) {
+        <app-carte-scenario [jeu]="jeu"></app-carte-scenario>
+      } @else {
+        <p class="text-muted">Carte indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }
     </div>
 

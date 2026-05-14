@@ -523,6 +523,12 @@ export class Generateur {
 
           };
 
+          // si aucune position explicite mais l’objet est marqué « possédé »,
+          // sa position est « dans le joueur » (inventaire initial).
+          if (!newObjet.position && jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.possedeID, null)) {
+            newObjet.position = new PositionObjet(PrepositionSpatiale.dans, EClasseRacine.objet, jeu.joueur.id);
+          }
+
         }
         jeu.objets.push(newObjet);
       }

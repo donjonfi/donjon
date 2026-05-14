@@ -1,0 +1,158 @@
+<div class="carte-scenario">
+
+  @if (!carte || carte.noeuds.length === 0) {
+    <p class="text-muted">Aucun lieu à afficher.</p>
+  }
+
+  @if (carte && carte.noeuds.length > 0) {
+    <div class="carte-scenario__ascii-wrap">
+
+      <div class="carte-scenario__ascii"
+        >@for (ligne of lignesSegmentees; track $index) {<span class="ligne"
+          >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg)">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>
+
+      <!-- popup détail flottant (uniquement si quelque chose est sélectionné) -->
+      @if (aDetailAffiche) {
+      <aside class="carte-scenario__popup" #popupEl
+             [style.left.px]="popupLeft"
+             [style.top.px]="popupTop"
+             [style.right]="popupLeft != null ? 'auto' : null">
+
+        <!-- objet (ou personne ou joueur) sélectionné -->
+        @if (objetVisible && eju && jeu) {
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3 carte-scenario__drag-handle"
+                   (mousedown)="onPopupDragStart($event, popupEl)">
+                <h3 class="h6 mb-0">
+                  <i class="fas fa-fw fa-circle-info"></i>
+                  {{ objetVisible.objet.intitule }}
+                </h3>
+                <button type="button" class="btn btn-sm btn-link p-0 text-muted carte-scenario__close"
+                        title="Fermer" aria-label="Fermer le détail" (click)="fermerDetail()">
+                  <i class="fas fa-fw fa-times"></i>
+                </button>
+              </div>
+              <app-visu-detail-objet
+                [objetVisible]="objetVisible"
+                [eju]="eju"
+                [etats]="jeu.etats"></app-visu-detail-objet>
+            </div>
+          </div>
+        }
+
+        <!-- lieu sélectionné -->
+        @else if (detailLieuSelectionne) {
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3 carte-scenario__drag-handle"
+                   (mousedown)="onPopupDragStart($event, popupEl)">
+                <h3 class="h6 mb-0">
+                  <i class="fas fa-fw fa-location-dot"></i>
+                  {{ titreLieu(detailLieuSelectionne.lieu) }}
+                  @if (detailLieuSelectionne.joueurPresent) {
+                    <span class="badge bg-warning text-dark ms-1">joueur</span>
+                  }
+                </h3>
+                <button type="button" class="btn btn-sm btn-link p-0 text-muted carte-scenario__close"
+                        title="Fermer" aria-label="Fermer le détail" (click)="fermerDetail()">
+                  <i class="fas fa-fw fa-times"></i>
+                </button>
+              </div>
+
+              @if (detailLieuSelectionne.lieu.description) {
+                <p class="small mb-2">{{ detailLieuSelectionne.lieu.description }}</p>
+              }
+
+              <div class="small text-muted mb-2">
+                ID : {{ detailLieuSelectionne.lieu.id }} · nom : <code>{{ detailLieuSelectionne.lieu.nom }}</code>
+              </div>
+
+              <!-- joueur -->
+              @if (detailLieuSelectionne.joueurPresent && jeu?.joueur) {
+                <div class="mb-2">
+                  <strong>Joueur :</strong>
+                  <a class="seg seg--joueur ms-1" href="javascript:void(0)"
+                     (click)="selectionnerObjet(jeu!.joueur.id)">★ {{ jeu!.joueur.intitule }}</a>
+                </div>
+              }
+
+              <!-- personnes -->
+              @if (detailLieuSelectionne.personnes.length > 0) {
+                <div class="mb-2">
+                  <strong>Personnes :</strong>
+                  @for (p of detailLieuSelectionne.personnes; track p.id) {
+                    <a class="seg seg--personne ms-1" href="javascript:void(0)"
+                       (click)="selectionnerObjet(p.id)">@ {{ p.intitule }}</a>
+                  }
+                </div>
+              }
+
+              <!-- objets -->
+              @if (detailLieuSelectionne.objets.length > 0) {
+                <div class="mb-2">
+                  <strong>Objets :</strong>
+                  @for (o of detailLieuSelectionne.objets; track o.id) {
+                    <a class="seg seg--objet ms-1" href="javascript:void(0)"
+                       (click)="selectionnerObjet(o.id)">• {{ o.intitule }}</a>
+                  }
+                </div>
+              }
+
+              <!-- sorties cardinales -->
+              @if (detailLieuSelectionne.sortiesCardinales.length > 0) {
+                <div class="mb-2">
+                  <strong>Sorties cardinales :</strong>
+                  <ul class="small mb-0 ps-3">
+                    @for (s of detailLieuSelectionne.sortiesCardinales; track $index) {
+                      <li>
+                        {{ intituleLocalisation(s.localisation) }} →
+                        <a class="seg seg--lieu" href="javascript:void(0)"
+                           (click)="selectionnerLieu(s.cibleId)">{{ s.cibleNom }}</a>
+                        @if (s.via) {
+                          <span class="text-muted">({{ s.via.type }} : {{ s.via.nom }})</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <!-- sorties spéciales (zoom vers lieux enfants ou ouverture de la barrière) -->
+              @if (detailLieuSelectionne.sortiesSpeciales.length > 0) {
+                <div class="mb-2">
+                  <strong>Lieux liés <small class="text-muted">(clic = zoom)</small> :</strong>
+                  <ul class="small mb-0 ps-3">
+                    @for (s of detailLieuSelectionne.sortiesSpeciales; track $index) {
+                      <li>
+                        {{ flecheSpeciale(s.localisation) }} {{ intituleLocalisation(s.localisation) }} →
+                        @if (s.cibleType === 'lieu') {
+                          <a class="seg seg--lieu" href="javascript:void(0)"
+                             (click)="zoomerSurLieu(s.cibleId)"
+                             title="Zoomer sur {{ s.cibleNom }}">
+                            <i class="fas fa-fw fa-magnifying-glass-plus"></i> {{ s.cibleNom }}
+                          </a>
+                        } @else {
+                          <a class="seg seg--objet" href="javascript:void(0)"
+                             (click)="selectionnerObjet(s.cibleId)">{{ s.cibleNom }}</a>
+                          <span class="text-muted">({{ s.cibleType }})</span>
+                        }
+                        @if (s.via) {
+                          <span class="text-muted">({{ s.via.type }} : {{ s.via.nom }})</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </aside>
+      }
+
+    </div>
+  }
+
+</div>
+

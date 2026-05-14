@@ -72,6 +72,10 @@
             (click)="showTab('visualisation')" title="Visualisation" tooltip="Visualisation" placement="right">
             <i class="fas fa-fw fa-eye fa-lg"></i>
           </button>
+          <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'carte') }"
+            (click)="showTab('carte')" title="Carte du scénario" tooltip="Carte du scénario" placement="right">
+            <i class="fas fa-fw fa-map fa-lg"></i>
+          </button>
           <button class="btn btn-primary px-2" [disabled]="!jeu" [ngClass]="{'active':(tab == 'apercu') }"
             (click)="showTab('apercu')" title="Aperçu" tooltip="Aperçu" placement="right">
             <i class="fas fa-fw fa-sitemap fa-lg"></i>
@@ -157,7 +161,7 @@
                           </div>
 
                           <!-- COL 2 : CONTENU ONGLET -->
-                          <div class="col pe-2" style="height: 100%;">
+                          <div class="col pe-2" style="height: 100%; min-width: 0;">
                             <!-- TAB : Scénario (code source) -->
                             <div [style.display]="(tab === 'scenario' ? 'block' : 'none' )" style="height:100%;">
                               <div class="grid-scenario">
@@ -420,6 +424,13 @@
                                     </div>
                                   </div>
                                 }
+
+                                <!-- TAB: CARTE -->
+                                <div [style.display]="(tab === 'carte' ? 'block' : 'none')" class="max" style="height: 100%;">
+                                  @if (compilationTerminee) {
+                                    <app-carte-scenario [jeu]="jeu"></app-carte-scenario>
+                                  }
+                                </div>
 
                                 <!-- TAB: ANALYSE -->
                                 <div [style.display]="(tab === 'analyse' ? 'block' : 'none' )" class="card">

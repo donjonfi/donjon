@@ -1,0 +1,36 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture : grille 3x3 (9 lieux) avec sorties croisées.
+-- Tester : densité, croisements, déduplication des arêtes.
+Le titre du jeu est "Carte — grille 3x3".
+La version du jeu est "1.0".
+
+-- Ligne du haut (nord) : a1 — a2 — a3
+La salle a1 est un lieu.
+La salle a2 est un lieu à l'est de la salle a1.
+La salle a3 est un lieu à l'est de la salle a2.
+
+-- Ligne du milieu : b1 — b2 — b3 (chaque b est au sud du a correspondant)
+La salle b1 est un lieu au sud de la salle a1.
+La salle b2 est un lieu au sud de la salle a2.
+La salle b3 est un lieu au sud de la salle a3.
+
+-- Ligne du bas (sud) : c1 — c2 — c3
+La salle c1 est un lieu au sud de la salle b1.
+La salle c2 est un lieu au sud de la salle b2.
+La salle c3 est un lieu au sud de la salle b3.
+
+-- Liaisons horizontales sur les rangées b et c (a est déjà reliée)
+La salle b2 est à l'est de la salle b1.
+La salle b3 est à l'est de la salle b2.
+La salle c2 est à l'est de la salle c1.
+La salle c3 est à l'est de la salle c2.
+
+-- Quelques objets et PNJ disséminés.
+La clef rouillée est un objet dans la salle a1.
+La fiole est un objet dans la salle a3.
+Le gardien est une personne dans la salle b2.
+Le rat est un animal dans la salle c2.
+Le coffre (m) est un contenant fixé dans la salle c3.
+Il est fermé et ouvrable.
+
+Le joueur est dans la salle b2.

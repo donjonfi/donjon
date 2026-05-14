@@ -28,6 +28,9 @@ export * from './lib/ui/visualisation/models/lieu-voisin';
 export * from './lib/ui/visualisation/models/objet-present';
 export * from './lib/ui/visualisation/models/obstacle-voisin';
 
+export * from './lib/ui/carte-scenario/carte-scenario.module';
+export * from './lib/ui/carte-scenario/carte-scenario.component';
+
 export * from './lib/models/commun/aide';
 export * from './lib/models/commun/capacite';
 export * from './lib/models/commun/classe';
@@ -127,6 +130,7 @@ export * from './lib/utils/compilation/generateur';
 
 export * from './lib/utils/jeu/abreviations';
 export * from './lib/utils/jeu/actions-utils';
+export * from './lib/utils/jeu/carte-builder';
 export * from './lib/utils/jeu/balises-html';
 export * from './lib/utils/jeu/commandeur';
 export * from './lib/utils/jeu/compteurs-utils';

@@ -9,7 +9,7 @@ import { CompilationService } from './services/compilation.service';
 import { LineMapEntry, VsCodeBridgeService } from './services/vscode-bridge.service';
 import { JOUER_ONE_HTML } from '../../../donjon-creer/src/app/standalone/jouer-one-template';
 
-type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'apercu' | 'wiki' | 'aide';
+type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'carte' | 'apercu' | 'wiki' | 'aide';
 
 const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 

@@ -1196,7 +1196,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
     if (!this.resteDeLaSortie?.length) {
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
       if (commandeComplete !== this.commande) {
         this.commande = commandeComplete;
         this.focusCommande();
@@ -1258,7 +1258,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
       // COMPLÉTER ET NETTOYER LA COMMANDE
       // compléter la commande
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
       // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
       const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
