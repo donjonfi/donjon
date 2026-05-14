@@ -1,7 +1,9 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 import { CarteArete, CarteBuilder, CarteLieuInfo, CarteNoeud, CarteScenario, CarteSortieCardinale, CarteSortieSpeciale } from '../../utils/jeu/carte-builder';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
+import { ClasseUtils } from '../../utils/commun/classe-utils';
+import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementsJeuUtils } from '../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
@@ -33,6 +35,8 @@ export class CarteScenarioComponent implements OnChanges {
   @Input() jeu: Jeu | null = null;
   @Output() lieuChoisi = new EventEmitter<Lieu>();
 
+  @ViewChild('asciiWrapEl') asciiWrapEl?: ElementRef<HTMLElement>;
+
   public carte: CarteScenario | null = null;
   public lignesSegmentees: SegmentAscii[][] = [];
 
@@ -56,6 +60,10 @@ export class CarteScenarioComponent implements OnChanges {
   ngOnChanges(_changes: SimpleChanges): void {
     // remontage du composant ou nouvel input jeu → vue d'ensemble
     this.pileRacines = [];
+    // nouvelle carte = on remet le popup à sa position par défaut + on réactive le repositionnement auto
+    this.popupLeft = null;
+    this.popupTop = null;
+    this.popupPositionManuelle = false;
     this.recalculer();
   }
 
@@ -121,12 +129,45 @@ export class CarteScenarioComponent implements OnChanges {
   // Sélection (carte + panneau)
   // ─────────────────────────────────────────
 
-  public onClickSegment(seg: SegmentAscii): void {
+  public onClickSegment(seg: SegmentAscii, event?: MouseEvent): void {
     if (!seg.kind || seg.refId == null) { return; }
+    // Évite que le popup masque la case cliquée : on bascule à gauche si clic à droite.
+    if (event && event.currentTarget instanceof HTMLElement) {
+      this.repositionnerPopupAuto(event.currentTarget);
+    }
+    // donne le focus à la carte pour activer la navigation au clavier
+    this.focuserCarte();
     if (seg.kind === 'lieu' || seg.kind === 'sortie-lieu') {
       this.zoomerSurLieu(seg.refId);
     } else {
       this.selectionnerObjet(seg.refId);
+    }
+  }
+
+  /** Donne le focus au conteneur de la carte ASCII pour activer les flèches directionnelles. */
+  private focuserCarte(): void {
+    this.asciiWrapEl?.nativeElement.focus({ preventScroll: true });
+  }
+
+  /**
+   * Si l'utilisateur n'a pas déplacé le popup manuellement, choisit automatiquement
+   * un coin opposé à la cellule cliquée pour ne pas la masquer.
+   */
+  private repositionnerPopupAuto(cible: HTMLElement): void {
+    if (this.popupPositionManuelle) { return; }
+    const wrap = this.asciiWrapEl?.nativeElement;
+    if (!wrap) { return; }
+    const wrapRect = wrap.getBoundingClientRect();
+    const cibleRect = cible.getBoundingClientRect();
+    const dxClic = cibleRect.left - wrapRect.left;
+    if (dxClic > wrapRect.width / 2) {
+      // clic dans la moitié droite → popup en haut-gauche
+      this.popupLeft = 8;
+      this.popupTop = 8;
+    } else {
+      // clic dans la moitié gauche → popup en haut-droite (défaut CSS)
+      this.popupLeft = null;
+      this.popupTop = null;
     }
   }
 
@@ -138,14 +179,16 @@ export class CarteScenarioComponent implements OnChanges {
     this.zoomerSurLieu(id);
   }
 
-  /** Fermer le panneau de détail (vide la sélection sans toucher au zoom). */
+  /**
+   * Fermer le panneau de détail (vide la sélection sans toucher au zoom).
+   * La position du popup est CONSERVÉE pour le prochain affichage — utile quand l'utilisateur
+   * a déplacé le popup pour libérer une zone. Elle n'est remise à zéro qu'au chargement d'une
+   * nouvelle carte (ngOnChanges).
+   */
   public fermerDetail(): void {
     this.lieuSelectionneId = null;
     this.objetSelectionneId = null;
     this.objetVisible = null;
-    // réinitialise la position du popup pour qu'il revienne en haut à droite la prochaine fois
-    this.popupLeft = null;
-    this.popupTop = null;
   }
 
   // ─────────────────────────────────────────
@@ -156,11 +199,39 @@ export class CarteScenarioComponent implements OnChanges {
   public popupLeft: number | null = null;
   public popupTop: number | null = null;
 
+  /** Vrai dès que l'utilisateur a déplacé le popup manuellement → on ne le repositionne plus auto. */
+  private popupPositionManuelle = false;
+
   private dragActif = false;
   private dragStartX = 0;
   private dragStartY = 0;
   private dragStartLeft = 0;
   private dragStartTop = 0;
+
+  /** Pan (déplacement du scroll) de la carte par clic-glisser sur le fond ASCII. */
+  public panActif = false;
+  private panStartX = 0;
+  private panStartY = 0;
+  private panStartScrollLeft = 0;
+  private panStartScrollTop = 0;
+  private panEl: HTMLElement | null = null;
+
+  public onCartePanStart(event: MouseEvent, asciiEl: HTMLElement): void {
+    // ignore les clics sur un segment cliquable (lieu, objet, etc.) — laisse le click normal
+    const target = event.target as HTMLElement;
+    if (target.closest('.seg')) { return; }
+    // ne déclenche que sur le bouton gauche
+    if (event.button !== 0) { return; }
+    this.panActif = true;
+    this.panEl = asciiEl;
+    this.panStartX = event.clientX;
+    this.panStartY = event.clientY;
+    this.panStartScrollLeft = asciiEl.scrollLeft;
+    this.panStartScrollTop = asciiEl.scrollTop;
+    // donne le focus à la carte → les flèches directionnelles fonctionnent ensuite
+    this.focuserCarte();
+    event.preventDefault();
+  }
 
   public onPopupDragStart(event: MouseEvent, popupEl: HTMLElement): void {
     // évite de démarrer un drag depuis un bouton/lien (le X notamment)
@@ -182,21 +253,111 @@ export class CarteScenarioComponent implements OnChanges {
     // bascule en positionnement explicite par left/top
     this.popupLeft = this.dragStartLeft;
     this.popupTop = this.dragStartTop;
+    // l'utilisateur prend le contrôle : plus de repositionnement auto sur les clics suivants
+    this.popupPositionManuelle = true;
     event.preventDefault();
   }
 
   @HostListener('document:mousemove', ['$event'])
   public onDocumentMouseMove(event: MouseEvent): void {
-    if (!this.dragActif) { return; }
-    const dx = event.clientX - this.dragStartX;
-    const dy = event.clientY - this.dragStartY;
-    this.popupLeft = this.dragStartLeft + dx;
-    this.popupTop = this.dragStartTop + dy;
+    if (this.dragActif) {
+      const dx = event.clientX - this.dragStartX;
+      const dy = event.clientY - this.dragStartY;
+      this.popupLeft = this.dragStartLeft + dx;
+      this.popupTop = this.dragStartTop + dy;
+      return;
+    }
+    if (this.panActif && this.panEl) {
+      const dx = event.clientX - this.panStartX;
+      const dy = event.clientY - this.panStartY;
+      this.panEl.scrollLeft = this.panStartScrollLeft - dx;
+      this.panEl.scrollTop = this.panStartScrollTop - dy;
+    }
   }
 
   @HostListener('document:mouseup')
   public onDocumentMouseUp(): void {
     this.dragActif = false;
+    this.panActif = false;
+  }
+
+  // ─────────────────────────────────────────
+  // Navigation au clavier (flèches directionnelles)
+  // ─────────────────────────────────────────
+
+  /**
+   * Déplace la sélection vers la boîte spatialement voisine sur la grille (selon la flèche).
+   * Le critère est PUREMENT géométrique (gx/gy des nœuds), pas le type de lien : on suit ce
+   * qui est visible à l'œil — facile à comprendre pour l'utilisateur.
+   * Ignoré si la carte n'a pas le focus.
+   */
+  @HostListener('document:keydown', ['$event'])
+  public onKeyDown(event: KeyboardEvent): void {
+    // On ne capte les flèches que si le focus est DANS la carte (wrap focusable ou un de ses descendants).
+    const wrap = this.asciiWrapEl?.nativeElement;
+    if (!wrap) { return; }
+    const active = document.activeElement as HTMLElement | null;
+    if (active !== wrap && !(active && wrap.contains(active))) { return; }
+    if (event.ctrlKey || event.altKey || event.metaKey) { return; }
+
+    const delta = this.deltaDeTouche(event.key);
+    if (!delta || !this.carte || this.carte.noeuds.length === 0) { return; }
+
+    // nœud courant : le lieu sélectionné si placé sur la grille, sinon celui du joueur, sinon le premier.
+    const idCourant = this.lieuSelectionneId
+      ?? (this.jeu?.joueur?.position?.cibleId ?? null);
+    let courant = idCourant != null
+      ? this.carte.noeuds.find(n => n.lieu.id === idCourant)
+      : undefined;
+    if (!courant) { courant = this.carte.noeuds.find(n => n.joueurPresent) ?? this.carte.noeuds[0]; }
+    if (!courant) { return; }
+
+    // Cherche le nœud le plus proche dans la direction demandée.
+    // Priorité : déplacement minimal dans l'axe principal, puis écart minimal sur l'axe secondaire.
+    const cible = this.trouverVoisinSpatial(courant, delta);
+    if (!cible) { return; }
+
+    event.preventDefault();
+    this.zoomerSurLieu(cible.lieu.id);
+  }
+
+  private deltaDeTouche(key: string): { dx: number; dy: number } | null {
+    switch (key) {
+      case 'ArrowUp':    return { dx:  0, dy: -1 };
+      case 'ArrowDown':  return { dx:  0, dy:  1 };
+      case 'ArrowLeft':  return { dx: -1, dy:  0 };
+      case 'ArrowRight': return { dx:  1, dy:  0 };
+      default: return null;
+    }
+  }
+
+  /**
+   * Renvoie le nœud le plus proche dans la direction (dx, dy) depuis `courant`.
+   * Axe principal = celui où le delta est non nul ; axe secondaire = l'autre.
+   * Sélectionne le candidat qui minimise le déplacement principal, puis l'écart secondaire.
+   */
+  private trouverVoisinSpatial(courant: CarteNoeud, delta: { dx: number; dy: number }): CarteNoeud | null {
+    if (!this.carte) { return null; }
+    const axePrinc: 'x' | 'y' = delta.dx !== 0 ? 'x' : 'y';
+    const axeSecond: 'x' | 'y' = axePrinc === 'x' ? 'y' : 'x';
+    const sens = delta.dx !== 0 ? delta.dx : delta.dy;
+    let meilleur: CarteNoeud | null = null;
+    let meilleurDist = Number.POSITIVE_INFINITY;
+    let meilleurEcart = Number.POSITIVE_INFINITY;
+    for (const n of this.carte.noeuds) {
+      if (n.lieu.id === courant.lieu.id) { continue; }
+      const deltaPrinc = (n[axePrinc] - courant[axePrinc]) * sens;
+      if (deltaPrinc <= 0) { continue; }  // pas dans la bonne direction
+      const ecartSecond = Math.abs(n[axeSecond] - courant[axeSecond]);
+      // priorité : distance principale minimale, puis écart secondaire minimal
+      if (deltaPrinc < meilleurDist
+          || (deltaPrinc === meilleurDist && ecartSecond < meilleurEcart)) {
+        meilleur = n;
+        meilleurDist = deltaPrinc;
+        meilleurEcart = ecartSecond;
+      }
+    }
+    return meilleur;
   }
 
   // ─────────────────────────────────────────
@@ -309,6 +470,20 @@ export class CarteScenarioComponent implements OnChanges {
     return !!this.objetVisible || !!this.detailLieuSelectionne;
   }
 
+  /** Statistiques globales pour l'affichage en pied de légende. */
+  public get stats(): { lieux: number; personnes: number; objets: number; portes: number; obstacles: number } | null {
+    if (!this.jeu) { return null; }
+    let personnes = 0, objets = 0, portes = 0, obstacles = 0;
+    for (const o of this.jeu.objets) {
+      if (this.jeu.joueur && o.id === this.jeu.joueur.id) { continue; }
+      if (ClasseUtils.heriteDe(o.classe, EClasseRacine.porte)) { portes++; continue; }
+      if (ClasseUtils.heriteDe(o.classe, EClasseRacine.obstacle)) { obstacles++; continue; }
+      if (ClasseUtils.heriteDe(o.classe, EClasseRacine.vivant)) { personnes++; continue; }
+      objets++;
+    }
+    return { lieux: this.jeu.lieux.length, personnes, objets, portes, obstacles };
+  }
+
   // ─────────────────────────────────────────
   // Génération de la matrice ASCII et de ses segments
   // ─────────────────────────────────────────
@@ -406,14 +581,14 @@ export class CarteScenarioComponent implements OnChanges {
 
       for (const p of n.personnes) {
         if (cr >= rowEnd) { break; }
-        const t = this.tronquer('@ ' + (p.intitule?.toString() ?? p.nom ?? ''), this.CELL_W - 5);
+        const t = this.tronquer('@ ' + this.formaterIntitule(p), this.CELL_W - 5);
         setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'personne', refId: p.id });
         cr++;
         cr = this.dessinerEnfants(p.id, 1, cr, rowEnd, colStart, setStr);
       }
       for (const o of n.objets) {
         if (cr >= rowEnd) { break; }
-        const t = this.tronquer('• ' + (o.intitule?.toString() ?? o.nom ?? ''), this.CELL_W - 5);
+        const t = this.tronquer(this.formaterIntitule(o, '• '), this.CELL_W - 5);
         setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: o.id });
         cr++;
         cr = this.dessinerEnfants(o.id, 1, cr, rowEnd, colStart, setStr);
@@ -429,8 +604,10 @@ export class CarteScenarioComponent implements OnChanges {
     }
 
     // -- DESSINER ARÊTES --
+    // Set partagé des cellules occupées par les étiquettes, pour éviter qu'elles se superposent.
+    const etiquettesOccupees = new Set<string>();
     for (const a of this.carte.aretes) {
-      this.tracerArete(matrice, a, rowOffsets, rowHeights, minX, minY, set, setStr);
+      this.tracerArete(matrice, a, rowOffsets, rowHeights, minX, minY, set, setStr, etiquettesOccupees);
     }
 
     // -- DÉCOUPER EN SEGMENTS --
@@ -446,7 +623,28 @@ export class CarteScenarioComponent implements OnChanges {
     minY: number,
     set: (r: number, c: number, ch: string, meta?: Partial<CelluleAscii>) => void,
     setStr: (r: number, c: number, s: string, meta?: Partial<CelluleAscii>) => void,
+    etiquettesOccupees: Set<string>,
   ): void {
+    /** Tente de poser une étiquette à (r, c) ; en cas de chevauchement avec une autre étiquette
+     *  déjà posée, essaie des décalages ±1 puis ±2 rangées. Retourne true si placée. */
+    const poserEtiquette = (r: number, c: number, texte: string): boolean => {
+      const decalages = [0, -1, 1, -2, 2];
+      for (const dr of decalages) {
+        const rEssai = r + dr;
+        let conflit = false;
+        for (let i = 0; i < texte.length; i++) {
+          if (etiquettesOccupees.has(`${rEssai},${c + i}`)) { conflit = true; break; }
+        }
+        if (!conflit) {
+          for (let i = 0; i < texte.length; i++) {
+            etiquettesOccupees.add(`${rEssai},${c + i}`);
+          }
+          setStr(rEssai, c, texte);
+          return true;
+        }
+      }
+      return false;
+    };
     if (!this.carte) { return; }
     const source = this.carte.noeuds.find(n => n.lieu.id === a.sourceId);
     const cible = this.carte.noeuds.find(n => n.lieu.id === a.cibleId);
@@ -472,7 +670,7 @@ export class CarteScenarioComponent implements OnChanges {
       const label = a.via ? `[${a.via.type === 'porte' ? 'P' : 'O'}]${a.via.nom}` : this.intituleLocalisation(loc);
       const lab = ' ' + this.tronquer(label, this.GAP_H - 2) + ' ';
       const start = Math.floor((colA + colB - lab.length) / 2);
-      setStr(rowMid, start, lab);
+      poserEtiquette(rowMid, start, lab);
     } else if (vertical) {
       const haut = source.y < cible.y ? source : cible;
       const bas = source.y < cible.y ? cible : source;
@@ -487,19 +685,21 @@ export class CarteScenarioComponent implements OnChanges {
       for (let r = rowA + 1; r < rowB; r++) { set(r, colMid, '│'); }
       const label = a.via ? `[${a.via.type === 'porte' ? 'P' : 'O'}]${a.via.nom}` : this.intituleLocalisation(loc);
       const rowMid = Math.floor((rowA + rowB) / 2);
-      setStr(rowMid, colMid + 2, this.tronquer(label, 12));
+      poserEtiquette(rowMid, colMid + 2, this.tronquer(label, 12));
     } else if (
       (loc === ELocalisation.nord_est || loc === ELocalisation.nord_ouest
         || loc === ELocalisation.sud_est || loc === ELocalisation.sud_ouest)
       && dx !== 0 && dy !== 0
     ) {
-      // diagonale RÉELLE (localisation NE/NO/SE/SO) : trait oblique coin-à-coin (Bresenham),
-      // avec ╱ ou ╲ selon le sens. L'étiquette de direction est posée au milieu du trajet.
+      // Diagonale en L : tracé en deux segments avec UN seul coude à 90°.
+      // On part du coin (┌┐└┘) de la source qui pointe vers la cible, on tire un segment
+      // vertical jusqu'à la rangée du coin opposé de la cible, on tourne à l'angle, puis on
+      // termine par un segment horizontal jusqu'à ce coin opposé.
       //
-      // Les liaisons cardinales (nord/sud/est/ouest) qui se retrouvent en grille avec dx≠0
-      // ET dy≠0 (placement décalé suite à une collision) ne sont PAS tracées ici : elles
-      // donneraient un trait diagonal trompeur. On les laisse tomber — le lien reste visible
-      // dans le panneau de détail du lieu.
+      // NE : top-right de la source ┐ → ┤ ; bottom-left de la cible └ → ┴ ; coude ┌
+      // SE : bot-right de la source ┘ → ┤ ; top-left  de la cible ┌ → ┬ ; coude └
+      // NO : top-left  de la source ┌ → ├ ; bot-right de la cible ┘ → ┴ ; coude ┐
+      // SO : bot-left  de la source └ → ├ ; top-right de la cible ┐ → ┬ ; coude ┘
       const versEst = dx > 0;
       const versSud = dy > 0;
       const gxS = source.x - minX;
@@ -518,50 +718,63 @@ export class CarteScenarioComponent implements OnChanges {
       const tColLeft = tCol;
       const tColRight = tCol + this.CELL_W - 1;
 
-      // point de départ : juste à côté du coin de la source, vers la cible
-      const startRow = versSud ? rsBot + 1 : rsTop - 1;
-      const startCol = versEst ? sColRight + 1 : sCol - 1;
-      // point d'arrivée : juste à côté du coin de la cible, vers la source
-      const endRow = versSud ? rtTop - 1 : rtBot + 1;
-      const endCol = versEst ? tColLeft - 1 : tColRight + 1;
+      let sCornerRow: number, sCornerCol: number;
+      let tCornerRow: number, tCornerCol: number;
+      let safeRow: number;
+      let sCornerChar: string, tCornerChar: string;
+      let elbow1: string, elbow2: string;
 
-      // caractère diagonal : ╲ pour NO/SE, ╱ pour NE/SO
-      const diagChar = (versEst === versSud) ? '╲' : '╱';
-
-      // Bresenham 2D — on plote un caractère par cellule visitée
-      const x1 = startCol, y1 = startRow;
-      const x2 = endCol, y2 = endRow;
-      const dxAbs = Math.abs(x2 - x1);
-      const dyAbs = Math.abs(y2 - y1);
-      const sx = x1 < x2 ? 1 : -1;
-      const sy = y1 < y2 ? 1 : -1;
-      let err = dxAbs - dyAbs;
-      let cx = x1, cy = y1;
-      const cellules: { r: number; c: number }[] = [];
-      for (let i = 0; i < 500; i++) {
-        cellules.push({ r: cy, c: cx });
-        if (cx === x2 && cy === y2) { break; }
-        const e2 = 2 * err;
-        if (e2 > -dyAbs) { err -= dyAbs; cx += sx; }
-        if (e2 < dxAbs) { err += dxAbs; cy += sy; }
-      }
-      // rendu en escalier : ╱/╲ uniquement aux cellules où la ligne change de rangée,
-      // ─ sur les cellules intermédiaires d'une même rangée. Pour une pente proche de 1:2
-      // (équivalent ~45° en monospace) on obtient un trait fluide en marches.
-      for (let i = 0; i < cellules.length; i++) {
-        const p = cellules[i];
-        const estPas = i === 0 || cellules[i - 1].r !== p.r;
-        set(p.r, p.c, estPas ? diagChar : '─');
+      if (versEst && !versSud) {           // NE
+        sCornerRow = rsTop; sCornerCol = sColRight; sCornerChar = '┤';
+        tCornerRow = rtBot; tCornerCol = tColLeft;  tCornerChar = '├';
+        safeRow = rtBot + 1;  elbow1 = '┌'; elbow2 = '┘';
+      } else if (versEst && versSud) {     // SE
+        sCornerRow = rsBot; sCornerCol = sColRight; sCornerChar = '┤';
+        tCornerRow = rtTop; tCornerCol = tColLeft;  tCornerChar = '├';
+        safeRow = rtTop - 1;  elbow1 = '└'; elbow2 = '┐';
+      } else if (!versEst && !versSud) {   // NO
+        sCornerRow = rsTop; sCornerCol = sCol;      sCornerChar = '├';
+        tCornerRow = rtBot; tCornerCol = tColRight; tCornerChar = '┤';
+        safeRow = rtBot + 1;  elbow1 = '┐'; elbow2 = '└';
+      } else {                              // SO
+        sCornerRow = rsBot; sCornerCol = sCol;      sCornerChar = '├';
+        tCornerRow = rtTop; tCornerCol = tColRight; tCornerChar = '┤';
+        safeRow = rtTop - 1;  elbow1 = '┘'; elbow2 = '┌';
       }
 
-      // étiquette de direction au milieu du trajet (horizontale)
-      if (cellules.length > 0) {
-        const mid = cellules[Math.floor(cellules.length / 2)];
-        const label = a.via ? `[${a.via.type === 'porte' ? 'P' : 'O'}]${a.via.nom}` : this.intituleLocalisation(loc);
-        const lab = ' ' + this.tronquer(label, 10) + ' ';
-        const labelStart = Math.max(0, Math.floor(mid.c - lab.length / 2));
-        setStr(mid.r, labelStart, lab);
+      // remplace les coins de la source et de la cible
+      set(sCornerRow, sCornerCol, sCornerChar);
+      set(tCornerRow, tCornerCol, tCornerChar);
+      // coude 1 (avant la cible, dans le GAP_V) — angle principal du L
+      set(safeRow, sCornerCol, elbow1);
+      // coude 2 (à la colonne de la cible, dans le GAP_V)
+      set(safeRow, tCornerCol, elbow2);
+
+      // segment vertical (coin source → coude 1)
+      if (versSud) {
+        for (let r = sCornerRow + 1; r < safeRow; r++) { set(r, sCornerCol, '│'); }
+      } else {
+        for (let r = safeRow + 1; r < sCornerRow; r++) { set(r, sCornerCol, '│'); }
       }
+      // segment horizontal entre les deux coudes
+      if (versEst) {
+        for (let c = sCornerCol + 1; c < tCornerCol; c++) { set(safeRow, c, '─'); }
+      } else {
+        for (let c = tCornerCol + 1; c < sCornerCol; c++) { set(safeRow, c, '─'); }
+      }
+      // dernier tronçon vertical entre coude 2 et coin cible
+      // (en général une seule cellule entre safeRow et tCornerRow — pas de boucle si adjacents)
+      if (versSud) {
+        for (let r = safeRow + 1; r < tCornerRow; r++) { set(r, tCornerCol, '│'); }
+      } else {
+        for (let r = tCornerRow + 1; r < safeRow; r++) { set(r, tCornerCol, '│'); }
+      }
+
+      // étiquette : milieu du segment horizontal (rangée du coude principal)
+      const label = a.via ? `[${a.via.type === 'porte' ? 'P' : 'O'}]${a.via.nom}` : this.intituleLocalisation(loc);
+      const lab = ' ' + this.tronquer(label, 10) + ' ';
+      const labelStart = Math.floor((sCornerCol + tCornerCol - lab.length) / 2);
+      poserEtiquette(safeRow, labelStart, lab);
     }
   }
 
@@ -600,13 +813,44 @@ export class CarteScenarioComponent implements OnChanges {
     const placeNom = Math.max(3, (this.CELL_W - 2) - 1 - indent.length - 2);
     for (const e of enfants) {
       if (cr >= rowEnd) { return cr; }
-      const nom = e.objet.intitule?.toString() ?? e.objet.nom ?? '';
-      const t = indent + '↳ ' + this.tronquer(nom, placeNom);
+      const t = indent + '↳ ' + this.tronquer(this.formaterIntitule(e.objet), placeNom);
       setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: e.objet.id });
       cr++;
       cr = this.dessinerEnfants(e.objet.id, niveau + 1, cr, rowEnd, colStart, setStr);
     }
     return cr;
+  }
+
+  /**
+   * Décore l'intitulé d'un objet pour l'affichage dans une boîte :
+   *  - préfixe `⬡` si contenant, `═` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets,
+   *    chaîne vide pour les enfants déjà préfixés par `↳ `)
+   *  - suffixe : lettres des états actifs (v=vivant, d=décor, f=fixé, i=invisible,
+   *    a=inaccessible, s=secret, r=discret), accolées
+   * Exemple : `⬡ la bourse fi`
+   */
+  private formaterIntitule(objet: Objet, prefixeParDefaut: string = ''): string {
+    let prefixe = prefixeParDefaut;
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) { prefixe = '⬡ '; }
+    else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) { prefixe = '═ '; }
+    const nom = objet.intitule?.toString() ?? objet.nom ?? '';
+    const etats = this.collecterEtatsLettres(objet);
+    return prefixe + nom + (etats ? ' ' + etats : '');
+  }
+
+  /** Retourne la chaîne d'états actifs sous forme de lettres concaténées. */
+  private collecterEtatsLettres(objet: Objet): string {
+    if (!this.jeu) { return ''; }
+    const e = this.jeu.etats;
+    let s = '';
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.vivant)) { s += 'v'; }
+    if (e.decoratifID >= 0 && e.possedeEtatIdElement(objet, e.decoratifID, null)) { s += 'd'; }
+    if (e.fixeID >= 0 && e.possedeEtatIdElement(objet, e.fixeID, null)) { s += 'f'; }
+    if (e.invisibleID >= 0 && e.possedeEtatIdElement(objet, e.invisibleID, null)) { s += 'i'; }
+    if (e.inaccessibleID >= 0 && e.possedeEtatIdElement(objet, e.inaccessibleID, null)) { s += 'a'; }
+    if (e.secretID >= 0 && e.possedeEtatIdElement(objet, e.secretID, null)) { s += 's'; }
+    if (e.discretID >= 0 && e.possedeEtatIdElement(objet, e.discretID, null)) { s += 'r'; }
+    return s;
   }
 
   private fusionnerSegments(ligne: CelluleAscii[]): SegmentAscii[] {

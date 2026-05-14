@@ -5,26 +5,54 @@
   }
 
   @if (carte && carte.noeuds.length > 0) {
-    <div class="carte-scenario__ascii-wrap">
+    <div class="carte-scenario__ascii-wrap" #asciiWrapEl tabindex="0">
 
-      <div class="carte-scenario__ascii"
+      <!-- légende flottante des préfixes (types) et lettres (états) -->
+      <div class="carte-scenario__legende">
+        <span class="leg-grp"><span class="leg-sym">⬡</span> contenant</span>
+        <span class="leg-grp"><span class="leg-sym">═</span> support</span>
+        <span class="leg-grp"><span class="leg-sym">@</span> vivant</span>
+        <span class="leg-grp"><span class="leg-sym">•</span> objet</span>
+        <span class="leg-grp"><span class="leg-sym">↳</span> contenu</span>
+        <span class="leg-sep">|</span>
+        <span class="leg-grp"><span class="leg-let">v</span> vivant</span>
+        <span class="leg-grp"><span class="leg-let">d</span> décor</span>
+        <span class="leg-grp"><span class="leg-let">f</span> fixé</span>
+        <span class="leg-grp"><span class="leg-let">i</span> invisible</span>
+        <span class="leg-grp"><span class="leg-let">a</span> inaccessible</span>
+        <span class="leg-grp"><span class="leg-let">s</span> secret</span>
+        <span class="leg-grp"><span class="leg-let">r</span> discret</span>
+        @if (stats) {
+          <span class="leg-sep">|</span>
+          <span class="leg-stats">
+            {{ stats.lieux }} lieux · {{ stats.personnes }} pers. · {{ stats.objets }} objets · {{ stats.portes }} portes · {{ stats.obstacles }} obstacles
+          </span>
+        }
+      </div>
+
+      <div class="carte-scenario__ascii" #asciiEl
+        [class.is-panning]="panActif"
+        (mousedown)="onCartePanStart($event, asciiEl)"
         >@for (ligne of lignesSegmentees; track $index) {<span class="ligne"
-          >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg)">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>
+          >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg, $event)">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>
 
       <!-- popup détail flottant (uniquement si quelque chose est sélectionné) -->
       @if (aDetailAffiche) {
       <aside class="carte-scenario__popup" #popupEl
              [style.left.px]="popupLeft"
              [style.top.px]="popupTop"
-             [style.right]="popupLeft != null ? 'auto' : null">
+             [style.right]="popupLeft != null ? 'auto' : null"
+             [style.bottom]="popupTop != null ? 'auto' : null">
 
         <!-- objet (ou personne ou joueur) sélectionné -->
         @if (objetVisible && eju && jeu) {
           <div class="card">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3 carte-scenario__drag-handle"
-                   (mousedown)="onPopupDragStart($event, popupEl)">
+              <div class="d-flex justify-content-between align-items-center carte-scenario__drag-handle"
+                   (mousedown)="onPopupDragStart($event, popupEl)"
+                   title="Déplacer">
                 <h3 class="h6 mb-0">
+                  <i class="fas fa-fw fa-grip-lines carte-scenario__drag-grip"></i>
                   <i class="fas fa-fw fa-circle-info"></i>
                   {{ objetVisible.objet.intitule }}
                 </h3>
@@ -45,9 +73,11 @@
         @else if (detailLieuSelectionne) {
           <div class="card">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3 carte-scenario__drag-handle"
-                   (mousedown)="onPopupDragStart($event, popupEl)">
+              <div class="d-flex justify-content-between align-items-center carte-scenario__drag-handle"
+                   (mousedown)="onPopupDragStart($event, popupEl)"
+                   title="Déplacer">
                 <h3 class="h6 mb-0">
+                  <i class="fas fa-fw fa-grip-lines carte-scenario__drag-grip"></i>
                   <i class="fas fa-fw fa-location-dot"></i>
                   {{ titreLieu(detailLieuSelectionne.lieu) }}
                   @if (detailLieuSelectionne.joueurPresent) {

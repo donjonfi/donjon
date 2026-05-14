@@ -15,13 +15,14 @@
     min-height: 0;
     max-width: 100%;
     max-height: 100%;
+    outline: none;        // pas de focus ring (le surlignage seg--sel sert d'indicateur)
     display: flex;
     flex-direction: column;
   }
 
   &__popup {
     position: absolute;
-    top: 0.5rem;
+    top: 0.5rem;             // par défaut : coin haut-droit
     right: 0.5rem;
     width: min(360px, calc(100% - 1rem));
     max-height: calc(100% - 1rem);
@@ -38,6 +39,48 @@
   &__drag-handle {
     cursor: move;
     user-select: none;
+    background: linear-gradient(to bottom, #f1f3f5, #dee2e6);
+    border-bottom: 1px solid #ced4da;
+    border-radius: 6px 6px 0 0;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 0.4rem 0.6rem;
+
+    .carte-scenario__drag-grip {
+      color: #6c757d;
+      margin-right: 0.4rem;
+      font-size: 0.9em;
+    }
+
+    &:hover {
+      background: linear-gradient(to bottom, #e9ecef, #ced4da);
+    }
+  }
+
+  &__legende {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    z-index: 5;
+    pointer-events: none;
+    background: rgba(30, 30, 30, 0.85);
+    color: #e6e6e6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    align-items: center;
+    justify-content: center;
+
+    .leg-grp { white-space: nowrap; }
+    .leg-sym { color: #a6e22e; font-weight: 600; margin-right: 2px; }
+    .leg-let { color: #fd971f; font-weight: 700; margin-right: 2px; }
+    .leg-sep { color: #666; }
+    .leg-stats { color: #999; white-space: nowrap; }
   }
 
   &__ascii {
@@ -54,6 +97,12 @@
     flex: 1 1 auto;
     min-height: 0;
     tab-size: 1;
+    cursor: grab;            // panning par clic-glisser sur le fond
+
+    &.is-panning {
+      cursor: grabbing;
+      user-select: none;
+    }
 
     .ligne {
       display: block;
