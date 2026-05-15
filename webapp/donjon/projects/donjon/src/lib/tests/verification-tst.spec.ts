@@ -508,4 +508,67 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(commandes).toEqual(['c:attendre', 'c:annuler']);
   });
 
+  it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .tst', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([{ type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' }]);
+    fichier.sortieIntro = 'Intro attendue.';
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+    (lecteur as any).magnetoDivergenceIntro = {
+      sortie: 'Intro attendue.',
+      sortieObtenue: 'Intro différente.',
+      diffAttendu: [], diffObtenue: [],
+    };
+
+    lecteur.magnetoPrecedent();
+
+    expect((lecteur as any).magnetoDivergenceIntro).toBeNull();
+    expect(fichier.sortieIntro).toBe('Intro attendue.');
+  });
+
+});
+
+describe('Magnéto — surlignage des sections divergentes (diff)', () => {
+
+  it('[F050-TD001] textes identiques → aucun segment marqué diff', () => {
+    const { gauche, droite } = LecteurComponent.calculerDiffSorties('Vous êtes dans la salle.', 'Vous êtes dans la salle.');
+    expect(gauche.every(s => !s.diff)).toBeTrue();
+    expect(droite.every(s => !s.diff)).toBeTrue();
+    expect(gauche.map(s => s.texte).join('')).toBe('Vous êtes dans la salle.');
+    expect(droite.map(s => s.texte).join('')).toBe('Vous êtes dans la salle.');
+  });
+
+  it('[F050-TD002] mot remplacé → marqué diff à gauche ET à droite, segments communs intacts', () => {
+    const { gauche, droite } = LecteurComponent.calculerDiffSorties('Vous voyez un chat.', 'Vous voyez un chien.');
+    expect(gauche.map(s => s.texte).join('')).toBe('Vous voyez un chat.');
+    expect(droite.map(s => s.texte).join('')).toBe('Vous voyez un chien.');
+    const diffsGauche = gauche.filter(s => s.diff).map(s => s.texte).join('');
+    const diffsDroite = droite.filter(s => s.diff).map(s => s.texte).join('');
+    expect(diffsGauche).toContain('chat');
+    expect(diffsDroite).toContain('chien');
+    expect(gauche.filter(s => !s.diff).map(s => s.texte).join('')).toContain('Vous voyez un');
+  });
+
+  it('[F050-TD003] mot ajouté à droite → marqué diff uniquement à droite', () => {
+    const { gauche, droite } = LecteurComponent.calculerDiffSorties('Vous voyez un chat.', 'Vous voyez un gros chat.');
+    expect(gauche.every(s => !s.diff)).toBeTrue();
+    const diffsDroite = droite.filter(s => s.diff).map(s => s.texte).join('');
+    expect(diffsDroite).toContain('gros');
+  });
+
+  it('[F050-TD004] mot supprimé à droite → marqué diff uniquement à gauche', () => {
+    const { gauche, droite } = LecteurComponent.calculerDiffSorties('Vous voyez un gros chat.', 'Vous voyez un chat.');
+    expect(droite.every(s => !s.diff)).toBeTrue();
+    const diffsGauche = gauche.filter(s => s.diff).map(s => s.texte).join('');
+    expect(diffsGauche).toContain('gros');
+  });
+
+  it('[F050-TD005] sortie attendue vide → tout le texte obtenu est marqué diff', () => {
+    const { gauche, droite } = LecteurComponent.calculerDiffSorties('', 'Bienvenue dans le jeu.');
+    expect(gauche.length).toBe(0);
+    expect(droite.length).toBeGreaterThan(0);
+    expect(droite.every(s => s.diff)).toBeTrue();
+    expect(droite.map(s => s.texte).join('')).toBe('Bienvenue dans le jeu.');
+  });
+
 });

@@ -18,6 +18,12 @@ import { QuestionCommande } from '../models/jouer/questions-commande';
 import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
 
+/** Segment de texte issu de la comparaison de deux sorties dans le magnéto. */
+export interface SegmentDiff {
+  texte: string;
+  diff: boolean;
+}
+
 @Component({
   selector: 'djn-lecteur',
   templateUrl: './lecteur.component.html',
@@ -85,16 +91,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   public magnetoIdx = 0;
 
   /** Données de la divergence en cours d'examen, ou null si aucune divergence. */
-  public magnetoDivergence: { etape: EtapeTest, idx: number, sortieObtenue: string } | null = null;
+  public magnetoDivergence: { etape: EtapeTest, idx: number, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
 
   /** Divergence sur l'intro du jeu (avant la première étape c/r), ou null. */
-  public magnetoDivergenceIntro: { sortie: string, sortieObtenue: string } | null = null;
+  public magnetoDivergenceIntro: { sortie: string, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
 
   /** Lecture auto en cours (boucle temporisée) ? */
   public magnetoLectureAutoEnCours = false;
-
-  /** Délai entre commandes en lecture auto (ms). 0 = instantané. */
-  public magnetoDelaiMs = 500;
 
   /** Sous-état d'édition (sous-panneau saisie). */
   public magnetoEdition: 'aucun' | 'modifier' | 'inserer' = 'aucun';
@@ -1318,9 +1321,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // Si elles diffèrent, ouvrir une divergence intro avant tout pas suivant.
     if (this.fichierTestEnCours.sortieIntro !== undefined &&
         this.fichierTestEnCours.sortieIntro !== this.partie.sortieIntro) {
+      const diff = LecteurComponent.calculerDiffSorties(this.fichierTestEnCours.sortieIntro, this.partie.sortieIntro);
       this.magnetoDivergenceIntro = {
         sortie: this.fichierTestEnCours.sortieIntro,
         sortieObtenue: this.partie.sortieIntro,
+        diffAttendu: diff.gauche,
+        diffObtenue: diff.droite,
       };
     }
   }
@@ -1366,6 +1372,48 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return idx;
   }
 
+  // -- Diff de sortie (surlignage des sections divergentes) ---------------
+
+  /**
+   * Calcule un diff mot-à-mot entre deux sorties textuelles. Renvoie deux
+   * suites de segments (gauche=attendu, droite=obtenu) qui, concaténées,
+   * redonnent le texte original — chaque segment porte un flag `diff`
+   * indiquant s'il appartient à une portion divergente.
+   *
+   * Algorithme : LCS sur la tokenisation `/(\s+)/` (mots + blancs préservés).
+   * Complexité O(n·m), suffisant pour les sorties courtes typiques d'IF.
+   */
+  public static calculerDiffSorties(attendu: string, obtenu: string): { gauche: SegmentDiff[], droite: SegmentDiff[] } {
+    const a = (attendu ?? '').split(/(\s+)/).filter(t => t.length > 0);
+    const b = (obtenu ?? '').split(/(\s+)/).filter(t => t.length > 0);
+    const n = a.length, m = b.length;
+    const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        dp[i][j] = (a[i] === b[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    const gauche: SegmentDiff[] = [];
+    const droite: SegmentDiff[] = [];
+    let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) {
+        gauche.push({ texte: a[i], diff: false });
+        droite.push({ texte: b[j], diff: false });
+        i++; j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        gauche.push({ texte: a[i], diff: true });
+        i++;
+      } else {
+        droite.push({ texte: b[j], diff: true });
+        j++;
+      }
+    }
+    while (i < n) { gauche.push({ texte: a[i++], diff: true }); }
+    while (j < m) { droite.push({ texte: b[j++], diff: true }); }
+    return { gauche, droite };
+  }
+
   // -- Contrôles magnéto (toolbar principale) ------------------------------
 
   /** Exécute l'étape courante et compare la sortie. Met en pause sur divergence. */
@@ -1390,7 +1438,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       }
     } else {
       // divergence : pause
-      this.magnetoDivergence = { etape, idx: this.magnetoIdx, sortieObtenue };
+      const diff = LecteurComponent.calculerDiffSorties(etape.sortie ?? '', sortieObtenue);
+      this.magnetoDivergence = { etape, idx: this.magnetoIdx, sortieObtenue, diffAttendu: diff.gauche, diffObtenue: diff.droite };
       this.magnetoLectureAutoEnCours = false;
     }
   }
@@ -1399,7 +1448,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   public magnetoPrecedent(): void {
     if (!this.verificationActive) return;
     // Si on n'a pas encore exécuté la première c/r, rien à faire
-    if (this.magnetoIdx === 0 && !this.magnetoDivergence) return;
+    if (this.magnetoIdx === 0 && !this.magnetoDivergence && !this.magnetoDivergenceIntro) return;
+
+    // Divergence intro : « Précédent » la ferme sans valider (la sortie d'intro
+    // attendue du .tst reste inchangée). L'utilisateur peut ensuite « Pas suivant ».
+    if (this.magnetoDivergenceIntro) {
+      this.verificationActions.push({ idx: -1, action: 'reculé intro', detail: 'divergence d\'intro ignorée' });
+      this.magnetoDivergenceIntro = null;
+      return;
+    }
 
     // Si une divergence est affichée, c'est qu'on vient juste d'exécuter cette étape.
     // « Précédent » revient à l'état pré-divergence : annule et abandonne la divergence.
@@ -1432,9 +1489,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoLectureAutoEnCours = true;
     while (this.magnetoLectureAutoEnCours && this.verificationActive && !this.magnetoDivergence && this.fichierTestEnCours && this.magnetoIdx < this.fichierTestEnCours.etapesTest.length) {
       this.magnetoPasSuivant();
-      if (this.magnetoDelaiMs > 0) {
-        await new Promise(resolve => setTimeout(resolve, this.magnetoDelaiMs));
-      }
+      // Yield au scheduler pour que le clic « Stop » et le rendu Angular puissent s'intercaler.
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
     this.magnetoLectureAutoEnCours = false;
   }
@@ -1634,6 +1690,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.magnetoEdition === 'modifier' && this.magnetoDivergence) {
       const sortie = this.executerCommandeAffichee(this.magnetoDivergence.etape.valeur);
       this.magnetoDivergence.sortieObtenue = sortie;
+      const diff = LecteurComponent.calculerDiffSorties(this.magnetoDivergence.etape.sortie ?? '', sortie);
+      this.magnetoDivergence.diffAttendu = diff.gauche;
+      this.magnetoDivergence.diffObtenue = diff.droite;
     }
     this.magnetoEdition = 'aucun';
     this.magnetoSaisieCommande = '';

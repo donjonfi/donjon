@@ -242,27 +242,9 @@
   flex: 1;
 }
 
-.djn-magneto-vitesse {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.85rem;
-  margin-left: 0.5rem;
-
-  small {
-    min-width: 3rem;
-    text-align: right;
-    color: #6c757d;
-  }
-}
-
-.djn-magneto-slider {
-  width: 120px;
-}
-
 .djn-magneto-divergence {
   background: #fff3cd;
-  border: 1px solid #ffc107;
+  border: 1px solid #DD8855;
   border-radius: 4px;
   padding: 0.75rem;
 }
@@ -292,6 +274,13 @@
   margin-bottom: 0.25rem;
 }
 
+.djn-magneto-divergence-titre {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #a04d10;
+  margin-bottom: 0.5rem;
+}
+
 .djn-magneto-texte {
   background: #fafafa;
   border: 1px solid #eee;
@@ -303,6 +292,21 @@
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 0.85rem;
+}
+
+.djn-magneto-diff-retire {
+  background: rgba(170, 85, 85, 0.18);
+  color: #AA5555;
+  text-decoration: line-through;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.djn-magneto-diff-ajoute {
+  background: rgba(40, 167, 69, 0.18);
+  color: #28a745;
+  border-radius: 2px;
+  padding: 0 1px;
 }
 
 .djn-magneto-actions {

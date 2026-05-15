@@ -143,15 +143,6 @@
                             </button>
                           }
                         }
-                            <!-- sections -->
-                            <br>
-                              <!-- <button *ngIf="(allPartiesIntitule?.length || allChapitresIntitule?.length || allScenesIntitule?.length)" -->
-                              @if (false) {
-                                <button class="btn btn-secondary mt-3" (click)="afficherSections = !afficherSections"
-                                  tooltip="Sections" placement="right" title="Sections">
-                                  <i class="fas fa-fw fa-thumbtack fa-lg"></i>
-                                </button>
-                              }
                             }
 
                           </div>
@@ -279,65 +270,6 @@
                                           </div>
                                         }
 
-                                        <!-- VOLUME, PARTIE, CHAPITRE, SCENE -->
-                                        @if (false && afficherSections) {
-                                          <div class="row mb-2">
-                                            @if (allPartiesIntitule?.length) {
-                                              <div class="col-12 col-md-4  pe-md-1 py-1">
-                                                <select [(ngModel)]="selPartieIndex" (change)="onChangerSelPartie(false, true)" class="form-select"
-                                                  name="choixPartie">
-                                                  <option [ngValue]="null">(tout le scénario)</option>
-                                                  @for (intitule of allPartiesIntitule; track intitule; let i = $index) {
-                                                    @if (i != 0 || intitule != '(sans nom)') {
-                                                      <option [ngValue]="i">
-                                                        Partie « {{intitule}} »
-                                                      </option>
-                                                    }
-                                                  }
-                                                </select>
-                                              </div>
-                                            }
-                                            @if (allChapitresIntitule?.length) {
-                                              <div class="col-6 col-md-4 px-md-1 py-1 ">
-                                                <select [(ngModel)]="selChapitreIndex" (change)="onChangerSelChapitre(false ,true)"
-                                                  class="form-select" name="choixChapitre">
-                                                  <option [ngValue]="null">{{(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)')}}
-                                                  </option>
-                                                  @for (intitule of allChapitresIntitule; track intitule; let i = $index) {
-                                                    @if (i != 0 || intitule != '(sans nom)') {
-                                                      <option [ngValue]="i">
-                                                        Chapitre « {{intitule}} »
-                                                      </option>
-                                                    }
-                                                  }
-                                                </select>
-                                              </div>
-                                            }
-                                            @if (allScenesIntitule?.length) {
-                                              <div class="col-6 col-md-4 ps-md-1 py-1">
-                                                <select [(ngModel)]="selSceneIndex" (change)="onChangerSelScene(false)" class="form-select"
-                                                  name="choixScene">
-                                                  <option [ngValue]="null">
-                                                    {{(actChapitreIndex !== null ? '(tout le chapitre)':(actPartieIndex !== null ? '(toute la partie)':'(tout le scénario)'))}}
-                                                  </option>
-                                                  @for (intitule of allScenesIntitule; track intitule; let i = $index) {
-                                                    @if (i != 0 || intitule != '(sans nom)') {
-                                                      <option [ngValue]="i">
-                                                        Scène « {{intitule}} »
-                                                      </option>
-                                                    }
-                                                  }
-                                                </select>
-                                              </div>
-                                            }
-                                            @if (!allPartiesIntitule?.length && !allChapitresIntitule?.length && !allScenesIntitule?.length) {
-                                              <p
-                                                class="font-italic ms-4">
-                                                (Votre scénario n’est pas découpé en sections)
-                                              </p>
-                                            }
-                                          </div>
-                                        }
                                       </div>
 
                                       <!-- CODE SOURCE (Scénario) -->
@@ -345,14 +277,14 @@
                                         <div class="rs2 max">
                                           <div class="card max" style="height: 100%;">
                                             <ace #codeEditor spellcheck="true" contenteditable [config]="config"
-                                            [(value)]="sectionCodeSourceVisible" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
+                                            [(value)]="codeSource" [theme]="theme" (focusout)="onCodeFocusOut()"></ace>
                                           </div>
                                         </div>
                                       }
                                       @if (sansMiseEnForme) {
                                         <div class="rs2 max">
                                           <textarea class="card max" style="height: 100%; width: 100%;" spellcheck="true"
-                                            [(ngModel)]="sectionCodeSourceVisible" (focusout)="onCodeFocusOut()">
+                                            [(ngModel)]="codeSource" (focusout)="onCodeFocusOut()">
                                           </textarea>
                                         </div>
                                       }
