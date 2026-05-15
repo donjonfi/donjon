@@ -111,17 +111,21 @@ export class CarteScenarioComponent implements OnChanges {
     return objet?.intitule?.toString() ?? '?';
   }
 
+  // ASCII strict pour éviter les décalages : certains glyphes Unicode (↑↓⤓⤒↗ etc.)
+  // sont en East Asian Width « ambiguous » et rendent en 2 cellules dans plusieurs
+  // polices monospace courantes (Consolas, Cascadia Code selon plateforme), ce qui
+  // décale tout le contenu de la ligne et désaligne la bordure droite `│` de la boîte.
   public flecheSpeciale(loc: ELocalisation): string {
     switch (loc) {
-      case ELocalisation.haut: return '↑';
-      case ELocalisation.bas: return '↓';
-      case ELocalisation.interieur: return '⤓';
-      case ELocalisation.exterieur: return '⤒';
-      case ELocalisation.nord_est: return '↗';
-      case ELocalisation.nord_ouest: return '↖';
-      case ELocalisation.sud_est: return '↘';
-      case ELocalisation.sud_ouest: return '↙';
-      default: return '→';
+      case ELocalisation.haut: return '^';
+      case ELocalisation.bas: return 'v';
+      case ELocalisation.interieur: return '[';
+      case ELocalisation.exterieur: return ']';
+      case ELocalisation.nord_est: return '/';
+      case ELocalisation.nord_ouest: return '\\';
+      case ELocalisation.sud_est: return '\\';
+      case ELocalisation.sud_ouest: return '/';
+      default: return '>';
     }
   }
 
@@ -573,7 +577,7 @@ export class CarteScenarioComponent implements OnChanges {
       // joueur (en haut, mise en évidence) + inventaire indenté
       if (n.joueurPresent && this.jeu?.joueur) {
         const j = this.jeu.joueur;
-        const t = this.tronquer('★ ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
+        const t = this.tronquer('* ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
         setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'joueur', refId: j.id });
         cr++;
         cr = this.dessinerEnfants(j.id, 1, cr, rowEnd, colStart, setStr);
@@ -809,11 +813,11 @@ export class CarteScenarioComponent implements OnChanges {
     const enfants = this.carte.enfantsParObjet.get(parentId);
     if (!enfants || enfants.length === 0) { return cr; }
     const indent = '  '.repeat(niveau);
-    // espace utile pour le nom = contenu - leading ' ' - indent - '↳ '
+    // espace utile pour le nom = contenu - leading ' ' - indent - '- '
     const placeNom = Math.max(3, (this.CELL_W - 2) - 1 - indent.length - 2);
     for (const e of enfants) {
       if (cr >= rowEnd) { return cr; }
-      const t = indent + '↳ ' + this.tronquer(this.formaterIntitule(e.objet), placeNom);
+      const t = indent + '- ' + this.tronquer(this.formaterIntitule(e.objet), placeNom);
       setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: e.objet.id });
       cr++;
       cr = this.dessinerEnfants(e.objet.id, niveau + 1, cr, rowEnd, colStart, setStr);
@@ -823,16 +827,16 @@ export class CarteScenarioComponent implements OnChanges {
 
   /**
    * Décore l'intitulé d'un objet pour l'affichage dans une boîte :
-   *  - préfixe `⬡` si contenant, `═` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets,
-   *    chaîne vide pour les enfants déjà préfixés par `↳ `)
+   *  - préfixe `{ ` si contenant, `= ` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets,
+   *    chaîne vide pour les enfants déjà préfixés par `- `)
    *  - suffixe : lettres des états actifs (v=vivant, d=décor, f=fixé, i=invisible,
    *    a=inaccessible, s=secret, r=discret), accolées
-   * Exemple : `⬡ la bourse fi`
+   * Exemple : `{ la bourse fi`
    */
   private formaterIntitule(objet: Objet, prefixeParDefaut: string = ''): string {
     let prefixe = prefixeParDefaut;
-    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) { prefixe = '⬡ '; }
-    else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) { prefixe = '═ '; }
+    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) { prefixe = '{ '; }
+    else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) { prefixe = '= '; }
     const nom = objet.intitule?.toString() ?? objet.nom ?? '';
     const etats = this.collecterEtatsLettres(objet);
     return prefixe + nom + (etats ? ' ' + etats : '');

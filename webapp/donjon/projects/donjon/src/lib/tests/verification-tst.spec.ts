@@ -181,8 +181,8 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     (lecteur as any).magnetoEdition = 'aucun';
     (lecteur as any).magnetoSaisieCommande = '';
     (lecteur as any).magnetoDernierTest = null;
-    spyOn(lecteur as any, 'envoyerCommande').and.callFake((cmd: string) => {
-      const ctxCmd = ctx.com.executerCommande(cmd, false);
+    spyOn(lecteur as any, 'envoyerCommande').and.callFake((_commandeBrute: string, commandeNettoyee: string) => {
+      const ctxCmd = ctx.com.executerCommande(commandeNettoyee, false);
       ctx.enregistrerSortieEtapeCourante(ctxCmd?.sortie ?? '');
     });
     return lecteur;
@@ -249,7 +249,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(lecteur.magnetoDivergence).toBeNull();
     expect(fichier.etapesTest.length).toBe(1);
     expect(lecteur.verificationCompteurs.retraits).toBe(1);
-    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', true, true, true, false);
+    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
   it('[F050-MAG-T005] valider saisie (modifier) : étape mise à jour, modifications comptées', () => {
@@ -310,6 +310,202 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
     expect(lecteur.magnetoCompteurTotal).toBe(3);
+  });
+
+  /**
+   * Variante de creerLecteurMagneto qui reproduit FIDÈLEMENT la branche de
+   * `envoyerCommande` qui pousse la commande dans `_etapesPartie` de la partie.
+   * Production : `this.partie.ajouterCommandeDansSauvegarde(this.commande)`
+   * (utilise `this.commande`, PAS la commande passée en argument).
+   * Indispensable pour démontrer le bug d'alimentation de la pile en mode magnéto.
+   */
+  function creerLecteurMagnetoFidele(ctx: ContextePartie, fichier: FichierTest): LecteurComponent {
+    const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
+    (lecteur as any).partie = ctx;
+    (lecteur as any).jeu = ctx.jeu;
+    (lecteur as any).fichierTestEnCours = fichier;
+    (lecteur as any).verificationActive = true;
+    (lecteur as any).verificationActions = [];
+    (lecteur as any).verificationCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
+    (lecteur as any).magnetoIdx = 0;
+    (lecteur as any).magnetoDivergence = null;
+    (lecteur as any).magnetoEdition = 'aucun';
+    (lecteur as any).magnetoSaisieCommande = '';
+    (lecteur as any).magnetoDernierTest = null;
+    (lecteur as any).commande = '';
+    spyOn(lecteur as any, 'envoyerCommande').and.callFake(
+      (commandeBrute: string, commandeNettoyee: string, ajouterDansHistorique: boolean) => {
+        if (ajouterDansHistorique && !commandeNettoyee.startsWith('déboguer triche')) {
+          // Reproduit la branche de production qui pousse dans `_etapesPartie`.
+          ctx.ajouterCommandeDansSauvegarde(commandeBrute);
+        }
+        const ctxCmd = ctx.com.executerCommande(commandeNettoyee, false);
+        ctx.enregistrerSortieEtapeCourante(ctxCmd?.sortie ?? '');
+      }
+    );
+    return lecteur;
+  }
+
+  it('[F050-MAG-T009] magnetoPasSuivant pousse la commande du .tst dans _etapesPartie de la partie', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoPasSuivant();
+
+    // La pile d'instructions (lue par le DSL `annuler N tour(s)` et `creerFichierTest`)
+    // doit refléter les commandes effectivement jouées par le magnéto.
+    const commandes = ctx.etapesPartie.filter(e => e.startsWith('c:'));
+    expect(commandes).toEqual(['c:attendre', 'c:attendre']);
+  });
+
+  it('[F050-MAG-T011] supprimer sans divergence : retire l’étape courante sans annuler', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    // Aucune divergence — étape 0 pas encore jouée.
+    lecteur.magnetoSupprimerCommande();
+
+    expect(fichier.etapesTest.length).toBe(1);
+    expect(lecteur.magnetoIdx).toBe(0);
+    expect(lecteur.verificationCompteurs.retraits).toBe(1);
+    // Pas de divergence à compenser → pas d'« annuler » envoyé.
+    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+  });
+
+  it('[F050-MAG-T012] entrer modification sans divergence : saisie pré-remplie, état pas joué', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoEntrerModification();
+
+    expect(lecteur.magnetoEdition).toBe('modifier');
+    expect(lecteur.magnetoSaisieCommande).toBe('attendre');
+    // L'étape n'avait pas été jouée — rien à annuler.
+    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+  });
+
+  it('[F050-MAG-T013] entrer insertion sans divergence : mode inserer, saisie vide', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoEntrerInsertion();
+
+    expect(lecteur.magnetoEdition).toBe('inserer');
+    expect(lecteur.magnetoSaisieCommande).toBe('');
+    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+  });
+
+  it('[F050-MAG-T014] valider modification sans divergence : étape remplacée, avance', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoEntrerModification();
+    lecteur.magnetoSaisieCommande = 'regarder';
+
+    lecteur.magnetoValiderSaisie();
+
+    expect(fichier.etapesTest.length).toBe(2);
+    expect(fichier.etapesTest[0].valeur).toBe('regarder');
+    expect(fichier.etapesTest[0].sortie).toBeDefined();
+    expect(lecteur.magnetoIdx).toBeGreaterThanOrEqual(1);
+    expect(lecteur.verificationCompteurs.modifications).toBe(1);
+  });
+
+  it('[F050-MAG-T015] valider insertion sans divergence : étape insérée AVANT, originale repoussée', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoEntrerInsertion();
+    lecteur.magnetoSaisieCommande = 'regarder';
+
+    lecteur.magnetoValiderSaisie();
+
+    // L'étape originale est repoussée à idx=1 ; la nouvelle prend la place 0.
+    expect(fichier.etapesTest.length).toBe(3);
+    expect(fichier.etapesTest[0].valeur).toBe('regarder');
+    expect(fichier.etapesTest[1].valeur).toBe('attendre');
+    expect(lecteur.magnetoIdx).toBeGreaterThanOrEqual(1);
+    expect(lecteur.verificationCompteurs.ajouts).toBe(1);
+  });
+
+  it('[F050-MAG-T016] recapActionsAffichables masque les actions « reculé »', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();   // pousse une étape ; le récap s'affiche
+    lecteur.recapReculer();        // pousse une action « reculé »
+
+    expect(lecteur.verificationActions.some(a => a.action === 'reculé')).toBeTrue();
+    expect(lecteur.recapActionsAffichables.some(a => a.action === 'reculé')).toBeFalse();
+  });
+
+  it('[F050-MAG-T017] recapReculer ré-active la vérification, ferme le récap et envoie « annuler »', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();   // unique étape jouée → récap affiché
+    expect(lecteur.recapAffiche).toBeTrue();
+    expect(lecteur.verificationActive).toBeFalse();
+
+    lecteur.recapReculer();
+
+    expect(lecteur.recapAffiche).toBeFalse();
+    expect(lecteur.verificationActive).toBeTrue();
+    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
+  });
+
+  it('[F050-MAG-T010] magnetoPrecedent envoie « annuler » et alimente _etapesPartie', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    // 2 étapes : on s'arrête après la 1re pour éviter `afficherRecap` (qui désactive `verificationActive`).
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();      // doit pousser « attendre »
+    lecteur.magnetoPrecedent();       // doit pousser « annuler »
+
+    const commandes = ctx.etapesPartie.filter(e => e.startsWith('c:'));
+    expect(commandes).toEqual(['c:attendre', 'c:annuler']);
   });
 
 });

@@ -202,7 +202,7 @@
         </div>
       }
 
-      <!-- Encart divergence -->
+      <!-- Encart divergence : diff + acceptation de la nouvelle sortie -->
       @if (magnetoDivergence && magnetoEdition === 'aucun') {
         <div class="djn-magneto-divergence">
           <div class="djn-magneto-diff">
@@ -217,17 +217,23 @@
           </div>
           <div class="djn-magneto-actions">
             <button class="btn btn-sm btn-success" (click)="magnetoValider()" title="Accepter la nouvelle sortie">✓ Valider la sortie</button>
-            <button class="btn btn-sm btn-primary" (click)="magnetoEntrerModification()" title="Remplacer la commande par une autre">✎ Modifier</button>
-            <button class="btn btn-sm btn-info" (click)="magnetoEntrerInsertion()" title="Insérer une nouvelle commande après celle-ci">＋ Insérer après</button>
-            <button class="btn btn-sm btn-warning" (click)="magnetoSupprimerCommande()" title="Retirer cette commande du .tst">✗ Supprimer</button>
           </div>
+        </div>
+      }
+
+      <!-- Actions d'édition sur l'étape courante (disponibles avec ou sans divergence) -->
+      @if (magnetoEdition === 'aucun' && !magnetoDivergenceIntro && magnetoIdx < fichierTestEnCours.etapesTest.length) {
+        <div class="djn-magneto-actions">
+          <button class="btn btn-sm btn-primary" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours" title="Remplacer la commande de l'étape courante">✎ Modifier</button>
+          <button class="btn btn-sm btn-info" (click)="magnetoEntrerInsertion()" [disabled]="magnetoLectureAutoEnCours" title="Insérer une nouvelle commande {{ magnetoDivergence ? 'après celle-ci' : 'avant l’étape courante' }}">＋ {{ magnetoDivergence ? 'Insérer après' : 'Insérer avant' }}</button>
+          <button class="btn btn-sm btn-warning" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours" title="Retirer cette commande du .tst">✗ Supprimer</button>
         </div>
       }
 
       <!-- Sous-panneau saisie (modifier / insérer) -->
       @if (magnetoEdition !== 'aucun') {
         <div class="djn-magneto-saisie">
-          <label>{{ magnetoEdition === 'modifier' ? 'Nouvelle commande' : 'Commande à insérer après l\'étape courante' }} :</label>
+          <label>{{ magnetoEdition === 'modifier' ? 'Nouvelle commande' : (magnetoDivergence ? 'Commande à insérer après l\'étape courante' : 'Commande à insérer avant l\'étape courante') }} :</label>
           <input type="text" class="form-control" [(ngModel)]="magnetoSaisieCommande" (keydown.enter)="magnetoTesterSaisie()" autofocus>
           @if (magnetoDernierTest) {
             <small class="djn-magneto-info">Testée. Voir le résultat à l'écran. Valider pour l'inscrire dans le .tst.</small>
@@ -236,7 +242,7 @@
             <button class="btn btn-sm btn-outline-info" (click)="magnetoTesterSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Exécuter la commande pour voir le résultat">▷ Tester</button>
             <button class="btn btn-sm btn-success" (click)="magnetoValiderSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Valider la commande dans le .tst">✓ Valider</button>
             <button class="btn btn-sm btn-outline-secondary" (click)="magnetoReessayerSaisie()" title="Vider la saisie et annuler le test">↻ Réessayer</button>
-            <button class="btn btn-sm btn-secondary" (click)="magnetoAnnulerSaisie()" title="Annuler la modification, revenir à la divergence">✗ Annuler modification</button>
+            <button class="btn btn-sm btn-secondary" (click)="magnetoAnnulerSaisie()" title="Annuler la modification et revenir à l'étape courante">✗ Annuler modification</button>
           </div>
         </div>
       }
@@ -268,9 +274,9 @@
           <span class="djn-recap-verif-compteur">Modifications : <strong>{{ verificationCompteurs.modifications }}</strong></span>
           <span class="djn-recap-verif-compteur">Ajouts : <strong>{{ verificationCompteurs.ajouts }}</strong></span>
         </div>
-        @if (verificationActions.length > 0) {
+        @if (recapActionsAffichables.length > 0) {
           <ul class="djn-recap-verif-liste">
-            @for (a of verificationActions; track $index) {
+            @for (a of recapActionsAffichables; track $index) {
               <li>#{{ a.idx + 1 }} — <em>{{ a.action }}</em> — {{ a.detail }}</li>
             }
           </ul>
@@ -281,7 +287,8 @@
           </div>
         }
         <div class="djn-modale-verif-actions">
-          @if (verificationActions.length > 0) {
+          <button class="btn btn-outline-secondary" (click)="recapReculer()" title="Revenir d'une étape en arrière pour modifier le fichier .tst">⏪ Précédent</button>
+          @if (recapActionsAffichables.length > 0) {
             <button class="btn btn-success" (click)="recapTelecharger()">Télécharger le .tst mis à jour</button>
           }
           <button class="btn btn-secondary" (click)="recapFermer()">Fermer</button>

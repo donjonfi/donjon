@@ -14,6 +14,9 @@ type VisualisationTab = 'carte' | 'visualisation' | 'apercu';
 
 const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 
+/** Clé sessionStorage utilisée pour faire survivre un .tst en attente à un reload du webview (RUN_GAME). */
+const PENDING_TST_KEY = '__djnPendingTst__';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -44,6 +47,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private sub: Subscription | undefined;
 
+  /** Empreinte du scénario/actions de la dernière compilation — pour détecter qu'on a chargé du neuf. */
+  private lastCompiledScenario: string | null = null;
+  private lastCompiledActions: string | null = null;
+
   constructor(
     private compilation: CompilationService,
     private bridge: VsCodeBridgeService,
@@ -71,6 +78,23 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.bridge.postMessage({ type: 'READY' });
+
+    // Reprise éventuelle d'un .tst posé en attente avant un refresh RUN_GAME du webview.
+    const pendingTst = sessionStorage.getItem(PENDING_TST_KEY);
+    if (pendingTst) {
+      sessionStorage.removeItem(PENDING_TST_KEY);
+      if (this.jeu) {
+        try {
+          const fichierTest = JSON.parse(pendingTst) as FichierTest;
+          this.activeTab = 'jeu';
+          setTimeout(() => this.lecteurRef?.setVerification(fichierTest), 0);
+        } catch (e) {
+          console.warn("Reprise du .tst en attente impossible :", e);
+        }
+      } else {
+        console.warn("Le .tst en attente est ignoré : la compilation a échoué.");
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -98,7 +122,32 @@ export class AppComponent implements OnInit, OnDestroy {
       if (fichierTest.version > versionNum) {
         console.warn("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
       }
-      this.lecteurRef?.setVerification(fichierTest);
+
+      // Mode VS Code : on demande au host de relire le scénario depuis le disque
+      // (équivalent du clic sur la baguette « Analyser »). Le webview est rebuild,
+      // donc on stocke le .tst pour le récupérer dans le nouveau ngOnInit.
+      if (this.bridge.isInVsCode) {
+        sessionStorage.setItem(PENDING_TST_KEY, JSON.stringify(fichierTest));
+        this.runGame();
+        return;
+      }
+
+      // Mode standalone (dev, hors VS Code) : pas d'accès au disque, compiler ce qu'on a.
+      const scenarioAJour = !!this.jeu
+        && this.lastCompiledScenario === this.scenarioBrut
+        && this.lastCompiledActions === this.actionsBrut;
+      if (!scenarioAJour) {
+        this.lancerCompilation();
+      }
+      if (!this.jeu) {
+        console.warn("Le scénario doit être compilé sans erreur avant de charger un fichier de vérification.");
+        return;
+      }
+
+      // Le lecteur est rendu via *ngIf="activeTab === 'jeu'" : basculer puis attendre
+      // que la vue soit rendue pour que lecteurRef soit disponible.
+      this.activeTab = 'jeu';
+      setTimeout(() => this.lecteurRef?.setVerification(fichierTest), 0);
     };
     fileReader.readAsText(file);
     // permettre de recharger le même fichier
@@ -142,6 +191,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   lancerCompilation(): void {
     this.compilation.compiler(this.scenarioBrut, this.actionsBrut);
+    this.lastCompiledScenario = this.scenarioBrut;
+    this.lastCompiledActions = this.actionsBrut;
 
     this.activeTab = this.nbErreurs > 0 ? 'analyse' : 'jeu';
 

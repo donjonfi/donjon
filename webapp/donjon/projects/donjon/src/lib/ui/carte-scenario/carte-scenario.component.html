@@ -19,11 +19,12 @@
 
       <!-- légende flottante des préfixes (types) et lettres (états) -->
       <div class="carte-scenario__legende">
-        <span class="leg-grp"><span class="leg-sym">⬡</span> contenant</span>
-        <span class="leg-grp"><span class="leg-sym">═</span> support</span>
+        <span class="leg-grp"><span class="leg-sym">*</span> joueur</span>
         <span class="leg-grp"><span class="leg-sym">@</span> vivant</span>
         <span class="leg-grp"><span class="leg-sym">•</span> objet</span>
-        <span class="leg-grp"><span class="leg-sym">↳</span> contenu</span>
+        <span class="leg-grp"><span class="leg-sym">&#123;</span> contenant</span>
+        <span class="leg-grp"><span class="leg-sym">=</span> support</span>
+        <span class="leg-grp"><span class="leg-sym">-</span> contenu</span>
         <span class="leg-sep">|</span>
         <span class="leg-grp"><span class="leg-let">v</span> vivant</span>
         <span class="leg-grp"><span class="leg-let">d</span> décor</span>
@@ -114,7 +115,7 @@
                 <div class="mb-2">
                   <strong>Joueur :</strong>
                   <a class="seg seg--joueur ms-1" href="javascript:void(0)"
-                     (click)="selectionnerObjet(jeu!.joueur.id)">★ {{ jeu!.joueur.intitule }}</a>
+                     (click)="selectionnerObjet(jeu!.joueur.id)">* {{ jeu!.joueur.intitule }}</a>
                 </div>
               }
 

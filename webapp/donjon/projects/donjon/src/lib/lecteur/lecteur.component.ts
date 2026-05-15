@@ -344,7 +344,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // si la commande commencer le jeu existe, commencer le jeu
     if (this.partie.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
       // exécuter la commande « commencer le jeu »
-      this.envoyerCommande("commencer le jeu", false, true, false, true);
+      this.envoyerCommande("commencer le jeu", "commencer le jeu", false, true, false, true);
       // sinon initialiser les éléments du jeu en fonction de la position du joueur
     } else {
       // définir visibilité des objets initiale
@@ -355,7 +355,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
       if (this.partie.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.partie.jeu.lieux.length > 0) {
         // exécuter la commande « regarder »
-        this.envoyerCommande("regarder", false, true, false, true);
+        this.envoyerCommande("regarder", "regarder", false, true, false, true);
       } else {
         // this.sortieJoueur = "";
       }
@@ -910,7 +910,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         this.partie.ajouterReponseDansSauvegarde(this.commande)
         // exécuter à nouveau la commande originale
         this.commande = commandeEnCours.brute;
-        this.envoyerCommande(this.commande, false, false, false, false);
+        this.envoyerCommande(this.commande, this.commande, false, false, false, false);
       } else {
         // l’interruption est terminé (pas de correction)
         this.interruptionEnCours = undefined;
@@ -1476,17 +1476,36 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
   }
 
-  /** Supprime l'étape divergente du .tst, annule son effet à l'écran. */
+  /**
+   * Supprime l'étape courante du .tst.
+   * - En divergence : annule l'exécution divergente puis splice à `d.idx`.
+   * - Sans divergence : splice à `magnetoIdx` (l'étape n'a pas encore été jouée).
+   */
   public magnetoSupprimerCommande(): void {
-    if (!this.magnetoDivergence || !this.fichierTestEnCours) return;
-    const d = this.magnetoDivergence;
-    this.executerCommandeAffichee('annuler');
-    this.fichierTestEnCours.etapesTest.splice(d.idx, 1);
+    if (!this.fichierTestEnCours) return;
+
+    let idxCible: number;
+    let valeurEtape: string;
+
+    if (this.magnetoDivergence) {
+      const d = this.magnetoDivergence;
+      idxCible = d.idx;
+      valeurEtape = d.etape.valeur;
+      this.executerCommandeAffichee('annuler');
+      this.magnetoDivergence = null;
+    } else {
+      if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) return;
+      const etape = this.fichierTestEnCours.etapesTest[this.magnetoIdx];
+      if (etape.type !== 'c' && etape.type !== 'r') return;
+      idxCible = this.magnetoIdx;
+      valeurEtape = etape.valeur;
+    }
+
+    this.fichierTestEnCours.etapesTest.splice(idxCible, 1);
     this.verificationCompteurs.retraits++;
-    this.verificationActions.push({ idx: d.idx, action: 'supprimé', detail: `« ${d.etape.valeur} »` });
-    this.magnetoDivergence = null;
+    this.verificationActions.push({ idx: idxCible, action: 'supprimé', detail: `« ${valeurEtape} »` });
     // idx pointe maintenant sur l'étape qui était après ; pas besoin d'incrémenter.
-    this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx, false);
+    this.magnetoIdx = this.avancerJusquAEtapeJouable(idxCible, false);
     if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
       this.afficherRecap();
     }
@@ -1495,21 +1514,32 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   // -- Modification / Insertion --------------------------------------------
 
   public magnetoEntrerModification(): void {
-    if (!this.magnetoDivergence) return;
-    this.magnetoEdition = 'modifier';
-    this.magnetoSaisieCommande = this.magnetoDivergence.etape.valeur;
-    this.magnetoDernierTest = null;
-    // Annule la commande divergente pour permettre de tester proprement la nouvelle.
-    this.executerCommandeAffichee('annuler');
+    if (!this.fichierTestEnCours) return;
+
+    if (this.magnetoDivergence) {
+      this.magnetoEdition = 'modifier';
+      this.magnetoSaisieCommande = this.magnetoDivergence.etape.valeur;
+      this.magnetoDernierTest = null;
+      // Annule la commande divergente pour permettre de tester proprement la nouvelle.
+      this.executerCommandeAffichee('annuler');
+    } else {
+      if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) return;
+      const etape = this.fichierTestEnCours.etapesTest[this.magnetoIdx];
+      if (etape.type !== 'c' && etape.type !== 'r') return;
+      this.magnetoEdition = 'modifier';
+      this.magnetoSaisieCommande = etape.valeur;
+      this.magnetoDernierTest = null;
+      // L'étape courante n'a pas encore été jouée — rien à annuler.
+    }
   }
 
   public magnetoEntrerInsertion(): void {
-    if (!this.magnetoDivergence) return;
+    if (!this.fichierTestEnCours) return;
+    // En divergence : insertion APRÈS l'étape divergente (déjà exécutée).
+    // Sans divergence : insertion AVANT l'étape courante (encore à venir).
     this.magnetoEdition = 'inserer';
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
-    // L'étape divergente reste exécutée (sortie obtenue = sortie attendue après acceptation implicite).
-    // L'insertion se fait APRÈS, donc on garde l'état courant.
   }
 
   /** Exécute la commande saisie pour voir le résultat sans valider. */
@@ -1526,9 +1556,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   /** Valide la saisie (modifier/inserer) : applique au .tst en mémoire. */
   public magnetoValiderSaisie(): void {
-    if (!this.magnetoSaisieCommande.trim() || !this.fichierTestEnCours || !this.magnetoDivergence) return;
+    if (!this.magnetoSaisieCommande.trim() || !this.fichierTestEnCours) return;
     const cmd = this.magnetoSaisieCommande.trim();
-    const d = this.magnetoDivergence;
 
     // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde l'exécution.
     let sortieNouvelle: string;
@@ -1542,21 +1571,41 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       sortieNouvelle = this.executerCommandeAffichee(cmd);
     }
 
-    if (this.magnetoEdition === 'modifier') {
-      this.fichierTestEnCours.etapesTest[d.idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
-      this.verificationCompteurs.modifications++;
-      this.verificationActions.push({ idx: d.idx, action: 'modifié', detail: `« ${d.etape.valeur} » → « ${cmd} »` });
-      this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
-    } else if (this.magnetoEdition === 'inserer') {
-      // L'étape divergente est acceptée (sortie obtenue devient attendue), la nouvelle est insérée après.
-      d.etape.sortie = d.sortieObtenue;
-      this.fichierTestEnCours.etapesTest.splice(d.idx + 1, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
-      this.verificationCompteurs.ajouts++;
-      this.verificationActions.push({ idx: d.idx + 1, action: 'inséré après', detail: `« ${cmd} »` });
-      this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2, false);
+    if (this.magnetoDivergence) {
+      const d = this.magnetoDivergence;
+      if (this.magnetoEdition === 'modifier') {
+        this.fichierTestEnCours.etapesTest[d.idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        this.verificationCompteurs.modifications++;
+        this.verificationActions.push({ idx: d.idx, action: 'modifié', detail: `« ${d.etape.valeur} » → « ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
+      } else if (this.magnetoEdition === 'inserer') {
+        // L'étape divergente est acceptée (sortie obtenue devient attendue), la nouvelle est insérée après.
+        d.etape.sortie = d.sortieObtenue;
+        this.fichierTestEnCours.etapesTest.splice(d.idx + 1, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.verificationCompteurs.ajouts++;
+        this.verificationActions.push({ idx: d.idx + 1, action: 'inséré après', detail: `« ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2, false);
+      }
+      this.magnetoDivergence = null;
+    } else {
+      // Pas de divergence : on opère sur l'étape à venir (magnetoIdx).
+      const idx = this.magnetoIdx;
+      if (this.magnetoEdition === 'modifier') {
+        const ancienne = this.fichierTestEnCours.etapesTest[idx];
+        this.fichierTestEnCours.etapesTest[idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        this.verificationCompteurs.modifications++;
+        this.verificationActions.push({ idx, action: 'modifié', detail: `« ${ancienne.valeur} » → « ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
+      } else if (this.magnetoEdition === 'inserer') {
+        // Insère AVANT l'étape courante ; l'étape originale est repoussée à idx+1.
+        this.fichierTestEnCours.etapesTest.splice(idx, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.verificationCompteurs.ajouts++;
+        this.verificationActions.push({ idx, action: 'inséré avant', detail: `« ${cmd} »` });
+        // Avance d'un cran : la nouvelle commande a déjà été jouée, l'étape originale est à idx+1.
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
+      }
     }
 
-    this.magnetoDivergence = null;
     this.magnetoEdition = 'aucun';
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
@@ -1647,7 +1696,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.partie.reinitialiserDerniereSortieEnregistree();
     const commandeComplete = Abreviations.obtenirCommandeComplete(etape.valeur, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
     const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
-    this.envoyerCommande(commandeNettoyee, true, true, true, false);
+    this.envoyerCommande(etape.valeur, commandeNettoyee, true, true, true, false);
     return this.partie.derniereSortieEnregistree ?? '';
   }
 
@@ -1656,7 +1705,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.partie.reinitialiserDerniereSortieEnregistree();
     const commandeComplete = Abreviations.obtenirCommandeComplete(commandeBrute, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
     const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
-    this.envoyerCommande(commandeNettoyee, true, true, true, false);
+    this.envoyerCommande(commandeBrute, commandeNettoyee, true, true, true, false);
     return this.partie.derniereSortieEnregistree ?? '';
   }
 
@@ -1672,6 +1721,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   public recapFermer() {
     this.recapAffiche = false;
+  }
+
+  /** Ré-ouvre le mode vérification depuis le récap et recule d'une étape. */
+  public recapReculer(): void {
+    if (!this.fichierTestEnCours) return;
+    this.recapAffiche = false;
+    this.verificationActive = true;
+    this.magnetoPrecedent();
+  }
+
+  /**
+   * Actions affichées dans le récap : on masque les marches arrière, qui sont
+   * de la navigation et non des modifications du fichier .tst.
+   */
+  public get recapActionsAffichables(): { idx: number, action: string, detail: string }[] {
+    return this.verificationActions.filter(a => a.action !== 'reculé');
   }
 
   private genererFichierVerification(): void {
@@ -1761,23 +1826,24 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
       const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-      this.envoyerCommande(commandeNettoyee, true, false, true, true);
+      this.envoyerCommande(this.commande, commandeNettoyee, true, false, true, true);
     }
   }
 
   /**
    * Envoyer la commande au commandeur pour qu’il l’exécute.
+   * @param commandeBrute la commande brute (telle que tapée par le joueur, ou telle que stockée dans un .tst pour le magnéto). Stockée dans la pile d'instructions de la partie (`_etapesPartie`), lue par le DSL `annuler N tour(s)` et `creerFichierTest`.
    * @param commandeNettoyee la commande déjà nettoyée avec CommandesUtils.nettoyerCommande();
    * @param ajouterCommandeDansHistoriqueEtSauvegarde faut-il ajouter la commande à l’historique des commandes du joueur ?
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    * @param ecrireCommande faut-il écrire la commande dans la sortie du jeu ?
    */
-  private envoyerCommande(commandeNettoyee: string, ajouterCommandeDansHistoriqueEtSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
+  private envoyerCommande(commandeBrute: string, commandeNettoyee: string, ajouterCommandeDansHistoriqueEtSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
     if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|générer solution|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
-        this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : '') + '-}')
+        this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + commandeBrute + (commandeBrute !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : '') + '-}')
       }
       this.partie.ecran.ajouterContenuDonjon('{n}Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}');
     } else {
@@ -1795,11 +1861,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
       // MÀJ DE LA LISTE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       if (ajouterCommandeDansHistoriqueEtSauvegarde) {
-        // ne pas inclure la commande déboguer triche à l'historique pour 
+        // ne pas inclure la commande déboguer triche à l'historique pour
         // éviter les boucles lorsqu'on annule une commande...
         if (!commandeNettoyee.startsWith('déboguer triche')) {
-          // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-          this.partie.ajouterCommandeDansSauvegarde(this.commande);
+          // (commande brute, pas nettoyée, pour fidélité du replay « auto-commandes »)
+          this.partie.ajouterCommandeDansSauvegarde(commandeBrute);
         }
       }
 
@@ -1819,11 +1885,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         if (contexteCommande.evenement?.commandeComprise) {
           // afficher la commande entrée par le joueur + son interprétation
           const commandeFinale = contexteCommande.evenement.commandeComprise;
-          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
+          affichageCommande = ' > ' + commandeBrute + (CommandesUtils.commandesSimilaires(commandeBrute, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
         } else {
           // commande PAS comprise ou incomplète (ou bien commande spéciale)
           // -> afficher la commande entrée par le joueur + son interprétation
-          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
+          affichageCommande = ' > ' + commandeBrute + (CommandesUtils.commandesSimilaires(commandeBrute, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
         // commentaire à l’auteur
         if (commandeNettoyee.startsWith("*") || commandeNettoyee.startsWith("@")) {

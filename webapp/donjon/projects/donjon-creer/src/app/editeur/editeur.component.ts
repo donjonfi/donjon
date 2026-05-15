@@ -173,6 +173,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
   compilationEnCours = false;
   compilationTerminee = false;
 
+  /** Empreinte du code source de la dernière compilation — pour détecter qu'on a un nouveau scénario. */
+  private _lastCompiledCodeSource: string | null = null;
+  /** Fichier .tst à charger automatiquement dès que la compilation produit un jeu. */
+  private _pendingTst: FichierTest | null = null;
+
   private problemeChargementFichierActions: boolean | undefined;
   chargementActionsEnCours = false;
 
@@ -416,6 +421,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
           jeuGenere.sauvegarde = this.solutionChargee;
         }
         this.jeu = jeuGenere;
+        this._lastCompiledCodeSource = this.codeSource;
 
         this.compilationEnCours = false;
         this.compilationTerminee = true;
@@ -423,6 +429,14 @@ export class EditeurComponent implements OnInit, OnDestroy {
         // si aucune erreur, passer au mode jouer
         if (this.erreurs.length == 0 && this.messages.length == 0) {
           this.showTab('jeu');
+        }
+
+        // Reprise éventuelle d'un .tst posé en attente lorsque le scénario n'était pas encore compilé.
+        if (this._pendingTst && this.jeu) {
+          const fichierTest = this._pendingTst;
+          this._pendingTst = null;
+          this.showTab('jeu');
+          setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest), 0);
         }
 
       });
@@ -438,6 +452,11 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.erreurs = [];
       this.compilationEnCours = false;
       this.compilationTerminee = true;
+      // Pas de scénario à compiler → un .tst en attente n'a aucune chance d'être joué.
+      if (this._pendingTst) {
+        console.warn("Le .tst en attente est ignoré : il n'y a pas de scénario à compiler.");
+        this._pendingTst = null;
+      }
     }
   }
 
@@ -633,22 +652,32 @@ export class EditeurComponent implements OnInit, OnDestroy {
           const fileReader = new FileReader();
           fileReader.onloadend = () => {
             const contenuFichier = fileReader.result as string;
-            if (contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
-              const fichierTest = JSON.parse(contenuFichier) as FichierTest;
-              if (fichierTest.version > versionNum) {
-                this.jeu.tamponErreurs.push("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
-              }
-              if (this.jeu) {
-                // Bascule sur l'onglet jeu pour rendre le lecteur visible, puis lance le magnéto
-                // une fois que le composant lecteur est rendu (un cycle Angular).
-                this.showTab('jeu');
-                setTimeout(() => {
-                  ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest);
-                }, 0);
-              }
-            } else {
-              this.jeu.tamponErreurs.push("Ce fichier n’est pas un fichier de vérification Donjon FI (.tst)");
+            if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
+              this.jeu?.tamponErreurs?.push("Ce fichier n’est pas un fichier de vérification Donjon FI (.tst)");
+              return;
             }
+            const fichierTest = JSON.parse(contenuFichier) as FichierTest;
+            if (fichierTest.version > versionNum) {
+              this.jeu?.tamponErreurs?.push("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
+            }
+
+            // L'éditeur Ace est lié à `sectionCodeSourceVisible` ; `this.codeSource` n'est
+            // ré-assemblé qu'au moment d'un Analyser. Sans cette synchro préalable,
+            // la comparaison à `_lastCompiledCodeSource` est faussée par un codeSource périmé.
+            this.rassemblerSource();
+
+            // Compiler si jamais compilé OU si le code source a changé depuis la dernière compilation.
+            // onCompiler est asynchrone : on dépose le .tst en attente et la fin de onCompiler le consomme.
+            const scenarioAJour = !!this.jeu && this._lastCompiledCodeSource === this.codeSource;
+            if (!scenarioAJour) {
+              this._pendingTst = fichierTest;
+              this.onCompiler(undefined);
+              return;
+            }
+
+            // Scénario déjà à jour : bascule directement sur l'onglet jeu et lance le magnéto.
+            this.showTab('jeu');
+            setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest), 0);
           };
           fileReader.readAsText(file);
         }
