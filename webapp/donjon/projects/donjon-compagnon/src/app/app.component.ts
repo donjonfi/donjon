@@ -9,7 +9,8 @@ import { CompilationService } from './services/compilation.service';
 import { LineMapEntry, VsCodeBridgeService } from './services/vscode-bridge.service';
 import { JOUER_ONE_HTML } from '../../../donjon-creer/src/app/standalone/jouer-one-template';
 
-type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'carte' | 'apercu' | 'wiki' | 'aide';
+type CompagnonTab = 'analyse' | 'jeu' | 'visualisation' | 'wiki' | 'aide';
+type VisualisationTab = 'carte' | 'visualisation' | 'apercu';
 
 const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 
@@ -21,6 +22,7 @@ const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 })
 export class AppComponent implements OnInit, OnDestroy {
   public activeTab: CompagnonTab = 'analyse';
+  public visualisationTab: VisualisationTab = 'carte';
 
   public scenarioBrut = '';
   public actionsBrut = '';

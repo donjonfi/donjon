@@ -7,6 +7,16 @@
   @if (carte && carte.noeuds.length > 0) {
     <div class="carte-scenario__ascii-wrap" #asciiWrapEl tabindex="0">
 
+      <!-- bouton « Retour à la vue d'ensemble » : visible uniquement quand on est zoomé -->
+      @if (pileRacines.length > 0) {
+        <button type="button"
+                class="carte-scenario__retour"
+                title="Retour à la vue d'ensemble"
+                (click)="revenirAuNiveau(-1)">
+          <i class="fas fa-fw fa-arrow-left me-2"></i>Retour à la vue d'ensemble
+        </button>
+      }
+
       <!-- légende flottante des préfixes (types) et lettres (états) -->
       <div class="carte-scenario__legende">
         <span class="leg-grp"><span class="leg-sym">⬡</span> contenant</span>
@@ -32,6 +42,7 @@
 
       <div class="carte-scenario__ascii" #asciiEl
         [class.is-panning]="panActif"
+        [class.has-retour]="pileRacines.length > 0"
         (mousedown)="onCartePanStart($event, asciiEl)"
         >@for (ligne of lignesSegmentees; track $index) {<span class="ligne"
           >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg, $event)">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>

@@ -209,91 +209,41 @@ export class CarteBuilder {
 
     if (lieuDepart) {
       reserverCellule(0, 0, lieuDepart.id);
-      // Un lieu ne peut déployer ses sorties spéciales (haut/bas/intérieur/extérieur)
-      // QUE s'il est la racine, OU s'il a lui-même été atteint via une sortie spéciale.
-      // Ainsi un voisinage cardinal n'expose pas ses intérieurs/étages — on évite la
-      // pollution croisée (ex. zoom sur le bois ne déplie pas l'intérieur de l'auberge).
-      const peutEtendreSpecial = new Set<number>();
-      peutEtendreSpecial.add(lieuDepart.id);
+      CarteBuilder.bfsCluster(lieuDepart, modeZoom, positions, lieuParId, reserverCellule);
+    }
 
-      // BFS en TROIS phases ordonnées par priorité :
-      //   1) cardinaux purs (nord/sud/est/ouest)
-      //   2) diagonales (NE/NO/SE/SO)
-      //   3) spéciaux (haut/bas/intérieur/extérieur), uniquement en mode zoom
-      // On vide la file la plus prioritaire avant de toucher la suivante. À chaque nouvel
-      // ajout dans la grille, le nouveau lieu est poussé dans les trois files pour que ses
-      // propres voisins soient évalués au tour suivant. Conséquence : les cardinaux sont
-      // placés en premier dans leur cellule naturelle, puis les diagonales se décalent
-      // par collision si besoin — au lieu de l'inverse, qui produisait des cardinaux
-      // visuellement diagonaux (cf. capture utilisateur).
-      const cardinalQueue: Lieu[] = [lieuDepart];
-      const diagonalQueue: Lieu[] = [lieuDepart];
-      const specialQueue: Lieu[] = modeZoom ? [lieuDepart] : [];
+    // 2.5) Clusters orphelins : tout lieu non atteint par le BFS principal est un lieu
+    //      qui n'est PAS relié au cluster racine via une direction représentable
+    //      (typiquement parce qu'on s'y rend par une action sur mesure — tapis volant,
+    //      téléporteur, etc.). On le pose tout de même sur la carte en sous-cluster
+    //      vertical séparé, plutôt que de le laisser invisible. Uniquement en mode
+    //      non-zoom (le zoom isole volontairement le voisinage du lieu cliqué).
+    if (racineId == null) {
+      while (true) {
+        const orphelin = jeu.lieux.find(l => !positions.has(l.id));
+        if (!orphelin) { break; }
 
-      const estDiagonale = (loc: ELocalisation): boolean =>
-        loc === ELocalisation.nord_est || loc === ELocalisation.nord_ouest
-        || loc === ELocalisation.sud_est || loc === ELocalisation.sud_ouest;
+        // Y maximal courant + gap de 3 lignes pour séparer visuellement les clusters.
+        let maxYCourant = -Infinity;
+        for (const p of positions.values()) {
+          if (p.y > maxYCourant) { maxYCourant = p.y; }
+        }
+        const offsetY = (maxYCourant === -Infinity ? 0 : maxYCourant + 3);
 
-      while (cardinalQueue.length > 0 || diagonalQueue.length > 0 || specialQueue.length > 0) {
-        if (cardinalQueue.length > 0) {
-          const courant = cardinalQueue.shift()!;
-          const posCourante = positions.get(courant.id);
-          if (!posCourante) { continue; }
-          for (const voisin of courant.voisins) {
-            if (voisin.type !== EClasseRacine.lieu) { continue; }
-            const lieuVoisin = lieuParId.get(voisin.id);
-            if (!lieuVoisin) { continue; }
-            if (positions.has(lieuVoisin.id)) { continue; }
-            const dep = deplacementCardinal(voisin.localisation);
-            if (!dep || estDiagonale(voisin.localisation)) { continue; }
-            reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
-            cardinalQueue.push(lieuVoisin);
-            diagonalQueue.push(lieuVoisin);
-            if (modeZoom) { specialQueue.push(lieuVoisin); }
-          }
-          continue;
-        }
-        if (diagonalQueue.length > 0) {
-          const courant = diagonalQueue.shift()!;
-          const posCourante = positions.get(courant.id);
-          if (!posCourante) { continue; }
-          for (const voisin of courant.voisins) {
-            if (voisin.type !== EClasseRacine.lieu) { continue; }
-            const lieuVoisin = lieuParId.get(voisin.id);
-            if (!lieuVoisin) { continue; }
-            if (positions.has(lieuVoisin.id)) { continue; }
-            if (!estDiagonale(voisin.localisation)) { continue; }
-            const dep = deplacementCardinal(voisin.localisation)!;
-            reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
-            cardinalQueue.push(lieuVoisin);
-            diagonalQueue.push(lieuVoisin);
-            if (modeZoom) { specialQueue.push(lieuVoisin); }
-          }
-          continue;
-        }
-        if (specialQueue.length > 0) {
-          const courant = specialQueue.shift()!;
-          if (!peutEtendreSpecial.has(courant.id)) { continue; }
-          const posCourante = positions.get(courant.id);
-          if (!posCourante) { continue; }
-          for (const voisin of courant.voisins) {
-            if (voisin.type !== EClasseRacine.lieu) { continue; }
-            const lieuVoisin = lieuParId.get(voisin.id);
-            if (!lieuVoisin) { continue; }
-            if (positions.has(lieuVoisin.id)) { continue; }
-            const dep = deplacementSpecial(voisin.localisation);
-            if (!dep) { continue; }
-            reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
-            peutEtendreSpecial.add(lieuVoisin.id);
-            cardinalQueue.push(lieuVoisin);
-            diagonalQueue.push(lieuVoisin);
-            specialQueue.push(lieuVoisin);
-          }
-        }
+        // Auto-détection du mode local : si le lieu n'a aucun voisin cardinal (cluster
+        // purement vertical / imbriqué), on active le mode étendu pour suivre haut/bas/
+        // intérieur/extérieur — sinon BFS cardinal seul.
+        const modeZoomCluster = !orphelin.voisins.some(v =>
+          v.type === EClasseRacine.lieu && deplacementCardinal(v.localisation) !== null);
+
+        reserverCellule(0, offsetY, orphelin.id);
+        CarteBuilder.bfsCluster(orphelin, modeZoomCluster, positions, lieuParId, reserverCellule);
       }
     }
 
-    // 3) signaler les lieux orphelins (non placés)
+    // 3) signaler les lieux orphelins (non placés). En mode non-zoom, l'étape 2.5
+    //    a déjà tout placé ; cette liste reste pour le mode zoom (où les voisins
+    //    non latéraux sont volontairement isolés).
     for (const lieu of jeu.lieux) {
       if (!positions.has(lieu.id)) {
         carte.lieuxOrphelinsIds.add(lieu.id);
@@ -314,11 +264,21 @@ export class CarteBuilder {
         const via = CarteBuilder.barriereAssociee(lieu, voisin, objetParId);
 
         if (voisin.type === EClasseRacine.lieu) {
-          // voisin de type lieu : placé ou orphelin selon `positions`
+          // voisin de type lieu : placé ou orphelin selon `positions`.
+          // Sortie « cardinale » uniquement si le voisin est placé ET que ses
+          // coordonnées correspondent au déplacement attendu pour cette localisation.
+          // Sinon (voisin orphelin, OU placé dans un autre cluster sans rapport
+          // spatial), c'est une sortie spéciale (drill-down depuis le popup détail).
           const cle = `l|${voisin.localisation}|${voisin.id}`;
           if (dejaListee.has(cle)) { continue; }
           dejaListee.add(cle);
-          if (positions.has(voisin.id)) {
+          const dep = deplacementCardinal(voisin.localisation) ?? deplacementSpecial(voisin.localisation);
+          const posLieu = positions.get(lieu.id);
+          const posVoisin = positions.get(voisin.id);
+          const placeEtConsistant = !!posLieu && !!posVoisin && !!dep
+            && (posVoisin.x - posLieu.x === dep.dx)
+            && (posVoisin.y - posLieu.y === dep.dy);
+          if (placeEtConsistant) {
             sortiesCardinales.push({
               localisation: voisin.localisation,
               cibleId: voisin.id,
@@ -366,14 +326,21 @@ export class CarteBuilder {
       carte.noeuds.push({ ...info, x: pos.x, y: pos.y });
     }
 
-    // 6) arêtes entre lieux placés (cardinales + verticales/intérieur-extérieur en mode zoom)
+    // 6) arêtes entre lieux placés — uniquement quand les positions sont
+    //    cohérentes avec la direction du voisin (les lieux placés dans
+    //    différents clusters orphelins n'ont pas d'arête entre eux).
     const aretesVues = new Set<string>();
     for (const lieu of jeu.lieux) {
-      if (!positions.has(lieu.id)) { continue; }
+      const posLieu = positions.get(lieu.id);
+      if (!posLieu) { continue; }
       for (const voisin of lieu.voisins) {
         if (voisin.type !== EClasseRacine.lieu) { continue; }
-        if (!positions.has(voisin.id)) { continue; }
-        if (deplacement(voisin.localisation, modeZoom) === null) { continue; }
+        const posVoisin = positions.get(voisin.id);
+        if (!posVoisin) { continue; }
+        const dep = deplacementCardinal(voisin.localisation) ?? deplacementSpecial(voisin.localisation);
+        if (!dep) { continue; }
+        if (posVoisin.x - posLieu.x !== dep.dx) { continue; }
+        if (posVoisin.y - posLieu.y !== dep.dy) { continue; }
         const a = Math.min(lieu.id, voisin.id);
         const b = Math.max(lieu.id, voisin.id);
         const cle = `${a}-${b}`;
@@ -399,6 +366,100 @@ export class CarteBuilder {
     }
 
     return carte;
+  }
+
+  /**
+   * BFS en TROIS phases ordonnées par priorité depuis `lieuDepart` (déjà placé) :
+   *   1) cardinaux purs (nord/sud/est/ouest)
+   *   2) diagonales (NE/NO/SE/SO)
+   *   3) spéciaux (haut/bas/intérieur/extérieur), uniquement en mode zoom
+   *
+   * On vide la file la plus prioritaire avant de toucher la suivante. À chaque nouvel
+   * ajout dans la grille, le nouveau lieu est poussé dans les trois files pour que ses
+   * propres voisins soient évalués au tour suivant. Conséquence : les cardinaux sont
+   * placés en premier dans leur cellule naturelle, puis les diagonales se décalent
+   * par collision si besoin — au lieu de l'inverse, qui produisait des cardinaux
+   * visuellement diagonaux.
+   *
+   * Un lieu ne peut déployer ses sorties spéciales que s'il est la racine du cluster
+   * OU s'il a lui-même été atteint via une sortie spéciale (évite la pollution
+   * croisée : zoom sur le bois ne déplie pas l'intérieur de l'auberge voisine).
+   */
+  private static bfsCluster(
+    lieuDepart: Lieu,
+    modeZoom: boolean,
+    positions: Map<number, { x: number; y: number; }>,
+    lieuParId: Map<number, Lieu>,
+    reserverCellule: (x: number, y: number, idLieu: number) => void,
+  ): void {
+    const peutEtendreSpecial = new Set<number>();
+    peutEtendreSpecial.add(lieuDepart.id);
+
+    const cardinalQueue: Lieu[] = [lieuDepart];
+    const diagonalQueue: Lieu[] = [lieuDepart];
+    const specialQueue: Lieu[] = modeZoom ? [lieuDepart] : [];
+
+    const estDiagonale = (loc: ELocalisation): boolean =>
+      loc === ELocalisation.nord_est || loc === ELocalisation.nord_ouest
+      || loc === ELocalisation.sud_est || loc === ELocalisation.sud_ouest;
+
+    while (cardinalQueue.length > 0 || diagonalQueue.length > 0 || specialQueue.length > 0) {
+      if (cardinalQueue.length > 0) {
+        const courant = cardinalQueue.shift()!;
+        const posCourante = positions.get(courant.id);
+        if (!posCourante) { continue; }
+        for (const voisin of courant.voisins) {
+          if (voisin.type !== EClasseRacine.lieu) { continue; }
+          const lieuVoisin = lieuParId.get(voisin.id);
+          if (!lieuVoisin) { continue; }
+          if (positions.has(lieuVoisin.id)) { continue; }
+          const dep = deplacementCardinal(voisin.localisation);
+          if (!dep || estDiagonale(voisin.localisation)) { continue; }
+          reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
+          cardinalQueue.push(lieuVoisin);
+          diagonalQueue.push(lieuVoisin);
+          if (modeZoom) { specialQueue.push(lieuVoisin); }
+        }
+        continue;
+      }
+      if (diagonalQueue.length > 0) {
+        const courant = diagonalQueue.shift()!;
+        const posCourante = positions.get(courant.id);
+        if (!posCourante) { continue; }
+        for (const voisin of courant.voisins) {
+          if (voisin.type !== EClasseRacine.lieu) { continue; }
+          const lieuVoisin = lieuParId.get(voisin.id);
+          if (!lieuVoisin) { continue; }
+          if (positions.has(lieuVoisin.id)) { continue; }
+          if (!estDiagonale(voisin.localisation)) { continue; }
+          const dep = deplacementCardinal(voisin.localisation)!;
+          reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
+          cardinalQueue.push(lieuVoisin);
+          diagonalQueue.push(lieuVoisin);
+          if (modeZoom) { specialQueue.push(lieuVoisin); }
+        }
+        continue;
+      }
+      if (specialQueue.length > 0) {
+        const courant = specialQueue.shift()!;
+        if (!peutEtendreSpecial.has(courant.id)) { continue; }
+        const posCourante = positions.get(courant.id);
+        if (!posCourante) { continue; }
+        for (const voisin of courant.voisins) {
+          if (voisin.type !== EClasseRacine.lieu) { continue; }
+          const lieuVoisin = lieuParId.get(voisin.id);
+          if (!lieuVoisin) { continue; }
+          if (positions.has(lieuVoisin.id)) { continue; }
+          const dep = deplacementSpecial(voisin.localisation);
+          if (!dep) { continue; }
+          reserverCellule(posCourante.x + dep.dx, posCourante.y + dep.dy, lieuVoisin.id);
+          peutEtendreSpecial.add(lieuVoisin.id);
+          cardinalQueue.push(lieuVoisin);
+          diagonalQueue.push(lieuVoisin);
+          specialQueue.push(lieuVoisin);
+        }
+      }
+    }
   }
 
   private static choisirLieuDepart(jeu: Jeu): Lieu | null {

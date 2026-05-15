@@ -78,7 +78,7 @@ La porte rouge est une porte fermée à l'est du carrefour.
     expect(areteEst?.via?.type).toBe('porte');
   });
 
-  it('[F060-T004] vue d\'ensemble cardinale : les sorties haut/bas vers d\'autres lieux restent orphelines', () => {
+  it('[F060-T004] vue d\'ensemble cardinale : les sorties haut/bas vers d\'autres lieux sont placées en cluster orphelin', () => {
     const scenario = `
 La cave est un lieu.
 Le jardin est un lieu au nord de la cave.
@@ -87,16 +87,24 @@ Le rez est un lieu en haut de la cave.
     const jeu = TestUtils.genererLeJeu(scenario);
     const carte = CarteBuilder.construire(jeu);
 
-    // cave a au moins une voisine cardinale (jardin) → mode vue d'ensemble auto
-    expect(carte.noeuds.length).toBe(2);
+    // cave a au moins une voisine cardinale (jardin) → mode vue d'ensemble auto :
+    // jardin est placé directement au nord, rez est placé en cluster séparé sous la
+    // cave (post-pass orphelins) puisqu'il n'est atteignable que verticalement.
+    expect(carte.noeuds.length).toBe(3);
     const cave = carte.noeuds.find(n => n.lieu.nom === 'cave')!;
+    const rezNoeud = carte.noeuds.find(n => n.lieu.nom === 'rez')!;
+    expect(cave.y).toBe(0);
+    expect(rezNoeud.y).toBeGreaterThan(cave.y); // sous la cave, séparé par un gap
+
+    // la sortie « haut » vers rez reste catégorisée comme spéciale (drill-down)
+    // car les positions des deux clusters ne correspondent pas au déplacement haut.
     expect(cave.sortiesSpeciales.length).toBe(1);
     expect(cave.sortiesSpeciales[0].localisation).toBe(ELocalisation.haut);
     expect(cave.sortiesSpeciales[0].cibleType).toBe('lieu');
 
-    // le rez reste orphelin (uniquement accessible via sortie spéciale)
+    // tous les lieux sont désormais placés
+    expect(carte.lieuxOrphelinsIds.size).toBe(0);
     const rez = jeu.lieux.find(l => l.nom === 'rez')!;
-    expect(carte.lieuxOrphelinsIds.has(rez.id)).toBe(true);
     expect(carte.detailsParLieu.has(rez.id)).toBe(true);
   });
 
@@ -256,15 +264,23 @@ Le joueur est dans la forge.
     const jeu = TestUtils.genererLeJeu(scenario);
     const forge = jeu.lieux.find(l => l.nom === 'forge')!;
 
-    // Vue d'ensemble (sans racineId) : joueur est dans forge, forge a un cardinal → modeZoom=false
+    // Vue d'ensemble (sans racineId) : joueur est dans forge, forge a un cardinal → modeZoom=false.
+    // Place + forge dans le cluster principal ; arrière-boutique placée en cluster
+    // orphelin séparé (post-pass) puisqu'elle n'est atteignable que via « intérieur ».
     const carteEnsemble = CarteBuilder.construire(jeu);
     const nomsE = carteEnsemble.noeuds.map(n => n.lieu.nom);
     expect(nomsE).toContain('forge');
     expect(nomsE).toContain('place du village');
-    // arrière-boutique NON placée → ce qui explique pourquoi le user voit la sortie dans la boîte forge
-    expect(nomsE).not.toContain('arriere boutique');
+    expect(nomsE).toContain('arriere boutique');
 
-    // Si maintenant on force le zoom sur forge → arrière-boutique apparaît
+    // Les positions du cluster principal et du cluster orphelin ne sont PAS cohérentes
+    // avec « intérieur » (dx=+1, dy=0) → l'arrière-boutique reste sortie spéciale de la
+    // forge (drill-down depuis le popup détail toujours possible).
+    const forgeE = carteEnsemble.noeuds.find(n => n.lieu.nom === 'forge')!;
+    const sortieInt = forgeE.sortiesSpeciales.find(s => s.localisation === ELocalisation.interieur);
+    expect(sortieInt?.cibleType).toBe('lieu');
+
+    // Si maintenant on force le zoom sur forge → arrière-boutique apparaît aussi
     const carteZoom = CarteBuilder.construire(jeu, forge.id);
     const nomsZ = carteZoom.noeuds.map(n => n.lieu.nom);
     expect(nomsZ).toContain('arriere boutique');
@@ -502,5 +518,39 @@ La grotte est un lieu à l'est du carrefour.
     const dirs = detail.sortiesCardinales.map(s => s.localisation).sort();
     expect(dirs).toContain(ELocalisation.nord);
     expect(dirs).toContain(ELocalisation.est);
+  });
+
+  it('[F060-T019] place sur la carte les lieux totalement déconnectés (atteignables uniquement par action)', () => {
+    // Cas du tapis magique : château, désert et prison ne sont reliés par
+    // AUCUNE sortie cardinale ni spéciale — uniquement par une action sur mesure.
+    // Tous doivent quand même apparaître sur la carte (clusters orphelins).
+    const scenario = `
+Le château est un lieu.
+Le désert est un lieu.
+La prison est un lieu.
+
+Le joueur est dans le château.
+`;
+    const jeu = TestUtils.genererLeJeu(scenario);
+    const carte = CarteBuilder.construire(jeu);
+
+    expect(carte.noeuds.length).toBe(3);
+    expect(carte.lieuxOrphelinsIds.size).toBe(0);
+
+    const noeud = (nom: string) => carte.noeuds.find(n => n.lieu.nom === nom)!;
+    const chateau = noeud('chateau');
+    const desert = noeud('desert');
+    const prison = noeud('prison');
+
+    // le château (lieu du joueur) est à l'origine
+    expect(chateau.x).toBe(0);
+    expect(chateau.y).toBe(0);
+
+    // les deux autres clusters sont posés strictement en-dessous, séparés par un gap
+    expect(desert.y).toBeGreaterThan(chateau.y);
+    expect(prison.y).toBeGreaterThan(desert.y);
+
+    // aucune arête : aucune relation cardinale ni verticale entre les trois lieux
+    expect(carte.aretes.length).toBe(0);
   });
 });
