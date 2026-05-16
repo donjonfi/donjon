@@ -13,6 +13,7 @@ import { EtapeTest, FichierTest } from '../models/jouer/fichier-test';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { MotUtils } from '../utils/commun/mot-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
+import { AleatoireInstantane, AleatoireUtils } from '../utils/jeu/aleatoire-utils';
 import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
 import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
@@ -116,6 +117,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   /** Idx (dans etapesTest) de l'étape en cours d'édition (modifier ou inserer). null hors édition. */
   public magnetoIdxEnEdition: number | null = null;
+
+  /**
+   * Snapshot du PRNG capturé juste AVANT chaque c/r joué (clé = idx dans etapesTest).
+   * Permet à `Précédent` de restaurer l'état exact du PRNG, contournant le re-seed
+   * volontaire d'`annuler` (anti-save-scumming en mode jeu normal, indésirable en magnéto).
+   */
+  private magnetoSnapshotsRng: Map<number, AleatoireInstantane> = new Map();
 
   /** Le panneau de récapitulatif de fin de session est-il affiché ? */
   public recapAffiche = false;
@@ -1314,6 +1322,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
     this.magnetoIdxEnEdition = null;
+    this.magnetoSnapshotsRng.clear();
 
     // Appliquer la graine du fichier pour rendre le replay déterministe.
     if (this.fichierTestEnCours.graine) {
@@ -1436,6 +1445,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx, false);
       return;
     }
+    // Snapshot du PRNG AVANT exécution : permet à Précédent de restaurer l'état exact
+    // (puisqu'annuler regénère volontairement la graine en mode jeu normal).
+    const snap = AleatoireUtils.instantane();
+    if (snap) this.magnetoSnapshotsRng.set(this.magnetoIdx, snap);
     const sortieObtenue = this.executerEtapeVerification(etape);
     if ((etape.sortie ?? '') === sortieObtenue) {
       // pas de divergence : avancer
@@ -1468,9 +1481,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // Si une divergence est affichée, c'est qu'on vient juste d'exécuter cette étape.
     // « Précédent » revient à l'état pré-divergence : annule et abandonne la divergence.
     if (this.magnetoDivergence) {
+      const idxDiv = this.magnetoDivergence.idx;
       this.executerCommandeAffichee('annuler');
-      this.verificationActions.push({ idx: this.magnetoDivergence.idx, action: 'reculé', detail: `« ${this.magnetoDivergence.etape.valeur} » annulée` });
+      this.verificationActions.push({ idx: idxDiv, action: 'reculé', detail: `« ${this.magnetoDivergence.etape.valeur} » annulée` });
       this.magnetoDivergence = null;
+      this.restaurerSnapshotRng(idxDiv);
+      // En production, le parent (donjon-jouer/creer) reload la partie de façon async
+      // après l'annuler — ce reload ré-applique la graine et écrase notre restauration sync.
+      // On re-restaure après le reload pour imposer l'état PRNG du snapshot.
+      setTimeout(() => {
+        if (this.verificationActive && this.fichierTestEnCours) {
+          this.restaurerSnapshotRng(idxDiv);
+        }
+      }, 250);
       // Recule d'une étape (idx pointe sur celle qui vient d'être annulée).
       // Pour pouvoir « Pas suivant » et re-jouer cette étape, on garde idx à sa valeur.
       return;
@@ -1486,7 +1509,38 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (idxRecul < 0) return;
     this.executerCommandeAffichee('annuler');
     this.magnetoIdx = idxRecul;
+    this.restaurerSnapshotRng(idxRecul);
+    // En production, le parent (donjon-jouer/creer) reload la partie de façon async
+    // après l'annuler — ce reload ré-applique la graine et écrase notre restauration sync.
+    // On re-restaure après le reload pour imposer l'état PRNG du snapshot.
+    setTimeout(() => {
+      if (this.verificationActive && this.fichierTestEnCours) {
+        this.restaurerSnapshotRng(idxRecul);
+      }
+    }, 250);
     this.verificationActions.push({ idx: idxRecul, action: 'reculé', detail: `retour à l'étape précédente` });
+  }
+
+  /**
+   * Restaure le PRNG dans l'état où il était JUSTE AVANT que la c/r à `idx` ne s'exécute.
+   * À défaut de snapshot (étape jamais jouée dans la session), retombe sur la dernière
+   * graine déclarée en amont dans etapesTest pour rester déterministe.
+   */
+  private restaurerSnapshotRng(idx: number): void {
+    if (!this.fichierTestEnCours) return;
+    const snap = this.magnetoSnapshotsRng.get(idx);
+    if (snap) {
+      AleatoireUtils.restaurer(snap);
+      return;
+    }
+    const etapes = this.fichierTestEnCours.etapesTest;
+    let graine: string | undefined = this.fichierTestEnCours.graine;
+    for (let i = 0; i < etapes.length && i < idx; i++) {
+      if (etapes[i].type === 'g') graine = etapes[i].valeur;
+    }
+    if (graine !== undefined && graine !== '') {
+      AleatoireUtils.init(graine);
+    }
   }
 
   /** Lance la lecture auto. S'arrête à la première divergence ou à la fin. */
@@ -1566,6 +1620,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
 
     this.fichierTestEnCours.etapesTest.splice(idxCible, 1);
+    this.magnetoSnapshotsRng.clear();
     this.verificationCompteurs.retraits++;
     this.verificationActions.push({ idx: idxCible, action: 'supprimé', detail: `« ${valeurEtape} »` });
     this.magnetoIdx = this.avancerJusquAEtapeJouable(idxCible, false);
@@ -1642,6 +1697,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.magnetoDernierTest) {
       this.executerCommandeAffichee('annuler');
     }
+    // Restaurer le PRNG dans l'état pré-étape pour que le tirage aléatoire de la
+    // commande testée soit déterministe (annuler regénère la graine en mode jeu normal).
+    if (this.magnetoIdxEnEdition !== null) {
+      this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
+    }
     const cmd = this.magnetoSaisieCommande.trim();
     const sortie = this.executerCommandeAffichee(cmd);
     this.magnetoDernierTest = { commande: cmd, sortie };
@@ -1662,11 +1722,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.magnetoDernierTest) {
         this.executerCommandeAffichee('annuler');
       }
+      // Restaurer le PRNG dans l'état pré-étape avant l'exécution (idem que Tester).
+      if (this.magnetoIdxEnEdition !== null) {
+        this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
+      }
       sortieNouvelle = this.executerCommandeAffichee(cmd);
     }
 
     if (this.magnetoDivergence) {
       const d = this.magnetoDivergence;
+      this.magnetoSnapshotsRng.clear();
       if (this.magnetoEdition === 'modifier') {
         this.fichierTestEnCours.etapesTest[d.idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
         this.verificationCompteurs.modifications++;
@@ -1684,6 +1749,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     } else {
       // Pas de divergence : on opère sur l'étape à venir (magnetoIdx).
       const idx = this.magnetoIdx;
+      this.magnetoSnapshotsRng.clear();
       if (this.magnetoEdition === 'modifier') {
         const ancienne = this.fichierTestEnCours.etapesTest[idx];
         this.fichierTestEnCours.etapesTest[idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
@@ -1730,6 +1796,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // Si on était en mode 'modifier', la commande divergente avait été annulée à l'entrée
     // → la rejouer pour restaurer l'état pré-saisie (avec la divergence affichée).
     if (this.magnetoEdition === 'modifier' && this.magnetoDivergence) {
+      // Restaurer le PRNG pour que la sortie obtenue soit identique à celle observée à l'origine.
+      this.restaurerSnapshotRng(this.magnetoDivergence.idx);
       const sortie = this.executerCommandeAffichee(this.magnetoDivergence.etape.valeur);
       this.magnetoDivergence.sortieObtenue = sortie;
       const diff = LecteurComponent.calculerDiffSorties(this.magnetoDivergence.etape.sortie ?? '', sortie);
@@ -1742,6 +1810,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // Rejouer pour rétablir l'état post-exécution.
       const etape = this.fichierTestEnCours.etapesTest[this.magnetoIdxEnEdition];
       if (etape && (etape.type === 'c' || etape.type === 'r')) {
+        // Restaurer le PRNG pour que la re-exécution produise la même sortie que l'originale.
+        this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
         this.executerCommandeAffichee(etape.valeur);
         this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdxEnEdition + 1, false);
       }

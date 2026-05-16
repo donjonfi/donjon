@@ -305,6 +305,44 @@
   font-style: italic;
 }
 
+.btn.btn-donjon-orange {
+  background-color: #DD8855;
+  border-color: #DD8855;
+  color: #fff;
+
+  &:hover, &:focus {
+    background-color: #c47542;
+    border-color: #c47542;
+    color: #fff;
+  }
+
+  &:disabled {
+    background-color: #DD8855;
+    border-color: #DD8855;
+    color: #fff;
+    opacity: 0.55;
+  }
+}
+
+.btn.btn-donjon-rouge {
+  background-color: #AA5555;
+  border-color: #AA5555;
+  color: #fff;
+
+  &:hover, &:focus {
+    background-color: #8e4747;
+    border-color: #8e4747;
+    color: #fff;
+  }
+
+  &:disabled {
+    background-color: #AA5555;
+    border-color: #AA5555;
+    color: #fff;
+    opacity: 0.55;
+  }
+}
+
 .djn-magneto-divergence {
   background: #fff3cd;
   border: 1px solid #DD8855;

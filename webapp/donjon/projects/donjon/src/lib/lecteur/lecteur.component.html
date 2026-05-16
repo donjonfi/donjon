@@ -160,18 +160,20 @@
         } @else {
           <button class="btn btn-sm btn-warning" (click)="magnetoStop()" title="Arrêter la lecture auto"><i class="fas fa-fw fa-pause me-1"></i>Stop</button>
         }
-        <span class="djn-magneto-sep"></span>
-        <button class="btn btn-sm btn-outline-info" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEstSurIntro || magnetoEdition !== 'aucun'" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
-        <div class="djn-magneto-insert-wrap">
-          <button class="btn btn-sm btn-outline-info" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEstSurIntro || magnetoEdition !== 'aucun'" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
-          @if (magnetoInsererMenuOuvert) {
-            <div class="djn-magneto-insert-menu">
-              <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('avant')">Avant</button>
-              <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('apres')">Après</button>
-            </div>
-          }
-        </div>
-        <button class="btn btn-sm btn-warning" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEstSurIntro || magnetoEdition !== 'aucun'" title="Retirer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
+        @if (!magnetoEstSurIntro) {
+          <span class="djn-magneto-sep"></span>
+          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
+          <div class="djn-magneto-insert-wrap">
+            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
+            @if (magnetoInsererMenuOuvert) {
+              <div class="djn-magneto-insert-menu">
+                <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('avant')">Avant</button>
+                <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('apres')">Après</button>
+              </div>
+            }
+          </div>
+          <button class="btn btn-sm btn-donjon-rouge" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Retirer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
+        }
         <span class="djn-magneto-spacer"></span>
         <button class="btn btn-sm btn-outline-success" (click)="magnetoTelechargerSauvegarde()" title="Télécharger une sauvegarde du .tst à cet état"><i class="fas fa-fw fa-floppy-disk"></i></button>
         <button class="btn btn-sm btn-outline-danger" (click)="magnetoQuitter()" title="Quitter le mode vérification"><i class="fas fa-fw fa-xmark"></i></button>

@@ -373,17 +373,17 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    // Aucune divergence — étape 0 pas encore jouée.
+    // Nouvelle sémantique : supprimer agit sur la commande qui vient d'être exécutée.
+    lecteur.magnetoPasSuivant();
     lecteur.magnetoSupprimerCommande();
 
     expect(fichier.etapesTest.length).toBe(1);
-    expect(lecteur.magnetoIdx).toBe(0);
     expect(lecteur.verificationCompteurs.retraits).toBe(1);
-    // Pas de divergence à compenser → pas d'« annuler » envoyé.
-    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+    // « annuler » est envoyé pour rembobiner avant le splice.
+    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
-  it('[F050-MAG-T012] entrer modification sans divergence : saisie pré-remplie, état pas joué', () => {
+  it('[F050-MAG-T012] entrer modification : la commande exécutée est rejouable', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -391,15 +391,15 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
+    lecteur.magnetoPasSuivant();
     lecteur.magnetoEntrerModification();
 
     expect(lecteur.magnetoEdition).toBe('modifier');
     expect(lecteur.magnetoSaisieCommande).toBe('attendre');
-    // L'étape n'avait pas été jouée — rien à annuler.
-    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
-  it('[F050-MAG-T013] entrer insertion sans divergence : mode inserer, saisie vide', () => {
+  it('[F050-MAG-T013] entrer insertion (avant) : mode inserer, saisie vide, annuler envoyé', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -407,14 +407,15 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    lecteur.magnetoEntrerInsertion();
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion('avant');
 
     expect(lecteur.magnetoEdition).toBe('inserer');
     expect(lecteur.magnetoSaisieCommande).toBe('');
-    expect((lecteur as any).envoyerCommande).not.toHaveBeenCalled();
+    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
-  it('[F050-MAG-T014] valider modification sans divergence : étape remplacée, avance', () => {
+  it('[F050-MAG-T014] valider modification : étape remplacée, avance, enchaîne Suivant', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -423,6 +424,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
+    lecteur.magnetoPasSuivant();
     lecteur.magnetoEntrerModification();
     lecteur.magnetoSaisieCommande = 'regarder';
 
@@ -435,7 +437,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(lecteur.verificationCompteurs.modifications).toBe(1);
   });
 
-  it('[F050-MAG-T015] valider insertion sans divergence : étape insérée AVANT, originale repoussée', () => {
+  it('[F050-MAG-T015] valider insertion (avant) : étape insérée juste avant la commande exécutée', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -444,12 +446,13 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    lecteur.magnetoEntrerInsertion();
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion('avant');
     lecteur.magnetoSaisieCommande = 'regarder';
 
     lecteur.magnetoValiderSaisie();
 
-    // L'étape originale est repoussée à idx=1 ; la nouvelle prend la place 0.
+    // L'originale [0] est repoussée à idx=1 ; la nouvelle prend la place 0.
     expect(fichier.etapesTest.length).toBe(3);
     expect(fichier.etapesTest[0].valeur).toBe('regarder');
     expect(fichier.etapesTest[1].valeur).toBe('attendre');
@@ -489,6 +492,113 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(lecteur.recapAffiche).toBeFalse();
     expect(lecteur.verificationActive).toBeTrue();
     expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
+  });
+
+  it('[F050-MAG-T021] Précédent + Pas suivant : tirage aléatoire identique (snapshot PRNG restauré)', () => {
+    const scenario =
+      `La salle est un lieu.
+       action lancer:
+         dire "Tirage : [au hasard]un[ou]deux[ou]trois[ou]quatre[ou]cinq[ou]six[fin]."
+       fin action`;
+
+    const ctxRef = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxRef.nouvelleGraineAleatoire('verif-graine');
+    const sortieAttendue = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
+    expect(sortieAttendue).toMatch(/un|deux|trois|quatre|cinq|six/);
+
+    const ctxMag = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxMag.nouvelleGraineAleatoire('verif-graine');
+    // Sentinelle pour éviter afficherRecap après le 1er pas suivant.
+    const fichier: FichierTest = Object.assign(new FichierTest(), {
+      version: 1, scenario: '', graine: 'verif-graine',
+      declenchementsFuturs: [],
+      etapesTest: [
+        { type: 'c', valeur: 'lancer', sortie: sortieAttendue },
+        { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      ],
+    });
+    const lecteur = creerLecteurMagnetoFidele(ctxMag, fichier);
+
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('1er pas suivant').toBeNull();
+    lecteur.magnetoPrecedent();
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('2e pas suivant après Précédent').toBeNull();
+  });
+
+  it('[F050-MAG-T022] Précédent ré-applique la dernière graine en amont (graine mid-game)', () => {
+    const scenario =
+      `La salle est un lieu.
+       action lancer:
+         dire "Tirage : [au hasard]un[ou]deux[ou]trois[ou]quatre[ou]cinq[ou]six[fin]."
+       fin action`;
+
+    const ctxRef = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxRef.nouvelleGraineAleatoire('graine-A');
+    const sortieA = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
+    ctxRef.nouvelleGraineAleatoire('graine-B');
+    const sortieB = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
+
+    const fichier: FichierTest = Object.assign(new FichierTest(), {
+      version: 1, scenario: '', graine: 'graine-A',
+      declenchementsFuturs: [],
+      etapesTest: [
+        { type: 'g', valeur: 'graine-A' },
+        { type: 'c', valeur: 'lancer', sortie: sortieA },
+        { type: 'g', valeur: 'graine-B' },
+        { type: 'c', valeur: 'lancer', sortie: sortieB },
+        { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' }, // sentinelle
+      ],
+    });
+    const ctxMag = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxMag.nouvelleGraineAleatoire('graine-A');
+    const lecteur = creerLecteurMagnetoFidele(ctxMag, fichier);
+    (lecteur as any).magnetoIdx = 1; // sauter la 1re 'g' déjà appliquée
+
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('1er lancer (graine-A)').toBeNull();
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('2e lancer (graine-B)').toBeNull();
+
+    lecteur.magnetoPrecedent();
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('2e lancer après Précédent').toBeNull();
+  });
+
+  it('[F050-MAG-T023] hasard cumulatif : Précédent sur la 2e c restaure le PRNG via snapshot', () => {
+    const scenario =
+      `La salle est un lieu.
+       action lancer:
+         dire "Tirage : [au hasard]un[ou]deux[ou]trois[ou]quatre[ou]cinq[ou]six[fin]."
+       fin action`;
+
+    const ctxRef = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxRef.nouvelleGraineAleatoire('mag-multi');
+    const sortie1 = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
+    const sortie2 = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
+
+    const fichier: FichierTest = Object.assign(new FichierTest(), {
+      version: 1, scenario: '', graine: 'mag-multi',
+      declenchementsFuturs: [],
+      etapesTest: [
+        { type: 'c', valeur: 'lancer', sortie: sortie1 },
+        { type: 'c', valeur: 'lancer', sortie: sortie2 },
+        { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' }, // sentinelle
+      ],
+    });
+    const ctxMag = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctxMag.nouvelleGraineAleatoire('mag-multi');
+    const lecteur = creerLecteurMagneto(ctxMag, fichier);
+
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('1er lancer').toBeNull();
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('2e lancer').toBeNull();
+
+    // Sans snapshot, le PRNG serait au-delà de l'état requis pour reproduire sortie2.
+    lecteur.magnetoPrecedent();
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).withContext('2e lancer après Précédent (snapshot PRNG)').toBeNull();
   });
 
   it('[F050-MAG-T010] magnetoPrecedent envoie « annuler » et alimente _etapesPartie', () => {
