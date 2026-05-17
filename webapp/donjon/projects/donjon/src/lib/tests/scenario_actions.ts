@@ -1,6 +1,6 @@
 ﻿
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-05-13-30603
+-- Version: 2026-05-17-30700
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".

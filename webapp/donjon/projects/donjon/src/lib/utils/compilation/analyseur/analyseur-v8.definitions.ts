@@ -5,6 +5,7 @@ import { AnalyseurCapacite } from "./analyseur.capacite";
 import { AnalyseurDivers } from "./analyseur.divers";
 import { AnalyseurElementPosition } from "./analyseur.element.position";
 import { AnalyseurElementSimple } from "./analyseur.element.simple";
+import { AnalyseurEtats } from "./analyseur.etats";
 import { AnalyseurListe } from "./analyseur.liste";
 import { AnalyseurPosition } from "./analyseur.position";
 import { AnalyseurPropriete } from "./analyseur.propriete";
@@ -46,6 +47,9 @@ export class AnalyseurV8Definitions {
   public static testerDefinition(phrase: Phrase, ctx: ContexteAnalyseV8): ResultatAnalysePhrase {
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
+    // Pré-traitement : réécrire la négation verbale « X n'est pas Y » en « X est non Y »
+    AnalyseurEtats.preTraiterNegation(phrase);
+
     // Commentaire ou Section (partie, chapitre, ...)
     elementTrouve = this.testerCommentaireEtSection(phrase, ctx, elementTrouve);
     // Aide (action)
@@ -56,6 +60,13 @@ export class AnalyseurV8Definitions {
     elementTrouve = this.testerType(phrase, ctx, elementTrouve);
     // Paramètre (jeu)
     elementTrouve = this.testerParametre(phrase, ctx, elementTrouve);
+    // Déclaration d'état personnalisé (simple, bascule, groupe, implication, exclusion)
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurEtats.testerDeclarationEtat(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.declarationEtat) {
+        ctx.logResultatOk("trouvé déclaration état");
+      }
+    }
     // Élément
     if (elementTrouve === ResultatAnalysePhrase.aucun) {
       elementTrouve = this.testerDefinitionElement(phrase, ctx);

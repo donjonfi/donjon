@@ -1,0 +1,117 @@
+-- Scénario de test : déclarations d'états personnalisés.
+-- Met en scène un dragon et une licorne pour exercer les 5 formes de déclaration
+-- (état simple, bascule, groupe, implication, exclusion) ainsi que la négation
+-- dans les définitions d'éléments (forme inline `non X` et forme verbale `n'est pas X`).
+--
+-- À tester depuis la console :
+--   examiner le dragon            -- féroce, éveillé au départ
+--   apaiser le dragon             -- bascule : féroce → paisible
+--   enrager le dragon             -- implication : enragé → éveillé (réveille si endormi)
+--   endormir le dragon            -- groupe : éveillé → endormi
+--   corrompre la licorne          -- bascule : pure → corrompue
+--   examiner la lance enchantée   -- négation inline : non décoratif
+--   prendre la pomme magique      -- négation verbale : n'est pas mangeable
+--   manger la pomme magique       -- doit échouer (pomme non mangeable)
+
+Le titre du jeu est "Test − états personnalisés : dragon et licorne".
+L'auteur du jeu est "DonjonFI".
+
+-- ======================================================
+-- DÉCLARATIONS D'ÉTATS PERSONNALISÉS
+-- ======================================================
+
+-- État simple (sans bascule, sans groupe)
+enchanté est un état.
+enragé est un état.
+malade est un état.
+maudit est un état.
+
+-- Bascule (2 états opposés, mutex, ré-introduction automatique au retrait)
+féroce et paisible forment une bascule.
+pure et corrompue forment une bascule.
+
+-- Groupe d'états (≥ 2 mutex, pas de ré-introduction)
+éveillé, endormi et hiverné se contredisent.
+
+-- Implication (asymétrique : A entraîne B)
+enragé implique éveillé.
+
+-- Exclusion (contradiction bilatérale ; cible liste autorisée)
+pure exclut malade et maudit.
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+La clairière enchantée est un lieu.
+Sa description est "Une clairière baignée par la lumière dorée des arbres millénaires. Une licorne broute paisiblement. Au nord, on devine l'entrée d'une grotte sombre.".
+
+La grotte du dragon est un lieu au nord de la clairière enchantée.
+Sa description est "Une grotte aux parois marquées par les griffes d'un grand reptile.".
+
+-- ======================================================
+-- PERSONNAGES
+-- ======================================================
+
+Le dragon est un animal féroce et éveillé dans la grotte du dragon.
+Sa description est "Un dragon écailleux aux yeux rougeoyants. [si dragon est paisible]Il semble calme.[fin si][si dragon est féroce]Il rugit en vous voyant.[fin si][si dragon est endormi] Il dort profondément.[fin si][si dragon est enragé] Il est dans une rage folle.[fin si]".
+
+La licorne est un animal pure et éveillée dans la clairière enchantée.
+Sa description est "Une licorne d'un blanc immaculé. [si licorne est pure]Sa corne brille d'une lumière pure.[fin si][si licorne est corrompue]Sa corne a viré au noir.[fin si]".
+
+-- ======================================================
+-- OBJETS (avec négation)
+-- ======================================================
+
+-- Négation inline : la lance n'a PAS l'état « décoratif » (sinon défaut implicite)
+La lance enchantée est un objet enchanté et non décoratif dans la clairière enchantée.
+Sa description est "Une lance gravée de runes lumineuses. On peut la prendre.".
+
+-- Négation verbale : retirer un état après déclaration de l'élément
+La pomme magique est un objet enchanté et mangeable dans la clairière enchantée.
+La pomme magique n'est pas mangeable.
+Sa description est "Une pomme dorée. Trop précieuse pour être mangée.".
+
+-- ======================================================
+-- ACTIONS DE TEST
+-- ======================================================
+
+action apaiser ceci:
+  phase prérequis:
+    si ceci est paisible:
+      refuser "[intitulé ceci] est déjà paisible.".
+    fin si
+  phase exécution:
+    changer ceci est paisible.
+    dire "Vous apaisez [intitulé ceci].".
+fin action
+
+action enrager ceci:
+  phase prérequis:
+    si ceci est enragé:
+      refuser "[intitulé ceci] est déjà enragé.".
+    fin si
+  phase exécution:
+    changer ceci est enragé.
+    dire "[intitulé ceci] entre en rage !".
+fin action
+
+action endormir ceci:
+  phase prérequis:
+    si ceci est endormi:
+      refuser "[intitulé ceci] dort déjà.".
+    fin si
+  phase exécution:
+    changer ceci est endormi.
+    dire "[intitulé ceci] s'endort.".
+fin action
+
+action corrompre ceci:
+  phase prérequis:
+    si ceci est corrompue:
+      refuser "[intitulé ceci] est déjà corrompue.".
+    fin si
+  phase exécution:
+    changer ceci est corrompue.
+    dire "[intitulé ceci] est corrompu !".
+fin action

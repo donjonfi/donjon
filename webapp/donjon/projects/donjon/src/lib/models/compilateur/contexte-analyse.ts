@@ -1,6 +1,7 @@
 import { Abreviation } from "./abreviation";
 import { Action } from "./action";
 import { Aide } from "../commun/aide";
+import { DeclarationEtat } from "./declaration-etat";
 import { Definition } from "./definition";
 import { ElementGenerique } from "./element-generique";
 import { Parametres } from "../commun/parametres";
@@ -19,6 +20,7 @@ export class ContexteAnalyse {
     public typesUtilisateur = new Map<string, Definition>(),
     public erreurs = new Array<string>(),
     public parametres = new Parametres(),
+    public declarationsEtats = new Array<DeclarationEtat>(),
   ) { }
 
   public dernierePropriete: ProprieteConcept = null;

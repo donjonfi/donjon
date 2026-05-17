@@ -360,6 +360,71 @@ export class ExprReg {
   static readonly xActiverDesactiver = /^(activer|désactiver) (.+)$/i;
 
   // ================================================================================================
+  //  DÉCLARATION D'ÉTATS PERSONNALISÉS
+  // ================================================================================================
+
+  /**
+   * Déclaration d'un état simple.
+   * - Découpage :
+   *     - nom(1) est un état
+   * - Exemples :
+   *     - troué est un état.
+   */
+  static readonly xEtatSimple = /^(\S+) est un état$/i;
+
+  /**
+   * Déclaration d'une bascule d'états (exactement 2 états mutuellement exclusifs, avec ré-introduction).
+   * - Découpage :
+   *     - etatA(1) et etatB(2) forment une bascule
+   * - Exemples :
+   *     - sec et mouillé forment une bascule.
+   */
+  static readonly xEtatBascule = /^(\S+) et (\S+) forment une bascule$/i;
+
+  /**
+   * Déclaration d'un groupe d'états (≥ 2 états mutuellement exclusifs, sans ré-introduction).
+   * - Découpage :
+   *     - listeEtats(1) (suite « a, b et c » ou « a et b »)
+   * - Exemples :
+   *     - solide, liquide et gazeux se contredisent.
+   *     - fissuré et intact se contredisent.
+   */
+  static readonly xEtatGroupe = /^((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))) se contredisent$/i;
+
+  /**
+   * Déclaration d'une implication (A entraîne B, asymétrique). Cible : un état ou une liste.
+   * - Découpage :
+   *     - source(1) implique cible(2) [« x » ou « x, y et z »]
+   * - Exemples :
+   *     - vu implique mentionné.
+   *     - secret implique caché et invisible.
+   *     - secret implique caché, invisible et discret.
+   */
+  static readonly xEtatImplique = /^(\S+) implique (.+)$/i;
+
+  /**
+   * Négation dans une définition d'élément (forme verbale).
+   * Capture le sujet (groupe 1, sans le déterminant) et la liste d'attributs niés (groupe 2).
+   * Le préfixe optionnel `(?: une? \S+ )?` permet d'absorber un éventuel type après le verbe (cas rare).
+   * - Exemples :
+   *     - La porte nord n'est pas ouvrable.
+   *     - Les portes ne sont pas ouvertes.
+   *     - La porte nord n'est pas ouvrable et verrouillable.
+   */
+  static readonly xElementSimpleNegation = /^(?!un |une |ce |c'|c’|elle |il |elles |ils |sa |son |ses )((?:le |la |l(?:'|’)|les )?\S+(?: \S+)*?) (?:n(?:'|’)est pas|ne sont pas) ((?!une |un |des |au |à |dans )(?:.+[^,])(?:$| et (?:.+[^,]$)|(?:, .+[^,])+ et (?:.+[^,]$)))$/i;
+
+  /**
+   * Déclaration d'une exclusion (contradiction binaire bilatérale). Cible : un état ou une liste.
+   * - Découpage :
+   *     - source(1) exclut cible(2) [« x » ou « x, y et z »]
+   * - Exemples :
+   *     - déplacé exclut intact.
+   *     - intact exclut déplacé et modifié.
+   *     - intact exclut déplacé, modifié et fendu.
+   */
+  static readonly xEtatExclut = /^(\S+) exclut (.+)$/i;
+
+  // ================================================================================================
   //  TYPES
   // ================================================================================================
 
