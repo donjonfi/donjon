@@ -139,6 +139,14 @@ Le lecteur supporte deux modes de re-exécution déterministe d'une partie :
 - **`.sol`** (sauvegarde) — restaure un état de partie : commandes (`c`), réponses (`r`), graines (`g`), déclenchements de routines (`d`). Rejoué automatiquement à l'ouverture, ou en mode `triche` / `triche auto`.
 - **`.tst`** (vérification / magnéto) — rejoue une partie pas-à-pas en comparant chaque sortie à la sortie attendue stockée dans le fichier. UI dédiée (boutons Pas suivant, Lire auto, Précédent, etc.) avec gestion des divergences. Modèle : `FichierTest` (`models/jouer/fichier-test.ts`).
 
+### Le `'d'` est une étape steppable au même titre que c/r
+
+En mode magnéto live, le curseur s'arrête sur chaque `'c'`, `'r'` ET `'d'` (routines forcées). Chaque type a sa propre `sortie` attendue dans le `.tst` et sa propre comparaison de divergence — la sortie d'une commande est séparée de celle de la routine qui la suit. En intro (`sauterGrainInitiale=true` dans `avancerJusquAEtapeJouable`), les `'d'` sont au contraire forcés silencieusement (la `sortieIntro` globale couvre la comparaison).
+
+`enregistrerSortieEtapeCourante` remplit les slots `c`, `r` ET `d` (pas seulement c/r) pour qu'une routine déclenchée pendant un enregistrement capture sa sortie dans le `.tst` généré.
+
+UI sur divergence `'d'` : titre « Divergence sur la sortie de la **routine** » ; boutons Modifier/Insérer désactivés (non applicables à une routine forcée) ; Supprimer reste actif (retirer la routine du `.tst`).
+
 ### Routines programmées (`exécuter la routine X dans N secondes.`)
 
 Les routines programmées via chrono temps réel (`programmationsTemps` + `verifierChrono` toutes les secondes) doivent être **désactivées pendant tout replay**, sinon elles s'exécutent deux fois : une fois via le chrono temps réel, une fois via l'étape `'d'` forcée du fichier.
@@ -157,6 +165,12 @@ Si tu touches au cycle de vie d'un mode de replay : mirror toutes les transition
 Le moteur `annuler N tour(s)` (`commandes-utils.ts: enleverToursDeJeux`) **préserve volontairement** les `'d'` (déclenchements) en fin de sauvegarde (pile temporaire pop/re-push) pour ne pas ré-exécuter une routine déjà déclenchée en jeu normal. En magnéto c'est l'inverse : si on ne retire pas ces `'d'` AVANT `annuler`, ils restent dans la sauvegarde émise au parent, et le replay auto-triche les re-force → sortie de routine ré-attachée à la commande précédente.
 
 Fix : `ContextePartie.enleverDeclenchementsTrailing()` appelé dans les deux branches de `magnetoPrecedent` (divergence + non-divergence). La méthode pop **tout ce qui n'est ni `'c'` ni `'r'`** en fin de pile — pas seulement les `'d'`. À la fin du replay auto-triche, `nouvelleGraineAleatoire()` pousse un `'g:...'` qui masque les `'d'` ; sans traverser les `'g'`, le trim raterait les `'d'` cachés derrière.
+
+### Précédent depuis une divergence sur `'d'`
+
+`annuler` enlève une **tour** entière (commande + routine forcée associée). Quand la divergence est sur un `'d'`, ça recule donc aussi la c/r qui le précédait — la routine seule ne peut pas être annulée. Sans correctif, le curseur restait sur le `'d'` mais l'état de jeu était à « avant la c/r » → désalignement, et `magnetoIdxCommande` (= dernière étape exécutée) retombait sur la c/r encore antérieure, donnant une mini-liste centrée trop en arrière.
+
+Fix dans la branche divergence de `magnetoPrecedent` : si l'étape divergente est un `'d'`, on cible `magnetoIdx = idx de la c/r précédente`, puis on planifie un `magnetoPasSuivant()` programmatique dans le `setTimeout(250)` post-reload pour re-jouer cette c/r — résultat : état = « post-c/r, avant routine », curseur sur le `'d'`, c/r affichée comme courant.
 
 ## Testing
 

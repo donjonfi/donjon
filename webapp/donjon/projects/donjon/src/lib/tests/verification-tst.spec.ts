@@ -333,6 +333,8 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     (lecteur as any).magnetoSaisieCommande = '';
     (lecteur as any).magnetoDernierTest = null;
     (lecteur as any).commande = '';
+    // Neutraliser le scroll DOM (setTimeout qui accède à resultatInputRef.nativeElement, undefined en test).
+    spyOn(lecteur as any, 'scrollSortie');
     spyOn(lecteur as any, 'envoyerCommande').and.callFake(
       (commandeBrute: string, commandeNettoyee: string, ajouterDansHistorique: boolean) => {
         if (ajouterDansHistorique && !commandeNettoyee.startsWith('déboguer triche')) {
@@ -687,7 +689,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(etatAuMomentDuAnnuler!.some(e => e.startsWith('d:'))).toBeFalse();
   });
 
-  it('[F050-MAG-T030] divergence détectée sur la sortie d’une routine forcée (étape d)', () => {
+  it('[F050-MAG-T030] divergence détectée sur la sortie d’une routine forcée (étape d) — Pas suivant sur le d', () => {
     // Scénario avec une routine 'ping' qui produit une sortie connue.
     const scenario = `La salle est un lieu.
 routine ping:
@@ -695,14 +697,17 @@ routine ping:
 fin routine
 ` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    // .tst avec sortie ERRONÉE sur le 'd:ping' — doit lever une divergence.
+    // .tst avec sortie ERRONÉE sur le 'd:ping' — doit lever une divergence au Pas suivant SUR le d.
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
       { type: 'd', valeur: 'ping', sortie: 'SORTIE_FAUSSE_POUR_PING' },
     ]);
     const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
 
-    // Exécute attendre puis avance → force ping → comparaison sortie 'd' → divergence.
+    // 1er Pas suivant : exécute 'attendre', curseur s'arrête sur le 'd' (pas encore forcé).
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence).toBeNull();
+    // 2e Pas suivant : force ping → comparaison sortie 'd' → divergence.
     lecteur.magnetoPasSuivant();
 
     expect(lecteur.magnetoDivergence).not.toBeNull();
@@ -723,7 +728,8 @@ fin routine
     ]);
     const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
 
-    lecteur.magnetoPasSuivant();
+    lecteur.magnetoPasSuivant(); // exécute 'attendre', curseur sur 'd'
+    lecteur.magnetoPasSuivant(); // force ping, pas de comparaison → pas de divergence
 
     expect(lecteur.magnetoDivergence).toBeNull();
   });
@@ -789,6 +795,34 @@ fin routine
     lecteur.ngOnChanges({});
 
     expect((lecteur as any).partie.ins.restaurationPartieEnCours).toBeFalse();
+  });
+
+  it('[F050-MAG-T034] précédent sur divergence ‘d’ : recule magnetoIdx à la c/r précédente (réaligne curseur et état)', () => {
+    // Bug : `annuler` recule la c/r qui précède le 'd' (la routine seule ne peut pas être annulée).
+    // Si magnetoIdx restait sur le 'd', l'état de jeu (avant la c/r) et le curseur (sur 'd') étaient
+    // désalignés → Pas suivant tentait de forcer la routine sans avoir ré-exécuté la c/r prérequise.
+    const scenario = `La salle est un lieu.
+routine ping:
+  dire "ping".
+fin routine
+` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },     // idx=0
+      { type: 'd', valeur: 'ping', sortie: 'SORTIE_FAUSSE_POUR_PING' },   // idx=1 — divergence
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    lecteur.magnetoPasSuivant(); // attendre
+    lecteur.magnetoPasSuivant(); // ping → divergence sur idx=1
+    expect(lecteur.magnetoDivergence).not.toBeNull();
+    expect(lecteur.magnetoDivergence!.etape.type).toBe('d');
+
+    lecteur.magnetoPrecedent();
+
+    expect(lecteur.magnetoDivergence).toBeNull();
+    // Curseur replacé sur la c/r précédente (idx=0), pas resté sur le 'd' (idx=1).
+    expect((lecteur as any).magnetoIdx).toBe(0);
   });
 
   it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .tst', () => {
@@ -881,8 +915,8 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
   }
 
   it('[F050-MAG-T021] mini-liste inclut les déclenchements ‘d’ intercalés entre c/r, en ordre réel', () => {
-    // Étapes : c0, d1(routine_a), c1, d3(routine_b), c2 ; magnetoIdx=4 → cmd1 vient d'être exécutée
-    // (et routine_b forcée juste après par avancerJusquAEtapeJouable).
+    // Étapes : c0, d1(routine_a), c1, d3(routine_b), c2.
+    // magnetoIdx=3 → cmd1 vient d'être exécutée, curseur sur d:routine_b (prochaine étape à jouer).
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'cmd0', sortie: 'S0' },
       { type: 'd', valeur: 'routine_a' },
@@ -890,10 +924,10 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
       { type: 'd', valeur: 'routine_b' },
       { type: 'c', valeur: 'cmd2', sortie: 'S2' },
     ]);
-    const lecteur = lecteurPourMiniListe(fichier, 4);
+    const lecteur = lecteurPourMiniListe(fichier, 3);
 
     const liste = lecteur.magnetoMiniListe;
-    // Attendu : intro, cmd0, routine_a, cmd1 (courant), routine_b, cmd2
+    // Attendu : intro, cmd0(passe), routine_a(passe), cmd1(courant), routine_b(futur), cmd2(futur)
     expect(liste.length).toBe(6);
     expect(liste[0].estIntro).toBeTrue();
     expect(liste[1].commande).toBe('cmd0');
@@ -904,19 +938,20 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
     expect(liste[3].statut).toBe('courant');
     expect(liste[4].commande).toBe('routine_b');
     expect(liste[4].estDeclenchement).toBeTrue();
+    expect(liste[4].statut).toBe('futur');
     expect(liste[5].commande).toBe('cmd2');
     expect(liste[5].statut).toBe('futur');
   });
 
-  it('[F050-MAG-T022] statut d’une routine ‘d’ : passe si realIdx < magnetoIdx, futur sinon', () => {
+  it('[F050-MAG-T022] statut d’une routine ‘d’ : passe si realIdx < magnetoIdx, futur si >= magnetoIdx', () => {
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'cmd0', sortie: 'S0' },   // idx=0
       { type: 'd', valeur: 'routine_a' },             // idx=1
       { type: 'c', valeur: 'cmd1', sortie: 'S1' },   // idx=2
       { type: 'd', valeur: 'routine_b' },             // idx=3
     ]);
-    // magnetoIdx=2 → idx 0 et 1 (cmd0 + routine_a) joués, 2 et 3 à venir.
-    const lecteur = lecteurPourMiniListe(fichier, 2);
+    // magnetoIdx=3 → cmd0, routine_a, cmd1 exécutées ; curseur sur routine_b.
+    const lecteur = lecteurPourMiniListe(fichier, 3);
 
     const liste = lecteur.magnetoMiniListe;
     const ra = liste.find(m => m.commande === 'routine_a');
@@ -944,10 +979,10 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
     expect(liste.map(m => m.commande)).toEqual(['intro', 'cmd0', 'routine_a', 'cmd1']);
   });
 
-  it('[F050-MAG-T033] divergence sur d : mini-liste reste ancrée sur la c/r qui précède (pas sur la fin de partie)', () => {
+  it('[F050-MAG-T033] divergence sur d : mini-liste centrée sur le ‘d’ divergent (pas sur la fin de partie)', () => {
     // Bug reporté : quand magnetoDivergence pointait sur un 'd', crIdx.indexOf retournait -1
-    // et le fallback `crIdx.length - 1` ancrait la mini-liste sur la DERNIÈRE c/r du fichier
-    // → affichage des commandes de fin de partie au lieu des suivantes.
+    // et le fallback ancrait la mini-liste sur la DERNIÈRE c/r du fichier → affichage de fin de partie.
+    // Maintenant que 'd' est steppable (inclus dans stepIdx), l'ancrage tombe naturellement sur la 'd'.
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'cmd0', sortie: 'S0' },
       { type: 'c', valeur: 'cmd1', sortie: 'S1' },
@@ -955,8 +990,7 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
       { type: 'c', valeur: 'cmd2', sortie: 'S2' },
       { type: 'c', valeur: 'cmd_fin', sortie: 'Sfin' },
     ]);
-    const lecteur = lecteurPourMiniListe(fichier, 3); // magnetoIdx pointe sur le 'd' (idx=2 ?)
-    // Forcer une divergence sur la 'd' à idx=2.
+    const lecteur = lecteurPourMiniListe(fichier, 2);
     (lecteur as any).magnetoDivergence = {
       etape: fichier.etapesTest[2], idx: 2,
       sortieObtenue: 'obtenu', diffAttendu: [], diffObtenue: [],
@@ -964,14 +998,13 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
 
     const liste = lecteur.magnetoMiniListe;
 
-    // Ancre attendue : cmd1 (la c/r juste avant le 'd' divergent), pas cmd_fin.
+    // La 'd' divergente est désormais le courant et estDivergent ; cmd_fin n'est PAS le courant.
     const courant = liste.find(m => m.statut === 'courant');
     expect(courant).toBeDefined();
-    expect(courant!.commande).toBe('cmd1');
-    // Le 'd' divergent doit être marqué estDivergent.
-    const ddiv = liste.find(m => m.estDeclenchement);
-    expect(ddiv).toBeDefined();
-    expect(ddiv!.estDivergent).toBeTrue();
+    expect(courant!.commande).toBe('routine_div');
+    expect(courant!.estDeclenchement).toBeTrue();
+    expect(courant!.estDivergent).toBeTrue();
+    expect(liste.find(m => m.commande === 'cmd_fin')?.statut).not.toBe('courant');
   });
 
   it('[F050-MAG-T024] numérotation : c/r numérotés (intro=1, c0=2…), ‘d’ sans numéro', () => {
