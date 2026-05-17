@@ -85,7 +85,7 @@ describe('Fichier de vérification (.tst)', () => {
     expect(cEtape!.sortie!.length).toBeGreaterThan(0);
   });
 
-  it('[F050-T003] etapes g/d n’ont pas de sortie', () => {
+  it('[F050-T003] etapes g n’ont pas de sortie (les d en ont une si une routine s’est déclenchée)', () => {
     const scenario =
       `La salle est un lieu.
        le cube est un objet vu ici.
@@ -98,7 +98,7 @@ describe('Fichier de vérification (.tst)', () => {
     const fichier = ctx.creerFichierTest();
 
     for (const etape of fichier.etapesTest) {
-      if (etape.type === 'g' || etape.type === 'd') {
+      if (etape.type === 'g') {
         expect(etape.sortie).toBeUndefined();
       }
     }
@@ -618,6 +618,179 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     expect(commandes).toEqual(['c:attendre', 'c:annuler']);
   });
 
+  it('[F050-MAG-T029] enleverDeclenchementsTrailing traverse les ‘g’ trailing pour retirer les ‘d’ masqués derrière', () => {
+    // Reproduit le scénario du bug réel : après un replay auto-triche, nouvelleGraineAleatoire()
+    // pousse un 'g:xxx' en fin de pile. Le 'd' d'une routine déclenchée vit juste avant.
+    // Sans traverser les 'g', le trim ratait le 'd' et la routine ré-apparaissait après annuler.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const lenInitial = ctx.etapesPartie.length;
+    ctx.ajouterCommandeDansSauvegarde('x bille');
+    ctx.ajouterDeclenchementDansSauvegarde('poc');
+    ctx.nouvelleGraineAleatoire('GRAINE_POST_REPLAY');
+
+    ctx.enleverDeclenchementsTrailing();
+
+    // 'g' trailing et 'd:poc' caché derrière retirés ; 'c:x bille' préservé.
+    const ajouts = ctx.etapesPartie.slice(lenInitial).map(e => e.split(':')[0]);
+    expect(ajouts).toEqual(['c']);
+  });
+
+  it('[F050-MAG-T025] enleverDeclenchementsTrailing retire les ‘d’ en fin et préserve le reste', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    // état initial peut contenir des étapes d'amorce (intro) — on travaille en relatif.
+    const lenInitial = ctx.etapesPartie.length;
+    ctx.ajouterCommandeDansSauvegarde('cmd0');
+    ctx.ajouterDeclenchementDansSauvegarde('routine_a');
+    ctx.ajouterCommandeDansSauvegarde('cmd1');
+    ctx.ajouterDeclenchementDansSauvegarde('routine_b');
+    ctx.ajouterDeclenchementDansSauvegarde('routine_c');
+
+    ctx.enleverDeclenchementsTrailing();
+
+    // 2 'd' trailing retirés ; cmd0, d:routine_a (intercalé, pas trailing), cmd1 préservés.
+    const ajouts = ctx.etapesPartie.slice(lenInitial).map(e => e.slice(0, 1));
+    expect(ajouts).toEqual(['c', 'd', 'c']);
+  });
+
+  it('[F050-MAG-T026] magnetoPrecedent retire les ‘d’ trailing de etapesPartie AVANT d’envoyer annuler au moteur', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },
+      { type: 'd', valeur: 'routine_a' },
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    // Simule l'état après un Pas suivant qui a exécuté cmd0 puis forcé routine_a :
+    // etapesPartie contient 'c:cmd0' puis 'd:routine_a' trailing, magnetoIdx pointe après.
+    ctx.ajouterCommandeDansSauvegarde('cmd0');
+    ctx.ajouterDeclenchementDansSauvegarde('routine_a');
+    (lecteur as any).magnetoIdx = 2;
+
+    // Recapture la commande envoyée au moteur pour observer l'état d'etapesPartie à cet instant.
+    let etatAuMomentDuAnnuler: string[] | null = null;
+    (lecteur as any).envoyerCommande.and.callFake(
+      (_commandeBrute: string, commandeNettoyee: string, _ajouterDansHistorique: boolean) => {
+        if (commandeNettoyee === 'annuler') {
+          etatAuMomentDuAnnuler = [...ctx.etapesPartie];
+        }
+      }
+    );
+
+    lecteur.magnetoPrecedent();
+
+    expect(etatAuMomentDuAnnuler).not.toBeNull();
+    // Au moment de l'annuler, plus aucun 'd' en fin de pile : sinon le reload post-annuler
+    // re-forcerait routine_a et la sortie réapparaîtrait à l'écran.
+    expect(etatAuMomentDuAnnuler!.some(e => e.startsWith('d:'))).toBeFalse();
+  });
+
+  it('[F050-MAG-T030] divergence détectée sur la sortie d’une routine forcée (étape d)', () => {
+    // Scénario avec une routine 'ping' qui produit une sortie connue.
+    const scenario = `La salle est un lieu.
+routine ping:
+  dire "ping".
+fin routine
+` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    // .tst avec sortie ERRONÉE sur le 'd:ping' — doit lever une divergence.
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'd', valeur: 'ping', sortie: 'SORTIE_FAUSSE_POUR_PING' },
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    // Exécute attendre puis avance → force ping → comparaison sortie 'd' → divergence.
+    lecteur.magnetoPasSuivant();
+
+    expect(lecteur.magnetoDivergence).not.toBeNull();
+    expect(lecteur.magnetoDivergence!.etape.type).toBe('d');
+    expect(lecteur.magnetoDivergence!.etape.valeur).toBe('ping');
+  });
+
+  it('[F050-MAG-T031] étape d sans sortie attendue : pas de divergence (compat fichiers sans capture de sortie d)', () => {
+    const scenario = `La salle est un lieu.
+routine ping:
+  dire "ping".
+fin routine
+` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+      { type: 'd', valeur: 'ping' }, // pas de sortie → pas de comparaison
+    ]);
+    const lecteur = creerLecteurMagnetoFidele(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();
+
+    expect(lecteur.magnetoDivergence).toBeNull();
+  });
+
+  it('[F050-MAG-T032] enregistrement capture la sortie d’une routine déclenchée dans le slot d', () => {
+    // Pousse manuellement un déclenchement et sa sortie via le pipeline normal pour
+    // simuler ce qui se passe quand une routine se déclenche en cours de partie enregistrée.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.ajouterCommandeDansSauvegarde('attendre');
+    ctx.enregistrerSortieEtapeCourante('Vous attendez.{N}');
+    ctx.ajouterDeclenchementDansSauvegarde('ping');
+    ctx.enregistrerSortieEtapeCourante('ping{N}');
+
+    const fichier = ctx.creerFichierTest();
+    const dEtape = fichier.etapesTest.find(e => e.type === 'd' && e.valeur === 'ping');
+
+    expect(dEtape).toBeDefined();
+    expect(dEtape!.sortie).toBe('ping{N}');
+  });
+
+  it('[F050-MAG-T027] post-reload (ngOnChanges) en mode magnéto : restaurationPartieEnCours est remis à true sur la nouvelle ContextePartie', () => {
+    // Le reload après `annuler` crée une nouvelle ContextePartie (initialiserJeu),
+    // qui repart avec un `ins` neuf et le flag à false par défaut. Si on ne le restaure pas,
+    // le replay auto-triche pousse de nouveau dans `programmationsTemps` et verifierChrono
+    // déclenche des routines fantômes en fin d'écran.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
+    lecteur.jeu = ctx.jeu;
+    (lecteur as any).verificationActive = true;
+
+    // Neutraliser les effets de bord d'initialiserJeu (sinon le test hang via setTimeout récursif
+    // ou via envoyerCommande qui rejoue 'commencer le jeu' / 'regarder' au démarrage).
+    spyOn(lecteur as any, 'verifierChrono');
+    spyOn(lecteur as any, 'verifierTamponErreurs');
+    spyOn(lecteur as any, 'envoyerCommande');
+    spyOn(lecteur as any, 'definirIFID');
+    spyOn(lecteur as any, 'focusCommande');
+
+    // Trigger ngOnChanges → initialiserJeu → new ContextePartie (puis restauration du flag).
+    lecteur.ngOnChanges({});
+
+    expect((lecteur as any).partie).toBeDefined();
+    expect((lecteur as any).partie.ins.restaurationPartieEnCours).toBeTrue();
+  });
+
+  it('[F050-MAG-T028] post-reload hors magnéto : restaurationPartieEnCours reste à false (pas de régression)', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+
+    const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
+    lecteur.jeu = ctx.jeu;
+    // verificationActive reste false (mode normal, pas de magnéto).
+
+    spyOn(lecteur as any, 'verifierChrono');
+    spyOn(lecteur as any, 'verifierTamponErreurs');
+    spyOn(lecteur as any, 'envoyerCommande');
+    spyOn(lecteur as any, 'definirIFID');
+    spyOn(lecteur as any, 'focusCommande');
+
+    lecteur.ngOnChanges({});
+
+    expect((lecteur as any).partie.ins.restaurationPartieEnCours).toBeFalse();
+  });
+
   it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .tst', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
@@ -679,6 +852,141 @@ describe('Magnéto — surlignage des sections divergentes (diff)', () => {
     expect(droite.length).toBeGreaterThan(0);
     expect(droite.every(s => s.diff)).toBeTrue();
     expect(droite.map(s => s.texte).join('')).toBe('Bienvenue dans le jeu.');
+  });
+
+});
+
+describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
+
+  function fichierMinimal(etapes: EtapeTest[]): FichierTest {
+    return Object.assign(new FichierTest(), {
+      version: 1, scenario: '', graine: '',
+      declenchementsFuturs: [],
+      etapesTest: etapes,
+    });
+  }
+
+  // Construit un LecteurComponent suffisamment renseigné pour évaluer le getter `magnetoMiniListe`.
+  function lecteurPourMiniListe(fichier: FichierTest, magnetoIdx: number): LecteurComponent {
+    const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
+    (lecteur as any).fichierTestEnCours = fichier;
+    (lecteur as any).verificationActive = true;
+    (lecteur as any).magnetoIdx = magnetoIdx;
+    (lecteur as any).magnetoDivergence = null;
+    (lecteur as any).magnetoDivergenceIntro = null;
+    (lecteur as any).magnetoEdition = 'aucun';
+    (lecteur as any).magnetoIdxEnEdition = null;
+    (lecteur as any).magnetoDernierTest = null;
+    return lecteur;
+  }
+
+  it('[F050-MAG-T021] mini-liste inclut les déclenchements ‘d’ intercalés entre c/r, en ordre réel', () => {
+    // Étapes : c0, d1(routine_a), c1, d3(routine_b), c2 ; magnetoIdx=4 → cmd1 vient d'être exécutée
+    // (et routine_b forcée juste après par avancerJusquAEtapeJouable).
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },
+      { type: 'd', valeur: 'routine_a' },
+      { type: 'c', valeur: 'cmd1', sortie: 'S1' },
+      { type: 'd', valeur: 'routine_b' },
+      { type: 'c', valeur: 'cmd2', sortie: 'S2' },
+    ]);
+    const lecteur = lecteurPourMiniListe(fichier, 4);
+
+    const liste = lecteur.magnetoMiniListe;
+    // Attendu : intro, cmd0, routine_a, cmd1 (courant), routine_b, cmd2
+    expect(liste.length).toBe(6);
+    expect(liste[0].estIntro).toBeTrue();
+    expect(liste[1].commande).toBe('cmd0');
+    expect(liste[1].estDeclenchement).toBeFalse();
+    expect(liste[2].commande).toBe('routine_a');
+    expect(liste[2].estDeclenchement).toBeTrue();
+    expect(liste[3].commande).toBe('cmd1');
+    expect(liste[3].statut).toBe('courant');
+    expect(liste[4].commande).toBe('routine_b');
+    expect(liste[4].estDeclenchement).toBeTrue();
+    expect(liste[5].commande).toBe('cmd2');
+    expect(liste[5].statut).toBe('futur');
+  });
+
+  it('[F050-MAG-T022] statut d’une routine ‘d’ : passe si realIdx < magnetoIdx, futur sinon', () => {
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },   // idx=0
+      { type: 'd', valeur: 'routine_a' },             // idx=1
+      { type: 'c', valeur: 'cmd1', sortie: 'S1' },   // idx=2
+      { type: 'd', valeur: 'routine_b' },             // idx=3
+    ]);
+    // magnetoIdx=2 → idx 0 et 1 (cmd0 + routine_a) joués, 2 et 3 à venir.
+    const lecteur = lecteurPourMiniListe(fichier, 2);
+
+    const liste = lecteur.magnetoMiniListe;
+    const ra = liste.find(m => m.commande === 'routine_a');
+    const rb = liste.find(m => m.commande === 'routine_b');
+    expect(ra).toBeDefined();
+    expect(rb).toBeDefined();
+    expect(ra!.statut).toBe('passe');
+    expect(rb!.statut).toBe('futur');
+  });
+
+  it('[F050-MAG-T023] graines ‘g’ ignorées dans la mini-liste, ‘d’ conservés', () => {
+    const fichier = fichierMinimal([
+      { type: 'g', valeur: 'GRAINE_INITIALE' },       // idx=0 ignoré
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },   // idx=1
+      { type: 'g', valeur: 'GRAINE_2' },              // idx=2 ignoré
+      { type: 'd', valeur: 'routine_a' },             // idx=3
+      { type: 'c', valeur: 'cmd1', sortie: 'S1' },   // idx=4
+    ]);
+    const lecteur = lecteurPourMiniListe(fichier, 4);
+
+    const liste = lecteur.magnetoMiniListe;
+    expect(liste.every(m => m.etape?.type !== 'g')).toBeTrue();
+    // intro + cmd0 + routine_a + cmd1
+    expect(liste.length).toBe(4);
+    expect(liste.map(m => m.commande)).toEqual(['intro', 'cmd0', 'routine_a', 'cmd1']);
+  });
+
+  it('[F050-MAG-T033] divergence sur d : mini-liste reste ancrée sur la c/r qui précède (pas sur la fin de partie)', () => {
+    // Bug reporté : quand magnetoDivergence pointait sur un 'd', crIdx.indexOf retournait -1
+    // et le fallback `crIdx.length - 1` ancrait la mini-liste sur la DERNIÈRE c/r du fichier
+    // → affichage des commandes de fin de partie au lieu des suivantes.
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },
+      { type: 'c', valeur: 'cmd1', sortie: 'S1' },
+      { type: 'd', valeur: 'routine_div', sortie: 'attendu' },
+      { type: 'c', valeur: 'cmd2', sortie: 'S2' },
+      { type: 'c', valeur: 'cmd_fin', sortie: 'Sfin' },
+    ]);
+    const lecteur = lecteurPourMiniListe(fichier, 3); // magnetoIdx pointe sur le 'd' (idx=2 ?)
+    // Forcer une divergence sur la 'd' à idx=2.
+    (lecteur as any).magnetoDivergence = {
+      etape: fichier.etapesTest[2], idx: 2,
+      sortieObtenue: 'obtenu', diffAttendu: [], diffObtenue: [],
+    };
+
+    const liste = lecteur.magnetoMiniListe;
+
+    // Ancre attendue : cmd1 (la c/r juste avant le 'd' divergent), pas cmd_fin.
+    const courant = liste.find(m => m.statut === 'courant');
+    expect(courant).toBeDefined();
+    expect(courant!.commande).toBe('cmd1');
+    // Le 'd' divergent doit être marqué estDivergent.
+    const ddiv = liste.find(m => m.estDeclenchement);
+    expect(ddiv).toBeDefined();
+    expect(ddiv!.estDivergent).toBeTrue();
+  });
+
+  it('[F050-MAG-T024] numérotation : c/r numérotés (intro=1, c0=2…), ‘d’ sans numéro', () => {
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'cmd0', sortie: 'S0' },
+      { type: 'd', valeur: 'routine_a' },
+      { type: 'c', valeur: 'cmd1', sortie: 'S1' },
+    ]);
+    const lecteur = lecteurPourMiniListe(fichier, 2);
+
+    const liste = lecteur.magnetoMiniListe;
+    expect(liste[0].num).toBe(1);     // intro
+    expect(liste[1].num).toBe(2);     // cmd0
+    expect(liste[2].num).toBeNull();  // routine_a
+    expect(liste[3].num).toBe(3);     // cmd1
   });
 
 });

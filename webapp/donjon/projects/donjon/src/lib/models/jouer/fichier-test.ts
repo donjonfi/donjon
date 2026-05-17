@@ -21,7 +21,7 @@ export class FichierTest {
   /**
    * Étapes du fichier de vérification.
    * Chaque étape associe une commande/réponse/graine/déclenchement à
-   * la sortie attendue (uniquement pour les types c et r).
+   * la sortie attendue (pour c, r et d).
    */
   public etapesTest: EtapeTest[];
 }
@@ -29,7 +29,8 @@ export class FichierTest {
 export interface EtapeTest {
   type: 'c' | 'r' | 'g' | 'd';
   valeur: string;
-  /** Sortie textuelle attendue après l'exécution. Présent uniquement pour c et r. */
+  /** Sortie textuelle attendue après l'exécution. Présent pour c, r et d
+   *  (sur d : permet de détecter qu'une routine forcée a vu son contenu changer entre l'enregistrement et le replay). */
   sortie?: string;
 }
 

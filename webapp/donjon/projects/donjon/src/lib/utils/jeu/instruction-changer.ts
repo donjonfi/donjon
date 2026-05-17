@@ -100,7 +100,7 @@ export class InstructionChanger {
           // PAS OBJET, PAS LIEU, PAS COMPTEUR et PAS LISTE
           if (correspondance.elements.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             console.error("executerChanger: pas trouvé l’élément " + instruction.sujet);
-            resultat.sortie = "{+[Instruction « changer » : le sujet « " + instruction.sujet + " » n’a pas été trouvé.]+}";
+            resultat.sortie = "{+[Instruction « changer » : aucun objet, lieu, compteur ou liste ne porte exactement le nom « " + instruction.sujet.nomEpithete + " ». La recherche se fait sur le nom complet, épithète comprise.]+}";
             // OBJET(S) SEULEMENT
           } else if (correspondance.lieux.length === 0 && correspondance.compteurs.length === 0 && correspondance.listes.length === 0) {
             if (correspondance.objets.length === 1) {

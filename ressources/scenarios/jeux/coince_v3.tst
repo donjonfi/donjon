@@ -1,1 +1,98 @@
-{"type":"test","version":30603,"declenchementsFuturs":[],"graine":"0.8096548415465231","etapesTest":[{"type":"g","valeur":"0.8096548415465231"},{"type":"c","valeur":"sauter","sortie":"Vous sautez sur place.{N}"},{"type":"c","valeur":"pr bille","sortie":"La bille a été ajoutée à votre inventaire.{N}"},{"type":"c","valeur":"jeter bille vers lucarne","sortie":"{E}Bien essayé.{E}{N}"},{"type":"g","valeur":"0.7853092467258854"},{"type":"c","valeur":"décrocher tableau","sortie":"Vous décrochez le tableau et vous découvrez un gros bouton rouge.{N}"},{"type":"c","valeur":"enfoncer bouton","sortie":"Vous entendez un déclic.{N}Une porte s'ouvre dans le mur nord de la pièce.{N}"},{"type":"c","valeur":"x fauteuil","sortie":"C’est un vieux fauteuil en cuir brun bien patiné.{N}{U}{E}Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.{E}{N}"},{"type":"c","valeur":"pr papier","sortie":"Le bout de papier a été ajouté à votre inventaire.{N}"},{"type":"c","valeur":"x papier","sortie":"Il y a quelque chose d'écrit dessus"},{"type":"c","valeur":"lire papier","sortie":"Il est écrit « ne pas oublier: {+uaenna+} »"},{"type":"c","valeur":"re","sortie":"{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}que vous avez déplacé{E}.{U}Il y a un tableau {E}par terre.{E}{N}{U}Sur le mur il y a le bouton.{U}Vous apercevez la bille.{U}La porte secrète est ouverte.{N}{P}Sorties : {n}{i}- nord : ?{N}"},{"type":"c","valeur":"x nord","sortie":"Une pièce sombre.{N}"},{"type":"c","valeur":"aller au nord","sortie":"{_{*Le cabinet*}_}{n}Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées.{N}{U}Vous apercevez une magicienne.{N}{P}Sorties : {n}{i}- sud : {+Le salon+}"},{"type":"c","valeur":"x areignée","sortie":"Je n’ai pas trouvé {/areignée/}.{N}{u}{/Entrez « {-aide examiner-} » pour afficher l’aide de cette action./}"},{"type":"c","valeur":"examiner araignée","sortie":"Brrr ce n'est pas très rassurant.{N}"},{"type":"c","valeur":"parler à magicienne","sortie":"« Sans mon anneau, pas moyen de nous sortir d'ici. »{N}"},{"type":"c","valeur":"lui montrer le papier","sortie":"« L’important c’est que vous retrouviez mon anneau afin que je puisse nous sortir d’ici. »{N}"},{"type":"c","valeur":"sortir","sortie":"{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}que vous avez déplacé{E}.{U}Il y a un tableau {E}par terre.{E}{N}{U}Sur le mur il y a le bouton.{U}Vous apercevez la bille.{U}La porte secrète est ouverte.{N}{P}Sorties : {n}{i}- nord : {+Le cabinet+}"},{"type":"c","valeur":"regarder sous le fauteuil","sortie":"Il y a quelque chose d’étrange…{N}Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.{N}"},{"type":"c","valeur":"x coffre","sortie":"Il s'agit d'un petit coffre surmonté d'un clavier.{E} Le clavier comporte les lettres de l'alphabet. (Probablement pour pouvoir {-taper-} un code.){U}{E}{N}Il est fermé.{N}"},{"type":"c","valeur":"lire papier","sortie":"Il est écrit « ne pas oublier: {+uaenna+} »"},{"type":"c","valeur":"taper uaenna","sortie":"Rien ne se passe. Ce n'est pas le bon code.{N}"},{"type":"c","valeur":"taper anneau","sortie":"Le coffre émet un déclic.{N}"},{"type":"c","valeur":"ouvrir coffre","sortie":"Il est ouvert.{N} Dedans, il y a un anneau.{N}"},{"type":"c","valeur":"pr anneau","sortie":"L’anneau a été ajouté à votre inventaire.{N}"},{"type":"g","valeur":"0.32110123290839576"},{"type":"c","valeur":"n","sortie":"{_{*Le cabinet*}_}{n}Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées.{N}{U}Vous apercevez la magicienne.{N}{P}Sorties : {n}{i}- sud : {+Le salon+}"},{"type":"g","valeur":"0.4029485681812097"}],"sortieIntro":"{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}au centre de la pièce{E}.{U}Il y a un tableau {E}accroché à l’un des murs.{E}{N}{U}Vous apercevez une bille.{N}{P}Sorties : {n}{i}- nord : ? ({/obstrué/})"}
+{
+    "type": "test",
+    "version": 30700,
+    "declenchementsFuturs": [],
+    "graine": "0.3017206846001985",
+    "etapesTest": [
+        {
+            "type": "g",
+            "valeur": "0.3017206846001985"
+        },
+        {
+            "type": "c",
+            "valeur": "x bille",
+            "sortie": "C'est une bille en verre décorée de petits pois bleus.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "x lucarne",
+            "sortie": "Impossible de l'atteindre : elle est bien trop haute.{N}Elle n’est pas accessible.{N}"
+        },
+        {
+            "type": "d",
+            "valeur": "poc",
+            "sortie": "Poc poc poc !{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "jeter bille vers lucarne",
+            "sortie": "{E}Raté.{E}{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "pousser le fauteil",
+            "sortie": "Vous poussez difficilement le fauteuil. Vous découvrez un coffre qui était dissimulé sous le fauteuil.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "taper anneau",
+            "sortie": "Le coffre émet un déclic.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "ouvrir coffre",
+            "sortie": "Il est ouvert.{N} Dedans, il y a un anneau.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "pr anneau",
+            "sortie": "L’anneau a été ajouté à votre inventaire.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "x fauteil",
+            "sortie": "C’est un vieux fauteuil en cuir brun bien patiné.{N}{U}{E}Il y a un bout de papier froissé coincé entre le coussin et l'accoudoir.{E}{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "lire papier",
+            "sortie": "Il est écrit « ne pas oublier: {+uaenna+} »"
+        },
+        {
+            "type": "c",
+            "valeur": "décrocher tableau",
+            "sortie": "Vous décrochez le tableau et vous découvrez un gros bouton rouge.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "enfoncer bouton",
+            "sortie": "Vous entendez un déclic.{N}Une porte s'ouvre dans le mur nord de la pièce.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "re",
+            "sortie": "{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}que vous avez déplacé{E}.{U}{E}Il y a un bout de papier.{E}{N}{U}Il y a un tableau {E}par terre.{E}{N}{U}Sur le mur il y a le bouton.{U}Vous apercevez la bille et le coffre.{U}La porte secrète est ouverte.{N}{P}Sorties : {n}{i}- nord : ?{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "n",
+            "sortie": "{_{*Le cabinet*}_}{n}Vous vous trouvez dans un petit cabinet rempli de toiles d'araignées.{N}{U}Vous apercevez une magicienne.{N}{P}Sorties : {n}{i}- sud : {+Le salon+}"
+        },
+        {
+            "type": "c",
+            "valeur": "re magicienne",
+            "sortie": "La magicienne vous observe.{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "parler à la magicienne",
+            "sortie": "« Sans mon anneau, pas moyen de nous sortir d'ici. »{N}"
+        },
+        {
+            "type": "c",
+            "valeur": "donner l'anneau à a magicienne",
+            "sortie": "« Mon héro! »\n La magicienne tend la main et un éclair vous aveugle.{N}"
+        }
+    ],
+    "sortieIntro": "{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}au centre de la pièce{E}.{U}Il y a un tableau {E}accroché à l’un des murs.{E}{N}{U}Vous apercevez une bille.{N}{P}Sorties : {n}{i}- nord : ? ({/obstrué/})"
+}

@@ -239,9 +239,11 @@
       <!-- Mini-liste intro + 3 avant / courant / 3 après -->
       <div class="djn-magneto-mini-liste">
         @for (m of magnetoMiniListe; track m.idx) {
-          <div class="djn-magneto-mini-item" [class.djn-magneto-mini-courant]="m.statut === 'courant'" [class.djn-magneto-mini-passe]="m.statut === 'passe'" [class.djn-magneto-mini-edition]="m.enEdition">
+          <div class="djn-magneto-mini-item" [class.djn-magneto-mini-courant]="m.statut === 'courant'" [class.djn-magneto-mini-passe]="m.statut === 'passe'" [class.djn-magneto-mini-edition]="m.enEdition" [class.djn-magneto-mini-declenchement]="m.estDeclenchement">
             <span class="djn-magneto-mini-icone">
               @if (m.enEdition) { <i class="fas fa-fw fa-pen"></i> }
+              @else if (m.estDivergent) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
+              @else if (m.estDeclenchement) { <i class="fas fa-fw fa-bolt"></i> }
               @else if (m.statut === 'passe') { <i class="fas fa-fw fa-circle-check"></i> }
               @else if (m.statut === 'courant') {
                 @if (m.estIntro && magnetoDivergenceIntro) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
@@ -250,8 +252,12 @@
               }
               @else { <i class="fas fa-fw fa-hourglass-half"></i> }
             </span>
-            <span class="djn-magneto-mini-num">#{{ m.num }}</span>
-            <span class="djn-magneto-mini-cmd">@if (m.estIntro) { <em>{{ m.commande }}</em> } @else { {{ m.commande }} }</span>
+            <span class="djn-magneto-mini-num">@if (m.num !== null) { #{{ m.num }} }</span>
+            <span class="djn-magneto-mini-cmd">
+              @if (m.estIntro) { <em>{{ m.commande }}</em> }
+              @else if (m.estDeclenchement) { <em>routine : {{ m.commande }}</em> }
+              @else { {{ m.commande }} }
+            </span>
           </div>
         }
       </div>

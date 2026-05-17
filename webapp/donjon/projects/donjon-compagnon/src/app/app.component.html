@@ -89,8 +89,10 @@
       }
     </div>
 
-    <!-- Onglet Jeu -->
-    <div *ngIf="activeTab === 'jeu'" class="compagnon-pane compagnon-pane--jeu">
+    <!-- Onglet Jeu (toujours monté pour préserver l'état de la partie en cours :
+         un changement d'onglet détruirait le <djn-lecteur> et son ngOnInit relancerait
+         « commencer le jeu » sur un jeu déjà démarré → « Le jeu a déjà commencé. »). -->
+    <div [hidden]="activeTab !== 'jeu'" class="compagnon-pane compagnon-pane--jeu">
       @if (jeu) {
         <div class="p-2 d-flex align-items-center gap-2">
           <label class="btn btn-sm btn-outline-secondary mb-0">
