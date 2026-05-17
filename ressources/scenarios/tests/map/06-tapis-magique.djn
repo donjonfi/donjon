@@ -1,0 +1,41 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture : 3 lieux totalement déconnectés (aucune sortie cardinale,
+-- aucune sortie spéciale les reliant), accessibles uniquement via une
+-- action sur mesure « voler vers X » utilisant un tapis magique.
+-- Vérifie que les clusters orphelins apparaissent quand même sur la carte.
+Le titre du jeu est "Carte — tapis magique".
+La version du jeu est "1.0".
+
+Le château est un lieu.
+Sa description est "Une cour pavée, encerclée de tours de pierre.".
+
+Le désert est un lieu.
+Sa description est "Une étendue de sable doré à perte de vue.".
+
+La prison est un lieu.
+Sa description est "Une cellule humide, éclairée par une lucarne grillagée.".
+
+Le tapis magique est un objet (m) dans le château.
+Son aperçu est "Un tapis brodé d'arabesques flotte à hauteur de cheville.".
+Sa description est "Le tapis frémit comme s'il attendait un ordre.".
+
+action voler vers ceci:
+
+  définitions:
+    ceci est un lieu.
+    L'action déplace le joueur vers ceci.
+
+  phase prérequis:
+    si le joueur ne possède pas le tapis magique, refuser "Vous n'avez pas de quoi voler.".
+    si le joueur se trouve dans ceci, refuser "Vous y êtes déjà.".
+
+  phase exécution:
+    déplacer le joueur vers ceci.
+
+  phase épilogue:
+    exécuter l'action regarder.
+
+fin action
+
+Le joueur est dans le château.
+Il possède le tapis magique.

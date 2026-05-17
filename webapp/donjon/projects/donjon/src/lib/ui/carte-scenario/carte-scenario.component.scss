@@ -1,0 +1,237 @@
+.carte-scenario {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+
+  &__ascii-wrap {
+    position: relative;   // ancre le popup détail
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+    outline: none;        // pas de focus ring (le surlignage seg--sel sert d'indicateur)
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Popup détail — style « cadre ASCII plat » : fond cream, bordure double sombre,
+  // pas d'ombre, police monospace pour s'harmoniser avec la carte ASCII.
+  &__popup {
+    position: absolute;
+    top: 0.5rem;             // par défaut : coin haut-droit
+    right: 0.5rem;
+    width: min(360px, calc(100% - 1rem));
+    max-height: calc(100% - 1rem);
+    overflow: auto;
+    z-index: 10;
+    background: #fdf6e3;     // cream / parchemin
+    color: #1e1e1e;
+    border: 3px double #1e1e1e;
+    border-radius: 0;        // coins nets, esthétique ASCII
+    box-shadow: none;
+    font-family: "Cascadia Code", "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 12.5px;
+
+    .card { box-shadow: none; border: none; background: transparent; }
+    code { font-size: 0.95em; background: rgba(0, 0, 0, 0.06); }
+
+    // Scrollbars stylisées (cream + brun, fines, plates) — seulement quand le contenu
+    // dépasse réellement. Firefox + WebKit/Blink.
+    scrollbar-width: thin;
+    scrollbar-color: #b8a878 #fdf6e3;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #fdf6e3;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #b8a878;
+      border-radius: 0;
+
+      &:hover { background: #8a7a4a; }
+    }
+    &::-webkit-scrollbar-corner {
+      background: #fdf6e3;
+    }
+
+    // Liens segments adaptés au fond clair (les couleurs vives utilisées sur la
+    // carte sombre sont illisibles sur cream).
+    .seg--lieu        { color: #0c5460; font-weight: 600; }
+    .seg--objet       { color: #2d6a0e; }
+    .seg--personne    { color: #b8590a; font-weight: 500; }
+    .seg--joueur      { color: #8a6a00; font-weight: 700; }
+    .seg--sortie-lieu { color: #0c5460; font-style: italic; }
+
+    // Le composant `app-visu-detail-objet` affiche déjà l'intitulé de l'objet en
+    // <h4> ; or le header du popup l'affiche aussi → on masque ce h4 redondant
+    // uniquement dans le contexte popup.
+    ::ng-deep app-visu-detail-objet > h4:first-child {
+      display: none;
+    }
+  }
+
+  &__drag-handle {
+    cursor: move;
+    user-select: none;
+    background: #e8e0c8;             // cream plus foncé, plat
+    border-bottom: 1px solid #1e1e1e;
+    border-radius: 0;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 0.4rem 0.6rem;
+
+    .carte-scenario__drag-grip {
+      color: #1e1e1e;
+      margin-right: 0.4rem;
+      font-size: 0.9em;
+    }
+
+    &:hover {
+      background: #d8cfb4;
+    }
+  }
+
+  // Bouton « Retour à la vue d'ensemble » — overlay en haut-gauche, bien voyant.
+  // Couleurs cream pour rappeler le popup détail et trancher avec la carte sombre.
+  &__retour {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 8;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: #fdf6e3;
+    color: #1e1e1e;
+    border: 2px solid #1e1e1e;
+    border-radius: 0;
+    font-family: "Cascadia Code", "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 0.1s ease;
+
+    &:hover  { background: #e8e0c8; }
+    &:active { background: #d8cfb4; }
+    &:focus  { outline: 2px solid #66d9ef; outline-offset: 1px; }
+  }
+
+  &__legende {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    z-index: 5;
+    pointer-events: none;
+    background: rgba(30, 30, 30, 0.85);
+    color: #e6e6e6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    align-items: center;
+    justify-content: center;
+
+    .leg-grp { white-space: nowrap; }
+    .leg-sym { color: #a6e22e; font-weight: 600; margin-right: 2px; }
+    .leg-let { color: #fd971f; font-weight: 700; margin-right: 2px; }
+    .leg-sep { color: #666; }
+    .leg-stats { color: #999; white-space: nowrap; }
+  }
+
+  &__ascii {
+    margin: 0;
+    padding: 0.5rem;
+
+    // Quand le bouton « Retour à la vue d'ensemble » est affiché (mode zoom),
+    // réserver de la place en haut pour que les premières cellules ne soient pas
+    // recouvertes par le bouton overlay.
+    &.has-retour {
+      padding-top: 3rem;
+    }
+
+    background: #1e1e1e;
+    color: #e6e6e6;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.25;
+    white-space: pre;
+    overflow: auto;          // scrollbars horizontale ET verticale si besoin
+    flex: 1 1 auto;
+    min-height: 0;
+    tab-size: 1;
+    cursor: grab;            // panning par clic-glisser sur le fond
+
+    &.is-panning {
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    .ligne {
+      display: block;
+      white-space: pre;
+    }
+
+    .seg {
+      cursor: pointer;
+      border-radius: 2px;
+      padding: 0;
+      transition: background-color 0.1s ease;
+
+      &--lieu {
+        color: #66d9ef;
+        font-weight: 600;
+      }
+      &--objet {
+        color: #a6e22e;
+      }
+      &--personne {
+        color: #fd971f;
+        font-weight: 500;
+      }
+      &--joueur {
+        color: #ffd166;
+        font-weight: 700;
+      }
+      &--sortie-lieu {
+        color: #66d9ef;
+        font-style: italic;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        text-decoration: underline;
+      }
+
+      // sélection : le fond reprend la couleur du type, texte sombre pour le contraste
+      &--sel {
+        color: #1e1e1e;
+        text-decoration: none;
+        font-style: normal;
+
+        &.seg--lieu        { background: #66d9ef; }
+        &.seg--objet       { background: #a6e22e; }
+        &.seg--personne    { background: #fd971f; }
+        &.seg--joueur      { background: #ffd166; }
+        &.seg--sortie-lieu { background: #66d9ef; }
+
+        &:hover { filter: brightness(1.15); }
+      }
+    }
+  }
+
+}

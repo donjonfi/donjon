@@ -1,6 +1,7 @@
 import { Abreviation } from './abreviation';
 import { Action } from './action';
 import { Aide } from '../commun/aide';
+import { DeclarationEtat } from './declaration-etat';
 import { ElementGenerique } from './element-generique';
 import { MessageAnalyse } from './message-analyse';
 import { Monde } from './monde';
@@ -35,5 +36,7 @@ export class ResultatCompilation {
   parametres: Parametres;
   /** Les statistiques de l’analyse. */
   statistiques: Statistiques;
+  /** Les déclarations d'états personnalisés trouvées (à appliquer sur la {@link ListeEtats}). */
+  declarationsEtats: DeclarationEtat[];
 
 }

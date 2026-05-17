@@ -9,6 +9,7 @@ import { ClassesRacines } from '../../models/commun/classes-racines';
 import { Compteur } from '../../models/compilateur/compteur';
 import { CompteursUtils } from '../jeu/compteurs-utils';
 import { ContexteGeneration } from '../../models/compilateur/contexte-generation';
+import { DeclarationEtat, TypeDeclarationEtat } from '../../models/compilateur/declaration-etat';
 import { ELocalisation } from '../../models/jeu/localisation';
 import { ElementGenerique } from '../../models/compilateur/element-generique';
 import { ElementJeu } from '../../models/jeu/element-jeu';
@@ -40,6 +41,11 @@ export class Generateur {
     let jeu = new Jeu();
 
     let ctx = new ContexteGeneration(false);
+
+    // APPLIQUER LES DÉCLARATIONS D'ÉTATS PERSONNALISÉS
+    // *************************************************
+    // Doit être fait AVANT le traitement des éléments (qui s’appuient sur la liste des états).
+    Generateur.appliquerDeclarationsEtats(rc.declarationsEtats, jeu.etats, ctx);
 
     // assigner les statistiques du scénario
     jeu.statistiques = rc.statistiques;
@@ -128,12 +134,8 @@ export class Generateur {
       // ajouter les états par défaut de la classe du lieu
       //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
       Generateur.attribuerEtatsParDefaut(nouvConcept.classe, nouvConcept, jeu.etats, ctx);
-      // ajouter les états du lieu définis explicitement
-      if (curEle.attributs) {
-        curEle.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(nouvConcept, attribut, ctx);
-        });
-      }
+      // ajouter les états du lieu définis explicitement (avec gestion de « non X »)
+      Generateur.appliquerAttributsAvecNegation(nouvConcept, curEle.attributs, jeu, ctx);
 
       // parcourir les propriétés du lieu
       let nouvellesProp: ProprieteConcept[] = []
@@ -206,12 +208,8 @@ export class Generateur {
       // ajouter les états par défaut de la classe du lieu
       //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
       Generateur.attribuerEtatsParDefaut(nouvLieu.classe, nouvLieu, jeu.etats, ctx);
-      // ajouter les états du lieu définis explicitement
-      if (curEle.attributs) {
-        curEle.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(nouvLieu, attribut, ctx);
-        });
-      }
+      // ajouter les états du lieu définis explicitement (avec gestion de « non X »)
+      Generateur.appliquerAttributsAvecNegation(nouvLieu, curEle.attributs, jeu, ctx);
 
       // parcourir les propriétés du lieu
       let nouvellesProp: ProprieteConcept[] = []
@@ -325,12 +323,8 @@ export class Generateur {
         joueur.description = "(C’est vous)";
       }
 
-      // ajouter attributs du joueur
-      if (joueurDansMonde.attributs) {
-        joueurDansMonde.attributs.forEach(attribut => {
-          jeu.etats.ajouterEtatElement(joueur, attribut, ctx);
-        });
-      }
+      // ajouter attributs du joueur (avec gestion de « non X »)
+      Generateur.appliquerAttributsAvecNegation(joueur, joueurDansMonde.attributs, jeu, ctx);
     }
 
 
@@ -352,12 +346,8 @@ export class Generateur {
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
         Generateur.attribuerEtatsParDefaut(newObjet.classe, newObjet, jeu.etats, ctx);
-        // ajouter les états de l'objet définis explicitement
-        if (curEle.attributs) {
-          curEle.attributs.forEach(attribut => {
-            jeu.etats.ajouterEtatElement(newObjet, attribut, ctx);
-          });
-        }
+        // ajouter les états de l'objet définis explicitement (avec gestion de « non X »)
+        Generateur.appliquerAttributsAvecNegation(newObjet, curEle.attributs, jeu, ctx);
 
         // si indénombrable singulier, le nombre est indéfini.
         Generateur.corrigerNombreSiIndenombrable(newObjet, jeu);
@@ -522,6 +512,12 @@ export class Generateur {
             }
 
           };
+
+          // si aucune position explicite mais l’objet est marqué « possédé »,
+          // sa position est « dans le joueur » (inventaire initial).
+          if (!newObjet.position && jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.possedeID, null)) {
+            newObjet.position = new PositionObjet(PrepositionSpatiale.dans, EClasseRacine.objet, jeu.joueur.id);
+          }
 
         }
         jeu.objets.push(newObjet);
@@ -814,6 +810,108 @@ export class Generateur {
     });
 
     return trouve;
+  }
+
+  /**
+   * Appliquer une liste d’attributs explicites sur un élément, en gérant la négation.
+   *
+   * - Attribut « non X » → retire l’état X de l’élément. Si X appartient à une bascule, pousse aussi un
+   *   conseil dans `jeu.tamponConseils` invitant à utiliser la forme positive de l’opposé.
+   * - Attribut « X » → ajoute l’état X comme d’habitude (via `ajouterEtatElement`).
+   *
+   * À appeler APRÈS `attribuerEtatsParDefaut(...)` pour que la négation puisse retirer un défaut de classe.
+   */
+  static appliquerAttributsAvecNegation(cibleEle: Concept, attributs: string[], jeu: Jeu, ctx: ContexteGeneration) {
+    if (!attributs || attributs.length === 0) return;
+    for (const attribut of attributs) {
+      // Accepter `non X` (espace) ou `non_X` (underscore, produit par preTraiterNegation).
+      const m = /^non[\s_]+(.+)$/i.exec(attribut.trim());
+      if (m) {
+        const nomEtatNie = m[1].trim();
+        const etatNie = jeu.etats.trouverEtatSilencieux(nomEtatNie);
+        if (etatNie) {
+          jeu.etats.retirerEtatElement(cibleEle, nomEtatNie, ctx);
+          if (etatNie.bascule !== null) {
+            const oppose = jeu.etats.obtenirEtat(etatNie.bascule);
+            const oppNom = oppose ? oppose.nom : "<opposé>";
+            jeu.tamponConseils.push(
+              `Plutôt qu’écrire « non ${etatNie.nom} », préférer « ${oppNom} » : ${etatNie.nom}/${oppNom} forment une bascule, la forme positive de l’opposé est plus claire.`
+            );
+          }
+        } else {
+          ctx.ajouterErreur(`Négation « ${attribut} » : l’état « ${nomEtatNie} » n’existe pas.`);
+        }
+      } else {
+        jeu.etats.ajouterEtatElement(cibleEle, attribut, ctx);
+      }
+    }
+  }
+
+  /**
+   * Appliquer les déclarations d’états personnalisés (issues de la DSL) sur la liste des états du jeu.
+   * Doit être appelé avant tout traitement d’élément.
+   * L’ordre est : simple → bascule → groupe → implication → exclusion, afin que les implications
+   * et exclusions puissent référencer des états créés juste avant.
+   */
+  static appliquerDeclarationsEtats(declarations: DeclarationEtat[], etats: ListeEtats, ctx: ContexteGeneration) {
+    if (!declarations || declarations.length === 0) {
+      return;
+    }
+    const ordrePhases: TypeDeclarationEtat[] = [
+      TypeDeclarationEtat.simple,
+      TypeDeclarationEtat.bascule,
+      TypeDeclarationEtat.groupe,
+      TypeDeclarationEtat.implication,
+      TypeDeclarationEtat.exclusion,
+    ];
+
+    for (const phase of ordrePhases) {
+      for (const decl of declarations) {
+        if (decl.type !== phase) continue;
+        switch (decl.type) {
+          case TypeDeclarationEtat.simple: {
+            const nom = decl.etats[0];
+            if (etats.trouverEtatSilencieux(nom)) {
+              ctx.ajouterErreur(`L’état « ${nom} » est déjà déclaré (état moteur ou déclaration précédente).`, decl.ligne);
+            } else {
+              etats.creerEtat(nom);
+            }
+            break;
+          }
+          case TypeDeclarationEtat.bascule: {
+            const [a, b] = decl.etats;
+            const conflit = [a, b].find(n => etats.trouverEtatSilencieux(n));
+            if (conflit) {
+              ctx.ajouterErreur(`L’état « ${conflit} » est déjà déclaré, impossible de créer la bascule « ${a} et ${b} forment une bascule ».`, decl.ligne);
+            } else {
+              etats.creerBasculeEtats(a, b);
+            }
+            break;
+          }
+          case TypeDeclarationEtat.groupe: {
+            const conflit = decl.etats.find(n => etats.trouverEtatSilencieux(n));
+            if (conflit) {
+              ctx.ajouterErreur(`L’état « ${conflit} » est déjà déclaré, impossible de créer le groupe « ${decl.etats.join(", ")} se contredisent ».`, decl.ligne);
+            } else {
+              etats.creerGroupeEtats(decl.etats);
+            }
+            break;
+          }
+          case TypeDeclarationEtat.implication: {
+            for (const cible of decl.cibles) {
+              etats.ajouterImplication(decl.sujet, cible);
+            }
+            break;
+          }
+          case TypeDeclarationEtat.exclusion: {
+            for (const cible of decl.cibles) {
+              etats.ajouterContradiction(decl.sujet, cible);
+            }
+            break;
+          }
+        }
+      }
+    }
   }
 
   /**

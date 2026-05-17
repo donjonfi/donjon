@@ -9,13 +9,21 @@ import { Jeu } from '../models/jeu/jeu';
 
 import { Choix } from '../models/compilateur/choix';
 import { ExprReg, Sauvegarde, StringUtils } from '../../public-api';
+import { EtapeTest, FichierTest } from '../models/jouer/fichier-test';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { MotUtils } from '../utils/commun/mot-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
+import { AleatoireInstantane, AleatoireUtils } from '../utils/jeu/aleatoire-utils';
 import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
 import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
+
+/** Segment de texte issu de la comparaison de deux sorties dans le magnéto. */
+export interface SegmentDiff {
+  texte: string;
+  diff: boolean;
+}
 
 @Component({
   selector: 'djn-lecteur',
@@ -64,10 +72,67 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   private manuTricheActif = false;
   private manuTricheEnAttente = false;
 
-  /** 
+  /**
    * Une sauvegarde est-elle en attente de restauration ?
    */
   private restaurationSauvegardeEnAttente = false;
+
+  // -- Mode vérification (.tst) — magnétoscope ----------------------------
+
+  /** Le mode vérification (replay d'un .tst avec comparaison de sortie) est-il actif ? */
+  public verificationActive = false;
+
+  /** Un fichier .tst est en attente de lancement (après chargement). */
+  private verificationEnAttente = false;
+
+  /** Le fichier .tst en cours de vérification. Ses étapesTest sont mutées en place. */
+  public fichierTestEnCours: FichierTest | null = null;
+
+  /** Index courant dans etapesTest. Pointe sur l'étape à exécuter au prochain « Pas suivant ». */
+  public magnetoIdx = 0;
+
+  /** Données de la divergence en cours d'examen, ou null si aucune divergence. */
+  public magnetoDivergence: { etape: EtapeTest, idx: number, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
+
+  /** Divergence sur l'intro du jeu (avant la première étape c/r), ou null. */
+  public magnetoDivergenceIntro: { sortie: string, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
+
+  /** Lecture auto en cours (boucle temporisée) ? */
+  public magnetoLectureAutoEnCours = false;
+
+  /** Sous-état d'édition (sous-panneau saisie). */
+  public magnetoEdition: 'aucun' | 'modifier' | 'inserer' = 'aucun';
+
+  /** Saisie utilisateur en mode modifier/inserer. */
+  public magnetoSaisieCommande = '';
+
+  /** Mémorise la dernière commande testée (avec sortie capturée) pour la séquence Tester → Valider. */
+  public magnetoDernierTest: { commande: string, sortie: string } | null = null;
+
+  /** Affiche le dialogue « RAZ avant de lancer le magnéto ? » au chargement d'un .tst. */
+  public magnetoDemanderRaz = false;
+
+  /** Menu déroulant « Insérer » (Avant / Après) ouvert ? */
+  public magnetoInsererMenuOuvert = false;
+
+  /** Idx (dans etapesTest) de l'étape en cours d'édition (modifier ou inserer). null hors édition. */
+  public magnetoIdxEnEdition: number | null = null;
+
+  /**
+   * Snapshot du PRNG capturé juste AVANT chaque c/r joué (clé = idx dans etapesTest).
+   * Permet à `Précédent` de restaurer l'état exact du PRNG, contournant le re-seed
+   * volontaire d'`annuler` (anti-save-scumming en mode jeu normal, indésirable en magnéto).
+   */
+  private magnetoSnapshotsRng: Map<number, AleatoireInstantane> = new Map();
+
+  /** Le panneau de récapitulatif de fin de session est-il affiché ? */
+  public recapAffiche = false;
+
+  /** Historique des actions effectuées pendant la session. */
+  public verificationActions: { idx: number, action: string, detail: string }[] = [];
+
+  /** Compteurs agrégés pour le récap. */
+  public verificationCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
 
   /** Index de la dernière commande exécutée avec le système « triche/chargement partie » */
   private indexDerniereCommandeRestauration: number = -1;
@@ -296,7 +361,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // si la commande commencer le jeu existe, commencer le jeu
     if (this.partie.jeu.actions.some(x => x.infinitif == 'commencer' && x.ceci && !x.cela)) {
       // exécuter la commande « commencer le jeu »
-      this.envoyerCommande("commencer le jeu", false, true, false, true);
+      this.envoyerCommande("commencer le jeu", "commencer le jeu", false, true, false, true);
       // sinon initialiser les éléments du jeu en fonction de la position du joueur
     } else {
       // définir visibilité des objets initiale
@@ -307,7 +372,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // si la commande regarder existe et s’il y a au moins 1 lieu, l’exécuter
       if (this.partie.jeu.actions.some(x => x.infinitif == 'regarder' && !x.ceci && !x.cela) && this.partie.jeu.lieux.length > 0) {
         // exécuter la commande « regarder »
-        this.envoyerCommande("regarder", false, true, false, true);
+        this.envoyerCommande("regarder", "regarder", false, true, false, true);
       } else {
         // this.sortieJoueur = "";
       }
@@ -320,6 +385,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.manuTricheEnAttente) {
         this.manuTricheEnAttente = false;
         this.lancerManuTriche();
+        // démarrer une session de vérification (.tst)
+      } else if (this.verificationEnAttente) {
+        this.initialiserMagneto();
         // restauration d’un jeu précédent en mode automatique
       } else if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
         this.lancerAutoTriche();
@@ -517,6 +585,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     const sortieRoutine = this.partie.com.executerRoutine(routine);
     this.partie.ecran.ajouterParagrapheDonjon(sortieRoutine);
     this.scrollSortie();
+
+    // Capturer la sortie de la routine pour génération de FichierTest.
+    // En phase intro, elle s'accumule dans _sortieIntro. Plus tard, elle pourrait être
+    // attachée à un slot 'd:' si la sémantique évolue.
+    this.partie.enregistrerSortieEtapeCourante(sortieRoutine ?? '');
 
     // s’il y a des interruptions à gérer, il faut les gérer
     if (this.jeu.tamponInterruptions.length) {
@@ -831,6 +904,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         throw new Error("TypeContexte pas pris en charge");
       }
 
+      // Enregistrement de la sortie pour génération d'un fichier de vérification (.tst)
+      this.partie.enregistrerSortieEtapeCourante(sortieCommande ?? '');
+
       // s'il faut lancer une nouvelle partie
       if (sortieCommande.includes('@nouvelle partie@')) {
         this.nouvellePartieOuAnnulerTour.emit();
@@ -851,7 +927,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         this.partie.ajouterReponseDansSauvegarde(this.commande)
         // exécuter à nouveau la commande originale
         this.commande = commandeEnCours.brute;
-        this.envoyerCommande(this.commande, false, false, false, false);
+        this.envoyerCommande(this.commande, this.commande, false, false, false, false);
       } else {
         // l’interruption est terminé (pas de correction)
         this.interruptionEnCours = undefined;
@@ -1193,10 +1269,722 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
   }
 
+  // ============================================================
+  //  Mode vérification (.tst) — magnétoscope
+  // ============================================================
+
+  /**
+   * Charge un fichier .tst et entre en mode magnéto en pause à l'étape 1.
+   * L'utilisateur pilote ensuite manuellement (Pas suivant, Lire auto, etc.).
+   */
+  public setVerification(fichier: FichierTest) {
+    this.fichierTestEnCours = fichier;
+    this.partie.ecran.ajouterParagrapheDonjon('{/Fichier de vérification chargé./}');
+    this.scrollSortie();
+    if (this.partie.jeu?.commence) {
+      // Jeu déjà en cours : demander à l'utilisateur s'il veut remettre à zéro avant le replay.
+      // Sans RAZ, l'état courant pollue le replay et produit des fausses divergences.
+      this.magnetoDemanderRaz = true;
+    } else {
+      // Jeu pas encore démarré : lancer le magnéto dès le démarrage de la partie.
+      this.verificationEnAttente = true;
+    }
+  }
+
+  /** L'utilisateur accepte le RAZ : on déclenche une nouvelle partie, le magnéto démarrera au commence du jeu. */
+  public magnetoConfirmerRazOui(): void {
+    this.magnetoDemanderRaz = false;
+    this.verificationEnAttente = true;
+    // Émet la même event que les autres modes pour que le parent recompile et fournisse un nouveau jeu.
+    this.nouvellePartieOuAnnulerTour.emit(undefined);
+  }
+
+  /** L'utilisateur refuse le RAZ : on lance le magnéto sur l'état courant. */
+  public magnetoConfirmerRazNon(): void {
+    this.magnetoDemanderRaz = false;
+    this.initialiserMagneto();
+  }
+
+  /**
+   * Initialise l'état magnéto au début d'une session de vérification.
+   * Pas d'exécution automatique — l'utilisateur prend la main.
+   */
+  private initialiserMagneto(): void {
+    if (!this.fichierTestEnCours) return;
+    this.verificationEnAttente = false;
+    this.verificationActive = true;
+    this.verificationActions = [];
+    this.verificationCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
+    this.magnetoIdx = 0;
+    this.magnetoDivergence = null;
+    this.magnetoLectureAutoEnCours = false;
+    this.magnetoEdition = 'aucun';
+    this.magnetoSaisieCommande = '';
+    this.magnetoDernierTest = null;
+    this.magnetoIdxEnEdition = null;
+    this.magnetoSnapshotsRng.clear();
+
+    // Appliquer la graine du fichier pour rendre le replay déterministe.
+    if (this.fichierTestEnCours.graine) {
+      this.partie.nouvelleGraineAleatoire(this.fichierTestEnCours.graine);
+    }
+
+    // Sauter les étapes initiales g (graine déjà appliquée) et d (déclenchements) jusqu'à
+    // tomber sur la première étape c ou r — point d'entrée du magnéto.
+    this.magnetoIdx = this.avancerJusquAEtapeJouable(0, /*sauterGrainInitiale*/ true);
+
+    // Comparer la sortie d'intro produite par la partie en cours à celle stockée dans le .tst.
+    // Si elles diffèrent, ouvrir une divergence intro avant tout pas suivant.
+    if (this.fichierTestEnCours.sortieIntro !== undefined &&
+        this.fichierTestEnCours.sortieIntro !== this.partie.sortieIntro) {
+      const diff = LecteurComponent.calculerDiffSorties(this.fichierTestEnCours.sortieIntro, this.partie.sortieIntro);
+      this.magnetoDivergenceIntro = {
+        sortie: this.fichierTestEnCours.sortieIntro,
+        sortieObtenue: this.partie.sortieIntro,
+        diffAttendu: diff.gauche,
+        diffObtenue: diff.droite,
+      };
+    }
+  }
+
+  /** Valide la sortie d'intro obtenue comme nouvelle sortie attendue. */
+  public magnetoValiderIntro(): void {
+    if (!this.magnetoDivergenceIntro || !this.fichierTestEnCours) return;
+    this.fichierTestEnCours.sortieIntro = this.magnetoDivergenceIntro.sortieObtenue;
+    this.verificationCompteurs.acceptations++;
+    this.verificationActions.push({ idx: -1, action: 'validé intro', detail: 'sortie d\'intro mise à jour' });
+    this.magnetoDivergenceIntro = null;
+  }
+
+  /** Retourne le prochain idx ≥ depuis qui pointe sur une c/r (et joue les g/d intermédiaires en transparent). */
+  private avancerJusquAEtapeJouable(depuis: number, sauterGrainInitiale: boolean): number {
+    if (!this.fichierTestEnCours) return depuis;
+    const etapes = this.fichierTestEnCours.etapesTest;
+    let idx = depuis;
+    let premiereGraineSautee = !sauterGrainInitiale;
+    while (idx < etapes.length) {
+      const e = etapes[idx];
+      if (e.type === 'g') {
+        if (!premiereGraineSautee) {
+          premiereGraineSautee = true;
+        } else {
+          this.partie.nouvelleGraineAleatoire(e.valeur);
+        }
+        idx++;
+        continue;
+      }
+      if (e.type === 'd') {
+        const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == e.valeur);
+        if (routine) {
+          this.jeu.tamponRoutinesEnAttente.push(routine);
+          this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
+          this.traiterProchaineRoutine();
+        }
+        idx++;
+        continue;
+      }
+      break; // c ou r
+    }
+    return idx;
+  }
+
+  // -- Diff de sortie (surlignage des sections divergentes) ---------------
+
+  /**
+   * Calcule un diff mot-à-mot entre deux sorties textuelles. Renvoie deux
+   * suites de segments (gauche=attendu, droite=obtenu) qui, concaténées,
+   * redonnent le texte original — chaque segment porte un flag `diff`
+   * indiquant s'il appartient à une portion divergente.
+   *
+   * Algorithme : LCS sur la tokenisation `/(\s+)/` (mots + blancs préservés).
+   * Complexité O(n·m), suffisant pour les sorties courtes typiques d'IF.
+   */
+  public static calculerDiffSorties(attendu: string, obtenu: string): { gauche: SegmentDiff[], droite: SegmentDiff[] } {
+    const a = (attendu ?? '').split(/(\s+)/).filter(t => t.length > 0);
+    const b = (obtenu ?? '').split(/(\s+)/).filter(t => t.length > 0);
+    const n = a.length, m = b.length;
+    const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        dp[i][j] = (a[i] === b[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    const gauche: SegmentDiff[] = [];
+    const droite: SegmentDiff[] = [];
+    let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) {
+        gauche.push({ texte: a[i], diff: false });
+        droite.push({ texte: b[j], diff: false });
+        i++; j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        gauche.push({ texte: a[i], diff: true });
+        i++;
+      } else {
+        droite.push({ texte: b[j], diff: true });
+        j++;
+      }
+    }
+    while (i < n) { gauche.push({ texte: a[i++], diff: true }); }
+    while (j < m) { droite.push({ texte: b[j++], diff: true }); }
+    return { gauche, droite };
+  }
+
+  // -- Contrôles magnéto (toolbar principale) ------------------------------
+
+  /** Exécute l'étape courante et compare la sortie. Met en pause sur divergence. */
+  public magnetoPasSuivant(): void {
+    if (!this.verificationActive || !this.fichierTestEnCours) return;
+    if (this.magnetoDivergence || this.magnetoDivergenceIntro) return; // bloqué tant que divergence non résolue
+    if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
+      this.afficherRecap();
+      return;
+    }
+    const etape = this.fichierTestEnCours.etapesTest[this.magnetoIdx];
+    if (etape.type !== 'c' && etape.type !== 'r') {
+      this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx, false);
+      return;
+    }
+    // Snapshot du PRNG AVANT exécution : permet à Précédent de restaurer l'état exact
+    // (puisqu'annuler regénère volontairement la graine en mode jeu normal).
+    const snap = AleatoireUtils.instantane();
+    if (snap) this.magnetoSnapshotsRng.set(this.magnetoIdx, snap);
+    const sortieObtenue = this.executerEtapeVerification(etape);
+    if ((etape.sortie ?? '') === sortieObtenue) {
+      // pas de divergence : avancer
+      this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx + 1, false);
+      if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
+        this.afficherRecap();
+      }
+    } else {
+      // divergence : pause
+      const diff = LecteurComponent.calculerDiffSorties(etape.sortie ?? '', sortieObtenue);
+      this.magnetoDivergence = { etape, idx: this.magnetoIdx, sortieObtenue, diffAttendu: diff.gauche, diffObtenue: diff.droite };
+      this.magnetoLectureAutoEnCours = false;
+    }
+  }
+
+  /** Recule d'une étape : annule la commande exécutée à l'écran et décrémente l'idx. */
+  public magnetoPrecedent(): void {
+    if (!this.verificationActive) return;
+    // Si on n'a pas encore exécuté la première c/r, rien à faire
+    if (this.magnetoIdx === 0 && !this.magnetoDivergence && !this.magnetoDivergenceIntro) return;
+
+    // Divergence intro : « Précédent » la ferme sans valider (la sortie d'intro
+    // attendue du .tst reste inchangée). L'utilisateur peut ensuite « Pas suivant ».
+    if (this.magnetoDivergenceIntro) {
+      this.verificationActions.push({ idx: -1, action: 'reculé intro', detail: 'divergence d\'intro ignorée' });
+      this.magnetoDivergenceIntro = null;
+      return;
+    }
+
+    // Si une divergence est affichée, c'est qu'on vient juste d'exécuter cette étape.
+    // « Précédent » revient à l'état pré-divergence : annule et abandonne la divergence.
+    if (this.magnetoDivergence) {
+      const idxDiv = this.magnetoDivergence.idx;
+      this.executerCommandeAffichee('annuler');
+      this.verificationActions.push({ idx: idxDiv, action: 'reculé', detail: `« ${this.magnetoDivergence.etape.valeur} » annulée` });
+      this.magnetoDivergence = null;
+      this.restaurerSnapshotRng(idxDiv);
+      // En production, le parent (donjon-jouer/creer) reload la partie de façon async
+      // après l'annuler — ce reload ré-applique la graine et écrase notre restauration sync.
+      // On re-restaure après le reload pour imposer l'état PRNG du snapshot.
+      setTimeout(() => {
+        if (this.verificationActive && this.fichierTestEnCours) {
+          this.restaurerSnapshotRng(idxDiv);
+        }
+      }, 250);
+      // Recule d'une étape (idx pointe sur celle qui vient d'être annulée).
+      // Pour pouvoir « Pas suivant » et re-jouer cette étape, on garde idx à sa valeur.
+      return;
+    }
+
+    // Sinon (pas de divergence) : reculer d'une c/r en arrière, annulant l'étape précédemment validée.
+    let idxRecul = this.magnetoIdx - 1;
+    while (idxRecul >= 0) {
+      const e = this.fichierTestEnCours!.etapesTest[idxRecul];
+      if (e.type === 'c' || e.type === 'r') break;
+      idxRecul--;
+    }
+    if (idxRecul < 0) return;
+    this.executerCommandeAffichee('annuler');
+    this.magnetoIdx = idxRecul;
+    this.restaurerSnapshotRng(idxRecul);
+    // En production, le parent (donjon-jouer/creer) reload la partie de façon async
+    // après l'annuler — ce reload ré-applique la graine et écrase notre restauration sync.
+    // On re-restaure après le reload pour imposer l'état PRNG du snapshot.
+    setTimeout(() => {
+      if (this.verificationActive && this.fichierTestEnCours) {
+        this.restaurerSnapshotRng(idxRecul);
+      }
+    }, 250);
+    this.verificationActions.push({ idx: idxRecul, action: 'reculé', detail: `retour à l'étape précédente` });
+  }
+
+  /**
+   * Restaure le PRNG dans l'état où il était JUSTE AVANT que la c/r à `idx` ne s'exécute.
+   * À défaut de snapshot (étape jamais jouée dans la session), retombe sur la dernière
+   * graine déclarée en amont dans etapesTest pour rester déterministe.
+   */
+  private restaurerSnapshotRng(idx: number): void {
+    if (!this.fichierTestEnCours) return;
+    const snap = this.magnetoSnapshotsRng.get(idx);
+    if (snap) {
+      AleatoireUtils.restaurer(snap);
+      return;
+    }
+    const etapes = this.fichierTestEnCours.etapesTest;
+    let graine: string | undefined = this.fichierTestEnCours.graine;
+    for (let i = 0; i < etapes.length && i < idx; i++) {
+      if (etapes[i].type === 'g') graine = etapes[i].valeur;
+    }
+    if (graine !== undefined && graine !== '') {
+      AleatoireUtils.init(graine);
+    }
+  }
+
+  /** Lance la lecture auto. S'arrête à la première divergence ou à la fin. */
+  public async magnetoLireAuto(): Promise<void> {
+    if (!this.verificationActive || !this.fichierTestEnCours) return;
+    if (this.magnetoDivergence) return;
+    this.magnetoLectureAutoEnCours = true;
+    while (this.magnetoLectureAutoEnCours && this.verificationActive && !this.magnetoDivergence && this.fichierTestEnCours && this.magnetoIdx < this.fichierTestEnCours.etapesTest.length) {
+      this.magnetoPasSuivant();
+      // Yield au scheduler pour que le clic « Stop » et le rendu Angular puissent s'intercaler.
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    this.magnetoLectureAutoEnCours = false;
+  }
+
+  /** Arrête la lecture auto et remet en pause. */
+  public magnetoStop(): void {
+    this.magnetoLectureAutoEnCours = false;
+  }
+
+  /** Quitte le mode vérification (avec confirmation côté template). */
+  public magnetoQuitter(): void {
+    this.magnetoLectureAutoEnCours = false;
+    this.verificationActive = false;
+    this.fichierTestEnCours = null;
+    this.magnetoDivergence = null;
+  }
+
+  /** Télécharge une sauvegarde du .tst à tout moment. */
+  public magnetoTelechargerSauvegarde(): void {
+    if (!this.fichierTestEnCours) return;
+    const contenuJson = JSON.stringify(this.fichierTestEnCours);
+    const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : 'partie') + '.tst'), { type: 'text/plain;charset=utf-8' });
+    FileSaver.saveAs(file);
+  }
+
+  // -- Actions sur divergence ----------------------------------------------
+
+  /** Valide la sortie obtenue comme nouvelle sortie attendue, avance. */
+  public magnetoValider(): void {
+    if (!this.magnetoDivergence) return;
+    const d = this.magnetoDivergence;
+    d.etape.sortie = d.sortieObtenue;
+    this.verificationCompteurs.acceptations++;
+    this.verificationActions.push({ idx: d.idx, action: 'validé', detail: `« ${d.etape.valeur} » : nouvelle sortie acceptée` });
+    this.magnetoDivergence = null;
+    this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
+    if (this.fichierTestEnCours && this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
+      this.afficherRecap();
+    }
+  }
+
+  /**
+   * Supprime du .tst la commande qui vient d'être exécutée (ou la commande divergente).
+   * Le moteur du jeu est ramené à l'état précédant cette commande avant le splice.
+   */
+  public magnetoSupprimerCommande(): void {
+    if (!this.fichierTestEnCours) return;
+    if (this.magnetoEstSurIntro) return;
+
+    let idxCible: number;
+    let valeurEtape: string;
+
+    if (this.magnetoDivergence) {
+      const d = this.magnetoDivergence;
+      idxCible = d.idx;
+      valeurEtape = d.etape.valeur;
+      this.executerCommandeAffichee('annuler');
+      this.magnetoDivergence = null;
+    } else {
+      idxCible = this.magnetoIdxCommande;
+      if (idxCible < 0) return;
+      const etape = this.fichierTestEnCours.etapesTest[idxCible];
+      valeurEtape = etape.valeur;
+      this.executerCommandeAffichee('annuler');
+      this.magnetoIdx = idxCible;
+    }
+
+    this.fichierTestEnCours.etapesTest.splice(idxCible, 1);
+    this.magnetoSnapshotsRng.clear();
+    this.verificationCompteurs.retraits++;
+    this.verificationActions.push({ idx: idxCible, action: 'supprimé', detail: `« ${valeurEtape} »` });
+    this.magnetoIdx = this.avancerJusquAEtapeJouable(idxCible, false);
+    if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
+      this.afficherRecap();
+    }
+  }
+
+  // -- Modification / Insertion --------------------------------------------
+
+  public magnetoEntrerModification(): void {
+    if (!this.fichierTestEnCours) return;
+    if (this.magnetoEstSurIntro) return;
+
+    if (this.magnetoDivergence) {
+      this.magnetoIdxEnEdition = this.magnetoDivergence.idx;
+      this.magnetoEdition = 'modifier';
+      this.magnetoSaisieCommande = this.magnetoDivergence.etape.valeur;
+      this.magnetoDernierTest = null;
+      // Annule la commande divergente pour permettre de tester proprement la nouvelle.
+      this.executerCommandeAffichee('annuler');
+      return;
+    }
+
+    // Sans divergence : on modifie la commande qui vient d'être exécutée
+    // → annuler son exécution et reculer magnetoIdx pour la rejouer.
+    const idxCible = this.magnetoIdxCommande;
+    if (idxCible < 0) return;
+    this.executerCommandeAffichee('annuler');
+    this.magnetoIdx = idxCible;
+    this.magnetoIdxEnEdition = idxCible;
+    const etape = this.fichierTestEnCours.etapesTest[idxCible];
+    this.magnetoEdition = 'modifier';
+    this.magnetoSaisieCommande = etape.valeur;
+    this.magnetoDernierTest = null;
+  }
+
+  /**
+   * Entre en mode insertion.
+   * - En divergence : insère après l'étape divergente (paramètre ignoré).
+   * - Sans divergence : `position='avant'` annule la commande exécutée et insère juste avant ;
+   *   `position='apres'` insère juste après la commande exécutée (sans annulation).
+   */
+  public magnetoEntrerInsertion(position: 'avant' | 'apres' = 'avant'): void {
+    if (!this.fichierTestEnCours) return;
+    if (this.magnetoEstSurIntro) return;
+
+    if (this.magnetoDivergence) {
+      this.magnetoIdxEnEdition = this.magnetoDivergence.idx;
+      this.magnetoEdition = 'inserer';
+      this.magnetoSaisieCommande = '';
+      this.magnetoDernierTest = null;
+      return;
+    }
+
+    const idxCible = this.magnetoIdxCommande;
+    if (idxCible < 0) return;
+    if (position === 'avant') {
+      // Reculer pour insérer avant la commande qui vient d'être jouée.
+      this.executerCommandeAffichee('annuler');
+      this.magnetoIdx = idxCible;
+    }
+    // En 'apres' : magnetoIdx pointe déjà après la commande exécutée → splice à magnetoIdx.
+    this.magnetoIdxEnEdition = idxCible;
+    this.magnetoEdition = 'inserer';
+    this.magnetoSaisieCommande = '';
+    this.magnetoDernierTest = null;
+  }
+
+  /** Exécute la commande saisie pour voir le résultat sans valider. */
+  public magnetoTesterSaisie(): void {
+    if (!this.magnetoSaisieCommande.trim()) return;
+    // Si on a déjà testé, annuler l'exécution précédente avant de re-tester.
+    if (this.magnetoDernierTest) {
+      this.executerCommandeAffichee('annuler');
+    }
+    // Restaurer le PRNG dans l'état pré-étape pour que le tirage aléatoire de la
+    // commande testée soit déterministe (annuler regénère la graine en mode jeu normal).
+    if (this.magnetoIdxEnEdition !== null) {
+      this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
+    }
+    const cmd = this.magnetoSaisieCommande.trim();
+    const sortie = this.executerCommandeAffichee(cmd);
+    this.magnetoDernierTest = { commande: cmd, sortie };
+  }
+
+  /** Valide la saisie (modifier/inserer) : applique au .tst en mémoire. */
+  public magnetoValiderSaisie(): void {
+    if (!this.magnetoSaisieCommande.trim() || !this.fichierTestEnCours) return;
+    const cmd = this.magnetoSaisieCommande.trim();
+    const etaitEnModification = this.magnetoEdition === 'modifier';
+
+    // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde l'exécution.
+    let sortieNouvelle: string;
+    if (this.magnetoDernierTest?.commande === cmd) {
+      sortieNouvelle = this.magnetoDernierTest.sortie;
+    } else {
+      // Pas testée (ou autre commande testée puis non annulée) : annuler éventuel test précédent et exécuter celle-ci.
+      if (this.magnetoDernierTest) {
+        this.executerCommandeAffichee('annuler');
+      }
+      // Restaurer le PRNG dans l'état pré-étape avant l'exécution (idem que Tester).
+      if (this.magnetoIdxEnEdition !== null) {
+        this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
+      }
+      sortieNouvelle = this.executerCommandeAffichee(cmd);
+    }
+
+    if (this.magnetoDivergence) {
+      const d = this.magnetoDivergence;
+      this.magnetoSnapshotsRng.clear();
+      if (this.magnetoEdition === 'modifier') {
+        this.fichierTestEnCours.etapesTest[d.idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        this.verificationCompteurs.modifications++;
+        this.verificationActions.push({ idx: d.idx, action: 'modifié', detail: `« ${d.etape.valeur} » → « ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
+      } else if (this.magnetoEdition === 'inserer') {
+        // L'étape divergente est acceptée (sortie obtenue devient attendue), la nouvelle est insérée après.
+        d.etape.sortie = d.sortieObtenue;
+        this.fichierTestEnCours.etapesTest.splice(d.idx + 1, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.verificationCompteurs.ajouts++;
+        this.verificationActions.push({ idx: d.idx + 1, action: 'inséré après', detail: `« ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2, false);
+      }
+      this.magnetoDivergence = null;
+    } else {
+      // Pas de divergence : on opère sur l'étape à venir (magnetoIdx).
+      const idx = this.magnetoIdx;
+      this.magnetoSnapshotsRng.clear();
+      if (this.magnetoEdition === 'modifier') {
+        const ancienne = this.fichierTestEnCours.etapesTest[idx];
+        this.fichierTestEnCours.etapesTest[idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        this.verificationCompteurs.modifications++;
+        this.verificationActions.push({ idx, action: 'modifié', detail: `« ${ancienne.valeur} » → « ${cmd} »` });
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
+      } else if (this.magnetoEdition === 'inserer') {
+        // Insère AVANT l'étape courante ; l'étape originale est repoussée à idx+1.
+        this.fichierTestEnCours.etapesTest.splice(idx, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.verificationCompteurs.ajouts++;
+        this.verificationActions.push({ idx, action: 'inséré avant', detail: `« ${cmd} »` });
+        // Avance d'un cran : la nouvelle commande a déjà été jouée, l'étape originale est à idx+1.
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
+      }
+    }
+
+    this.magnetoEdition = 'aucun';
+    this.magnetoSaisieCommande = '';
+    this.magnetoDernierTest = null;
+    this.magnetoIdxEnEdition = null;
+    if (this.magnetoIdx >= this.fichierTestEnCours.etapesTest.length) {
+      this.afficherRecap();
+    } else if (etaitEnModification) {
+      // Valider une modification équivaut à enchaîner avec « Suivant ».
+      this.magnetoPasSuivant();
+    }
+  }
+
+  /** Vide la saisie, annule un test éventuel, retour mode saisie pour retaper. */
+  public magnetoReessayerSaisie(): void {
+    if (this.magnetoDernierTest) {
+      this.executerCommandeAffichee('annuler');
+      this.magnetoDernierTest = null;
+    }
+    this.magnetoSaisieCommande = '';
+  }
+
+  /** Annule la modification/insertion en cours : restaure l'état pré-édition. */
+  public magnetoAnnulerSaisie(): void {
+    if (this.magnetoDernierTest) {
+      this.executerCommandeAffichee('annuler');
+      this.magnetoDernierTest = null;
+    }
+    // Si on était en mode 'modifier', la commande divergente avait été annulée à l'entrée
+    // → la rejouer pour restaurer l'état pré-saisie (avec la divergence affichée).
+    if (this.magnetoEdition === 'modifier' && this.magnetoDivergence) {
+      // Restaurer le PRNG pour que la sortie obtenue soit identique à celle observée à l'origine.
+      this.restaurerSnapshotRng(this.magnetoDivergence.idx);
+      const sortie = this.executerCommandeAffichee(this.magnetoDivergence.etape.valeur);
+      this.magnetoDivergence.sortieObtenue = sortie;
+      const diff = LecteurComponent.calculerDiffSorties(this.magnetoDivergence.etape.sortie ?? '', sortie);
+      this.magnetoDivergence.diffAttendu = diff.gauche;
+      this.magnetoDivergence.diffObtenue = diff.droite;
+    } else if (!this.magnetoDivergence && this.fichierTestEnCours && this.magnetoIdxEnEdition !== null
+               && (this.magnetoEdition === 'modifier' || this.magnetoEdition === 'inserer')
+               && this.magnetoIdx === this.magnetoIdxEnEdition) {
+      // Non-divergence, modify ou inserer 'avant' : on avait annulé la commande d'origine à l'entrée.
+      // Rejouer pour rétablir l'état post-exécution.
+      const etape = this.fichierTestEnCours.etapesTest[this.magnetoIdxEnEdition];
+      if (etape && (etape.type === 'c' || etape.type === 'r')) {
+        // Restaurer le PRNG pour que la re-exécution produise la même sortie que l'originale.
+        this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
+        this.executerCommandeAffichee(etape.valeur);
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdxEnEdition + 1, false);
+      }
+    }
+    this.magnetoEdition = 'aucun';
+    this.magnetoSaisieCommande = '';
+    this.magnetoIdxEnEdition = null;
+  }
+
+  // -- Helpers compteur 1/X (sur c+r uniquement) ---------------------------
+
+  /** Idx (dans etapesTest) de la commande qui vient d'être exécutée, -1 si intro/néant. */
+  public get magnetoIdxCommande(): number {
+    if (!this.fichierTestEnCours) return -1;
+    if (this.magnetoDivergenceIntro) return -1;
+    if (this.magnetoDivergence) return this.magnetoDivergence.idx;
+    // En édition (modifier ou inserer) : le focus reste sur l'étape ciblée.
+    if (this.magnetoEdition !== 'aucun' && this.magnetoIdxEnEdition !== null) return this.magnetoIdxEnEdition;
+    const etapes = this.fichierTestEnCours.etapesTest;
+    let last = -1;
+    for (let i = 0; i < etapes.length && i < this.magnetoIdx; i++) {
+      if (etapes[i].type === 'c' || etapes[i].type === 'r') last = i;
+    }
+    return last;
+  }
+
+  /** Vrai quand le curseur est sur l'intro (avant toute commande jouée, ou divergence d'intro). */
+  public get magnetoEstSurIntro(): boolean {
+    return this.magnetoIdxCommande === -1;
+  }
+
+  public get magnetoCompteurTotal(): number {
+    if (!this.fichierTestEnCours) return 0;
+    return this.fichierTestEnCours.etapesTest.filter(e => e.type === 'c' || e.type === 'r').length;
+  }
+
+  public get magnetoCompteurCourant(): number {
+    if (!this.fichierTestEnCours) return 0;
+    let n = 0;
+    for (let i = 0; i <= this.magnetoIdx && i < this.fichierTestEnCours.etapesTest.length; i++) {
+      const e = this.fichierTestEnCours.etapesTest[i];
+      if (e.type === 'c' || e.type === 'r') n++;
+    }
+    return n;
+  }
+
+  /**
+   * Mini-liste des étapes autour du curseur (3 avant / courante / 3 après), c/r uniquement,
+   * précédée de l'entrée virtuelle « intro » (#1) quand la fenêtre touche le début.
+   * Le statut « courant » désigne la dernière étape exécutée (ou l'étape en divergence),
+   * et non la prochaine à jouer.
+   */
+  public get magnetoMiniListe(): { idx: number, etape: EtapeTest | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, enEdition: boolean, num: number }[] {
+    if (!this.fichierTestEnCours) return [];
+    const etapes = this.fichierTestEnCours.etapesTest;
+    const crIdx: number[] = [];
+    for (let i = 0; i < etapes.length; i++) {
+      if (etapes[i].type === 'c' || etapes[i].type === 'r') crIdx.push(i);
+    }
+    // Position dans crIdx de l'étape « courante » : on suit magnetoIdxCommande pour
+    // que le focus reste sur l'étape en cours d'édition.
+    const idxCommandeReel = this.magnetoIdxCommande;
+    let idxCourantDansCr: number;
+    let introCourante = false;
+    if (idxCommandeReel < 0) {
+      introCourante = true;
+      idxCourantDansCr = -1;
+    } else {
+      idxCourantDansCr = crIdx.indexOf(idxCommandeReel);
+      if (idxCourantDansCr === -1) idxCourantDansCr = crIdx.length - 1;
+    }
+    const ancre = idxCourantDansCr;
+    const debut = Math.max(0, ancre - 2);
+    const fin = Math.min(crIdx.length - 1, ancre + 2);
+    const result: { idx: number, etape: EtapeTest | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, enEdition: boolean, num: number }[] = [];
+    if (debut === 0) {
+      const statut: 'passe' | 'courant' = introCourante ? 'courant' : 'passe';
+      result.push({ idx: -1, etape: null, commande: 'intro', statut, estIntro: true, enEdition: false, num: 1 });
+    }
+    for (let i = debut; i <= fin; i++) {
+      const realIdx = crIdx[i];
+      const statut = i === idxCourantDansCr ? 'courant' : (i < idxCourantDansCr ? 'passe' : 'futur');
+      const enEdition = this.magnetoEdition === 'modifier' && this.magnetoIdxEnEdition === realIdx;
+      const commande = (enEdition && this.magnetoDernierTest) ? this.magnetoDernierTest.commande : etapes[realIdx].valeur;
+      result.push({ idx: realIdx, etape: etapes[realIdx], commande, statut: statut as 'passe' | 'courant' | 'futur', estIntro: false, enEdition, num: i + 2 });
+    }
+    return result;
+  }
+
+  /** Affiche le panneau récap de fin. */
+  private afficherRecap(): void {
+    this.verificationActive = false;
+    this.recapAffiche = true;
+  }
+
+  /**
+   * Exécute une étape c/r du fichier .tst et retourne la sortie textuelle produite.
+   * Passe par le flux normal du lecteur (envoyerCommande) afin que :
+   *   - l'écran de jeu soit mis à jour (affichage commande + sortie) ;
+   *   - les abréviations soient développées comme pour une saisie utilisateur ;
+   *   - l'historique de la partie reste cohérent.
+   * La sortie est récupérée via ContextePartie.derniereSortieEnregistree, alimentée
+   * par les hooks de capture dans envoyerCommande et terminerInterruption.
+   */
+  private executerEtapeVerification(etape: EtapeTest): string {
+    this.partie.reinitialiserDerniereSortieEnregistree();
+    const commandeComplete = Abreviations.obtenirCommandeComplete(etape.valeur, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
+    const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
+    this.envoyerCommande(etape.valeur, commandeNettoyee, true, true, true, false);
+    return this.partie.derniereSortieEnregistree ?? '';
+  }
+
+  /** Exécute une commande dans le flux normal du lecteur et retourne sa sortie brute. */
+  private executerCommandeAffichee(commandeBrute: string): string {
+    this.partie.reinitialiserDerniereSortieEnregistree();
+    const commandeComplete = Abreviations.obtenirCommandeComplete(commandeBrute, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
+    const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
+    this.envoyerCommande(commandeBrute, commandeNettoyee, true, true, true, false);
+    return this.partie.derniereSortieEnregistree ?? '';
+  }
+
+  // Handlers UI du récap
+
+  public recapTelecharger() {
+    if (!this.fichierTestEnCours) return;
+    const contenuJson = JSON.stringify(this.fichierTestEnCours);
+    const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : 'partie') + '.tst'), { type: 'text/plain;charset=utf-8' });
+    FileSaver.saveAs(file);
+    this.recapAffiche = false;
+  }
+
+  public recapFermer() {
+    this.recapAffiche = false;
+  }
+
+  /** Ré-ouvre le mode vérification depuis le récap et recule d'une étape. */
+  public recapReculer(): void {
+    if (!this.fichierTestEnCours) return;
+    this.recapAffiche = false;
+    this.verificationActive = true;
+    this.magnetoPrecedent();
+  }
+
+  /**
+   * Actions affichées dans le récap : on masque les marches arrière, qui sont
+   * de la navigation et non des modifications du fichier .tst.
+   */
+  public get recapActionsAffichables(): { idx: number, action: string, detail: string }[] {
+    return this.verificationActions.filter(a => a.action !== 'reculé');
+  }
+
+  private genererFichierVerification(): void {
+    // enlever la dernière commande, qui est « générer vérification »
+    this.partie.enleverCommandeGenererSolution();
+    let texteIgnore: string;
+    if (this.partie.etapesPartie.length > 0) {
+      texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<i>Fichier de vérification généré. Rechargez le <b>.tst</b> à tout moment pour vérifier que les sorties du jeu correspondent toujours.</i>');
+
+      const fichierTest = this.partie.creerFichierTest();
+      const contenuJson = JSON.stringify(fichierTest);
+      const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".tst"), { type: "text/plain;charset=utf-8" });
+      FileSaver.saveAs(file);
+
+    } else {
+      texteIgnore = this.partie.ecran.ajouterContenuDonjon('{n}Aucune commande dans l’historique, il n’y a rien à mettre dans le fichier de vérification.');
+    }
+    this.ajouterTexteAIgnorerAuxStatistiques(texteIgnore);
+  }
+
   /** Tabulation: continuer le mot */
   onKeyDownTab(event) {
     if (!this.resteDeLaSortie?.length) {
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
       if (commandeComplete !== this.commande) {
         this.commande = commandeComplete;
         this.focusCommande();
@@ -1258,27 +2046,28 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
       // COMPLÉTER ET NETTOYER LA COMMANDE
       // compléter la commande
-      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations);
+      const commandeComplete = Abreviations.obtenirCommandeComplete(this.commande, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
       // nettoyage commmande (pour ne pas afficher une erreur en cas de faute de frappe…)
       const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
 
-      this.envoyerCommande(commandeNettoyee, true, false, true, true);
+      this.envoyerCommande(this.commande, commandeNettoyee, true, false, true, true);
     }
   }
 
   /**
    * Envoyer la commande au commandeur pour qu’il l’exécute.
+   * @param commandeBrute la commande brute (telle que tapée par le joueur, ou telle que stockée dans un .tst pour le magnéto). Stockée dans la pile d'instructions de la partie (`_etapesPartie`), lue par le DSL `annuler N tour(s)` et `creerFichierTest`.
    * @param commandeNettoyee la commande déjà nettoyée avec CommandesUtils.nettoyerCommande();
    * @param ajouterCommandeDansHistoriqueEtSauvegarde faut-il ajouter la commande à l’historique des commandes du joueur ?
    * @param nouveauParagraphe faut-il ouvrir un nouveau paragraphe avant toute chose ou bien y a-t-il déjà un paragraphe ouvert ?
    * @param ecrireCommande faut-il écrire la commande dans la sortie du jeu ?
    */
-  private envoyerCommande(commandeNettoyee: string, ajouterCommandeDansHistoriqueEtSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
+  private envoyerCommande(commandeBrute: string, commandeNettoyee: string, ajouterCommandeDansHistoriqueEtSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
-    if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|générer solution|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
+    if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|générer solution|générer vérification|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
       if (ecrireCommande) {
-        this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + this.commande + (this.commande !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : '') + '-}')
+        this.partie.ecran.ajouterParagrapheDonjonOuvert('{- > ' + commandeBrute + (commandeBrute !== commandeNettoyee ? (' (' + commandeNettoyee + ')') : '') + '-}')
       }
       this.partie.ecran.ajouterContenuDonjon('{n}Le jeu est terminé.{n}{e}- pour commencer une nouvelle partie: tapez {-recommencer-}{n}{e}- pour annuler votre dernière action: tapez {-annuler-}');
     } else {
@@ -1296,16 +2085,23 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
       // MÀJ DE LA LISTE DE L’ENSEMBLE DES COMMANDES DE LA PARTIE
       if (ajouterCommandeDansHistoriqueEtSauvegarde) {
-        // ne pas inclure la commande déboguer triche à l'historique pour 
+        // ne pas inclure la commande déboguer triche à l'historique pour
         // éviter les boucles lorsqu'on annule une commande...
         if (!commandeNettoyee.startsWith('déboguer triche')) {
-          // (commande pas nettoyée car pour sauvegarde « auto-commandes »)
-          this.partie.ajouterCommandeDansSauvegarde(this.commande);
+          // (commande brute, pas nettoyée, pour fidélité du replay « auto-commandes »)
+          this.partie.ajouterCommandeDansSauvegarde(commandeBrute);
         }
       }
 
       // EXÉCUTION DE LA COMMANDE
       const contexteCommande = this.partie.com.executerCommande(commandeNettoyee, false);
+
+      // Enregistrement de la sortie pour génération d'un fichier de vérification (.tst).
+      // On capture toujours : si ajouterCommandeDansHistoriqueEtSauvegarde=false (intro :
+      // « commencer le jeu », « regarder »), la sortie va dans _sortieIntro.
+      if (!commandeNettoyee.startsWith('déboguer triche')) {
+        this.partie.enregistrerSortieEtapeCourante(contexteCommande.sortie ?? '');
+      }
 
       if (ecrireCommande) {
         let affichageCommande: string;
@@ -1313,11 +2109,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         if (contexteCommande.evenement?.commandeComprise) {
           // afficher la commande entrée par le joueur + son interprétation
           const commandeFinale = contexteCommande.evenement.commandeComprise;
-          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
+          affichageCommande = ' > ' + commandeBrute + (CommandesUtils.commandesSimilaires(commandeBrute, TexteUtils.enleverBalisesStyleDonjon(commandeFinale)) ? '' : (' (' + commandeFinale + ')'));
         } else {
           // commande PAS comprise ou incomplète (ou bien commande spéciale)
           // -> afficher la commande entrée par le joueur + son interprétation
-          affichageCommande = ' > ' + this.commande + (CommandesUtils.commandesSimilaires(this.commande, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
+          affichageCommande = ' > ' + commandeBrute + (CommandesUtils.commandesSimilaires(commandeBrute, commandeNettoyee) ? '' : (' (' + commandeNettoyee + ')'));
         }
         // commentaire à l’auteur
         if (commandeNettoyee.startsWith("*") || commandeNettoyee.startsWith("@")) {
@@ -1372,6 +2168,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           // sortie spéciale: sauver-commandes
         } else if (sortieCommande == "@générer-solution@") {
           this.genererFichierSolution();
+          // sortie spéciale: générer fichier de vérification (.tst)
+        } else if (sortieCommande == "@générer-vérification@") {
+          this.genererFichierVerification();
           // sortie spéciale: statistiques
         } else if (sortieCommande == "@statistiques@") {
           const sortieStatistiques = BalisesHtml.convertirEnHtml(Statisticien.afficherStatistiques(this.partie), this.partie.dossierRessourcesComplet);

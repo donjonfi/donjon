@@ -47,7 +47,7 @@
       }
     </div>
   </div>
-  <div class="rl-2">
+  <div class="rl-2" [hidden]="verificationActive">
     <!-- entrée utilisateur -->
     <div class="input-group mt-2 px-1">
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
@@ -122,4 +122,168 @@
           </small>
         </div>
 
+  @if (magnetoDemanderRaz) {
+    <div class="djn-magneto-raz-overlay">
+      <div class="djn-magneto-raz-panneau">
+        <h3 class="djn-magneto-raz-titre">Remettre le jeu à zéro avant le replay ?</h3>
+        <p class="djn-magneto-raz-texte">
+          Une partie est déjà en cours. Pour que le replay corresponde fidèlement au fichier <code>.tst</code>,
+          il est recommandé de remettre le jeu à zéro avant de lancer le magnétoscope.
+        </p>
+        <div class="djn-magneto-raz-actions">
+          <button class="btn btn-success" (click)="magnetoConfirmerRazOui()">Oui, remettre à zéro</button>
+          <button class="btn btn-outline-secondary" (click)="magnetoConfirmerRazNon()">Non, garder l'état courant</button>
+        </div>
       </div>
+    </div>
+  }
+
+  @if (verificationActive && fichierTestEnCours) {
+    <div class="djn-magneto">
+      <div class="djn-magneto-commande">
+        @if (magnetoEstSurIntro) {
+          <em>Avant la première commande (intro du jeu).</em>
+        } @else if (magnetoIdxCommande >= 0) {
+          Commande exécutée : <code>{{ fichierTestEnCours.etapesTest[magnetoIdxCommande].valeur }}</code>
+        } @else {
+          <em>Fin du fichier de vérification.</em>
+        }
+      </div>
+
+      <!-- Toolbar principale -->
+      <div class="djn-magneto-toolbar">
+        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPrecedent()" [disabled]="magnetoLectureAutoEnCours || (magnetoIdx === 0 && !magnetoDivergence && !magnetoDivergenceIntro)" title="Reculer d'une étape"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPasSuivant()" [disabled]="magnetoLectureAutoEnCours || !!magnetoDivergence || !!magnetoDivergenceIntro || magnetoIdx >= fichierTestEnCours.etapesTest.length" title="Exécuter l'étape suivante"><i class="fas fa-fw fa-forward-step me-1"></i>Suivant</button>
+        <span class="djn-magneto-sep"></span>
+        @if (!magnetoLectureAutoEnCours) {
+          <button class="btn btn-sm btn-primary" (click)="magnetoLireAuto()" [disabled]="!!magnetoDivergence || magnetoIdx >= fichierTestEnCours.etapesTest.length" title="Lire automatiquement jusqu'à la prochaine divergence"><i class="fas fa-fw fa-play me-1"></i>Lire auto</button>
+        } @else {
+          <button class="btn btn-sm btn-warning" (click)="magnetoStop()" title="Arrêter la lecture auto"><i class="fas fa-fw fa-pause me-1"></i>Stop</button>
+        }
+        @if (!magnetoEstSurIntro) {
+          <span class="djn-magneto-sep"></span>
+          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
+          <div class="djn-magneto-insert-wrap">
+            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
+            @if (magnetoInsererMenuOuvert) {
+              <div class="djn-magneto-insert-menu">
+                <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('avant')">Avant</button>
+                <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('apres')">Après</button>
+              </div>
+            }
+          </div>
+          <button class="btn btn-sm btn-donjon-rouge" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Retirer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
+        }
+        <span class="djn-magneto-spacer"></span>
+        <button class="btn btn-sm btn-outline-success" (click)="magnetoTelechargerSauvegarde()" title="Télécharger une sauvegarde du .tst à cet état"><i class="fas fa-fw fa-floppy-disk"></i></button>
+        <button class="btn btn-sm btn-outline-danger" (click)="magnetoQuitter()" title="Quitter le mode vérification"><i class="fas fa-fw fa-xmark"></i></button>
+      </div>
+
+      <!-- Encart divergence intro (sortie d'intro du jeu) -->
+      @if (magnetoDivergenceIntro) {
+        <div class="djn-magneto-divergence">
+          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur l'intro du jeu (commencer + regarder + routines initiales)</div>
+          <div class="djn-magneto-diff">
+            <div class="djn-magneto-bloc">
+              <div class="djn-magneto-libelle">Sortie attendue</div>
+              <pre class="djn-magneto-texte">@for (s of magnetoDivergenceIntro.diffAttendu; track $index) {<span [class.djn-magneto-diff-retire]="s.diff">{{ s.texte }}</span>}</pre>
+            </div>
+            <div class="djn-magneto-bloc">
+              <div class="djn-magneto-libelle">Sortie obtenue</div>
+              <pre class="djn-magneto-texte">@for (s of magnetoDivergenceIntro.diffObtenue; track $index) {<span [class.djn-magneto-diff-ajoute]="s.diff">{{ s.texte }}</span>}</pre>
+            </div>
+          </div>
+          <div class="djn-magneto-actions">
+            <button class="btn btn-sm btn-success" (click)="magnetoValiderIntro()" title="Accepter la nouvelle sortie d'intro"><i class="fas fa-fw fa-check me-1"></i>Valider la sortie</button>
+          </div>
+        </div>
+      }
+
+      <!-- Encart divergence : diff + acceptation de la nouvelle sortie -->
+      @if (magnetoDivergence && magnetoEdition === 'aucun') {
+        <div class="djn-magneto-divergence">
+          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur la sortie de la commande</div>
+          <div class="djn-magneto-diff">
+            <div class="djn-magneto-bloc">
+              <div class="djn-magneto-libelle">Sortie attendue</div>
+              <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffAttendu; track $index) {<span [class.djn-magneto-diff-retire]="s.diff">{{ s.texte }}</span>}</pre>
+            </div>
+            <div class="djn-magneto-bloc">
+              <div class="djn-magneto-libelle">Sortie obtenue</div>
+              <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffObtenue; track $index) {<span [class.djn-magneto-diff-ajoute]="s.diff">{{ s.texte }}</span>}</pre>
+            </div>
+          </div>
+          <div class="djn-magneto-actions">
+            <button class="btn btn-sm btn-success" (click)="magnetoValider()" title="Accepter la nouvelle sortie"><i class="fas fa-fw fa-check me-1"></i>Valider la sortie</button>
+          </div>
+        </div>
+      }
+
+      <!-- Sous-panneau saisie (modifier / insérer) -->
+      @if (magnetoEdition !== 'aucun') {
+        <div class="djn-magneto-saisie">
+          <label>{{ magnetoEdition === 'modifier' ? 'Nouvelle commande' : 'Commande à insérer' }} :</label>
+          <input type="text" class="form-control" [(ngModel)]="magnetoSaisieCommande" (keydown.enter)="magnetoTesterSaisie()" autofocus>
+          @if (magnetoDernierTest) {
+            <small class="djn-magneto-info">Testée. Voir le résultat à l'écran. Valider pour l'inscrire dans le .tst.</small>
+          }
+          <div class="djn-magneto-actions">
+            <button class="btn btn-sm btn-outline-info" (click)="magnetoTesterSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Exécuter la commande pour voir le résultat"><i class="fas fa-fw fa-flask me-1"></i>Tester</button>
+            <button class="btn btn-sm btn-success" (click)="magnetoValiderSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Valider la commande dans le .tst"><i class="fas fa-fw fa-check me-1"></i>Valider</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="magnetoReessayerSaisie()" title="Vider la saisie et annuler le test"><i class="fas fa-fw fa-rotate-right me-1"></i>Réessayer</button>
+            <button class="btn btn-sm btn-secondary" (click)="magnetoAnnulerSaisie()" title="Annuler la modification et revenir à l'étape courante"><i class="fas fa-fw fa-xmark me-1"></i>Annuler modification</button>
+          </div>
+        </div>
+      }
+
+      <!-- Mini-liste intro + 3 avant / courant / 3 après -->
+      <div class="djn-magneto-mini-liste">
+        @for (m of magnetoMiniListe; track m.idx) {
+          <div class="djn-magneto-mini-item" [class.djn-magneto-mini-courant]="m.statut === 'courant'" [class.djn-magneto-mini-passe]="m.statut === 'passe'" [class.djn-magneto-mini-edition]="m.enEdition">
+            <span class="djn-magneto-mini-icone">
+              @if (m.enEdition) { <i class="fas fa-fw fa-pen"></i> }
+              @else if (m.statut === 'passe') { <i class="fas fa-fw fa-circle-check"></i> }
+              @else if (m.statut === 'courant') {
+                @if (m.estIntro && magnetoDivergenceIntro) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
+                @else if (!m.estIntro && magnetoDivergence) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
+                @else { <i class="fas fa-fw fa-caret-right"></i> }
+              }
+              @else { <i class="fas fa-fw fa-hourglass-half"></i> }
+            </span>
+            <span class="djn-magneto-mini-num">#{{ m.num }}</span>
+            <span class="djn-magneto-mini-cmd">@if (m.estIntro) { <em>{{ m.commande }}</em> } @else { {{ m.commande }} }</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (recapAffiche) {
+    <div class="djn-modale-verif-overlay">
+      <div class="djn-modale-verif-panneau">
+        <h3 class="djn-modale-verif-titre">Récapitulatif de la session de vérification</h3>
+        <div class="djn-recap-verif-compteurs">
+          <span class="djn-recap-verif-compteur">Acceptations : <strong>{{ verificationCompteurs.acceptations }}</strong></span>
+          <span class="djn-recap-verif-compteur">Retraits : <strong>{{ verificationCompteurs.retraits }}</strong></span>
+          <span class="djn-recap-verif-compteur">Modifications : <strong>{{ verificationCompteurs.modifications }}</strong></span>
+          <span class="djn-recap-verif-compteur">Ajouts : <strong>{{ verificationCompteurs.ajouts }}</strong></span>
+        </div>
+        @if (recapActionsAffichables.length === 0) {
+          <div class="djn-recap-verif-succes">
+            <div class="djn-recap-verif-coche" aria-hidden="true">✓</div>
+            <p class="djn-recap-verif-succes-texte">Aucune modification — toutes les sorties correspondaient.</p>
+          </div>
+        }
+        <div class="djn-modale-verif-actions">
+          <button class="btn btn-outline-secondary" (click)="recapReculer()" title="Revenir d'une étape en arrière pour modifier le fichier .tst"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
+          @if (recapActionsAffichables.length > 0) {
+            <button class="btn btn-success" (click)="recapTelecharger()"><i class="fas fa-fw fa-download me-1"></i>Télécharger le .tst mis à jour</button>
+          }
+          <button class="btn btn-secondary" (click)="recapFermer()"><i class="fas fa-fw fa-xmark me-1"></i>Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+

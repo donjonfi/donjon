@@ -56,6 +56,46 @@
       "inclure \"${1:fichier.djn}\"."
     ],
     "description": "Inclure le contenu d’un autre fichier .djn (résolution récursive, chemins relatifs au scénario racine)"
+  },
+
+  "état simple": {
+    "prefix": "etat",
+    "body": [
+      "${1:nom} est un état."
+    ],
+    "description": "Déclarer un état simple (sans bascule, sans groupe)"
+  },
+
+  "bascule d’états": {
+    "prefix": "bascule",
+    "body": [
+      "${1:étatA} et ${2:étatB} forment une bascule."
+    ],
+    "description": "Déclarer une bascule (2 états opposés, mutex avec ré-introduction automatique)"
+  },
+
+  "groupe d’états": {
+    "prefix": "groupe-etats",
+    "body": [
+      "${1:étatA}, ${2:étatB} et ${3:étatC} se contredisent."
+    ],
+    "description": "Déclarer un groupe d’états mutuellement exclusifs (≥ 2, sans ré-introduction)"
+  },
+
+  "implication d’état": {
+    "prefix": "implique",
+    "body": [
+      "${1:étatSource} implique ${2:étatCible}."
+    ],
+    "description": "Déclarer une implication (asymétrique : ajouter A ajoute aussi B)"
+  },
+
+  "exclusion d’état": {
+    "prefix": "exclut",
+    "body": [
+      "${1:étatA} exclut ${2:étatB}."
+    ],
+    "description": "Déclarer une exclusion (contradiction bilatérale entre 2 états)"
   }
 
 }

@@ -1,0 +1,41 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture : maison à plusieurs étages (haut/bas) — tester le zoom.
+-- La carte d'ensemble n'affiche que le rez ; les autres lieux sont orphelins
+-- accessibles uniquement par clic sur les sorties spéciales (zoom).
+Le titre du jeu est "Carte — maison multi-étages".
+La version du jeu est "1.0".
+
+Le rez de la maison est un lieu.
+Sa description est "Le rez-de-chaussée de la maison.".
+
+Le grenier est un lieu en haut du rez de la maison.
+Sa description est "Un grenier poussiéreux, plein de vieilleries.".
+
+Le toit est un lieu en haut du grenier.
+Sa description est "Le toit de la maison. La vue est superbe.".
+
+La cave est un lieu en bas du rez de la maison.
+Sa description est "Une cave humide et sombre.".
+
+Le sous-sol est un lieu en bas de la cave.
+Sa description est "Un sous-sol oublié, des toiles d'araignées partout.".
+
+-- Objets dans chaque étage.
+La chaise (f) est un objet dans le rez de la maison.
+La table (f) est un objet dans le rez de la maison.
+
+Le vieux coffre est un contenant dans le grenier.
+Il est fermé, ouvrable et verrouillé.
+La poupée (f) est un objet dans le grenier.
+
+Le tonneau (m) est un contenant dans la cave.
+La bouteille de vin est un objet dans le tonneau.
+
+Le rat noir est un animal dans le sous-sol.
+Le squelette est un décor dans le sous-sol.
+
+-- Un PNJ vivant chez lui.
+La grand-mère est une personne dans le rez de la maison.
+Sa description est "Une vieille dame aimable.".
+
+Le joueur est dans le rez de la maison.

@@ -28,6 +28,9 @@ export * from './lib/ui/visualisation/models/lieu-voisin';
 export * from './lib/ui/visualisation/models/objet-present';
 export * from './lib/ui/visualisation/models/obstacle-voisin';
 
+export * from './lib/ui/carte-scenario/carte-scenario.module';
+export * from './lib/ui/carte-scenario/carte-scenario.component';
+
 export * from './lib/models/commun/aide';
 export * from './lib/models/commun/capacite';
 export * from './lib/models/commun/classe';
@@ -51,6 +54,7 @@ export * from './lib/models/compilateur/condition-solo';
 export * from './lib/models/compilateur/condition';
 export * from './lib/models/compilateur/consequence';
 export * from './lib/models/compilateur/contexte-analyse';
+export * from './lib/models/compilateur/declaration-etat';
 export * from './lib/models/compilateur/definition';
 export * from './lib/models/compilateur/element-donjon';
 export * from './lib/models/compilateur/element-generique';
@@ -93,6 +97,7 @@ export * from './lib/models/jouer/resultat';
 export * from './lib/models/jouer/statut-conditions';
 export * from './lib/models/jouer/cadre-condition';
 export * from './lib/models/jouer/sauvegarde';
+export * from './lib/models/jouer/fichier-test';
 export * from './lib/models/jouer/type-evenement';
 
 export * from './lib/utils/commun/classe-utils';
@@ -114,6 +119,7 @@ export * from './lib/utils/compilation/analyseur/analyseur.condition';
 export * from './lib/utils/compilation/analyseur/analyseur.divers';
 export * from './lib/utils/compilation/analyseur/analyseur.element.position';
 export * from './lib/utils/compilation/analyseur/analyseur.element.simple';
+export * from './lib/utils/compilation/analyseur/analyseur.etats';
 export * from './lib/utils/compilation/analyseur/analyseur.liste';
 export * from './lib/utils/compilation/analyseur/analyseur.position';
 export * from './lib/utils/compilation/analyseur/analyseur.propriete';
@@ -127,6 +133,7 @@ export * from './lib/utils/compilation/generateur';
 
 export * from './lib/utils/jeu/abreviations';
 export * from './lib/utils/jeu/actions-utils';
+export * from './lib/utils/jeu/carte-builder';
 export * from './lib/utils/jeu/balises-html';
 export * from './lib/utils/jeu/commandeur';
 export * from './lib/utils/jeu/compteurs-utils';

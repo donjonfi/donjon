@@ -4,7 +4,7 @@ import { NoopLocationStrategy } from './noop-location-strategy';
 import { STANDALONE_MODE } from '../environments/environment';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { ApercuModule, DonjonModule, VisualisationModule } from 'donjon';
+import { ApercuModule, CarteScenarioModule, DonjonModule, VisualisationModule } from 'donjon';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -35,7 +35,8 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
     AceModule,
     DonjonModule,
     ApercuModule,
-    VisualisationModule
+    VisualisationModule,
+    CarteScenarioModule
   ],
   providers: [
     {

@@ -91,6 +91,55 @@ changer la lampe n'est plus éteinte.
 changer le coffre est ouvert.
 ```
 
+### 5b. Déclarer ses propres états
+
+Vous pouvez déclarer des états personnalisés dans le scénario, en plus des états intégrés. **Les déclarations doivent venir avant la première utilisation.** Cinq formes existent :
+
+| Forme | Effet |
+|---|---|
+| `troué est un état.` | État simple, sans relation avec d'autres états. |
+| `sec et mouillé forment une bascule.` | Bascule : exactement 2 états opposés, mutex. Retirer l'un ré-introduit automatiquement l'autre. |
+| `solide, liquide et gazeux se contredisent.` | Groupe : ≥ 2 états mutuellement exclusifs deux à deux. Retirer l'un ne ré-introduit *rien*. |
+| `vu implique mentionné.` | Implication (asymétrique) : appliquer `vu` ajoute aussi `mentionné`. Cible simple ou liste : `secret implique caché et invisible.` |
+| `déplacé exclut intact.` | Exclusion (contradiction bilatérale) entre 2 états. Cible simple ou liste : `intact exclut déplacé et modifié.` |
+
+**Bascule vs groupe.** Bascule = exactement 2 états, avec ré-introduction au retrait (l'élément est *toujours* dans l'un des deux). Groupe = N états mutex sans ré-introduction (l'élément peut n'être dans aucun).
+
+**Groupe vs contradictions.** Un groupe = clique complète de contradictions deux à deux. Pour exprimer « A contredit B et C, mais B et C peuvent coexister » (cas du moteur : `intact` contredit `déplacé` et `modifié`, mais `déplacé` et `modifié` ne s'excluent pas), utilisez **deux** `exclut` séparés, pas un groupe.
+
+```
+-- Exemple complet
+fissuré et intact forment une bascule.
+solide, liquide et gazeux se contredisent.
+brillant est un état.
+brillant implique poli.
+parfait exclut abimé et fendu.
+
+La poterie est un objet intact ici.
+La pierre est un objet brillant ici.        -- la pierre sera aussi poli automatiquement
+```
+
+> Un état utilisé sans déclaration explicite est créé à la volée comme **état simple** (sans bascule ni groupe). Tenter de redéclarer un état moteur (`ouvert`, `fermé`, etc.) produit une erreur.
+
+### 5c. Négation dans les définitions
+
+Vous pouvez retirer un état d'un élément dès sa définition, soit avec `non` inline, soit avec la forme verbale `n'est pas`. La négation s'applique **uniquement** dans les définitions — utilisez `changer` pour modifier un état pendant le jeu.
+
+```
+-- Forme inline (constructeur)
+La porte nord est une porte non ouvrable.
+
+-- Forme verbale (assertion)
+La porte nord n'est pas ouvrable.
+Les portes ne sont pas ouvertes.
+```
+
+Si l'état nié appartient à une bascule (ex: `ouvert/fermé`), le moteur émet un **conseil** (visible en mode débogueur dans `donjon-creer` / `donjon-compagnon`) suggérant la forme positive de l'opposé :
+
+> *« Plutôt qu'écrire « la porte n'est pas ouverte », préférer « la porte est fermée » : ouvert/fermé forment une bascule, la forme positive de l'opposé est plus claire. »*
+
+Pour les états simples (ex: `ouvrable`), la négation retire simplement l'état (notamment si la classe de l'élément l'aurait appliqué par défaut), sans émettre de conseil.
+
 ---
 
 ## 6. Propriétés

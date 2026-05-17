@@ -23,4 +23,5 @@ export enum ResultatAnalysePhrase {
   capacite,
   type,
   precisionType,
+  declarationEtat,
 }

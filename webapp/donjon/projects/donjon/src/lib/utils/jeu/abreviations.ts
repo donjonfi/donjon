@@ -1,4 +1,9 @@
 import { Abreviation } from "../../models/compilateur/abreviation";
+import { ElementJeu } from "../../models/jeu/element-jeu";
+import { Genre } from "../../models/commun/genre.enum";
+import { Lieu } from "../../models/jeu/lieu";
+import { Nombre } from "../../models/commun/nombre.enum";
+import { Objet } from "../../models/jeu/objet";
 
 export class Abreviations {
 
@@ -45,7 +50,7 @@ export class Abreviations {
     return retVal;
   }
 
-  static obtenirCommandeComplete(commande: string, abreviations: Abreviation[]) {
+  static obtenirCommandeComplete(commande: string, abreviations: Abreviation[], lieux?: Lieu[], objets?: Objet[]) {
 
     let commandeModifiee = commande.trim().toLocaleLowerCase("fr");
 
@@ -91,6 +96,44 @@ export class Abreviations {
           return mots[1] + ' ' + reste + ' à ' + pronom;
         } else {
           return mots[1] + ' avec ' + pronom;
+        }
+      }
+    }
+
+    // "si <condition>" ou "vf [si] <condition>" → 'déboguer dire "[si <condition>]vrai[sinon]faux[fin]"'
+    // Raccourci de débogage pour évaluer une condition depuis le lecteur.
+    if ((mots[0] === 'si' || mots[0] === 'vf') && mots.length >= 2) {
+      let motsCondition = mots.slice(1).filter(m => m);
+      if (mots[0] === 'vf' && motsCondition[0] === 'si') {
+        motsCondition = motsCondition.slice(1);
+      }
+      const condition = motsCondition.join(' ');
+      if (condition) {
+        return 'déboguer dire "[si ' + condition + ']vrai[sinon]faux[fin]"';
+      }
+    }
+
+    // "cd <lieu>" (alias: "lc") → "déboguer changer le joueur se trouve dans <lieu>"
+    // Si pas de déterminant et que le lieu est trouvé dans la liste, on l'accorde
+    // selon son genre/nombre (et son élision). Sinon, « le » par défaut.
+    if ((mots[0] === 'cd' || mots[0] === 'lc') && mots.length >= 2) {
+      const reste = mots.slice(1).filter(m => m).join(' ');
+      if (reste) {
+        return 'déboguer changer le joueur se trouve dans ' + Abreviations.elementAvecDeterminant(reste, lieux);
+      }
+    }
+
+    // "mv <objet> vers <lieu>" (alias: "dp", séparateur: "vers" ou "to") → "déboguer changer <objet> se trouve dans <lieu>"
+    // Le déterminant est inféré depuis la liste des objets/lieux du jeu, sinon « le » par défaut.
+    if ((mots[0] === 'mv' || mots[0] === 'dp') && mots.length >= 4) {
+      const idxSep = mots.findIndex((m, i) => i >= 2 && (m === 'vers' || m === 'to'));
+      if (idxSep >= 2 && idxSep < mots.length - 1) {
+        const objetReste = mots.slice(1, idxSep).filter(m => m).join(' ');
+        const lieuReste = mots.slice(idxSep + 1).filter(m => m).join(' ');
+        if (objetReste && lieuReste) {
+          const objetStr = Abreviations.elementAvecDeterminant(objetReste, objets);
+          const lieuStr = Abreviations.elementAvecDeterminant(lieuReste, lieux);
+          return 'déboguer changer ' + objetStr + ' se trouve dans ' + lieuStr;
         }
       }
     }
@@ -694,6 +737,66 @@ export class Abreviations {
     }
 
     return retVal;
+  }
+
+  /**
+   * Normaliser une chaîne pour la comparer : minuscules, sans accents, sans ponctuation,
+   * espaces réduits. Utilisé pour matcher la commande user contre les noms de lieux.
+   */
+  private static normaliser(s: string): string {
+    return (s ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/['’`]/g, ' ')
+      .replace(/[^a-z0-9 ]+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /** Chercher un élément du jeu dont le nom+épithète correspond à la chaîne fournie. */
+  private static trouverElementParNom<T extends ElementJeu>(nom: string, elements: T[] | undefined): T | undefined {
+    if (!elements || elements.length === 0) { return undefined; }
+    const cible = Abreviations.normaliser(nom);
+    if (!cible) { return undefined; }
+    return elements.find(e => Abreviations.normaliser(e.intitule?.nomEpithete ?? e.nom) === cible);
+  }
+
+  /**
+   * Reconstituer le déterminant d'un élément en respectant son genre/nombre et l'élision
+   * éventuelle. Si le DSL a fourni un déterminant explicite sur l'intitulé, il est repris.
+   */
+  private static determinantPourElement(el: ElementJeu): string {
+    const detExplicite = el.intitule?.determinant?.trim();
+    if (detExplicite) {
+      // si l'élision est déjà présente ("l'", "l’"), pas d'espace ; sinon, espace
+      return /['’]$/.test(detExplicite) ? detExplicite : detExplicite + ' ';
+    }
+    // pluriel (y compris "toujours pluriel")
+    if (el.nombre === Nombre.p || el.nombre === Nombre.tp) { return 'les '; }
+    // élision singulière devant voyelle ou h muet
+    const premierChar = (el.intitule?.nomEpithete ?? '').trim().charAt(0).toLowerCase();
+    const voyellesEtH = 'aâàäeéèêëiîïoôöuûüyhœæ';
+    if (premierChar && voyellesEtH.includes(premierChar)) { return "l'"; }
+    return el.genre === Genre.f ? 'la ' : 'le ';
+  }
+
+  /**
+   * Pour une chaîne « <reste> » désignant un élément (lieu ou objet) :
+   * - si <reste> commence déjà par un déterminant, le retourne tel quel ;
+   * - sinon cherche l'élément dans la liste fournie et préfixe son déterminant accordé ;
+   * - en dernier recours, préfixe « le ».
+   */
+  private static elementAvecDeterminant<T extends ElementJeu>(reste: string, elements: T[] | undefined): string {
+    const motsReste = reste.split(' ');
+    const determinants = ['le', 'la', 'les', 'un', 'une', 'des'];
+    const aDeterminant = determinants.includes(motsReste[0]) || /^l['’]/.test(motsReste[0]);
+    if (aDeterminant) { return reste; }
+    const trouve = Abreviations.trouverElementParNom(reste, elements);
+    if (trouve) {
+      return Abreviations.determinantPourElement(trouve) + trouve.intitule.nomEpithete;
+    }
+    return 'le ' + reste;
   }
 
 }

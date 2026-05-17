@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Syntax highlighting and snippets for Donjon FI lang",
-  "version": "3.6.3",
+  "version": "3.7.0",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
@@ -30,7 +30,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "tsc -p ./ && node --test out/declarationScanner.test.js"
+    "test": "tsc -p ./ && node --test out/declarationScanner.test.js out/formatter.test.js"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

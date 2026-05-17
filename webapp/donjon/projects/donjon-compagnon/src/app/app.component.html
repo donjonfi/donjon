@@ -21,9 +21,6 @@
       <a class="nav-link" [class.active]="activeTab === 'visualisation'" href="javascript:void(0)" (click)="setTab('visualisation')">Visualisation</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'apercu'" href="javascript:void(0)" (click)="setTab('apercu')">Aperçu</a>
-    </li>
-    <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'wiki'" href="javascript:void(0)" (click)="setTab('wiki')" title="Wiki Donjon FI">
         <i class="fas fa-fw fa-book"></i>
       </a>
@@ -95,37 +92,76 @@
     <!-- Onglet Jeu -->
     <div *ngIf="activeTab === 'jeu'" class="compagnon-pane compagnon-pane--jeu">
       @if (jeu) {
-        <djn-lecteur [jeu]="jeu" [debogueur]="true"></djn-lecteur>
+        <div class="p-2 d-flex align-items-center gap-2">
+          <label class="btn btn-sm btn-outline-secondary mb-0">
+            Charger un .tst…
+            <input type="file" accept=".tst" hidden (change)="onChargerFichierTest($event.target)">
+          </label>
+          <small class="text-muted">Vérifier les sorties du jeu par rapport à un fichier de vérification.</small>
+        </div>
+        <djn-lecteur #lecteurRef [jeu]="jeu" [debogueur]="true"></djn-lecteur>
       } @else {
         <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }
     </div>
 
-    <!-- Onglet Visualisation -->
-    <div *ngIf="activeTab === 'visualisation'" class="compagnon-pane">
+    <!-- Onglet Visualisation (3 sous-onglets : Carte / Visualisation / Aperçu) -->
+    <div *ngIf="activeTab === 'visualisation'" class="compagnon-pane compagnon-pane--visualisation">
       @if (jeu) {
-        <app-visualisation [jeu]="jeu"></app-visualisation>
+        <ul class="nav nav-tabs compagnon-subtabs">
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)"
+               [class.active]="visualisationTab === 'carte'"
+               (click)="visualisationTab = 'carte'">
+              <i class="fas fa-fw fa-map me-1"></i> Carte
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)"
+               [class.active]="visualisationTab === 'visualisation'"
+               (click)="visualisationTab = 'visualisation'">
+              <i class="fas fa-fw fa-eye me-1"></i> Visualisation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)"
+               [class.active]="visualisationTab === 'apercu'"
+               (click)="visualisationTab = 'apercu'">
+              <i class="fas fa-fw fa-sitemap me-1"></i> Aperçu
+            </a>
+          </li>
+        </ul>
+
+        <div class="compagnon-subpane">
+          <!-- Sous-onglet Visualisation (fiche mono-lieu) -->
+          @if (visualisationTab === 'visualisation') {
+            <app-visualisation [jeu]="jeu"></app-visualisation>
+          }
+
+          <!-- Sous-onglet Aperçu -->
+          @if (visualisationTab === 'apercu') {
+            @if (erreur) {
+              <div class="alert alert-danger">{{ erreur }}</div>
+            }
+            @if (monde) {
+              <app-apercu-monde
+                [monde]="monde"
+                [regles]="regles"
+                [actions]="actions"
+                [compteurs]="compteurs"
+                [listes]="listes">
+              </app-apercu-monde>
+            }
+          }
+
+          <!-- Sous-onglet Carte (toujours monté pour préserver la position du popup) -->
+          <div [style.display]="(visualisationTab === 'carte' ? 'block' : 'none')"
+               class="compagnon-subpane-carte">
+            <app-carte-scenario [jeu]="jeu"></app-carte-scenario>
+          </div>
+        </div>
       } @else {
         <p class="text-muted">Visualisation indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
-      }
-    </div>
-
-    <!-- Onglet Aperçu -->
-    <div *ngIf="activeTab === 'apercu'" class="compagnon-pane">
-      @if (erreur) {
-        <div class="alert alert-danger">{{ erreur }}</div>
-      }
-
-      @if (monde) {
-        <app-apercu-monde
-          [monde]="monde"
-          [regles]="regles"
-          [actions]="actions"
-          [compteurs]="compteurs"
-          [listes]="listes">
-        </app-apercu-monde>
-      } @else if (!erreur) {
-        <p class="text-muted">Aucun monde compilé — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }
     </div>
 
@@ -171,8 +207,13 @@
       <ul>
         <li><strong>Analyse</strong> — liste des erreurs, problèmes et conseils. Le badge affiche le nombre total de messages, coloré selon la sévérité maximale (rouge / orange / bleu). Cliquer sur le badge d'un message ouvre le fichier source à la bonne ligne dans VS Code.</li>
         <li><strong>Jeu</strong> — lecteur en direct pour tester le scénario. Sélectionné automatiquement après une compilation sans erreur.</li>
-        <li><strong>Visualisation</strong> — exploration interactive du monde compilé (lieux, objets, classes, règles, actions).</li>
-        <li><strong>Aperçu</strong> — vue d'ensemble du monde compilé.</li>
+        <li><strong>Visualisation</strong> — 3 sous-onglets pour explorer le monde compilé :
+          <ul>
+            <li><i class="fas fa-fw fa-map"></i> <em>Carte</em> — carte ASCII des lieux, objets et personnes ; clic sur un élément pour voir son détail.</li>
+            <li><i class="fas fa-fw fa-eye"></i> <em>Visualisation</em> — fiche détaillée d'un lieu (objets, classes, règles, actions associées).</li>
+            <li><i class="fas fa-fw fa-sitemap"></i> <em>Aperçu</em> — vue d'ensemble du monde compilé.</li>
+          </ul>
+        </li>
         <li><strong>Wiki</strong> <i class="fas fa-fw fa-book"></i> — documentation du DSL Donjon FI intégrée (chargée depuis <a href="https://donjon.fi/doc/v3/start" target="_blank" rel="noopener">donjon.fi/doc</a>).</li>
       </ul>
 

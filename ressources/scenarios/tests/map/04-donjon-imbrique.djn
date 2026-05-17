@@ -1,0 +1,43 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture : poupées russes via "à l'intérieur de" — tester le drill-down profond.
+Le titre du jeu est "Carte — donjon imbriqué".
+La version du jeu est "1.0".
+
+La cour du château est un lieu.
+Sa description est "La cour pavée d'un vieux château.".
+
+Le grand hall est un lieu à l'intérieur de la cour du château.
+Sa description est "Un hall immense avec des armures aux murs.".
+
+La salle du trône est un lieu à l'intérieur du grand hall.
+Sa description est "Au fond, un trône doré.".
+
+L'alcôve secrète (f) est un lieu à l'intérieur de la salle du trône.
+Sa description est "Une alcôve cachée derrière le trône.".
+
+-- Une porte verrouillée à l'entrée du hall (clic = panneau de détail de la porte).
+La porte du hall est une porte fermée à l'intérieur de la cour du château.
+Sa description est "Une lourde porte en chêne renforcée de fer.".
+Elle est verrouillée et ouvrable.
+
+-- Objets distribués pour tester le drill-down.
+Le pavé descellé est un objet discret dans la cour du château.
+Le heaume (m) est un objet dans le grand hall.
+La hallebarde (f) est un objet dans le grand hall.
+Le sceptre est un objet dans la salle du trône.
+Le trône (m) est un support fixé dans la salle du trône.
+La couronne (f) est un bijou sur le trône.
+
+Le grimoire (m) est un objet dans l'alcôve secrète.
+Le coffret aux gemmes est un contenant dans l'alcôve secrète.
+Il est fermé et ouvrable.
+Le rubis (m) est un bijou dans le coffret aux gemmes.
+
+-- Un PNJ et un animal pour varier.
+Le roi est une personne dans la salle du trône.
+Sa description est "Un vieux roi assis sur son trône.".
+
+Le corbeau est un animal dans le grand hall.
+Son aperçu est "Un corbeau noir vous observe depuis une poutre.".
+
+Le joueur est dans la cour du château.

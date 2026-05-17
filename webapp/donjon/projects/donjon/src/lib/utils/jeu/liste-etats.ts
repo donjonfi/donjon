@@ -182,9 +182,10 @@ export class ListeEtats {
 
   /**
    * Trouver un état sur base de son nom.
+   * @param silencieux ne pas journaliser un avertissement si l’état est introuvable (utile pour les tests d’existence).
    * @returns l'état correspondant ou null si pas trouvé.
    */
-  trouverEtat(nomEtat: string): Etat | null {
+  trouverEtat(nomEtat: string, silencieux: boolean = false): Etat | null {
     // retirer le e et le s final
     // - cas particulier: si terminaison "ble"|"que" on retire pas le e final.
     const trouve = false;
@@ -207,11 +208,16 @@ export class ListeEtats {
       }
     });
 
-    if (!retVal) {
+    if (!retVal && !silencieux) {
       console.log(`Pas trouvé état: ${nomEtat} \nétats:`, this.etats.join(", "));
     }
 
     return retVal;
+  }
+
+  /** Variante silencieuse de {@link trouverEtat} : utile pour les tests d’existence. */
+  trouverEtatSilencieux(nomEtat: string): Etat | null {
+    return this.trouverEtat(nomEtat, true);
   }
 
 

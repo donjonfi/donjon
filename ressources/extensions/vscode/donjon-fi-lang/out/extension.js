@@ -42,6 +42,7 @@ const definitionProvider_1 = require("./definitionProvider");
 const hoverProvider_1 = require("./hoverProvider");
 const documentLinkProvider_1 = require("./documentLinkProvider");
 const renameProvider_1 = require("./renameProvider");
+const formattingProvider_1 = require("./formattingProvider");
 const analysis_1 = require("./analysis");
 const workspaceIndex_1 = require("./workspaceIndex");
 function activate(context) {
@@ -57,6 +58,7 @@ function activate(context) {
     context.subscriptions.push(vscode.languages.registerHoverProvider(selector, new hoverProvider_1.DonjonHoverProvider()));
     context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(selector, new documentLinkProvider_1.DonjonDocumentLinkProvider()));
     context.subscriptions.push(vscode.languages.registerRenameProvider(selector, new renameProvider_1.DonjonRenameProvider()));
+    context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(selector, new formattingProvider_1.DonjonDocumentFormattingProvider()));
     (0, workspaceIndex_1.activateWatcher)(context);
     void (0, workspaceIndex_1.ensureScanned)();
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((doc) => (0, analysis_1.clearAnalysisCache)(doc.uri)));

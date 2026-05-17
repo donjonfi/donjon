@@ -1,0 +1,26 @@
+-- Scénario de test du magnétoscope :
+-- - une routine périodique (« tic ») qui se redéclenche à chaque tour,
+-- - une commande joueur (« lancer le dé ») à sortie aléatoire,
+-- - une routine programmée à T+3 tours (« cataclysme ») pour exercer une déclenchement unique.
+
+La salle est un lieu.
+Le dé est un objet vu ici.
+Le dé est un nom féminin invisible.
+
+action lancer ceci:
+  dire "Tirage : [au hasard]un[ou]deux[ou]trois[ou]quatre[ou]cinq[ou]six[fin].".
+fin action
+
+routine tic:
+  dire "Tic [au hasard]tac[ou]boum[ou]toc[fin] !".
+  exécuter la routine tic dans 1 tour.
+fin routine
+
+routine cataclysme:
+  dire "[au hasard]Le sol tremble.[ou]Un éclair illumine la pièce.[ou]Vous entendez un grondement sourd.[fin]".
+fin routine
+
+règle après commencer le jeu:
+  exécuter la routine tic dans 1 tour.
+  exécuter la routine cataclysme dans 3 tours.
+fin règle
