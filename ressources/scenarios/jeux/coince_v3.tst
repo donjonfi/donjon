@@ -2,8 +2,12 @@
     "type": "test",
     "version": 30700,
     "declenchementsFuturs": [],
-    "graine": "0.3017206846001985",
+    "graine": "0.0408105673930792",
     "etapesTest": [
+        {
+            "type": "g",
+            "valeur": "0.0408105673930792"
+        },
         {
             "type": "g",
             "valeur": "0.3017206846001985"
@@ -21,7 +25,7 @@
         {
             "type": "d",
             "valeur": "poc",
-            "sortie": "Poc poc poc !{N}"
+            "sortie": "POC!!! Un oiseau a fait une colision avec la lucarne !{N}"
         },
         {
             "type": "c",
@@ -91,7 +95,7 @@
         {
             "type": "c",
             "valeur": "donner l'anneau à a magicienne",
-            "sortie": "« Mon héro! »\n La magicienne tend la main et un éclair vous aveugle.{N}"
+            "sortie": "« Mon héro! »\n La magicienne tend la main et un éclair vous aveugle.{N}Vous êtes de retour chez vous!\n \n {+Bravo! Vous avez gagné !+}{N}"
         }
     ],
     "sortieIntro": "{_{*Le salon*}_}{n}Vous êtes dans un petit salon dépouillé.\n La lumière du jour provient d’une lucarne  placée à plusieurs mètres de hauteur.{N}{U}Il y a un fauteuil de style anglais {E}au centre de la pièce{E}.{U}Il y a un tableau {E}accroché à l’un des murs.{E}{N}{U}Vous apercevez une bille.{N}{P}Sorties : {n}{i}- nord : ? ({/obstrué/})"

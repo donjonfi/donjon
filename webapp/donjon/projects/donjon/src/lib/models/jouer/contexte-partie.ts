@@ -92,24 +92,29 @@ export class ContextePartie {
 
   /**
    * Enregistre la sortie textuelle produite par la dernière étape c/r/d exécutée.
-   * Cherche le slot c/r/d le plus récent sans sortie déjà enregistrée et le remplit.
+   * - Si la dernière étape steppable n'a pas encore de sortie : l'y stocke.
+   * - Si elle en a déjà une : **concatène** (cas continuation post-interruption — un `attendre touche`
+   *   coupe la sortie d'une commande/routine en plusieurs morceaux, chacun ré-enregistré).
    * Les étapes 'g' (graines) sont ignorées (elles ne portent pas de sortie).
    * Avant la première c/r/d (phase intro), les sorties sont accumulées dans _sortieIntro.
-   * Note : on remplit aussi les slots 'd' pour permettre au magnéto de détecter
-   * qu'une routine forcée a vu son contenu changer entre l'enregistrement et le replay.
    */
   public enregistrerSortieEtapeCourante(sortie: string) {
-    this._derniereSortieEnregistree = sortie;
+    // _derniereSortieEnregistree accumule sur toute la durée d'une étape (depuis la dernière
+    // réinitialisation). Indispensable pour que le magnéto récupère la sortie complète d'une
+    // commande qui produit plusieurs morceaux séparés par `attendre touche`.
+    this._derniereSortieEnregistree = (this._derniereSortieEnregistree === null)
+      ? sortie
+      : (this._derniereSortieEnregistree + sortie);
     for (let i = this._sortiesParEtape.length - 1; i >= 0; i--) {
-      if (this._sortiesParEtape[i] !== null) continue;
       const brut = this._etapesPartie[i];
       if (brut?.startsWith('c:') || brut?.startsWith('r:') || brut?.startsWith('d:')) {
-        this._sortiesParEtape[i] = sortie;
+        const existant = this._sortiesParEtape[i];
+        this._sortiesParEtape[i] = (existant === null) ? sortie : (existant + sortie);
         this._phaseIntroTerminee = true;
         return;
       }
     }
-    // Aucun slot c/r/d vide trouvé : on est en phase intro. Accumuler.
+    // Aucune étape c/r/d encore enregistrée : on est en phase intro. Accumuler.
     if (!this._phaseIntroTerminee) {
       this._sortieIntro += (this._sortieIntro ? '\n' : '') + sortie;
     }

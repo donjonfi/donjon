@@ -147,6 +147,36 @@ describe('Fichier de vérification (.tst)', () => {
   });
 
 
+  it('[F050-T011] enregistrerSortieEtapeCourante concatène sur la même étape (continuation après attendre touche)', () => {
+    // Bug : un `attendre touche` coupe la sortie d'une commande en plusieurs morceaux.
+    // envoyerCommande capture la première partie, terminerInterruption capture la suite ;
+    // sans concaténation, la seconde partie était perdue (le slot c étant déjà rempli).
+    const scenario = `La salle est un lieu.`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.ajouterCommandeDansSauvegarde('donner anneau');
+    ctx.enregistrerSortieEtapeCourante('Mon héro!@@attendre touche@@');
+    ctx.enregistrerSortieEtapeCourante('Vous êtes de retour chez vous!');
+
+    const fichier = ctx.creerFichierTest();
+    const cEtape = fichier.etapesTest.find(e => e.type === 'c' && e.valeur === 'donner anneau');
+    expect(cEtape).toBeDefined();
+    expect(cEtape!.sortie).toBe('Mon héro!@@attendre touche@@Vous êtes de retour chez vous!');
+  });
+
+  it('[F050-T012] derniereSortieEnregistree accumule aussi (utilisée par le magnéto comme sortie obtenue)', () => {
+    // Le magnéto compare sortieObtenue = derniereSortieEnregistree à etape.sortie ; sans accumulation,
+    // derniereSortieEnregistree ne reflétait que la dernière sous-partie post-interruption (la 2e),
+    // alors que la sortie attendue inclut les deux parties → faux positif de divergence.
+    const scenario = `La salle est un lieu.`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    ctx.ajouterCommandeDansSauvegarde('donner anneau');
+    ctx.reinitialiserDerniereSortieEnregistree();
+    ctx.enregistrerSortieEtapeCourante('Mon héro!@@attendre touche@@');
+    ctx.enregistrerSortieEtapeCourante('Vous êtes de retour chez vous!');
+
+    expect(ctx.derniereSortieEnregistree).toBe('Mon héro!@@attendre touche@@Vous êtes de retour chez vous!');
+  });
+
   it('[F050-T010] enregistrerSortieEtapeCourante ne touche pas aux slots g/d', () => {
     const scenario =
       `La salle est un lieu.
@@ -823,6 +853,11 @@ fin routine
     expect(lecteur.magnetoDivergence).toBeNull();
     // Curseur replacé sur la c/r précédente (idx=0), pas resté sur le 'd' (idx=1).
     expect((lecteur as any).magnetoIdx).toBe(0);
+
+    // Neutralise le setTimeout(250) qui auto-rejoue la c/r : sans ça, il fire après la fin du
+    // test (les spies jasmine sont reset dans afterAll → envoyerCommande réel appelle
+    // ajouterTexteAIgnorerAuxStatistiques sur partie.statistiques torn-down → TypeError).
+    (lecteur as any).verificationActive = false;
   });
 
   it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .tst', () => {

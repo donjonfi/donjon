@@ -1732,6 +1732,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   public magnetoEntrerModification(): void {
     if (!this.fichierTestEnCours) return;
     if (this.magnetoEstSurIntro) return;
+    if (this.magnetoEtapeCouranteEstRoutine) return; // modifier non applicable à une routine forcée
 
     if (this.magnetoDivergence) {
       this.magnetoIdxEnEdition = this.magnetoDivergence.idx;
@@ -1763,6 +1764,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    *   `position='apres'` insère juste après la commande exécutée (sans annulation).
    */
   public magnetoEntrerInsertion(position: 'avant' | 'apres' = 'avant'): void {
+    if (this.magnetoEtapeCouranteEstRoutine) return; // insérer non applicable autour d'une routine forcée
     if (!this.fichierTestEnCours) return;
     if (this.magnetoEstSurIntro) return;
 
@@ -1942,6 +1944,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.magnetoIdxCommande === -1;
   }
 
+  /** Vrai quand l'étape courante est une routine forcée ('d') : modifier/insérer non applicables. */
+  public get magnetoEtapeCouranteEstRoutine(): boolean {
+    if (!this.fichierTestEnCours) return false;
+    const idx = this.magnetoIdxCommande;
+    if (idx < 0) return false;
+    return this.fichierTestEnCours.etapesTest[idx]?.type === 'd';
+  }
+
   public get magnetoCompteurTotal(): number {
     if (!this.fichierTestEnCours) return 0;
     return this.fichierTestEnCours.etapesTest.filter(e => e.type === 'c' || e.type === 'r').length;
@@ -1988,8 +1998,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (idxCourantDansStep === -1) idxCourantDansStep = stepIdx.length - 1;
     }
     const ancre = idxCourantDansStep;
-    const debut = Math.max(0, ancre - 2);
-    const fin = Math.min(stepIdx.length - 1, ancre + 2);
+    // Fenêtre adaptive : ~9 entrées visibles. Si on est près d'un bord, on décale plutôt que
+    // de tronquer, pour garder une mini-liste de taille à peu près constante (pas de vide).
+    const TAILLE_FENETRE = 9;
+    let debut = ancre - Math.floor((TAILLE_FENETRE - 1) / 2);
+    let fin = ancre + Math.ceil((TAILLE_FENETRE - 1) / 2);
+    if (debut < 0) { fin += -debut; debut = 0; }
+    if (fin > stepIdx.length - 1) { debut -= (fin - (stepIdx.length - 1)); fin = stepIdx.length - 1; }
+    debut = Math.max(0, debut);
+    fin = Math.min(stepIdx.length - 1, fin);
     const result: { idx: number, etape: EtapeTest | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, estDeclenchement: boolean, estDivergent: boolean, enEdition: boolean, num: number | null }[] = [];
     if (debut === 0) {
       const statut: 'passe' | 'courant' = introCourante ? 'courant' : 'passe';
@@ -2037,7 +2054,24 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     const commandeComplete = Abreviations.obtenirCommandeComplete(etape.valeur, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
     const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
     this.envoyerCommande(etape.valeur, commandeNettoyee, true, true, true, false);
+    // En magnéto, on auto-presse à travers les `attendre touche` / `attendre N secondes` afin
+    // que la sortie complète de la commande (incluant les suites post-pause) soit capturée.
+    this.terminerInterruptionsBloquantesPourMagneto();
     return this.partie.derniereSortieEnregistree ?? '';
+  }
+
+  /**
+   * Tant qu'une interruption « attendre touche / secondes » bloque le tour courant, la
+   * terminer immédiatement pour capturer la suite de la sortie. Garde-fou contre les
+   * chaînes infinies (limite à 100 itérations).
+   */
+  private terminerInterruptionsBloquantesPourMagneto(): void {
+    let safety = 100;
+    while (this.interruptionEnCours && safety-- > 0) {
+      const t = this.interruptionEnCours.typeInterruption;
+      if (t !== TypeInterruption.attendreTouche && t !== TypeInterruption.attendreSecondes) break;
+      this.terminerInterruption(undefined);
+    }
   }
 
   /** Exécute une commande dans le flux normal du lecteur et retourne sa sortie brute. */

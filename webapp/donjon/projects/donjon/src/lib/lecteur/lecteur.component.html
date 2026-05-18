@@ -162,9 +162,9 @@
         }
         @if (!magnetoEstSurIntro) {
           <span class="djn-magneto-sep"></span>
-          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoDivergence?.etape?.type === 'd'" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
+          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
           <div class="djn-magneto-insert-wrap">
-            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoDivergence?.etape?.type === 'd'" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
+            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
             @if (magnetoInsererMenuOuvert) {
               <div class="djn-magneto-insert-menu">
                 <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('avant')">Avant</button>
