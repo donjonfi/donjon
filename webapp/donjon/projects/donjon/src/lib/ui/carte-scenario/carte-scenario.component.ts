@@ -111,6 +111,11 @@ export class CarteScenarioComponent implements OnChanges {
     return objet?.intitule?.toString() ?? '?';
   }
 
+  public listeEtatsLieu(lieu: Lieu): string {
+    if (!this.jeu || !lieu) { return ''; }
+    return this.jeu.etats.obtenirIntitulesEtatsElementJeu(lieu);
+  }
+
   // ASCII strict pour éviter les décalages : certains glyphes Unicode (↑↓⤓⤒↗ etc.)
   // sont en East Asian Width « ambiguous » et rendent en 2 cellules dans plusieurs
   // polices monospace courantes (Consolas, Cascadia Code selon plateforme), ce qui
@@ -813,11 +818,11 @@ export class CarteScenarioComponent implements OnChanges {
     const enfants = this.carte.enfantsParObjet.get(parentId);
     if (!enfants || enfants.length === 0) { return cr; }
     const indent = '  '.repeat(niveau);
-    // espace utile pour le nom = contenu - leading ' ' - indent - '- '
+    // espace utile pour le nom = contenu - leading ' ' - indent - '• '
     const placeNom = Math.max(3, (this.CELL_W - 2) - 1 - indent.length - 2);
     for (const e of enfants) {
       if (cr >= rowEnd) { return cr; }
-      const t = indent + '- ' + this.tronquer(this.formaterIntitule(e.objet), placeNom);
+      const t = indent + this.tronquer(this.formaterIntitule(e.objet, '• '), placeNom);
       setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: e.objet.id });
       cr++;
       cr = this.dessinerEnfants(e.objet.id, niveau + 1, cr, rowEnd, colStart, setStr);
@@ -827,9 +832,8 @@ export class CarteScenarioComponent implements OnChanges {
 
   /**
    * Décore l'intitulé d'un objet pour l'affichage dans une boîte :
-   *  - préfixe `{ ` si contenant, `= ` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets,
-   *    chaîne vide pour les enfants déjà préfixés par `- `)
-   *  - suffixe : lettres des états actifs (v=vivant, d=décor, f=fixé, i=invisible,
+   *  - préfixe `{ ` si contenant, `= ` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets)
+   *  - suffixe : lettres des états actifs (d=décor, f=fixé, i=invisible,
    *    a=inaccessible, s=secret, r=discret), accolées
    * Exemple : `{ la bourse fi`
    */
@@ -847,7 +851,6 @@ export class CarteScenarioComponent implements OnChanges {
     if (!this.jeu) { return ''; }
     const e = this.jeu.etats;
     let s = '';
-    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.vivant)) { s += 'v'; }
     if (e.decoratifID >= 0 && e.possedeEtatIdElement(objet, e.decoratifID, null)) { s += 'd'; }
     if (e.fixeID >= 0 && e.possedeEtatIdElement(objet, e.fixeID, null)) { s += 'f'; }
     if (e.invisibleID >= 0 && e.possedeEtatIdElement(objet, e.invisibleID, null)) { s += 'i'; }

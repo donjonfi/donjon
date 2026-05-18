@@ -24,9 +24,7 @@
         <span class="leg-grp"><span class="leg-sym">•</span> objet</span>
         <span class="leg-grp"><span class="leg-sym">&#123;</span> contenant</span>
         <span class="leg-grp"><span class="leg-sym">=</span> support</span>
-        <span class="leg-grp"><span class="leg-sym">-</span> contenu</span>
         <span class="leg-sep">|</span>
-        <span class="leg-grp"><span class="leg-let">v</span> vivant</span>
         <span class="leg-grp"><span class="leg-let">d</span> décor</span>
         <span class="leg-grp"><span class="leg-let">f</span> fixé</span>
         <span class="leg-grp"><span class="leg-let">i</span> invisible</span>
@@ -102,91 +100,24 @@
                 </button>
               </div>
 
-              @if (detailLieuSelectionne.lieu.description) {
-                <p class="small mb-2">{{ detailLieuSelectionne.lieu.description }}</p>
-              }
-
-              <div class="small text-muted mb-2">
-                ID : {{ detailLieuSelectionne.lieu.id }} · nom : <code>{{ detailLieuSelectionne.lieu.nom }}</code>
-              </div>
-
-              <!-- joueur -->
-              @if (detailLieuSelectionne.joueurPresent && jeu?.joueur) {
-                <div class="mb-2">
-                  <strong>Joueur :</strong>
-                  <a class="seg seg--joueur ms-1" href="javascript:void(0)"
-                     (click)="selectionnerObjet(jeu!.joueur.id)">* {{ jeu!.joueur.intitule }}</a>
-                </div>
-              }
-
-              <!-- personnes -->
-              @if (detailLieuSelectionne.personnes.length > 0) {
-                <div class="mb-2">
-                  <strong>Personnes :</strong>
-                  @for (p of detailLieuSelectionne.personnes; track p.id) {
-                    <a class="seg seg--personne ms-1" href="javascript:void(0)"
-                       (click)="selectionnerObjet(p.id)">@ {{ p.intitule }}</a>
+              <ul>
+                <li><b>Nom :</b> {{ detailLieuSelectionne.lieu.nom }}</li>
+                <li>
+                  <b>Intitulé : </b>
+                  @if (detailLieuSelectionne.lieu.intitule?.determinant) {
+                    <span>({{ detailLieuSelectionne.lieu.intitule.determinant }})</span>
                   }
-                </div>
-              }
-
-              <!-- objets -->
-              @if (detailLieuSelectionne.objets.length > 0) {
-                <div class="mb-2">
-                  <strong>Objets :</strong>
-                  @for (o of detailLieuSelectionne.objets; track o.id) {
-                    <a class="seg seg--objet ms-1" href="javascript:void(0)"
-                       (click)="selectionnerObjet(o.id)">• {{ o.intitule }}</a>
+                  {{ detailLieuSelectionne.lieu.intitule?.nom }}
+                  @if (detailLieuSelectionne.lieu.intitule?.epithete) {
+                    <span><i>{{ detailLieuSelectionne.lieu.intitule.epithete }}</i></span>
                   }
-                </div>
-              }
+                </li>
+                @if (detailLieuSelectionne.lieu.description) {
+                  <li><b>Description :</b> {{ detailLieuSelectionne.lieu.description }}</li>
+                }
+                <li><b>États :</b> {{ listeEtatsLieu(detailLieuSelectionne.lieu) }}</li>
+              </ul>
 
-              <!-- sorties cardinales -->
-              @if (detailLieuSelectionne.sortiesCardinales.length > 0) {
-                <div class="mb-2">
-                  <strong>Sorties cardinales :</strong>
-                  <ul class="small mb-0 ps-3">
-                    @for (s of detailLieuSelectionne.sortiesCardinales; track $index) {
-                      <li>
-                        {{ intituleLocalisation(s.localisation) }} →
-                        <a class="seg seg--lieu" href="javascript:void(0)"
-                           (click)="selectionnerLieu(s.cibleId)">{{ s.cibleNom }}</a>
-                        @if (s.via) {
-                          <span class="text-muted">({{ s.via.type }} : {{ s.via.nom }})</span>
-                        }
-                      </li>
-                    }
-                  </ul>
-                </div>
-              }
-
-              <!-- sorties spéciales (zoom vers lieux enfants ou ouverture de la barrière) -->
-              @if (detailLieuSelectionne.sortiesSpeciales.length > 0) {
-                <div class="mb-2">
-                  <strong>Lieux liés <small class="text-muted">(clic = zoom)</small> :</strong>
-                  <ul class="small mb-0 ps-3">
-                    @for (s of detailLieuSelectionne.sortiesSpeciales; track $index) {
-                      <li>
-                        {{ flecheSpeciale(s.localisation) }} {{ intituleLocalisation(s.localisation) }} →
-                        @if (s.cibleType === 'lieu') {
-                          <a class="seg seg--lieu" href="javascript:void(0)"
-                             (click)="zoomerSurLieu(s.cibleId)"
-                             title="Zoomer sur {{ s.cibleNom }}">
-                            <i class="fas fa-fw fa-magnifying-glass-plus"></i> {{ s.cibleNom }}
-                          </a>
-                        } @else {
-                          <a class="seg seg--objet" href="javascript:void(0)"
-                             (click)="selectionnerObjet(s.cibleId)">{{ s.cibleNom }}</a>
-                          <span class="text-muted">({{ s.cibleType }})</span>
-                        }
-                        @if (s.via) {
-                          <span class="text-muted">({{ s.via.type }} : {{ s.via.nom }})</span>
-                        }
-                      </li>
-                    }
-                  </ul>
-                </div>
-              }
             </div>
           </div>
         }
