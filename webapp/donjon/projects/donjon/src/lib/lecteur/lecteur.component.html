@@ -202,20 +202,25 @@
       <!-- Encart divergence : diff + acceptation de la nouvelle sortie -->
       @if (magnetoDivergence && magnetoEdition === 'aucun') {
         <div class="djn-magneto-divergence">
-          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur la sortie de la @if (magnetoDivergence?.etape?.type === 'd') { routine } @else { commande }</div>
-          <div class="djn-magneto-diff">
-            <div class="djn-magneto-bloc">
-              <div class="djn-magneto-libelle">Sortie attendue</div>
-              <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffAttendu; track $index) {<span [class.djn-magneto-diff-retire]="s.diff">{{ s.texte }}</span>}</pre>
+          @if (magnetoDivergence.routineIntrouvable) {
+            <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Routine introuvable dans le scénario : <code>{{ magnetoDivergence.etape.valeur }}</code></div>
+            <p class="djn-magneto-info mb-0">Le fichier de vérification force une routine qui n'existe pas (ou plus) dans le scénario. Cliquez sur <strong>Supprimer</strong> pour la retirer du <code>.tst</code>, ou sur <strong>Précédent</strong> pour revenir en arrière.</p>
+          } @else {
+            <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur la sortie de la @if (magnetoDivergence?.etape?.type === 'd') { routine } @else { commande }</div>
+            <div class="djn-magneto-diff">
+              <div class="djn-magneto-bloc">
+                <div class="djn-magneto-libelle">Sortie attendue</div>
+                <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffAttendu; track $index) {<span [class.djn-magneto-diff-retire]="s.diff">{{ s.texte }}</span>}</pre>
+              </div>
+              <div class="djn-magneto-bloc">
+                <div class="djn-magneto-libelle">Sortie obtenue</div>
+                <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffObtenue; track $index) {<span [class.djn-magneto-diff-ajoute]="s.diff">{{ s.texte }}</span>}</pre>
+              </div>
             </div>
-            <div class="djn-magneto-bloc">
-              <div class="djn-magneto-libelle">Sortie obtenue</div>
-              <pre class="djn-magneto-texte">@for (s of magnetoDivergence.diffObtenue; track $index) {<span [class.djn-magneto-diff-ajoute]="s.diff">{{ s.texte }}</span>}</pre>
+            <div class="djn-magneto-actions">
+              <button class="btn btn-sm btn-success" (click)="magnetoValider()" title="Accepter la nouvelle sortie"><i class="fas fa-fw fa-check me-1"></i>Valider la sortie</button>
             </div>
-          </div>
-          <div class="djn-magneto-actions">
-            <button class="btn btn-sm btn-success" (click)="magnetoValider()" title="Accepter la nouvelle sortie"><i class="fas fa-fw fa-check me-1"></i>Valider la sortie</button>
-          </div>
+          }
         </div>
       }
 
