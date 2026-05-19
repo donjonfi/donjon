@@ -92,7 +92,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   public magnetoIdx = 0;
 
   /** Données de la divergence en cours d'examen, ou null si aucune divergence. */
-  public magnetoDivergence: { etape: EtapeTest, idx: number, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
+  public magnetoDivergence: { etape: EtapeTest, idx: number, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[], routineIntrouvable?: boolean } | null = null;
 
   /** Divergence sur l'intro du jeu (avant la première étape c/r), ou null. */
   public magnetoDivergenceIntro: { sortie: string, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
@@ -1421,8 +1421,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   private executerEtapeDeclenchement(etape: EtapeTest, idx: number): boolean {
     const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == etape.valeur);
     if (!routine) {
-      this.ajouteErreur(`Magnéto : routine pas trouvée: ${etape.valeur}`);
-      return true; // pas de divergence à ouvrir, on continue malgré tout
+      // Routine référencée par le .tst absente du scénario : ouvrir une divergence dédiée
+      // pour que l'utilisateur en soit informé via l'UI du magnéto plutôt que via un texte de jeu.
+      this.magnetoDivergence = { etape, idx, sortieObtenue: '', diffAttendu: [], diffObtenue: [], routineIntrouvable: true };
+      this.magnetoLectureAutoEnCours = false;
+      return false;
     }
     this.partie.reinitialiserDerniereSortieEnregistree();
     this.jeu.tamponRoutinesEnAttente.push(routine);
@@ -1706,7 +1709,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       const d = this.magnetoDivergence;
       idxCible = d.idx;
       valeurEtape = d.etape.valeur;
-      this.executerCommandeAffichee('annuler');
+      // Pas d'annuler quand la routine n'a jamais été exécutée (routine introuvable) :
+      // il n'y a pas de tour à défaire, et `annuler` reculerait la c/r précédente à tort.
+      if (!d.routineIntrouvable) {
+        this.executerCommandeAffichee('annuler');
+      }
       this.magnetoDivergence = null;
     } else {
       idxCible = this.magnetoIdxCommande;

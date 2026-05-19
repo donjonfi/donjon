@@ -878,6 +878,41 @@ fin routine
     expect(fichier.sortieIntro).toBe('Intro attendue.');
   });
 
+  it('[F050-MAG-T023] étape « d » dont la routine est absente du scénario : ouvre une divergence "routine introuvable"', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([{ type: 'd', valeur: 'poc' }]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+
+    lecteur.magnetoPasSuivant();
+
+    expect(lecteur.magnetoDivergence).not.toBeNull();
+    expect(lecteur.magnetoDivergence!.routineIntrouvable).toBeTrue();
+    expect(lecteur.magnetoDivergence!.idx).toBe(0);
+    expect(lecteur.magnetoDivergence!.etape.valeur).toBe('poc');
+    expect((lecteur as any).magnetoLectureAutoEnCours).toBeFalse();
+  });
+
+  it('[F050-MAG-T024] supprimer sur divergence "routine introuvable" : retire l’étape du .tst sans tenter d’annuler de tour', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'd', valeur: 'poc' },
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+    lecteur.magnetoPasSuivant();
+    expect(lecteur.magnetoDivergence?.routineIntrouvable).toBeTrue();
+
+    const spyAnnuler = spyOn(lecteur as any, 'executerCommandeAffichee');
+    lecteur.magnetoSupprimerCommande();
+
+    expect(spyAnnuler).not.toHaveBeenCalled();
+    expect(fichier.etapesTest.length).toBe(1);
+    expect(fichier.etapesTest[0].type).toBe('c');
+    expect(lecteur.magnetoDivergence).toBeNull();
+  });
+
 });
 
 describe('Magnéto — surlignage des sections divergentes (diff)', () => {
