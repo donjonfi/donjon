@@ -101,7 +101,7 @@
           </label>
           <small class="text-muted">Vérifier les sorties du jeu par rapport à un fichier de vérification.</small>
         </div>
-        <djn-lecteur #lecteurRef [jeu]="jeu" [debogueur]="true"></djn-lecteur>
+        <djn-lecteur #lecteurRef [jeu]="jeu" [debogueur]="true" (nouvellePartieOuAnnulerTour)="lancerCompilation()"></djn-lecteur>
       } @else {
         <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
       }
