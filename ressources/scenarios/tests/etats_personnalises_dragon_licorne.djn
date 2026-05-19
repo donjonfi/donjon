@@ -28,7 +28,7 @@ maudit est un état.
 
 -- Bascule (2 états opposés, mutex, ré-introduction automatique au retrait)
 féroce et paisible forment une bascule.
-pure et corrompue forment une bascule.
+pure et corrompu forment une bascule.
 
 -- Groupe d'états (≥ 2 mutex, pas de ré-introduction)
 éveillé, endormi et hiverné se contredisent.
@@ -108,10 +108,10 @@ fin action
 
 action corrompre ceci:
   phase prérequis:
-    si ceci est corrompue:
+    si ceci est corrompu:
       refuser "[intitulé ceci] est déjà corrompue.".
     fin si
   phase exécution:
-    changer ceci est corrompue.
-    dire "[intitulé ceci] est corrompu !".
+    changer ceci est corrompu.
+    dire "[intitulé ceci] est corrompue !".
 fin action

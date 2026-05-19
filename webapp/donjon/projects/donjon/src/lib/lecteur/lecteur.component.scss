@@ -450,6 +450,12 @@
   padding-top: 0.5rem;
   border-top: 1px solid #dee2e6;
   font-size: 0.85rem;
+  // Hauteur fixe : la mini-liste change de contenu mais pas de taille, ce qui empêche
+  // la toolbar de bouger d'un Pas suivant à l'autre. La fenêtre est adaptive côté TS
+  // (TAILLE_FENETRE) pour remplir cet espace même près des bords du fichier.
+  height: 13rem;
+  overflow-y: auto;
+  justify-content: flex-start;
 }
 
 .djn-magneto-mini-item {
@@ -469,6 +475,13 @@
 
 .djn-magneto-mini-passe {
   color: #28a745;
+}
+
+.djn-magneto-mini-declenchement {
+  font-size: 0.78rem;
+  color: #6f42c1;
+  font-style: italic;
+  padding-left: 1.2rem;
 }
 
 .djn-magneto-mini-icone {

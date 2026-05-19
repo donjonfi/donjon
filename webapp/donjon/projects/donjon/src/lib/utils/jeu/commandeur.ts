@@ -177,7 +177,11 @@ export class Commandeur {
             ctxCmd.sortie = "Instruction appliquée.\n";
           }
         } else {
-          ctxCmd.sortie = "L’instruction n’a pas pu être appliquée.\n";
+          // privilégier le message d’erreur spécifique produit par l’instruction
+          // (ex: « le sujet « X » n’a pas été trouvé »). Sinon, message générique.
+          ctxCmd.sortie = resultat.sortie?.length
+            ? resultat.sortie
+            : "L’instruction n’a pas pu être appliquée.\n";
           sousContexteTour.erreurs.forEach(erreur => {
             ctxCmd.sortie += `{+${erreur}+}{n}`;
           });

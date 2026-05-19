@@ -162,9 +162,9 @@
         }
         @if (!magnetoEstSurIntro) {
           <span class="djn-magneto-sep"></span>
-          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
+          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
           <div class="djn-magneto-insert-wrap">
-            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
+            <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
             @if (magnetoInsererMenuOuvert) {
               <div class="djn-magneto-insert-menu">
                 <button class="djn-magneto-insert-item" type="button" (click)="magnetoInsererMenuOuvert = false; magnetoEntrerInsertion('avant')">Avant</button>
@@ -202,7 +202,7 @@
       <!-- Encart divergence : diff + acceptation de la nouvelle sortie -->
       @if (magnetoDivergence && magnetoEdition === 'aucun') {
         <div class="djn-magneto-divergence">
-          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur la sortie de la commande</div>
+          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-triangle-exclamation me-1"></i>Divergence sur la sortie de la @if (magnetoDivergence?.etape?.type === 'd') { routine } @else { commande }</div>
           <div class="djn-magneto-diff">
             <div class="djn-magneto-bloc">
               <div class="djn-magneto-libelle">Sortie attendue</div>
@@ -239,9 +239,11 @@
       <!-- Mini-liste intro + 3 avant / courant / 3 après -->
       <div class="djn-magneto-mini-liste">
         @for (m of magnetoMiniListe; track m.idx) {
-          <div class="djn-magneto-mini-item" [class.djn-magneto-mini-courant]="m.statut === 'courant'" [class.djn-magneto-mini-passe]="m.statut === 'passe'" [class.djn-magneto-mini-edition]="m.enEdition">
+          <div class="djn-magneto-mini-item" [class.djn-magneto-mini-courant]="m.statut === 'courant'" [class.djn-magneto-mini-passe]="m.statut === 'passe'" [class.djn-magneto-mini-edition]="m.enEdition" [class.djn-magneto-mini-declenchement]="m.estDeclenchement">
             <span class="djn-magneto-mini-icone">
               @if (m.enEdition) { <i class="fas fa-fw fa-pen"></i> }
+              @else if (m.estDivergent) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
+              @else if (m.estDeclenchement) { <i class="fas fa-fw fa-bolt"></i> }
               @else if (m.statut === 'passe') { <i class="fas fa-fw fa-circle-check"></i> }
               @else if (m.statut === 'courant') {
                 @if (m.estIntro && magnetoDivergenceIntro) { <i class="fas fa-fw fa-triangle-exclamation"></i> }
@@ -250,8 +252,12 @@
               }
               @else { <i class="fas fa-fw fa-hourglass-half"></i> }
             </span>
-            <span class="djn-magneto-mini-num">#{{ m.num }}</span>
-            <span class="djn-magneto-mini-cmd">@if (m.estIntro) { <em>{{ m.commande }}</em> } @else { {{ m.commande }} }</span>
+            <span class="djn-magneto-mini-num">@if (m.num !== null) { #{{ m.num }} }</span>
+            <span class="djn-magneto-mini-cmd">
+              @if (m.estIntro) { <em>{{ m.commande }}</em> }
+              @else if (m.estDeclenchement) { <em>routine : {{ m.commande }}</em> }
+              @else { {{ m.commande }} }
+            </span>
           </div>
         }
       </div>

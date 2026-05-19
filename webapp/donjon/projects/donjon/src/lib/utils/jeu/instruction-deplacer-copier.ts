@@ -53,7 +53,7 @@ export class InstructionDeplacerCopier {
       if (objets?.length == 1) {
         const curQuantite = InstructionsUtils.corrigerQuantite(objets[0], quantiteSujet);
         resultat = this.executerDeplacerObjetVersDestination(objets[0], preposition, destination as ElementJeu, curQuantite);
-        // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements. 
+        // si on a trouvé le sujet (liste d’objets) et la destination, effectuer les déplacements.
       } else if (objets?.length > 1) {
         resultat.succes = true;
         // objets contenus trouvés
@@ -61,6 +61,16 @@ export class InstructionDeplacerCopier {
           const curQuantite = InstructionsUtils.corrigerQuantite(el, quantiteSujet);
           resultat.succes = (resultat.succes && this.executerDeplacerObjetVersDestination(el, preposition, destination as ElementJeu, curQuantite).succes);
         });
+      } else {
+        // destination trouvée mais sujet introuvable
+        resultat.sortie = "{+[Instruction « déplacer » : aucun objet ne porte exactement le nom « " + (sujet?.nomEpithete ?? sujet) + " » (la recherche se fait sur le nom complet, épithète comprise).]+}";
+      }
+    } else {
+      // destination introuvable (ou sujet et destination introuvables)
+      if (!objets || objets.length === 0) {
+        resultat.sortie = "{+[Instruction « déplacer » : ni le sujet « " + (sujet?.nomEpithete ?? sujet) + " » ni la destination « " + (complement?.nomEpithete ?? complement) + " » n’ont été trouvés (la recherche se fait sur le nom complet, épithète comprise).]+}";
+      } else {
+        resultat.sortie = "{+[Instruction « déplacer » : la destination « " + (complement?.nomEpithete ?? complement) + " » est introuvable (la recherche se fait sur le nom complet, épithète comprise).]+}";
       }
     }
 

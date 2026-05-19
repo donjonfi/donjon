@@ -91,25 +91,30 @@ export class ContextePartie {
   }
 
   /**
-   * Enregistre la sortie textuelle produite par la dernière étape c/r exécutée.
-   * Cherche le slot c/r le plus récent sans sortie déjà enregistrée et le remplit.
-   * Les étapes g/d éventuellement poussées entre l'ajout de la commande/réponse
-   * et l'enregistrement de sa sortie sont ignorées (elles ne portent pas de sortie).
-   * Avant la première c/r (phase intro), les sorties sont accumulées dans _sortieIntro.
+   * Enregistre la sortie textuelle produite par la dernière étape c/r/d exécutée.
+   * - Si la dernière étape steppable n'a pas encore de sortie : l'y stocke.
+   * - Si elle en a déjà une : **concatène** (cas continuation post-interruption — un `attendre touche`
+   *   coupe la sortie d'une commande/routine en plusieurs morceaux, chacun ré-enregistré).
+   * Les étapes 'g' (graines) sont ignorées (elles ne portent pas de sortie).
+   * Avant la première c/r/d (phase intro), les sorties sont accumulées dans _sortieIntro.
    */
   public enregistrerSortieEtapeCourante(sortie: string) {
-    this._derniereSortieEnregistree = sortie;
+    // _derniereSortieEnregistree accumule sur toute la durée d'une étape (depuis la dernière
+    // réinitialisation). Indispensable pour que le magnéto récupère la sortie complète d'une
+    // commande qui produit plusieurs morceaux séparés par `attendre touche`.
+    this._derniereSortieEnregistree = (this._derniereSortieEnregistree === null)
+      ? sortie
+      : (this._derniereSortieEnregistree + sortie);
     for (let i = this._sortiesParEtape.length - 1; i >= 0; i--) {
-      if (this._sortiesParEtape[i] !== null) continue;
       const brut = this._etapesPartie[i];
-      if (brut?.startsWith('c:') || brut?.startsWith('r:')) {
-        this._sortiesParEtape[i] = sortie;
+      if (brut?.startsWith('c:') || brut?.startsWith('r:') || brut?.startsWith('d:')) {
+        const existant = this._sortiesParEtape[i];
+        this._sortiesParEtape[i] = (existant === null) ? sortie : (existant + sortie);
         this._phaseIntroTerminee = true;
         return;
       }
     }
-    // Aucun slot c/r vide trouvé : on est en phase intro (avant la première commande joueur)
-    // ou la sortie correspond à une routine déclenchée. Pour l'intro, accumuler.
+    // Aucune étape c/r/d encore enregistrée : on est en phase intro. Accumuler.
     if (!this._phaseIntroTerminee) {
       this._sortieIntro += (this._sortieIntro ? '\n' : '') + sortie;
     }
@@ -182,6 +187,29 @@ export class ContextePartie {
   }
 
   /**
+   * Retire les entrées trailing de `_etapesPartie` qui ne sont ni des commandes ('c')
+   * ni des réponses ('r'), c'est-à-dire les déclenchements ('d') et graines ('g') accumulés
+   * APRÈS la dernière commande joueur.
+   *
+   * Utilisé par le magnéto avant `annuler` : sans ça, `enleverToursDeJeux` préserve les 'd'
+   * (comportement voulu en jeu normal pour éviter de ré-exécuter une routine déjà déclenchée),
+   * ce qui les fait re-forcer lors du reload — les sorties de routines réapparaissent à l'écran.
+   * Les 'g' trailing (souvent ajoutés par `nouvelleGraineAleatoire()` en fin de replay auto-triche)
+   * doivent aussi être traversés sinon ils masquent les 'd' qu'on cherche à retirer.
+   */
+  public enleverDeclenchementsTrailing(): void {
+    while (this._etapesPartie.length > 0) {
+      const last = this._etapesPartie[this._etapesPartie.length - 1];
+      const estCommandeOuReponse =
+        last?.startsWith(ExprReg.caractereCommande + ':') ||
+        last?.startsWith(ExprReg.caractereReponse + ':');
+      if (estCommandeOuReponse) break;
+      this._etapesPartie.pop();
+      this._sortiesParEtape.pop();
+    }
+  }
+
+  /**
    * Crée un FichierTest à partir de l'historique courant et des sorties capturées.
    * À appeler après enleverCommandeGenererSolution si la dernière commande est
    * la commande déclencheuse de la génération (« sauver verification »).
@@ -201,7 +229,7 @@ export class ContextePartie {
       const type = brut.substring(0, idxSep) as EtapeTest['type'];
       const valeur = brut.substring(idxSep + 1);
       const etape: EtapeTest = { type, valeur };
-      if ((type === 'c' || type === 'r') && this._sortiesParEtape[i] != null) {
+      if ((type === 'c' || type === 'r' || type === 'd') && this._sortiesParEtape[i] != null) {
         etape.sortie = this._sortiesParEtape[i]!;
       }
       etapes.push(etape);
