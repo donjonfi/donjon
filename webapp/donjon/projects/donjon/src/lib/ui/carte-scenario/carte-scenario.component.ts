@@ -9,6 +9,7 @@ import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Objet } from '../../models/jeu/objet';
 import { ObjetPresent } from '../visualisation/models/objet-present';
+import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
 type Kind = 'lieu' | 'objet' | 'personne' | 'joueur' | 'sortie-lieu';
 
@@ -822,7 +823,7 @@ export class CarteScenarioComponent implements OnChanges {
     const placeNom = Math.max(3, (this.CELL_W - 2) - 1 - indent.length - 2);
     for (const e of enfants) {
       if (cr >= rowEnd) { return cr; }
-      const t = indent + this.tronquer(this.formaterIntitule(e.objet, '• '), placeNom);
+      const t = indent + this.tronquer(this.formaterIntitule(e.objet, '• ', e.prep), placeNom);
       setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: e.objet.id });
       cr++;
       cr = this.dessinerEnfants(e.objet.id, niveau + 1, cr, rowEnd, colStart, setStr);
@@ -832,14 +833,18 @@ export class CarteScenarioComponent implements OnChanges {
 
   /**
    * Décore l'intitulé d'un objet pour l'affichage dans une boîte :
-   *  - préfixe `{ ` si contenant, `= ` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets)
+   *  - si `prep` vaut `sur` → préfixe `+ ` (objet posé au-dessus)
+   *  - si `prep` vaut `sous` → préfixe `- ` (objet posé en dessous)
+   *  - sinon préfixe `{ ` si contenant, `= ` si support, sinon `prefixeParDefaut` (ex. `• ` pour les objets)
    *  - suffixe : lettres des états actifs (d=décor, f=fixé, i=invisible,
    *    a=inaccessible, s=secret, r=discret), accolées
    * Exemple : `{ la bourse fi`
    */
-  private formaterIntitule(objet: Objet, prefixeParDefaut: string = ''): string {
+  private formaterIntitule(objet: Objet, prefixeParDefaut: string = '', prep?: PrepositionSpatiale): string {
     let prefixe = prefixeParDefaut;
-    if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) { prefixe = '{ '; }
+    if (prep === PrepositionSpatiale.sur) { prefixe = '+ '; }
+    else if (prep === PrepositionSpatiale.sous) { prefixe = '- '; }
+    else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.contenant)) { prefixe = '{ '; }
     else if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.support)) { prefixe = '= '; }
     const nom = objet.intitule?.toString() ?? objet.nom ?? '';
     const etats = this.collecterEtatsLettres(objet);

@@ -15,7 +15,7 @@ import 'brace/theme/solarized_dark';
 
 import * as FileSaver from 'file-saver-es';
 
-import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, FichierTest, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
+import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, FichierEnregistrement, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
@@ -138,8 +138,8 @@ export class EditeurComponent implements OnInit, OnDestroy {
 
   /** Empreinte du code source de la dernière compilation — pour détecter qu'on a un nouveau scénario. */
   private _lastCompiledCodeSource: string | null = null;
-  /** Fichier .tst à charger automatiquement dès que la compilation produit un jeu. */
-  private _pendingTst: FichierTest | null = null;
+  /** Enregistrement .rec à charger automatiquement dès que la compilation produit un jeu. */
+  private _pendingEnregistrement: FichierEnregistrement | null = null;
 
   private problemeChargementFichierActions: boolean | undefined;
   chargementActionsEnCours = false;
@@ -364,12 +364,12 @@ export class EditeurComponent implements OnInit, OnDestroy {
           this.showTab('jeu');
         }
 
-        // Reprise éventuelle d'un .tst posé en attente lorsque le scénario n'était pas encore compilé.
-        if (this._pendingTst && this.jeu) {
-          const fichierTest = this._pendingTst;
-          this._pendingTst = null;
+        // Reprise éventuelle d'un enregistrement (.rec) posé en attente lorsque le scénario n'était pas encore compilé.
+        if (this._pendingEnregistrement && this.jeu) {
+          const fichierEnregistrement = this._pendingEnregistrement;
+          this._pendingEnregistrement = null;
           this.showTab('jeu');
-          setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest), 0);
+          setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setEnregistrement(fichierEnregistrement), 0);
         }
 
       });
@@ -385,10 +385,10 @@ export class EditeurComponent implements OnInit, OnDestroy {
       this.erreurs = [];
       this.compilationEnCours = false;
       this.compilationTerminee = true;
-      // Pas de scénario à compiler → un .tst en attente n'a aucune chance d'être joué.
-      if (this._pendingTst) {
-        console.warn("Le .tst en attente est ignoré : il n'y a pas de scénario à compiler.");
-        this._pendingTst = null;
+      // Pas de scénario à compiler → un enregistrement en attente n'a aucune chance d'être joué.
+      if (this._pendingEnregistrement) {
+        console.warn("L'enregistrement en attente est ignoré : il n'y a pas de scénario à compiler.");
+        this._pendingEnregistrement = null;
       }
     }
   }
@@ -572,32 +572,32 @@ export class EditeurComponent implements OnInit, OnDestroy {
           // lire le fichier
           fileReader.readAsText(file);
 
-          // C. CHARGEMENT FICHIER DE VÉRIFICATION (.tst) — sauvegarde + sorties attendues
-        } else if (file.name.endsWith(".tst")) {
+          // C. CHARGEMENT ENREGISTREMENT (.rec) — sauvegarde + sorties attendues
+        } else if (file.name.endsWith(".rec")) {
           const fileReader = new FileReader();
           fileReader.onloadend = () => {
             const contenuFichier = fileReader.result as string;
-            if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
-              this.jeu?.tamponErreurs?.push("Ce fichier n’est pas un fichier de vérification Donjon FI (.tst)");
+            if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"enregistrement"/)) {
+              this.jeu?.tamponErreurs?.push("Ce fichier n’est pas un enregistrement Donjon FI (.rec)");
               return;
             }
-            const fichierTest = JSON.parse(contenuFichier) as FichierTest;
-            if (fichierTest.version > versionNum) {
-              this.jeu?.tamponErreurs?.push("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
+            const fichierEnregistrement = JSON.parse(contenuFichier) as FichierEnregistrement;
+            if (fichierEnregistrement.version > versionNum) {
+              this.jeu?.tamponErreurs?.push("Cet enregistrement a été créé avec une version plus récente de Donjon FI.");
             }
 
             // Compiler si jamais compilé OU si le code source a changé depuis la dernière compilation.
-            // onCompiler est asynchrone : on dépose le .tst en attente et la fin de onCompiler le consomme.
+            // onCompiler est asynchrone : on dépose l'enregistrement en attente et la fin de onCompiler le consomme.
             const scenarioAJour = !!this.jeu && this._lastCompiledCodeSource === this.codeSource;
             if (!scenarioAJour) {
-              this._pendingTst = fichierTest;
+              this._pendingEnregistrement = fichierEnregistrement;
               this.onCompiler(undefined);
               return;
             }
 
             // Scénario déjà à jour : bascule directement sur l'onglet jeu et lance le magnéto.
             this.showTab('jeu');
-            setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setVerification(fichierTest), 0);
+            setTimeout(() => ((this.lecteurRef as any) as LecteurComponent).setEnregistrement(fichierEnregistrement), 0);
           };
           fileReader.readAsText(file);
         }

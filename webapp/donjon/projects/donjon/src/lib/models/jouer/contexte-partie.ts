@@ -7,7 +7,7 @@ import { Instructions } from "../../utils/jeu/instructions";
 import { Jeu } from "../jeu/jeu";
 import { StringUtils } from "../../utils/commun/string.utils";
 import { Sauvegarde } from "./sauvegarde";
-import { EtapeTest, FichierTest } from "./fichier-test";
+import { EtapeEnregistrement, FichierEnregistrement } from "./fichier-enregistrement";
 import { versionNum } from "../commun/constantes";
 import { ExprReg } from "donjon";
 
@@ -31,14 +31,14 @@ export class ContextePartie {
    * Sortie textuelle produite par chaque étape (aligné par index sur _etapesPartie).
    * - Pour c/r : la sortie brute de ContexteCommande après exécution.
    * - Pour g/d : null (placeholder pour conserver l'alignement d'index).
-   * Utilisé pour générer un FichierTest.
+   * Utilisé pour générer un FichierEnregistrement.
    */
   private _sortiesParEtape: (string | null)[] = [];
 
   /**
    * Sortie textuelle de l'intro du jeu — accumulée avant la première commande joueur.
    * Inclut les sorties produites par « commencer le jeu », « regarder » initial,
-   * et les routines déclenchées au démarrage. Stockée dans FichierTest.sortieIntro.
+   * et les routines déclenchées au démarrage. Stockée dans FichierEnregistrement.sortieIntro.
    */
   private _sortieIntro: string = '';
 
@@ -210,25 +210,25 @@ export class ContextePartie {
   }
 
   /**
-   * Crée un FichierTest à partir de l'historique courant et des sorties capturées.
+   * Crée un FichierEnregistrement à partir de l'historique courant et des sorties capturées.
    * À appeler après enleverCommandeGenererSolution si la dernière commande est
-   * la commande déclencheuse de la génération (« sauver verification »).
+   * la commande déclencheuse de la génération (« générer enregistrement »).
    */
-  public creerFichierTest(): FichierTest {
-    const fichier = new FichierTest();
+  public creerFichierEnregistrement(): FichierEnregistrement {
+    const fichier = new FichierEnregistrement();
     fichier.version = versionNum;
     fichier.declenchementsFuturs = this.jeu.declenchementsFuturs;
     fichier.scenario = undefined;
 
-    const etapes: EtapeTest[] = [];
+    const etapes: EtapeEnregistrement[] = [];
     let graineInitiale: string | undefined;
 
     for (let i = 0; i < this._etapesPartie.length; i++) {
       const brut = this._etapesPartie[i];
       const idxSep = brut.indexOf(':');
-      const type = brut.substring(0, idxSep) as EtapeTest['type'];
+      const type = brut.substring(0, idxSep) as EtapeEnregistrement['type'];
       const valeur = brut.substring(idxSep + 1);
-      const etape: EtapeTest = { type, valeur };
+      const etape: EtapeEnregistrement = { type, valeur };
       if ((type === 'c' || type === 'r' || type === 'd') && this._sortiesParEtape[i] != null) {
         etape.sortie = this._sortiesParEtape[i]!;
       }
@@ -239,7 +239,7 @@ export class ContextePartie {
     }
 
     fichier.graine = graineInitiale;
-    fichier.etapesTest = etapes;
+    fichier.etapes = etapes;
     fichier.sortieIntro = this._sortieIntro;
     return fichier;
   }

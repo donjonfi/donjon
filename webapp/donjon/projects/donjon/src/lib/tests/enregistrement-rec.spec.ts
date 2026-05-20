@@ -1,17 +1,17 @@
 import { ElementRef } from "@angular/core";
 
-import { EtapeTest, FichierTest, LecteurComponent } from "../../public-api";
+import { EtapeEnregistrement, FichierEnregistrement, LecteurComponent } from "../../public-api";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { TestUtils } from "../utils/test-utils";
 import { actions } from "./scenario_actions";
 
-describe('Fichier de vérification (.tst) — résolution commande joueur', () => {
+describe('Enregistrement (.rec) — résolution commande joueur', () => {
 
-  it('[F050-TR001] la commande joueur « générer vérification » est reconnue', () => {
+  it('[F050-TR001] la commande joueur « générer enregistrement » est reconnue', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    const r = ctx.com.executerCommande('générer vérification', false);
-    expect(r.sortie).toContain('@générer-vérification@');
+    const r = ctx.com.executerCommande('générer enregistrement', false);
+    expect(r.sortie).toContain('@générer-enregistrement@');
   });
 
   it('[F050-TR002] la commande joueur « générer solution » est reconnue (témoin)', () => {
@@ -23,7 +23,7 @@ describe('Fichier de vérification (.tst) — résolution commande joueur', () =
 
 });
 
-describe('Fichier de vérification (.tst)', () => {
+describe('Enregistrement (.rec)', () => {
 
   /**
    * Joue quelques commandes en simulant ce que fait LecteurComponent
@@ -41,7 +41,7 @@ describe('Fichier de vérification (.tst)', () => {
     return sorties;
   }
 
-  it('[F050-T001] creerFichierTest produit etapesTest avec sortie pour chaque commande', () => {
+  it('[F050-T001] creerFichierEnregistrement produit etapes avec sortie pour chaque commande', () => {
     const scenario =
       `La salle est un lieu.
        le cube est un objet vu ici.
@@ -51,12 +51,12 @@ describe('Fichier de vérification (.tst)', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const sorties = jouer(ctx, ['tester le cube', 'tester le cube']);
 
-    const fichier = ctx.creerFichierTest();
+    const fichier = ctx.creerFichierEnregistrement();
 
-    expect(fichier.type).toEqual('test');
-    expect(fichier.etapesTest).toBeDefined();
+    expect(fichier.type).toEqual('enregistrement');
+    expect(fichier.etapes).toBeDefined();
 
-    const cEtapes = fichier.etapesTest.filter(e => e.type === 'c');
+    const cEtapes = fichier.etapes.filter(e => e.type === 'c');
     expect(cEtapes.length).toBe(2);
     expect(cEtapes[0].valeur).toBe('tester le cube');
     expect(cEtapes[0].sortie).toBe(sorties[0]);
@@ -73,12 +73,12 @@ describe('Fichier de vérification (.tst)', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     jouer(ctx, ['tester le cube']);
 
-    const fichier = ctx.creerFichierTest();
+    const fichier = ctx.creerFichierEnregistrement();
     const json = JSON.stringify(fichier);
-    const reparse = JSON.parse(json) as FichierTest;
+    const reparse = JSON.parse(json) as FichierEnregistrement;
 
-    expect(reparse.type).toBe('test');
-    const cEtape = reparse.etapesTest.find(e => e.type === 'c');
+    expect(reparse.type).toBe('enregistrement');
+    const cEtape = reparse.etapes.find(e => e.type === 'c');
     expect(cEtape).toBeDefined();
     expect(cEtape!.valeur).toBe('tester le cube');
     expect(cEtape!.sortie).toBeDefined();
@@ -95,9 +95,9 @@ describe('Fichier de vérification (.tst)', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     jouer(ctx, ['tester le cube']);
 
-    const fichier = ctx.creerFichierTest();
+    const fichier = ctx.creerFichierEnregistrement();
 
-    for (const etape of fichier.etapesTest) {
+    for (const etape of fichier.etapes) {
       if (etape.type === 'g') {
         expect(etape.sortie).toBeUndefined();
       }
@@ -110,10 +110,10 @@ describe('Fichier de vérification (.tst)', () => {
        le cube est un objet vu ici.`;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
-    const fichier = ctx.creerFichierTest();
+    const fichier = ctx.creerFichierEnregistrement();
 
     expect(fichier.graine).toBeDefined();
-    const premiere = fichier.etapesTest[0];
+    const premiere = fichier.etapes[0];
     expect(premiere.type).toBe('g');
     expect(premiere.valeur).toBe(fichier.graine);
   });
@@ -127,12 +127,12 @@ describe('Fichier de vérification (.tst)', () => {
        fin action`;
     const ctxOrigine = TestUtils.genererEtCommencerLeJeu(scenario, false);
     jouer(ctxOrigine, ['tester le cube', 'tester le cube']);
-    const fichier = ctxOrigine.creerFichierTest();
+    const fichier = ctxOrigine.creerFichierEnregistrement();
 
     // Reprendre depuis zéro et vérifier que chaque c: produit bien sortie.
     const ctxRejeu = TestUtils.genererEtCommencerLeJeu(scenario, false);
     let ignorerPremiereGraine = true;
-    for (const etape of fichier.etapesTest) {
+    for (const etape of fichier.etapes) {
       if (etape.type === 'g' && ignorerPremiereGraine) {
         ignorerPremiereGraine = false;
         continue;
@@ -157,8 +157,8 @@ describe('Fichier de vérification (.tst)', () => {
     ctx.enregistrerSortieEtapeCourante('Mon héro!@@attendre touche@@');
     ctx.enregistrerSortieEtapeCourante('Vous êtes de retour chez vous!');
 
-    const fichier = ctx.creerFichierTest();
-    const cEtape = fichier.etapesTest.find(e => e.type === 'c' && e.valeur === 'donner anneau');
+    const fichier = ctx.creerFichierEnregistrement();
+    const cEtape = fichier.etapes.find(e => e.type === 'c' && e.valeur === 'donner anneau');
     expect(cEtape).toBeDefined();
     expect(cEtape!.sortie).toBe('Mon héro!@@attendre touche@@Vous êtes de retour chez vous!');
   });
@@ -187,25 +187,25 @@ describe('Fichier de vérification (.tst)', () => {
     ctx.nouvelleGraineAleatoire('42');
     ctx.enregistrerSortieEtapeCourante('SORTIE_C');
 
-    const fichier = ctx.creerFichierTest();
-    const cEtapes = fichier.etapesTest.filter(e => e.type === 'c');
+    const fichier = ctx.creerFichierEnregistrement();
+    const cEtapes = fichier.etapes.filter(e => e.type === 'c');
     expect(cEtapes[0].sortie).toBe('SORTIE_C');
-    const gEtapes = fichier.etapesTest.filter(e => e.type === 'g' && e.valeur === '42');
+    const gEtapes = fichier.etapes.filter(e => e.type === 'g' && e.valeur === '42');
     expect(gEtapes[0].sortie).toBeUndefined();
   });
 
 });
 
-describe('Fichier de vérification (.tst) — mode magnéto', () => {
+describe('Enregistrement (.rec) — mode magnéto', () => {
 
-  function creerLecteurMagneto(ctx: ContextePartie, fichier: FichierTest): LecteurComponent {
+  function creerLecteurMagneto(ctx: ContextePartie, fichier: FichierEnregistrement): LecteurComponent {
     const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
     (lecteur as any).partie = ctx;
     (lecteur as any).jeu = ctx.jeu;
-    (lecteur as any).fichierTestEnCours = fichier;
-    (lecteur as any).verificationActive = true;
-    (lecteur as any).verificationActions = [];
-    (lecteur as any).verificationCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
+    (lecteur as any).enregistrementEnCours = fichier;
+    (lecteur as any).enregistrementActif = true;
+    (lecteur as any).enregistrementActions = [];
+    (lecteur as any).enregistrementCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
     (lecteur as any).magnetoIdx = 0;
     (lecteur as any).magnetoDivergence = null;
     (lecteur as any).magnetoEdition = 'aucun';
@@ -218,11 +218,11 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     return lecteur;
   }
 
-  function fichierMinimal(etapes: EtapeTest[]): FichierTest {
-    return Object.assign(new FichierTest(), {
+  function fichierMinimal(etapes: EtapeEnregistrement[]): FichierEnregistrement {
+    return Object.assign(new FichierEnregistrement(), {
       version: 1, scenario: '', graine: '',
       declenchementsFuturs: [],
-      etapesTest: etapes,
+      etapes: etapes,
     });
   }
 
@@ -260,11 +260,11 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoValider();
 
     expect(lecteur.magnetoDivergence).toBeNull();
-    expect(fichier.etapesTest[0].sortie).not.toBe('SORTIE_FAUSSE');
-    expect(lecteur.verificationCompteurs.acceptations).toBe(1);
+    expect(fichier.etapes[0].sortie).not.toBe('SORTIE_FAUSSE');
+    expect(lecteur.enregistrementCompteurs.acceptations).toBe(1);
   });
 
-  it('[F050-MAG-T004] supprimer commande : étape retirée du .tst, annuler joué', () => {
+  it('[F050-MAG-T004] supprimer commande : étape retirée du .rec, annuler joué', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -277,8 +277,8 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoSupprimerCommande();
 
     expect(lecteur.magnetoDivergence).toBeNull();
-    expect(fichier.etapesTest.length).toBe(1);
-    expect(lecteur.verificationCompteurs.retraits).toBe(1);
+    expect(fichier.etapes.length).toBe(1);
+    expect(lecteur.enregistrementCompteurs.retraits).toBe(1);
     expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
@@ -294,9 +294,9 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoValiderSaisie();
 
     expect(lecteur.magnetoDivergence).toBeNull();
-    expect(fichier.etapesTest[0].valeur).toBe('attendre');
-    expect(fichier.etapesTest[0].sortie).toBeDefined();
-    expect(lecteur.verificationCompteurs.modifications).toBe(1);
+    expect(fichier.etapes[0].valeur).toBe('attendre');
+    expect(fichier.etapes[0].sortie).toBeDefined();
+    expect(lecteur.enregistrementCompteurs.modifications).toBe(1);
   });
 
   it('[F050-MAG-T006] insérer après : nouvelle étape ajoutée à idx+1', () => {
@@ -310,12 +310,12 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
 
     lecteur.magnetoValiderSaisie();
 
-    expect(fichier.etapesTest.length).toBe(2);
-    expect(fichier.etapesTest[1].valeur).toBe('attendre');
-    expect(lecteur.verificationCompteurs.ajouts).toBe(1);
+    expect(fichier.etapes.length).toBe(2);
+    expect(fichier.etapes[1].valeur).toBe('attendre');
+    expect(lecteur.enregistrementCompteurs.ajouts).toBe(1);
   });
 
-  it('[F050-MAG-T007] quitter : verificationActive devient false', () => {
+  it('[F050-MAG-T007] quitter : enregistrementActif devient false', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([{ type: 'c', valeur: 'attendre', sortie: '' }]);
@@ -323,8 +323,8 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
 
     lecteur.magnetoQuitter();
 
-    expect(lecteur.verificationActive).toBeFalse();
-    expect(lecteur.fichierTestEnCours).toBeNull();
+    expect(lecteur.enregistrementActif).toBeFalse();
+    expect(lecteur.enregistrementEnCours).toBeNull();
   });
 
   it('[F050-MAG-T008] compteur c+r ignore g/d', () => {
@@ -349,14 +349,14 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
    * (utilise `this.commande`, PAS la commande passée en argument).
    * Indispensable pour démontrer le bug d'alimentation de la pile en mode magnéto.
    */
-  function creerLecteurMagnetoFidele(ctx: ContextePartie, fichier: FichierTest): LecteurComponent {
+  function creerLecteurMagnetoFidele(ctx: ContextePartie, fichier: FichierEnregistrement): LecteurComponent {
     const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
     (lecteur as any).partie = ctx;
     (lecteur as any).jeu = ctx.jeu;
-    (lecteur as any).fichierTestEnCours = fichier;
-    (lecteur as any).verificationActive = true;
-    (lecteur as any).verificationActions = [];
-    (lecteur as any).verificationCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
+    (lecteur as any).enregistrementEnCours = fichier;
+    (lecteur as any).enregistrementActif = true;
+    (lecteur as any).enregistrementActions = [];
+    (lecteur as any).enregistrementCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
     (lecteur as any).magnetoIdx = 0;
     (lecteur as any).magnetoDivergence = null;
     (lecteur as any).magnetoEdition = 'aucun';
@@ -378,7 +378,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     return lecteur;
   }
 
-  it('[F050-MAG-T009] magnetoPasSuivant pousse la commande du .tst dans _etapesPartie de la partie', () => {
+  it('[F050-MAG-T009] magnetoPasSuivant pousse la commande du .rec dans _etapesPartie de la partie', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -390,7 +390,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoPasSuivant();
     lecteur.magnetoPasSuivant();
 
-    // La pile d'instructions (lue par le DSL `annuler N tour(s)` et `creerFichierTest`)
+    // La pile d'instructions (lue par le DSL `annuler N tour(s)` et `creerFichierEnregistrement`)
     // doit refléter les commandes effectivement jouées par le magnéto.
     const commandes = ctx.etapesPartie.filter(e => e.startsWith('c:'));
     expect(commandes).toEqual(['c:attendre', 'c:attendre']);
@@ -409,8 +409,8 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoPasSuivant();
     lecteur.magnetoSupprimerCommande();
 
-    expect(fichier.etapesTest.length).toBe(1);
-    expect(lecteur.verificationCompteurs.retraits).toBe(1);
+    expect(fichier.etapes.length).toBe(1);
+    expect(lecteur.enregistrementCompteurs.retraits).toBe(1);
     // « annuler » est envoyé pour rembobiner avant le splice.
     expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
@@ -462,11 +462,11 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
 
     lecteur.magnetoValiderSaisie();
 
-    expect(fichier.etapesTest.length).toBe(2);
-    expect(fichier.etapesTest[0].valeur).toBe('regarder');
-    expect(fichier.etapesTest[0].sortie).toBeDefined();
+    expect(fichier.etapes.length).toBe(2);
+    expect(fichier.etapes[0].valeur).toBe('regarder');
+    expect(fichier.etapes[0].sortie).toBeDefined();
     expect(lecteur.magnetoIdx).toBeGreaterThanOrEqual(1);
-    expect(lecteur.verificationCompteurs.modifications).toBe(1);
+    expect(lecteur.enregistrementCompteurs.modifications).toBe(1);
   });
 
   it('[F050-MAG-T015] valider insertion (avant) : étape insérée juste avant la commande exécutée', () => {
@@ -485,11 +485,11 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoValiderSaisie();
 
     // L'originale [0] est repoussée à idx=1 ; la nouvelle prend la place 0.
-    expect(fichier.etapesTest.length).toBe(3);
-    expect(fichier.etapesTest[0].valeur).toBe('regarder');
-    expect(fichier.etapesTest[1].valeur).toBe('attendre');
+    expect(fichier.etapes.length).toBe(3);
+    expect(fichier.etapes[0].valeur).toBe('regarder');
+    expect(fichier.etapes[1].valeur).toBe('attendre');
     expect(lecteur.magnetoIdx).toBeGreaterThanOrEqual(1);
-    expect(lecteur.verificationCompteurs.ajouts).toBe(1);
+    expect(lecteur.enregistrementCompteurs.ajouts).toBe(1);
   });
 
   it('[F050-MAG-T016] recapActionsAffichables masque les actions « reculé »', () => {
@@ -503,11 +503,11 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     lecteur.magnetoPasSuivant();   // pousse une étape ; le récap s'affiche
     lecteur.recapReculer();        // pousse une action « reculé »
 
-    expect(lecteur.verificationActions.some(a => a.action === 'reculé')).toBeTrue();
+    expect(lecteur.enregistrementActions.some(a => a.action === 'reculé')).toBeTrue();
     expect(lecteur.recapActionsAffichables.some(a => a.action === 'reculé')).toBeFalse();
   });
 
-  it('[F050-MAG-T017] recapReculer ré-active la vérification, ferme le récap et envoie « annuler »', () => {
+  it('[F050-MAG-T017] recapReculer ré-active la enregistrement, ferme le récap et envoie « annuler »', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -517,12 +517,12 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
 
     lecteur.magnetoPasSuivant();   // unique étape jouée → récap affiché
     expect(lecteur.recapAffiche).toBeTrue();
-    expect(lecteur.verificationActive).toBeFalse();
+    expect(lecteur.enregistrementActif).toBeFalse();
 
     lecteur.recapReculer();
 
     expect(lecteur.recapAffiche).toBeFalse();
-    expect(lecteur.verificationActive).toBeTrue();
+    expect(lecteur.enregistrementActif).toBeTrue();
     expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
   });
 
@@ -541,10 +541,10 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     const ctxMag = TestUtils.genererEtCommencerLeJeu(scenario, false);
     ctxMag.nouvelleGraineAleatoire('verif-graine');
     // Sentinelle pour éviter afficherRecap après le 1er pas suivant.
-    const fichier: FichierTest = Object.assign(new FichierTest(), {
+    const fichier: FichierEnregistrement = Object.assign(new FichierEnregistrement(), {
       version: 1, scenario: '', graine: 'verif-graine',
       declenchementsFuturs: [],
-      etapesTest: [
+      etapes: [
         { type: 'c', valeur: 'lancer', sortie: sortieAttendue },
         { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
       ],
@@ -571,10 +571,10 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     ctxRef.nouvelleGraineAleatoire('graine-B');
     const sortieB = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
 
-    const fichier: FichierTest = Object.assign(new FichierTest(), {
+    const fichier: FichierEnregistrement = Object.assign(new FichierEnregistrement(), {
       version: 1, scenario: '', graine: 'graine-A',
       declenchementsFuturs: [],
-      etapesTest: [
+      etapes: [
         { type: 'g', valeur: 'graine-A' },
         { type: 'c', valeur: 'lancer', sortie: sortieA },
         { type: 'g', valeur: 'graine-B' },
@@ -609,10 +609,10 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
     const sortie1 = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
     const sortie2 = ctxRef.com.executerCommande('lancer', false)?.sortie ?? '';
 
-    const fichier: FichierTest = Object.assign(new FichierTest(), {
+    const fichier: FichierEnregistrement = Object.assign(new FichierEnregistrement(), {
       version: 1, scenario: '', graine: 'mag-multi',
       declenchementsFuturs: [],
-      etapesTest: [
+      etapes: [
         { type: 'c', valeur: 'lancer', sortie: sortie1 },
         { type: 'c', valeur: 'lancer', sortie: sortie2 },
         { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' }, // sentinelle
@@ -636,7 +636,7 @@ describe('Fichier de vérification (.tst) — mode magnéto', () => {
   it('[F050-MAG-T010] magnetoPrecedent envoie « annuler » et alimente _etapesPartie', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    // 2 étapes : on s'arrête après la 1re pour éviter `afficherRecap` (qui désactive `verificationActive`).
+    // 2 étapes : on s'arrête après la 1re pour éviter `afficherRecap` (qui désactive `enregistrementActif`).
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
       { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
@@ -727,7 +727,7 @@ routine ping:
 fin routine
 ` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    // .tst avec sortie ERRONÉE sur le 'd:ping' — doit lever une divergence au Pas suivant SUR le d.
+    // .rec avec sortie ERRONÉE sur le 'd:ping' — doit lever une divergence au Pas suivant SUR le d.
     const fichier = fichierMinimal([
       { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
       { type: 'd', valeur: 'ping', sortie: 'SORTIE_FAUSSE_POUR_PING' },
@@ -774,8 +774,8 @@ fin routine
     ctx.ajouterDeclenchementDansSauvegarde('ping');
     ctx.enregistrerSortieEtapeCourante('ping{N}');
 
-    const fichier = ctx.creerFichierTest();
-    const dEtape = fichier.etapesTest.find(e => e.type === 'd' && e.valeur === 'ping');
+    const fichier = ctx.creerFichierEnregistrement();
+    const dEtape = fichier.etapes.find(e => e.type === 'd' && e.valeur === 'ping');
 
     expect(dEtape).toBeDefined();
     expect(dEtape!.sortie).toBe('ping{N}');
@@ -791,7 +791,7 @@ fin routine
 
     const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
     lecteur.jeu = ctx.jeu;
-    (lecteur as any).verificationActive = true;
+    (lecteur as any).enregistrementActif = true;
 
     // Neutraliser les effets de bord d'initialiserJeu (sinon le test hang via setTimeout récursif
     // ou via envoyerCommande qui rejoue 'commencer le jeu' / 'regarder' au démarrage).
@@ -814,7 +814,7 @@ fin routine
 
     const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
     lecteur.jeu = ctx.jeu;
-    // verificationActive reste false (mode normal, pas de magnéto).
+    // enregistrementActif reste false (mode normal, pas de magnéto).
 
     spyOn(lecteur as any, 'verifierChrono');
     spyOn(lecteur as any, 'verifierTamponErreurs');
@@ -857,10 +857,10 @@ fin routine
     // Neutralise le setTimeout(250) qui auto-rejoue la c/r : sans ça, il fire après la fin du
     // test (les spies jasmine sont reset dans afterAll → envoyerCommande réel appelle
     // ajouterTexteAIgnorerAuxStatistiques sur partie.statistiques torn-down → TypeError).
-    (lecteur as any).verificationActive = false;
+    (lecteur as any).enregistrementActif = false;
   });
 
-  it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .tst', () => {
+  it('[F050-MAG-T020] précédent sur divergence intro : ferme le panneau sans modifier la sortie d\'intro du .rec', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([{ type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' }]);
@@ -893,7 +893,7 @@ fin routine
     expect((lecteur as any).magnetoLectureAutoEnCours).toBeFalse();
   });
 
-  it('[F050-MAG-T024] supprimer sur divergence "routine introuvable" : retire l’étape du .tst sans tenter d’annuler de tour', () => {
+  it('[F050-MAG-T024] supprimer sur divergence "routine introuvable" : retire l’étape du .rec sans tenter d’annuler de tour', () => {
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -908,8 +908,8 @@ fin routine
     lecteur.magnetoSupprimerCommande();
 
     expect(spyAnnuler).not.toHaveBeenCalled();
-    expect(fichier.etapesTest.length).toBe(1);
-    expect(fichier.etapesTest[0].type).toBe('c');
+    expect(fichier.etapes.length).toBe(1);
+    expect(fichier.etapes[0].type).toBe('c');
     expect(lecteur.magnetoDivergence).toBeNull();
   });
 
@@ -962,19 +962,19 @@ describe('Magnéto — surlignage des sections divergentes (diff)', () => {
 
 describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
 
-  function fichierMinimal(etapes: EtapeTest[]): FichierTest {
-    return Object.assign(new FichierTest(), {
+  function fichierMinimal(etapes: EtapeEnregistrement[]): FichierEnregistrement {
+    return Object.assign(new FichierEnregistrement(), {
       version: 1, scenario: '', graine: '',
       declenchementsFuturs: [],
-      etapesTest: etapes,
+      etapes: etapes,
     });
   }
 
   // Construit un LecteurComponent suffisamment renseigné pour évaluer le getter `magnetoMiniListe`.
-  function lecteurPourMiniListe(fichier: FichierTest, magnetoIdx: number): LecteurComponent {
+  function lecteurPourMiniListe(fichier: FichierEnregistrement, magnetoIdx: number): LecteurComponent {
     const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
-    (lecteur as any).fichierTestEnCours = fichier;
-    (lecteur as any).verificationActive = true;
+    (lecteur as any).enregistrementEnCours = fichier;
+    (lecteur as any).enregistrementActif = true;
     (lecteur as any).magnetoIdx = magnetoIdx;
     (lecteur as any).magnetoDivergence = null;
     (lecteur as any).magnetoDivergenceIntro = null;
@@ -1062,7 +1062,7 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
     ]);
     const lecteur = lecteurPourMiniListe(fichier, 2);
     (lecteur as any).magnetoDivergence = {
-      etape: fichier.etapesTest[2], idx: 2,
+      etape: fichier.etapes[2], idx: 2,
       sortieObtenue: 'obtenu', diffAttendu: [], diffObtenue: [],
     };
 

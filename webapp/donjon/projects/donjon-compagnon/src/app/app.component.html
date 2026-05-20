@@ -42,6 +42,13 @@
         <i class="fas fa-fw fa-download fa-lg"></i>
       </button>
     </li>
+    <li class="nav-item d-flex align-items-center">
+      <!-- charger un enregistrement (.rec) pour rejouer / vérifier les sorties -->
+      <label class="btn btn-info px-2 compagnon-toolbar-btn mb-0" title="Charger un enregistrement (.rec) pour vérifier les sorties du jeu">
+        <i class="fas fa-fw fa-circle-play fa-lg"></i>
+        <input type="file" accept=".rec" hidden (change)="onChargerEnregistrement($event.target)">
+      </label>
+    </li>
   </ul>
 
   <div class="compagnon-content"
@@ -94,13 +101,6 @@
          « commencer le jeu » sur un jeu déjà démarré → « Le jeu a déjà commencé. »). -->
     <div [hidden]="activeTab !== 'jeu'" class="compagnon-pane compagnon-pane--jeu">
       @if (jeu) {
-        <div class="p-2 d-flex align-items-center gap-2">
-          <label class="btn btn-sm btn-outline-secondary mb-0">
-            Charger un .tst…
-            <input type="file" accept=".tst" hidden (change)="onChargerFichierTest($event.target)">
-          </label>
-          <small class="text-muted">Vérifier les sorties du jeu par rapport à un fichier de vérification.</small>
-        </div>
         <djn-lecteur #lecteurRef [jeu]="jeu" [debogueur]="true" (nouvellePartieOuAnnulerTour)="lancerCompilation()"></djn-lecteur>
       } @else {
         <p class="text-muted p-3">Jeu indisponible — cliquez sur <strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> pour (re)compiler le scénario.</p>
@@ -223,6 +223,7 @@
       <ul>
         <li><strong>Analyser</strong> <i class="fas fa-fw fa-wand-magic-sparkles"></i> — (re)compile le scénario à partir du fichier sur disque. Sélectionne automatiquement l'onglet <strong>Analyse</strong> en cas d'erreur, sinon <strong>Jeu</strong>.</li>
         <li><strong>Télécharger mon jeu</strong> <i class="fas fa-fw fa-download"></i> — produit un fichier HTML autonome contenant le lecteur Donjon FI + le scénario (multi-fichiers résolus) + les actions, distribuable et jouable hors ligne.</li>
+        <li><strong>Charger un enregistrement</strong> <i class="fas fa-fw fa-circle-play"></i> — charge un fichier <code>.rec</code> pour rejouer la partie pas-à-pas dans le lecteur et vérifier que les sorties du jeu correspondent toujours.</li>
       </ul>
 
       <h5 class="mt-4"><code>actions.djn</code> — résolution en 3 niveaux</h5>

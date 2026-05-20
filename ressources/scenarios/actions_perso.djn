@@ -412,8 +412,8 @@ action générer solution:
   dire "@générer-solution@".
 fin action
 
-action générer vérification:
-  dire "@générer-vérification@".
+action générer enregistrement:
+  dire "@générer-enregistrement@".
 fin action
 
 -- ===========

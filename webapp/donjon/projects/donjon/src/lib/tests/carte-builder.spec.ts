@@ -1,6 +1,7 @@
 import { CarteBuilder } from "../utils/jeu/carte-builder";
 import { EClasseRacine } from "../models/commun/constantes";
 import { ELocalisation } from "../models/jeu/localisation";
+import { PrepositionSpatiale } from "../models/jeu/position-objet";
 import { TestUtils } from "../utils/test-utils";
 
 describe('CarteBuilder', () => {
@@ -552,5 +553,46 @@ Le joueur est dans le château.
 
     // aucune arête : aucune relation cardinale ni verticale entre les trois lieux
     expect(carte.aretes.length).toBe(0);
+  });
+
+  it('[F060-T020] objets posés sur/sous un meuble : enfantsParObjet expose la préposition spatiale', () => {
+    // Une chambre avec une table et un lit. Au-dessus de chaque meuble : un objet visible (livre, oreiller).
+    // En dessous de chaque meuble : un objet caché (chaussette, valise).
+    // La carte doit rattacher chaque enfant au bon parent ET conserver la préposition (sur/sous)
+    // pour que le rendu puisse distinguer le « au-dessus » du « en dessous » (préfixes + / -).
+    const scenario = `
+La chambre est un lieu.
+La table est un support dans la chambre.
+Le lit est un support dans la chambre.
+Le livre est un objet sur la table.
+La chaussette est un objet sous la table.
+L'oreiller est un objet sur le lit.
+La valise est un objet sous le lit.
+
+Le joueur est dans la chambre.
+`;
+    const jeu = TestUtils.genererLeJeu(scenario);
+    const carte = CarteBuilder.construire(jeu);
+
+    // Les 4 objets enfants ne sont PAS au niveau du lieu : ils sont rattachés à leur parent.
+    const chambre = carte.noeuds.find(n => n.lieu.nom === 'chambre')!;
+    const nomsObjetsLieu = chambre.objets.map(o => o.nom).sort();
+    expect(nomsObjetsLieu).toEqual(['lit', 'table']);
+
+    const table = jeu.objets.find(o => o.nom === 'table')!;
+    const lit = jeu.objets.find(o => o.nom === 'lit')!;
+    const enfTable = carte.enfantsParObjet.get(table.id) ?? [];
+    const enfLit = carte.enfantsParObjet.get(lit.id) ?? [];
+
+    // Chaque parent a deux enfants (un sur, un sous).
+    expect(enfTable.length).toBe(2);
+    expect(enfLit.length).toBe(2);
+
+    const prepDe = (enfants: { objet: { nom: string }, prep: PrepositionSpatiale }[], nom: string) =>
+      enfants.find(e => e.objet.nom === nom)?.prep;
+    expect(prepDe(enfTable, 'livre')).toBe(PrepositionSpatiale.sur);
+    expect(prepDe(enfTable, 'chaussette')).toBe(PrepositionSpatiale.sous);
+    expect(prepDe(enfLit, 'oreiller')).toBe(PrepositionSpatiale.sur);
+    expect(prepDe(enfLit, 'valise')).toBe(PrepositionSpatiale.sous);
   });
 });
