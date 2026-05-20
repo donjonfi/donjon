@@ -70,6 +70,7 @@
     .seg--personne    { color: #b8590a; font-weight: 500; }
     .seg--joueur      { color: #8a6a00; font-weight: 700; }
     .seg--sortie-lieu { color: #0c5460; font-style: italic; }
+    .seg--plus        { color: #7a5a00; font-style: italic; }
 
     // Le composant `app-visu-detail-objet` affiche déjà l'intitulé de l'objet en
     // <h4> ; or le header du popup l'affiche aussi → on masque ce h4 redondant
@@ -152,6 +153,36 @@
     .leg-stats { color: #999; white-space: nowrap; }
   }
 
+  // Bouton flottant pour masquer / réafficher la légende. Toujours visible, position fixe
+  // en bas à droite de la carte ; ne défile pas avec le contenu ASCII.
+  &__legende-toggle {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    z-index: 6;                     // au-dessus de la légende (z-index 5)
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid #1e1e1e;
+    border-radius: 4px;
+    background: rgba(30, 30, 30, 0.85);
+    color: #e6e6e6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    line-height: 1;
+
+    &:hover  { background: rgba(60, 60, 60, 0.95); }
+    &:active { background: rgba(80, 80, 80, 0.95); }
+    &:focus  { outline: 2px solid #66d9ef; outline-offset: 1px; }
+
+    // Quand la légende est masquée, le bouton seul est plus discret.
+    &.is-hidden { opacity: 0.7; }
+    &.is-hidden:hover { opacity: 1; }
+  }
+
   &__ascii {
     margin: 0;
     padding: 0.5rem;
@@ -228,6 +259,7 @@
         &.seg--personne    { background: #fd971f; }
         &.seg--joueur      { background: #ffd166; }
         &.seg--sortie-lieu { background: #66d9ef; }
+        &.seg--plus        { background: #d4b56a; }
 
         &:hover { filter: brightness(1.15); }
       }

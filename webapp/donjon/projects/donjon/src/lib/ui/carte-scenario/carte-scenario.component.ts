@@ -11,7 +11,14 @@ import { Objet } from '../../models/jeu/objet';
 import { ObjetPresent } from '../visualisation/models/objet-present';
 import { PrepositionSpatiale } from '../../models/jeu/position-objet';
 
-type Kind = 'lieu' | 'objet' | 'personne' | 'joueur' | 'sortie-lieu';
+type Kind = 'lieu' | 'objet' | 'personne' | 'joueur' | 'sortie-lieu' | 'plus';
+
+/** Ligne de contenu à dessiner dans une cellule de lieu (collectée en amont du rendu pour pouvoir gérer le débordement). */
+interface LigneContenu {
+  texte: string;
+  kind?: Kind;
+  refId?: number;
+}
 
 interface SegmentAscii {
   texte: string;
@@ -49,6 +56,22 @@ export class CarteScenarioComponent implements OnChanges {
   /** Pile d'IDs de lieux ayant servi de racine à un zoom. Vide = vue d'ensemble. */
   public pileRacines: number[] = [];
 
+  /**
+   * IDs de lieux dont la cellule est étendue (clic sur « +N de plus »).
+   * Quand un lieu est ici, sa cellule s'agrandit pour afficher tout son contenu —
+   * la grille entière s'adapte puisque la hauteur d'une row du grid = max des cellules de cette row.
+   * Réinitialisé sur `ngOnChanges` (nouveau jeu → état UI fraîche).
+   */
+  public cellulesEtendues = new Set<number>();
+
+  /** La légende flottante (types/états) est-elle masquée ? Préférence d'affichage, persistée pendant la session. */
+  public legendeMasquee = false;
+
+  /** Bascule l'affichage de la légende. */
+  public togglerLegende(): void {
+    this.legendeMasquee = !this.legendeMasquee;
+  }
+
   /** Dimensions de cellule en caractères monospace. */
   private readonly CELL_W = 28;
   private readonly GAP_H = 11;
@@ -61,11 +84,22 @@ export class CarteScenarioComponent implements OnChanges {
   ngOnChanges(_changes: SimpleChanges): void {
     // remontage du composant ou nouvel input jeu → vue d'ensemble
     this.pileRacines = [];
+    this.cellulesEtendues.clear();
     // nouvelle carte = on remet le popup à sa position par défaut + on réactive le repositionnement auto
     this.popupLeft = null;
     this.popupTop = null;
     this.popupPositionManuelle = false;
     this.recalculer();
+  }
+
+  /** Bascule l'expansion d'une cellule (clic sur « +N de plus » ou réduction). */
+  public togglerExpansionCellule(lieuId: number): void {
+    if (this.cellulesEtendues.has(lieuId)) {
+      this.cellulesEtendues.delete(lieuId);
+    } else {
+      this.cellulesEtendues.add(lieuId);
+    }
+    this.genererAscii();
   }
 
   /**
@@ -141,6 +175,12 @@ export class CarteScenarioComponent implements OnChanges {
 
   public onClickSegment(seg: SegmentAscii, event?: MouseEvent): void {
     if (!seg.kind || seg.refId == null) { return; }
+    // « +N de plus » : déplie/replie la cellule du lieu sans toucher au popup.
+    if (seg.kind === 'plus') {
+      this.togglerExpansionCellule(seg.refId);
+      this.focuserCarte();
+      return;
+    }
     // Évite que le popup masque la case cliquée : on bascule à gauche si clic à droite.
     if (event && event.currentTarget instanceof HTMLElement) {
       this.repositionnerPopupAuto(event.currentTarget);
@@ -498,6 +538,9 @@ export class CarteScenarioComponent implements OnChanges {
   // Génération de la matrice ASCII et de ses segments
   // ─────────────────────────────────────────
 
+  /** Plafond de hauteur d'une cellule non étendue (en lignes ASCII). */
+  private readonly CELL_H_MAX = 18;
+
   private genererAscii(): void {
     if (!this.carte || this.carte.noeuds.length === 0) {
       this.lignesSegmentees = [];
@@ -507,23 +550,27 @@ export class CarteScenarioComponent implements OnChanges {
     const nCols = maxX - minX + 1;
     const nRows = maxY - minY + 1;
 
-    // hauteur dynamique par ligne (min 4, plafond 18)
+    // collecter le contenu de chaque cellule en amont (réutilisé pour la hauteur de row ET le rendu)
+    const lignesParNoeud = new Map<number, LigneContenu[]>();
+    for (const n of noeuds) {
+      lignesParNoeud.set(n.lieu.id, this.collecterLignesContenu(n));
+    }
+
+    // hauteur dynamique par row du grid (min 4, plafond CELL_H_MAX sauf si une cellule étendue
+    // de cette row force une hauteur plus grande pour afficher tout son contenu).
     const rowHeights: number[] = [];
     for (let y = 0; y < nRows; y++) {
       let h = 4;
       const noeudsLigne = noeuds.filter(n => n.y === minY + y);
       for (const n of noeudsLigne) {
-        const ligneJoueur = n.joueurPresent ? 1 : 0;
-        let descendants = 0;
-        if (n.joueurPresent && this.jeu?.joueur) {
-          descendants += this.compterDescendants(this.jeu.joueur.id);
-        }
-        for (const p of n.personnes) { descendants += this.compterDescendants(p.id); }
-        for (const o of n.objets) { descendants += this.compterDescendants(o.id); }
-        const requis = 2 + 1 + ligneJoueur + n.personnes.length + n.objets.length + descendants + n.sortiesSpeciales.length;
+        const lignes = lignesParNoeud.get(n.lieu.id)!;
+        const etendue = this.cellulesEtendues.has(n.lieu.id);
+        // hauteur naturelle = 2 bordures + toutes les lignes de contenu
+        // (+1 ligne supplémentaire pour le marqueur « replier » quand la cellule est étendue)
+        let requis = 2 + lignes.length + (etendue && lignes.length > this.CELL_H_MAX - 2 ? 1 : 0);
+        if (!etendue && requis > this.CELL_H_MAX) { requis = this.CELL_H_MAX; }
         if (requis > h) { h = requis; }
       }
-      if (h > 18) { h = 18; }
       rowHeights.push(h);
     }
 
@@ -573,43 +620,32 @@ export class CarteScenarioComponent implements OnChanges {
         set(r, colStart + this.CELL_W - 1, '│');
       }
 
-      // contenu
+      // contenu : lignes pré-collectées, troncature avec marqueur « +N de plus » si débordement
+      const lignes = lignesParNoeud.get(n.lieu.id)!;
+      const etendue = this.cellulesEtendues.has(n.lieu.id);
+      const placeContenu = rowHeights[gy] - 2; // place entre les deux bordures (titre inclus)
+      let nAAfficher = lignes.length;
+      let masquees = 0;
+      if (!etendue && lignes.length > placeContenu) {
+        // on réserve la dernière ligne au marqueur cliquable « +N de plus »
+        nAAfficher = placeContenu - 1;
+        masquees = lignes.length - nAAfficher;
+      }
+
       let cr = rowStart + 1;
-      const metaLieu = { kind: 'lieu' as Kind, refId: n.lieu.id };
-      const titre = this.tronquer(this.titreLieu(n.lieu), this.CELL_W - 4);
-      setStr(cr, colStart + 1, this.padRight(' ' + titre, this.CELL_W - 2), metaLieu);
-      cr++;
-
-      // joueur (en haut, mise en évidence) + inventaire indenté
-      if (n.joueurPresent && this.jeu?.joueur) {
-        const j = this.jeu.joueur;
-        const t = this.tronquer('* ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
-        setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'joueur', refId: j.id });
+      for (let i = 0; i < nAAfficher; i++) {
+        const lc = lignes[i];
+        setStr(cr, colStart + 1, this.padRight(lc.texte, this.CELL_W - 2), { kind: lc.kind, refId: lc.refId });
         cr++;
-        cr = this.dessinerEnfants(j.id, 1, cr, rowEnd, colStart, setStr);
       }
-
-      for (const p of n.personnes) {
-        if (cr >= rowEnd) { break; }
-        const t = this.tronquer('@ ' + this.formaterIntitule(p), this.CELL_W - 5);
-        setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'personne', refId: p.id });
-        cr++;
-        cr = this.dessinerEnfants(p.id, 1, cr, rowEnd, colStart, setStr);
-      }
-      for (const o of n.objets) {
-        if (cr >= rowEnd) { break; }
-        const t = this.tronquer(this.formaterIntitule(o, '• '), this.CELL_W - 5);
-        setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: o.id });
-        cr++;
-        cr = this.dessinerEnfants(o.id, 1, cr, rowEnd, colStart, setStr);
-      }
-      for (const s of n.sortiesSpeciales) {
-        if (cr >= rowEnd) { break; }
-        const fleche = this.flecheSpeciale(s.localisation);
-        const t = this.tronquer(fleche + ' ' + s.cibleNom, this.CELL_W - 5);
-        const kind: Kind = s.cibleType === 'lieu' ? 'sortie-lieu' : 'objet';
-        setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind, refId: s.cibleId });
-        cr++;
+      if (masquees > 0) {
+        const t = ` … +${masquees} de plus`;
+        setStr(cr, colStart + 1, this.padRight(t, this.CELL_W - 2), { kind: 'plus', refId: n.lieu.id });
+      } else if (etendue && lignes.length > this.CELL_H_MAX - 2) {
+        // Cellule étendue : on affiche un marqueur de repli sur la dernière ligne disponible.
+        // (Si on a la place et qu'on a réellement déplié quelque chose.)
+        const t = ` … replier`;
+        setStr(rowEnd - 1, colStart + 1, this.padRight(t, this.CELL_W - 2), { kind: 'plus', refId: n.lieu.id });
       }
     }
 
@@ -789,46 +825,58 @@ export class CarteScenarioComponent implements OnChanges {
   }
 
   /**
-   * Compte récursivement tous les descendants d'un objet parent
-   * (objets posés/contenus + items d'inventaire), à toute profondeur.
+   * Collecte toutes les lignes à afficher dans la cellule d'un lieu (titre, joueur + inventaire,
+   * personnes + descendants, objets + descendants, sorties spéciales).
+   * Le rendu décide ensuite combien de lignes afficher en fonction de l'espace dispo
+   * et insère un marqueur « +N de plus » si débordement.
    */
-  private compterDescendants(parentId: number): number {
-    if (!this.carte) { return 0; }
-    const enfants = this.carte.enfantsParObjet.get(parentId);
-    if (!enfants || enfants.length === 0) { return 0; }
-    let total = enfants.length;
-    for (const e of enfants) {
-      total += this.compterDescendants(e.objet.id);
+  private collecterLignesContenu(n: CarteNoeud): LigneContenu[] {
+    const lignes: LigneContenu[] = [];
+    // titre du lieu
+    const titre = this.tronquer(this.titreLieu(n.lieu), this.CELL_W - 4);
+    lignes.push({ texte: ' ' + titre, kind: 'lieu', refId: n.lieu.id });
+    // joueur + inventaire
+    if (n.joueurPresent && this.jeu?.joueur) {
+      const j = this.jeu.joueur;
+      const t = this.tronquer('* ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
+      lignes.push({ texte: ' ' + t, kind: 'joueur', refId: j.id });
+      this.collecterEnfantsContenu(j.id, 1, lignes);
     }
-    return total;
+    for (const p of n.personnes) {
+      const t = this.tronquer('@ ' + this.formaterIntitule(p), this.CELL_W - 5);
+      lignes.push({ texte: ' ' + t, kind: 'personne', refId: p.id });
+      this.collecterEnfantsContenu(p.id, 1, lignes);
+    }
+    for (const o of n.objets) {
+      const t = this.tronquer(this.formaterIntitule(o, '• '), this.CELL_W - 5);
+      lignes.push({ texte: ' ' + t, kind: 'objet', refId: o.id });
+      this.collecterEnfantsContenu(o.id, 1, lignes);
+    }
+    for (const s of n.sortiesSpeciales) {
+      const fleche = this.flecheSpeciale(s.localisation);
+      const t = this.tronquer(fleche + ' ' + s.cibleNom, this.CELL_W - 5);
+      const kind: Kind = s.cibleType === 'lieu' ? 'sortie-lieu' : 'objet';
+      lignes.push({ texte: ' ' + t, kind, refId: s.cibleId });
+    }
+    return lignes;
   }
 
   /**
-   * Dessine récursivement les enfants d'un parent, indentés en fonction du niveau de profondeur.
-   * Retourne le `cr` après le dernier enfant dessiné.
+   * Collecte récursivement les enfants d'un parent (objets posés sur/sous/dans + items
+   * d'inventaire), indentés selon le niveau, dans la liste `lignes` fournie.
    */
-  private dessinerEnfants(
-    parentId: number,
-    niveau: number,
-    cr: number,
-    rowEnd: number,
-    colStart: number,
-    setStr: (r: number, c: number, s: string, meta?: Partial<CelluleAscii>) => void,
-  ): number {
-    if (!this.carte) { return cr; }
+  private collecterEnfantsContenu(parentId: number, niveau: number, lignes: LigneContenu[]): void {
+    if (!this.carte) { return; }
     const enfants = this.carte.enfantsParObjet.get(parentId);
-    if (!enfants || enfants.length === 0) { return cr; }
+    if (!enfants || enfants.length === 0) { return; }
     const indent = '  '.repeat(niveau);
     // espace utile pour le nom = contenu - leading ' ' - indent - '• '
     const placeNom = Math.max(3, (this.CELL_W - 2) - 1 - indent.length - 2);
     for (const e of enfants) {
-      if (cr >= rowEnd) { return cr; }
       const t = indent + this.tronquer(this.formaterIntitule(e.objet, '• ', e.prep), placeNom);
-      setStr(cr, colStart + 1, this.padRight(' ' + t, this.CELL_W - 2), { kind: 'objet', refId: e.objet.id });
-      cr++;
-      cr = this.dessinerEnfants(e.objet.id, niveau + 1, cr, rowEnd, colStart, setStr);
+      lignes.push({ texte: ' ' + t, kind: 'objet', refId: e.objet.id });
+      this.collecterEnfantsContenu(e.objet.id, niveau + 1, lignes);
     }
-    return cr;
   }
 
   /**
