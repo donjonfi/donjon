@@ -1,0 +1,76 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "La voûte du gardien".
+L’auteur du jeu est "DonjonFI".
+La version du jeu est "1.0".
+L’IFID du jeu est "f4e3d2c1-a098-7654-3210-fedcba987654".
+La licence du jeu est "CC BY-NC-SA".
+
+-- Mini-scénario d’illustration pour la page wiki « Propriétés personnalisées ».
+-- Chaque objet possède un poids (nombre) et une matière (texte).
+-- Le joueur a une propriété force qui détermine ce qu’il peut soulever.
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+La voûte du gardien est un lieu.
+Sa description est "Une voûte de pierre éclairée par quelques torches. Plusieurs objets de poids variés gisent au sol — les épreuves laissées par le gardien.".
+
+-- ======================================================
+-- PROPRIÉTÉ DU JOUEUR
+-- ======================================================
+
+-- Le joueur a une force initiale de 7.
+La force du joueur vaut 7.
+
+-- ======================================================
+-- OBJETS À SOULEVER (propriétés poids + matière)
+-- ======================================================
+
+Le sac de pièces est un objet décoratif dans la voûte du gardien.
+Le poids du sac de pièces vaut 1.
+La matière du sac de pièces est "cuir".
+Sa description est "Un petit sac qui tinte légèrement. ([matière ceci], poids [poids ceci]).".
+
+La caisse en bois est un objet décoratif dans la voûte du gardien.
+Le poids de la caisse en bois vaut 4.
+La matière de la caisse en bois est "bois".
+Sa description est "Une caisse de marchandises bien arrimée. ([matière ceci], poids [poids ceci]).".
+
+Le coffre de fer est un objet décoratif dans la voûte du gardien.
+Le poids du coffre de fer vaut 12.
+La matière du coffre de fer est "fer".
+Sa description est "Un coffre épais, cerclé de bandes métalliques. ([matière ceci], poids [poids ceci]).".
+
+La statue de marbre est un objet décoratif dans la voûte du gardien.
+Le poids de la statue de marbre vaut 40.
+La matière de la statue de marbre est "marbre".
+Sa description est "Une statue à l’effigie d’un ancien gardien. ([matière ceci], poids [poids ceci]).".
+
+-- Objet sans propriété poids — pour illustrer le test d’existence.
+La plume d’oie est un objet portable dans la voûte du gardien.
+Sa description est "Une simple plume d’oie. Elle ne pèse [si aucun poids pour ceci]rien du tout[sinon][poids ceci] de mémorable[fin si].".
+
+-- ======================================================
+-- ACTION : soulever
+-- ======================================================
+
+action soulever ceci:
+  si aucun poids pour ceci:
+    dire "[Intitulé ceci] est si léger qu’il n’a même pas de poids notable.".
+  sinonsi la force du joueur atteint le poids de ceci:
+    dire "Vous soulevez [intitulé ceci] avec effort. (Votre force [force le joueur] ≥ poids [poids ceci].)".
+  sinon
+    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force le joueur]).".
+  fin si
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la voûte du gardien.
+
+règle avant commencer le jeu:
+  dire "Vous êtes un aventurier de force {+[force le joueur]+}. Essayez de soulever ce qui vous entoure :{n}{/soulever le sac de pièces/}, {/soulever la caisse en bois/}, {/soulever le coffre de fer/}, {/soulever la statue de marbre/}, {/soulever la plume/}.".
+fin règle

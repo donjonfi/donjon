@@ -1,0 +1,75 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Le journal intime".
+L’auteur du jeu est "DonjonFI".
+La version du jeu est "1.0".
+L’IFID du jeu est "7d8e9f0a-1234-4bcd-9ef0-13579bdf2468".
+La licence du jeu est "CC BY-NC-SA".
+
+-- Mini-scénario d’illustration pour la page wiki « Règles avant / après ».
+-- Démontre :
+--   • règle avant pour refuser une action existante (prendre)
+--   • règle après pour ajouter une cinématique sur la première lecture
+--   • continuer l’action avant / après pour positionner la sortie standard
+--   • test « si la règle se déclenche pour la première fois »
+--   • règle avant commencer le jeu (initialisation)
+--   • déclencheurs combinés (« ou »)
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+La chambre est un lieu.
+Sa description est "Votre chambre. Une table de nuit, un miroir au mur, et — fermée à clé — la porte du couloir.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+La table de nuit est un support dans la chambre.
+
+Le journal intime est un objet décoratif sur la table de nuit.
+Sa description est "Un carnet relié de cuir noir. Les pages sont remplies d’une écriture serrée.".
+
+Le miroir est un objet décoratif fixé dans la chambre.
+Sa description est "Vous y voyez votre reflet, l’air songeur.".
+
+La photo de famille est un objet décoratif sur la table de nuit.
+Sa description est "Une photo un peu jaunie. Vos parents y sourient.".
+
+-- ======================================================
+-- RÈGLES
+-- ======================================================
+
+-- Initialisation : on intervient AVANT que la partie commence.
+règle avant commencer le jeu:
+  dire "Vous êtes seul[e] dans votre chambre. Le monde extérieur attendra.{p}".
+fin règle
+
+-- Règle avant : refuser une action existante (prendre).
+-- Le journal est intime, on ne veut pas qu’il finisse dans l’inventaire.
+règle avant prendre le journal intime:
+  dire "C’est bien trop intime pour le laisser traîner ailleurs.".
+  refuser l’action.
+fin règle
+
+-- Règle après : ajouter une cinématique uniquement la 1ère fois,
+-- en gardant la description standard ensuite.
+règle après examiner le journal intime:
+  si la règle se déclenche pour la première fois:
+    dire "Vous prenez le journal et hésitez avant de l’ouvrir.{p}".
+    continuer l’action après.
+  sinon
+    continuer l’action.
+  fin si
+fin règle
+
+-- Déclencheurs combinés (« ou ») : la même règle réagit à plusieurs actions.
+règle après examiner le miroir ou examiner la photo de famille:
+  dire "({/Un souvenir vous traverse l’esprit./})".
+fin règle
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la chambre.

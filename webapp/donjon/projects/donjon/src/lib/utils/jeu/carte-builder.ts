@@ -223,12 +223,16 @@ export class CarteBuilder {
         const orphelin = jeu.lieux.find(l => !positions.has(l.id));
         if (!orphelin) { break; }
 
-        // Y maximal courant + gap de 3 lignes pour séparer visuellement les clusters.
+        // Place le nouveau cluster sur la ligne de grille IMMÉDIATEMENT sous le précédent
+        // (maxY + 1). Le renderer ASCII insère déjà un `GAP_V` (3 char-rows) entre chaque
+        // ligne de grille, ce qui suffit pour séparer visuellement les clusters. Un offset
+        // supérieur (+3 sur la grille) gaspillait plusieurs rangées entières (rowHeight
+        // minimal 4 + GAP_V) entre des cellules d'une seule rangée chacune.
         let maxYCourant = -Infinity;
         for (const p of positions.values()) {
           if (p.y > maxYCourant) { maxYCourant = p.y; }
         }
-        const offsetY = (maxYCourant === -Infinity ? 0 : maxYCourant + 3);
+        const offsetY = (maxYCourant === -Infinity ? 0 : maxYCourant + 1);
 
         // Auto-détection du mode local : si le lieu n'a aucun voisin cardinal (cluster
         // purement vertical / imbriqué), on active le mode étendu pour suivre haut/bas/

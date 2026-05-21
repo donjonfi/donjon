@@ -265,8 +265,15 @@ export class AnalyseurV8Routines {
     // A. ENTÊTE
     // => ex: « routine MaRoutine: »
     let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    // détecter un éventuel préfixe « redéfinir » avant « action »
+    const phraseBruteEntete = Phrase.retrouverPhraseBrute(phraseAnalysee);
+    const matchRedefinit = ExprReg.xRedefinirAction.exec(phraseBruteEntete);
+    const estRedefinition = matchRedefinit !== null;
+    const phrasePourEntete: Phrase | string = estRedefinition
+      ? phraseBruteEntete.substring(matchRedefinit![0].length)
+      : phraseAnalysee;
     // trouver le nom de la routine
-    let enteteAction = AnalyseurV8Utils.chercherEtiquetteEtReste(['action'], phraseAnalysee, ObligatoireFacultatif.obligatoire);
+    let enteteAction = AnalyseurV8Utils.chercherEtiquetteEtReste(['action'], phrasePourEntete, ObligatoireFacultatif.obligatoire);
     // pointer la prochaine phrase
     ctx.indexProchainePhrase++;
 
@@ -306,6 +313,7 @@ export class AnalyseurV8Routines {
         }
         // création de l’action
         routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
+        routine.action.redefinit = estRedefinition;
       } else {
         // ii. COMPLÉMENT DIRECT, COMPLÉMENT INDIRECT
         let enteteDecomposeCommande = ExprReg.xCommandeInfinitif.exec(enteteAction);
@@ -319,6 +327,7 @@ export class AnalyseurV8Routines {
 
           // création de l’action
           routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
+          routine.action.redefinit = estRedefinition;
 
           if (isCeci) {
             const determinantCeci = enteteDecomposeCommande[3] ?? undefined;

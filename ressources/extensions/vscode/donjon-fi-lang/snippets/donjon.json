@@ -38,6 +38,17 @@
     "description": "bloc de code si sinon finsi"
   },
 
+  "redéfinir action": {
+    "prefix": ["red", "redéfinir", "redefinir"],
+    "body": [
+      "redéfinir action ${1:infinitif}:",
+      "\tphase épilogue:",
+      "\t\t$2",
+      "fin action"
+    ],
+    "description": "redéfinir (écraser) une action existante par signature"
+  },
+
   "fiche aide": {
     "prefix": "aid",
     "body": [

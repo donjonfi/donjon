@@ -135,6 +135,45 @@ action aller vers ceci:
 fin action
 ```
 
+### Redéfinir une action existante
+
+Pour écraser une action déjà définie (par exemple une action héritée de `actions.djn` via `inclure`), préfixer l'entête par `redéfinir` (avec ou sans article `l'`). La redéfinition remplace entièrement l'action d'origine (description, phases, balises, etc.).
+
+```
+redéfinir action sauter:
+  phase épilogue:
+    dire "Vous bondissez comme un cabri.".
+fin action
+
+-- équivalent, avec article :
+redéfinir l'action sauter:
+  phase épilogue:
+    dire "Vous bondissez comme un cabri.".
+fin action
+```
+
+La signature doit correspondre exactement à l'action ciblée : `redéfinir action sauter:` ne remplace pas `action sauter sur ceci:` et inversement.
+
+```
+redéfinir action sauter sur ceci:
+  phase épilogue:
+    dire "Hop, vous voilà perché sur [le ceci].".
+fin action
+```
+
+**Désambiguïsation par `définitions:`** — plusieurs actions du moteur partagent le même infinitif et la même arité. Par exemple, `actions.djn` définit quatre `action examiner ceci:` distinctes (une pour une direction, une pour un lieu, une pour un objet, une pour un spécial). La redéfinition doit donc reproduire le bloc `définitions:` de la version visée pour lever l'ambiguïté :
+
+```
+redéfinir action examiner ceci:
+  définitions:
+    ceci est un objet prioritairement visible et mentionné.
+  phase épilogue:
+    dire "Rien d'intéressant à signaler sur [le ceci].".
+fin action
+```
+
+Si aucune action existante ne correspond à la signature fournie, ou si plusieurs correspondent (ambiguïté), une erreur de génération est émise et la redéfinition est ignorée.
+
 ---
 
 ## 10. Règles (avant / après)

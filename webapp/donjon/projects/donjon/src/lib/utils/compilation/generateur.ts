@@ -535,8 +535,41 @@ export class Generateur {
 
     // GÉNÉRER LES ACTIONS
     // *******************
+    // Séparer les actions « normales » des redéfinitions afin d’appliquer ces
+    // dernières en dernier (elles écrasent une action existante par signature).
     rc.actions.forEach(action => {
-      jeu.actions.push(action);
+      if (!action.redefinit) {
+        jeu.actions.push(action);
+      }
+    });
+    rc.actions.forEach(action => {
+      if (!action.redefinit) return;
+      // Plusieurs actions peuvent partager le même infinitif+ceci+cela (ex: 4 « action examiner ceci »
+      // distinguées par cibleCeci.nom : direction, lieu, objet, spécial). La redéfinition doit donc
+      // aussi désambiguïser sur cibleCeci.nom / cibleCela.nom — sinon on écraserait la mauvaise.
+      const matches: number[] = [];
+      jeu.actions.forEach((a, i) => {
+        if (a.infinitifSansAccent !== action.infinitifSansAccent) return;
+        if (a.ceci !== action.ceci || a.cela !== action.cela) return;
+        if ((a.prepositionCeci ?? '') !== (action.prepositionCeci ?? '')) return;
+        if ((a.prepositionCela ?? '') !== (action.prepositionCela ?? '')) return;
+        if ((a.cibleCeci?.nom ?? null) !== (action.cibleCeci?.nom ?? null)) return;
+        if ((a.cibleCela?.nom ?? null) !== (action.cibleCela?.nom ?? null)) return;
+        matches.push(i);
+      });
+      const signature = action.infinitif
+        + (action.ceci ? (action.prepositionCeci ? ' ' + action.prepositionCeci : '') + ' ceci' : '')
+        + (action.cela ? (action.prepositionCela ? ' ' + action.prepositionCela : '') + ' cela' : '');
+      const detailCible = (action.cibleCeci?.nom || action.cibleCela?.nom)
+        ? ` (ceci=${action.cibleCeci?.nom ?? '∅'}, cela=${action.cibleCela?.nom ?? '∅'})`
+        : '';
+      if (matches.length === 0) {
+        ctx.ajouterErreur(`L’action « redéfinir action ${signature} »${detailCible} ne correspond à aucune action existante. Si plusieurs versions existent (ex: examiner ceci pour direction, lieu, objet…), ajoutez un bloc « définitions: ceci est un <type>. » identique à celui de la version ciblée.`);
+      } else if (matches.length > 1) {
+        ctx.ajouterErreur(`L’action « redéfinir action ${signature} »${detailCible} correspond à ${matches.length} actions existantes — précisez davantage le bloc « définitions: » pour lever l’ambiguïté.`);
+      } else {
+        jeu.actions.splice(matches[0], 1, action);
+      }
     });
 
     // GÉNÉRER LES ROUTINES

@@ -1,0 +1,82 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Le marchand bavard".
+L’auteur du jeu est "DonjonFI".
+La version du jeu est "1.0".
+L’IFID du jeu est "5e6f7a8b-9012-4cde-9f01-23456789abcd".
+La licence du jeu est "CC BY-NC-SA".
+
+-- Mini-scénario d’illustration pour la page wiki « Conditions et blocs textuels ».
+-- Démontre :
+--   • [1ère fois]…[2e fois]…[puis]…[fin] (variations selon le nombre de fois)
+--   • [au hasard][ou][fin choix] (variantes aléatoires)
+--   • [en boucle][puis][fin choix] (rotation cyclique)
+--   • [initialement]…[fin] (avant que l’objet soit déplacé)
+--   • [si …][sinon][fin si] (condition imbriquée dans un bloc hasard)
+--   • {*gras*}, {/italique/}, {+couleur 1+} pour la mise en forme
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+La place du village est un lieu.
+Sa description est "Une petite place pavée. Un marchand y a installé son étal.[initialement] Une fontaine murmure au centre — c’est la première fois que vous la voyez.[fin]".
+
+-- ======================================================
+-- PERSONNAGES
+-- ======================================================
+
+Le vieux marchand est une personne décorative dans la place du village.
+Sa description est "Un homme rond, l’œil pétillant. {/Il vous adresse un sourire./}".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+L’étal du marchand est un support fixé dans la place du village.
+
+La pomme rouge est un objet sur l’étal du marchand.
+Sa description est "Une pomme bien rouge.[initialement] Encore couverte de rosée.[fin]".
+
+-- ======================================================
+-- ACTIONS PERSONNALISÉES : variantes de dialogue
+-- ======================================================
+
+-- 1ère fois → 2e fois → puis : trois textes différents selon la fois.
+action saluer ceci:
+  définition:
+    ceci est un objet visible.
+  phase prérequis:
+    si ceci n’est pas une personne:
+      refuser "Vous ne saluez pas [intitulé ceci].".
+    fin si
+  phase épilogue:
+    dire "[1ère fois]{+Le marchand vous lance un grand << Bonjour ! >>+}[2e fois]Le marchand vous resalue d’un signe.[puis]Le marchand vous fait un clin d’œil, sans rien dire.[fin]".
+fin action
+
+-- [au hasard][ou][fin choix] : variante différente à chaque fois.
+action plaisanter:
+  phase épilogue:
+    dire "Le marchand vous raconte une blague :{n}[au hasard]{/<< Pourquoi les plombs sautent ? Parce qu’ils ont peur du courant. >>/}[ou]{/<< Que dit un escargot quand il croise une limace ? — Tiens, un nudiste ! >>/}[ou]{/<< Combien faut-il d’elfes pour visser une ampoule ? Aucun, c’est magique. >>/}[fin choix]".
+fin action
+
+-- [en boucle] : rotation déterministe.
+action gronder:
+  phase épilogue:
+    dire "Le marchand râle :{n}[en boucle]<< C’est encore vous ? >>[puis]<< Pas le temps, j’ai du commerce. >>[puis]<< Bon, qu’est-ce que vous voulez ? >>[fin choix]".
+fin action
+
+-- [si … ] imbriqué dans [au hasard] : combinaison.
+action demander conseil:
+  phase épilogue:
+    dire "Le marchand réfléchit :{n}[au hasard]<< Allez voir la fontaine. >>[ou][si la pomme rouge est intacte]<< Prenez donc une pomme, elle est fraîche. >>[sinon]<< Mes pommes sont parties, désolé. >>[fin si][ou]<< Je n’ai pas d’avis. >>[fin choix]".
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la place du village.
+
+règle avant commencer le jeu:
+  dire "Essayez plusieurs fois :{n}— {/saluer le marchand/} (1ère fois / 2e fois / puis){n}— {/plaisanter/} (3 blagues au hasard){n}— {/gronder/} (3 répliques en boucle){n}— {/demander conseil/} (hasard avec si imbriqué){n}— {/prendre la pomme/} puis {/examiner la pomme/} (texte [initialement] change).".
+fin règle

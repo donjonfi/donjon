@@ -43,13 +43,22 @@
         </div>
       }
 
+      <!-- bouton pour basculer entre mode normal et mode compact (dézoom) -->
+      <button type="button"
+              class="carte-scenario__compact-toggle"
+              [class.is-active]="modeCompact"
+              [title]="modeCompact ? 'Repasser en mode normal' : 'Basculer en mode compact (titres seulement)'"
+              (click)="togglerModeCompact()">
+        <i class="fas fa-fw" [class.fa-compress-alt]="!modeCompact" [class.fa-expand-alt]="modeCompact"></i>
+      </button>
+
       <!-- bouton pour masquer / réafficher la légende -->
       <button type="button"
               class="carte-scenario__legende-toggle"
               [class.is-hidden]="legendeMasquee"
               [title]="legendeMasquee ? 'Afficher la légende' : 'Masquer la légende'"
               (click)="togglerLegende()">
-        <i class="fas fa-fw" [class.fa-eye]="legendeMasquee" [class.fa-eye-slash]="!legendeMasquee"></i>
+        <i class="fas fa-fw fa-circle-info"></i>
       </button>
 
       <div class="carte-scenario__ascii" #asciiEl
@@ -57,7 +66,7 @@
         [class.has-retour]="pileRacines.length > 0"
         (mousedown)="onCartePanStart($event, asciiEl)"
         >@for (ligne of lignesSegmentees; track $index) {<span class="ligne"
-          >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--plus]="seg.kind === 'plus'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg, $event)">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>
+          >@for (seg of ligne; track $index) {@if (seg.kind) {<span class="seg" [class.seg--objet]="seg.kind === 'objet'" [class.seg--personne]="seg.kind === 'personne'" [class.seg--lieu]="seg.kind === 'lieu'" [class.seg--joueur]="seg.kind === 'joueur'" [class.seg--sortie-lieu]="seg.kind === 'sortie-lieu'" [class.seg--plus]="seg.kind === 'plus'" [class.seg--sel]="estSelectionne(seg)" (click)="onClickSegment(seg, $event)">{{ seg.texte }}</span>} @else if (seg.dansLieuJoueur) {<span class="seg--in-joueur-bord">{{ seg.texte }}</span>} @else {<span>{{ seg.texte }}</span>}}</span>}</div>
 
       <!-- popup détail flottant (uniquement si quelque chose est sélectionné) -->
       @if (aDetailAffiche) {

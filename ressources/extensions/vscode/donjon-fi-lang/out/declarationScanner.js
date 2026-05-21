@@ -26,9 +26,11 @@ const TYPE_DECLARATION = new RegExp(`^\\s*${INDEFINITE_ARTICLE}(${NAME})${GENDER
 // pour éviter une double-détection. Pas de flag « i » : voir PROPER_NAME.
 const PROPER_NOUN_INSTANCE_DECLARATION = new RegExp(`^\\s*(?!(?:Le|La|Les|Un|Une|Des|Deux)\\s|L['’])(${PROPER_NAME})${GENDER_SUFFIX}\\s+(?:est|sont)\\s+${TYPE_ARTICLE}\\s+(${PARENT_NAME})`, 'gmud');
 const ROUTINE_DECLARATION = new RegExp(`^\\s*routine\\s+(${IDENT})\\s*:`, 'gmiud');
-// Action : « action <signature> : » où la signature est l'ensemble verbe + ceci/cela + prépositions.
-// On capture toute la signature jusqu'au « : » pour préserver l'arité.
-const ACTION_DECLARATION = /^\s*action\s+([^\n:]+?)\s*:/gmiud;
+// Action : « [redéfinir [l’]]action <signature> : » où la signature est l'ensemble verbe + ceci/cela + prépositions.
+// On capture toute la signature jusqu'au « : » pour préserver l'arité. Le préfixe « redéfinir » (avec
+// article « l’ » / « l' » optionnel) est facultatif ; les redéfinitions partagent leur signature avec
+// l'action redéfinie.
+const ACTION_DECLARATION = /^\s*(?:red(?:é|e)finir\s+(?:l['’]\s*)?)?action\s+([^\n:]+?)\s*:/gmiud;
 const ROUTINE_REFERENCE = new RegExp(`\\bexécuter\\s+(?:la\\s+)?routine\\s+(${IDENT})\\b`, 'giud');
 // Référence à une action : « exécuter [l'][action] <signature> » jusqu'au prochain « . », « , » ou « ; ».
 const ACTION_REFERENCE = /\bexécuter\s+(?:l['’]\s*)?action\s+([^.,;\n]+?)(?=\s*[.,;\n])/giud;

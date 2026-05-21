@@ -1,0 +1,70 @@
+-- "Informations sur le jeu".
+Le titre du jeu est "Le donjon des clés".
+L’auteur du jeu est "DonjonFI".
+La version du jeu est "1.0".
+L’IFID du jeu est "c5d6e7f8-1234-4abc-9def-1357924680ab".
+La licence du jeu est "CC BY-NC-SA".
+
+-- Mini-scénario d’illustration pour la page wiki « Synonymes ».
+-- Couvre : synonymes automatiques (issus de l’intitulé), synonymes explicites
+-- avec « Interpréter », synonymes d’actions, demande de précision sur
+-- ambigüité, et modification des synonymes en cours de partie.
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+Le donjon des clés est un lieu.
+Sa description est "Une salle voûtée. Au centre, une table en bois supporte des clés. Au mur, une grande bibliothèque.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+La table en bois est un support dans le donjon des clés.
+
+-- Trois clés : « clé » seule est ambigu → le moteur demandera de préciser.
+-- Chaque clé reçoit automatiquement les synonymes « clé », « rouillée », etc.
+-- depuis son intitulé.
+La clé rouillée est une clé sur la table en bois.
+La clé dorée est une clé sous la table en bois.
+La clé rouge est une clé sur la table en bois.
+
+-- La bibliothèque : synonyme explicite via « Interpréter »
+La bibliothèque est un contenant dans le donjon des clés.
+Sa description est "Une grande bibliothèque de bois ancien.".
+Interpréter la bib et l’étagère comme la bibliothèque.
+
+-- Un livre avec plusieurs noms alternatifs
+Le grand livre est un objet dans la bibliothèque.
+Sa description est "Un grand livre relié de cuir.".
+Interpréter le livre, l’ouvrage et le bouquin comme le grand livre.
+
+-- ======================================================
+-- SYNONYMES D’ACTIONS
+-- ======================================================
+
+-- « regarder » et « observer » feront la même chose qu’« examiner ».
+interpréter regarder et observer comme examiner.
+
+-- ======================================================
+-- ACTION : enchanter (ajoute un synonyme en cours de partie)
+-- ======================================================
+
+action enchanter ceci:
+  définition:
+    ceci est un objet.
+  phase exécution:
+    ajouter "magique" et "enchanté" aux synonymes de ceci.
+    dire "Une lueur entoure [intitulé ceci]. Vous pouvez maintenant l’appeler {/magique/} ou {/enchanté/}.".
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans le donjon des clés.
+
+règle avant commencer le jeu:
+  dire "Essayez :{n}— {/examiner clé/} (ambigu : 3 clés → le moteur demande à préciser){n}— {/examiner clé rouge/} (sans ambigüité){n}— {/observer la bib/} (synonyme d’examiner + synonyme d’élément){n}— {/examiner ouvrage/} (synonyme du grand livre){n}— {/enchanter la clé dorée/} puis {/examiner magique/}".
+fin règle

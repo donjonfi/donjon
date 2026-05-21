@@ -24,12 +24,15 @@ interface SegmentAscii {
   texte: string;
   kind?: Kind;
   refId?: number;
+  /** Vrai si ce segment appartient à la cellule du lieu où se trouve le joueur (bordures + contenu + padding interne). */
+  dansLieuJoueur?: boolean;
 }
 
 interface CelluleAscii {
   c: string;
   kind?: Kind;
   refId?: number;
+  dansLieuJoueur?: boolean;
 }
 
 @Component({
@@ -64,18 +67,35 @@ export class CarteScenarioComponent implements OnChanges {
    */
   public cellulesEtendues = new Set<number>();
 
-  /** La légende flottante (types/états) est-elle masquée ? Préférence d'affichage, persistée pendant la session. */
-  public legendeMasquee = false;
+  /** La légende flottante (types/états) est-elle masquée ? Préférence d'affichage, persistée pendant la session.
+   *  Masquée par défaut pour ne pas encombrer la carte ; l'utilisateur l'affiche via le bouton dédié si besoin. */
+  public legendeMasquee = true;
 
   /** Bascule l'affichage de la légende. */
   public togglerLegende(): void {
     this.legendeMasquee = !this.legendeMasquee;
   }
 
-  /** Dimensions de cellule en caractères monospace. */
-  private readonly CELL_W = 28;
+
+  /** Mode compact (dézoom) : cellules plus étroites, contenu réduit au titre + sorties spéciales. */
+  public modeCompact = false;
+
+  public togglerModeCompact(): void {
+    this.modeCompact = !this.modeCompact;
+    this.genererAscii();
+  }
+
+  /** Dimensions de cellule en caractères monospace (mode normal). */
+  private readonly CELL_W_NORMAL = 28;
+  private readonly CELL_W_COMPACT = 14;
   private readonly GAP_H = 11;
   private readonly GAP_V = 3;
+
+  /** Largeur d'une cellule (caractères monospace) — adaptée au mode compact. */
+  private get CELL_W(): number { return this.modeCompact ? this.CELL_W_COMPACT : this.CELL_W_NORMAL; }
+
+  /** Hauteur minimale d'une ligne de grille — 4 en normal (2 bordures + 2 lignes contenu), 3 en compact (2 bordures + 1 ligne titre). */
+  private get rowHeightMin(): number { return this.modeCompact ? 3 : 4; }
 
   // ─────────────────────────────────────────
   // Cycle de vie
@@ -155,17 +175,27 @@ export class CarteScenarioComponent implements OnChanges {
   // sont en East Asian Width « ambiguous » et rendent en 2 cellules dans plusieurs
   // polices monospace courantes (Consolas, Cascadia Code selon plateforme), ce qui
   // décale tout le contenu de la ligne et désaligne la bordure droite `│` de la boîte.
+  /**
+   * Code lettré pour préfixer une sortie spéciale (cardinales, verticales, diagonales,
+   * intérieur/extérieur). Le code est `raw` (1 ou 2 chars) — le padding éventuel pour
+   * aligner la colonne du nom dans une cellule est appliqué au niveau du caller, en
+   * fonction des autres sorties présentes dans CETTE cellule (cf. `collecterLignesContenu`).
+   */
   public flecheSpeciale(loc: ELocalisation): string {
     switch (loc) {
-      case ELocalisation.haut: return '^';
-      case ELocalisation.bas: return 'v';
-      case ELocalisation.interieur: return '[';
-      case ELocalisation.exterieur: return ']';
-      case ELocalisation.nord_est: return '/';
-      case ELocalisation.nord_ouest: return '\\';
-      case ELocalisation.sud_est: return '\\';
-      case ELocalisation.sud_ouest: return '/';
-      default: return '>';
+      case ELocalisation.nord: return 'N';
+      case ELocalisation.sud: return 'S';
+      case ELocalisation.est: return 'E';
+      case ELocalisation.ouest: return 'O';
+      case ELocalisation.haut: return 'H';
+      case ELocalisation.bas: return 'B';
+      case ELocalisation.interieur: return 'I';
+      case ELocalisation.exterieur: return 'X';
+      case ELocalisation.nord_est: return 'NE';
+      case ELocalisation.nord_ouest: return 'NO';
+      case ELocalisation.sud_est: return 'SE';
+      case ELocalisation.sud_ouest: return 'SO';
+      default: return '?';
     }
   }
 
@@ -369,6 +399,17 @@ export class CarteScenarioComponent implements OnChanges {
 
     event.preventDefault();
     this.zoomerSurLieu(cible.lieu.id);
+
+    // Miroir de la logique sur clic (`onClickSegment` → `repositionnerPopupAuto`) : si le popup
+    // est en placement automatique, le basculer côté opposé pour ne pas masquer la cellule qui
+    // vient de prendre le focus. On attend la prochaine tâche pour que la classe `seg--sel` ait
+    // été appliquée par Angular au nouveau titre du lieu sélectionné.
+    setTimeout(() => {
+      const wrap = this.asciiWrapEl?.nativeElement;
+      if (!wrap) { return; }
+      const sel = wrap.querySelector('.seg.seg--lieu.seg--sel') as HTMLElement | null;
+      if (sel) { this.repositionnerPopupAuto(sel); }
+    }, 0);
   }
 
   private deltaDeTouche(key: string): { dx: number; dy: number } | null {
@@ -556,11 +597,11 @@ export class CarteScenarioComponent implements OnChanges {
       lignesParNoeud.set(n.lieu.id, this.collecterLignesContenu(n));
     }
 
-    // hauteur dynamique par row du grid (min 4, plafond CELL_H_MAX sauf si une cellule étendue
+    // hauteur dynamique par row du grid (min `rowHeightMin`, plafond CELL_H_MAX sauf si une cellule étendue
     // de cette row force une hauteur plus grande pour afficher tout son contenu).
     const rowHeights: number[] = [];
     for (let y = 0; y < nRows; y++) {
-      let h = 4;
+      let h = this.rowHeightMin;
       const noeudsLigne = noeuds.filter(n => n.y === minY + y);
       for (const n of noeudsLigne) {
         const lignes = lignesParNoeud.get(n.lieu.id)!;
@@ -592,7 +633,7 @@ export class CarteScenarioComponent implements OnChanges {
 
     const set = (r: number, c: number, ch: string, meta?: Partial<CelluleAscii>) => {
       if (r < 0 || r >= totalRows || c < 0 || c >= totalCols) { return; }
-      matrice[r][c] = { c: ch, kind: meta?.kind, refId: meta?.refId };
+      matrice[r][c] = { c: ch, kind: meta?.kind, refId: meta?.refId, dansLieuJoueur: meta?.dansLieuJoueur };
     };
     const setStr = (r: number, c: number, s: string, meta?: Partial<CelluleAscii>) => {
       for (let i = 0; i < s.length; i++) { set(r, c + i, s[i], meta); }
@@ -606,18 +647,29 @@ export class CarteScenarioComponent implements OnChanges {
       const rowStart = rowOffsets[gy];
       const rowEnd = rowStart + rowHeights[gy] - 1;
 
+      // La cellule du joueur reçoit un cadre double-trait doré : caractères ASCII spécifiques
+      // pour l'épaisseur (╔═╗║╚═╝), flag `dansLieuJoueur` sur les bordures pour la coloration CSS.
+      const cadreJoueur = n.joueurPresent;
+      const J: Partial<CelluleAscii> = cadreJoueur ? { dansLieuJoueur: true } : {};
+      const bTL = cadreJoueur ? '╔' : '┌';
+      const bTR = cadreJoueur ? '╗' : '┐';
+      const bBL = cadreJoueur ? '╚' : '└';
+      const bBR = cadreJoueur ? '╝' : '┘';
+      const bH  = cadreJoueur ? '═' : '─';
+      const bV  = cadreJoueur ? '║' : '│';
+
       // bordures
-      set(rowStart, colStart, '┌');
-      set(rowStart, colStart + this.CELL_W - 1, '┐');
-      set(rowEnd, colStart, '└');
-      set(rowEnd, colStart + this.CELL_W - 1, '┘');
+      set(rowStart, colStart, bTL, J);
+      set(rowStart, colStart + this.CELL_W - 1, bTR, J);
+      set(rowEnd, colStart, bBL, J);
+      set(rowEnd, colStart + this.CELL_W - 1, bBR, J);
       for (let c = colStart + 1; c < colStart + this.CELL_W - 1; c++) {
-        set(rowStart, c, '─');
-        set(rowEnd, c, '─');
+        set(rowStart, c, bH, J);
+        set(rowEnd, c, bH, J);
       }
       for (let r = rowStart + 1; r < rowEnd; r++) {
-        set(r, colStart, '│');
-        set(r, colStart + this.CELL_W - 1, '│');
+        set(r, colStart, bV, J);
+        set(r, colStart + this.CELL_W - 1, bV, J);
       }
 
       // contenu : lignes pré-collectées, troncature avec marqueur « +N de plus » si débordement
@@ -835,25 +887,35 @@ export class CarteScenarioComponent implements OnChanges {
     // titre du lieu
     const titre = this.tronquer(this.titreLieu(n.lieu), this.CELL_W - 4);
     lignes.push({ texte: ' ' + titre, kind: 'lieu', refId: n.lieu.id });
-    // joueur + inventaire
-    if (n.joueurPresent && this.jeu?.joueur) {
-      const j = this.jeu.joueur;
-      const t = this.tronquer('* ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
-      lignes.push({ texte: ' ' + t, kind: 'joueur', refId: j.id });
-      this.collecterEnfantsContenu(j.id, 1, lignes);
+    // Mode compact : on saute joueur/personnes/objets — la cellule reste épurée. Le cadre doré
+    // continue de marquer le lieu du joueur, les sorties spéciales restent utiles pour la verticalité.
+    if (!this.modeCompact) {
+      // joueur + inventaire
+      if (n.joueurPresent && this.jeu?.joueur) {
+        const j = this.jeu.joueur;
+        const t = this.tronquer('* ' + (j.intitule?.toString() ?? j.nom ?? 'joueur'), this.CELL_W - 5);
+        lignes.push({ texte: ' ' + t, kind: 'joueur', refId: j.id });
+        this.collecterEnfantsContenu(j.id, 1, lignes);
+      }
+      for (const p of n.personnes) {
+        const t = this.tronquer('@ ' + this.formaterIntitule(p), this.CELL_W - 5);
+        lignes.push({ texte: ' ' + t, kind: 'personne', refId: p.id });
+        this.collecterEnfantsContenu(p.id, 1, lignes);
+      }
+      for (const o of n.objets) {
+        const t = this.tronquer(this.formaterIntitule(o, '• '), this.CELL_W - 5);
+        lignes.push({ texte: ' ' + t, kind: 'objet', refId: o.id });
+        this.collecterEnfantsContenu(o.id, 1, lignes);
+      }
     }
-    for (const p of n.personnes) {
-      const t = this.tronquer('@ ' + this.formaterIntitule(p), this.CELL_W - 5);
-      lignes.push({ texte: ' ' + t, kind: 'personne', refId: p.id });
-      this.collecterEnfantsContenu(p.id, 1, lignes);
-    }
-    for (const o of n.objets) {
-      const t = this.tronquer(this.formaterIntitule(o, '• '), this.CELL_W - 5);
-      lignes.push({ texte: ' ' + t, kind: 'objet', refId: o.id });
-      this.collecterEnfantsContenu(o.id, 1, lignes);
-    }
-    for (const s of n.sortiesSpeciales) {
-      const fleche = this.flecheSpeciale(s.localisation);
+    // Largeur du préfixe propre à CETTE cellule : 2 chars si au moins une diagonale est
+    // listée (NE/NO/SE/SO), sinon 1 char. Les codes mono-lettre sont alors right-padded
+    // au besoin pour aligner verticalement la colonne du nom.
+    const codes = n.sortiesSpeciales.map(s => this.flecheSpeciale(s.localisation));
+    const largeurPrefixe = codes.some(c => c.length === 2) ? 2 : 1;
+    for (let i = 0; i < n.sortiesSpeciales.length; i++) {
+      const s = n.sortiesSpeciales[i];
+      const fleche = codes[i].padEnd(largeurPrefixe, ' ');
       const t = this.tronquer(fleche + ' ' + s.cibleNom, this.CELL_W - 5);
       const kind: Kind = s.cibleType === 'lieu' ? 'sortie-lieu' : 'objet';
       lignes.push({ texte: ' ' + t, kind, refId: s.cibleId });
@@ -917,10 +979,10 @@ export class CarteScenarioComponent implements OnChanges {
     const segs: SegmentAscii[] = [];
     let cur: SegmentAscii | null = null;
     for (const cel of ligne) {
-      if (cur && cur.kind === cel.kind && cur.refId === cel.refId) {
+      if (cur && cur.kind === cel.kind && cur.refId === cel.refId && !!cur.dansLieuJoueur === !!cel.dansLieuJoueur) {
         cur.texte += cel.c;
       } else {
-        cur = { texte: cel.c, kind: cel.kind, refId: cel.refId };
+        cur = { texte: cel.c, kind: cel.kind, refId: cel.refId, dansLieuJoueur: cel.dansLieuJoueur };
         segs.push(cur);
       }
     }

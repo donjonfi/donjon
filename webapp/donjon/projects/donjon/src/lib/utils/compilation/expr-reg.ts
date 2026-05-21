@@ -1066,10 +1066,14 @@ export class ExprReg {
   //  DÉBUT / FIN BLOCS
   // ================================================================================================
 
-  /** 
-   * règle|action|réaction|routine(1)
+  /**
+   * (redéfinir [l’])?règle|action|réaction|routine(1)
+   * Le préfixe `redéfinir ` (optionnellement suivi de `l’` / `l'`) n’est consommé que s’il est suivi de `action`.
    */
-  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+  static readonly xDebutRoutine = /^(?:red(?:é|e)finir\s+(?:l['’]\s*)?(?=action))?(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+
+  /** Préfixe `redéfinir [l’]action` en début d’entête (utilisé pour repérer une redéfinition d’action). */
+  static readonly xRedefinirAction = /^red(?:é|e)finir\s+(?:l['’]\s*)?(?=action\b)/i;
 
   /**
    * fin règle|action|réaction|routine(1)
