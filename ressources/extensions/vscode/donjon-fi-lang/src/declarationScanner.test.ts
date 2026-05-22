@@ -208,28 +208,27 @@ describe('findDeclarations — actions', () => {
     assert.equal(decls[0].name, 'mettre ceci avec cela');
   });
 
-  it('détecte « redéfinir action verbe: » comme une déclaration d’action (signature seule)', () => {
-    const decls = byKind(findDeclarations('redéfinir action sauter:'), 'action');
+  it('détecte « règle remplacer verbe: » comme une déclaration d’action (signature seule)', () => {
+    const decls = byKind(findDeclarations('règle remplacer sauter:'), 'action');
     assert.equal(decls.length, 1);
     assert.equal(decls[0].name, 'sauter');
   });
 
-  it('détecte « redefinir action verbe ceci: » (variante sans accent)', () => {
-    const decls = byKind(findDeclarations('redefinir action sauter sur ceci:'), 'action');
+  it('détecte « regle remplacer verbe ceci: » (variante sans accent)', () => {
+    const decls = byKind(findDeclarations('regle remplacer sauter sur ceci:'), 'action');
     assert.equal(decls.length, 1);
     assert.equal(decls[0].name, 'sauter sur ceci');
   });
 
-  it('détecte « redéfinir l’action verbe: » avec article (U+2019)', () => {
-    const decls = byKind(findDeclarations('redéfinir l’action sauter:'), 'action');
+  it('détecte « règle remplacer verbe avec cela: » (2 args + prép)', () => {
+    const decls = byKind(findDeclarations('règle remplacer mettre ceci avec cela:'), 'action');
     assert.equal(decls.length, 1);
-    assert.equal(decls[0].name, 'sauter');
+    assert.equal(decls[0].name, 'mettre ceci avec cela');
   });
 
-  it("détecte « redéfinir l'action verbe ceci: » avec article (U+0027)", () => {
-    const decls = byKind(findDeclarations("redéfinir l'action sauter sur ceci:"), 'action');
-    assert.equal(decls.length, 1);
-    assert.equal(decls[0].name, 'sauter sur ceci');
+  it('ne confond pas « règle avant verbe: » avec une déclaration d’action', () => {
+    const decls = byKind(findDeclarations('règle avant sauter:'), 'action');
+    assert.equal(decls.length, 0);
   });
 
   it('détecte « action verbe ceci concernant cela: »', () => {

@@ -118,6 +118,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Idx (dans etapes) de l'étape en cours d'édition (modifier ou inserer). null hors édition. */
   public magnetoIdxEnEdition: number | null = null;
 
+  /** Type de l'étape en cours d'édition ('c' commande / 'r' réponse à un choisir). Pilote
+   *  le routage de la nouvelle valeur (envoyerCommande vs handler de choix) et le libellé UI. */
+  public magnetoEditionTypeOriginal: 'c' | 'r' | null = null;
+
   /**
    * Snapshot du PRNG capturé juste AVANT chaque c/r joué (clé = idx dans etapes).
    * Permet à `Précédent` de restaurer l'état exact du PRNG, contournant le re-seed
@@ -343,7 +347,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           this.ajouteErreur("Restauration de partie : la première étape n’est pas la graine du générateur de hasard.");
         }
       } else {
-        this.ajouterConseil("Restauration de partie : sauvegarde vide.")
+        if (!this.enregistrementActif) this.ajouterConseil("Restauration de partie : sauvegarde vide.")
       }
     }
 
@@ -386,16 +390,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       }
     }
 
-    // le jeu est commencé à moins qu’il ne soit interrompu
-    if (!this.interruptionEnCours) {
+    // le magnéto se lance même si l’intro a été interrompue (attendre touche / choisir en
+    // intro) : sinon l’utilisateur charge un .rec et rien ne démarre. initialiserMagneto
+    // s’occupe d’auto-résoudre les attentes de touche pendantes pour finaliser sortieIntro
+    // avant la comparaison ; un choisir pendant intro reste actif et sera résolu par la
+    // 1re étape r du .rec via Pas suivant.
+    if (this.enregistrementEnAttente) {
+      if (!this.interruptionEnCours) this.partie.jeu.commence = true;
+      this.initialiserMagneto();
+    } else if (!this.interruptionEnCours) {
       this.partie.jeu.commence = true;
       // restauration d’un jeu précédent en mode manuel
       if (this.manuTricheEnAttente) {
         this.manuTricheEnAttente = false;
         this.lancerManuTriche();
-        // démarrer une session d'enregistrement (.rec)
-      } else if (this.enregistrementEnAttente) {
-        this.initialiserMagneto();
         // restauration d’un jeu précédent en mode automatique
       } else if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
         this.lancerAutoTriche();
@@ -1225,7 +1233,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         this.audioActif = backAudioActif;
 
         // aucune commande à exécuter
-      } else {
+      } else if (!this.enregistrementActif) {
+        // En magnéto, sauvegarde vide post-annuler est normal — on ne pollue pas l’écran.
         this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucune commande à exécuter./}", this.partie.dossierRessourcesComplet));
       }
       // s'il n'y a pas de sauvegarde/solution chargée
@@ -1236,9 +1245,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // si on était occupé à annuler des tours de jeu, terminer le tour commencé
     // avant le début de l'annulation
     if (this.interruptionEnCoursAvantAnnulation) {
-      this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
-      this.interruptionEnCoursAvantAnnulation = undefined;
-      this.terminerInterruption(undefined);
+      if (this.enregistrementActif) {
+        // En magnéto, magnetoIdx pilote l’avancement ; terminer ici écraserait
+        // l’interruption attendreChoix d’intro qui vient d’être posée par le reload
+        // et la r suivante serait traitée comme commande.
+        this.interruptionEnCoursAvantAnnulation = undefined;
+      } else {
+        this.interruptionEnCours = this.interruptionEnCoursAvantAnnulation;
+        this.interruptionEnCoursAvantAnnulation = undefined;
+        this.terminerInterruption(undefined);
+      }
     }
 
   }
@@ -1289,7 +1305,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.enregistrementEnCours = fichier;
     this.partie.ecran.ajouterParagrapheDonjon('{/Enregistrement chargé./}');
     this.scrollSortie();
-    if (this.partie.jeu?.commence) {
+    // Inclure le cas « intro en pause sur attendre touche / choisir » dans la branche
+    // « jeu en cours » : `jeu.commence` reste false tant que l'intro est interrompue,
+    // mais un état partiel est déjà accumulé (sortieIntro non vide, interruption pendante)
+    // — sans demander la RAZ on tomberait dans la branche « pas encore démarré » qui
+    // attend un ngOnChanges qui n'arriverait jamais, et le magnéto resterait muet.
+    if (this.partie.jeu?.commence || this.interruptionEnCours) {
       // Jeu déjà en cours : demander à l'utilisateur s'il veut remettre à zéro avant le replay.
       // Sans RAZ, l'état courant pollue le replay et produit des fausses divergences.
       this.magnetoDemanderRaz = true;
@@ -1338,12 +1359,22 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
     this.magnetoIdxEnEdition = null;
+    this.magnetoEditionTypeOriginal = null;
     this.magnetoSnapshotsRng.clear();
 
     // Appliquer la graine du fichier pour rendre le replay déterministe.
     if (this.enregistrementEnCours.graine) {
       this.partie.nouvelleGraineAleatoire(this.enregistrementEnCours.graine);
     }
+
+    // Bypass des attendre touche (et attendre N secondes) pendantes en fin d'intro :
+    // sans ça, la sortie d'intro produite par le replay s'arrête sur le marqueur de
+    // touche alors que celle enregistrée contient la continuation post-touche — diff
+    // fantôme garanti. Comportement aligné avec le mode triche, qui ne demande pas
+    // à l'utilisateur de presser une touche pendant un replay.
+    // (Les attendreChoix d'intro ne sont PAS consommés ici : la réponse vient de la 1re
+    // étape r du .rec, résolue au 1er Pas suivant.)
+    this.terminerInterruptionsBloquantesPourMagneto();
 
     // Sauter les étapes initiales g (graine déjà appliquée) et d (déclenchements) jusqu'à
     // tomber sur la première étape c ou r — point d'entrée du magnéto.
@@ -1604,18 +1635,46 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       idxRecul--;
     }
     if (idxRecul < 0) return;
+    // Si on recule sur une 'r' (réponse à un choisir), l'engine annule tout le tour (c + r
+    // ensemble — enleverToursDeJeux consomme les r trailing avec la c qui les précède). Pour
+    // que Pas suivant sur cette r retrouve un choisir pendant côté partie, on doit replanifier
+    // la re-exécution de la c qui originait le choisir : même pattern que la divergence-d
+    // (F050-MAG-T034) — magnetoIdx pointe sur la c, puis un magnetoPasSuivant programmatique
+    // re-joue la c et fait avancer naturellement le curseur sur la r. Si aucune c en amont
+    // (cas intro-only), on laisse magnetoIdx sur la r : l'intro elle-même reposera le choisir
+    // après le reload.
+    let idxRestore = idxRecul;
+    let rejouerCRApresReload = false;
+    if (this.enregistrementEnCours!.etapes[idxRecul].type === 'r') {
+      let idxC = idxRecul - 1;
+      while (idxC >= 0) {
+        const t = this.enregistrementEnCours!.etapes[idxC].type;
+        if (t === 'c' || t === 'r') break;
+        idxC--;
+      }
+      if (idxC >= 0 && this.enregistrementEnCours!.etapes[idxC].type === 'c') {
+        idxRecul = idxC;
+        idxRestore = idxC;
+        rejouerCRApresReload = true;
+      }
+    }
     // Retirer les 'd' (et 'g' trailing qui les masquent) du sauvegarde de replay : sinon le reload
     // post-annuler re-force les routines et leurs sorties réapparaissent à l'écran.
     this.partie.enleverDeclenchementsTrailing();
     this.executerCommandeAffichee('annuler');
     this.magnetoIdx = idxRecul;
-    this.restaurerSnapshotRng(idxRecul);
+    this.restaurerSnapshotRng(idxRestore);
     // En production, le parent (donjon-jouer/creer) reload la partie de façon async
     // après l'annuler — ce reload ré-applique la graine et écrase notre restauration sync.
     // On re-restaure après le reload pour imposer l'état PRNG du snapshot.
+    const idxRecCRAttendue = this.magnetoIdx;
     setTimeout(() => {
       if (this.enregistrementActif && this.enregistrementEnCours) {
-        this.restaurerSnapshotRng(idxRecul);
+        this.restaurerSnapshotRng(idxRestore);
+        if (rejouerCRApresReload && this.magnetoIdx === idxRecCRAttendue && !this.magnetoDivergence) {
+          // Re-jouer la c automatiquement pour ramener le choisir pendant et avancer le curseur sur la r.
+          this.magnetoPasSuivant();
+        }
       }
     }, 250);
     this.enregistrementActions.push({ idx: idxRecul, action: 'reculé', detail: `retour à l'étape précédente` });
@@ -1744,10 +1803,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.magnetoDivergence) {
       this.magnetoIdxEnEdition = this.magnetoDivergence.idx;
       this.magnetoEdition = 'modifier';
+      this.magnetoEditionTypeOriginal = this.magnetoDivergence.etape.type === 'r' ? 'r' : 'c';
       this.magnetoSaisieCommande = this.magnetoDivergence.etape.valeur;
       this.magnetoDernierTest = null;
       // Annule la commande divergente pour permettre de tester proprement la nouvelle.
       this.executerCommandeAffichee('annuler');
+      // Si la divergence porte sur un r:, l'annuler a retiré le TOUR (c + r) → la source
+      // du choisir/question n'est plus pendante. Re-jouer la c source pour la ré-établir.
+      if (this.magnetoEditionTypeOriginal === 'r') {
+        this.rejouerSourceChoisirPourMagneto(this.magnetoDivergence.idx);
+      }
       return;
     }
 
@@ -1760,8 +1825,36 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoIdxEnEdition = idxCible;
     const etape = this.enregistrementEnCours.etapes[idxCible];
     this.magnetoEdition = 'modifier';
+    this.magnetoEditionTypeOriginal = etape.type === 'r' ? 'r' : 'c';
     this.magnetoSaisieCommande = etape.valeur;
     this.magnetoDernierTest = null;
+    // Si l'étape originale est un r:, l'annuler a retiré le TOUR (c + r). Re-jouer la
+    // c source pour ré-établir le choisir / la question avant l'application de la
+    // nouvelle réponse via executerReponseChoix.
+    if (etape.type === 'r') {
+      this.rejouerSourceChoisirPourMagneto(idxCible);
+    }
+  }
+
+  /**
+   * Quand on modifie ou teste un `r:` lié à une action (choisir personnalisé OU
+   * désambiguïsation auto via questionCommande), l'`annuler` envoyé pour rembobiner
+   * retire le TOUR entier (c + r). La nouvelle réponse ne peut plus être appliquée
+   * car l'interruption n'est plus pendante. Cette méthode parcourt les étapes en
+   * amont du r: pour retrouver la c source et la re-exécute (ce qui repose
+   * l'interruption attendue). Pour un r: lié uniquement à l'intro (aucune c source
+   * en amont), ne fait rien : c'est au cycle de vie de re-poser le choisir d'intro.
+   */
+  private rejouerSourceChoisirPourMagneto(idxR: number): void {
+    if (!this.enregistrementEnCours) return;
+    for (let i = idxR - 1; i >= 0; i--) {
+      const e = this.enregistrementEnCours.etapes[i];
+      if (e.type === 'c') {
+        this.executerCommandeAffichee(e.valeur);
+        return;
+      }
+      if (e.type === 'r') return; // r: d'intro en amont — l'intro re-pose son propre choisir
+    }
   }
 
   /**
@@ -1810,7 +1903,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
     }
     const cmd = this.magnetoSaisieCommande.trim();
-    const sortie = this.executerCommandeAffichee(cmd);
+    const sortie = this.magnetoEditionTypeOriginal === 'r'
+      ? this.executerReponseChoix(cmd)
+      : this.executerCommandeAffichee(cmd);
     this.magnetoDernierTest = { commande: cmd, sortie };
   }
 
@@ -1833,14 +1928,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.magnetoIdxEnEdition !== null) {
         this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
       }
-      sortieNouvelle = this.executerCommandeAffichee(cmd);
+      sortieNouvelle = this.magnetoEditionTypeOriginal === 'r'
+        ? this.executerReponseChoix(cmd)
+        : this.executerCommandeAffichee(cmd);
     }
 
     if (this.magnetoDivergence) {
       const d = this.magnetoDivergence;
       this.magnetoSnapshotsRng.clear();
       if (this.magnetoEdition === 'modifier') {
-        this.enregistrementEnCours.etapes[d.idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
+        this.enregistrementEnCours.etapes[d.idx] = { type: typeNouvelle, valeur: cmd, sortie: sortieNouvelle };
         this.enregistrementCompteurs.modifications++;
         this.enregistrementActions.push({ idx: d.idx, action: 'modifié', detail: `« ${d.etape.valeur} » → « ${cmd} »` });
         this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
@@ -1859,7 +1957,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.magnetoSnapshotsRng.clear();
       if (this.magnetoEdition === 'modifier') {
         const ancienne = this.enregistrementEnCours.etapes[idx];
-        this.enregistrementEnCours.etapes[idx] = { type: 'c', valeur: cmd, sortie: sortieNouvelle };
+        const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
+        this.enregistrementEnCours.etapes[idx] = { type: typeNouvelle, valeur: cmd, sortie: sortieNouvelle };
         this.enregistrementCompteurs.modifications++;
         this.enregistrementActions.push({ idx, action: 'modifié', detail: `« ${ancienne.valeur} » → « ${cmd} »` });
         this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
@@ -1877,6 +1976,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
     this.magnetoIdxEnEdition = null;
+    this.magnetoEditionTypeOriginal = null;
     if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
       this.afficherRecap();
     } else if (etaitEnModification) {
@@ -1926,6 +2026,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoEdition = 'aucun';
     this.magnetoSaisieCommande = '';
     this.magnetoIdxEnEdition = null;
+    this.magnetoEditionTypeOriginal = null;
   }
 
   // -- Helpers compteur 1/X (sur c+r uniquement) ---------------------------
@@ -1959,6 +2060,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.enregistrementEnCours.etapes[idx]?.type === 'd';
   }
 
+  /** Vrai quand l'étape courante est une réponse à un choix ('r') : libellé « Choix » et non « Commande ». */
+  public get magnetoEtapeCouranteEstReponse(): boolean {
+    if (!this.enregistrementEnCours) return false;
+    const idx = this.magnetoIdxCommande;
+    if (idx < 0) return false;
+    return this.enregistrementEnCours.etapes[idx]?.type === 'r';
+  }
+
   public get magnetoCompteurTotal(): number {
     if (!this.enregistrementEnCours) return 0;
     return this.enregistrementEnCours.etapes.filter(e => e.type === 'c' || e.type === 'r').length;
@@ -1981,7 +2090,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    * les graines 'g' sont ignorées.
    * Le statut « courant » désigne la dernière étape c/r exécutée (ou en divergence).
    */
-  public get magnetoMiniListe(): { idx: number, etape: EtapeEnregistrement | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, estDeclenchement: boolean, estDivergent: boolean, enEdition: boolean, num: number | null }[] {
+  public get magnetoMiniListe(): { idx: number, etape: EtapeEnregistrement | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, estDeclenchement: boolean, estReponse: boolean, estDivergent: boolean, enEdition: boolean, num: number | null }[] {
     if (!this.enregistrementEnCours) return [];
     const etapes = this.enregistrementEnCours.etapes;
     const idxDivergence = this.magnetoDivergence?.idx ?? -1;
@@ -2014,10 +2123,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (fin > stepIdx.length - 1) { debut -= (fin - (stepIdx.length - 1)); fin = stepIdx.length - 1; }
     debut = Math.max(0, debut);
     fin = Math.min(stepIdx.length - 1, fin);
-    const result: { idx: number, etape: EtapeEnregistrement | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, estDeclenchement: boolean, estDivergent: boolean, enEdition: boolean, num: number | null }[] = [];
+    const result: { idx: number, etape: EtapeEnregistrement | null, commande: string, statut: 'passe' | 'courant' | 'futur', estIntro: boolean, estDeclenchement: boolean, estReponse: boolean, estDivergent: boolean, enEdition: boolean, num: number | null }[] = [];
     if (debut === 0) {
       const statut: 'passe' | 'courant' = introCourante ? 'courant' : 'passe';
-      result.push({ idx: -1, etape: null, commande: 'intro', statut, estIntro: true, estDeclenchement: false, estDivergent: false, enEdition: false, num: 1 });
+      result.push({ idx: -1, etape: null, commande: 'intro', statut, estIntro: true, estDeclenchement: false, estReponse: false, estDivergent: false, enEdition: false, num: 1 });
     }
     // Étend la plage réelle pour inclure les 'g' intercalés ; on les ignore au rendu (non pertinents pour le joueur).
     const realStart = (debut === 0) ? 0 : stepIdx[debut];
@@ -2032,9 +2141,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         const iCr = crIdx.indexOf(realIdx);
         const enEdition = this.magnetoEdition === 'modifier' && this.magnetoIdxEnEdition === realIdx;
         const commande = (enEdition && this.magnetoDernierTest) ? this.magnetoDernierTest.commande : e.valeur;
-        result.push({ idx: realIdx, etape: e, commande, statut, estIntro: false, estDeclenchement: false, estDivergent: realIdx === idxDivergence, enEdition, num: iCr + 2 });
+        result.push({ idx: realIdx, etape: e, commande, statut, estIntro: false, estDeclenchement: false, estReponse: e.type === 'r', estDivergent: realIdx === idxDivergence, enEdition, num: iCr + 2 });
       } else if (e.type === 'd') {
-        result.push({ idx: realIdx, etape: e, commande: e.valeur, statut, estIntro: false, estDeclenchement: true, estDivergent: realIdx === idxDivergence, enEdition: false, num: null });
+        result.push({ idx: realIdx, etape: e, commande: e.valeur, statut, estIntro: false, estDeclenchement: true, estReponse: false, estDivergent: realIdx === idxDivergence, enEdition: false, num: null });
       }
     }
     return result;
@@ -2058,6 +2167,35 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    */
   private executerEtapeEnregistrement(etape: EtapeEnregistrement): string {
     this.partie.reinitialiserDerniereSortieEnregistree();
+    // Une étape 'r' avec une interruption attendreChoix / attendreChoixLibre pendante
+    // est une RÉPONSE au choisir, pas une commande. La router via le handler de choix
+    // (qui pousse r:* dans la sauvegarde et résout l'interruption) au lieu de
+    // envoyerCommande (qui exécuterait 'a' comme la commande `aller`).
+    if (etape.type === 'r' && this.interruptionEnCours) {
+      const t = this.interruptionEnCours.typeInterruption;
+      if (t === TypeInterruption.attendreChoix) {
+        this.commande = etape.valeur;
+        this.traiterChoixStatiqueJoueur();
+        this.terminerInterruptionsBloquantesPourMagneto();
+        return this.partie.derniereSortieEnregistree ?? '';
+      }
+      if (t === TypeInterruption.attendreChoixLibre) {
+        this.commande = etape.valeur;
+        this.traiterChoixLibreJoueur();
+        this.terminerInterruptionsBloquantesPourMagneto();
+        return this.partie.derniereSortieEnregistree ?? '';
+      }
+      if (t === TypeInterruption.questionCommande) {
+        // Désambiguïsation (ex. « prendre chaise » avec 2 chaises) : la réponse est
+        // un numéro de choix. Router via le même handler que onKeyDownEnter, qui
+        // pousse r:* dans la sauvegarde et termine l'interruption (re-jouant la
+        // commande corrigée), au lieu de l'exécuter comme commande de jeu.
+        this.commande = etape.valeur;
+        this.resoudreQuestionCommandePourMagneto();
+        this.terminerInterruptionsBloquantesPourMagneto();
+        return this.partie.derniereSortieEnregistree ?? '';
+      }
+    }
     const commandeComplete = Abreviations.obtenirCommandeComplete(etape.valeur, this.jeu.abreviations, this.jeu.lieux, this.jeu.objets);
     const commandeNettoyee = CommandesUtils.nettoyerCommande(commandeComplete);
     this.envoyerCommande(etape.valeur, commandeNettoyee, true, true, true, false);
@@ -2078,6 +2216,49 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       const t = this.interruptionEnCours.typeInterruption;
       if (t !== TypeInterruption.attendreTouche && t !== TypeInterruption.attendreSecondes) break;
       this.terminerInterruption(undefined);
+    }
+  }
+
+  /**
+   * Exécute une RÉPONSE à un choisir/choisir libre en cours, via le handler de choix
+   * (et non envoyerCommande qui traiterait la valeur comme une commande de jeu).
+   * Retourne la sortie brute capturée pendant la résolution du choisir.
+   */
+  private executerReponseChoix(reponse: string): string {
+    this.partie.reinitialiserDerniereSortieEnregistree();
+    this.commande = reponse;
+    const t = this.interruptionEnCours?.typeInterruption;
+    if (t === TypeInterruption.attendreChoix) {
+      this.traiterChoixStatiqueJoueur();
+    } else if (t === TypeInterruption.attendreChoixLibre) {
+      this.traiterChoixLibreJoueur();
+    } else if (t === TypeInterruption.questionCommande) {
+      this.resoudreQuestionCommandePourMagneto();
+    } else {
+      // Pas de choisir pendant : on n'a rien à faire (le handler tomberait dans l'erreur
+      // "Veuillez entrer la lettre correspondant à votre choix" qui n'a pas de sens en édition).
+      this.ajouterConseil("Le choisir attendu n'est plus pendant — la réponse n'a pas pu être appliquée.");
+    }
+    this.terminerInterruptionsBloquantesPourMagneto();
+    return this.partie.derniereSortieEnregistree ?? '';
+  }
+
+  /**
+   * Réplique le handler `questionCommande` de `onKeyDownEnter` pour le contexte magnéto :
+   * lit `this.commande` (numéro de choix attendu), valide contre la liste de choix de la
+   * question, fixe `Reponse` et termine l'interruption (ce qui re-joue la commande
+   * corrigée et pousse r:* dans la sauvegarde via `terminerInterruption`).
+   */
+  private resoudreQuestionCommandePourMagneto(): void {
+    if (!this.interruptionEnCours || this.interruptionEnCours.typeInterruption !== TypeInterruption.questionCommande) return;
+    if (!this.commande) this.commande = "1";
+    const number = Number.parseInt(this.commande);
+    const choix = this.interruptionEnCours.derniereQuestion?.Choix;
+    if (number && choix && (number - 1) < choix.length) {
+      this.interruptionEnCours.derniereQuestion.Reponse = (number - 1);
+      this.terminerInterruption(undefined);
+    } else {
+      this.ajouterConseil(`Numéro de choix invalide pour la désambiguïsation : « ${this.commande} ».`);
     }
   }
 

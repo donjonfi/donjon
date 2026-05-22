@@ -177,6 +177,10 @@ export class AnalyseurV8Utils {
    * Tests unitaires: ✔️ (oui)
    */
   public static chercherDebutRoutine(phrase: Phrase): ERoutine | undefined {
+    // cas spécial : « règle remplacer <verbe> » est une routine de type action
+    if (ExprReg.xRegleRemplacerAction.test(phrase.morceaux[0])) {
+      return ERoutine.action;
+    }
     const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
     // ouverture d’une routine (routine, règle, action, réaction, …)
     if (ouvertureRoutine) {

@@ -1,0 +1,12 @@
+.action-remplace {
+  border-left: 3px solid var(--bs-warning, #ffc107);
+  padding-left: 0.5rem;
+}
+
+.action-remplacee {
+  text-decoration: line-through;
+  opacity: 0.6;
+  padding-left: 1rem;
+  border-left: 3px dashed var(--bs-secondary, #6c757d);
+  font-size: 0.95em;
+}

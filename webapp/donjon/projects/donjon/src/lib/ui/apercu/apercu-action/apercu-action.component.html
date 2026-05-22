@@ -1,4 +1,4 @@
-<div>
+<div [ngClass]="{'action-remplace': action.remplace}">
 
   <div class="row">
     <div class="col-auto pe-1">
@@ -29,6 +29,10 @@
     </span>
   }
 
+  @if (action.remplace) {
+    <span class="badge bg-warning text-dark ms-2" title="Cette action remplace le comportement par défaut via « règle remplacer »">remplace</span>
+  }
+
 </div>
 
 </div>
@@ -38,52 +42,52 @@
   <ul>
     @if (action.cibleCeci && (action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 ')) {
       <li>
-        ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
+        ceci : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCeci.epithete}}</i>
       </li>
     }
     @if (action.cibleCela && action.cibleCeci.determinant != 'deux ' && action.cibleCeci.determinant != '2 ') {
       <li>
-        cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
+        cela : {{action.cibleCela.determinant}} {{action.cibleCela.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
     }
     @if (action.cibleCeci && (action.cibleCeci.determinant == 'deux ' || action.cibleCeci.determinant == '2 ')) {
       <li>
-        ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
+        ceci et cela : {{action.cibleCeci.determinant}} {{action.cibleCeci.nom}} <i>{{action.cibleCela.epithete}}</i>
       </li>
     }
-    <li>Phase prérequis : @if (action.phasePrerequis.length == 0) {
+    <li>Phase prérequis : @if (action.phasePrerequis.length == 0) {
       <i>(aucun prérequis)</i>
     }
     <ul>
       @for (ins of action.phasePrerequis; track ins; let i = $index) {
         <li>
-          Instruction {{(i+1)}} :
+          Instruction {{(i+1)}} :
           <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
         </li>
       }
     </ul>
   </li>
-  <li>phase exécution :
+  <li>phase exécution :
     <ul>
       @for (ins of action.phaseExecution; track ins; let i = $index) {
         <li>
-          Instruction {{(i+1)}} :
+          Instruction {{(i+1)}} :
           <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
         </li>
       }
     </ul>
   </li>
 
-  <li>phase épilogue : @if (action.phaseEpilogue.length == 0) {
+  <li>phase épilogue : @if (action.phaseEpilogue.length == 0) {
     <i>(aucune instruction)</i>
   }
   @if (action.phaseEpilogue.length != 0) {
     <ul>
-      <li>Instructions :
+      <li>Instructions :
         <ul>
           @for (ins of action.phaseEpilogue; track ins; let i = $index) {
             <li>
-              Instruction {{(i+1)}} :
+              Instruction {{(i+1)}} :
               <app-apercu-instruction [ins]="ins"></app-apercu-instruction>
             </li>
           }
@@ -95,5 +99,31 @@
 </ul>
 </div>
 
+@if (action.remplace && action.actionRemplacee) {
+  <div class="action-remplacee mt-1">
+    <div class="row">
+      <div class="col-auto pe-1">
+        <span class="badge bg-secondary ms-1" title="Cette action a été remplacée par une « règle remplacer »">remplacée</span>
+      </div>
+      <div class="col">
+        <span class="infinitif"> {{action.actionRemplacee.infinitif}}</span>
+        @if (action.actionRemplacee.ceci) {
+          <span>
+            ceci (<span class="objet">{{action.actionRemplacee.cibleCeci?.nom}}@if (action.actionRemplacee.cibleCeci?.epithete) {
+              <span class="epithete"> {{action.actionRemplacee.cibleCeci?.epithete}}</span>
+            }</span>)
+          </span>
+        }
+        @if (action.actionRemplacee.cela) {
+          <span>
+            cela (<span class="objet">{{action.actionRemplacee.cibleCela?.nom}}@if (action.actionRemplacee.cibleCela?.epithete) {
+              <span class="epithete"> {{action.actionRemplacee.cibleCela?.epithete}}</span>
+            }</span>)
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+}
 
 </div>

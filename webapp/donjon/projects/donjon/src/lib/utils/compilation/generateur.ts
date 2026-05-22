@@ -2,6 +2,7 @@ import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 
+import { Action } from '../../models/compilateur/action';
 import { Auditeur } from '../../models/jouer/auditeur';
 import { Classe } from '../../models/commun/classe';
 import { ClasseUtils } from '../commun/classe-utils';
@@ -535,40 +536,60 @@ export class Generateur {
 
     // GÉNÉRER LES ACTIONS
     // *******************
-    // Séparer les actions « normales » des redéfinitions afin d’appliquer ces
-    // dernières en dernier (elles écrasent une action existante par signature).
-    rc.actions.forEach(action => {
-      if (!action.redefinit) {
-        jeu.actions.push(action);
-      }
-    });
-    rc.actions.forEach(action => {
-      if (!action.redefinit) return;
-      // Plusieurs actions peuvent partager le même infinitif+ceci+cela (ex: 4 « action examiner ceci »
-      // distinguées par cibleCeci.nom : direction, lieu, objet, spécial). La redéfinition doit donc
-      // aussi désambiguïser sur cibleCeci.nom / cibleCela.nom — sinon on écraserait la mauvaise.
-      const matches: number[] = [];
-      jeu.actions.forEach((a, i) => {
-        if (a.infinitifSansAccent !== action.infinitifSansAccent) return;
-        if (a.ceci !== action.ceci || a.cela !== action.cela) return;
-        if ((a.prepositionCeci ?? '') !== (action.prepositionCeci ?? '')) return;
-        if ((a.prepositionCela ?? '') !== (action.prepositionCela ?? '')) return;
-        if ((a.cibleCeci?.nom ?? null) !== (action.cibleCeci?.nom ?? null)) return;
-        if ((a.cibleCela?.nom ?? null) !== (action.cibleCela?.nom ?? null)) return;
-        matches.push(i);
-      });
-      const signature = action.infinitif
-        + (action.ceci ? (action.prepositionCeci ? ' ' + action.prepositionCeci : '') + ' ceci' : '')
-        + (action.cela ? (action.prepositionCela ? ' ' + action.prepositionCela : '') + ' cela' : '');
-      const detailCible = (action.cibleCeci?.nom || action.cibleCela?.nom)
+    // Helper : deux actions ont la même signature si infinitif + (préposition + présence + cible) ceci/cela coïncident.
+    const memeSignature = (a: Action, b: Action) =>
+      a.infinitifSansAccent === b.infinitifSansAccent
+      && a.ceci === b.ceci && a.cela === b.cela
+      && (a.prepositionCeci ?? '') === (b.prepositionCeci ?? '')
+      && (a.prepositionCela ?? '') === (b.prepositionCela ?? '')
+      && (a.cibleCeci?.nom ?? null) === (b.cibleCeci?.nom ?? null)
+      && (a.cibleCela?.nom ?? null) === (b.cibleCela?.nom ?? null);
+
+    const signatureLisible = (action: Action) => action.infinitif
+      + (action.ceci ? (action.prepositionCeci ? ' ' + action.prepositionCeci : '') + ' ceci' : '')
+      + (action.cela ? (action.prepositionCela ? ' ' + action.prepositionCela : '') + ' cela' : '');
+    const detailCibleLisible = (action: Action) =>
+      (action.cibleCeci?.nom || action.cibleCela?.nom)
         ? ` (ceci=${action.cibleCeci?.nom ?? '∅'}, cela=${action.cibleCela?.nom ?? '∅'})`
         : '';
-      if (matches.length === 0) {
-        ctx.ajouterErreur(`L’action « redéfinir action ${signature} »${detailCible} ne correspond à aucune action existante. Si plusieurs versions existent (ex: examiner ceci pour direction, lieu, objet…), ajoutez un bloc « définitions: ceci est un <type>. » identique à celui de la version ciblée.`);
-      } else if (matches.length > 1) {
-        ctx.ajouterErreur(`L’action « redéfinir action ${signature} »${detailCible} correspond à ${matches.length} actions existantes — précisez davantage le bloc « définitions: » pour lever l’ambiguïté.`);
+
+    // Passe 1 : actions « normales » (non-remplaçantes).
+    // Détection de doublons : deux blocs `action X:` avec la même signature → erreur, l’auteur doit
+    // utiliser `règle remplacer X` s’il voulait remplacer le comportement par défaut.
+    rc.actions.forEach(action => {
+      if (action.remplace) return;
+      const doublon = jeu.actions.find(a => memeSignature(a, action));
+      if (doublon) {
+        ctx.ajouterErreur(`L’action « ${signatureLisible(action)} »${detailCibleLisible(action)} est définie plusieurs fois. Pour modifier le comportement d’une action existante, utilisez « règle remplacer ${signatureLisible(action)} ».`);
+        return;
+      }
+      jeu.actions.push(action);
+    });
+
+    // Passe 2 : règles remplacer (action.remplace === true).
+    // Plusieurs actions peuvent partager le même infinitif+ceci+cela (ex: 4 « action examiner ceci »
+    // distinguées par cibleCeci.nom : direction, lieu, objet, spécial). Le remplacement doit donc
+    // aussi désambiguïser sur cibleCeci.nom / cibleCela.nom — sinon on écraserait la mauvaise.
+    rc.actions.forEach(action => {
+      if (!action.remplace) return;
+      const indexMatches: number[] = [];
+      jeu.actions.forEach((a, i) => { if (memeSignature(a, action)) indexMatches.push(i); });
+      if (indexMatches.length === 0) {
+        // Pas de cible : on crée l’action quand même, mais on prévient l’auteur (visible dans donjon-creer).
+        jeu.tamponConseils.push(`« règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} ne correspond à aucune action existante — une nouvelle action est créée.`);
+        jeu.actions.push(action);
+      } else if (indexMatches.length > 1) {
+        ctx.ajouterErreur(`« règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} correspond à ${indexMatches.length} actions existantes — précisez davantage le bloc « définitions: » pour lever l’ambiguïté.`);
       } else {
-        jeu.actions.splice(matches[0], 1, action);
+        // Vérifier qu’aucune autre « règle remplacer » n’a déjà ciblé cette action.
+        const dejaRemplacee = jeu.actions[indexMatches[0]].remplace;
+        if (dejaRemplacee) {
+          ctx.ajouterErreur(`Deux « règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} pour la même action : une seule règle de remplacement est autorisée par action.`);
+        } else {
+          // garder une référence vers l’action originale écrasée pour traçabilité dans l’aperçu.
+          action.actionRemplacee = jeu.actions[indexMatches[0]];
+          jeu.actions.splice(indexMatches[0], 1, action);
+        }
       }
     });
 

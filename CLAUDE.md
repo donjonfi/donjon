@@ -132,6 +132,20 @@ Set-Location $InitialLocation
 
 Note : `exit N` ne déclenche pas `try { } finally { }` en PowerShell — d'où la restauration explicite avant chaque `exit`. Les exceptions non gérées peuvent encore laisser le `cwd` souillé mais c'est marginal sur ces scripts.
 
+### 3. Sync des exemples wiki (`sync-wiki-examples.ps1`)
+
+Les exemples illustrant le wiki utilisateur vivent sous `ressources/scenarios/exemples/wiki/<thème>/<nom>.djn` (versionnés). Pour être accessibles via l'interwiki DokuWiki `[[djnc>X|tester cet exemple]]` (qui pointe vers `https://donjon.fi/creer/X` → `editeur.component.ts:501` qui charge `assets/modeles/X.djn` par HTTP), ils doivent être aplatis dans `projects/donjon-creer/src/assets/modeles/` avec un préfixe `wiki_<thème>_<nom>.djn`.
+
+`scripts/sync-wiki-examples.ps1` fait cet aplatissement (idempotent, nettoie les orphelins). Les fichiers cibles sont **gitignored** (`webapp/donjon/.gitignore`) — ils sont régénérés au build, pas commités.
+
+`build-all.ps1` appelle le sync à deux moments :
+- dans `Build-GulpSections`, **après** `git merge master --no-edit` (pour que la branche `gulp-single-file` ait bien la dernière version des `ressources/wiki/`),
+- avant l'étape 5 (éditeur web classique), de retour sur la branche d'origine.
+
+Pour le dev local (`ng serve donjon-creer`), exécuter `sync-wiki-examples.ps1` à la main si on veut accéder aux exemples wiki via leur URL.
+
+**Convention de nommage** : `wiki/<dossier>/<fichier>.djn` → `wiki_<dossier>_<fichier>.djn`. Le slug d'URL `[[djnc>...]]` du wiki doit matcher exactement ce nom (sans `.djn`).
+
 ## Replay : sauvegardes (.sol) et magnétoscope (.rec)
 
 Le lecteur supporte deux modes de re-exécution déterministe d'une partie :

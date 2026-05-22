@@ -1067,13 +1067,14 @@ export class ExprReg {
   // ================================================================================================
 
   /**
-   * (redéfinir [l’])?règle|action|réaction|routine(1)
-   * Le préfixe `redéfinir ` (optionnellement suivi de `l’` / `l'`) n’est consommé que s’il est suivi de `action`.
+   * règle|action|réaction|routine(1)
+   * Note : le cas spécial « règle remplacer <verbe> » (qui produit une routine de type action) est traité hors regex
+   * — voir `xRegleRemplacerAction` et `chercherDebutRoutine`.
    */
-  static readonly xDebutRoutine = /^(?:red(?:é|e)finir\s+(?:l['’]\s*)?(?=action))?(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+  static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
 
-  /** Préfixe `redéfinir [l’]action` en début d’entête (utilisé pour repérer une redéfinition d’action). */
-  static readonly xRedefinirAction = /^red(?:é|e)finir\s+(?:l['’]\s*)?(?=action\b)/i;
+  /** Préfixe `règle remplacer ` consommé en tête d’une entête `règle remplacer <verbe> [ceci] [cela]`. */
+  static readonly xRegleRemplacerAction = /^r(?:è|e|é)gle\s+remplacer\s+(?=\w)/i;
 
   /**
    * fin règle|action|réaction|routine(1)

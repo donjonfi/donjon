@@ -135,36 +135,30 @@ action aller vers ceci:
 fin action
 ```
 
-### Redéfinir une action existante
+### Remplacer une action existante (`règle remplacer`)
 
-Pour écraser une action déjà définie (par exemple une action héritée de `actions.djn` via `inclure`), préfixer l'entête par `redéfinir` (avec ou sans article `l'`). La redéfinition remplace entièrement l'action d'origine (description, phases, balises, etc.).
+Pour écraser une action déjà définie (par exemple une action héritée de `actions.djn` via `inclure`), utiliser un bloc `règle remplacer <signature>:`. Le bloc remplace entièrement l'action d'origine (description, phases, balises, etc.). Le bloc se ferme par `fin action`.
 
 ```
-redéfinir action sauter:
-  phase épilogue:
-    dire "Vous bondissez comme un cabri.".
-fin action
-
--- équivalent, avec article :
-redéfinir l'action sauter:
+règle remplacer sauter:
   phase épilogue:
     dire "Vous bondissez comme un cabri.".
 fin action
 ```
 
-La signature doit correspondre exactement à l'action ciblée : `redéfinir action sauter:` ne remplace pas `action sauter sur ceci:` et inversement.
+La signature doit correspondre exactement à l'action ciblée : `règle remplacer sauter:` ne remplace pas `action sauter sur ceci:` et inversement.
 
 ```
-redéfinir action sauter sur ceci:
+règle remplacer sauter sur ceci:
   phase épilogue:
     dire "Hop, vous voilà perché sur [le ceci].".
 fin action
 ```
 
-**Désambiguïsation par `définitions:`** — plusieurs actions du moteur partagent le même infinitif et la même arité. Par exemple, `actions.djn` définit quatre `action examiner ceci:` distinctes (une pour une direction, une pour un lieu, une pour un objet, une pour un spécial). La redéfinition doit donc reproduire le bloc `définitions:` de la version visée pour lever l'ambiguïté :
+**Désambiguïsation par `définitions:`** — plusieurs actions du moteur partagent le même infinitif et la même arité. Par exemple, `actions.djn` définit quatre `action examiner ceci:` distinctes (une pour une direction, une pour un lieu, une pour un objet, une pour un spécial). Le bloc de remplacement doit reproduire le bloc `définitions:` de la version visée pour lever l'ambiguïté :
 
 ```
-redéfinir action examiner ceci:
+règle remplacer examiner ceci:
   définitions:
     ceci est un objet prioritairement visible et mentionné.
   phase épilogue:
@@ -172,7 +166,9 @@ redéfinir action examiner ceci:
 fin action
 ```
 
-Si aucune action existante ne correspond à la signature fournie, ou si plusieurs correspondent (ambiguïté), une erreur de génération est émise et la redéfinition est ignorée.
+Si plusieurs actions correspondent à la signature fournie sans pouvoir être désambiguïsées, une erreur de compilation est émise. Si aucune action existante ne correspond, un conseil non bloquant est ajouté (visible dans l'éditeur Donjon FI) et la règle crée une nouvelle action.
+
+**Doublons d'actions** — deux blocs `action <signature>:` avec la même signature (même infinitif, même arité ceci/cela, mêmes prépositions, même `définitions:`) sont refusés : une erreur de compilation invite à utiliser `règle remplacer` si l'intention était bien de modifier le comportement existant. Deux blocs `règle remplacer` ciblant la même action sont également refusés (une seule règle de remplacement par action).
 
 ---
 
