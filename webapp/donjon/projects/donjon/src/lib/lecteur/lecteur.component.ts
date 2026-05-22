@@ -129,6 +129,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    */
   private magnetoSnapshotsRng: Map<number, AleatoireInstantane> = new Map();
 
+  /**
+   * Indices des étapes 'r' exécutées comme réponse à un `choisir` (attendreChoix /
+   * attendreChoixLibre). Mémorisé au moment de l'exécution car `interruptionEnCours`
+   * est mis à `undefined` par `terminerInterruption` dès la résolution → on ne peut
+   * plus l'interroger une fois l'étape consommée. Sert à griser le bouton Modifier
+   * tant que l'édition d'une réponse de choix n'est pas correctement gérée. Vidé à
+   * la sortie du magnéto (initialiserMagneto / magnetoQuitter).
+   */
+  private magnetoIdxReponsesChoix: Set<number> = new Set();
+
   /** Le panneau de récapitulatif de fin de session est-il affiché ? */
   public recapAffiche = false;
 
@@ -651,6 +661,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
             }
             texteChoix += '</ul>'
             this.partie.ecran.ajouterContenuHtml(texteChoix);
+            // Capture aussi la liste des propositions dans le pipeline d'enregistrement :
+            // sans cela, ajouterContenuHtml écrit à l'écran uniquement et le magnéto ne
+            // peut pas détecter qu'un libellé de choix a été modifié dans le scénario.
+            this.partie.enregistrerSortieEtapeCourante(texteChoix);
             if (this.choixPossibles.length > 0) {
               this.indexChoixPropose = 0;
               this.commande = this.choixPossibles[this.indexChoixPropose];
@@ -1361,6 +1375,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoIdxEnEdition = null;
     this.magnetoEditionTypeOriginal = null;
     this.magnetoSnapshotsRng.clear();
+    this.magnetoIdxReponsesChoix.clear();
 
     // Appliquer la graine du fichier pour rendre le replay déterministe.
     if (this.enregistrementEnCours.graine) {
@@ -1727,6 +1742,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.partie.ins.restaurationPartieEnCours = false;
     this.enregistrementEnCours = null;
     this.magnetoDivergence = null;
+    this.magnetoIdxReponsesChoix.clear();
   }
 
   /** Télécharge une sauvegarde du .rec à tout moment. */
@@ -2060,6 +2076,32 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.enregistrementEnCours.etapes[idx]?.type === 'd';
   }
 
+  /** Vrai quand l'étape courante est une réponse à un `choisir` (statique ou libre) : modifier non applicable tant que le bug de modif de choix n'est pas corrigé. */
+  public get magnetoEtapeCouranteEstChoix(): boolean {
+    if (!this.enregistrementEnCours) return false;
+    const idx = this.magnetoIdxCommande;
+    if (idx < 0) return false;
+    // On ne peut pas se fier à `interruptionEnCours` ici : la résolution du choix
+    // l'a déjà clear. On consulte la trace remplie au moment de l'exécution.
+    return this.magnetoIdxReponsesChoix.has(idx);
+  }
+
+  /** Vrai quand insérer "Avant" la position courante séparerait l'entité (c qui
+   *  déclenche un choisir, r qui y répond) : interdit dès que le curseur est posé
+   *  sur le r issu d'un choisir. */
+  public get magnetoInsererAvantInterdit(): boolean {
+    return this.magnetoEtapeCouranteEstChoix;
+  }
+
+  /** Vrai quand insérer "Après" la position courante séparerait l'entité (c, r) d'un
+   *  choisir : le c/d qu'on vient de jouer a posé une interruption choisir, le r
+   *  n'a pas encore été consommé → toute insertion ici tomberait entre les deux. */
+  public get magnetoInsererApresInterdit(): boolean {
+    const t = this.interruptionEnCours?.typeInterruption;
+    return t === TypeInterruption.attendreChoix
+        || t === TypeInterruption.attendreChoixLibre;
+  }
+
   /** Vrai quand l'étape courante est une réponse à un choix ('r') : libellé « Choix » et non « Commande ». */
   public get magnetoEtapeCouranteEstReponse(): boolean {
     if (!this.enregistrementEnCours) return false;
@@ -2174,12 +2216,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (etape.type === 'r' && this.interruptionEnCours) {
       const t = this.interruptionEnCours.typeInterruption;
       if (t === TypeInterruption.attendreChoix) {
+        this.magnetoIdxReponsesChoix.add(this.magnetoIdx);
         this.commande = etape.valeur;
         this.traiterChoixStatiqueJoueur();
         this.terminerInterruptionsBloquantesPourMagneto();
         return this.partie.derniereSortieEnregistree ?? '';
       }
       if (t === TypeInterruption.attendreChoixLibre) {
+        this.magnetoIdxReponsesChoix.add(this.magnetoIdx);
         this.commande = etape.valeur;
         this.traiterChoixLibreJoueur();
         this.terminerInterruptionsBloquantesPourMagneto();

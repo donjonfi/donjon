@@ -2,6 +2,8 @@ import { ElementRef } from "@angular/core";
 
 import { EtapeEnregistrement, FichierEnregistrement, LecteurComponent } from "../../public-api";
 import { ContextePartie } from "../models/jouer/contexte-partie";
+import { Interruption, TypeContexte, TypeInterruption } from "../models/jeu/interruption";
+import { Choix } from "../models/compilateur/choix";
 import { TestUtils } from "../utils/test-utils";
 import { actions } from "./scenario_actions";
 
@@ -913,6 +915,81 @@ fin routine
     expect(lecteur.magnetoDivergence).toBeNull();
   });
 
+  it('[F050-MAG-T026] magnetoEtapeCouranteEstChoix reste vrai après exécution du r (interruption clear)', () => {
+    // Bug : le getter lisait `interruptionEnCours` qui est `undefined` une fois la
+    // résolution du choisir terminée → Modifier restait actif sur un 'r' issu d'un
+    // choisir. Fix : mémoriser l'idx du 'r' au moment de l'exécution.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'demander', sortie: 'Vous devez choisir.' },
+      { type: 'r', valeur: '1', sortie: 'Vous avez choisi un.' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+    // Curseur sur le 'r' (idx 1) qu'on s'apprête à exécuter.
+    (lecteur as any).magnetoIdx = 1;
+    // État post-choisir : une interruption attendreChoix est posée.
+    const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
+    interruption.choix = [new Choix(['un' as any])];
+    (lecteur as any).interruptionEnCours = interruption;
+    // La résolution du choix clear l'interruption (mimétisme prod : terminerInterruption).
+    spyOn(lecteur as any, 'traiterChoixStatiqueJoueur').and.callFake(() => {
+      (lecteur as any).interruptionEnCours = undefined;
+    });
+    spyOn(lecteur as any, 'terminerInterruptionsBloquantesPourMagneto');
+
+    (lecteur as any).executerEtapeEnregistrement(fichier.etapes[1]);
+    // magnetoPasSuivant avancerait magnetoIdx ; on simule pour que magnetoIdxCommande
+    // pointe désormais sur le 'r' qui vient d'être joué.
+    (lecteur as any).magnetoIdx = 2;
+
+    // Pré-condition : `interruptionEnCours` ne peut plus servir de signal.
+    expect((lecteur as any).interruptionEnCours).toBeUndefined();
+    // Le getter doit néanmoins savoir que le 'r' courant est issu d'un choisir.
+    expect(lecteur.magnetoEtapeCouranteEstChoix).toBeTrue();
+  });
+
+  it('[F050-MAG-T027] curseur sur r-choisir : Insérer Avant interdit, Insérer Après autorisé', () => {
+    // Le (c qui déclenche choisir + r qui répond) forme une entité indivisible : insérer
+    // Avant le r casserait la paire ; insérer Après le r tombe hors entité, c'est OK.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'demander', sortie: 'Choisis.' },
+      { type: 'r', valeur: '1', sortie: 'OK.' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+    // Curseur arrivé sur le r-choisir (idx 1 joué, magnetoIdx avancé à 2).
+    (lecteur as any).magnetoIdxReponsesChoix.add(1);
+    (lecteur as any).magnetoIdx = 2;
+    // L'interruption a déjà été clear par la résolution du choix.
+    (lecteur as any).interruptionEnCours = undefined;
+
+    expect(lecteur.magnetoInsererAvantInterdit).toBeTrue();
+    expect(lecteur.magnetoInsererApresInterdit).toBeFalse();
+  });
+
+  it('[F050-MAG-T028] curseur sur c-choisir (r pas encore joué) : Insérer Avant autorisé, Insérer Après interdit', () => {
+    // Le c vient d'être joué et a posé une interruption attendreChoix ; le r suivant
+    // n'a pas encore été consommé. Insérer Après ici tomberait entre c et r.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'demander', sortie: 'Choisis.' },
+      { type: 'r', valeur: '1', sortie: 'OK.' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
+    // Curseur juste après le c (idx 0 joué) : magnetoIdx = 1, le r n'est pas encore joué.
+    (lecteur as any).magnetoIdx = 1;
+    // L'interruption choisir est toujours posée tant que le r n'a pas été consommé.
+    const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
+    interruption.choix = [new Choix(['un' as any])];
+    (lecteur as any).interruptionEnCours = interruption;
+
+    expect(lecteur.magnetoInsererAvantInterdit).toBeFalse();
+    expect(lecteur.magnetoInsererApresInterdit).toBeTrue();
+  });
+
 });
 
 describe('Magnéto — surlignage des sections divergentes (diff)', () => {
@@ -1090,6 +1167,42 @@ describe('Magnéto — mini-liste : routines forcées (d) intercalées', () => {
     expect(liste[1].num).toBe(2);     // cmd0
     expect(liste[2].num).toBeNull();  // routine_a
     expect(liste[3].num).toBe(3);     // cmd1
+  });
+
+  it('[F050-MAG-T025] propositions d’un choisir alimentent enregistrerSortieEtapeCourante (sinon diff invisible au magnéto)', () => {
+    // Bug : la liste des propositions était écrite à l’écran via `ajouterContenuHtml` sans
+    // passer par `enregistrerSortieEtapeCourante`. Le magnéto comparait donc une sortie
+    // sans les libellés ; modifier un choix dans le scénario ne créait pas de divergence.
+    // Fix : appeler aussi le pipeline d’enregistrement lors du rendu des propositions.
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    // Simule un tour : la commande joueur a déjà été poussée, sa sortie initiale capturée.
+    ctx.ajouterCommandeDansSauvegarde('regarder');
+    ctx.enregistrerSortieEtapeCourante('Une salle vide.');
+
+    // Construire une Interruption attendreChoix avec deux libellés distincts.
+    const interruption = new Interruption(TypeInterruption.attendreChoix, TypeContexte.tour);
+    interruption.choix = [
+      new Choix(['option-AAA' as any]),
+      new Choix(['option-BBB' as any]),
+    ];
+    ctx.jeu.tamponInterruptions.push(interruption);
+
+    const lecteur = new LecteurComponent(document, new ElementRef(document.createElement('div')));
+    (lecteur as any).partie = ctx;
+    (lecteur as any).jeu = ctx.jeu;
+    // Neutralise les hooks UI qui dépendraient du DOM ou de l’état triche/auto-triche.
+    spyOn(lecteur as any, 'focusCommande');
+    spyOn(lecteur as any, 'executerProchaineEtapeManuTriche');
+
+    (lecteur as any).traiterProchaineInterruption();
+
+    // La sortie capturée du 'c' doit maintenant inclure les libellés proposés au joueur.
+    const fichier = ctx.creerFichierEnregistrement();
+    const cEtape = fichier.etapes.find(e => e.type === 'c' && e.valeur === 'regarder');
+    expect(cEtape).toBeDefined();
+    expect(cEtape!.sortie).toContain('option-AAA');
+    expect(cEtape!.sortie).toContain('option-BBB');
   });
 
 });
