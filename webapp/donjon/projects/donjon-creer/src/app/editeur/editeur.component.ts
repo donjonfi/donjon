@@ -44,7 +44,53 @@ export class EditeurComponent implements OnInit, OnDestroy {
   @ViewChild('codeEditor', { static: false }) set content(content: ElementRef) {
     if (content) { // initially setter gets called with undefined
       this.codeEditorElmRef = content;
+      this.enregistrerRaccourcisAce(content);
     }
+  }
+
+  /** Configure les options runtime et les raccourcis ACE Donjon. */
+  private enregistrerRaccourcisAce(content: ElementRef, tentative = 0): void {
+    const directive = content["directiveRef"];
+    const editor = directive && typeof directive.ace === "function" ? directive.ace() : null;
+    if (!editor) {
+      // ngx-ace-wrapper crée l'éditeur dans son ngAfterViewInit ; le setter ViewChild
+      // peut tirer avant. On retente quelques fois sur la prochaine microtask.
+      if (tentative < 20) {
+        setTimeout(() => this.enregistrerRaccourcisAce(content, tentative + 1), 50);
+      } else {
+        console.warn("[Donjon] Éditeur ACE non disponible : raccourcis non enregistrés.");
+      }
+      return;
+    }
+
+    // Forcer showFoldWidgets : passe parfois mal via [config] ngx-ace-wrapper.
+    try {
+      editor.setShowFoldWidgets(true);
+      // Si la session a démarré sur le mode `text` (timing), repasser sur donjon
+      // pour attacher les foldingRules.
+      const session = editor.getSession();
+      const currentModeId = session.getMode().$id;
+      if (currentModeId !== "ace/mode/donjon") {
+        session.setMode("ace/mode/donjon");
+      }
+    } catch (e) {
+      console.warn("[Donjon] setShowFoldWidgets KO :", e);
+    }
+
+    if (editor.commands.byName.donjonToggleComment) return;
+
+    // Raccourci commenter — mnémonique « C » pour Commenter, layout-indépendant.
+    // Les anciens `Ctrl+-` / `Ctrl+Shift+-` sont capturés par le zoom navigateur,
+    // et `Ctrl+;` ne fonctionne pas en AZERTY où `;` = Shift+`,` → Ace reçoit
+    // `Ctrl+Shift+,` au lieu de `Ctrl+;`.
+    editor.commands.addCommand({
+      name: "donjonToggleComment",
+      bindKey: {
+        win: "Ctrl-Alt-C",
+        mac: "Cmd-Alt-C",
+      },
+      exec: (ed: any) => ed.toggleCommentLines(),
+    });
   }
 
   @ViewChild('lecteur', { static: true }) lecteurRef: ElementRef;
@@ -92,7 +138,7 @@ export class EditeurComponent implements OnInit, OnDestroy {
     showGutter: true,
     showLineNumbers: this.afficherNumerosLigne,
     showPrintMargin: false,
-    showFoldWidgets: false,
+    showFoldWidgets: true,
     hScrollBarAlwaysVisible: false,
     wrap: true,
     //copyWithEmptySelection: true
