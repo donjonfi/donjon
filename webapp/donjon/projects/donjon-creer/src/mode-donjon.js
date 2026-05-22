@@ -15,11 +15,13 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     );
 
     var builtinFunctions = (
-      "attendre|changer|continuer|copier|déplacer|déverrouiller|"
-      + "dire|effacer|exécuter|remplacer|"
-      + "refuser|sauver|stopper|terminer|"
-      + "jouer|arrêter|afficher|décharger|charger|déterminer|"
-      + "vider"
+      "afficher|ajouter|allumer|arrêter|attendre|augmenter|"
+      + "changer|charger|continuer|copier|"
+      + "décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|"
+      + "effacer|enlever|éteindre|exécuter|"
+      + "fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|"
+      + "refuser|remplacer|retirer|sauver|stopper|terminer|"
+      + "verrouiller|vider"
     );
 
     var keywordMapper = this.createKeywordMapper({
@@ -57,17 +59,19 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
           token: "keyword",
           regex: "(\\b(" +
             "désactiver|activer|" +
-            "si|sinon|sinonsi|" +
+            "si|sinon|sinonsi|quand|non|" +
             "(autre )?choix|choisir( parmi)?|" +
             "phase (prérequis|exécution|épilogue)|" +
             "(exécuter|terminer)(?! (l’|l'|la |le )?(action|commande|jeu))|" +
-            "interpréter|comme)\\b" +
+            "interpréter|comme|implique|exclut|" +
+            "forment une bascule|se contredisent|est un état)\\b" +
             ")|" +
+            "(^(\\s*)inclure\\b)|" +
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|fin(?=\])|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
             "(^( )*(définition(s)?|basique)(?=( )*:))|" +
-            "(^( )*(red(é|e)finir (l(’|')\\s*)?action|réaction(s)?|action|règle (avant|après)|routine|concernant) (?=.+:$))"
+            "(^( )*(red(é|e)finir (l(’|')\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:$))"
           ,
           caseInsensitive: true
         },
@@ -90,14 +94,16 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "porté|enfilé|chaussé|possédé|disponible|occupé|"
             + "(in)?visible|(in)?accessible|adjacent|"
             + "initialisé|"
-            + "multiple|unique|illimité"
+            + "multiple|unique|illimité|"
+            + "cassé|actionné|connu|visité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
 
         }, {
           token: "storage.type",
           // regex: "une (clé|porte|personne|action)|l('|’)action|la commande|un (lieu|objet|animal|décor|contenant|support|nombre)|" +
-          regex: "une (clé|porte|personne|action|direction|liste)|un (obstacle|lieu|objet|animal|décor|contenant|support|compteur|concept|intitulé|élément)|" +
-            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs|concepts)|" +
+          regex: "une (clé|porte|personne|action|direction|liste|listevide|listenombre|listetexte|listeintitulé|listemixte|ressource)|un (obstacle|lieu|objet|animal|décor|contenant|support|vivant|compteur|concept|intitulé|élément)|" +
+            "des (clés|portes|obstacles|personnes|lieux|objets|animaux|décors|contenants|supports|listes|compteurs|directions|vivants|concepts|intitulés|éléments|ressources)|" +
+            "deux objets|" +
             "(l)('|’)(abréviation)|le synonyme|les synonymes"
         }, {
           // token: "support.variable",
@@ -152,8 +158,8 @@ ace.define("ace/mode/donjon", ["require", "exports", "module", "ace/lib/oop", "a
   oop.inherits(DonjonFoldMode, BaseFoldMode);
 
   (function () {
-    this.foldOpenRegex = /^\s*(si\b.+:|sinonsi\b.+:|sinon\s*:|(autre\s+)?choix\b.*:|choisir(\s+parmi)?\b.*:|phase\s+(prérequis|exécution|épilogue)\s*:|(redéfinir\s+(l(’|')\s*)?action|réactions?|action|règle\s+(avant|après)|routine|concernant|définitions?|basique)\b.*:)\s*$/i;
-    this.foldCloseRegex = /^\s*(fin\s+(si|choix|choisir|action|réactions?|avant|après|règle|routine)|finsi|finchoix|finchoisir)\b/i;
+    this.foldOpenRegex = /^\s*(si\b.+:|sinonsi\b.+:|sinon\s*:|(autre\s+)?choix\b.*:|choisir(\s+parmi)?\b.*:|phase\s+(prérequis|exécution|épilogue)\s*:|(redéfinir\s+(l(’|')\s*)?action|réactions?|action|règle\s+(avant|après|remplacer)|routine|concernant|définitions?|basique)\b.*:)\s*$/i;
+    this.foldCloseRegex = /^\s*(fin\s+(si|choix|choisir|action|réactions?|avant|après|remplacer|règle|routine)|finsi|finchoix|finchoisir)\b/i;
     this.sectionBanner = /^\s*--\s*=+\s*$/;
 
     this.getFoldWidget = function (session, foldStyle, row) {
@@ -218,11 +224,11 @@ ace.define("ace/mode/donjon", ["require", "exports", "module", "ace/lib/oop", "a
         "si\\b.+:\\s*$|sinonsi\\b.+:\\s*$|sinon\\s*:\\s*$|" +
         "(autre\\s+)?choix\\b.*:\\s*$|choisir(\\s+parmi)?\\b.*:\\s*$|" +
         "phase\\s+(prérequis|exécution|épilogue)\\s*:\\s*$|" +
-        "(redéfinir\\s+(l(’|')\\s*)?action|réactions?|action|règle\\s+(avant|après)|routine|concernant|définitions?|basique)\\b.*:\\s*$" +
+        "(redéfinir\\s+(l(’|')\\s*)?action|réactions?|action|règle\\s+(avant|après|remplacer)|routine|concernant|définitions?|basique)\\b.*:\\s*$" +
       ")",
       "i"
     );
-    this.$fermetureBlocRegex = /^(fin\s+(si|choix|choisir|action|réactions?|avant|après|règle|routine)|finsi|finchoix|finchoisir)\b/i;
+    this.$fermetureBlocRegex = /^(fin\s+(si|choix|choisir|action|réactions?|avant|après|remplacer|règle|routine)|finsi|finchoix|finchoisir)\b/i;
 
     this.getNextLineIndent = function (state, line, tab) {
       var indent = this.$getIndent(line);
