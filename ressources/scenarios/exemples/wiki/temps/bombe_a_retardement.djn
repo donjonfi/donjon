@@ -1,0 +1,29 @@
+-- Mini-jeu d'illustration pour la page wiki « Programmer une routine ».
+-- Démontre : programmation à délai + annulation + commande pause.
+
+Le laboratoire est un lieu.
+La bombe est un objet vu dans le laboratoire.
+
+routine exploser:
+  dire "{!BOUM !!!}{n}La bombe explose. Vous avez échoué.".
+  terminer le jeu.
+fin routine
+
+action désamorcer ceci:
+  si ceci est la bombe:
+    annuler la routine exploser.
+    dire "{+La bombe est désamorcée.+}".
+    terminer le jeu.
+  sinon
+    refuser l'action.
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  effacer.
+  dire "{/Une bombe a été posée. Vous avez 60 secondes./}{n}{n}Essayez : {/désamorcer la bombe/} ou {/pause/}".
+fin règle
+
+règle après commencer le jeu:
+  exécuter la routine exploser dans 60 secondes.
+fin règle

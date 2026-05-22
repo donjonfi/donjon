@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le marchand bavard".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "5e6f7a8b-9012-4cde-9f01-23456789abcd".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Conditions et blocs textuels ».
+-- Mini-jeu d'illustration pour la page wiki « Conditions et blocs textuels ».
 -- Démontre :
 --   • [1ère fois]…[2e fois]…[puis]…[fin] (variations selon le nombre de fois)
 --   • [au hasard][ou][fin choix] (variantes aléatoires)

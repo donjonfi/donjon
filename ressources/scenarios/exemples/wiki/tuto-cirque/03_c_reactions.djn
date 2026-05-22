@@ -1,0 +1,58 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 3, étape C
+-- Crépu avec réactions structurées : basique, concernant X, concernant un sujet inconnu.
+-- État final du chapitre 3 ; les réactions de Crépu posent l’univers et glissent
+-- quelques indices pour le twist final.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- LIEUX
+La place du cirque est un lieu.
+Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi.".
+
+La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
+Sa description est "La roulotte austère de Lucia, et une cage où somnole un tigre.".
+
+La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde — sauf pour ce chat aux yeux jaunes qui vous observe depuis l’établi.".
+
+-- LES ANIMAUX
+Le tigre Anatole est un animal dans la roulotte de Lucia.
+Sa description est "Anatole, le tigre vedette de Lucia. Trois cents kilos de muscle assoupis.".
+
+réaction du tigre Anatole:
+  dire "Anatole entrouvre un œil paresseux, vous renifle, et se rendort.".
+fin réaction
+
+Le chat Crépu est un animal parlant dans la roulotte du Grand Phosphorus.
+Sa description est "Un vieux chat gris-ardoise au poil hirsute, un seul œil jaune ouvert, l’autre fermé en permanence. Une mèche blanche lui barre le front.".
+
+-- RÉACTIONS STRUCTURÉES
+-- Le moteur route ainsi :
+--   « parler à Crépu »        → basique
+--   « demander X à Crépu »    → concernant X (si déclaré), sinon concernant un sujet inconnu
+réactions du chat Crépu:
+
+  basique:
+    dire "« Phosphorus est parti. Te voilà coincé·e avec moi. Tu veux apprendre le tour, ou tu préfères regretter ta candidature ? »{n}— ''demander le tour à Crépu'' pour qu’il en parle.{n}— ''demander le miroir à Crépu'' pour les détails (mauvais).{n}— ''demander le maître à Crépu'' pour des nouvelles.".
+
+  concernant le tour:
+    dire "« Le pas de côté. Une vieille recette de famille — enfin, de la famille de quelqu’un d’autre. Tu réuniras les quatre accessoires, puis tu réaliseras le tour. Le décor changera. Tu comprendras. »".
+
+  concernant le miroir:
+    dire "« Le miroir est cassé, oui. Pas vraiment cassé — disons… mal ajusté. Tout y est, mais de travers. Ne t’inquiète pas. Tu apprendras à composer. »{n}Crépu cligne lentement de son œil unique.".
+
+  concernant le maître:
+    dire "« Phosphorus ? Excellent élève, en son temps. Trop pressé d’apprendre. Comme toi. »{n}Vous ne savez pas si c’est un compliment ou un avertissement.".
+
+  concernant un sujet inconnu:
+    dire "« Ah. Cette question-là, je préfère y répondre plus tard. Beaucoup plus tard. »".
+
+fin réactions
+
+-- DÉPART
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Crépu, le chat de Phosphorus, vous observe depuis l’établi. Essayez :{n}— ''parler à Crépu''{n}— ''demander le tour à Crépu''{n}— ''demander le miroir à Crépu''{n}— ''demander le maître à Crépu''{n}— ''demander le fromage à Crépu'' (sujet inconnu).".
+fin règle

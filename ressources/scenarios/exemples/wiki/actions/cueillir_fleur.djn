@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le jardin secret".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "9b8a7c6d-5432-4eef-8123-456789abcdef".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Actions personnalisées ».
+-- Mini-jeu d'illustration pour la page wiki « Actions personnalisées ».
 -- Démontre une action à 1 complément (« cueillir ceci ») avec les 3 phases
 -- (prérequis, exécution, épilogue) et un refus contextuel.
 

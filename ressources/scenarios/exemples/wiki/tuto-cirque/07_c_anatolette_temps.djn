@@ -1,0 +1,78 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 7, étape C
+-- Faire rire Anatolette : un hochet à grelot qui se déplace tout seul à chaque
+-- action du joueur, soufflé par un vent persistant.
+-- Exemple isolé sur 3 lieux pour rester focalisé sur la mécanique.
+
+Le titre du jeu est "Le Cirque Phosphène — Faire rire Anatolette".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+triste et joyeux forment une bascule.
+
+-- ======================================================
+-- LIEUX (mini cirque-miroir)
+-- ======================================================
+
+La place ternie est un lieu.
+Sa description est "Une place poussiéreuse. Un vent constant souffle d’ouest en est, balayant tout ce qui n’est pas vissé.".
+
+La roulotte de Mucia est un lieu à l’est de la place ternie.
+Sa description est "Une roulotte humide. Le vent y entre par la fenêtre, en repart par la porte.".
+
+Le chapiteau du miroir est un lieu au sud de la place ternie.
+Sa description est "Une grande tente rapiécée. Au milieu, une cage ouverte abrite un chaton plaintif.".
+
+-- ======================================================
+-- LES PERSONNAGES ET LE HOCHET
+-- ======================================================
+
+La chatonne Anatolette est un animal parlant triste dans le chapiteau du miroir.
+Sa description est "Un chaton tigré de la taille d’une pomme. Elle miaule en regardant vers le haut, comme si quelque chose lui manquait là-haut.".
+
+Le hochet à grelot est un objet dans la place ternie.
+Sa description est "Un petit hochet à grelot en bois, qui tinte sans cesse. Il était à Anatolette avant que le vent ne s’y mette.".
+Son aperçu est "Un hochet à grelot tinte au sol, balayé par le vent.".
+
+-- ======================================================
+-- ROUTINE : à chaque action, le vent souffle le hochet
+-- ======================================================
+
+-- On exclut les méta-commandes (effacer, regarder, afficher, commencer) et le
+-- déplacement (aller) pour laisser au joueur le temps de courir derrière.
+après une action quelconque:
+  terminer l’action avant.
+  si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher ni aller ni examiner ni inventaire:
+    si le joueur ne possède pas le hochet à grelot:
+      -- cycle : place ternie → roulotte de Mucia → chapiteau du miroir → place ternie
+      si le hochet à grelot est dans la place ternie:
+        déplacer le hochet à grelot dans la roulotte de Mucia.
+      sinonsi le hochet à grelot est dans la roulotte de Mucia:
+        déplacer le hochet à grelot dans le chapiteau du miroir.
+      sinonsi le hochet à grelot est dans le chapiteau du miroir:
+        déplacer le hochet à grelot dans la place ternie.
+      fin si
+      dire "{n}{/Une rafale de vent — le tintement du grelot s’éloigne./}".
+    fin si.
+  fin si.
+
+-- ======================================================
+-- DONNER LE HOCHET À ANATOLETTE → RIRE
+-- ======================================================
+
+règle après donner le hochet à grelot à la chatonne Anatolette:
+  si la chatonne Anatolette est triste:
+    dire "Vous tendez le hochet à la chatonne. Elle le serre contre elle, ronronne quelques secondes — puis se met à ronronner comme un moteur de tracteur, puis comme un avion à hélice, puis comme un éclat de rire félin qui résonne sous la toile rapiécée.".
+    changer la chatonne Anatolette est joyeuse.
+  sinon
+    dire "Anatolette ronronne déjà. Le hochet ne lui sert plus à rien.".
+  fin si
+fin règle
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la place ternie.
+
+règle avant commencer le jeu:
+  dire "Anatolette pleurniche dans la tente, au sud. Son hochet est ici, mais le vent va l’emporter à chaque action. Essayez :{n}— ''prendre le hochet'' (vite !){n}— Si trop tard : suivez le bruit (''est'' ou ''sud'').{n}— Une fois en main, ''sud'' jusqu’à la chatonne, puis ''donner le hochet à la chatonne''.".
+fin règle

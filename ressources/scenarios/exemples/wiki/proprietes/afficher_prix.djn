@@ -1,0 +1,19 @@
+-- Mini-exemple : afficher la valeur d'une propriété dans un texte.
+
+L'étale du forgeron est un lieu.
+
+L'épée en bronze est un objet portable ici.
+Son prix vaut 45.
+Sa couleur est "bronze".
+
+L'épée en or est un objet portable ici.
+Son prix vaut 1.
+Sa couleur est "or".
+
+action examiner ceci:
+  dire "[Intitulé ceci] coûte [prix ceci] pièce[s prix ceci] d'or. (Couleur : [couleur ceci].)".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/examiner l'épée en bronze/} et {/examiner l'épée en or/}.".
+fin règle

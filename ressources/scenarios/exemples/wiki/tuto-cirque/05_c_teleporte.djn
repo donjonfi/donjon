@@ -1,0 +1,76 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 5, étape C
+-- Action complète : phase prérequis + phase exécution qui DÉPLACE le joueur vers
+-- un nouveau lieu (la roulotte du miroir — premier pied dans le cirque-miroir).
+-- État final du chapitre 5.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- ÉTATS PERSONNALISÉS
+plié et déployé forment une bascule.
+
+-- LIEUX (résumé + nouveau lieu)
+La roulotte du Grand Phosphorus est un lieu.
+Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
+
+L’établi est un support dans la roulotte du Grand Phosphorus.
+
+-- Le premier pied dans le cirque-miroir. On en fera quelque chose au chapitre 6.
+La roulotte du miroir est un lieu.
+Sa description est "Une roulotte étrangement familière, mais ternie. Le miroir terni au mur ondule. Vous êtes seul·e ici. Pour l’instant.".
+
+-- ACCESSOIRES
+Le chapeau cylindre est un objet sur l’établi.
+La baguette d’ébène est un objet sur l’établi.
+Le foulard de soie est un objet plié sur l’établi.
+Le miroir de poche est un objet sur l’établi.
+
+-- ======================================================
+-- ACTION PERSONNALISÉE COMPLÈTE
+-- ======================================================
+
+action réaliser le tour:
+
+  phase prérequis:
+    si le joueur ne possède pas le chapeau cylindre:
+      refuser "Il vous manque le chapeau cylindre.".
+    fin si
+    si le joueur ne possède pas la baguette d’ébène:
+      refuser "Il vous manque la baguette d’ébène.".
+    fin si
+    si le joueur ne possède pas le foulard de soie:
+      refuser "Il vous manque le foulard de soie.".
+    fin si
+    si le joueur ne possède pas le miroir de poche:
+      refuser "Il vous manque le miroir de poche.".
+    fin si
+    si le foulard de soie est plié:
+      refuser "Le foulard est encore plié. Déployez-le d’abord (''secouer le foulard'').".
+    fin si
+
+  phase exécution:
+    dire "Vous déployez le foulard, agitez la baguette, tendez le chapeau et fixez votre reflet dans le miroir.{n}Le décor vacille, le sol se dérobe — et bascule.".
+    déplacer le joueur dans la roulotte du miroir.
+
+  phase épilogue:
+    dire "{n}Vous vous redressez dans une roulotte qui ressemble à celle de Phosphorus, mais éteinte, comme un photogramme jauni.".
+
+fin action
+
+-- BASCULER LE FOULARD
+règle après secouer le foulard de soie:
+  si le foulard de soie est plié:
+    changer le foulard de soie est déployé.
+    dire "Vous secouez le foulard, qui se déploie comme une fleur.".
+  sinon
+    changer le foulard de soie est plié.
+    dire "Vous repliez soigneusement le foulard.".
+  fin si.
+fin règle
+
+-- DÉPART
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Le grand jour. Prenez les quatre accessoires, secouez le foulard, et réalisez le tour.{n}Pour gagner du temps : ''prendre chapeau'', ''prendre baguette'', ''prendre foulard'', ''prendre miroir'', ''secouer foulard'', ''réaliser le tour''.".
+fin règle

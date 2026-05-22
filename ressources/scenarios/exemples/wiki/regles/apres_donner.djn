@@ -1,0 +1,14 @@
+-- Mini-exemple : règle après une action standard (donner).
+
+La salle du trône est un lieu.
+Le roi est un homme ici.
+La reine est une femme ici.
+L'anneau est un objet dans l'inventaire.
+
+règle après donner l'anneau au roi ou donner l'anneau à la reine:
+  dire "« Grâce à vous le royaume est sauvé ! »".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/donner l'anneau au roi/} ou {/donner l'anneau à la reine/}.".
+fin règle

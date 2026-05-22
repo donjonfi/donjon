@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Score et points de vie".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "8c9d0e1f-2345-4ab6-9c7d-8e9f0123456a".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Compteurs ».
+-- Mini-jeu d'illustration pour la page wiki « Compteurs ».
 -- Démontre :
 --   • Définir un compteur (initialisé ou non, avec unité)
 --   • Afficher dans une chaîne : [c score] + accord [s score]

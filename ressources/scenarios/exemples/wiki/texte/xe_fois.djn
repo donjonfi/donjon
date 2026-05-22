@@ -1,0 +1,12 @@
+-- Mini-exemple : [1ère fois][2e fois][puis][fin] dans une règle après.
+
+La taverne est un lieu.
+Le villageois est une personne ici.
+
+règle après parler au villageois:
+  dire "Le villageois : « [1ère fois]Je suis très occupé.[2e fois]Vous me dérangez.[puis]C'est pas bientôt fini ?![fin] »".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/parler au villageois/} plusieurs fois.".
+fin règle

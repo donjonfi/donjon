@@ -1,0 +1,19 @@
+-- Mini-exemple : définir une liste, ajouter/retirer, tester contenance.
+
+Le commissariat est un lieu.
+
+Les suspects sont une liste.
+Elle contient "Alice", "Bob" et "Carole".
+
+action accuser:
+  dire "Suspects actuels : [décrire la liste des suspects].".
+fin action
+
+action innocenter:
+  Retirer "Alice" de la liste des suspects.
+  dire "Alice est blanchie. Suspects restants : [décrire la liste des suspects].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/accuser/} puis {/innocenter/}.".
+fin règle

@@ -1,0 +1,20 @@
+-- Mini-exemple : état en bascule (sec ↔ mouillé).
+
+Le placard est un lieu.
+Le linge est un objet sec ici.
+
+sec et mouillé forment une bascule.
+
+action mouiller ceci:
+  changer ceci n'est plus sec.
+  dire "[Intitulé ceci] est désormais [si ceci est sec]sec[sinon]mouillé[fin si].".
+fin action
+
+action sécher ceci:
+  changer ceci est sec.
+  dire "[Intitulé ceci] est désormais [si ceci est sec]sec[sinon]mouillé[fin si].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/mouiller le linge/} puis {/sécher le linge/}.".
+fin règle

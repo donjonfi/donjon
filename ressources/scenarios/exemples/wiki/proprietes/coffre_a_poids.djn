@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "La voûte du gardien".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "f4e3d2c1-a098-7654-3210-fedcba987654".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Propriétés personnalisées ».
+-- Mini-jeu d'illustration pour la page wiki « Propriétés personnalisées ».
 -- Chaque objet possède un poids (nombre) et une matière (texte).
 -- Le joueur a une propriété force qui détermine ce qu’il peut soulever.
 

@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le dragon endormi".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "8a7b9c10-d2e3-4f51-9abc-de1234567890".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « États personnalisés ».
+-- Mini-jeu d'illustration pour la page wiki « États personnalisés ».
 -- Met en scène un dragon et une licorne pour exercer les 5 formes de
 -- déclaration d’états (simple, bascule, groupe, implication, exclusion)
 -- ainsi que la négation dans les définitions d’éléments.

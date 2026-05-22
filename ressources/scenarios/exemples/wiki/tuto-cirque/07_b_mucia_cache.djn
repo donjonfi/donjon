@@ -1,0 +1,60 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 7, étape B
+-- Faire rire Mucia : un objet caché révélé en examinant un détail de la description.
+-- Le joueur doit « examiner la feuille brillante » pour découvrir la marionnette
+-- d’escargot, puis la « donner à Mucia » pour déclencher le rire.
+
+Le titre du jeu est "Le Cirque Phosphène — Faire rire Mucia".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+triste et joyeux forment une bascule.
+
+La roulotte de Mucia est un lieu.
+Sa description est "Une roulotte humide. Des dizaines de vivariums alignés sur des étagères, chacun habité par un escargot mélancolique. Au mur, parmi les outils de dressage minuscules, une feuille de laitue paraît anormalement brillante.".
+
+Mucia (f) est une personne triste dans la roulotte de Mucia.
+Sa description est "Mucia, ex-dompteuse. Elle agite un fouet ridiculement petit. « Avancez, Norbert ! Avancez, Yvette ! » dit-elle. Aucun escargot ne bouge.".
+
+-- ======================================================
+-- OBJET CACHÉ — invisible au départ, révélé par « examiner »
+-- ======================================================
+
+-- La marionnette est posée dans la roulotte mais déclarée « invisible » : elle
+-- ne figure ni dans le « regarder » ni dans les sorties, jusqu’à ce qu’on la révèle.
+La marionnette d’escargot est un objet invisible dans la roulotte de Mucia.
+Sa description est "Une petite marionnette à doigt en forme d’escargot, deux yeux globuleux dressés sur des antennes ressorts. Désopilante.".
+
+-- La feuille brillante, elle, est visible — c’est l’indice planté dans la description du lieu.
+La feuille de laitue brillante est un objet décoratif fixé dans la roulotte de Mucia.
+Sa description est "Une feuille de laitue trop brillante. Elle est en celluloïd. Quelque chose est coincé derrière.".
+
+-- ======================================================
+-- RÈGLE : examiner la feuille → révéler la marionnette
+-- ======================================================
+
+règle après examiner la feuille de laitue brillante:
+  si la marionnette d’escargot est invisible:
+    dire "En détachant la feuille de celluloïd, vous découvrez glissée derrière elle une petite marionnette d’escargot rigolote.".
+    changer la marionnette d’escargot est visible.
+  sinon
+    dire "Vous avez déjà décollé la feuille.".
+  fin si
+fin règle
+
+-- ======================================================
+-- RÈGLE : donner la marionnette à Mucia → rire
+-- ======================================================
+
+règle après donner la marionnette d’escargot à Mucia:
+  si Mucia est triste:
+    dire "Vous tendez la marionnette à Mucia. Elle l’enfile sur son index, l’agite — et ses escargots se redressent un à un, comme si la marionnette était leur reine. « OH ! Mais c’est génial ! » s’écrie Mucia, et elle éclate de rire.".
+    changer Mucia est joyeuse.
+  sinon
+    dire "Mucia rit déjà. Gardez la marionnette pour une autre occasion.".
+  fin si
+fin règle
+
+Le joueur est dans la roulotte de Mucia.
+
+règle avant commencer le jeu:
+  dire "Mucia est triste. Quelque part dans la description, un détail brille. Essayez :{n}— ''regarder'' (relire la description){n}— ''examiner la feuille brillante''{n}— ''prendre la marionnette''{n}— ''donner la marionnette à Mucia''.".
+fin règle

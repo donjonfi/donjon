@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le donjon des clés".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "c5d6e7f8-1234-4abc-9def-1357924680ab".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Synonymes ».
+-- Mini-jeu d'illustration pour la page wiki « Synonymes ».
 -- Couvre : synonymes automatiques (issus de l’intitulé), synonymes explicites
 -- avec « Interpréter », synonymes d’actions, demande de précision sur
 -- ambigüité, et modification des synonymes en cours de partie.

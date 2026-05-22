@@ -1,0 +1,14 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 1, étape C
+-- Ajout de l’atelier et du banc qualité, reliés au hall.
+-- Les deux nouveaux lieux n’ont pas encore de description : le moteur
+-- affichera un texte par défaut. On y remédie à l’étape suivante.
+
+Le titre du jeu est "Bienvenue chez MeuhCorp".
+L’auteur du jeu est "Stagiaire du jour".
+
+Le hall est un lieu.
+Sa description est "Bienvenue à MeuhCorp, leader mondial de la boîte à meuh depuis 1947. L’air sent le carton neuf et le caoutchouc tiède.".
+
+L’atelier est un lieu à l’est du hall.
+
+Le banc qualité est un lieu au nord de l’atelier.

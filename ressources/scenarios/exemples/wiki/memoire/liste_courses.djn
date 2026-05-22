@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "La liste de courses".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "f2a3b4c5-6789-4def-9012-3456789abcde".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Listes ».
+-- Mini-jeu d'illustration pour la page wiki « Listes ».
 -- Démontre :
 --   • Définir une liste (initialement remplie)
 --   • Ajouter / retirer un élément en cours de partie
@@ -36,7 +29,7 @@ Le rayon est un support fixé dans l’épicerie du quartier.
 
 Le pain est un objet sur le rayon.
 Le lait est un objet sur le rayon.
-Les pommes sont un objet sur le rayon.
+Les pommes sont des objets sur le rayon.
 Le chocolat est un objet sur le rayon.   -- pas dans la liste !
 
 -- ======================================================

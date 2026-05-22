@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le journal intime".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "7d8e9f0a-1234-4bcd-9ef0-13579bdf2468".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Règles avant / après ».
+-- Mini-jeu d'illustration pour la page wiki « Règles avant / après ».
 -- Démontre :
 --   • règle avant pour refuser une action existante (prendre)
 --   • règle après pour ajouter une cinématique sur la première lecture

@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "Le grimoire dynamique".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "3a4b5c6d-7890-4ef1-9234-56789abcdef0".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Balises dynamiques ».
+-- Mini-jeu d'illustration pour la page wiki « Balises dynamiques ».
 -- Démontre :
 --   • balises [intitulé X], [le X], [pronom X], accord [es X], [s X]
 --   • verbe conjugué [v être ipr X]
@@ -27,12 +20,12 @@ Sa description est "Une vaste bibliothèque silencieuse. Sur le bureau central, 
 Le bureau central est un support dans le bureau du bibliothécaire.
 
 Le grimoire ancien est un objet décoratif sur le bureau central.
-Sa description est "Un grand grimoire à la couverture de cuir râpé.{n}[si le joueur possède les lunettes de lecture]Avec [intitulé les lunettes de lecture], vous lisez clairement : << Le secret se trouve sous [#bougie]. >>[sinon]Sans lunettes, les caractères dansent et restent illisibles à l’œil nu.[fin si]{n}[si la bougie est allumée]La flamme de [intitulé la bougie] éclaire la page de gauche.[fin si]{n}[1ère fois]({/Une odeur d’encre ancienne flotte dans l’air./})[fin]".
+Sa description est "Un grand grimoire à la couverture de cuir râpé.{n}[si le joueur possède la paire de lunettes]Avec [intitulé la paire de lunettes], vous lisez clairement : << Le secret se trouve sous [#bougie]. >>[sinon]Sans lunettes, les caractères dansent et restent illisibles à l’œil nu.[fin si]{n}[si la bougie est allumée]La flamme de [intitulé la bougie] éclaire la page de gauche.[fin si]{n}[1ère fois]({/Une odeur d’encre ancienne flotte dans l’air./})[fin]".
 
 La bougie est un objet allumé sur le bureau central.
 Sa description est "Une bougie de cire jaune. [Pronom ceci] [v être ipr ceci] [si la bougie est allumée]allumée et la flamme vacille[sinon]éteinte et froide[fin si].".
 
-Les lunettes de lecture sont un objet portable sur le bureau central.
+La paire de lunettes est un objet portable sur le bureau central.
 Sa description est "Une vieille paire de lunettes rondes. [Pronom ceci] [v sembler ipr ceci] grossir le texte.".
 
 Le bibliothécaire est une personne décorative dans le bureau du bibliothécaire.
@@ -75,5 +68,5 @@ fin action
 Le joueur est dans le bureau du bibliothécaire.
 
 règle avant commencer le jeu:
-  dire "Essayez :{n}— {/regarder/}{n}— {/examiner le grimoire/} (sans lunettes){n}— {/prendre les lunettes/} puis {/examiner le grimoire/} (avec lunettes){n}— {/éteindre la bougie/} puis {/examiner le grimoire/}{n}— {/examiner le bibliothécaire/} (verbe conjugué + accord).".
+  dire "Essayez :{n}— {/regarder/}{n}— {/examiner le grimoire/} (sans lunettes){n}— {/prendre la paire de lunettes/} puis {/examiner le grimoire/} (avec lunettes){n}— {/éteindre la bougie/} puis {/examiner le grimoire/}{n}— {/examiner le bibliothécaire/} (verbe conjugué + accord).".
 fin règle

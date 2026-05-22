@@ -1,0 +1,13 @@
+-- Mini-exemple : programmer une routine 10 secondes après le début.
+
+Le lieu de test est un lieu.
+
+routine boom:
+  dire "La bombe a explosé !".
+  terminer le jeu.
+fin routine
+
+règle après commencer le jeu:
+  dire "Attendez 10 secondes…".
+  exécuter la routine boom dans 10 secondes.
+fin règle

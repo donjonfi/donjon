@@ -1,0 +1,6 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 1, étape A
+-- Le plus petit scénario possible : un seul lieu, une description.
+-- Le joueur démarre automatiquement dans le premier lieu défini.
+
+Le hall est un lieu.
+Sa description est "Bienvenue à MeuhCorp, leader mondial de la boîte à meuh depuis 1947. L’air sent le carton neuf et le caoutchouc tiède.".

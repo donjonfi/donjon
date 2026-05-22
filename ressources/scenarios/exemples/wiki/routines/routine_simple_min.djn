@@ -1,0 +1,15 @@
+-- Mini-exemple : définir et appeler une routine simple.
+
+Le lieu de test est un lieu.
+
+routine remercier:
+  dire "« Merci ! »".
+fin routine
+
+action saluer:
+  exécuter la routine remercier.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/saluer/}".
+fin règle

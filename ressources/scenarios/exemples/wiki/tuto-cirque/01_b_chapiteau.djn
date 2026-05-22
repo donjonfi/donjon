@@ -1,0 +1,24 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 1, étape C
+-- État final du chapitre : 5 lieux extérieurs articulés autour de la place.
+-- Le chapiteau ferme le carré au sud ; l’arrière-piste prolonge le chapiteau.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+La place du cirque est un lieu.
+Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
+
+La roulotte de Pétunia est un lieu à l’est de la place du cirque.
+Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante de ballons crevés, de confettis incrustés dans les rainures du plancher et d’une odeur têtue de barbe à papa.".
+
+La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
+Sa description est "La roulotte austère de Lucia : des bottes alignées, un fouet roulé sur l’étagère, des photos sépia de fauves apprivoisés au mur.".
+
+La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Tout est rangé, étiqueté, classé — mais Phosphorus, lui, n’est pas là.".
+
+Le chapiteau est un lieu au sud de la place du cirque.
+Sa description est "L’immense tente de toile écarlate et or, vide entre deux représentations. La sciure feutrée étouffe les pas. Le rideau de coulisses, à l’ouest, est légèrement entrouvert.".
+
+L’arrière-piste est un lieu à l’ouest du chapiteau.
+Sa description est "Les coulisses du chapiteau : cordes enroulées, caisses de costumes, deux miroirs ovales appuyés contre les piquets. C’est ici que les artistes attendent leur tour.".

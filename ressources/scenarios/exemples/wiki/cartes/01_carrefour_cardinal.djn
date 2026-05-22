@@ -1,0 +1,40 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture : carrefour central + 4 directions cardinales pures.
+Le titre du jeu est "Carte — carrefour cardinal".
+La version du jeu est "1.0".
+
+Le carrefour est un lieu.
+Sa description est "Quatre chemins se rejoignent ici.".
+
+La clairière est un lieu au nord du carrefour.
+Sa description est "Une clairière baignée de soleil.".
+
+Le village est un lieu au sud du carrefour.
+Sa description est "Une petite bourgade endormie.".
+
+La grotte est un lieu à l'est du carrefour.
+Sa description est "Une grotte sombre et humide.".
+
+La ferme est un lieu à l'ouest du carrefour.
+Sa description est "Une vieille ferme abandonnée.".
+
+-- Quelques objets, PNJ, animaux pour tester l'affichage par lieu.
+La pomme rouge est un objet dans le carrefour.
+Sa description est "Une belle pomme rouge.".
+
+Le marchand est une personne dans le carrefour.
+Sa description est "Un marchand ambulant avec sa carriole.".
+
+Le panier (m) est un contenant dans le carrefour.
+Sa description est "Un panier en osier.".
+
+Le coq est un animal sur la ferme.
+Son aperçu est "Un coq picore dans la cour.".
+
+Le poisson séché est un objet dans le village.
+Sa description est "Un poisson séché qui sent fort.".
+
+La torche est un objet dans la grotte.
+Sa description est "Une torche éteinte.".
+
+Le joueur est dans le carrefour.

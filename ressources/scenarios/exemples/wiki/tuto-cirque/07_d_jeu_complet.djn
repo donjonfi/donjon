@@ -1,0 +1,317 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 7, étape D
+-- ÉTAT FINAL DU TUTORIEL — le jeu complet, bout-à-bout :
+--   • cirque joyeux et cirque-miroir,
+--   • action perso « réaliser le tour » à phases,
+--   • 3 mécaniques de rire (QCM, objet caché, hochet itinérant),
+--   • compteur de rires,
+--   • auto-retour côté joyeux à chaque rire arraché,
+--   • twist Crépu et fin du jeu après le troisième rire.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+plié et déployé forment une bascule.
+triste et joyeux forment une bascule.
+
+-- ======================================================
+-- COMPTEUR DE RIRES
+-- ======================================================
+
+Les rires est un compteur initialisé à 0.
+Les rires est affiché en haut à droite.
+
+-- ======================================================
+-- CIRQUE JOYEUX (5 lieux)
+-- ======================================================
+
+La place du cirque est un lieu.
+Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent.".
+
+La roulotte de Pétunia est un lieu à l’est de la place du cirque.
+Sa description est "La roulotte de Pétunia, peinte en rouge cerise. Confettis partout.".
+
+La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
+Sa description est "La roulotte austère de Lucia. Une cage de fer abrite un tigre assoupi.".
+
+La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Crépu vous observe depuis l’établi.".
+
+Le chapiteau est un lieu au sud de la place du cirque.
+Sa description est "L’immense tente de toile écarlate et or, vide.".
+
+-- ======================================================
+-- PERSONNAGES DU CIRQUE JOYEUX
+-- ======================================================
+
+Pétunia (f) est une personne dans la roulotte de Pétunia.
+Sa description est "Clown vedette, nez rouge phosphorescent, sourire élastique.".
+réaction de Pétunia:
+  dire "« Hé, l’apprenti·e ! Tu as l’air sérieux. Va donc faire de la magie au lieu de me déranger. »".
+fin réaction
+
+Lucia (f) est une personne dans la roulotte de Lucia.
+Sa description est "Élégante, sèche, regard de dompteuse.".
+réaction de Lucia:
+  dire "« Mon apprenti·e. Tâchez de ne rien casser. »".
+fin réaction
+
+Le tigre Anatole est un animal dans la roulotte de Lucia.
+Sa description est "Anatole, le tigre vedette. Trois cents kilos de muscle assoupis.".
+réaction du tigre Anatole:
+  dire "Anatole entrouvre un œil paresseux et se rendort.".
+fin réaction
+
+Le chat Crépu est un animal parlant dans la roulotte du Grand Phosphorus.
+Sa description est "Un vieux chat gris-ardoise, un seul œil jaune ouvert. Une mèche blanche lui barre le front.".
+
+réactions du chat Crépu:
+  basique:
+    dire "« Phosphorus est parti. Te voilà coincé·e avec moi. Tu veux apprendre le tour, ou tu préfères regretter ta candidature ? »".
+  concernant le tour:
+    dire "« Le pas de côté. Tu réuniras les quatre accessoires, puis tu réaliseras le tour. Le décor changera. Tu comprendras. »".
+  concernant le miroir:
+    dire "« Le miroir est cassé, oui. Pas vraiment cassé — disons… mal ajusté. Tu apprendras à composer. »".
+  concernant le maître:
+    dire "« Phosphorus ? Excellent élève, en son temps. Trop pressé d’apprendre. Comme toi. »".
+  concernant un sujet inconnu:
+    dire "« Ah. Cette question-là, je préfère y répondre plus tard. Beaucoup plus tard. »".
+fin réactions
+
+-- ======================================================
+-- ACCESSOIRES + NOTE DU MAÎTRE
+-- ======================================================
+
+L’établi est un support dans la roulotte du Grand Phosphorus.
+
+Le chapeau cylindre est un objet sur l’établi.
+Sa description est "Un haut-de-forme noir, intérieur de satin pourpre.".
+
+La baguette d’ébène est un objet sur l’établi.
+Sa description est "Une baguette de bois sombre, embout d’ivoire.".
+
+Le foulard de soie est un objet plié sur l’établi.
+Son aperçu est "[si le foulard de soie est plié]Un foulard de soie soigneusement plié.[sinon]Un foulard de soie déployé, qui flotte au moindre courant d’air.[fin si]".
+Sa description est "Un grand carré de soie violette aux reflets changeants.".
+
+Le miroir de poche est un objet sur l’établi.
+Sa description est "Un petit miroir ovale serti d’étain. Son reflet est légèrement décalé.".
+
+La note du maître est un objet sur l’établi.
+Sa description est "Une feuille de papier épaisse, pliée en quatre, signée d’un grand P.".
+Son texte est "Mon apprenti·e,{n}je pars en tournée. Le grimoire et les accessoires sont à toi. Crépu t’enseignera le pas de côté — méfie-toi, il aime se moquer. Et surtout : ne réalise jamais le tour sans avoir réuni les quatre accessoires.{n}— P.".
+
+-- ======================================================
+-- CIRQUE-MIROIR (5 lieux)
+-- ======================================================
+
+La roulotte du miroir est un lieu.
+Sa description est "Une roulotte étrangement familière, mais ternie.".
+
+La place ternie est un lieu au sud de la roulotte du miroir.
+Sa description est "La place du Cirque Phosphène, mais éteinte. Le drapeau est déchiré. Un vent constant balaie la poussière.".
+
+La roulotte de Pétunie est un lieu à l’est de la place ternie.
+Sa description est "Une roulotte au rouge fané, confettis fanés sous les pieds.".
+
+La roulotte de Mucia est un lieu à l’ouest de la place ternie.
+Sa description est "Une roulotte humide. Des dizaines de vivariums alignés, escargots mélancoliques. Au mur, parmi les outils de dressage minuscules, une feuille de laitue paraît anormalement brillante.".
+
+Le chapiteau du miroir est un lieu au sud de la place ternie.
+Sa description est "L’immense tente — mais en toile rapiécée. Au centre, une cage de fer ouverte abrite un chaton plaintif.".
+
+-- ======================================================
+-- DOUBLES TRISTES
+-- ======================================================
+
+Pétunie (f) est une personne triste dans la roulotte de Pétunie.
+Sa description est "Pétunie, clown abattue. Son nez rouge est tombé. Ses chaussures ont gagné trois pointures. Et ses pieds ont l’air de mener leur propre vie.".
+
+Mucia (f) est une personne triste dans la roulotte de Mucia.
+Sa description est "Mucia, ex-dompteuse. Elle agite un fouet ridiculement petit. « Avancez, Norbert ! Avancez, Yvette ! » Aucun escargot ne bouge.".
+
+La chatonne Anatolette est un animal parlant triste dans le chapiteau du miroir.
+Sa description est "Un chaton tigré de la taille d’une pomme, perdu dans une cage faite pour un fauve. Elle miaule en regardant vers le haut.".
+
+-- ======================================================
+-- OBJETS DU CIRQUE-MIROIR
+-- ======================================================
+
+-- L’objet caché de Mucia
+La feuille de laitue brillante est un objet décoratif fixé dans la roulotte de Mucia.
+Sa description est "Une feuille de laitue trop brillante. Elle est en celluloïd. Quelque chose est coincé derrière.".
+
+La marionnette d’escargot est un objet invisible dans la roulotte de Mucia.
+Sa description est "Une marionnette à doigt en forme d’escargot, deux yeux globuleux dressés sur des antennes ressorts.".
+
+-- Le hochet d’Anatolette
+Le hochet à grelot est un objet dans la place ternie.
+Sa description est "Un petit hochet à grelot en bois. Il était à Anatolette avant que le vent ne s’y mette.".
+Son aperçu est "Un hochet à grelot tinte au sol, balayé par le vent.".
+
+-- ======================================================
+-- ACTION « RÉALISER LE TOUR »
+-- ======================================================
+
+action réaliser le tour:
+
+  phase prérequis:
+    si le joueur ne possède pas le chapeau cylindre:
+      refuser "Il vous manque le chapeau cylindre.".
+    fin si
+    si le joueur ne possède pas la baguette d’ébène:
+      refuser "Il vous manque la baguette d’ébène.".
+    fin si
+    si le joueur ne possède pas le foulard de soie:
+      refuser "Il vous manque le foulard de soie.".
+    fin si
+    si le joueur ne possède pas le miroir de poche:
+      refuser "Il vous manque le miroir de poche.".
+    fin si
+    si le foulard de soie est plié:
+      refuser "Le foulard est encore plié. ''secouer le foulard'' pour le déployer.".
+    fin si
+
+  phase exécution:
+    dire "Vous déployez le foulard, agitez la baguette, tendez le chapeau et fixez votre reflet dans le miroir.{n}Le décor vacille, le sol se dérobe — et bascule.".
+    déplacer le joueur dans la roulotte du miroir.
+
+fin action
+
+-- BASCULER LE FOULARD
+règle après secouer le foulard de soie:
+  si le foulard de soie est plié:
+    changer le foulard de soie est déployé.
+    dire "Vous secouez le foulard, qui se déploie.".
+  sinon
+    changer le foulard de soie est plié.
+    dire "Vous repliez le foulard.".
+  fin si.
+fin règle
+
+-- ======================================================
+-- HOCHET ITINÉRANT (paire 3 — mécanique temporelle)
+-- ======================================================
+
+après une action quelconque:
+  terminer l’action avant.
+  si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher ni aller ni examiner ni inventaire:
+    si le joueur ne possède pas le hochet à grelot:
+      si le hochet à grelot est dans la place ternie:
+        déplacer le hochet à grelot dans la roulotte de Pétunie.
+      sinonsi le hochet à grelot est dans la roulotte de Pétunie:
+        déplacer le hochet à grelot dans la roulotte de Mucia.
+      sinonsi le hochet à grelot est dans la roulotte de Mucia:
+        déplacer le hochet à grelot dans le chapiteau du miroir.
+      sinonsi le hochet à grelot est dans le chapiteau du miroir:
+        déplacer le hochet à grelot dans la place ternie.
+      fin si
+      dire "{n}{/Une rafale de vent — le tintement du grelot s’éloigne./}".
+    fin si.
+  fin si.
+
+-- ======================================================
+-- PAIRE 1 — PÉTUNIE (QCM par réactions structurées)
+-- ======================================================
+
+réactions de Pétunie:
+
+  basique:
+    si Pétunie est triste:
+      dire "« Bah… bof. Je sais plus rire. Mon nez est tombé. Mes chaussures m’écrasent. Et j’ai un truc bizarre aux pieds. Si tu trouves un sujet qui me fait rire, dis-le-moi. »".
+    sinon
+      dire "« Hi hi hi… mes pieds… hi hi… »".
+    fin si.
+
+  concernant son nez:
+    dire "« Ah oui, le nez. Je l’ai cherché. Pas trouvé. Pas drôle. »".
+
+  concernant ses chaussures:
+    dire "« Trop grandes. J’ai l’impression de marcher dans deux barques. »".
+
+  concernant ses pieds:
+    si Pétunie est triste:
+      dire "« Mes pieds ? Pourquoi mes pieds ? »{n}Pétunie baisse les yeux. Ses orteils remuent tout seuls, comme deux familles de poissons hors de l’eau. Elle pouffe — puis éclate de rire.".
+      changer Pétunie est joyeuse.
+      changer les rires augmentent de 1.
+      exécuter la routine retourner.
+    sinon
+      dire "« Mes pieds… hi hi… »".
+    fin si.
+
+  concernant un sujet inconnu:
+    dire "« Hmm, je vois pas. Reviens-y plus tard. »".
+
+fin réactions
+
+-- ======================================================
+-- PAIRE 2 — MUCIA (objet caché révélé par examiner)
+-- ======================================================
+
+règle après examiner la feuille de laitue brillante:
+  si la marionnette d’escargot est invisible:
+    dire "En détachant la feuille de celluloïd, vous découvrez glissée derrière elle une petite marionnette d’escargot rigolote.".
+    changer la marionnette d’escargot est visible.
+  sinon
+    dire "Vous avez déjà décollé la feuille.".
+  fin si
+fin règle
+
+règle après donner la marionnette d’escargot à Mucia:
+  si Mucia est triste:
+    dire "Vous tendez la marionnette à Mucia. Elle l’enfile sur son index, l’agite — et ses escargots se redressent un à un, comme si la marionnette était leur reine. « OH ! Mais c’est génial ! » s’écrie Mucia, et elle éclate de rire.".
+    changer Mucia est joyeuse.
+    changer les rires augmentent de 1.
+    exécuter la routine retourner.
+  fin si
+fin règle
+
+-- ======================================================
+-- PAIRE 3 — ANATOLETTE (recevoir le hochet)
+-- ======================================================
+
+règle après donner le hochet à grelot à la chatonne Anatolette:
+  si la chatonne Anatolette est triste:
+    dire "Vous tendez le hochet à la chatonne. Elle le serre contre elle, ronronne comme un moteur, puis comme un avion, puis explose en un éclat de rire félin qui résonne sous la toile rapiécée.".
+    changer la chatonne Anatolette est joyeuse.
+    changer les rires augmentent de 1.
+    exécuter la routine retourner.
+  fin si
+fin règle
+
+-- ======================================================
+-- ROUTINE : RETOUR CÔTÉ JOYEUX (et twist final si 3 rires)
+-- ======================================================
+
+routine retourner:
+  déplacer le joueur dans la roulotte du Grand Phosphorus.
+  si les rires valent 3:
+    dire "{n}{/Le décor se replie sur lui-même. Vous êtes de retour côté joyeux./}".
+    dire "{n}{n}Crépu saute sur l’établi. Il vous fixe de son œil unique, qui semble plus brillant qu’avant.".
+    dire "{n}« Trois rires arrachés au miroir, » dit-il. « Tu m’as libéré, l’apprenti·e. Cent ans que j’attendais ça. »".
+    dire "{n}Crépu s’étire, ses contours flouent, et il se redresse — sur deux pattes. Devant vous, un vieux prestidigitateur en redingote, l’œil unique étincelant, s’incline.".
+    dire "{n}« Phosphène était mon nom, jadis. Phosphorus, mon dernier élève — il m’a piégé là dedans pour que je lui laisse la place. Mais le miroir a fini par s’éroder, et tu as fini le travail. »".
+    dire "{n}{*Le cirque-miroir se replie sur lui-même. Le Cirque Phosphène est rendu à sa lumière.*}".
+    terminer le jeu.
+  sinon
+    dire "{n}{/Le décor se replie sur lui-même. Vous êtes de retour côté joyeux./}".
+    si les rires valent 1:
+      dire "{n}Plus que deux doubles tristes à dérider. ''réaliser le tour'' à nouveau quand vous serez prêt·e.".
+    sinonsi les rires valent 2:
+      dire "{n}Encore un rire — un seul — et le miroir se brisera pour de bon.".
+    fin si.
+  fin si.
+fin routine
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Le maître Phosphorus est parti en tournée. Crépu vous observe depuis l’établi. La note vous attend.{n}— ''lire la note'' pour vos instructions.{n}— ''parler à Crépu'' (et ''demander le tour'', ''demander le miroir'', ''demander le maître'').{n}— Prenez les quatre accessoires, secouez le foulard, et ''réaliser le tour'' pour passer de l’autre côté.{n}— Côté miroir : trois doubles tristes vous attendent. Chacun demande une approche différente.".
+fin règle

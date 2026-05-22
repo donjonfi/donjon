@@ -1,0 +1,39 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 2, étape A
+-- Deux personnes (PNJ humains) dans leurs roulottes, avec une réaction simple
+-- (forme courte) : Pétunia la clown et Lucia la dompteuse.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- ======================================================
+-- LIEUX (résumé du chapitre 1)
+-- ======================================================
+
+La place du cirque est un lieu.
+Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
+
+La roulotte de Pétunia est un lieu à l’est de la place du cirque.
+Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante de ballons crevés, de confettis incrustés dans les rainures du plancher et d’une odeur têtue de barbe à papa.".
+
+La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
+Sa description est "La roulotte austère de Lucia : des bottes alignées, un fouet roulé sur l’étagère, des photos sépia de fauves apprivoisés au mur.".
+
+-- ======================================================
+-- PERSONNAGES
+-- ======================================================
+
+-- Pétunia : féminin (le nom finit par "a", on précise (f) pour lever l’ambiguïté).
+Pétunia (f) est une personne dans la roulotte de Pétunia.
+Sa description est "Clown vedette du Cirque Phosphène : nez rouge phosphorescent, perruque en spirale, sourire ourdi par mille rictus.".
+
+réaction de Pétunia:
+  dire "« Hé, l’apprenti·e ! Tu as l’air sérieux. T’aurais bien besoin d’une bonne blague, je dis ça je dis rien. »".
+fin réaction
+
+-- Lucia : féminin également.
+Lucia (f) est une personne dans la roulotte de Lucia.
+Sa description est "Élégante, sèche, le regard d’une dompteuse qui n’a jamais cligné devant un tigre. Elle vous toise comme si elle évaluait votre prochaine acrobatie.".
+
+réaction de Lucia:
+  dire "« Mon apprenti·e. Phosphorus m’a parlé de vous. Tâchez de ne rien casser pendant qu’il est absent. »".
+fin réaction

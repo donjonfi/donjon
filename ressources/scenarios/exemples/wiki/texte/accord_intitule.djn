@@ -1,0 +1,14 @@
+-- Mini-exemple : balises [intitulé X], [pronom X], [es X] avec accord genre/nombre.
+
+L'atelier est un lieu.
+La porte est une porte ici.
+Le coffre est un contenant ici.
+Les fioles sont des objets ici.
+
+action examiner ceci:
+  dire "[Intitulé ceci] [v être ipr ceci] verrouillé[es ceci].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/examiner la porte/}, {/examiner le coffre/}, {/examiner les fioles/}.".
+fin règle

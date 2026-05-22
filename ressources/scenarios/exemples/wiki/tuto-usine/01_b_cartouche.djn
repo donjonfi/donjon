@@ -1,0 +1,8 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 1, étape B
+-- Ajout du cartouche : titre et auteur, affichés sur l’écran d’accueil.
+
+Le titre du jeu est "Bienvenue chez MeuhCorp".
+L’auteur du jeu est "Stagiaire du jour".
+
+Le hall est un lieu.
+Sa description est "Bienvenue à MeuhCorp, leader mondial de la boîte à meuh depuis 1947. L’air sent le carton neuf et le caoutchouc tiède.".

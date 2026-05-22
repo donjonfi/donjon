@@ -1,11 +1,4 @@
--- "Informations sur le jeu".
-Le titre du jeu est "L’atelier d’alchimie".
-L’auteur du jeu est "DonjonFI".
-La version du jeu est "1.0".
-L’IFID du jeu est "1234abcd-5678-4ef9-9012-3456789abcde".
-La licence du jeu est "CC BY-NC-SA".
-
--- Mini-scénario d’illustration pour la page wiki « Actions personnalisées ».
+-- Mini-jeu d'illustration pour la page wiki « Actions personnalisées ».
 -- Démontre une action à 2 compléments (« mélanger ceci avec cela »)
 -- avec définitions séparées, phase prérequis multiple et aide contextuelle.
 

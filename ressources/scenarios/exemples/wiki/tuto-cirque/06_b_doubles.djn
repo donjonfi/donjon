@@ -1,0 +1,127 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 6, étape B
+-- Les trois doubles tristes peuplent maintenant le cirque-miroir :
+-- Pétunie (clown sans nez), Mucia (dresseuse d’escargots), Anatolette (chaton).
+-- Chacun porte un état personnalisé « triste » qui basculera en « joyeux » au chapitre 7.
+-- État final du chapitre 6.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+plié et déployé forment une bascule.
+
+-- La bascule centrale de tout le chapitre 7 : un double passe de triste à joyeux
+-- quand on parvient à le faire rire.
+triste et joyeux forment une bascule.
+
+-- ======================================================
+-- CIRQUE JOYEUX
+-- ======================================================
+
+La roulotte du Grand Phosphorus est un lieu.
+Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
+
+L’établi est un support dans la roulotte du Grand Phosphorus.
+
+Le chapeau cylindre est un objet sur l’établi.
+La baguette d’ébène est un objet sur l’établi.
+Le foulard de soie est un objet plié sur l’établi.
+Le miroir de poche est un objet sur l’établi.
+
+-- ======================================================
+-- CIRQUE-MIROIR
+-- ======================================================
+
+La roulotte du miroir est un lieu.
+Sa description est "Une roulotte étrangement familière, mais ternie. Le miroir terni au mur ondule.".
+
+La place ternie est un lieu au sud de la roulotte du miroir.
+Sa description est "La place du Cirque Phosphène, mais éteinte. Le drapeau bigarré est déchiré au tiers. Pas un éclat de rire.".
+
+La roulotte de Pétunie est un lieu à l’est de la place ternie.
+Sa description est "Une roulotte qui fut peinte en rouge cerise. Aujourd’hui le rouge a viré au gris-rose, et les confettis fanés crissent sous les pieds.".
+
+La roulotte de Mucia est un lieu à l’ouest de la place ternie.
+Sa description est "Une roulotte humide et fraîche : des dizaines de vivariums alignés contiennent chacun un escargot mélancolique.".
+
+Le chapiteau du miroir est un lieu au sud de la place ternie.
+Sa description est "L’immense tente — mais en toile rapiécée d’ocre et de poussière. Les sièges renversés, la sciure mouillée, une cage en fer ouverte au centre.".
+
+-- ======================================================
+-- LES TROIS DOUBLES TRISTES
+-- ======================================================
+
+-- Pétunie : son nez est tombé, elle ne raconte que des soupirs.
+Pétunie (f) est une personne triste dans la roulotte de Pétunie.
+Sa description est "Pétunie, clown abattue. Son nez rouge est tombé quelque part — elle ne sait plus où. Ses chaussures, en revanche, semblent avoir gagné trois pointures depuis ce matin.".
+
+-- Mucia : ne dresse plus que des escargots, qui boudent.
+Mucia (f) est une personne triste dans la roulotte de Mucia.
+Sa description est "Mucia, ex-dompteuse. Elle est assise au milieu de ses vivariums, un fouet ridiculement petit à la main. « Avancez ! » dit-elle aux escargots. Aucun ne bouge.".
+
+-- Anatolette : un chaton miteux qui a perdu son hochet.
+La chatonne Anatolette est un animal parlant triste dans le chapiteau du miroir.
+Sa description est "Un chaton tigré de la taille d’une pomme, perdu au milieu d’une cage faite pour un fauve. Elle miaule en regardant le ciel, comme si quelque chose lui manquait là-haut.".
+
+-- Réactions provisoires (forme courte) — on enrichira au chapitre 7.
+réaction de Pétunie:
+  dire "« Bah… bof. Tout est gris. Même mon nez. D’ailleurs, où est mon nez ? »".
+fin réaction
+
+réaction de Mucia:
+  dire "« Avancez, Norbert ! Avancez, Yvette ! »{n}Mucia adresse un soupir las à ses escargots.".
+fin réaction
+
+réaction de la chatonne Anatolette:
+  dire "« Miaouuu… »{n}Anatolette regarde tristement vers le haut.".
+fin réaction
+
+-- ======================================================
+-- L’ACTION « RÉALISER LE TOUR » (idem chapitre 5)
+-- ======================================================
+
+action réaliser le tour:
+
+  phase prérequis:
+    si le joueur ne possède pas le chapeau cylindre:
+      refuser "Il vous manque le chapeau cylindre.".
+    fin si
+    si le joueur ne possède pas la baguette d’ébène:
+      refuser "Il vous manque la baguette d’ébène.".
+    fin si
+    si le joueur ne possède pas le foulard de soie:
+      refuser "Il vous manque le foulard de soie.".
+    fin si
+    si le joueur ne possède pas le miroir de poche:
+      refuser "Il vous manque le miroir de poche.".
+    fin si
+    si le foulard de soie est plié:
+      refuser "Le foulard est encore plié. Déployez-le d’abord.".
+    fin si
+
+  phase exécution:
+    dire "Vous déployez le foulard, agitez la baguette, tendez le chapeau et fixez votre reflet dans le miroir.{n}Le décor vacille, le sol se dérobe — et bascule.".
+    déplacer le joueur dans la roulotte du miroir.
+
+fin action
+
+-- BASCULER LE FOULARD
+règle après secouer le foulard de soie:
+  si le foulard de soie est plié:
+    changer le foulard de soie est déployé.
+    dire "Vous secouez le foulard, qui se déploie comme une fleur.".
+  sinon
+    changer le foulard de soie est plié.
+    dire "Vous repliez soigneusement le foulard.".
+  fin si.
+fin règle
+
+-- DÉPART
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Préparez les accessoires, ''réaliser le tour'', puis explorez le cirque-miroir : Pétunie à l’est, Mucia à l’ouest, et la chatonne Anatolette au sud du sud.".
+fin règle

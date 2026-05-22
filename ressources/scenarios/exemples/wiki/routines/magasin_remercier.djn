@@ -1,0 +1,23 @@
+-- Mini-jeu d'illustration pour la page wiki « Routine simple ».
+-- Démontre : une routine appelée depuis deux actions différentes (factorisation).
+
+Le magasin est un lieu.
+L'objet à acheter est un objet vu dans le magasin.
+
+routine remercier:
+  dire "« Merci et à bientôt ! »".
+fin routine
+
+action acheter:
+  dire "Vous achetez l'objet.".
+  exécuter la routine remercier.
+fin action
+
+action vendre:
+  dire "Vous vendez l'objet.".
+  exécuter la routine remercier.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/acheter/} ou {/vendre/}.".
+fin règle
