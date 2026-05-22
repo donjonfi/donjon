@@ -1,0 +1,41 @@
+-- Scénario de test du magnétoscope :
+-- L'intro propose un « choisir » entre deux options. Le joueur doit répondre
+-- avant que l'intro se termine. Sa réponse devient la 1re étape « r » du .rec.
+--
+-- Test manuel :
+--   1. Charger ce scénario.
+--   2. Répondre « a » ou « b » au choix → l'intro se termine.
+--   3. Jouer 1-2 commandes, puis « générer enregistrement ».
+--   4. Recharger, importer le .rec → mode magnéto.
+--   5. Le magnéto doit démarrer même si l'intro est en pause sur le choisir .
+--      la sortie d'intro attendue (avant le choisir) doit matcher celle produite
+--      par le replay (pas de divergence d'intro fantôme).
+--   6. Précédent depuis l'état post-choix doit envoyer un « annuler » au moteur.
+
+Le titre du jeu est "Test magnéto − intro avec choisir".
+L'auteur du jeu est "DonjonFI".
+
+Le carrefour est un lieu.
+Sa description est "Un carrefour brumeux. Deux sentiers mènent vers l'inconnu.".
+
+La boussole est un objet vu dans le carrefour.
+
+règle avant commencer le jeu:
+  dire "Bienvenue, voyageur. Avant de commencer, choisissez votre destinée :".
+  choisir:
+    choix "voie du sage":
+      dire "Vous embrassez la voie du sage. La sagesse vous guidera.".
+    choix "voie du guerrier":
+      dire "Vous embrassez la voie du guerrier. La force sera votre alliée.".
+  fin choisir
+fin règle
+
+action tester:
+  dire "Rouge ou bleu ?".
+  choisir:
+    choix "rouge":
+      dire "Action.".
+    choix "bleu":
+      dire "Calme.".
+  fin choisir
+fin action
