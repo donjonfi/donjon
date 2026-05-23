@@ -1,0 +1,47 @@
+-- Mini-jeu d'illustration pour la page wiki « PNJ ».
+-- Démontre : personne, réactions structurées (basique + concernant + sujet inconnu),
+-- règle après parler à X, cartouche avec compteur (la bourse).
+
+L'échoppe est un lieu.
+Le marchand est une personne dans l'échoppe.
+La bourse est un compteur initialisé à 10 avec l'unité pièce.
+La bourse est affichée en haut à droite.
+
+La potion rouge est un objet sur le comptoir.
+Le grimoire est un objet sur le comptoir.
+Le comptoir est un support dans l'échoppe.
+
+réactions du marchand:
+  basique:
+    dire "« Bienvenue ! Vous pouvez me parler de mes potions, de mon grimoire, ou simplement m'acheter quelque chose. »".
+
+  concernant la potion rouge:
+    dire "« Une potion de soin. Trois pièces seulement ! »".
+
+  concernant le grimoire:
+    dire "« Ce vieux livre ? Pas à vendre, hélas. »".
+
+  concernant la bourse:
+    dire "« Votre bourse contient [c bourse] pièce[s bourse]. »".
+
+  concernant un sujet inconnu:
+    dire "« Je ne vois pas de quoi vous parlez. »".
+fin réactions
+
+action acheter ceci:
+  si ceci est la potion rouge:
+    si la bourse atteint 3:
+      changer la bourse diminue de 3.
+      changer le joueur possède ceci.
+      dire "Vous achetez [intitulé ceci]. Il vous reste [c bourse] pièce[s bourse].".
+    sinon
+      dire "Vous n'avez pas assez. Il vous faut 3 pièces.".
+    fin si
+  sinon
+    refuser "[Intitulé ceci] n'est pas à vendre.".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez :{n}— {/parler au marchand/} (réaction basique){n}— {/demander la potion rouge au marchand/}{n}— {/demander le grimoire au marchand/}{n}— {/demander la lune au marchand/} (sujet inconnu){n}— {/acheter la potion rouge/}".
+fin règle

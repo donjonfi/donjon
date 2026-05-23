@@ -1,0 +1,11 @@
+-- Mini-exemple : règle avant commencer le jeu (initialiser inventaire + état + texte d'intro).
+
+Le labyrinthe est un lieu.
+La lampe est un objet.
+La porte de sortie est une porte verrouillée ici.
+
+règle avant commencer le jeu:
+  changer le joueur possède la lampe.
+  changer la porte de sortie n'est plus verrouillée.
+  dire "Une voix murmure : « Bienvenue dans le labyrinthe… ». Vous tenez une lampe et la porte est désormais ouverte.".
+fin règle

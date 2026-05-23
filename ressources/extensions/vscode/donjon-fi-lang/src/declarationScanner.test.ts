@@ -208,6 +208,29 @@ describe('findDeclarations — actions', () => {
     assert.equal(decls[0].name, 'mettre ceci avec cela');
   });
 
+  it('détecte « règle remplacer verbe: » comme une déclaration d’action (signature seule)', () => {
+    const decls = byKind(findDeclarations('règle remplacer sauter:'), 'action');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'sauter');
+  });
+
+  it('détecte « regle remplacer verbe ceci: » (variante sans accent)', () => {
+    const decls = byKind(findDeclarations('regle remplacer sauter sur ceci:'), 'action');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'sauter sur ceci');
+  });
+
+  it('détecte « règle remplacer verbe avec cela: » (2 args + prép)', () => {
+    const decls = byKind(findDeclarations('règle remplacer mettre ceci avec cela:'), 'action');
+    assert.equal(decls.length, 1);
+    assert.equal(decls[0].name, 'mettre ceci avec cela');
+  });
+
+  it('ne confond pas « règle avant verbe: » avec une déclaration d’action', () => {
+    const decls = byKind(findDeclarations('règle avant sauter:'), 'action');
+    assert.equal(decls.length, 0);
+  });
+
   it('détecte « action verbe ceci concernant cela: »', () => {
     const decls = byKind(
       findDeclarations('action interroger ceci concernant cela:'),

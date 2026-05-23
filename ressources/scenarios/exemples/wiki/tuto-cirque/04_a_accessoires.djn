@@ -1,0 +1,35 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 4, étape A
+-- Les quatre accessoires laissés par Phosphorus sur son établi.
+-- À ce stade, ce sont de simples objets : le joueur peut les « prendre » et les
+-- glisser dans son inventaire avec l’action prédéfinie.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- LIEUX
+La place du cirque est un lieu.
+
+La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître. Quatre accessoires soigneusement disposés sur l’établi vous attendent.".
+
+L’établi est un support dans la roulotte du Grand Phosphorus.
+
+-- ACCESSOIRES
+Le chapeau cylindre est un objet sur l’établi.
+Sa description est "Un haut-de-forme noir, intérieur de satin pourpre. Il sent vaguement le lapin.".
+
+La baguette d’ébène est un objet sur l’établi.
+Sa description est "Une baguette de bois sombre, embout d’ivoire vissé. Plus lourde qu’elle n’en a l’air.".
+
+Le foulard de soie est un objet sur l’établi.
+Sa description est "Un grand carré de soie violette, soigneusement plié.".
+
+Le miroir de poche est un objet sur l’établi.
+Sa description est "Un petit miroir ovale serti d’étain, à peine plus grand que la paume. Son reflet est légèrement décalé — comme s’il avait un quart de seconde de retard.".
+
+-- DÉPART
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Les quatre accessoires de Phosphorus vous attendent. Essayez :{n}— ''prendre le chapeau''{n}— ''prendre la baguette''{n}— ''prendre le foulard''{n}— ''prendre le miroir''{n}— ''inventaire'' pour faire le compte.".
+fin règle

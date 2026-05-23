@@ -1,0 +1,14 @@
+-- Mini-exemple : « continuer l'action avant/après » pour intercaler la sortie standard.
+
+La cour est un lieu.
+La crypte est un lieu sous la cour.
+Sa description est "Une crypte glaciale. L'obscurité y est totale.".
+
+règle après aller dans la crypte:
+  dire "Vous descendez prudemment dans l'obscurité.".
+  continuer l'action après.
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/aller en bas/} (la cinématique précède la description du nouveau lieu).".
+fin règle

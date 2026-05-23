@@ -1,0 +1,22 @@
+-- Mini-exemple : routine simple pour factoriser un affichage utilisé par plusieurs actions.
+
+Le lieu de test est un lieu.
+Le sac est un contenant dans l'inventaire.
+La pomme est un objet vu ici.
+La clé est un objet vu ici.
+
+routine afficherContenuSac:
+  dire "Votre sac [si le sac contient un objet]contient : [lister objets sac][sinon]est vide.[fin si]".
+fin routine
+
+action ouvrir le sac:
+  exécuter la routine afficherContenuSac.
+fin action
+
+action fouiller le sac:
+  exécuter la routine afficherContenuSac.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/prendre la pomme/} puis {/ouvrir le sac/} ou {/fouiller le sac/}.".
+fin règle

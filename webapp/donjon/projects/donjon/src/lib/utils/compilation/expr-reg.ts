@@ -1066,10 +1066,15 @@ export class ExprReg {
   //  DÉBUT / FIN BLOCS
   // ================================================================================================
 
-  /** 
+  /**
    * règle|action|réaction|routine(1)
+   * Note : le cas spécial « règle remplacer <verbe> » (qui produit une routine de type action) est traité hors regex
+   * — voir `xRegleRemplacerAction` et `chercherDebutRoutine`.
    */
   static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
+
+  /** Préfixe `règle remplacer ` consommé en tête d’une entête `règle remplacer <verbe> [ceci] [cela]`. */
+  static readonly xRegleRemplacerAction = /^r(?:è|e|é)gle\s+remplacer\s+(?=\w)/i;
 
   /**
    * fin règle|action|réaction|routine(1)

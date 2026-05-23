@@ -1,0 +1,61 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 4, étape B
+-- Déclaration d’un état personnalisé sous forme de BASCULE (deux états opposés
+-- mutuellement exclusifs) et son utilisation sur le foulard.
+-- Démontre aussi un aperçu qui change selon l’état courant.
+
+Le titre du jeu est "Le Cirque Phosphène".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+-- Une bascule : appliquer « déployé » retire automatiquement « plié », et vice-versa.
+plié et déployé forment une bascule.
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+La roulotte du Grand Phosphorus est un lieu.
+Sa description est "La roulotte du maître. Sur l’établi, ses quatre accessoires.".
+
+L’établi est un support dans la roulotte du Grand Phosphorus.
+
+-- ======================================================
+-- LE FOULARD AVEC SON ÉTAT
+-- ======================================================
+
+-- Au départ, le foulard est plié — l’état initial est déclaré juste après la classe.
+Le foulard de soie est un objet plié sur l’établi.
+
+-- L’aperçu change automatiquement selon l’état courant.
+Son aperçu est "[si le foulard de soie est plié]Un foulard de soie soigneusement plié.[sinon]Un foulard de soie déployé, qui flotte au moindre courant d’air.[fin si]".
+
+Sa description est "Un grand carré de soie violette aux reflets changeants.".
+
+-- ======================================================
+-- DÉPLIER / REPLIER LE FOULARD
+-- ======================================================
+
+-- On utilise des « règles après » sur des actions prédéfinies (ici « secouer ») pour
+-- basculer l’état. Pas besoin d’action personnalisée à ce stade.
+règle après secouer le foulard de soie:
+  si le foulard de soie est plié:
+    changer le foulard de soie est déployé.
+    dire "Vous secouez le foulard, qui se déploie comme une fleur.".
+  sinon
+    changer le foulard de soie est plié.
+    dire "Vous repliez soigneusement le foulard.".
+  fin si.
+fin règle
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la roulotte du Grand Phosphorus.
+
+règle avant commencer le jeu:
+  dire "Le foulard est plié. Essayez :{n}— ''regarder'' (le foulard apparaît plié dans son aperçu){n}— ''secouer le foulard'' (il se déploie){n}— ''regarder'' à nouveau (l’aperçu a changé !){n}— ''secouer le foulard'' encore (il se replie).".
+fin règle

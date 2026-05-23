@@ -8,8 +8,8 @@
   margin: 0;
   grid-template-columns: 1fr;
   // row 1 : écran de jeu (1fr, prend tout l'espace restant)
-  // row 2 : zone saisie ou cachée pendant vérification (auto)
-  // row 3 : panneau magnéto en mode vérification (auto, taille naturelle)
+  // row 2 : zone saisie ou cachée pendant enregistrement (auto)
+  // row 3 : panneau magnéto en mode enregistrement (auto, taille naturelle)
   grid-template-rows: 1fr auto auto;
   // Permet à la row 1 (1fr) de vraiment se réduire si row 3 grandit, au lieu d'être bloquée par min-content.
   min-height: 0;
@@ -171,7 +171,7 @@
   justify-content: flex-end;
 }
 
-// Magnétoscope de vérification (.tst) — panneau dans le flux normal de la grid (row 3)
+// Magnétoscope d'enregistrement (.rec) — panneau dans le flux normal de la grid (row 3)
 // L'écran de jeu (row 1, 1fr) s'adapte automatiquement à l'espace restant.
 .djn-magneto {
   background: #f8f9fa;
@@ -243,6 +243,29 @@
     background: #e9ecef;
     padding: 0.15rem 0.4rem;
     border-radius: 3px;
+  }
+}
+
+.djn-magneto-fin {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.1rem 0.5rem;
+  background: #d1e7dd;
+  color: #0f5132;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.djn-magneto-choix-liste {
+  margin: 0.2rem 0 0.4rem 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+
+  code {
+    background: #e9ecef;
+    padding: 0 0.25rem;
+    border-radius: 2px;
   }
 }
 
@@ -503,7 +526,7 @@
 }
 
 // Anciens styles modale (compat tests legacy) — restent en place jusqu'à suppression du code legacy.
-.djn-modale-verif-overlay {
+.djn-modale-enr-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -514,7 +537,7 @@
   padding: 1rem;
 }
 
-.djn-modale-verif-panneau {
+.djn-modale-enr-panneau {
   background: #fff;
   border-radius: 6px;
   max-width: 900px;
@@ -525,13 +548,13 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.djn-modale-verif-titre {
+.djn-modale-enr-titre {
   margin-top: 0;
   margin-bottom: 1rem;
   color: #2c3e50;
 }
 
-.djn-modale-verif-commande {
+.djn-modale-enr-commande {
   margin-bottom: 1rem;
 
   code {
@@ -541,7 +564,7 @@
   }
 }
 
-.djn-modale-verif-diff {
+.djn-modale-enr-diff {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -552,20 +575,20 @@
   }
 }
 
-.djn-modale-verif-bloc {
+.djn-modale-enr-bloc {
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 0.5rem;
 }
 
-.djn-modale-verif-libelle {
+.djn-modale-enr-libelle {
   font-weight: 600;
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 0.3rem;
 }
 
-.djn-modale-verif-texte {
+.djn-modale-enr-texte {
   background: #fafafa;
   border: 1px solid #eee;
   border-radius: 3px;
@@ -578,14 +601,14 @@
   font-size: 0.9rem;
 }
 
-.djn-modale-verif-actions {
+.djn-modale-enr-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 1rem;
 }
 
-.djn-modale-verif-saisie {
+.djn-modale-enr-saisie {
   margin-top: 1rem;
 
   label {
@@ -599,7 +622,7 @@
   }
 }
 
-.djn-modale-verif-pas-a-pas {
+.djn-modale-enr-pas-a-pas {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -609,13 +632,13 @@
   border-top: 1px dashed #ddd;
 }
 
-.djn-modale-verif-pas-a-pas-libelle {
+.djn-modale-enr-pas-a-pas-libelle {
   color: #6c757d;
   font-weight: 600;
   margin-right: 0.25rem;
 }
 
-.djn-modale-verif-info {
+.djn-modale-enr-info {
   display: block;
   color: #0c5460;
   background: #d1ecf1;
@@ -625,7 +648,7 @@
   font-style: italic;
 }
 
-.djn-recap-verif-compteurs {
+.djn-recap-enr-compteurs {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -635,11 +658,11 @@
   border-radius: 4px;
 }
 
-.djn-recap-verif-compteur {
+.djn-recap-enr-compteur {
   font-size: 0.95rem;
 }
 
-.djn-recap-verif-liste {
+.djn-recap-enr-liste {
   max-height: 300px;
   overflow: auto;
   padding-left: 1.5rem;
@@ -649,12 +672,12 @@
   }
 }
 
-.djn-recap-verif-succes {
+.djn-recap-enr-succes {
   text-align: center;
   padding: 1.5rem 1rem;
 }
 
-.djn-recap-verif-coche {
+.djn-recap-enr-coche {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -670,7 +693,7 @@
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
 }
 
-.djn-recap-verif-succes-texte {
+.djn-recap-enr-succes-texte {
   font-size: 1.1rem;
   color: #28a745;
   font-weight: 600;

@@ -1,0 +1,38 @@
+-- Scénario de test du magnétoscope :
+-- L'intro contient « attendre touche » au milieu d'un texte.
+-- Au démarrage, la partie se met en pause sur l'attente de touche AVANT que la
+-- première commande joueur soit jouée — c'est le cas qui faisait que le magnéto
+-- ne se lançait pas (initialiserMagneto sautée par le gardien !interruptionEnCours).
+--
+-- Test manuel :
+--   1. Charger ce scénario.
+--   2. Appuyer sur une touche pour passer l'attendre touche → l'intro se termine.
+--   3. Jouer 1-2 commandes, puis « générer enregistrement ».
+--   4. Recharger, importer le .rec → mode magnéto.
+--   5. Le magnéto doit démarrer même si l'intro est en pause sur attendre touche .
+--      Pas suivant doit consommer l'attente avant d'exécuter la 1re commande.
+--   6. Précédent doit pouvoir revenir en arrière sans laisser de routine fantôme.
+
+Le titre du jeu est "Test magnéto − intro avec attendre touche".
+L'auteur du jeu est "DonjonFI".
+
+Le hall est un lieu.
+Sa description est "Un hall d'entrée glacial. Une plaque commémorative est accrochée au mur nord.".
+
+La plaque est un objet fixé dans le hall.
+Sa description est "« À la mémoire des testeurs du magnétoscope. ».".
+
+Les fioles sont des objets ici.
+
+règle avant commencer le jeu:
+  dire "Bienvenue dans le hall.".
+  attendre touche.
+  dire "Vos yeux s'habituent à la pénombre.".
+fin règle
+
+
+règle remplacer attendre:
+  dire "Vous attendez…".
+  attendre touche.
+  dire "fini!".
+fin action

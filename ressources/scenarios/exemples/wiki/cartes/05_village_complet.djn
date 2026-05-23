@@ -1,0 +1,120 @@
+-- Scénario de test pour la carte du scénario.
+-- Architecture mixte : grille cardinale + bâtiments avec intérieur (zoom) + portes + obstacles + PNJ variés.
+Le titre du jeu est "Carte — village complet".
+La version du jeu est "1.0".
+
+-- Place centrale du village et chemins cardinaux.
+La place du village est un lieu.
+Sa description est "Une place pavée avec une fontaine au centre.".
+
+La fontaine est un décor fixé sur la place du village.
+Sa description est "Une fontaine de pierre, l'eau y coule clair.".
+
+L'auberge est un lieu au nord de la place du village.
+Sa description est "L'auberge du Cheval Boiteux, l'enseigne grince au vent.".
+
+La forge est un lieu à l'est de la place du village.
+Sa description est "La forge du village, on entend le marteau frapper.".
+
+La chapelle est un lieu au sud de la place du village.
+Sa description est "Une petite chapelle de pierre blanche.".
+
+La place du marché est un lieu à l'ouest de la place du village.
+Sa description est "Quelques étals de marché, plus animés le matin.".
+
+-- Une route plus longue : la place du marché donne sur le moulin (ouest) puis sur le verger (ouest).
+Le moulin est un lieu à l'ouest de la place du marché.
+Sa description est "Un vieux moulin à vent.".
+
+Le verger est un lieu à l'ouest du moulin.
+Sa description est "Un verger plein de pommiers.".
+
+-- Une diagonale : un bois au nord-est de la place du village.
+Le bois sombre est un lieu au nord-est de la place du village.
+Sa description est "Un bois aux arbres serrés, on n'y voit pas grand-chose.".
+
+-- Voisins supplémentaires pour tester les diagonales croisées.
+Le pré est un lieu au nord de la forge.
+Sa description est "Un pré bordé d'une haie basse.".
+
+La rivière est un lieu au sud du bois sombre.
+Sa description est "Une rivière vive coule entre les arbres.".
+
+-- Sortie verticale depuis la chapelle : la crypte en bas (orphelin → drill-down).
+La crypte est un lieu en bas de la chapelle.
+Sa description est "Une crypte poussiéreuse, on y enterrait les anciens.".
+
+-- Intérieurs (drill-down via "à l'intérieur de") : zoom dans l'auberge et la forge.
+La salle commune est un lieu à l'intérieur de l'auberge.
+Sa description est "Une grande salle avec des tables en bois, l'âtre crépite.".
+
+L'arrière-boutique de la forge est un lieu à l'intérieur de la forge.
+Sa description est "L'atelier privé du forgeron.".
+
+-- Portes et obstacles.
+La grosse pierre est un obstacle au nord-est de la place du village.
+Sa description est "Une énorme pierre bloque le sentier vers le bois.".
+
+La porte de la chapelle est une porte fermée au sud de la place du village.
+Elle est verrouillée et ouvrable.
+Sa description est "Une lourde porte en bois clouté.".
+
+La porte de la crypte est une porte fermée en bas de la chapelle.
+Elle est verrouillée et ouvrable.
+Sa description est "Une porte en fer rouillée.".
+
+-- PNJ.
+L'aubergiste (m) est une personne dans la salle commune.
+Sa description est "Un gros homme jovial, tablier taché de bière.".
+
+Le forgeron est une personne dans la forge.
+Sa description est "Un homme massif au tablier de cuir.".
+
+Le prêtre est une personne dans la chapelle.
+Sa description est "Un vieux prêtre à la robe usée.".
+
+La marchande est une personne sur la place du marché.
+Sa description est "Une femme aux yeux malicieux.".
+
+Le meunier est une personne dans le moulin.
+Sa description est "Un homme couvert de farine.".
+
+-- Animaux.
+Le chien (m) est un animal sur la place du village.
+Son aperçu est "Un chien errant rôde près de la fontaine.".
+
+Le chat noir est un animal dans la salle commune.
+Son aperçu est "Un chat noir dort près du feu.".
+
+Le hibou est un animal dans le bois sombre.
+
+-- Objets variés (différents types).
+Le tabouret est un support dans la salle commune.
+La chope (f) est un objet sur le tabouret.
+Sa description est "Une chope de bière, posée sur le tabouret.".
+La pomme rouge est un objet sur le tabouret.
+
+L'épée longue (f) est un objet dans l'arrière-boutique de la forge.
+Sa description est "Une épée bien tranchante.".
+
+Le marteau est un objet dans la forge.
+
+Le calice (m) est un objet dans la chapelle.
+Sa description est "Un calice doré.".
+
+L'amulette (f) est un bijou portable dans la crypte.
+Sa description est "Une amulette ancienne en argent.".
+
+Les pommes (f) sont des objets dans le verger.
+Leur aperçu est "Quelques pommes mûres pendent aux branches.".
+
+Le sac de farine est un contenant dans le moulin.
+Il est ouvert.
+La farine (f) est un objet dans le sac de farine.
+Le petit caillou est un objet dans le sac de farine.
+
+La bourse (f) est un contenant possédé.
+Il y a 3 pièces (f) dans la bourse.
+La carte du village est un objet possédé.
+
+Le joueur est sur la place du village.

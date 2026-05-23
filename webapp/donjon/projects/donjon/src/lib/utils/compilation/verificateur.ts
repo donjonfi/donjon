@@ -34,11 +34,13 @@ export class Verificateur {
 
   /** Est-ce le début d’un nouveau bloc région (règle, action, …) */
   public static estNouvelleRoutine(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const ouvertureRoutine = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
+    // cas spécial : « règle remplacer <verbe> » est une routine de type action
+    const estRegleRemplacer = ExprReg.xRegleRemplacerAction.test(phrase.morceaux[0]);
+    const ouvertureRoutine = estRegleRemplacer ? null : ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
 
     // ouverture d’une routine (règle, action, réaction, …)
-    if (ouvertureRoutine) {
-      const typeBloc = Routine.ParseType(ouvertureRoutine[1]);
+    if (estRegleRemplacer || ouvertureRoutine) {
+      const typeBloc = estRegleRemplacer ? ERoutine.action : Routine.ParseType(ouvertureRoutine![1]);
       // si la dernière routine n'est pas encore fermée
       if (ctx.derniereRoutine?.ouvert) {
         // la routine n’a pas été correctement fermée
@@ -54,11 +56,13 @@ export class Verificateur {
 
   /** Est-ce le début d’un nouveau bloc régpon (règle, action, …) */
   public static estNouveauBlocSecondaire(phrase: Phrase, ctx: ContexteAnalyseV8): boolean {
-    const ouvertureBloc = ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
+    // cas spécial : « règle remplacer <verbe> » est une routine de type action
+    const estRegleRemplacer = ExprReg.xRegleRemplacerAction.test(phrase.morceaux[0]);
+    const ouvertureBloc = estRegleRemplacer ? null : ExprReg.xDebutRoutine.exec(phrase.morceaux[0]);
 
     // ouverture d'une nouvelle routine (règle, action, réaction, …)
-    if (ouvertureBloc) {
-      const typeBloc = Routine.ParseType(ouvertureBloc[1]);
+    if (estRegleRemplacer || ouvertureBloc) {
+      const typeBloc = estRegleRemplacer ? ERoutine.action : Routine.ParseType(ouvertureBloc![1]);
       // si la dernière routine n'est pas encore fermée
       if (ctx.derniereRoutine?.ouvert) {
         // la dernière routine n’a pas été correctement fermée

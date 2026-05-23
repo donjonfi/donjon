@@ -1,0 +1,111 @@
+-- Mini-jeu d'illustration pour la page wiki « Compteurs ».
+-- Démontre :
+--   • Définir un compteur (initialisé ou non, avec unité)
+--   • Afficher dans une chaîne : [c score] + accord [s score]
+--   • Modifier : augmenter de, diminuer de, vaut
+--   • Tester : vaut, atteint, dépasse, n'atteint pas
+--   • Compteur dans le cartouche du jeu
+
+-- ======================================================
+-- COMPTEURS
+-- ======================================================
+
+Le score est un compteur.
+La vie est un compteur initialisé à 10.
+La distance est un compteur avec l’unité km initialisé à 0.
+
+-- Afficher dans le cartouche (haut à gauche par défaut).
+afficher le score dans le cartouche.
+afficher la vie dans le cartouche.
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+La forêt sombre est un lieu.
+Sa description est "Une forêt dense. Plusieurs sentiers se croisent.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+La fleur rare est un objet décoratif dans la forêt sombre.
+Sa description est "Une fleur lumineuse. Elle vaut 5 points pour qui parvient à la cueillir.".
+
+La potion de soin est un objet portable dans la forêt sombre.
+Sa description est "Une fiole verte. Boire restaure 3 points de vie.".
+
+Le piège à loup est un objet décoratif dans la forêt sombre.
+Sa description est "Un piège rouillé. Marcher dessus coûte 4 points de vie.".
+
+-- ======================================================
+-- ACTIONS
+-- ======================================================
+
+-- Augmenter / diminuer un compteur.
+action cueillir ceci:
+  définition:
+    ceci est un objet visible et accessible.
+  phase prérequis:
+    si ceci n’est pas la fleur rare:
+      refuser "Vous ne cueillez pas [intitulé ceci].".
+    fin si
+  phase exécution:
+    effacer ceci.
+    changer le score augmente de 5.
+  phase épilogue:
+    dire "Vous cueillez la fleur. Score : [c score] point[s score].".
+fin action
+
+action déclencher ceci:
+  définition:
+    ceci est un objet visible et accessible.
+  phase prérequis:
+    si ceci n’est pas le piège à loup:
+      refuser "Vous ne pouvez pas déclencher [intitulé ceci].".
+    fin si
+  phase exécution:
+    changer la vie diminue de 4.
+    effacer ceci.
+  phase épilogue:
+    dire "Le piège claque. Vous perdez 4 points de vie ! Vie restante : [c vie].".
+    si la vie n’atteint pas 1:
+      dire "Vous succombez à vos blessures.".
+      terminer le jeu.
+    fin si
+fin action
+
+action boire ceci:
+  définition:
+    ceci est un objet visible et accessible.
+  phase prérequis:
+    si ceci n’est pas la potion de soin:
+      refuser "Vous ne pouvez pas boire [intitulé ceci].".
+    fin si
+  phase exécution:
+    effacer ceci.
+    changer la vie augmente de 3.
+  phase épilogue:
+    dire "La potion vous revigore. Vie : [c vie].".
+fin action
+
+-- Tester la valeur d'un compteur : conditions de fin de jeu.
+action partir:
+  phase épilogue:
+    si le score atteint 5:
+      dire "Vous quittez la forêt avec [c score] point[s score]. Bravo !".
+      terminer le jeu.
+    sinon
+      dire "Vous n’avez encore que [c score] point[s score]. Restez encore un peu.".
+    fin si
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la forêt sombre.
+
+règle avant commencer le jeu:
+  dire "Vous démarrez avec [c vie] point[s vie] de vie. Cueillez {/la fleur rare/} pour gagner des points.{n}Essayez : {/cueillir la fleur/}, {/déclencher le piège/}, {/boire la potion/}, {/partir/}.".
+fin règle

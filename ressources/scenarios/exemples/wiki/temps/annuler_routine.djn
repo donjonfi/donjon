@@ -1,0 +1,25 @@
+-- Mini-exemple : annuler une routine programmée avant qu'elle ne s'exécute.
+
+Le lieu de test est un lieu.
+La bombe est un objet vu ici.
+
+routine boom:
+  dire "La bombe a explosé !".
+  terminer le jeu.
+fin routine
+
+action désamorcer ceci:
+  si ceci est la bombe:
+    annuler la routine boom.
+    dire "Bravo ! La bombe a été désamorcée.".
+    terminer le jeu.
+  fin si
+fin action
+
+règle après commencer le jeu:
+  exécuter la routine boom dans 30 secondes.
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/désamorcer la bombe/} en moins de 30 secondes.".
+fin règle

@@ -38,6 +38,17 @@
     "description": "bloc de code si sinon finsi"
   },
 
+  "règle remplacer action": {
+    "prefix": ["rer", "règle remplacer", "regle remplacer", "remplacer"],
+    "body": [
+      "règle remplacer ${1:infinitif}:",
+      "\tphase épilogue:",
+      "\t\t$2",
+      "fin action"
+    ],
+    "description": "règle remplacer : écrase le comportement d’une action existante par signature"
+  },
+
   "fiche aide": {
     "prefix": "aid",
     "body": [

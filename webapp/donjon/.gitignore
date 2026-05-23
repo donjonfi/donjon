@@ -44,3 +44,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Modeles wiki generes par scripts/sync-wiki-examples.ps1 (source : ressources/scenarios/exemples/wiki/)
+/projects/donjon-creer/src/assets/modeles/wiki_*.djn

@@ -1,8 +1,8 @@
 import { DeclenchementFutur } from "./sauvegarde";
 
-export class FichierTest {
+export class FichierEnregistrement {
 
-  public readonly type: string = "test";
+  public readonly type: string = "enregistrement";
 
   public version: number;
 
@@ -19,14 +19,14 @@ export class FichierTest {
   public sortieIntro?: string;
 
   /**
-   * Étapes du fichier de vérification.
+   * Étapes de l'enregistrement.
    * Chaque étape associe une commande/réponse/graine/déclenchement à
    * la sortie attendue (pour c, r et d).
    */
-  public etapesTest: EtapeTest[];
+  public etapes: EtapeEnregistrement[];
 }
 
-export interface EtapeTest {
+export interface EtapeEnregistrement {
   type: 'c' | 'r' | 'g' | 'd';
   valeur: string;
   /** Sortie textuelle attendue après l'exécution. Présent pour c, r et d
@@ -36,7 +36,7 @@ export interface EtapeTest {
 
 /**
  * Résultat retourné par la modale de divergence après interaction utilisateur.
- * Pilote la suite du replay et la mise à jour du fichier .tst en mémoire.
+ * Pilote la suite du replay et la mise à jour de l'enregistrement en mémoire.
  */
 export type ResultatDivergence =
   | { action: 'accepter' }
@@ -46,7 +46,7 @@ export type ResultatDivergence =
   | { action: 'quitter' }
   /** Pas-à-pas : annuler la commande courante, recule à idx-1. */
   | { action: 'precedent' }
-  /** Pas-à-pas : ignorer la divergence, avance à idx+1 sans modifier le .tst. */
+  /** Pas-à-pas : ignorer la divergence, avance à idx+1 sans modifier le .rec. */
   | { action: 'suivant' }
   /** Pas-à-pas : accepter la sortie courante et avancer à idx+1 (alias de « accepter » avec sémantique « reprendre l'auto »). */
   | { action: 'continuer' };

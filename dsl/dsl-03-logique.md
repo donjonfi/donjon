@@ -135,6 +135,41 @@ action aller vers ceci:
 fin action
 ```
 
+### Remplacer une action existante (`règle remplacer`)
+
+Pour écraser une action déjà définie (par exemple une action héritée de `actions.djn` via `inclure`), utiliser un bloc `règle remplacer <signature>:`. Le bloc remplace entièrement l'action d'origine (description, phases, balises, etc.). Le bloc se ferme par `fin action`.
+
+```
+règle remplacer sauter:
+  phase épilogue:
+    dire "Vous bondissez comme un cabri.".
+fin action
+```
+
+La signature doit correspondre exactement à l'action ciblée : `règle remplacer sauter:` ne remplace pas `action sauter sur ceci:` et inversement.
+
+```
+règle remplacer sauter sur ceci:
+  phase épilogue:
+    dire "Hop, vous voilà perché sur [le ceci].".
+fin action
+```
+
+**Désambiguïsation par `définitions:`** — plusieurs actions du moteur partagent le même infinitif et la même arité. Par exemple, `actions.djn` définit quatre `action examiner ceci:` distinctes (une pour une direction, une pour un lieu, une pour un objet, une pour un spécial). Le bloc de remplacement doit reproduire le bloc `définitions:` de la version visée pour lever l'ambiguïté :
+
+```
+règle remplacer examiner ceci:
+  définitions:
+    ceci est un objet prioritairement visible et mentionné.
+  phase épilogue:
+    dire "Rien d'intéressant à signaler sur [le ceci].".
+fin action
+```
+
+Si plusieurs actions correspondent à la signature fournie sans pouvoir être désambiguïsées, une erreur de compilation est émise. Si aucune action existante ne correspond, un conseil non bloquant est ajouté (visible dans l'éditeur Donjon FI) et la règle crée une nouvelle action.
+
+**Doublons d'actions** — deux blocs `action <signature>:` avec la même signature (même infinitif, même arité ceci/cela, mêmes prépositions, même `définitions:`) sont refusés : une erreur de compilation invite à utiliser `règle remplacer` si l'intention était bien de modifier le comportement existant. Deux blocs `règle remplacer` ciblant la même action sont également refusés (une seule règle de remplacement par action).
+
 ---
 
 ## 10. Règles (avant / après)

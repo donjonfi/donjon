@@ -1,0 +1,17 @@
+-- Mini-exemple : options d'affichage des compteurs (sans titre, sans unité, titre libre).
+
+La taverne est un lieu.
+
+Le score est un compteur initialisé à 42.
+Le score est affiché en haut à gauche sans titre.
+
+La vie est un compteur initialisé à 100 avec l'unité ♥.
+La vie est affichée en bas à gauche sans unité.
+
+Les pieces est un compteur initialisé à 17 avec l'unité pièce.
+Le titre des pieces est "Or".
+Les pieces sont affichées en bas à droite.
+
+règle avant commencer le jeu:
+  dire "Observez le cartouche : score (sans titre), vie (sans unité), or (titre libre).".
+fin règle

@@ -1,0 +1,16 @@
+-- Mini-exemple : « sélectionner » pour tirer un nombre au hasard.
+
+La salle de jeu est un lieu.
+
+action lancer le dé:
+  sélectionner le dé compris entre 1 et 6.
+  si le dé vaut 6:
+    dire "Critique ! Vous obtenez 6.".
+  sinon
+    dire "Vous obtenez [c dé].".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/lancer le dé/} plusieurs fois.".
+fin règle

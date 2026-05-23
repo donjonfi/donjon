@@ -1,0 +1,19 @@
+-- Mini-exemple : règle avant pour refuser une action existante (prendre).
+
+Le musée est un lieu.
+
+La statue est un objet ici.
+Le souvenir est un objet ici.
+
+règle avant prendre la statue:
+  refuser "La statue est boulonnée au sol.".
+fin règle
+
+règle avant prendre le souvenir:
+  dire "Le gardien lève les yeux et vous regarde fixement.".
+  refuser l'action.
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/prendre la statue/} et {/prendre le souvenir/}.".
+fin règle

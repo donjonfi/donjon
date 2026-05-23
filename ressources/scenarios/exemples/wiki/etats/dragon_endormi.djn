@@ -1,0 +1,106 @@
+-- Mini-jeu d'illustration pour la page wiki « États personnalisés ».
+-- Met en scène un dragon et une licorne pour exercer les 5 formes de
+-- déclaration d’états (simple, bascule, groupe, implication, exclusion)
+-- ainsi que la négation dans les définitions d’éléments.
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+-- État simple : indépendant, pas de relation avec d’autres états.
+enragé est un état.
+
+-- Bascule : exactement 2 états opposés. Retirer l’un ré-introduit l’autre.
+féroce et paisible forment une bascule.
+pure et corrompu forment une bascule.
+
+-- Groupe : N états mutuellement exclusifs deux à deux, sans ré-introduction.
+éveillé, endormi et hiverné se contredisent.
+
+-- Implication asymétrique : appliquer A applique aussi B.
+enragé implique éveillé.
+
+-- ======================================================
+-- LIEUX
+-- ======================================================
+
+La clairière enchantée est un lieu.
+Sa description est "Une clairière baignée par la lumière dorée des arbres millénaires. Une licorne broute paisiblement. Au nord, on devine l’entrée d’une grotte sombre.".
+
+La grotte du dragon est un lieu au nord de la clairière enchantée.
+Sa description est "Une grotte aux parois marquées par les griffes d’un grand reptile.".
+
+-- ======================================================
+-- PERSONNAGES
+-- ======================================================
+
+Le dragon est un animal féroce et éveillé dans la grotte du dragon.
+Sa description est "Un dragon écailleux aux yeux rougeoyants. [si dragon est paisible]Il vous observe d’un air placide.[fin si][si dragon est féroce]Il rugit en vous voyant.[fin si][si dragon est endormi] Il dort profondément.[fin si][si dragon est enragé] Il est dans une rage folle.[fin si]".
+
+La licorne est un animal pure et éveillée dans la clairière enchantée.
+Sa description est "Une licorne d’un blanc immaculé. [si licorne est pure]Sa corne brille d’une lumière pure.[fin si][si licorne est corrompue]Sa corne a viré au noir.[fin si]".
+
+-- ======================================================
+-- OBJETS (illustrent la négation dans les définitions)
+-- ======================================================
+
+-- Négation inline : la lance n’a pas l’état « décoratif » par défaut, donc on peut la prendre.
+La lance enchantée est un objet enchanté et non décoratif dans la clairière enchantée.
+Sa description est "Une lance gravée de runes lumineuses. On peut la prendre.".
+
+-- Négation verbale : retirer un état après la déclaration de l’élément.
+La pomme magique est un objet enchanté et mangeable dans la clairière enchantée.
+La pomme magique n’est pas mangeable.
+Sa description est "Une pomme dorée. Trop précieuse pour être croquée.".
+
+-- ======================================================
+-- ACTIONS PERSONNALISÉES
+-- ======================================================
+
+action apaiser ceci:
+  si ceci est paisible:
+    dire "[Intitulé ceci] est déjà paisible.".
+  sinon
+    changer ceci est paisible.
+    dire "[Intitulé ceci] se calme aussitôt.".
+  fin si
+fin action
+
+action enrager ceci:
+  si ceci est enragé:
+    dire "[Intitulé ceci] est déjà furieux.".
+  sinon
+    changer ceci est enragé.
+    dire "[Intitulé ceci] entre dans une rage folle ! (Et se réveille s’il dormait, par implication.)".
+  fin si
+fin action
+
+action endormir ceci:
+  si ceci est enragé:
+    dire "Trop tard, [intitulé ceci] est enragé et hors de contrôle.".
+  sinonsi ceci est endormi:
+    dire "[Intitulé ceci] dort déjà.".
+  sinon
+    changer ceci est endormi.
+    dire "[Intitulé ceci] s’assoupit doucement.".
+  fin si
+fin action
+
+action corrompre ceci:
+  si ceci est corrompu:
+    dire "[Intitulé ceci] est déjà corrompu.".
+  sinon
+    changer ceci est corrompu.
+    dire "Une ombre passe sur [intitulé ceci]…".
+  fin si
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans la clairière enchantée.
+
+règle avant commencer le jeu:
+  dire "Vous êtes un druide. Essayez : {/examiner le dragon/}, {/endormir le dragon/}, {/enrager le dragon/}, {/apaiser le dragon/}, {/corrompre la licorne/}.".
+fin règle

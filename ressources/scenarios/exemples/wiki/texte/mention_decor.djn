@@ -1,0 +1,10 @@
+-- Mini-exemple : balise [@X] pour mentionner un objet dans la description du lieu sans qu'il soit re-listé.
+
+La cuisine est un lieu.
+Sa description est "Une cuisine simple. [@coffre] trône près de l'évier.".
+
+Le coffre est un contenant dans la cuisine.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/regarder/} — le coffre apparaît dans la description, pas dans la liste des objets en bas.".
+fin règle

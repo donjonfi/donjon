@@ -1,0 +1,6 @@
+le cirque est un lieu.
+la clé est un objet ici.
+
+action blaguer:
+  dire "Quel est le comble pour un chien??@@attendre touche@@Faire wouaf!".
+fin action

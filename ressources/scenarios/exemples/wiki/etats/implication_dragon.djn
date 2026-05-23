@@ -1,0 +1,16 @@
+-- Mini-exemple : état avec implication (enragé implique éveillé).
+
+Le donjon est un lieu.
+Le dragon est un animal endormi ici.
+
+éveillé, endormi et hiverné se contredisent.
+enragé implique éveillé.
+
+action enrager ceci:
+  changer ceci est enragé.
+  dire "[Intitulé ceci] est désormais [si ceci est éveillé]éveillé[sinon]endormi[fin si] et [si ceci est enragé]enragé[fin si].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Le dragon est endormi. Essayez : {/enrager le dragon/} (il s'éveille automatiquement).".
+fin règle

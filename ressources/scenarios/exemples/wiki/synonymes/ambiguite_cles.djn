@@ -1,0 +1,12 @@
+-- Mini-exemple : trois clés au même endroit → « examiner clé » force une demande de précision.
+
+La salle des clés est un lieu.
+La table est un support ici.
+
+La clé rouillée est une clé sur la table.
+La clé dorée est une clé sur la table.
+La clé rouge est une clé sur la table.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/examiner clé/} (le moteur demande de préciser) puis {/examiner clé rouge/} (sans ambigüité).".
+fin règle

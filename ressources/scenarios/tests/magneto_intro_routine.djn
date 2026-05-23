@@ -1,0 +1,30 @@
+-- Scénario de test du magnétoscope :
+-- L'intro appelle une routine via « règle avant commencer le jeu ».
+-- La sortie de la routine s'accumule dans sortieIntro du .rec.
+--
+-- Test manuel :
+--   1. Charger ce scénario, jouer 1 ou 2 commandes (ex: « attendre », « regarder »).
+--   2. « générer enregistrement » → sauver le .rec.
+--   3. Recharger le scénario, importer le .rec → mode magnéto.
+--   4. Vérifier qu'il n'y a pas de divergence d'intro (la routine se rejoue à
+--      l'identique) et que Pas suivant / Précédent fonctionnent.
+
+Le titre du jeu est "Test magnéto − intro avec routine".
+L'auteur du jeu est "DonjonFI".
+
+L'antichambre est un lieu.
+Sa description est "Une antichambre faiblement éclairée.".
+
+La torche est un objet vu dans l'antichambre.
+
+routine annonce_intro:
+  dire "{_Bonjour, aventurier !_}{n}Vous pénétrez dans la sombre antichambre.".
+fin routine
+
+règle avant commencer le jeu:
+  exécuter la routine annonce_intro.
+fin règle
+
+action tester:
+    exécuter la routine annonce_intro.
+fin action

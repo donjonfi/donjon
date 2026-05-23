@@ -1,0 +1,23 @@
+-- Mini-exemple : comparer une propriété numérique du joueur à celle d'un objet.
+
+La salle d'entraînement est un lieu.
+
+La force du joueur vaut 7.
+
+Le sac est un objet décoratif ici.
+Le poids du sac vaut 4.
+
+L'enclume est un objet décoratif ici.
+Le poids de l'enclume vaut 20.
+
+action soulever ceci:
+  si la force du joueur atteint le poids de ceci:
+    dire "Vous soulevez [intitulé ceci] (force [force le joueur] ≥ poids [poids ceci]).".
+  sinon
+    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force le joueur]).".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/soulever le sac/} et {/soulever l'enclume/}.".
+fin règle

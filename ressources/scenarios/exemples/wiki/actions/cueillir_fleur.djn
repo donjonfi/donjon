@@ -1,0 +1,74 @@
+-- Mini-jeu d'illustration pour la page wiki « Actions personnalisées ».
+-- Démontre une action à 1 complément (« cueillir ceci ») avec les 3 phases
+-- (prérequis, exécution, épilogue) et un refus contextuel.
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+-- Un état « cueillie » pour marquer les fleurs déjà ramassées.
+cueillie est un état.
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+Le jardin secret est un lieu.
+Sa description est "Un petit jardin entouré de murs de pierre. Plusieurs fleurs y poussent — et un cactus solitaire au coin.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+-- Le panier servira à recueillir les fleurs cueillies.
+Le panier en osier est un contenant dans l’inventaire.
+
+-- Trois fleurs : la classe « fleur » est créée à la volée.
+La rose rouge est une fleur dans le jardin secret.
+Sa description est "Une rose éclatante.".
+
+La marguerite blanche est une fleur dans le jardin secret.
+Sa description est "Une marguerite gracieuse.".
+
+La tulipe jaune est une fleur dans le jardin secret.
+Sa description est "Une tulipe en pleine floraison.".
+
+-- Un cactus, qui n’est PAS une fleur — pour démontrer le refus.
+Le cactus piquant est un objet dans le jardin secret.
+Sa description est "Mieux vaut ne pas y toucher à mains nues.".
+
+-- ======================================================
+-- ACTION : cueillir ceci
+-- ======================================================
+
+action cueillir ceci:
+
+  définition:
+    ceci est un objet visible et accessible.
+
+  phase prérequis:
+    si ceci n’est pas une fleur:
+      refuser "Vous ne cueillez pas [intitulé ceci] : ce n’est pas une fleur.".
+    fin si
+    si ceci est cueillie:
+      refuser "[Intitulé ceci] a déjà été cueilli[es ceci].".
+    fin si
+
+  phase exécution:
+    changer ceci est cueillie.
+    déplacer ceci dans le panier en osier.
+
+  phase épilogue:
+    dire "Vous cueillez délicatement [intitulé ceci] et [le ceci] déposez dans votre panier.".
+
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans le jardin secret.
+
+règle avant commencer le jeu:
+  dire "Essayez :{n}— {/cueillir la rose/}{n}— {/cueillir la marguerite/}{n}— {/cueillir le cactus/} (doit être refusé){n}— {/cueillir la rose/} une deuxième fois (doit être refusé){n}— {/inventaire/} pour voir le panier".
+fin règle

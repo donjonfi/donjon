@@ -1,0 +1,21 @@
+-- Mini-exemple : téléporter le joueur via « changer le joueur se trouve dans X ».
+
+Le hall est un lieu.
+Le grenier est un lieu.
+La cave est un lieu.
+
+action monter:
+  changer le joueur se trouve dans le grenier.
+fin action
+
+action descendre:
+  changer le joueur se trouve dans la cave.
+fin action
+
+action revenir:
+  changer le joueur se trouve dans le hall.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/monter/}, {/descendre/}, {/revenir/} — pas de sorties classiques, téléportation directe.".
+fin règle

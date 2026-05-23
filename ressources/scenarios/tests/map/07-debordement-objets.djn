@@ -1,0 +1,88 @@
+-- Scénario de test pour la carte du scénario — débordement de cellule et préfixes spatiaux (+ / -).
+-- Quatre lieux côte à côte pour comparer :
+--   1. capharnaüm        — saturé d'objets (>15) → marqueur « +N de plus » cliquable
+--   2. chambre           — table + lit, objets sur/sous → préfixes + / -
+--   3. salon             — quelques objets, sans débordement (pour témoin)
+--   4. atelier           — support saturé (un établi avec beaucoup d'outils dessus) → débordement via descendants
+Le titre du jeu est "Carte — débordement et préfixes spatiaux".
+La version du jeu est "1.0".
+
+-- ─────────── 1. CAPHARNAÜM : 20 objets directs (débordement de cellule) ───────────
+
+Le capharnaüm est un lieu.
+Sa description est "Une pièce remplie d'objets glanés au fil des ans.".
+
+La pomme est un objet dans le capharnaüm.
+Le pain est un objet dans le capharnaüm.
+Le bouton est un objet dans le capharnaüm.
+La pièce de cuivre est un objet dans le capharnaüm.
+La plume est un objet dans le capharnaüm.
+La bobine est un objet dans le capharnaüm.
+Le caillou est un objet dans le capharnaüm.
+La bougie est un objet dans le capharnaüm.
+La corde est un objet dans le capharnaüm.
+Le miroir est un objet dans le capharnaüm.
+La clé rouillée est un objet dans le capharnaüm.
+Le mouchoir est un objet dans le capharnaüm.
+La fiole est un objet dans le capharnaüm.
+Le parchemin est un objet dans le capharnaüm.
+La carte du royaume est un objet dans le capharnaüm.
+Le bracelet est un objet dans le capharnaüm.
+La boussole est un objet dans le capharnaüm.
+Le sifflet est un objet dans le capharnaüm.
+La loupe est un objet dans le capharnaüm.
+Le grimoire est un objet dans le capharnaüm.
+
+-- ─────────── 2. CHAMBRE : table + lit, objets sur/sous (préfixes + / -) ───────────
+
+La chambre est un lieu à l'est du capharnaüm.
+Sa description est "Une petite chambre avec une table et un lit.".
+
+La table est un support dans la chambre.
+Le livre est un objet sur la table.
+La tasse est un objet sur la table.
+La chaussette est un objet sous la table.
+
+Le lit est un support dans la chambre.
+L'oreiller est un objet sur le lit.
+La couverture est un objet sur le lit.
+La valise est un objet sous le lit.
+
+-- ─────────── 3. SALON : témoin sans débordement ───────────
+
+Le salon est un lieu à l'est de la chambre.
+Sa description est "Un salon avec un fauteuil et une bibliothèque.".
+
+Le fauteuil est un support dans le salon.
+Le coussin est un objet sur le fauteuil.
+
+La bibliothèque est un contenant dans le salon.
+Le roman est un objet dans la bibliothèque.
+Le dictionnaire est un objet dans la bibliothèque.
+
+-- ─────────── 4. ATELIER : support avec beaucoup d'outils dessus (débordement via descendants) ─────────
+
+L'atelier est un lieu au sud du capharnaüm.
+Sa description est "Un atelier de bricolage, l'établi est couvert d'outils.".
+
+L'établi est un support dans l'atelier.
+Le marteau est un objet sur l'établi.
+Le tournevis est un objet sur l'établi.
+La pince est un objet sur l'établi.
+La scie est un objet sur l'établi.
+La lime est un objet sur l'établi.
+Le ciseau est un objet sur l'établi.
+La râpe est un objet sur l'établi.
+Le rabot est un objet sur l'établi.
+Le maillet est un objet sur l'établi.
+Le burin est un objet sur l'établi.
+La gouge est un objet sur l'établi.
+Le poinçon est un objet sur l'établi.
+La vrille est un objet sur l'établi.
+La tenaille est un objet sur l'établi.
+Le clou est un objet sous l'établi.
+La vis est un objet sous l'établi.
+
+-- ─────────── PLACEMENT DU JOUEUR ───────────
+
+Le joueur est dans le capharnaüm.

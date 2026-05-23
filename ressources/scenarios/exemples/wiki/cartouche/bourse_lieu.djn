@@ -1,0 +1,17 @@
+-- Mini-exemple : afficher un compteur dans le cartouche + déplacer le lieu en bas.
+
+L'antre du dragon est un lieu.
+
+La bourse est un compteur initialisé à 100 avec l'unité pièce.
+La bourse est affichée en haut à droite.
+
+afficher le lieu dans le cartouche du bas.
+
+action gagner:
+  changer la bourse augmente de 10.
+  dire "Vous gagnez 10 pièces. Bourse : [c bourse].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Le lieu est en bas, la bourse en haut à droite. Essayez : {/gagner/}.".
+fin règle

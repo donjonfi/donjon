@@ -173,6 +173,25 @@ Le boucher mange la pomme.`;
         strict_1.default.equal(decls.length, 1);
         strict_1.default.equal(decls[0].name, 'mettre ceci avec cela');
     });
+    (0, node_test_1.it)('détecte « règle remplacer verbe: » comme une déclaration d’action (signature seule)', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('règle remplacer sauter:'), 'action');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'sauter');
+    });
+    (0, node_test_1.it)('détecte « regle remplacer verbe ceci: » (variante sans accent)', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('regle remplacer sauter sur ceci:'), 'action');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'sauter sur ceci');
+    });
+    (0, node_test_1.it)('détecte « règle remplacer verbe avec cela: » (2 args + prép)', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('règle remplacer mettre ceci avec cela:'), 'action');
+        strict_1.default.equal(decls.length, 1);
+        strict_1.default.equal(decls[0].name, 'mettre ceci avec cela');
+    });
+    (0, node_test_1.it)('ne confond pas « règle avant verbe: » avec une déclaration d’action', () => {
+        const decls = byKind((0, declarationScanner_1.findDeclarations)('règle avant sauter:'), 'action');
+        strict_1.default.equal(decls.length, 0);
+    });
     (0, node_test_1.it)('détecte « action verbe ceci concernant cela: »', () => {
         const decls = byKind((0, declarationScanner_1.findDeclarations)('action interroger ceci concernant cela:'), 'action');
         strict_1.default.equal(decls.length, 1);

@@ -1,0 +1,86 @@
+-- Mini-jeu d'illustration pour la page wiki « Actions personnalisées ».
+-- Démontre une action à 2 compléments (« mélanger ceci avec cela »)
+-- avec définitions séparées, phase prérequis multiple et aide contextuelle.
+
+-- ======================================================
+-- ÉTATS PERSONNALISÉS
+-- ======================================================
+
+-- Marqueur de potion déjà consommée par un mélange.
+mélangée est un état.
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+L’atelier d’alchimie est un lieu.
+Sa description est "Un laboratoire encombré d’alambics et de fioles. Sur l’établi, trois potions colorées attendent d’être mélangées.".
+
+-- ======================================================
+-- OBJETS
+-- ======================================================
+
+L’établi de l’alchimiste est un support dans l’atelier d’alchimie.
+
+-- Trois potions de couleurs différentes.
+La fiole rouge est une potion sur l’établi de l’alchimiste.
+Sa description est "Un liquide rouge sang qui bouillonne légèrement.".
+
+La fiole bleue est une potion sur l’établi de l’alchimiste.
+Sa description est "Un liquide bleu glacial.".
+
+La fiole verte est une potion sur l’établi de l’alchimiste.
+Sa description est "Un liquide vert phosphorescent.".
+
+-- Un vieux chiffon, qui n’est PAS une potion.
+Le chiffon est un objet sur l’établi de l’alchimiste.
+Sa description est "Un chiffon taché.".
+
+-- ======================================================
+-- ACTION : mélanger ceci avec cela
+-- ======================================================
+
+action mélanger ceci avec cela:
+
+  définitions:
+    ceci est un objet visible et accessible.
+    cela est un objet visible et accessible.
+
+  phase prérequis:
+    si ceci n’est pas une potion:
+      refuser "[Intitulé ceci] n’est pas une potion.".
+    fin si
+    si cela n’est pas une potion:
+      refuser "[Intitulé cela] n’est pas une potion.".
+    fin si
+    si ceci est cela:
+      refuser "Vous ne pouvez pas mélanger une potion avec elle-même.".
+    fin si
+    si ceci est mélangée:
+      refuser "[Intitulé ceci] a déjà servi à un mélange.".
+    fin si
+    si cela est mélangée:
+      refuser "[Intitulé cela] a déjà servi à un mélange.".
+    fin si
+
+  phase exécution:
+    changer ceci est mélangée.
+    changer cela est mélangée.
+
+  phase épilogue:
+    dire "Vous versez [intitulé ceci] dans [intitulé cela]. Une fumée [au hasard]violette[ou]dorée[ou]grise[fin choix] s’élève de l’établi.".
+
+fin action
+
+-- Aide affichée si le joueur tape « aide mélanger ».
+L’aide pour l’action mélanger est "{*mélanger X avec Y*}{n}Verse une potion dans une autre. Les deux potions doivent être des potions (et pas la même). Une fois mélangées, elles ne peuvent plus servir.".
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans l’atelier d’alchimie.
+
+règle avant commencer le jeu:
+  dire "Essayez :{n}— {/mélanger la fiole rouge avec la fiole bleue/} (OK){n}— {/mélanger la fiole rouge avec la fiole verte/} (refusé : déjà mélangée){n}— {/mélanger la fiole verte avec elle-même/} (refusé){n}— {/mélanger le chiffon avec la fiole verte/} (refusé : pas une potion){n}— {/aide mélanger/} pour consulter l’aide.".
+fin règle

@@ -3,7 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import * as FileSaver from 'file-saver-es';
 
-import { Action, ElementGenerique, EMessageAnalyse, FichierTest, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils, version as DONJON_VERSION, versionNum } from 'donjon';
+import { Action, ElementGenerique, EMessageAnalyse, FichierEnregistrement, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, ResultatCompilation, StringUtils, version as DONJON_VERSION, versionNum } from 'donjon';
 
 import { CompilationService } from './services/compilation.service';
 import { LineMapEntry, VsCodeBridgeService } from './services/vscode-bridge.service';
@@ -14,8 +14,8 @@ type VisualisationTab = 'carte' | 'visualisation' | 'apercu';
 
 const WIKI_URL = 'https://donjon.fi/doc/v3/start';
 
-/** Clé sessionStorage utilisée pour faire survivre un .tst en attente à un reload du webview (RUN_GAME). */
-const PENDING_TST_KEY = '__djnPendingTst__';
+/** Clé sessionStorage utilisée pour faire survivre un enregistrement (.rec) en attente à un reload du webview (RUN_GAME). */
+const PENDING_REC_KEY = '__djnPendingRec__';
 
 @Component({
   selector: 'app-root',
@@ -79,20 +79,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.bridge.postMessage({ type: 'READY' });
 
-    // Reprise éventuelle d'un .tst posé en attente avant un refresh RUN_GAME du webview.
-    const pendingTst = sessionStorage.getItem(PENDING_TST_KEY);
-    if (pendingTst) {
-      sessionStorage.removeItem(PENDING_TST_KEY);
+    // Reprise éventuelle d'un enregistrement posé en attente avant un refresh RUN_GAME du webview.
+    const pendingRec = sessionStorage.getItem(PENDING_REC_KEY);
+    if (pendingRec) {
+      sessionStorage.removeItem(PENDING_REC_KEY);
       if (this.jeu) {
         try {
-          const fichierTest = JSON.parse(pendingTst) as FichierTest;
+          const fichierEnregistrement = JSON.parse(pendingRec) as FichierEnregistrement;
           this.activeTab = 'jeu';
-          setTimeout(() => this.lecteurRef?.setVerification(fichierTest), 0);
+          setTimeout(() => this.lecteurRef?.setEnregistrement(fichierEnregistrement), 0);
         } catch (e) {
-          console.warn("Reprise du .tst en attente impossible :", e);
+          console.warn("Reprise de l'enregistrement en attente impossible :", e);
         }
       } else {
-        console.warn("Le .tst en attente est ignoré : la compilation a échoué.");
+        console.warn("L'enregistrement en attente est ignoré : la compilation a échoué.");
       }
     }
   }
@@ -105,29 +105,29 @@ export class AppComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
-  /** Charge un fichier .tst et lance la vérification dans le lecteur intégré. */
-  onChargerFichierTest(et: EventTarget | null): void {
+  /** Charge un enregistrement .rec et lance la vérification dans le lecteur intégré. */
+  onChargerEnregistrement(et: EventTarget | null): void {
     const hie = et as HTMLInputElement;
     if (!hie?.files?.length) return;
     const file = hie.files[0];
-    if (!file.name.endsWith('.tst')) return;
+    if (!file.name.endsWith('.rec')) return;
     const fileReader = new FileReader();
     fileReader.onloadend = () => {
       const contenuFichier = fileReader.result as string;
-      if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"test"/)) {
-        console.warn("Le fichier n'est pas un .tst Donjon FI");
+      if (!contenuFichier.match(/^\s*{\s*"type"\s*:\s*"enregistrement"/)) {
+        console.warn("Le fichier n'est pas un enregistrement Donjon FI (.rec)");
         return;
       }
-      const fichierTest = JSON.parse(contenuFichier) as FichierTest;
-      if (fichierTest.version > versionNum) {
-        console.warn("Ce fichier de vérification a été créé avec une version plus récente de Donjon FI.");
+      const fichierEnregistrement = JSON.parse(contenuFichier) as FichierEnregistrement;
+      if (fichierEnregistrement.version > versionNum) {
+        console.warn("Cet enregistrement a été créé avec une version plus récente de Donjon FI.");
       }
 
       // Mode VS Code : on demande au host de relire le scénario depuis le disque
       // (équivalent du clic sur la baguette « Analyser »). Le webview est rebuild,
-      // donc on stocke le .tst pour le récupérer dans le nouveau ngOnInit.
+      // donc on stocke l'enregistrement pour le récupérer dans le nouveau ngOnInit.
       if (this.bridge.isInVsCode) {
-        sessionStorage.setItem(PENDING_TST_KEY, JSON.stringify(fichierTest));
+        sessionStorage.setItem(PENDING_REC_KEY, JSON.stringify(fichierEnregistrement));
         this.runGame();
         return;
       }
@@ -140,14 +140,14 @@ export class AppComponent implements OnInit, OnDestroy {
         this.lancerCompilation();
       }
       if (!this.jeu) {
-        console.warn("Le scénario doit être compilé sans erreur avant de charger un fichier de vérification.");
+        console.warn("Le scénario doit être compilé sans erreur avant de charger un enregistrement.");
         return;
       }
 
       // Le lecteur est rendu via *ngIf="activeTab === 'jeu'" : basculer puis attendre
       // que la vue soit rendue pour que lecteurRef soit disponible.
       this.activeTab = 'jeu';
-      setTimeout(() => this.lecteurRef?.setVerification(fichierTest), 0);
+      setTimeout(() => this.lecteurRef?.setEnregistrement(fichierEnregistrement), 0);
     };
     fileReader.readAsText(file);
     // permettre de recharger le même fichier

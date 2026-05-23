@@ -1,0 +1,38 @@
+-- Mini-jeu d'illustration pour la page wiki « Règle remplacer ».
+-- Démontre :
+--   • remplacement complet de l'action « sauter » par défaut
+--   • le bloc se ferme par « fin action »
+--   • la signature « sauter sur ceci » est distincte de « sauter »
+
+-- ======================================================
+-- LIEU + OBJETS (le strict minimum pour tester)
+-- ======================================================
+
+Le ring est un lieu.
+Sa description est "Un ring de trampoline. Au centre, un tabouret bas.".
+
+Le tabouret est un objet posé sur le ring.
+
+-- ======================================================
+-- REMPLACEMENT DE L'ACTION « SAUTER » (sans complément)
+-- ======================================================
+
+-- L'action sauter du moteur affiche un texte générique : « Hop ! ».
+-- On la remplace pour donner une saveur propre au scénario.
+
+règle remplacer sauter:
+  phase épilogue:
+    dire "Vous bondissez comme un cabri sur le ring qui rebondit.".
+fin action
+
+-- ======================================================
+-- REMPLACEMENT DE LA VARIANTE « SAUTER SUR CECI »
+-- ======================================================
+
+-- Cette signature (avec ceci) est distincte de la précédente :
+-- « règle remplacer sauter » au-dessus n'affecte PAS « sauter sur ceci ».
+
+règle remplacer sauter sur ceci:
+  phase épilogue:
+    dire "Hop, vous voilà perché sur [le ceci].".
+fin action

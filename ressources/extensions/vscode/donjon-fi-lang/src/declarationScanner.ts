@@ -45,9 +45,10 @@ const ROUTINE_DECLARATION = new RegExp(
   'gmiud'
 );
 
-// Action : « action <signature> : » où la signature est l'ensemble verbe + ceci/cela + prépositions.
-// On capture toute la signature jusqu'au « : » pour préserver l'arité.
-const ACTION_DECLARATION = /^\s*action\s+([^\n:]+?)\s*:/gmiud;
+// Action : « action <signature> : » ou « règle remplacer <signature> : ». La signature = verbe + ceci/cela + prépositions.
+// On capture toute la signature jusqu'au « : » pour préserver l'arité. Les blocs « règle remplacer » partagent
+// leur signature avec l'action remplacée — c'est l'auteur qui doit faire matcher.
+const ACTION_DECLARATION = /^\s*(?:r(?:è|e|é)gle\s+remplacer\s+|action\s+)([^\n:]+?)\s*:/gmiud;
 
 const ROUTINE_REFERENCE = new RegExp(
   `\\bexécuter\\s+(?:la\\s+)?routine\\s+(${IDENT})\\b`,

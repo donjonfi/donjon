@@ -36,6 +36,13 @@ export class Action {
   /** Les actions simplifiees (le joueur peut xxx) ne peuvent pas être modifiées ensuite */
   public simplifiee: boolean = false;
 
+  /** Cette action remplace une action déjà existante avec la même signature (via « règle remplacer »). */
+  public remplace: boolean = false;
+
+  /** Si cette action en a remplacé une autre (« règle remplacer »), référence à l’action originale écrasée
+   *  — utilisée par l’aperçu pour afficher côte à côte remplaçante et remplacée. */
+  public actionRemplacee: Action | undefined;
+
   /** Cette action va déplacer le joueur vers destinationDeplacement */
   public destinationDeplacement: string | undefined;
 

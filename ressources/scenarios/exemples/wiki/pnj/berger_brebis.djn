@@ -1,0 +1,20 @@
+-- Mini-exemple : réactions structurées (basique + concernant + sujet inconnu).
+
+Le pâturage est un lieu.
+Le berger est une personne ici.
+La brebis est un animal ici.
+
+réactions du berger:
+  basique:
+    dire "« J'ai égaré ma brebis. Aidez-moi à la retrouver ! »".
+
+  concernant la brebis:
+    dire "« Elle s'est perdue ce matin. »".
+
+  concernant un sujet inconnu:
+    dire "« Concentrons-nous sur ma brebis. »".
+fin réactions
+
+règle avant commencer le jeu:
+  dire "Essayez : {/parler au berger/}, {/demander la brebis au berger/}, {/demander la lune au berger/}.".
+fin règle

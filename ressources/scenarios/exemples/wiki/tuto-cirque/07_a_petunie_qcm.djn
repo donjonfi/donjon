@@ -1,0 +1,45 @@
+-- Tutoriel « Le Cirque Phosphène » — Chapitre 7, étape A
+-- Faire rire Pétunie : QCM par réactions structurées.
+-- Le joueur doit DEMANDER le bon sujet à Pétunie ; seul l’un d’eux la fait rire.
+-- Exemple isolé pour rester focalisé sur la mécanique.
+
+Le titre du jeu est "Le Cirque Phosphène — Faire rire Pétunie".
+L’auteur du jeu est "Apprenti·e magicien·ne".
+
+triste et joyeux forment une bascule.
+
+La roulotte de Pétunie est un lieu.
+Sa description est "Une roulotte au rouge fané. Pétunie est assise sur sa malle, les épaules basses.".
+
+Pétunie (f) est une personne triste dans la roulotte de Pétunie.
+Sa description est "Pétunie, clown abattue. Son nez rouge est tombé. Ses chaussures ont gagné trois pointures. Et ses pieds — ses pieds ont l’air de mener leur propre vie.".
+
+-- ======================================================
+-- RÉACTIONS STRUCTURÉES — un seul sujet la fait rire
+-- ======================================================
+
+réactions de Pétunie:
+
+  basique:
+    dire "« Bah… bof. Je sais plus rire. Mon nez est tombé. Mes chaussures m’écrasent. Et j’ai un truc bizarre aux pieds. Si tu trouves un sujet qui me fait rire, dis-le-moi. »".
+
+  concernant son nez:
+    dire "« Ah oui, le nez. Je l’ai cherché. Pas trouvé. C’est pas drôle, c’est triste. »".
+
+  concernant ses chaussures:
+    dire "« Trop grandes. J’ai l’impression de marcher dans deux barques. Pas drôle non plus. »".
+
+  concernant ses pieds:
+    dire "« Mes pieds ? Pourquoi mes pieds ? »{n}Pétunie baisse les yeux. Ses orteils remuent tout seuls, comme deux familles de poissons hors de l’eau. Elle pouffe — d’abord un petit rire, puis un éclat de rire qui n’en finit plus.".
+    changer Pétunie est joyeuse.
+
+  concernant un sujet inconnu:
+    dire "« Hmm, je vois pas. Reviens-y plus tard. »".
+
+fin réactions
+
+Le joueur est dans la roulotte de Pétunie.
+
+règle avant commencer le jeu:
+  dire "Pétunie est triste. Posez les bonnes questions pour la faire rire. Essayez :{n}— ''parler à Pétunie''{n}— ''demander le nez à Pétunie''{n}— ''demander les chaussures à Pétunie''{n}— ''demander les pieds à Pétunie''{n}— ''examiner Pétunie'' à tout moment.".
+fin règle

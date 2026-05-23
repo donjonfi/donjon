@@ -1,0 +1,12 @@
+-- Mini-exemple : [au hasard][ou]…[fin] pour varier un message.
+
+Le terrain de jeu est un lieu.
+La bille est un objet dans l'inventaire.
+
+action jeter ceci:
+  dire "[au hasard]Vous atteignez la lucarne, ça fait « poc » puis la bille retombe.[ou]Raté.[ou]Bien essayé.[fin choix]".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/jeter la bille/} plusieurs fois.".
+fin règle

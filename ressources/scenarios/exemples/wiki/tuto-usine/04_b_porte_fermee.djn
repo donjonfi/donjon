@@ -1,0 +1,39 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 4, étape B
+-- Ajout du bureau du contremaître au sud du hall, derrière une porte fermée.
+-- Le joueur doit taper « ouvrir la porte du bureau » pour entrer.
+-- État final du chapitre 4.
+
+Le titre du jeu est "Bienvenue chez MeuhCorp".
+L’auteur du jeu est "Stagiaire du jour".
+
+Le hall est un lieu.
+Sa description est "Bienvenue à MeuhCorp, leader mondial de la boîte à meuh depuis 1947. L’air sent le carton neuf et le caoutchouc tiède.".
+
+La casquette de stagiaire est un objet ici.
+Sa description est "Une casquette neuve, encore raide. Le mot « STAGIAIRE » est brodé en gros au-dessus de la visière.".
+Son aperçu est "Une casquette flambant neuve attend son nouveau propriétaire.".
+
+La porte vitrée est une porte ouverte à l’est du hall.
+
+L’atelier est un lieu à l’est du hall.
+Sa description est "L’atelier d’assemblage. Tout sent la sciure, le métal froid et l’huile de meuh.".
+
+L’étiquette adhésive (f) est un objet ici.
+Sa description est "Une étiquette autocollante format MeuhCorp standard. À apposer sur chaque boîte finie.".
+Son aperçu est "Une étiquette adhésive format MeuhCorp, prête à servir, est posée à part.".
+
+Les pièces détachées (f) sont un objet ici.
+Sa description est "Un assortiment réglementaire : une carcasse creuse, un mécanisme à meuh, un ressort, deux rivets. De quoi monter une boîte si on suit le manuel.".
+Son aperçu est "Un lot de pièces détachées attend d’être assemblé.".
+
+Le banc qualité est un lieu au nord de l’atelier.
+Sa description est "Le banc qualité, sanctuaire absolu de MeuhCorp. C’est ici que chaque boîte est testée. Trois meuh légitimes par retournement, ni plus, ni moins.".
+
+Le panneau du règlement est un objet ici.
+Sa description est "Affiche officielle MeuhCorp.{n}Article 1 : « Ne pas mettre de coin-coin dans une boîte à meuh. ».{n}Article 2 : « Ne pas mettre de coin-coin dans une boîte à meuh. ».{n}Article 3 : « Ne pas mettre de coin-coin dans une boîte à meuh. ».".
+Son aperçu est "Un panneau « RÈGLEMENT » domine le banc.".
+
+La porte du bureau est une porte fermée au sud du hall.
+
+Le bureau du contremaître est un lieu au sud du hall.
+Sa description est "Le bureau personnel du contremaître Bertrand. Tout y est rangé au cordeau, vide et propre. On se sent observé alors qu’il n’y a personne.".

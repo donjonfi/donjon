@@ -1,0 +1,16 @@
+-- Mini-exemple : compteur « score » modifié par une action et affiché.
+
+Le verger est un lieu.
+La pomme est un objet ici.
+La poire est un objet ici.
+
+Le score est un compteur.
+
+règle après prendre la pomme ou prendre la poire:
+  changer le score augmente de 1.
+  dire "Vous prenez [intitulé ceci]. Score : [c score] point[s score].".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/prendre la pomme/} puis {/prendre la poire/} — le score monte.".
+fin règle

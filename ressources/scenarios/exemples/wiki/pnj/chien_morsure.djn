@@ -1,0 +1,15 @@
+-- Mini-exemple : réaction basique unique (forme courte sans étiquette).
+
+La cour est un lieu.
+Le chien est un vivant parlant ici.
+
+mordu est un état.
+
+réaction du chien:
+  dire "Le chien vous a mordu ! Vous lui avez fait peur.".
+  changer le joueur est mordu.
+fin réaction
+
+règle avant commencer le jeu:
+  dire "Essayez : {/parler au chien/}.".
+fin règle

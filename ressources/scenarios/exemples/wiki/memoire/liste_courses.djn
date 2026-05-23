@@ -1,0 +1,82 @@
+-- Mini-jeu d'illustration pour la page wiki « Listes ».
+-- Démontre :
+--   • Définir une liste (initialement remplie)
+--   • Ajouter / retirer un élément en cours de partie
+--   • Tester la contenance (« contient » / « ne contient pas »)
+--   • Tester la taille (vaut, atteint, dépasse)
+--   • Afficher une liste : [lister], [décrire]
+--   • Vider une liste
+
+-- ======================================================
+-- LIEU
+-- ======================================================
+
+L’épicerie du quartier est un lieu.
+Sa description est "Une petite épicerie. Plusieurs articles sont en rayon. Le commerçant est derrière le comptoir.".
+
+-- ======================================================
+-- LISTE
+-- ======================================================
+
+Les courses à faire sont une liste.
+Elle contient "pain", "lait" et "pommes".
+
+-- ======================================================
+-- OBJETS (les articles disponibles)
+-- ======================================================
+
+Le rayon est un support fixé dans l’épicerie du quartier.
+
+Le pain est un objet sur le rayon.
+Le lait est un objet sur le rayon.
+Les pommes sont des objets sur le rayon.
+Le chocolat est un objet sur le rayon.   -- pas dans la liste !
+
+-- ======================================================
+-- ACTIONS
+-- ======================================================
+
+action consulter la liste:
+  phase épilogue:
+    si les courses à faire sont vides:
+      dire "Votre liste est vide. Vous avez tout acheté !".
+    sinon
+      dire "Reste à acheter ([c taille des courses à faire] article[s taille des courses à faire]) :{n}[lister courses à faire]".
+    fin si
+fin action
+
+action acheter ceci:
+  définition:
+    ceci est un objet visible et accessible.
+  phase épilogue:
+    -- Ajoute dans l'inventaire et retire de la liste si présent.
+    si les courses à faire contiennent ceci:
+      changer les courses à faire ne contiennent plus ceci.
+      changer le joueur possède ceci.
+      dire "Vous achetez [intitulé ceci]. [si les courses à faire sont vides]Votre liste est complète ![sinon]Il vous reste [c taille des courses à faire] article[s taille des courses à faire] à acheter.[fin si]".
+    sinon
+      dire "[Intitulé ceci] ne figure pas sur votre liste — vous ne l’achetez pas.".
+    fin si
+fin action
+
+action ajouter ceci à la liste:
+  définition:
+    ceci est un objet visible.
+  phase épilogue:
+    si les courses à faire contiennent ceci:
+      dire "[Intitulé ceci] est déjà sur votre liste.".
+    sinon
+      changer les courses à faire contiennent ceci.
+      dire "Vous ajoutez [intitulé ceci] à votre liste. ([c taille des courses à faire] article[s taille des courses à faire]).".
+    fin si
+fin action
+
+-- ======================================================
+-- DÉPART
+-- ======================================================
+
+Le joueur est dans l’épicerie du quartier.
+
+règle avant commencer le jeu:
+  dire "Essayez :{n}— {/consulter la liste/}{n}— {/acheter le pain/} (sur la liste){n}— {/acheter le chocolat/} (pas sur la liste){n}— {/ajouter le chocolat à la liste/} puis {/acheter le chocolat/}{n}— {/consulter la liste/} pour voir ce qu’il reste.".
+fin règle

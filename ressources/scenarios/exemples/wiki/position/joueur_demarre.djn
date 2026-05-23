@@ -1,0 +1,9 @@
+-- Mini-exemple : démarrer le joueur ailleurs que dans le premier lieu défini.
+
+L'entrée est un lieu.
+Sa description est "L'entrée d'un manoir. Au nord, le salon.".
+
+Le salon est un lieu au nord de l'entrée.
+Sa description est "Un salon richement décoré. Vous démarrez ici, pas dans l'entrée.".
+
+Le joueur se trouve dans le salon.
