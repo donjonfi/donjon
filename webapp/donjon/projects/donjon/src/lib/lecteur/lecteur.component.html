@@ -161,6 +161,7 @@
 
       <!-- Toolbar principale -->
       <div class="djn-magneto-toolbar">
+        <button class="btn btn-sm btn-outline-primary" (click)="magnetoRecommencer()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Recommencer le replay depuis le début (intro)"><i class="fas fa-fw fa-backward-fast me-1"></i>Recommencer</button>
         <button class="btn btn-sm btn-outline-primary" (click)="magnetoPrecedent()" [disabled]="magnetoLectureAutoEnCours || (magnetoIdx === 0 && !magnetoDivergence && !magnetoDivergenceIntro)" title="Reculer d'une étape"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
         <button class="btn btn-sm btn-outline-primary" (click)="magnetoPasSuivant()" [disabled]="magnetoLectureAutoEnCours || !!magnetoDivergence || !!magnetoDivergenceIntro || magnetoIdx >= enregistrementEnCours.etapes.length" title="Exécuter l'étape suivante"><i class="fas fa-fw fa-forward-step me-1"></i>Suivant</button>
         <span class="djn-magneto-sep"></span>
@@ -188,7 +189,7 @@
           <button class="btn btn-sm btn-donjon-rouge" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstReponse" [title]="magnetoEtapeCouranteEstReponse ? 'Une réponse à un choix ne peut pas être supprimée (sinon le choix resterait sans réponse) — utilisez Modifier pour la changer.' : 'Retirer la commande qui vient d\'être exécutée'"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
         }
         <span class="djn-magneto-spacer"></span>
-        <button class="btn btn-sm btn-outline-success" (click)="magnetoTelechargerSauvegarde()" title="Télécharger une sauvegarde du .rec à cet état"><i class="fas fa-fw fa-floppy-disk"></i></button>
+        <button class="btn btn-sm btn-outline-success" (click)="magnetoTelechargerSauvegarde()" title="Télécharger une sauvegarde du .rec à cet état"><i class="fas fa-fw fa-floppy-disk me-1"></i>Sauver</button>
         <button class="btn btn-sm btn-outline-danger" (click)="magnetoQuitter()" title="Quitter le mode enregistrement"><i class="fas fa-fw fa-xmark"></i></button>
       </div>
 
@@ -237,17 +238,30 @@
         </div>
       }
 
-      <!-- Sous-panneau saisie (modifier / insérer) -->
+      <!-- Sous-panneau saisie (modifier / insérer / inserer-reponse) -->
       @if (magnetoEdition !== 'aucun') {
         <div class="djn-magneto-saisie">
-          <label>{{ magnetoEdition === 'modifier' ? (magnetoEtapeCouranteEstReponse ? 'Nouveau choix' : 'Nouvelle commande') : 'Commande à insérer' }} :</label>
+          <label>{{
+            magnetoEdition === 'inserer-reponse'
+              ? 'Réponse au choix'
+              : (magnetoEdition === 'modifier'
+                  ? (magnetoEtapeCouranteEstReponse ? 'Nouveau choix' : 'Nouvelle commande')
+                  : 'Commande à insérer')
+          }} :</label>
+          @if (magnetoEdition === 'inserer-reponse' && magnetoListeChoixPendants.length > 0) {
+            <ul class="djn-magneto-choix-liste">
+              @for (c of magnetoListeChoixPendants; track c.id) {
+                <li><code>{{ c.id }}</code> — {{ c.libelle }}</li>
+              }
+            </ul>
+          }
           <input type="text" class="form-control" [(ngModel)]="magnetoSaisieCommande" (keydown.enter)="magnetoTesterSaisie()" autofocus>
           @if (magnetoDernierTest) {
             <small class="djn-magneto-info">Testée. Voir le résultat à l'écran. Valider pour l'inscrire dans l'enregistrement.</small>
           }
           <div class="djn-magneto-actions">
-            <button class="btn btn-sm btn-outline-info" (click)="magnetoTesterSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Exécuter la commande pour voir le résultat"><i class="fas fa-fw fa-flask me-1"></i>Tester</button>
-            <button class="btn btn-sm btn-success" (click)="magnetoValiderSaisie()" [disabled]="!magnetoSaisieCommande.trim()" title="Valider la commande dans l'enregistrement"><i class="fas fa-fw fa-check me-1"></i>Valider</button>
+            <button class="btn btn-sm btn-outline-info" (click)="magnetoTesterSaisie()" [disabled]="!magnetoSaisieCommande.trim()" [title]="magnetoEdition === 'inserer-reponse' ? 'Exécuter la réponse pour voir le résultat' : 'Exécuter la commande pour voir le résultat'"><i class="fas fa-fw fa-flask me-1"></i>Tester</button>
+            <button class="btn btn-sm btn-success" (click)="magnetoValiderSaisie()" [disabled]="!magnetoSaisieCommande.trim()" [title]="magnetoEdition === 'inserer-reponse' ? 'Valider la réponse dans l\'enregistrement' : 'Valider la commande dans l\'enregistrement'"><i class="fas fa-fw fa-check me-1"></i>Valider</button>
             <button class="btn btn-sm btn-outline-secondary" (click)="magnetoReessayerSaisie()" title="Vider la saisie et annuler le test"><i class="fas fa-fw fa-rotate-right me-1"></i>Réessayer</button>
             <button class="btn btn-sm btn-secondary" (click)="magnetoAnnulerSaisie()" title="Annuler la modification et revenir à l'étape courante"><i class="fas fa-fw fa-xmark me-1"></i>Annuler modification</button>
           </div>

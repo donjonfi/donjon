@@ -100,8 +100,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Lecture auto en cours (boucle temporisée) ? */
   public magnetoLectureAutoEnCours = false;
 
-  /** Sous-état d'édition (sous-panneau saisie). */
-  public magnetoEdition: 'aucun' | 'modifier' | 'inserer' = 'aucun';
+  /** Sous-état d'édition (sous-panneau saisie). `inserer-reponse` est une 2e passe
+   *  automatique après l'insertion d'un c: qui a déclenché un choisir/question — l'UI
+   *  garde le panneau ouvert pour que l'utilisateur saisisse la réponse à enregistrer
+   *  comme r: juste après le c:. */
+  public magnetoEdition: 'aucun' | 'modifier' | 'inserer' | 'inserer-reponse' = 'aucun';
+
+  /** En mode 'inserer-reponse' : index dans `enregistrementEnCours.etapes` du c: qui
+   *  vient d'être inséré et a laissé une interruption de choix pendante. Le r: sera
+   *  splicé à `idx + 1`. null hors de ce sous-mode. */
+  private magnetoIdxInsertionAvecChoix: number | null = null;
 
   /** Saisie utilisateur en mode modifier/inserer. */
   public magnetoSaisieCommande = '';
@@ -1748,6 +1756,37 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoLectureAutoEnCours = false;
   }
 
+  /**
+   * Recommence le replay depuis le début (intro). Garde le `.rec` en mémoire (y compris
+   * les modifications éventuelles déjà appliquées) et marque le magnéto en attente de
+   * relance. Émet `nouvellePartieOuAnnulerTour` pour que le parent recompile/redémarre
+   * la partie : le ngOnChanges qui suit redéclenchera `initialiserMagneto` à partir de
+   * l'état zéro (intro rejouée, magnetoIdx = 0 sur la 1ère étape jouable).
+   */
+  public magnetoRecommencer(): void {
+    if (!this.enregistrementEnCours) return;
+    this.magnetoLectureAutoEnCours = false;
+    this.partie.ins.restaurationPartieEnCours = false;
+    // Reset des sous-états d'édition / divergence.
+    this.magnetoDivergence = null;
+    this.magnetoDivergenceIntro = null;
+    this.magnetoEdition = 'aucun';
+    this.magnetoSaisieCommande = '';
+    this.magnetoDernierTest = null;
+    this.magnetoIdxEnEdition = null;
+    this.magnetoEditionTypeOriginal = null;
+    this.magnetoIdxInsertionAvecChoix = null;
+    this.magnetoSnapshotsRng.clear();
+    this.magnetoIdxReponsesChoix.clear();
+    this.magnetoIdx = 0;
+    // Conserve le .rec ; bascule en attente pour que le prochain ngOnChanges du parent
+    // relance la magnéto via initialiserMagneto.
+    this.enregistrementActif = false;
+    this.enregistrementEnAttente = true;
+    this.enregistrementActions.push({ idx: 0, action: 'recommencé', detail: 'replay rejoué depuis l\'intro' });
+    this.nouvellePartieOuAnnulerTour.emit();
+  }
+
   /** Quitte le mode enregistrement (avec confirmation côté template). */
   public magnetoQuitter(): void {
     this.magnetoLectureAutoEnCours = false;
@@ -1936,21 +1975,24 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
     // Restaurer le PRNG dans l'état pré-étape pour que le tirage aléatoire de la
     // commande testée soit déterministe (annuler regénère la graine en mode jeu normal).
-    if (this.magnetoIdxEnEdition !== null) {
+    // EXCEPTION : en mode 'inserer-reponse', le c: a déjà été joué live et l'interruption
+    // de choix est toujours pendante ; pas de snapshot pré-c: à restaurer.
+    if (this.magnetoIdxEnEdition !== null && this.magnetoEdition !== 'inserer-reponse') {
       this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
     }
     const cmd = this.magnetoSaisieCommande.trim();
-    const sortie = this.magnetoEditionTypeOriginal === 'r'
+    const sortie = (this.magnetoEditionTypeOriginal === 'r' || this.magnetoEdition === 'inserer-reponse')
       ? this.executerReponseChoix(cmd)
       : this.executerCommandeAffichee(cmd);
     this.magnetoDernierTest = { commande: cmd, sortie };
   }
 
-  /** Valide la saisie (modifier/inserer) : applique au .rec en mémoire. */
+  /** Valide la saisie (modifier/inserer/inserer-reponse) : applique au .rec en mémoire. */
   public magnetoValiderSaisie(): void {
     if (!this.magnetoSaisieCommande.trim() || !this.enregistrementEnCours) return;
     const cmd = this.magnetoSaisieCommande.trim();
     const etaitEnModification = this.magnetoEdition === 'modifier';
+    const etaitEnInsererReponse = this.magnetoEdition === 'inserer-reponse';
 
     // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde l'exécution.
     let sortieNouvelle: string;
@@ -1961,13 +2003,37 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.magnetoDernierTest) {
         this.executerCommandeAffichee('annuler');
       }
-      // Restaurer le PRNG dans l'état pré-étape avant l'exécution (idem que Tester).
-      if (this.magnetoIdxEnEdition !== null) {
+      // En mode 'inserer-reponse', le c: a déjà été joué live (la pile choisir est encore
+      // pendante). Pas de snapshot pré-c: à restaurer. Pour les autres modes, restaurer le PRNG
+      // dans l'état pré-étape avant l'exécution (idem que Tester).
+      if (!etaitEnInsererReponse && this.magnetoIdxEnEdition !== null) {
         this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
       }
-      sortieNouvelle = this.magnetoEditionTypeOriginal === 'r'
+      sortieNouvelle = (this.magnetoEditionTypeOriginal === 'r' || etaitEnInsererReponse)
         ? this.executerReponseChoix(cmd)
         : this.executerCommandeAffichee(cmd);
+    }
+
+    // Branche 2e passe : on commit le r: associé à l'insertion c: précédente.
+    if (etaitEnInsererReponse) {
+      const idxC = this.magnetoIdxInsertionAvecChoix!;
+      const idxR = idxC + 1;
+      this.enregistrementEnCours.etapes.splice(idxR, 0, { type: 'r', valeur: cmd, sortie: sortieNouvelle });
+      this.enregistrementCompteurs.ajouts++;
+      this.enregistrementActions.push({ idx: idxR, action: 'inséré r:', detail: `« ${cmd} »` });
+      this.magnetoIdx = this.avancerJusquAEtapeJouable(idxR + 1, false);
+      this.magnetoSnapshotsRng.clear();
+      this.magnetoIdxReponsesChoix.clear();
+      this.magnetoEdition = 'aucun';
+      this.magnetoSaisieCommande = '';
+      this.magnetoDernierTest = null;
+      this.magnetoIdxEnEdition = null;
+      this.magnetoEditionTypeOriginal = null;
+      this.magnetoIdxInsertionAvecChoix = null;
+      if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
+        this.afficherRecap();
+      }
+      return;
     }
 
     if (this.magnetoDivergence) {
@@ -2010,6 +2076,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         this.enregistrementActions.push({ idx, action: 'inséré avant', detail: `« ${cmd} »` });
         // Avance d'un cran : la nouvelle commande a déjà été jouée, l'étape originale est à idx+1.
         this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
+
+        // Si le c: inséré a laissé pendante une interruption de choix → 2e passe automatique :
+        // on garde le panneau de saisie ouvert pour que l'utilisateur saisisse la réponse,
+        // qui sera enregistrée comme r: juste après le c:. (Scope v1 : non-divergence seulement.)
+        if (this.magnetoChoixPendantApresInsertion) {
+          this.magnetoIdxInsertionAvecChoix = idx;
+          this.magnetoEdition = 'inserer-reponse';
+          this.magnetoEditionTypeOriginal = 'r';
+          this.magnetoSaisieCommande = '';
+          this.magnetoDernierTest = null;
+          this.magnetoIdxEnEdition = idx;
+          // Pas de reset à 'aucun' — on reste dans le sous-panneau saisie.
+          return;
+        }
       }
     }
 
@@ -2040,6 +2120,38 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.magnetoDernierTest) {
       this.executerCommandeAffichee('annuler');
       this.magnetoDernierTest = null;
+    }
+    // Mode 'inserer-reponse' : cascade rollback. Le c: a déjà été splicé dans le .rec
+    // au passage précédent, et l'interruption de choix est encore pendante. On consomme
+    // l'interruption en cours (sentinel) pour pouvoir envoyer 'annuler' et défaire le c:
+    // côté moteur ; puis on retire le c: du .rec pour que l'utilisateur revienne à
+    // l'état pré-insertion (option B du plan).
+    if (this.magnetoEdition === 'inserer-reponse' && this.enregistrementEnCours && this.magnetoIdxInsertionAvecChoix !== null) {
+      // Consommer l'interruption pendante (si elle l'est encore) pour ne pas bloquer 'annuler'.
+      if (this.interruptionEnCours) {
+        this.terminerInterruptionsBloquantesPourMagneto();
+        if (this.interruptionEnCours) {
+          // Pour attendreChoix/Libre/questionCommande, le helper ci-dessus ne consomme rien.
+          // Forcer la fin via terminerInterruption(undefined) (sentinel).
+          this.terminerInterruption(undefined);
+        }
+      }
+      this.executerCommandeAffichee('annuler');
+      // Retirer le c: orphelin du .rec.
+      const idxC = this.magnetoIdxInsertionAvecChoix;
+      const etapeC = this.enregistrementEnCours.etapes[idxC];
+      this.enregistrementEnCours.etapes.splice(idxC, 1);
+      if (this.enregistrementCompteurs.ajouts > 0) this.enregistrementCompteurs.ajouts--;
+      this.enregistrementActions.push({ idx: idxC, action: 'annulé', detail: `insertion c+r annulée (${etapeC?.valeur ?? ''})` });
+      this.magnetoIdx = this.avancerJusquAEtapeJouable(idxC, false);
+      this.magnetoSnapshotsRng.clear();
+      this.magnetoIdxReponsesChoix.clear();
+      this.magnetoEdition = 'aucun';
+      this.magnetoSaisieCommande = '';
+      this.magnetoIdxEnEdition = null;
+      this.magnetoEditionTypeOriginal = null;
+      this.magnetoIdxInsertionAvecChoix = null;
+      return;
     }
     // Si on était en mode 'modifier', la commande divergente avait été annulée à l'entrée
     // → la rejouer pour restaurer l'état pré-saisie (avec la divergence affichée).
@@ -2091,6 +2203,34 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Vrai quand le curseur est sur l'intro (avant toute commande jouée, ou divergence d'intro). */
   public get magnetoEstSurIntro(): boolean {
     return this.magnetoIdxCommande === -1;
+  }
+
+  /** Vrai quand le c: qu'on vient d'insérer a laissé pendante une interruption de choix
+   *  (attendreChoix / attendreChoixLibre / questionCommande). Utilisé par `magnetoValiderSaisie`
+   *  pour déclencher automatiquement le sous-mode 'inserer-reponse'. */
+  public get magnetoChoixPendantApresInsertion(): boolean {
+    const t = this.interruptionEnCours?.typeInterruption;
+    return t === TypeInterruption.attendreChoix
+        || t === TypeInterruption.attendreChoixLibre
+        || t === TypeInterruption.questionCommande;
+  }
+
+  /** Liste des choix disponibles pour le sous-panneau « Réponse au choix » (mode 'inserer-reponse').
+   *  Renvoie tableau vide pour `attendreChoixLibre` (saisie libre) ou hors mode choix. */
+  public get magnetoListeChoixPendants(): { id: string, libelle: string }[] {
+    const interr = this.interruptionEnCours;
+    if (!interr) return [];
+    if (interr.typeInterruption === TypeInterruption.attendreChoix && interr.choix?.length) {
+      const nbChoix = interr.choix.length;
+      const identifiants = this.partie.jeu.parametres.activerChoixNumeriques
+        ? Array.from({ length: nbChoix }, (_, i) => String(i + 1))
+        : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      return interr.choix.map((c, i) => ({ id: identifiants[i] ?? String(i + 1), libelle: c.valeurs[0]?.toString() ?? '' }));
+    }
+    if (interr.typeInterruption === TypeInterruption.questionCommande && interr.derniereQuestion?.Choix?.length) {
+      return interr.derniereQuestion.Choix.map((c, i) => ({ id: String(i + 1), libelle: c.valeurs[0]?.toString() ?? '' }));
+    }
+    return [];
   }
 
   /** Vrai quand l'étape courante est une routine forcée ('d') : modifier/insérer non applicables. */

@@ -257,6 +257,18 @@
   font-weight: 600;
 }
 
+.djn-magneto-choix-liste {
+  margin: 0.2rem 0 0.4rem 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+
+  code {
+    background: #e9ecef;
+    padding: 0 0.25rem;
+    border-radius: 2px;
+  }
+}
+
 .djn-magneto-toolbar {
   display: flex;
   flex-wrap: wrap;

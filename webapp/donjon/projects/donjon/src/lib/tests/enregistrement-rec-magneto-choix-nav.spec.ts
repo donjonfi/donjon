@@ -625,6 +625,208 @@ La chaise bleue est un objet vue ici.
       .toBeFalse();
   });
 
+  // ============================================================
+  //  Cas J : Insérer une commande qui déclenche un choisir/question
+  //  → la réponse doit pouvoir être saisie et enregistrée comme r: juste après le c:.
+  // ============================================================
+
+  const scenarioCles =
+    `Le débarras est un lieu.
+La clé rouge est un objet vu ici.
+La clé bleue est un objet vue ici.
+` + actions;
+
+  function fichierMinimalAvecRegarder(): FichierEnregistrement {
+    // Un .rec minimal avec juste une c:regarder pour avoir une étape de départ
+    // sur laquelle s'ancrer pour les insertions Après.
+    const jeu = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeu, undefined);
+    (lecteur as any).commande = "regarder";
+    (lecteur as any).validationCommande();
+    return (lecteur as any).partie.creerFichierEnregistrement() as FichierEnregistrement;
+  }
+
+  it("[F050-MAG-INS-T001] insertion c:prendre clé : transition automatique en 'inserer-reponse' avec interruption questionCommande pendante", () => {
+    const fichier = fichierMinimalAvecRegarder();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // c:regarder → fin de replay
+
+    lecteur.magnetoEntrerInsertion("apres");
+    expect(lecteur.magnetoEdition).toBe("inserer");
+    lecteur.magnetoSaisieCommande = "prendre clé";
+    lecteur.magnetoValiderSaisie();
+
+    expect(lecteur.magnetoEdition)
+      .withContext("c: a déclenché une questionCommande → état doit basculer en 'inserer-reponse'")
+      .toBe("inserer-reponse");
+    expect(lecteur.interruptionEnCours?.typeInterruption)
+      .withContext("interruption questionCommande pendante côté moteur")
+      .toBe(TypeInterruption.questionCommande);
+    expect(fichier.etapes.some(e => e.type === "c" && e.valeur === "prendre clé"))
+      .withContext("c:prendre clé inséré dans le .rec")
+      .toBeTrue();
+  });
+
+  it("[F050-MAG-INS-T002] insertion c:prendre clé puis réponse 1 : .rec = [..., c:prendre clé, r:1]", () => {
+    const fichier = fichierMinimalAvecRegarder();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "prendre clé";
+    lecteur.magnetoValiderSaisie();
+
+    lecteur.magnetoSaisieCommande = "1";
+    lecteur.magnetoValiderSaisie();
+
+    expect(lecteur.magnetoEdition).withContext("après validation r:, état revient à 'aucun'").toBe("aucun");
+
+    const idxC = fichier.etapes.findIndex(e => e.type === "c" && e.valeur === "prendre clé");
+    expect(idxC).toBeGreaterThanOrEqual(0);
+    const etapeR = fichier.etapes[idxC + 1];
+    expect(etapeR?.type).withContext("r: doit être placé juste après le c:").toBe("r");
+    expect(etapeR?.valeur).toBe("1");
+    expect(etapeR?.sortie ?? "").withContext("sortie de la réponse 1 doit refléter une clé").toContain("clé");
+  });
+
+  it("[F050-MAG-INS-T003] insertion c:prendre clé puis réponse 2 : r.sortie reflète l'autre clé", () => {
+    const fichier = fichierMinimalAvecRegarder();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "prendre clé";
+    lecteur.magnetoValiderSaisie();
+
+    lecteur.magnetoSaisieCommande = "2";
+    lecteur.magnetoValiderSaisie();
+
+    const idxC = fichier.etapes.findIndex(e => e.type === "c" && e.valeur === "prendre clé");
+    const etapeR = fichier.etapes[idxC + 1];
+    expect(etapeR?.type).toBe("r");
+    expect(etapeR?.valeur).toBe("2");
+    expect(etapeR?.sortie ?? "").toContain("clé");
+  });
+
+  it("[F050-MAG-INS-T010] insertion c:tester (action avec choisir rouge/bleu) : transition + r:a enregistrée", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    // Avancer jusqu'à la fin pour positionner après c:x boussole.
+    let safety = 10;
+    while (lecteur.magnetoIdx < fichier.etapes.length && safety-- > 0) {
+      lecteur.magnetoPasSuivant();
+      if (lecteur.magnetoDivergence) break;
+    }
+
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "tester";
+    lecteur.magnetoValiderSaisie();
+
+    expect(lecteur.magnetoEdition)
+      .withContext("c:tester déclenche un choisir → 'inserer-reponse'")
+      .toBe("inserer-reponse");
+    expect(lecteur.interruptionEnCours?.typeInterruption)
+      .withContext("attendreChoix pendant")
+      .toBe(TypeInterruption.attendreChoix);
+
+    // Liste des choix doit être disponible pour l'UI.
+    expect(lecteur.magnetoListeChoixPendants.length).withContext("2 choix proposés par le choisir").toBe(2);
+    expect(lecteur.magnetoListeChoixPendants[0].libelle).toContain("rouge");
+    expect(lecteur.magnetoListeChoixPendants[1].libelle).toContain("bleu");
+
+    // Valider la réponse 'a' (= rouge).
+    lecteur.magnetoSaisieCommande = "a";
+    lecteur.magnetoValiderSaisie();
+
+    expect(lecteur.magnetoEdition).toBe("aucun");
+    // findLastIndex car le scénario de référence contient déjà une c:tester suivie d'un r:b
+    // historique ; on cible celle qu'on vient d'INSÉRER, donc la dernière.
+    const idxC = fichier.etapes.map(e => `${e.type}:${e.valeur}`).lastIndexOf("c:tester");
+    expect(idxC).toBeGreaterThanOrEqual(0);
+    const etapeR = fichier.etapes[idxC + 1];
+    expect(etapeR?.type).toBe("r");
+    expect(etapeR?.valeur).toBe("a");
+    expect(etapeR?.sortie ?? "").withContext("sortie r:a = « Action. » (choix rouge)").toContain("Action");
+  });
+
+  it("[F050-MAG-INS-T020] cancel pendant 'inserer-reponse' : cascade rollback retire le c: du .rec", () => {
+    const fichier = fichierMinimalAvecRegarder();
+    const nbAvant = fichier.etapes.length;
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "prendre clé";
+    lecteur.magnetoValiderSaisie(); // entre en 'inserer-reponse'
+
+    expect(lecteur.magnetoEdition).toBe("inserer-reponse");
+    expect(fichier.etapes.length).withContext("c: bien splicé avant l'annulation").toBe(nbAvant + 1);
+
+    lecteur.magnetoAnnulerSaisie();
+
+    expect(lecteur.magnetoEdition).withContext("retour à l'état 'aucun' après annulation").toBe("aucun");
+    expect(fichier.etapes.length)
+      .withContext("cascade rollback : le c: orphelin a été retiré du .rec")
+      .toBe(nbAvant);
+    expect(fichier.etapes.some(e => e.valeur === "prendre clé"))
+      .withContext("plus aucune trace du c:prendre clé")
+      .toBeFalse();
+  });
+
+  // ============================================================
+  //  Cas K : Recommencer le replay depuis l'intro
+  // ============================================================
+
+  it("[F050-MAG-RESTART-T001] magnetoRecommencer : reset magnetoIdx à 0, émet l'event parent de reload, garde le .rec", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    // Avancer de quelques étapes pour s'éloigner du début.
+    lecteur.magnetoPasSuivant(); // r:a
+    lecteur.magnetoPasSuivant(); // c:tester
+    lecteur.magnetoPasSuivant(); // r:b
+    expect(lecteur.magnetoIdx).withContext("on a bien avancé avant le reset").toBeGreaterThan(0);
+
+    const emitSpy = spyOn(lecteur.nouvellePartieOuAnnulerTour, 'emit');
+
+    lecteur.magnetoRecommencer();
+
+    expect(lecteur.magnetoIdx).withContext("magnetoIdx remis à 0").toBe(0);
+    expect(lecteur.magnetoDivergence).toBeNull();
+    expect(lecteur.magnetoDivergenceIntro).toBeNull();
+    expect(lecteur.magnetoEdition).toBe("aucun");
+    expect(lecteur.enregistrementEnCours).withContext("le .rec est conservé pour la relance").toBe(fichier);
+    expect((lecteur as any).enregistrementEnAttente).withContext("magnéto marqué en attente de relance").toBeTrue();
+    expect(emitSpy).withContext("event de reload parent émis").toHaveBeenCalled();
+    expect(lecteur.enregistrementActions.some(a => a.action === 'recommencé'))
+      .withContext("action « recommencé » loguée")
+      .toBeTrue();
+  });
+
+  it("[F050-MAG-INS-T030] insertion c: SANS interruption (commande ordinaire) : pas de transition en 'inserer-reponse'", () => {
+    const fichier = fichierMinimalAvecRegarder();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioCles, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant();
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "x clé rouge"; // commande sans ambiguïté → pas de question
+    lecteur.magnetoValiderSaisie();
+
+    expect(lecteur.magnetoEdition)
+      .withContext("aucune interruption de choix → retour direct à 'aucun'")
+      .toBe("aucun");
+    expect(lecteur.magnetoChoixPendantApresInsertion).toBeFalse();
+  });
+
   it("[F050-MAG-NAV-T072] modification d'un r: vide magnetoIdxReponsesChoix (les indices décalés ne traînent pas)", () => {
     const fichier = enregistrerScenarioReference();
     const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
