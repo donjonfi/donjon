@@ -328,10 +328,13 @@ règle avant commencer le jeu:
 fin règle
 ` + actions;
 
-    // Recording : on capture la sortie observable à la pause sur le choisir.
-    const ctxRec = nouvellePartie(scenario);
-    jouerIntroDirect(ctxRec);
-    const fichier = ctxRec.creerFichierEnregistrement();
+    // Recording : passer par le lecteur (et non `nouvellePartie + jouerIntroDirect`),
+    // car le lecteur enregistre AUSSI la liste des choix dans sortieIntro (cf.
+    // lecteur.component.ts:667). Sans ça, le recording manquerait la liste « <ul>...</ul> »
+    // que le replay produit → fausse divergence d'intro.
+    const jeuRec = TestUtils['genererLeJeu'](scenario, false);
+    const lecteurRec = instancierLecteurComplet(jeuRec, undefined);
+    const fichier = (lecteurRec as any).partie.creerFichierEnregistrement() as FichierEnregistrement;
     // On ajoute une étape r pour la réponse au choix (1ère commande post-intro).
     fichier.etapes.push({ type: 'r', valeur: 'a', sortie: '' });
 
@@ -468,14 +471,21 @@ règle avant commencer le jeu:
 fin règle
 ` + actions;
 
-    const ctxRec = nouvellePartie(scenario);
-    jouerIntroDirect(ctxRec);
-    const fichier = ctxRec.creerFichierEnregistrement();
+    // Recording via lecteur (et pas `nouvellePartie + jouerIntroDirect`) pour capturer
+    // la liste des choix dans sortieIntro et éviter une fausse divergence d'intro qui
+    // ferait sortir magnetoPrecedent par la branche `magnetoDivergenceIntro` (early-return
+    // sans envoi d'« annuler ») — cf. T021.
+    const jeuRec = TestUtils['genererLeJeu'](scenario, false);
+    const lecteurRec = instancierLecteurComplet(jeuRec, undefined);
+    const fichier = (lecteurRec as any).partie.creerFichierEnregistrement() as FichierEnregistrement;
     fichier.etapes.push({ type: 'r', valeur: 'a', sortie: '' });
 
     const jeuReplay = TestUtils['genererLeJeu'](scenario, false);
     const lecteur = instancierLecteurComplet(jeuReplay, fichier);
     expect(lecteur.enregistrementActif).toBeTrue();
+    expect(lecteur.magnetoDivergenceIntro)
+      .withContext('intro identique côté record/replay : pas de divergence — sinon magnetoPrecedent sort par la branche intro')
+      .toBeNull();
 
     const idxAvantPasSuivant = lecteur.magnetoIdx;
     const calls: string[] = [];

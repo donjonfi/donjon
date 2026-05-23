@@ -473,4 +473,185 @@ La chaise bleue est un objet vue ici.
     expect(r?.sortie ?? "").withContext("la sortie modifiée doit refléter la chaise bleue").toContain("chaise bleue");
   });
 
+  // ============================================================
+  //  Cas G : Supprimer interdit sur une réponse à un choix
+  //  (UI : bouton désactivé ; méthode : early-return défensif)
+  // ============================================================
+
+  it("[F050-MAG-NAV-T050] Supprimer no-op sur r:b (réponse à action choisir) : etapes inchangées, retraits = 0", () => {
+    const fichier = enregistrerScenarioReference();
+    const nbEtapesAvant = fichier.etapes.length;
+    const snapshotEtapes = JSON.stringify(fichier.etapes);
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // r:a
+    lecteur.magnetoPasSuivant(); // c:tester
+    lecteur.magnetoPasSuivant(); // r:b
+    expect(lecteur.magnetoEtapeCouranteEstReponse).toBeTrue();
+
+    lecteur.magnetoSupprimerCommande();
+
+    expect(fichier.etapes.length)
+      .withContext("Supprimer sur un r: doit être no-op (le choix resterait sans réponse)")
+      .toBe(nbEtapesAvant);
+    expect(JSON.stringify(fichier.etapes))
+      .withContext("etapes inchangées après Supprimer no-op")
+      .toBe(snapshotEtapes);
+    expect(lecteur.enregistrementCompteurs.retraits)
+      .withContext("compteur retraits inchangé")
+      .toBe(0);
+  });
+
+  it("[F050-MAG-NAV-T051] Supprimer no-op sur r:1 (réponse à désambiguïsation questionCommande)", () => {
+    const fichier = enregistrerScenarioChaises("1");
+    const nbEtapesAvant = fichier.etapes.length;
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioChaises, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // c:prendre chaise
+    lecteur.magnetoPasSuivant(); // r:1
+    expect(lecteur.magnetoEtapeCouranteEstReponse).toBeTrue();
+
+    lecteur.magnetoSupprimerCommande();
+
+    expect(fichier.etapes.length)
+      .withContext("Supprimer no-op aussi sur r: de désambiguïsation (questionCommande)")
+      .toBe(nbEtapesAvant);
+    expect(lecteur.enregistrementCompteurs.retraits).toBe(0);
+  });
+
+  it("[F050-MAG-NAV-T052] Supprimer reste actif sur une c: (commande ordinaire)", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    let safety = 10;
+    while (lecteur.magnetoIdx < fichier.etapes.length && safety-- > 0) {
+      lecteur.magnetoPasSuivant();
+      if (lecteur.magnetoDivergence) break;
+    }
+    // Le curseur est sur la dernière étape c:x boussole.
+    expect(lecteur.magnetoEtapeCouranteEstReponse).toBeFalse();
+    const nbEtapesAvant = fichier.etapes.length;
+
+    lecteur.magnetoSupprimerCommande();
+
+    expect(fichier.etapes.length)
+      .withContext("Supprimer sur une c: doit fonctionner")
+      .toBe(nbEtapesAvant - 1);
+    expect(lecteur.enregistrementCompteurs.retraits).toBe(1);
+  });
+
+  // ============================================================
+  //  Cas H : Modifier autorisé sur une réponse à un choix
+  //  (le getter magnetoEtapeCouranteEstChoix ne désactive plus Modifier)
+  // ============================================================
+
+  it("[F050-MAG-NAV-T060] Modifier accessible sur r:b (choisir d'action) : le getter Choix ne gate plus Modifier", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // r:a (intro)
+    lecteur.magnetoPasSuivant(); // c:tester
+    lecteur.magnetoPasSuivant(); // r:b
+
+    // Le getter "est un choix" reste vrai (utile pour Insérer avant + libellé saisie),
+    // mais Modifier doit être accessible : l'expression de disable de la toolbar
+    // n'inclut plus magnetoEtapeCouranteEstChoix.
+    expect(lecteur.magnetoEtapeCouranteEstChoix).toBeTrue();
+    expect(lecteur.magnetoEtapeCouranteEstReponse).toBeTrue();
+
+    lecteur.magnetoEntrerModification();
+    expect(lecteur.magnetoEdition)
+      .withContext("Modifier doit pouvoir entrer en mode édition sur un r: de choisir")
+      .toBe("modifier");
+  });
+
+  // ============================================================
+  //  Cas I : chaîne de Précédent / Pas suivant sans crash
+  //  (le « ça plante » du report utilisateur ne doit plus jeter d'exception)
+  // ============================================================
+
+  it("[F050-MAG-NAV-T070] 5× (Précédent + Pas suivant) sur r:b : aucune exception levée, magnetoIdxReponsesChoix consistant", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // r:a
+    lecteur.magnetoPasSuivant(); // c:tester
+    lecteur.magnetoPasSuivant(); // r:b
+
+    const idxRb = fichier.etapes.findIndex(e => e.type === "r" && e.valeur === "b");
+    expect((lecteur as any).magnetoIdxReponsesChoix.has(idxRb))
+      .withContext("après Pas suivant past r:b, l'index est dans la trace des r de choisir")
+      .toBeTrue();
+
+    expect(() => {
+      for (let i = 0; i < 5; i++) {
+        lecteur.magnetoPrecedent();
+        lecteur.magnetoPasSuivant();
+      }
+    }).not.toThrow();
+
+    expect(conseilChoisirPendantEmis(lecteur))
+      .withContext("aucun conseil « n'est plus pendant » émis sur la chaîne de navigation")
+      .toBeFalse();
+  });
+
+  it("[F050-MAG-NAV-T071] chaîne 10× Précédent puis 10× Pas suivant : pas d'exception, état cohérent", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    // Avancer jusqu'à c:x boussole.
+    let safety = 10;
+    while (lecteur.magnetoIdx < fichier.etapes.length && safety-- > 0) {
+      lecteur.magnetoPasSuivant();
+      if (lecteur.magnetoDivergence) break;
+    }
+
+    expect(() => {
+      for (let i = 0; i < 10; i++) lecteur.magnetoPrecedent();
+      for (let i = 0; i < 10; i++) {
+        if (lecteur.magnetoIdx >= fichier.etapes.length) break;
+        lecteur.magnetoPasSuivant();
+      }
+    }).withContext("chaîne longue Précédent/Pas suivant ne doit pas jeter").not.toThrow();
+
+    expect(conseilChoisirPendantEmis(lecteur))
+      .withContext("aucun conseil « n'est plus pendant » durant la chaîne longue")
+      .toBeFalse();
+  });
+
+  it("[F050-MAG-NAV-T072] modification d'un r: vide magnetoIdxReponsesChoix (les indices décalés ne traînent pas)", () => {
+    const fichier = enregistrerScenarioReference();
+    const jeuReplay = TestUtils["genererLeJeu"](scenarioUtilisateur, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+
+    lecteur.magnetoPasSuivant(); // r:a
+    lecteur.magnetoPasSuivant(); // c:tester
+    lecteur.magnetoPasSuivant(); // r:b
+
+    // À ce stade la trace contient les deux indices (r:a intro + r:b action).
+    expect((lecteur as any).magnetoIdxReponsesChoix.size)
+      .withContext("trace des r de choisir alimentée pendant le replay forward")
+      .toBeGreaterThanOrEqual(1);
+
+    lecteur.magnetoEntrerModification();
+    lecteur.magnetoSaisieCommande = "a";
+    lecteur.magnetoValiderSaisie();
+
+    // Après modification, le Set doit avoir été purgé pour éviter les indices décalés.
+    // Il peut être re-rempli si magnetoValiderSaisie enchaîne un Pas suivant ; on vérifie
+    // simplement que tous les indices restants pointent bien sur des r: réels.
+    const set = (lecteur as any).magnetoIdxReponsesChoix as Set<number>;
+    for (const idx of set) {
+      expect(fichier.etapes[idx]?.type)
+        .withContext(`l'index ${idx} dans magnetoIdxReponsesChoix doit pointer sur un r:`)
+        .toBe("r");
+    }
+  });
+
 });

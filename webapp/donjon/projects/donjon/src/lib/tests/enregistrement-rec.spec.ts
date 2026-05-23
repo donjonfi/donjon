@@ -502,14 +502,18 @@ describe('Enregistrement (.rec) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    lecteur.magnetoPasSuivant();   // pousse une étape ; le récap s'affiche
-    lecteur.recapReculer();        // pousse une action « reculé »
+    lecteur.magnetoPasSuivant();   // pousse une étape ; on est en fin de replay
+    lecteur.magnetoPrecedent();    // pousse une action « reculé »
 
     expect(lecteur.enregistrementActions.some(a => a.action === 'reculé')).toBeTrue();
     expect(lecteur.recapActionsAffichables.some(a => a.action === 'reculé')).toBeFalse();
   });
 
-  it('[F050-MAG-T017] recapReculer ré-active la enregistrement, ferme le récap et envoie « annuler »', () => {
+  it('[F050-MAG-T017] fin de replay : enregistrementActif reste true et le magnéto reste interactif (pas de popup bloquante)', () => {
+    // Avant : afficherRecap désactivait enregistrementActif et ouvrait une modale qui
+    // masquait la sortie de la dernière étape. Désormais, en fin de replay le mode
+    // enregistrement reste actif pour permettre à l'utilisateur de voir le résultat à
+    // l'écran et d'enchaîner avec Insérer/Modifier/Supprimer/Télécharger.
     const scenario = `La salle est un lieu.\n` + actions;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const fichier = fichierMinimal([
@@ -517,15 +521,34 @@ describe('Enregistrement (.rec) — mode magnéto', () => {
     ]);
     const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    lecteur.magnetoPasSuivant();   // unique étape jouée → récap affiché
-    expect(lecteur.recapAffiche).toBeTrue();
-    expect(lecteur.enregistrementActif).toBeFalse();
+    lecteur.magnetoPasSuivant();   // dernière (unique) étape jouée → fin de replay
+    expect(lecteur.magnetoIdx).toBe(fichier.etapes.length);
+    expect(lecteur.enregistrementActif).withContext('mode magnéto doit rester actif en fin de replay').toBeTrue();
+    expect(lecteur.recapAffiche).withContext('plus de modale récap').toBeFalse();
+    // Le curseur reste posé sur la dernière étape : Modifier/Insérer doivent rester applicables.
+    expect(lecteur.magnetoIdxCommande).toBeGreaterThanOrEqual(0);
+    expect(lecteur.magnetoEstSurIntro).toBeFalse();
+  });
 
-    lecteur.recapReculer();
+  it('[F050-MAG-T017b] fin de replay : Insérer "après" ajoute une étape à la fin et le magnéto reste actif', () => {
+    const scenario = `La salle est un lieu.\n` + actions;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+    const fichier = fichierMinimal([
+      { type: 'c', valeur: 'attendre', sortie: 'Vous attendez.{N}' },
+    ]);
+    const lecteur = creerLecteurMagneto(ctx, fichier);
 
-    expect(lecteur.recapAffiche).toBeFalse();
-    expect(lecteur.enregistrementActif).toBeTrue();
-    expect((lecteur as any).envoyerCommande).toHaveBeenCalledWith('annuler', 'annuler', true, true, true, false);
+    lecteur.magnetoPasSuivant(); // joue c:attendre, fin du replay
+    const nbAvant = fichier.etapes.length;
+
+    lecteur.magnetoEntrerInsertion('apres');
+    expect(lecteur.magnetoEdition).toBe('inserer');
+    lecteur.magnetoSaisieCommande = 'regarder';
+    lecteur.magnetoValiderSaisie();
+
+    expect(fichier.etapes.length).withContext('une étape supplémentaire ajoutée à la fin').toBe(nbAvant + 1);
+    expect(fichier.etapes[fichier.etapes.length - 1].valeur).toBe('regarder');
+    expect(lecteur.enregistrementActif).withContext('magnéto reste actif après ajout en fin').toBeTrue();
   });
 
   it('[F050-MAG-T021] Précédent + Pas suivant : tirage aléatoire identique (snapshot PRNG restauré)', () => {

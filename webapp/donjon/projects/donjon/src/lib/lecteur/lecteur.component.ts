@@ -519,9 +519,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   private ajouterContenuHtmlAvecTagsDonjon(contenu: string) {
 
     if (contenu) {
-      // en mode auto-triche ou restauration partie, on n’attend pas !
-      if (this.autoTricheActif || this.autoTricheEnAttente || this.restaurationSauvegardeEnAttente) {
-        // contenu = contenu.replace(/@@attendre touche@@/g, '{n}{/Appuyez sur une touche…/}{n}')
+      // en mode auto-triche, restauration partie ou MAGNÉTO (replay d'un .rec), on n’attend
+      // pas la touche : le marker `@@attendre touche@@` inline dans un `dire` est remplacé
+      // par un placeholder visuel et la chute est affichée immédiatement après. Sans ça, le
+      // magnéto se retrouvait avec resteDeLaSortie pendante en fin de Pas suivant —
+      // l'utilisateur voyait le prompt « Appuyez sur une touche… » mais la chute ne sortait
+      // jamais (puisque magnetoPasSuivant ne déclenche pas onKeyDown/afficherSuiteSortie).
+      if (this.autoTricheActif || this.autoTricheEnAttente || this.restaurationSauvegardeEnAttente || this.enregistrementActif) {
         contenu = contenu.replace(/@@attendre touche@@/g, '<br><span class="t-commande font-italic">Appuyez sur une touche…</span><br>')
       }
 
@@ -1395,6 +1399,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // tomber sur la première étape c ou r — point d'entrée du magnéto.
     this.magnetoIdx = this.avancerJusquAEtapeJouable(0, /*sauterGrainInitiale*/ true);
 
+    // Re-consommer les attendre touche/secondes pendantes : une routine d: forcée
+    // silencieusement par avancerJusquAEtapeJouable a pu laisser une interruption en place.
+    this.terminerInterruptionsBloquantesPourMagneto();
+
     // Comparer la sortie d'intro produite par la partie en cours à celle stockée dans le .rec.
     // Si elles diffèrent, ouvrir une divergence intro avant tout pas suivant.
     if (this.enregistrementEnCours.sortieIntro !== undefined &&
@@ -1477,6 +1485,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.jeu.tamponRoutinesEnAttente.push(routine);
     this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
     this.traiterProchaineRoutine();
+    // Si la routine forcée contient un `attendre touche` ou `attendre N secondes`, on
+    // doit auto-presser/auto-consommer comme pour une c/r, sinon le magnéto resterait
+    // bloqué sur l'interruption en fin d'étape `d` (l'utilisateur devrait cliquer Suivant
+    // sans rien faire pour la consommer).
+    this.terminerInterruptionsBloquantesPourMagneto();
     const sortieObtenue = this.partie.derniereSortieEnregistree ?? '';
     if (etape.sortie !== undefined && etape.sortie !== sortieObtenue) {
       const diff = LecteurComponent.calculerDiffSorties(etape.sortie, sortieObtenue);
@@ -1782,6 +1795,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
     if (this.magnetoDivergence) {
       const d = this.magnetoDivergence;
+      // Une réponse à un choix (r:) ne peut pas être supprimée : retirer un r:
+      // laisserait l'interruption choisir/question sans réponse côté replay.
+      if (d.etape.type === 'r') return;
       idxCible = d.idx;
       valeurEtape = d.etape.valeur;
       // Pas d'annuler quand la routine n'a jamais été exécutée (routine introuvable) :
@@ -1794,6 +1810,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       idxCible = this.magnetoIdxCommande;
       if (idxCible < 0) return;
       const etape = this.enregistrementEnCours.etapes[idxCible];
+      // Idem hors divergence : pas de suppression d'un r: (cf. note ci-dessus).
+      if (etape.type === 'r') return;
       valeurEtape = etape.valeur;
       this.executerCommandeAffichee('annuler');
       this.magnetoIdx = idxCible;
@@ -1801,6 +1819,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
     this.enregistrementEnCours.etapes.splice(idxCible, 1);
     this.magnetoSnapshotsRng.clear();
+    // Les indices stockés dans magnetoIdxReponsesChoix sont désormais décalés par le splice :
+    // on les vide. Les r: à venir seront re-marqués lors de leur prochaine exécution.
+    this.magnetoIdxReponsesChoix.clear();
     this.enregistrementCompteurs.retraits++;
     this.enregistrementActions.push({ idx: idxCible, action: 'supprimé', detail: `« ${valeurEtape} »` });
     this.magnetoIdx = this.avancerJusquAEtapeJouable(idxCible, false);
@@ -1952,6 +1973,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.magnetoDivergence) {
       const d = this.magnetoDivergence;
       this.magnetoSnapshotsRng.clear();
+      // Splice/modification mute des indices : on vide la trace des r: déjà replayés
+      // pour qu'elle soit re-remplie lors du prochain Pas suivant.
+      this.magnetoIdxReponsesChoix.clear();
       if (this.magnetoEdition === 'modifier') {
         const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
         this.enregistrementEnCours.etapes[d.idx] = { type: typeNouvelle, valeur: cmd, sortie: sortieNouvelle };
@@ -1971,6 +1995,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // Pas de divergence : on opère sur l'étape à venir (magnetoIdx).
       const idx = this.magnetoIdx;
       this.magnetoSnapshotsRng.clear();
+      this.magnetoIdxReponsesChoix.clear();
       if (this.magnetoEdition === 'modifier') {
         const ancienne = this.enregistrementEnCours.etapes[idx];
         const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
@@ -2076,7 +2101,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.enregistrementEnCours.etapes[idx]?.type === 'd';
   }
 
-  /** Vrai quand l'étape courante est une réponse à un `choisir` (statique ou libre) : modifier non applicable tant que le bug de modif de choix n'est pas corrigé. */
+  /** Vrai quand l'étape courante est une réponse à un `choisir` (statique ou libre). Sert
+   *  à interdire l'insertion AVANT (séparerait c qui pose le choisir, et r qui y répond)
+   *  et à libeller le panneau d'édition « Nouveau choix ». La modification d'un r: lié à
+   *  un choisir est désormais supportée (re-jeu de la c source via rejouerSourceChoisirPourMagneto). */
   public get magnetoEtapeCouranteEstChoix(): boolean {
     if (!this.enregistrementEnCours) return false;
     const idx = this.magnetoIdxCommande;
@@ -2191,11 +2219,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return result;
   }
 
-  /** Affiche le panneau récap de fin. */
+  /**
+   * Marque le replay comme terminé. On NE désactive PAS le mode enregistrement et on
+   * n'ouvre PAS de modale : l'utilisateur doit pouvoir voir la sortie de la dernière
+   * étape, et peut encore Insérer/Modifier/Supprimer/Télécharger via la toolbar. Pour
+   * quitter le mode, il clique sur Quitter (croix en bout de toolbar).
+   * (Avant : ouverture d'une modale popup qui masquait la sortie de jeu — le user
+   * devait refermer la modale pour voir le résultat de la dernière étape.)
+   */
   private afficherRecap(): void {
-    this.enregistrementActif = false;
     this.partie.ins.restaurationPartieEnCours = false;
-    this.recapAffiche = true;
   }
 
   /**

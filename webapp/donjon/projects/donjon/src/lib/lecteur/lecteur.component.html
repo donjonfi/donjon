@@ -151,8 +151,11 @@
           } @else {
             Commande exécutée : <code>{{ enregistrementEnCours.etapes[magnetoIdxCommande].valeur }}</code>
           }
+          @if (magnetoIdx >= enregistrementEnCours.etapes.length) {
+            <span class="djn-magneto-fin" title="Toutes les étapes du fichier ont été rejouées. Vous pouvez ajouter une étape avec « Insérer » → « Après », ou télécharger l'enregistrement."><i class="fas fa-fw fa-flag-checkered me-1"></i>fin du replay</span>
+          }
         } @else {
-          <em>Fin de l'enregistrement.</em>
+          <em>Avant la première commande.</em>
         }
       </div>
 
@@ -168,7 +171,7 @@
         }
         @if (!magnetoEstSurIntro) {
           <span class="djn-magneto-sep"></span>
-          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine || magnetoEtapeCouranteEstChoix" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
+          <button class="btn btn-sm btn-donjon-orange" (click)="magnetoEntrerModification()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Remplacer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-pen me-1"></i>Modifier</button>
           <div class="djn-magneto-insert-wrap">
             <button class="btn btn-sm btn-donjon-orange" type="button" (click)="magnetoInsererMenuOuvert = !magnetoInsererMenuOuvert" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstRoutine" title="Insérer une commande avant ou après celle qui vient d'être exécutée"><i class="fas fa-fw fa-plus me-1"></i>Insérer<i class="fas fa-fw fa-caret-down ms-1"></i></button>
             @if (magnetoInsererMenuOuvert) {
@@ -182,7 +185,7 @@
               </div>
             }
           </div>
-          <button class="btn btn-sm btn-donjon-rouge" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Retirer la commande qui vient d'être exécutée"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
+          <button class="btn btn-sm btn-donjon-rouge" (click)="magnetoSupprimerCommande()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun' || magnetoEtapeCouranteEstReponse" [title]="magnetoEtapeCouranteEstReponse ? 'Une réponse à un choix ne peut pas être supprimée (sinon le choix resterait sans réponse) — utilisez Modifier pour la changer.' : 'Retirer la commande qui vient d\'être exécutée'"><i class="fas fa-fw fa-trash me-1"></i>Supprimer</button>
         }
         <span class="djn-magneto-spacer"></span>
         <button class="btn btn-sm btn-outline-success" (click)="magnetoTelechargerSauvegarde()" title="Télécharger une sauvegarde du .rec à cet état"><i class="fas fa-fw fa-floppy-disk"></i></button>
@@ -277,33 +280,6 @@
             </span>
           </div>
         }
-      </div>
-    </div>
-  }
-
-  @if (recapAffiche) {
-    <div class="djn-modale-enr-overlay">
-      <div class="djn-modale-enr-panneau">
-        <h3 class="djn-modale-enr-titre">Récapitulatif de la session d'enregistrement</h3>
-        <div class="djn-recap-enr-compteurs">
-          <span class="djn-recap-enr-compteur">Acceptations : <strong>{{ enregistrementCompteurs.acceptations }}</strong></span>
-          <span class="djn-recap-enr-compteur">Retraits : <strong>{{ enregistrementCompteurs.retraits }}</strong></span>
-          <span class="djn-recap-enr-compteur">Modifications : <strong>{{ enregistrementCompteurs.modifications }}</strong></span>
-          <span class="djn-recap-enr-compteur">Ajouts : <strong>{{ enregistrementCompteurs.ajouts }}</strong></span>
-        </div>
-        @if (recapActionsAffichables.length === 0) {
-          <div class="djn-recap-enr-succes">
-            <div class="djn-recap-enr-coche" aria-hidden="true">✓</div>
-            <p class="djn-recap-enr-succes-texte">Aucune modification — toutes les sorties correspondaient.</p>
-          </div>
-        }
-        <div class="djn-modale-enr-actions">
-          <button class="btn btn-outline-secondary" (click)="recapReculer()" title="Revenir d'une étape en arrière pour modifier l'enregistrement"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
-          @if (recapActionsAffichables.length > 0) {
-            <button class="btn btn-success" (click)="recapTelecharger()"><i class="fas fa-fw fa-download me-1"></i>Télécharger l'enregistrement mis à jour</button>
-          }
-          <button class="btn btn-secondary" (click)="recapFermer()"><i class="fas fa-fw fa-xmark me-1"></i>Fermer</button>
-        </div>
       </div>
     </div>
   }
