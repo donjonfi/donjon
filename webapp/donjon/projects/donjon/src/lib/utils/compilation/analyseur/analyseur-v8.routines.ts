@@ -770,7 +770,12 @@ export class AnalyseurV8Routines {
       debutFinRoutineTrouve = true;
       routine.ouvert = false;
 
-      if (finRoutineTrouve === routine.type) {
+      // une routine action ouverte via « règle remplacer X » accepte aussi `fin règle`.
+      const estRemplacementOuvertCommeRegle = (routine instanceof RoutineAction)
+        && routine.action?.remplace === true
+        && finRoutineTrouve === ERoutine.regle;
+
+      if (finRoutineTrouve === routine.type || estRemplacementOuvertCommeRegle) {
         routine.correctementFini = true;
         ctx.logResultatOk(`🟧 fin ${Routine.TypeToMotCle(routine.type, false)}`);
       } else {

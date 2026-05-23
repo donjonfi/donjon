@@ -47,7 +47,7 @@ export class Verificateur {
         this.forcerFermetureRoutine(phrase.ligne - 1, ctx);
       }
       // ajouter la nouvelle routine
-      ctx.routines.push(new Routine(typeBloc, phrase.ligne));
+      ctx.routines.push(new Routine(typeBloc, phrase.ligne, true, estRegleRemplacer));
       return true;
     } else {
       return false;
@@ -69,7 +69,7 @@ export class Verificateur {
         this.forcerFermetureRoutine(phrase.ligne - 1, ctx);
       }
       // ajouter la nouvelle routine
-      ctx.routines.push(new Routine(typeBloc, phrase.ligne));
+      ctx.routines.push(new Routine(typeBloc, phrase.ligne, true, estRegleRemplacer));
       return true;
     } else {
       return false;
@@ -82,9 +82,13 @@ export class Verificateur {
     // fermeture d’une routine (règle, action, réaction, …)
     if (fermetureRoutine) {
       const typeRoutine = Routine.ParseType(fermetureRoutine[1]);
-      // si on ferme le type routine actuellement ouverte
-      if (ctx.derniereRoutine?.type === typeRoutine) {
-        // fermer la routine normalement
+      // un bloc « règle remplacer X » est interne de type action mais accepte
+      // aussi `fin règle` (puisque l’auteur l’a ouvert avec « règle … »).
+      const ferme = ctx.derniereRoutine?.type === typeRoutine
+        || (ctx.derniereRoutine?.viaRegleRemplacer
+          && ctx.derniereRoutine?.type === ERoutine.action
+          && typeRoutine === ERoutine.regle);
+      if (ferme) {
         this.fermerRoutine(phrase.ligne, ctx);
         // sinon le fin routine n'est pas prévu
       } else {

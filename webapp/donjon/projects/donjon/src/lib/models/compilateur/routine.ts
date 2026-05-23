@@ -8,7 +8,9 @@ export class Routine extends BlocInstructions {
     /** Ligne du scénario contenant le début du bloc */
     public debut: number,
     /** Le bloc est-il toujours ouvert ? */
-    public ouvert: boolean = true
+    public ouvert: boolean = true,
+    /** Le bloc a été ouvert via « règle remplacer … » : accepter `fin règle` comme `fin action`. */
+    public viaRegleRemplacer: boolean = false
   ) {
     super();
   }

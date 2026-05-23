@@ -1073,8 +1073,8 @@ export class ExprReg {
    */
   static readonly xDebutRoutine = /^(r(?:è|e|é)gle|(?:ré|rè|re|)action(?:s)?|routine)\b/i;
 
-  /** Préfixe `règle remplacer ` consommé en tête d’une entête `règle remplacer <verbe> [ceci] [cela]`. */
-  static readonly xRegleRemplacerAction = /^r(?:è|e|é)gle\s+remplacer\s+(?=\w)/i;
+  /** Préfixe `règle remplacer [action] ` consommé en tête d’une entête `règle remplacer [action] <verbe> [ceci] [cela]`. */
+  static readonly xRegleRemplacerAction = /^r(?:è|e|é)gle\s+remplacer\s+(?:action\s+)?(?=\w)/i;
 
   /**
    * fin règle|action|réaction|routine(1)
