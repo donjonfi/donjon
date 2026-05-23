@@ -48,6 +48,15 @@ describe('règle remplacer action: expressions régulières', () => {
     expect(ExprReg.xRegleRemplacerAction.exec('règle remplacer ')).toBeFalsy();
   });
 
+  it('[F061-T006] xRegleRemplacerAction accepte le mot « action » optionnel après « remplacer »', () => {
+    // « règle remplacer action <verbe> » est équivalent à « règle remplacer <verbe> ».
+    const match = ExprReg.xRegleRemplacerAction.exec('règle remplacer action sauter');
+    expect(match).toBeTruthy();
+    // le préfixe consommé doit inclure « action » pour que le reste = « sauter ».
+    const reste = 'règle remplacer action sauter'.substring(match![0].length);
+    expect(reste).toEqual('sauter');
+  });
+
 });
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -281,6 +290,52 @@ describe('règle remplacer action: comportement', () => {
     expect(variantesParCible['lieu']).toBeTruthy();
     expect(variantesParCible['lieu'].remplace).toBeFalse();
     expect(JSON.stringify(variantesParCible['lieu'].phaseEpilogue)).toContain('À lieu — défaut.');
+  });
+
+  it('[F061-T109] « fin règle » ferme un bloc « règle remplacer » (verbatim)', function () {
+    // Cas signalé comme bogue: l’auteur ouvre avec « règle remplacer » et veut fermer avec « fin règle ».
+    const scenario = `
+      le salon est un lieu.
+      le joueur se trouve dans le salon.
+      action sauter:
+        dire "Saut par défaut.".
+      fin action
+      règle remplacer action sauter:
+        dire "Quelle vue !".
+      fin règle
+    `;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    const actionsSauter = actionsMatchant(ctx.jeu, 'sauter', false, false);
+    expect(actionsSauter.length).toBe(1);
+    expect(actionsSauter[0].remplace).toBeTrue();
+
+    const sortie = ctx.com.executerCommande('sauter', false);
+    // espace insécable typographique inséré avant `!` — on tolère toute espace
+    expect(sortie.sortie).toMatch(/Quelle vue\s!/);
+// (assertion ci-dessus toMatch tolère U+00A0)
+//xxx expect(sortie.sortie.replace(/ /g, ' ')).toMatch(/Quelle vue\s!/);
+    expect(sortie.sortie).not.toContain('Saut par défaut.');
+  });
+
+  it('[F061-T110] « fin action » ferme aussi un bloc « règle remplacer » (rétro-compat)', function () {
+    // Les deux closers sont acceptés pour ne pas casser les scénarios existants.
+    const scenario = `
+      le salon est un lieu.
+      le joueur se trouve dans le salon.
+      action sauter:
+        dire "Saut par défaut.".
+      fin action
+      règle remplacer sauter:
+        dire "Saut remplacé.".
+      fin action
+    `;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    const sortie = ctx.com.executerCommande('sauter', false);
+    expect(sortie.sortie).toContain('Saut remplacé.');
   });
 
   it('[F061-T104] « règle remplacer » remplace intégralement les 3 phases (prérequis, exécution, épilogue)', function () {
