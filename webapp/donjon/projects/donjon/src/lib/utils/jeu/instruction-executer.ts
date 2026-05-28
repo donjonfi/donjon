@@ -1,7 +1,9 @@
 import { ActionsUtils } from "./actions-utils";
 import { ClasseUtils } from "../commun/classe-utils";
+import { ClassesRacines } from "../../models/commun/classes-racines";
 import { CommandesUtils } from "./commandes-utils";
 import { Commandeur } from "./commandeur";
+import { Compteur } from "../../models/compilateur/compteur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
@@ -9,14 +11,18 @@ import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { ElementsPhrase } from "../../models/commun/elements-phrase";
 import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
+import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { Instructions } from "./instructions";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Objet } from "../../models/jeu/objet";
+import { ParamRoutine } from "../../models/compilateur/param-routine";
+import { PhraseUtils } from "../commun/phrase-utils";
 import { ProgrammationTemps } from "../../models/jeu/programmation-temps";
 import { Resultat } from "../../models/jouer/resultat";
 import { RoutineReaction } from "../../models/compilateur/routine-reaction";
+import { RoutineSimple } from "../../models/compilateur/routine-simple";
 
 export class InstructionExecuter {
 
@@ -216,35 +222,234 @@ export class InstructionExecuter {
     return res;
   }
 
-  /** Exécuter l’instruction « Exécuter routine nomRoutine » */
+  /**
+   * Exécuter l’instruction « Exécuter routine nomRoutine [avec ARG1 [et ARG2]] [dans N unité] ».
+   *
+   * Phase 1 :
+   *  - appels synchrones avec 0, 1 ou 2 arguments ;
+   *  - appels différés (`dans N seconde`) **sans** arguments uniquement ;
+   *  - résolution de surcharge par arité + types (cf. `bindArg` / `scoreParam`).
+   */
   public executerRoutine(instruction: ElementsPhrase, nbExecutions: number, contexteTour: ContexteTour, evenement: Evenement, declenchements: number): Resultat {
 
     let res = new Resultat(true, "", 1);
 
     // décomposer le complément
     const tokens = ExprReg.xActionExecuterRoutine.exec(instruction.complement1);
-    if (tokens) {
-      const nomRoutine = tokens[1];
-      const temps = tokens[2] ?? undefined;
-      const uniteTemps = tokens[3] ?? undefined;
-
-      const routineTrouvee = this.jeu.routines.filter(x => x.nom == nomRoutine);
-      if (routineTrouvee?.length) {
-        if (uniteTemps) {
-          this.programmerRoutine(instruction, contexteTour, nomRoutine, temps, uniteTemps);
-        } else {
-          res = this.ins.executerInstructions(routineTrouvee[0].instructions, contexteTour, evenement, undefined);
-        }
-      } else {
-        contexteTour.ajouterErreurInstruction(instruction, `La routine simple n’a pas été trouvée: ${instruction.complement1}`);
-        res.succes = false;
-      }
-    } else {
+    if (!tokens) {
       contexteTour.ajouterErreurInstruction(instruction, `Le nom de la routine n’est pas dans un format supporté: ${instruction.complement1}`);
       res.succes = false;
+      return res;
     }
 
+    const nomRoutine = tokens[1];
+    const trailerArgs: string | undefined = tokens[2] ?? undefined;
+    const temps: string | undefined = tokens[3] ?? undefined;
+    const uniteTemps: string | undefined = tokens[4] ?? undefined;
+
+    // Phase 1 : args + délai en même temps non supportés
+    if (trailerArgs !== undefined && uniteTemps !== undefined) {
+      contexteTour.ajouterErreurInstruction(instruction,
+        `Les appels différés avec arguments ne sont pas encore supportés. Soit retirer « avec ${trailerArgs} », soit retirer « dans ${temps} ${uniteTemps} ».`);
+      res.succes = false;
+      return res;
+    }
+
+    // Récupérer toutes les routines partageant le nom (surcharge)
+    const candidatsParNom = this.jeu.routines.filter(x => x.nom === nomRoutine);
+    if (!candidatsParNom.length) {
+      contexteTour.ajouterErreurInstruction(instruction, `La routine n’a pas été trouvée : ${nomRoutine}`);
+      res.succes = false;
+      return res;
+    }
+
+    // Cas appel différé : phase 1 = pas d’args, on cherche une variante sans contrat
+    if (uniteTemps) {
+      const variantSansContrat = candidatsParNom.find(x => !x.ceci);
+      if (!variantSansContrat) {
+        contexteTour.ajouterErreurInstruction(instruction,
+          `La routine ${nomRoutine} attend des arguments et ne peut pas être programmée sans arguments (phase 1).`);
+        res.succes = false;
+        return res;
+      }
+      this.programmerRoutine(instruction, contexteTour, nomRoutine, temps!, uniteTemps);
+      return res;
+    }
+
+    // Découper le trailer en arguments (séparés par « et » à profondeur 0)
+    const args: string[] = trailerArgs ? this.couperTrailerArgs(trailerArgs) : [];
+
+    // Filtrer par arité
+    const candidatsArite = candidatsParNom.filter(r => {
+      const arite = (r.ceci ? 1 : 0) + (r.cela ? 1 : 0);
+      return arite === args.length;
+    });
+    if (!candidatsArite.length) {
+      contexteTour.ajouterErreurInstruction(instruction,
+        `Aucune routine ${nomRoutine} ne correspond avec ${args.length} argument(s).`);
+      res.succes = false;
+      return res;
+    }
+
+    // Tenter le binding pour chaque candidat
+    type Binding = {
+      routine: RoutineSimple;
+      ceciVal: Intitule | undefined;
+      celaVal: Intitule | undefined;
+      score: number;
+    };
+    const bindings: Binding[] = [];
+    for (const r of candidatsArite) {
+      const ceciVal = r.ceci ? this.bindArg(args[0], r.paramCeci!) : undefined;
+      if (r.ceci && !ceciVal) continue;
+      const celaVal = r.cela ? this.bindArg(args[1], r.paramCela!) : undefined;
+      if (r.cela && !celaVal) continue;
+      const score = this.scoreCandidat(r);
+      bindings.push({ routine: r, ceciVal, celaVal, score });
+    }
+
+    if (!bindings.length) {
+      contexteTour.ajouterErreurInstruction(instruction,
+        `Aucune routine ${nomRoutine} ne correspond aux arguments fournis (${args.join(', ')}).`);
+      res.succes = false;
+      return res;
+    }
+
+    // Trier par score décroissant
+    bindings.sort((a, b) => b.score - a.score);
+
+    // Ambiguïté : plusieurs candidats au score max
+    if (bindings.length > 1 && bindings[0].score === bindings[1].score) {
+      contexteTour.ajouterErreurInstruction(instruction,
+        `Plusieurs routines ${nomRoutine} correspondent aux arguments (ambiguïté). Préciser un type plus spécifique dans le bloc {@définitions:@}.`);
+      res.succes = false;
+      return res;
+    }
+
+    // Exécuter le candidat retenu
+    const choisi = bindings[0];
+    const sousContexteTour = new ContexteTour(choisi.ceciVal, choisi.celaVal);
+    res = this.ins.executerInstructions(choisi.routine.instructions, sousContexteTour, evenement, declenchements);
     return res;
+  }
+
+  /**
+   * Découper le trailer d’arguments d’un appel de routine en arguments distincts.
+   * Sépare sur ` et ` à profondeur de guillemets 0 (les chaînes `"…"` sont préservées).
+   * Phase 1 : on s’attend à 1 ou 2 args max.
+   */
+  private couperTrailerArgs(trailer: string): string[] {
+    const args: string[] = [];
+    let dansGuillemets = false;
+    let curr = '';
+    let i = 0;
+    while (i < trailer.length) {
+      const c = trailer[i];
+      if (c === '"') {
+        dansGuillemets = !dansGuillemets;
+        curr += c;
+        i++;
+      } else if (!dansGuillemets && trailer.substring(i, i + 4) === ' et ') {
+        args.push(curr.trim());
+        curr = '';
+        i += 4;
+      } else {
+        curr += c;
+        i++;
+      }
+    }
+    if (curr.trim()) args.push(curr.trim());
+    return args;
+  }
+
+  /**
+   * Lier un argument brut à un paramètre typé.
+   * Retourne un `Intitule` (potentiellement synthétique pour les types `nombre`/`texte`)
+   * que la routine recevra via `ContexteTour.ceci`/`cela`.
+   */
+  private bindArg(argBrut: string, param: ParamRoutine): Intitule | undefined {
+    const arg = argBrut.trim();
+
+    if (param.type === 'nombre') {
+      const valeur = this.resoudreValeurNombre(arg);
+      if (valeur === undefined) return undefined;
+      // Wrapper : un Compteur synthétique permet à `[c ceci]` et `changer ceci` de fonctionner.
+      // Sa mutation interne ne propage rien à l’appelant (sémantique « par valeur »).
+      return new Compteur('valeur', valeur);
+    }
+
+    if (param.type === 'texte') {
+      const texte = this.resoudreValeurTexte(arg);
+      if (texte === undefined) return undefined;
+      return new Intitule(texte, new GroupeNominal(null, texte, null), ClassesRacines.Intitule);
+    }
+
+    // 'classe' : résoudre la classe attendue, puis l’élément, puis vérifier l’héritage.
+    const classeAttendue = ClasseUtils.trouverClasse(this.jeu.classes, param.classeName!);
+    if (!classeAttendue) return undefined;
+    const elem = this.resoudreElementJeu(arg);
+    if (!elem) return undefined;
+    if (!ClasseUtils.heriteDe(elem.classe, classeAttendue.nom)) return undefined;
+    return elem;
+  }
+
+  /** Tente de résoudre l’argument comme valeur entière (littéral ou valeur d’un compteur). */
+  private resoudreValeurNombre(arg: string): number | undefined {
+    if (/^-?\d+$/.test(arg)) return Number.parseInt(arg, 10);
+    const c = this.resoudreCompteur(arg);
+    if (c) return c.valeur;
+    return undefined;
+  }
+
+  /** Tente de résoudre l’argument comme chaîne (littéral `"…"` ou intitulé d’un élément). */
+  private resoudreValeurTexte(arg: string): string | undefined {
+    if (arg.length >= 2 && arg.startsWith('"') && arg.endsWith('"')) {
+      return arg.slice(1, -1);
+    }
+    const elem = this.resoudreElementJeu(arg);
+    if (elem) return elem.intitule ? elem.intitule.toString() : (elem.nom ?? undefined);
+    return undefined;
+  }
+
+  /** Cherche un compteur dont l’intitulé correspond à `arg`. */
+  private resoudreCompteur(arg: string): Compteur | undefined {
+    const gn = PhraseUtils.getGroupeNominalDefiniOuIndefini(arg, false);
+    if (!gn) return undefined;
+    const [, candidats] = ElementsJeuUtils.chercherSurIntitule(gn, this.jeu.compteurs, false);
+    return (candidats.length === 1) ? candidats[0] : undefined;
+  }
+
+  /** Cherche un élément (objet, lieu, compteur, concept) dont l’intitulé correspond à `arg`. */
+  private resoudreElementJeu(arg: string): Intitule | undefined {
+    const gn = PhraseUtils.getGroupeNominalDefiniOuIndefini(arg, false);
+    if (!gn) return undefined;
+    const collections: Intitule[][] = [this.jeu.objets, this.jeu.lieux, this.jeu.compteurs, this.jeu.concepts];
+    for (const col of collections) {
+      const [, candidats] = ElementsJeuUtils.chercherSurIntitule(gn, col, false);
+      if (candidats.length === 1) return candidats[0];
+    }
+    return undefined;
+  }
+
+  /**
+   * Score de spécificité d’un candidat de routine.
+   * Tuple `(scoreCeci, scoreCela)` aplati en `scoreCeci * 10000 + scoreCela`.
+   * `scoreParam` : 0 si absent, 500 si nombre/texte, 1000+ordre si classe.
+   * Conséquence : un param « classe » bat toujours un param « nombre/texte »
+   * indépendamment de la profondeur (kind beats depth).
+   */
+  private scoreCandidat(r: RoutineSimple): number {
+    return this.scoreParam(r.paramCeci) * 10000 + this.scoreParam(r.paramCela);
+  }
+
+  private scoreParam(p?: ParamRoutine): number {
+    if (!p) return 0;
+    if (p.type === 'classe') {
+      const c = ClasseUtils.trouverClasse(this.jeu.classes, p.classeName!);
+      const depth = c ? (c.niveau ?? 0) : 0;
+      return 1000 + depth;
+    }
+    return 500; // nombre / texte
   }
 
   private programmerRoutine(instruction: ElementsPhrase, contexteTour: ContexteTour, routine: string, temps: string, unite: string) {

@@ -1,5 +1,7 @@
+import { ClasseUtils } from "../commun/classe-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
+import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { InstructionsUtils } from "./instructions-utils";
@@ -10,22 +12,22 @@ export class InstructionDireNumerique {
 
   constructor(private eju: ElementsJeuUtils) { }
 
-  calculerBaliseCompteur(texteDynamique: string, evenement: Evenement | undefined): string {
+  calculerBaliseCompteur(texteDynamique: string, evenement: Evenement | undefined, ctxTour: ContexteTour | undefined): string {
     return InstructionsUtils.processBalises(texteDynamique, "c (.+?)", decoupe => {
       const nomBalise = decoupe[1];
-      const val = this.obtenirValeurNumeriqueBalise(nomBalise, evenement);
+      const val = this.obtenirValeurNumeriqueBalise(nomBalise, evenement, ctxTour);
       return val !== null ? val.toString() : "(compteur « " + nomBalise + " » pas trouvé)";
     });
   }
 
-  calculerBalisePluriel(texteDynamique: string, evenement: Evenement | undefined): string {
+  calculerBalisePluriel(texteDynamique: string, evenement: Evenement | undefined, ctxTour: ContexteTour | undefined): string {
     return InstructionsUtils.processBalises(texteDynamique, "s (.+?)", decoupe => {
-      const val = this.obtenirValeurNumeriqueBalise(decoupe[1], evenement);
+      const val = this.obtenirValeurNumeriqueBalise(decoupe[1], evenement, ctxTour);
       return val !== null ? (val <= 1 ? "" : "s") : "";
     });
   }
 
-  private obtenirValeurNumeriqueBalise(nomBalise: string, evenement: Evenement | undefined): number | null {
+  private obtenirValeurNumeriqueBalise(nomBalise: string, evenement: Evenement | undefined, ctxTour: ContexteTour | undefined): number | null {
     const matchTaille = xTailleListe.exec(nomBalise);
     if (matchTaille) {
       const liste = this.eju.trouverListeAvecNom(matchTaille[2]);
@@ -36,6 +38,14 @@ export class InstructionDireNumerique {
     }
     if (nomBalise === 'quantitéCela' || nomBalise === 'quantiteCela') {
       return evenement?.quantiteCela ?? null;
+    }
+    // Param de routine : [c ceci] / [c cela] quand ceci/cela est un compteur
+    // (réel ou synthétique via param `nombre`).
+    if (nomBalise === 'ceci' && ctxTour?.ceci && ClasseUtils.heriteDe(ctxTour.ceci.classe, EClasseRacine.compteur)) {
+      return (ctxTour.ceci as Compteur).valeur;
+    }
+    if (nomBalise === 'cela' && ctxTour?.cela && ClasseUtils.heriteDe(ctxTour.cela.classe, EClasseRacine.compteur)) {
+      return (ctxTour.cela as Compteur).valeur;
     }
     const compteur = this.eju.trouverCompteurAvecNom(nomBalise);
     return compteur !== undefined ? compteur.valeur : null;

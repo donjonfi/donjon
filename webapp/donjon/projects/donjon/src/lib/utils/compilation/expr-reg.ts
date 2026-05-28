@@ -490,8 +490,21 @@ export class ExprReg {
   /** Description d'une action => [refuser|exécuter|terminer]\(1) verbe(2) [ceci(3) [(avec|et|vers) cela(4)]]: instructions(5) */
   static readonly xDescriptionAction = /^(refuser|exécuter|terminer) ((?:se |s'|s\u2019)?\S+(?:ir|er|re))(?:(?: \S+)? (ceci)(?:(?: \S+)? (cela))?)?\s?:(.+)$/i;
 
-  /** Exécuter la routine: la routine nomRoutine(1) [dans 10(2) seconde(3)[s]]  */
-  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)(?: dans ([1-9]\d*) (?:(tour|seconde|minute|heure)s?))?$/i;
+  /**
+   * Exécuter la routine: la routine nomRoutine(1) [avec args(2)] [dans 10(3) seconde(4)[s]]
+   * - Le lookahead `(?=$| avec | dans )` empêche le backtracking sur un appel
+   *   syntaxiquement invalide comme `routine X avec` (sans arg derrière).
+   * - args(2) est un trailer brut découpé en code (sur ` et ` à profondeur 0).
+   * - args(2) + delay(3) en même temps = phase 2 (refusé en phase 1).
+   */
+  static readonly xActionExecuterRoutine = /^(?:(?:la )?routine) (\S+)(?=$| avec | dans )(?: avec (.+?))?(?: dans ([1-9]\d*) (?:(tour|seconde|minute|heure)s?))?$/i;
+  /**
+   * Définition de paramètre dans le bloc « définitions: » d’une routine.
+   * - (1) sujet : ceci|cela
+   * - (2) article : un|une|des  (des sera refusé côté analyseur)
+   * - (3) type    : nombre | texte | <nom de classe>
+   */
+  static readonly xRoutineDefinitionParam = /^(ceci|cela) (?:est|sont) (un|une|des) (\S+)$/i;
   /** Annuler (l’exécution de ) la routine xxxx (1) */
   static readonly xActionAnnulerRoutine = /^(?:l(?:'|\u2019)ex(?:é|e|è)cution de )?(?:(?:la )?routine) (\S+)?$/i;
   /** Exécuter l’action: l’action infinitif(1){ {prepCeci(2)} ceci|cela|ici(3){ {preCela(4)} ceci|celFa|ici(5)}}  */
