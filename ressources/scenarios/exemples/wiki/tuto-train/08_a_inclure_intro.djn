@@ -1,0 +1,13 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 8 — partie intro.
+-- Fichier inclus par 08_a_inclure_principal.djn. Pas à lancer seul (pas de titre, pas de joueur).
+-- Déclare les lieux et le message d’ouverture.
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept, ses banquettes de velours, sa lampe verte.".
+
+Le couloir est un lieu à l’ouest du compartiment sept.
+Sa description est "Le couloir lambrissé du Train-Couchettes.".
+
+règle avant commencer le jeu:
+  dire "Bienvenue. Ce scénario est découpé en trois fichiers — ouvrez-les côte à côte dans l’éditeur pour voir comment l’instruction ''inclure'' les recolle.".
+fin règle

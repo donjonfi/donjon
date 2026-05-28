@@ -1,8 +1,9 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 2, étape B
--- État final du chapitre : tous les lieux + Pétunia + Lucia + la note du maître.
--- Le maître est absent ; la note se lit avec « lire la note » (action prédéfinie).
+-- Tutoriel « Le Cirque Étoile » — Chapitre 2, étape B
+-- État final du chapitre : tous les lieux + Pétunia + Lucia + Aurélien (concept) + la note du maître.
+-- Aurélien est absent : on le déclare comme concept pour pouvoir en parler.
+-- La note se lit avec « lire la note » (action prédéfinie).
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ======================================================
@@ -10,7 +11,7 @@ L’auteur du jeu est "Apprenti·e magicien·ne".
 -- ======================================================
 
 La place du cirque est un lieu.
-Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
+Sa description est "La place du Cirque Étoile, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
 
 La roulotte de Pétunia est un lieu à l’est de la place du cirque.
 Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante de ballons crevés, de confettis incrustés dans les rainures du plancher et d’une odeur têtue de barbe à papa.".
@@ -18,8 +19,8 @@ Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante
 La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
 Sa description est "La roulotte austère de Lucia : des bottes alignées, un fouet roulé sur l’étagère, des photos sépia de fauves apprivoisés au mur.".
 
-La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
-Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Tout est rangé, étiqueté, classé — mais Phosphorus, lui, n’est pas là. Une note posée sur l’établi attire l’œil.".
+La roulotte du maître Aurélien est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Tout est rangé, étiqueté, classé — mais Aurélien, lui, n’est pas là. Une note posée sur l’établi attire l’œil.".
 
 Le chapiteau est un lieu au sud de la place du cirque.
 Sa description est "L’immense tente de toile écarlate et or, vide entre deux représentations.".
@@ -28,11 +29,20 @@ L’arrière-piste est un lieu à l’ouest du chapiteau.
 Sa description est "Les coulisses du chapiteau : cordes enroulées, caisses de costumes, deux miroirs ovales appuyés contre les piquets.".
 
 -- ======================================================
+-- LE MAÎTRE (CONCEPT)
+-- ======================================================
+
+-- Aurélien n’est pas dans un lieu : il est parti en tournée.
+-- On le déclare comme « concept » pour que les autres personnages puissent
+-- en parler (cf. chapitre 3 avec Crépu).
+Aurélien est un concept.
+
+-- ======================================================
 -- PERSONNAGES PRÉSENTS
 -- ======================================================
 
 Pétunia (f) est une personne dans la roulotte de Pétunia.
-Sa description est "Clown vedette du Cirque Phosphène : nez rouge phosphorescent, perruque en spirale, sourire ourdi par mille rictus.".
+Sa description est "Clown vedette du Cirque Étoile : nez rouge scintillant, perruque en spirale, sourire ourdi par mille rictus.".
 
 réaction de Pétunia:
   dire "« Hé, l’apprenti·e ! Tu as l’air sérieux. T’aurais bien besoin d’une bonne blague, je dis ça je dis rien. »".
@@ -42,7 +52,7 @@ Lucia (f) est une personne dans la roulotte de Lucia.
 Sa description est "Élégante, sèche, le regard d’une dompteuse qui n’a jamais cligné devant un tigre. Elle vous toise comme si elle évaluait votre prochaine acrobatie.".
 
 réaction de Lucia:
-  dire "« Mon apprenti·e. Phosphorus m’a parlé de vous. Tâchez de ne rien casser pendant qu’il est absent. »".
+  dire "« Mon apprenti·e. Aurélien m’a parlé de vous. Tâchez de ne rien casser pendant qu’il est absent. »".
 fin réaction
 
 -- ======================================================
@@ -50,10 +60,10 @@ fin réaction
 -- ======================================================
 
 La note du maître est un objet sur l’établi.
-Sa description est "Une feuille de papier épaisse, pliée en quatre, signée d’un grand P à l’encre violette.".
-Son texte est "Mon apprenti·e,{n}je pars en tournée pour une lune entière. Le grimoire et les accessoires sont à toi. Crépu t’enseignera le pas de côté — méfie-toi, il aime se moquer. Et surtout : ne réalise jamais le tour sans avoir réuni les quatre accessoires.{n}— P.".
+Sa description est "Une feuille de papier épaisse, pliée en quatre, signée d’un grand A à l’encre violette.".
+Son texte est "Mon apprenti·e,{n}je pars en tournée pour une lune entière. Le grimoire et les accessoires sont à toi. Crépu t’enseignera le pas de côté — méfie-toi, il aime se moquer. Et surtout : ne réalise jamais le tour sans avoir réuni les quatre accessoires.{n}— A.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 Sa description est "L’établi de travail du maître, en bois ciré. Tout y est rangé au cordeau.".
 
 -- ======================================================

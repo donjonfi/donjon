@@ -1,0 +1,23 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 6, étape A
+-- Basculer sur l’écran secondaire pour un flashback (changement de point de vue).
+-- Concepts : « afficher l’écran secondaire. » + « afficher l’écran principal. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept. Une photo sépia est glissée dans la rainure de la fenêtre.".
+
+La photo sépia est un objet décoratif fixé dans le compartiment sept.
+Sa description est "Une photographie d’avant-guerre : un homme en uniforme bleu sourit à l’objectif.".
+
+Le joueur se trouve dans le compartiment sept.
+
+règle après examiner la photo sépia:
+  afficher l’écran secondaire.
+  dire "{/Le décor vacille — vous revoyez la scène./}".
+  dire "{n}Vous êtes sur un quai bondé, le 14 juillet. L’orchestre joue. L’homme en uniforme vous serre dans ses bras. « Je reviendrai par l’Express de 23h47, » promet-il.".
+  attendre une touche.
+  afficher l’écran principal.
+  dire "Vous revenez à vous, la photo entre les doigts.".
+fin règle

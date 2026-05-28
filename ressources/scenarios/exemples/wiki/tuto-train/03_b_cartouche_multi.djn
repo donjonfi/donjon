@@ -1,0 +1,27 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 3, étape B
+-- Plusieurs compteurs dans les 4 coins du cartouche.
+-- Concept : « X est affiché en {haut|bas} à {gauche|droite}. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+La cabine de pilotage est un lieu.
+Sa description est "La cabine. Quatre cadrans s’animent dans les coins de votre vision.".
+
+La vitesse est un compteur initialisé à 95 avec l’unité km/h.
+La vitesse est affichée en haut à droite.
+
+L’énergie est un compteur initialisé à 80 avec l’unité points.
+L’énergie est affichée en bas à droite.
+
+La distance est un compteur initialisé à 312 avec l’unité km.
+La distance est affichée en haut à gauche.
+
+Le charbon est un compteur initialisé à 47 avec l’unité kg.
+Le charbon est affiché en bas à gauche.
+
+Le joueur se trouve dans la cabine de pilotage.
+
+règle avant commencer le jeu:
+  dire "Les quatre indicateurs s’affichent dans les coins de l’écran : vitesse, énergie, distance, charbon.".
+fin règle

@@ -1,4 +1,4 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 7, étape D
+-- Tutoriel « Le Cirque Étoile » — Chapitre 7, étape D
 -- ÉTAT FINAL DU TUTORIEL — le jeu complet, bout-à-bout :
 --   • cirque joyeux et cirque-miroir,
 --   • action perso « réaliser le tour » à phases,
@@ -7,7 +7,7 @@
 --   • auto-retour côté joyeux à chaque rire arraché,
 --   • twist Crépu et fin du jeu après le troisième rire.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ======================================================
@@ -29,7 +29,7 @@ Les rires est affiché en haut à droite.
 -- ======================================================
 
 La place du cirque est un lieu.
-Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent.".
+Sa description est "La place du Cirque Étoile, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent.".
 
 La roulotte de Pétunia est un lieu à l’est de la place du cirque.
 Sa description est "La roulotte de Pétunia, peinte en rouge cerise. Confettis partout.".
@@ -37,7 +37,7 @@ Sa description est "La roulotte de Pétunia, peinte en rouge cerise. Confettis p
 La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
 Sa description est "La roulotte austère de Lucia. Une cage de fer abrite un tigre assoupi.".
 
-La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+La roulotte du maître Aurélien est un lieu au nord de la place du cirque.
 Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Crépu vous observe depuis l’établi.".
 
 Le chapiteau est un lieu au sud de la place du cirque.
@@ -48,7 +48,7 @@ Sa description est "L’immense tente de toile écarlate et or, vide.".
 -- ======================================================
 
 Pétunia (f) est une personne dans la roulotte de Pétunia.
-Sa description est "Clown vedette, nez rouge phosphorescent, sourire élastique.".
+Sa description est "Clown vedette, nez rouge scintillant, sourire élastique.".
 réaction de Pétunia:
   dire "« Hé, l’apprenti·e ! Tu as l’air sérieux. Va donc faire de la magie au lieu de me déranger. »".
 fin réaction
@@ -65,18 +65,18 @@ réaction du tigre Anatole:
   dire "Anatole entrouvre un œil paresseux et se rendort.".
 fin réaction
 
-Le chat Crépu est un animal parlant dans la roulotte du Grand Phosphorus.
+Le chat Crépu est un animal parlant dans la roulotte du maître Aurélien.
 Sa description est "Un vieux chat gris-ardoise, un seul œil jaune ouvert. Une mèche blanche lui barre le front.".
 
 réactions du chat Crépu:
   basique:
-    dire "« Phosphorus est parti. Te voilà coincé·e avec moi. Tu veux apprendre le tour, ou tu préfères regretter ta candidature ? »".
+    dire "« Aurélien est parti. Te voilà coincé·e avec moi. Tu veux apprendre le tour, ou tu préfères regretter ta candidature ? »".
   concernant le tour:
     dire "« Le pas de côté. Tu réuniras les quatre accessoires, puis tu réaliseras le tour. Le décor changera. Tu comprendras. »".
   concernant le miroir:
     dire "« Le miroir est cassé, oui. Pas vraiment cassé — disons… mal ajusté. Tu apprendras à composer. »".
   concernant le maître:
-    dire "« Phosphorus ? Excellent élève, en son temps. Trop pressé d’apprendre. Comme toi. »".
+    dire "« Aurélien ? Excellent élève, en son temps. Trop pressé d’apprendre. Comme toi. »".
   concernant un sujet inconnu:
     dire "« Ah. Cette question-là, je préfère y répondre plus tard. Beaucoup plus tard. »".
 fin réactions
@@ -85,7 +85,7 @@ fin réactions
 -- ACCESSOIRES + NOTE DU MAÎTRE
 -- ======================================================
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 Le chapeau cylindre est un objet sur l’établi.
 Sa description est "Un haut-de-forme noir, intérieur de satin pourpre.".
@@ -112,7 +112,7 @@ La roulotte du miroir est un lieu.
 Sa description est "Une roulotte étrangement familière, mais ternie.".
 
 La place ternie est un lieu au sud de la roulotte du miroir.
-Sa description est "La place du Cirque Phosphène, mais éteinte. Le drapeau est déchiré. Un vent constant balaie la poussière.".
+Sa description est "La place du Cirque Étoile, mais éteinte. Le drapeau est déchiré. Un vent constant balaie la poussière.".
 
 La roulotte de Pétunie est un lieu à l’est de la place ternie.
 Sa description est "Une roulotte au rouge fané, confettis fanés sous les pieds.".
@@ -287,14 +287,14 @@ fin règle
 -- ======================================================
 
 routine retourner:
-  déplacer le joueur dans la roulotte du Grand Phosphorus.
+  déplacer le joueur dans la roulotte du maître Aurélien.
   si les rires valent 3:
     dire "{n}{/Le décor se replie sur lui-même. Vous êtes de retour côté joyeux./}".
     dire "{n}{n}Crépu saute sur l’établi. Il vous fixe de son œil unique, qui semble plus brillant qu’avant.".
     dire "{n}« Trois rires arrachés au miroir, » dit-il. « Tu m’as libéré, l’apprenti·e. Cent ans que j’attendais ça. »".
     dire "{n}Crépu s’étire, ses contours flouent, et il se redresse — sur deux pattes. Devant vous, un vieux prestidigitateur en redingote, l’œil unique étincelant, s’incline.".
-    dire "{n}« Phosphène était mon nom, jadis. Phosphorus, mon dernier élève — il m’a piégé là dedans pour que je lui laisse la place. Mais le miroir a fini par s’éroder, et tu as fini le travail. »".
-    dire "{n}{*Le cirque-miroir se replie sur lui-même. Le Cirque Phosphène est rendu à sa lumière.*}".
+    dire "{n}« Étoile était mon nom, jadis. Aurélien, mon dernier élève — il m’a piégé là dedans pour que je lui laisse la place. Mais le miroir a fini par s’éroder, et tu as fini le travail. »".
+    dire "{n}{*Le cirque-miroir se replie sur lui-même. Le Cirque Étoile est rendu à sa lumière.*}".
     terminer le jeu.
   sinon
     dire "{n}{/Le décor se replie sur lui-même. Vous êtes de retour côté joyeux./}".
@@ -310,8 +310,8 @@ fin routine
 -- DÉPART
 -- ======================================================
 
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
-  dire "Le maître Phosphorus est parti en tournée. Crépu vous observe depuis l’établi. La note vous attend.{n}— ''lire la note'' pour vos instructions.{n}— ''parler à Crépu'' (et ''demander le tour'', ''demander le miroir'', ''demander le maître'').{n}— Prenez les quatre accessoires, secouez le foulard, et ''réaliser le tour'' pour passer de l’autre côté.{n}— Côté miroir : trois doubles tristes vous attendent. Chacun demande une approche différente.".
+  dire "Le maître Aurélien est parti en tournée. Crépu vous observe depuis l’établi. La note vous attend.{n}— ''lire la note'' pour vos instructions.{n}— ''parler à Crépu'' (et ''demander le tour'', ''demander le miroir'', ''demander le maître'').{n}— Prenez les quatre accessoires, secouez le foulard, et ''réaliser le tour'' pour passer de l’autre côté.{n}— Côté miroir : trois doubles tristes vous attendent. Chacun demande une approche différente.".
 fin règle

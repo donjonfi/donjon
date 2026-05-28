@@ -1,0 +1,28 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 4, étape C
+-- Annuler une routine programmée avant son déclenchement.
+-- Concept : « annuler la routine X. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+La cabine de pilotage est un lieu.
+Sa description est "La cabine. Un voyant rouge clignote au-dessus du levier de sécurité.".
+
+Le levier de sécurité est un objet décoratif fixé dans la cabine de pilotage.
+Sa description est "Un levier de bois cerclé de laiton. Le tirer arrête le compte à rebours d’urgence.".
+
+Le joueur se trouve dans la cabine de pilotage.
+
+routine déclencher l’alarme:
+  dire "{n}{*FREINAGE D’URGENCE — les roues hurlent contre les rails !*}".
+fin routine
+
+règle avant commencer le jeu:
+  dire "Vous avez quinze secondes pour tirer sur le levier avant que l’alarme ne se déclenche.".
+  exécuter la routine déclencher l’alarme dans 15 secondes.
+fin règle
+
+règle après tirer sur le levier de sécurité:
+  annuler la routine déclencher l’alarme.
+  dire "Vous tirez sur le levier. Le voyant cesse de clignoter — l’alarme est désactivée à temps.".
+fin règle

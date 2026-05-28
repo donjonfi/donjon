@@ -1,0 +1,32 @@
+Le salon est un lieu.
+La potion est un objet dans le salon.
+Le score est un compteur initialisé à 0.
+
+routine LancerObjet:
+  définitions:
+    ceci est un objet.
+    cela est un nombre.
+  exécution:
+    dire "Vous lancez [intitulé ceci] avec [c cela] points de force.".
+fin routine
+
+routine ajusterScore:
+  définitions:
+    ceci est un compteur.
+  exécution:
+    changer ceci augmente de 10.
+    dire "Bonus ! Score : [c ceci].".
+fin routine
+
+routine notifier:
+  définitions:
+    ceci est un texte.
+  exécution:
+    dire "Note : [ceci]".
+fin routine
+
+règle après commencer le jeu:
+  exécuter routine LancerObjet avec la potion et 5.
+  exécuter routine ajusterScore avec le score.
+  exécuter routine notifier avec "Bienvenue !".
+fin règle

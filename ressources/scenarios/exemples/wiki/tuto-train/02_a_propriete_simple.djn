@@ -1,0 +1,27 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 2, étape A
+-- Une propriété numérique : chaque bagage a un poids déclaré, affiché dans la description.
+-- Concept : « Le poids de X vaut N. » + balise [poids ceci] pour afficher la valeur.
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Une banquette de velours, une lampe à abat-jour vert. Trois bagages oubliés par le passager précédent.".
+
+La valise de cuir est un objet dans le compartiment sept.
+Sa description est "Une valise de cuir patinée. Étiquette manuscrite : ''[poids ceci] kilos''.".
+Le poids de la valise de cuir vaut 12.
+
+Le sac de toile est un objet dans le compartiment sept.
+Sa description est "Un sac de toile léger, presque vide. Étiquette : ''[poids ceci] kilos''.".
+Le poids du sac de toile vaut 2.
+
+La malle en bois est un objet dans le compartiment sept.
+Sa description est "Une malle en bois cerclée de fer. L’étiquette indique ''[poids ceci] kilos'' — et grince déjà quand on la regarde.".
+Le poids de la malle en bois vaut 28.
+
+Le joueur se trouve dans le compartiment sept.
+
+règle avant commencer le jeu:
+  dire "Le passager du compartiment sept a laissé trois bagages. Examinez-les pour découvrir leur poids.".
+fin règle

@@ -1,0 +1,20 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 4, étape B
+-- Une routine s’exécute après un délai en secondes réelles, sans intervention du joueur.
+-- Concept : « exécuter la routine X dans N secondes. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le couloir est un lieu.
+Sa description est "Le couloir du Train-Couchettes. Un haut-parleur grésille au plafond.".
+
+Le joueur se trouve dans le couloir.
+
+routine annoncer:
+  dire "{n}{/Haut-parleur — « Le train entrera en gare de Verrière dans dix minutes. »/}".
+fin routine
+
+règle avant commencer le jeu:
+  dire "Restez dans le couloir. Le haut-parleur s’animera dans dix secondes — sans rien faire.".
+  exécuter la routine annoncer dans 10 secondes.
+fin règle

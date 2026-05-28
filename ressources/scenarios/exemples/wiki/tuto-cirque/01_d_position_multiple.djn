@@ -1,0 +1,12 @@
+-- Tutoriel « Le Cirque Étoile » — Chapitre 1, mini-exemple
+-- Démontre la syntaxe « se trouve à <dir> du X et à <dir> du Y » :
+-- un même lieu peut être déclaré adjacent à deux voisins en une seule phrase.
+
+La place est un lieu.
+Sa description est "La place du Cirque Étoile, bigarrée et joyeuse.".
+
+Le chapiteau est un lieu au sud de la place.
+Sa description est "L’immense tente de toile écarlate et or.".
+
+L’arrière-piste se trouve à l’ouest du chapiteau et au sud-ouest de la place.
+Sa description est "Les coulisses du chapiteau, accessibles depuis la place comme depuis le chapiteau lui-même.".

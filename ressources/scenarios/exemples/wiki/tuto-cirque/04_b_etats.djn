@@ -1,9 +1,9 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 4, étape B
+-- Tutoriel « Le Cirque Étoile » — Chapitre 4, étape B
 -- Déclaration d’un état personnalisé sous forme de BASCULE (deux états opposés
 -- mutuellement exclusifs) et son utilisation sur le foulard.
 -- Démontre aussi un aperçu qui change selon l’état courant.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ======================================================
@@ -17,10 +17,10 @@ plié et déployé forment une bascule.
 -- LIEUX
 -- ======================================================
 
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître. Sur l’établi, ses quatre accessoires.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 -- ======================================================
 -- LE FOULARD AVEC SON ÉTAT
@@ -54,7 +54,7 @@ fin règle
 -- DÉPART
 -- ======================================================
 
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Le foulard est plié. Essayez :{n}— ''regarder'' (le foulard apparaît plié dans son aperçu){n}— ''secouer le foulard'' (il se déploie){n}— ''regarder'' à nouveau (l’aperçu a changé !){n}— ''secouer le foulard'' encore (il se replie).".

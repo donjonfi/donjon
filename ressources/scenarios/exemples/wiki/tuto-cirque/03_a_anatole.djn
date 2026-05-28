@@ -1,22 +1,24 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 3, étape A
+-- Tutoriel « Le Cirque Étoile » — Chapitre 3, étape A
 -- Premier animal : Anatole le tigre dans la roulotte de Lucia.
 -- On utilise la classe « animal » et une réaction simple (forme courte).
+-- Note : par défaut un animal NE PARLE PAS — « parler à Anatole » sera refusé
+-- par le moteur tant qu'on n'ajoute pas l'état « parlant » (cf. Crépu).
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- LIEUX (résumé)
 La place du cirque est un lieu.
-Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi.".
+Sa description est "La place du Cirque Étoile, écrasée par un soleil d’après-midi.".
 
 La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
 Sa description est "La roulotte austère de Lucia : des bottes alignées, un fouet roulé sur l’étagère, et — au fond — une cage de fer où somnole un tigre.".
 
 -- L’ANIMAL
-Le tigre Anatole est un animal dans la roulotte de Lucia.
+Anatole est un animal dans la roulotte de Lucia.
 Sa description est "Anatole, le tigre vedette de Lucia. Pelage roux barré de noir, trois cents kilos de muscle assoupis. Sa queue bat le rythme paresseux d’un rêve de jungle.".
 
 -- Le tigre dort, mais s’il « parle » c’est par ronronnements
-réaction du tigre Anatole:
+réaction d’Anatole:
   dire "Anatole entrouvre un œil paresseux, vous renifle, et se rendort dans un long ronronnement de moteur diesel.".
 fin réaction

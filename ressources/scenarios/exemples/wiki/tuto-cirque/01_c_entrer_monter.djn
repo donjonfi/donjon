@@ -1,0 +1,12 @@
+-- Tutoriel « Le Cirque Étoile » — Chapitre 1, mini-exemple
+-- Démontre les directions verticale (en haut) et intérieur/extérieur (à l’intérieur).
+-- Commandes joueur correspondantes : monter / descendre, entrer / sortir.
+
+La place est un lieu.
+Sa description est "Une place tranquille.".
+
+La billetterie est un lieu à l’intérieur de la place.
+Sa description est "Le guichet, étroit comme une cabine téléphonique.".
+
+Le mât de cocagne est un lieu en haut de la place.
+Sa description est "Tout en haut du mât, on voit le toit des roulottes alentour.".

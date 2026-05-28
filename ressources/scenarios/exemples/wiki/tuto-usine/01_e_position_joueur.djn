@@ -1,0 +1,18 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 1, étape E
+-- Démarrer le joueur ailleurs que dans le premier lieu déclaré.
+-- Concept : « Le joueur se trouve dans X. » place le joueur au démarrage.
+
+Le titre du jeu est "Bienvenue chez MeuhCorp".
+L’auteur du jeu est "Stagiaire du jour".
+
+Le hall est un lieu.
+Sa description est "Bienvenue à MeuhCorp, leader mondial de la boîte à meuh depuis 1947.".
+
+L’atelier est un lieu à l’est du hall.
+Sa description est "L’atelier d’assemblage. Tout sent la sciure, le métal froid et l’huile de meuh.".
+
+Le banc qualité est un lieu au nord de l’atelier.
+Sa description est "Le banc qualité, sanctuaire absolu de MeuhCorp.".
+
+-- Le joueur démarre au banc qualité plutôt que dans le hall, qui pourtant a été déclaré en premier.
+Le joueur se trouve dans le banc qualité.

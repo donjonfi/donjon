@@ -1,9 +1,9 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 6, étape A
+-- Tutoriel « Le Cirque Étoile » — Chapitre 6, étape A
 -- Le cirque-miroir : cinq lieux jumeaux du cirque joyeux, articulés autour de
 -- la place ternie. Le joueur y arrive via l’action « réaliser le tour »
 -- (déposé dans la roulotte du miroir) puis peut explorer.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ÉTATS PERSONNALISÉS
@@ -13,10 +13,10 @@ plié et déployé forment une bascule.
 -- CIRQUE JOYEUX (résumé)
 -- ======================================================
 
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 Le chapeau cylindre est un objet sur l’établi.
 La baguette d’ébène est un objet sur l’établi.
@@ -28,10 +28,10 @@ Le miroir de poche est un objet sur l’établi.
 -- ======================================================
 
 La roulotte du miroir est un lieu.
-Sa description est "Une roulotte étrangement familière, mais ternie. Le miroir terni au mur ondule. Une porte donne sur le sud — la place du Cirque Phosphène, mais en moins éclatant.".
+Sa description est "Une roulotte étrangement familière, mais ternie. Le miroir terni au mur ondule. Une porte donne sur le sud — la place du Cirque Étoile, mais en moins éclatant.".
 
 La place ternie est un lieu au sud de la roulotte du miroir.
-Sa description est "La place du Cirque Phosphène, mais éteinte. Le drapeau bigarré est déchiré au tiers. La billetterie s’est effondrée sur elle-même. Pas un client. Pas un éclat de rire.".
+Sa description est "La place du Cirque Étoile, mais éteinte. Le drapeau bigarré est déchiré au tiers. La billetterie s’est effondrée sur elle-même. Pas un client. Pas un éclat de rire.".
 
 La roulotte de Pétunie est un lieu à l’est de la place ternie.
 Sa description est "Une roulotte qui fut peinte en rouge cerise. Aujourd’hui le rouge a viré au gris-rose, et les confettis fanés crissent sous les pieds comme des feuilles mortes.".
@@ -70,7 +70,7 @@ action réaliser le tour:
     déplacer le joueur dans la roulotte du miroir.
 
   phase épilogue:
-    dire "{n}Vous vous redressez dans une roulotte qui ressemble à celle de Phosphorus, mais éteinte, comme un photogramme jauni.".
+    dire "{n}Vous vous redressez dans une roulotte qui ressemble à celle de Aurélien, mais éteinte, comme un photogramme jauni.".
 
 fin action
 
@@ -86,7 +86,7 @@ règle après secouer le foulard de soie:
 fin règle
 
 -- DÉPART
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Préparez les accessoires (''prendre …''), déployez le foulard, puis ''réaliser le tour''. Vous explorerez le cirque-miroir.".

@@ -1,0 +1,38 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 5, étape A
+-- Une liste accumule des éléments via « ajouter » et « retirer ».
+-- Concepts : « Les X sont une liste. » + ajouter / retirer + test « contient ».
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Les indices sont une liste.
+
+Le wagon-restaurant est un lieu.
+Sa description est "Le wagon-restaurant désert. Une grande table en chêne encore dressée occupe le centre.".
+
+La table principale est un support fixé dans le wagon-restaurant.
+
+Le ticket usagé est un objet sur la table principale.
+Sa description est "Un ticket de train chiffonné. Destination effacée.".
+
+Le mouchoir brodé est un objet sur la table principale.
+Sa description est "Un fin mouchoir blanc brodé des initiales C.V.".
+
+La carte de visite est un objet sur la table principale.
+Sa description est "Une carte de visite jaunie : ''Charles Vermine — Détective privé''.".
+
+règle après prendre un objet:
+  ajouter ceci à la liste indices.
+  dire "Vous glissez [le ceci] dans votre poche.".
+fin règle
+
+règle après laisser un objet:
+  retirer ceci de la liste indices.
+  dire "Vous reposez [le ceci].".
+fin règle
+
+Le joueur se trouve dans le wagon-restaurant.
+
+règle avant commencer le jeu:
+  dire "Prenez et reposez des objets ; ils sont automatiquement ajoutés à la liste d’indices, puis retirés.".
+fin règle
