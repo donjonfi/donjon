@@ -112,6 +112,24 @@ describe('Ressource — affichage avec unité (F)', () => {
 
 });
 
+describe('Ressource — désambiguïsation par emplacement (H)', () => {
+
+  it('[F057-T230] 2 piles mentionnées → question listant les emplacements', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nLa table est un support ici.\nLa chaise est un support ici.\n` +
+      `L'argent est une ressource exprimée en pièces.\nIl y a 5 pièces d'argent sur la table.\nIl y a 3 pièces d'argent sur la chaise.`
+    );
+    ctx.com.executerCommande('regarder', false);   // mentionne les deux piles (sur supports)
+    const r: any = ctx.com.executerCommande('prendre les pièces', false);
+    const choix = r?.questions?.QcmCeci?.Choix;
+    expect(choix?.length).toBe(2);
+    const libelles = (choix ?? []).map((c: any) => c.valeurs[0]).join(' | ');
+    expect(libelles).toContain('table');
+    expect(libelles).toContain('chaise');
+  });
+
+});
+
 describe('Ressource — désigner par l’unité dans les commandes (G)', () => {
 
   const scenarioArgent =

@@ -14,6 +14,7 @@ import { ContexteCommande } from '../../models/jouer/contexte-commande';
 import { Debogueur } from './debogueur';
 import { Declencheur } from './declencheur';
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { PositionObjet } from '../../models/jeu/position-objet';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
@@ -350,25 +351,50 @@ export class Commandeur {
           }
           // s’il y a plusieurs correspondances équivalentes pour ceci
         } else if (candidatActionChoisi.ceci?.length > 1) {
-          // on a déjà précisé => appliqué la correction
-          if (ctx.questions?.QcmCeci?.Reponse !== undefined) {
+          // RESSOURCE anti-spoiler : si plusieurs exemplaires de la MÊME ressource, ne garder que
+          //  ceux déjà « mentionnés » (on ne révèle pas au joueur les piles encore inconnues).
+          const ceciCands: any[] = candidatActionChoisi.ceci;
+          const memeRessource = ceciCands.length > 1
+            && ceciCands[0]?.classe && ClasseUtils.heriteDe(ceciCands[0].classe, EClasseRacine.ressource)
+            && ceciCands.every((c: any) => c?.nom === ceciCands[0].nom);
+          if (memeRessource) {
+            const mentionnes = ceciCands.filter((e: any) => this.jeu.etats.possedeEtatIdElement(e, this.jeu.etats.mentionneID));
+            if (mentionnes.length >= 1 && mentionnes.length < ceciCands.length) {
+              candidatActionChoisi.ceci = mentionnes;
+            }
+          }
+          // un seul candidat restant (après filtrage) => résolution silencieuse
+          if (candidatActionChoisi.ceci.length === 1) {
+            ctx.commandeValidee = true;
+            // on a déjà précisé => appliquer la correction
+          } else if (ctx.questions?.QcmCeci?.Reponse !== undefined) {
             const indexCeciChoisi = ctx.questions.QcmCeci.Reponse;
             candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
-            // console.warn("Ceci choisi !");
             ctx.commandeValidee = true;
-            // demander une précision
+            // demander une précision (en distinguant par l’emplacement)
           } else {
-            // ajouter question concernant complément direct
             let qCeci = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
             qCeci.Choix = [];
-            candidatActionChoisi.ceci.forEach(candidatCeci => {
-              let choixCeci = new Choix([
-                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci.intitule}=}`
-              ]);
-              if (candidatActionChoisi.cela?.length) {
-                choixCeci.valeurs[0] += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`
+            candidatActionChoisi.ceci.forEach((candidatCeci: any) => {
+              let valeur = `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci.intitule}=}`;
+              // préciser l’emplacement (utile pour départager des ressources de même nom)
+              const pos = candidatCeci?.position;
+              if (pos) {
+                if (pos.cibleId === this.jeu.joueur.id) {
+                  valeur += ' (dans votre inventaire)';
+                } else {
+                  const cible: any = (pos.cibleType === EClasseRacine.lieu)
+                    ? this.jeu.lieux.find(l => l.id === pos.cibleId)
+                    : this.jeu.objets.find(o => o.id === pos.cibleId);
+                  if (cible?.intitule) {
+                    valeur += ` (${PositionObjet.prepositionSpatialeToString(pos.pre)} ${cible.intitule})`;
+                  }
+                }
               }
-              qCeci.Choix.push(choixCeci);
+              if (candidatActionChoisi.cela?.length) {
+                valeur += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`;
+              }
+              qCeci.Choix.push(new Choix([valeur]));
             });
             if (!ctx.questions) {
               ctx.questions = new QuestionsCommande();
