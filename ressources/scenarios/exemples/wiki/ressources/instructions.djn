@@ -1,0 +1,30 @@
+-- Manipuler une ressource par script dans des règles (ici, des actions personnalisées).
+Le sanctuaire est un lieu.
+Le coffre est un contenant ouvert ici.
+
+L'or est une ressource exprimée en pépites.
+Il y a 8 pépites d'or dans le coffre.
+
+-- créer : fait apparaître de nouvelles unités à un emplacement
+action invoquer:
+  phase exécution:
+    créer 3 pépites d'or dans l'inventaire.
+  phase épilogue:
+    dire "Trois pépites d'or se matérialisent dans votre main.".
+fin action
+
+-- déplacer … depuis … vers … : transfère une pile d'un emplacement à un autre
+action piller:
+  phase exécution:
+    déplacer les pépites d'or depuis l'intérieur du coffre vers l'inventaire.
+  phase épilogue:
+    dire "Vous raflez l'or du coffre.".
+fin action
+
+-- consommer : retire des unités possédées (elles disparaissent)
+action dépenser:
+  phase exécution:
+    consommer 5 pépites d'or.
+  phase épilogue:
+    dire "Vous dépensez 5 pépites d'or.".
+fin action

@@ -406,13 +406,17 @@ export class Instructions {
     } else if (sujet.determinant === 'quantitéCela ' && evenement) {
       quantite = evenement.quantiteCela;
     }
-    // résoudre la ressource (résolution synonyme-aware), puis privilégier les exemplaires possédés
-    const objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, true)[1] ?? [];
-    const possedes = objetsTrouves.filter(o => o.position?.cibleId === this.jeu.joueur.id);
-    const cibles = possedes.length ? possedes : objetsTrouves;
-    if (!cibles.length) {
+    // résoudre la ressource (résolution synonyme-aware) pour identifier son nom
+    const objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    if (!objetsTrouves.length) {
       resultat.succes = false;
       return resultat;
+    }
+    const nomRessource = objetsTrouves[0].nom;
+    // rassembler TOUS les exemplaires possédés de cette ressource (robuste au multi-exemplaire)
+    let cibles = this.jeu.objets.filter(o => o.nom === nomRessource && o.position?.cibleId === this.jeu.joueur.id);
+    if (!cibles.length) {
+      cibles = objetsTrouves; // aucune en inventaire → puiser là où la ressource se trouve
     }
     // vérifier la disponibilité (sauf si une pile est illimitée)
     const illimite = cibles.some(o => o.quantite === -1);

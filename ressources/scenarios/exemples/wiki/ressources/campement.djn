@@ -1,0 +1,49 @@
+-- ============================================================
+--  Exemple complet : « Le campement »
+--  Montre les trois styles de ressources, l'affichage, les
+--  commandes du joueur et les instructions (consommer / créer).
+-- ============================================================
+
+Le titre du jeu est "Le campement".
+
+Le campement est un lieu.
+Sa description est "Un campement au pied de la montagne : un feu de camp à entretenir, et de quoi tenir la nuit.".
+
+Le feu est un objet ici.
+
+-- de l'or, exprimé en pièces
+L'or est une ressource exprimée en pièces.
+Il y a 12 pièces d'or ici.
+
+-- du bois (massif) : unité par défaut « unité »
+Le bois est une ressource.
+Il y a 20 unités de bois ici.
+
+-- des rations, comptées par leur nom, que l'on peut manger
+Les rations sont une ressource mangeable.
+Il y a 4 rations dans le campement.
+
+-- entretenir le feu consomme 5 unités de bois
+action alimenter ceci:
+  définitions:
+    ceci est un objet.
+  phase exécution:
+    consommer 5 unités de bois.
+  phase épilogue:
+    dire "Vous jetez 5 unités de bois dans le feu, qui crépite de plus belle.".
+fin action
+
+-- une prière fait apparaître quelques pièces d'or dans votre bourse
+action invoquer:
+  phase exécution:
+    créer 3 pièces d'or dans l'inventaire.
+  phase épilogue:
+    dire "Trois pièces d'or tintent dans votre bourse.".
+fin action
+
+-- À tester :
+--   regarder
+--   alimenter le feu          -- consomme 5 unités de bois (il en reste 15)
+--   invoquer                  -- crée 3 pièces d'or dans l'inventaire
+--   prendre les rations       -- puis : manger 2 rations
+--   prendre les pièces d'or   -- puis : inventaire

@@ -1335,6 +1335,11 @@ export class ElementsJeuUtils {
       }
     });
 
+    // copier les synonymes (indispensable pour les ressources : « les pièces », « pièces d’argent »)
+    original.synonymes.forEach(syn => {
+      copie.synonymes.push(syn);
+    });
+
     // TODO: faut-il copier le contenu ?
     return copie;
   }
