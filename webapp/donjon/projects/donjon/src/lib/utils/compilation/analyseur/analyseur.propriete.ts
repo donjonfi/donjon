@@ -5,8 +5,11 @@ import { AnalyseurUtils } from "./analyseur.utils";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
+import { EClasseRacine } from "../../../models/commun/constantes";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
+import { MotUtils } from "../../commun/mot-utils";
+import { StringUtils } from "../../commun/string.utils";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
@@ -117,7 +120,16 @@ export class AnalyseurPropriete {
           } else {
 
           }
-          // B) PROPRIÉTÉ
+          // B) UNITÉ d’une ressource (« Son unité est le barile »)
+        } else if (StringUtils.normaliserMot(nomProprieteCible) === 'unite' && elementCible.classeIntitule === EClasseRacine.ressource) {
+          // valeurBrut p.ex. « le barile » → retirer l’article et dériver singulier/pluriel
+          const uniteNom = valeurBrut.trim().replace(/^(le |la |les |l'|l’|un |une |des |du |de la |de l'|de l’)/i, '').trim();
+          if (uniteNom) {
+            elementCible.unite = MotUtils.getSingulier(uniteNom.toLowerCase());
+            elementCible.unites = MotUtils.getPluriel(elementCible.unite);
+          }
+          elementTrouve = ResultatAnalysePhrase.propriete;
+          // C) PROPRIÉTÉ
         } else {
           ctxAnalyse.dernierePropriete = new ProprieteConcept(null, nomProprieteCible, (estVaut === 'vaut' ? TypeValeur.nombre : TypeValeur.mots), valeurBrut);
           // ajouter la propriété au dernier élément

@@ -9,8 +9,6 @@ export class ClassesRacines {
 
   /** Il s’agit d’un nombre ayant un intitulé */
   public static Compteur = new Classe(EClasseRacine.compteur, "compteur", ClassesRacines.Intitule, 1, []);
-  /** Il s'agit d'un compteur ayant une unité */
-  public static Ressource = new Classe(EClasseRacine.ressource, "ressource", ClassesRacines.Compteur, 2, []);
 
   /** Il s’agit d’une liste d’éléments (textes, nombres, intitulés, mixte, …)  */
   public static Liste = new Classe(EClasseRacine.liste, "liste", ClassesRacines.Intitule, 1, []);
@@ -44,6 +42,10 @@ export class ClassesRacines {
   /** Il s’agit d’un objet du jeu */
   public static Objet = new Classe(EClasseRacine.objet, "objet", ClassesRacines.Element, 3,
     [EEtatsBase.solide, EEtatsBase.opaque, EEtatsBase.transportable, EEtatsBase.denombrable]);
+
+  /** Il s’agit d’une ressource : un objet quantifiable et consommable, exprimé dans une unité
+   *  (argent, bois, essence, fruits, cœurs…). Hérite des états d’objet (dont dénombrable). */
+  public static Ressource = new Classe(EClasseRacine.ressource, "ressource", ClassesRacines.Objet, 4, []);
 
   /** Il s’agit d’un être vivant */
   public static Vivant = new Classe(EClasseRacine.vivant, "vivant", ClassesRacines.Objet, 4,

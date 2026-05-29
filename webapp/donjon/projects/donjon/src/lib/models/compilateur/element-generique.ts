@@ -28,8 +28,11 @@ export class ElementGenerique implements ElementDonjon {
 
   public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
 
-  /** Unité (forme singulière) pour un compteur. */
+  /** Unité (forme singulière) pour un compteur ou une ressource. */
   public unite?: string;
+
+  /** Unité (forme plurielle) pour une ressource (dérivée de l’unité singulière). */
+  public unites?: string;
 
   /** Compteur : ne pas afficher l'intitulé dans le cartouche. */
   public sansIntitule?: boolean;

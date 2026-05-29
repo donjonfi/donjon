@@ -123,13 +123,14 @@ Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
 | `objet`      | objet générique                      |
 | `contenant`  | peut contenir d'autres objets        |
 | `support`    | les objets se posent dessus/dessous  |
+| `ressource`  | objet quantifiable et consommable, avec une unité (voir §5) |
 | `porte`      | obstacle spécial (ouvrable/fermable) |
 | `obstacle`   | bloque une sortie                    |
 | `personne`   | personnage vivant                    |
 | `animal`     | animal                               |
 | `vivant`     | personne ou animal                   |
 
-Hiérarchie : `porte → obstacle → objet → élément → concept → intitulé`
+Hiérarchie : `porte → obstacle → objet → élément → concept → intitulé` · `ressource → objet`
 
 ### Classes personnalisées
 
@@ -201,4 +202,69 @@ Par défaut, les sorties obstruées affichent `({/obstrué/})` et les sorties av
 ```
 -- Désactiver cet affichage
 désactiver affichage des obstacles.
+```
+
+---
+
+## 5. Ressources (objets quantifiables)
+
+Une **ressource** est un objet que l'on accumule en quantité variable (argent, bois, essence, fruits…). Elle hérite d'`objet` : on la prend, la pose, la donne, la mange… mais en **quantités**.
+
+### Définir une ressource
+
+```
+Le bois est une ressource.
+Les fruits sont une ressource.
+```
+
+### Unité de comptage (optionnelle)
+
+Selon la déclaration, sans unité explicite :
+
+- ressource **au pluriel** (« Les fruits ») → comptée par son nom : « 5 fruits » ;
+- ressource **au singulier / massif** (« Le bois ») → unité par défaut « unité(s) » : « 30 unités de bois ».
+
+Trois façons de déclarer une unité explicite (le moteur en dérive singulier et pluriel) :
+
+```
+L'argent est une ressource exprimée en pièces.   -- unité donnée au pluriel
+L'eau est une ressource avec l'unité litre.        -- unité donnée au singulier
+Le sable est une ressource.
+Son unité est le grain.                            -- séparément, après la définition
+```
+
+### Placer des quantités
+
+Les nombres s'écrivent en **chiffres**. Positions : `ici`, `dans …`, `sur …`, `sous …`.
+
+```
+Il y a 30 unités de bois ici.
+Il y a 5 pièces d'argent dans le coffre.
+Il y a 3 unités d'essence sous la table.
+```
+
+Une même ressource peut former **plusieurs piles indépendantes** :
+
+```
+Il y a 5 pièces d'argent dans le coffre.
+Il y a 3 pièces d'argent sur la table.   -- deux piles distinctes : 5 et 3
+```
+
+> Une ressource déclarée mais jamais placée vaut **0** : le type existe, mais il n'y en a pas dans le monde tant qu'on n'en place pas.
+
+### Affichage
+
+Le moteur affiche la quantité avec l'unité : « 30 unités de bois », « 5 pièces d'argent » (élision automatique), ou « 5 fruits » quand la ressource se compte par son nom.
+
+### Commandes du joueur
+
+Les commandes standard acceptent une quantité et l'unité. Le joueur désigne la ressource par son **unité** (« les pièces ») ou par « unité de ressource » (« les pièces d'argent ») pour lever une ambiguïté.
+
+```
+prendre les pièces             -- prend toute la pile
+prendre 3 pièces d'argent      -- quantité précise
+manger 5 fruits
+donner 3 pièces d'argent au marchand
+lâcher les pièces
+déposer 2 fruits sur la table  -- « déposer » = synonyme de « poser »
 ```

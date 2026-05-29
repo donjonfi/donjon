@@ -1,6 +1,6 @@
 ﻿
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-05-24-30801
+-- Version: 2026-05-29-30900
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1095,8 +1095,11 @@ action poser ceci sur cela:
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
     si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
   phase exécution:
-    exécuter la commande "mettre [intitulé ceci] sur [intitulé cela]".
+    exécuter la commande "mettre [intitulé quantitéCeci] sur [intitulé cela]".
 fin action
+
+-- « déposer » est un synonyme de « poser »
+Interpréter déposer comme poser.
 
 -- ===========
 --   POUSSER

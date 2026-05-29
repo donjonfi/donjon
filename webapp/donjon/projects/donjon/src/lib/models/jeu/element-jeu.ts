@@ -70,6 +70,36 @@ export class ElementJeu extends Concept {
     }
   }
 
+  // RACCOURCIS: UNITÉ (ressources)
+
+  /** Unité de comptage (singulier) — ex: « pièce », « unité », « litre ». */
+  get unite(): string {
+    return this.proprietes.find(x => x.nom == 'unité')?.valeur ?? null;
+  }
+  /** Unité de comptage (singulier) — ex: « pièce », « unité », « litre ». */
+  set unite(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'unité');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteConcept(this, 'unité', TypeValeur.mots, valeur));
+    }
+  }
+
+  /** Unité de comptage (pluriel) — ex: « pièces », « unités », « litres ». */
+  get unites(): string {
+    return this.proprietes.find(x => x.nom == 'unités')?.valeur ?? null;
+  }
+  /** Unité de comptage (pluriel) — ex: « pièces », « unités », « litres ». */
+  set unites(valeur: string) {
+    let existant = this.proprietes.find(x => x.nom == 'unités');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteConcept(this, 'unités', TypeValeur.mots, valeur));
+    }
+  }
+
   // RACCOURCIS: TITRE
 
   /** Titre (lieux) */

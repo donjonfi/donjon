@@ -100,7 +100,10 @@ export class AnalyseurElementSimple {
       }
 
       if (unite) {
-        nouvelElementGenerique.unite = unite;
+        // l’unité peut être fournie au singulier (« avec l’unité pièce ») ou au pluriel
+        // (« exprimée en pièces ») : on stocke les deux formes.
+        nouvelElementGenerique.unite = MotUtils.getSingulier(unite);
+        nouvelElementGenerique.unites = MotUtils.getPluriel(nouvelElementGenerique.unite);
       }
 
     } else {

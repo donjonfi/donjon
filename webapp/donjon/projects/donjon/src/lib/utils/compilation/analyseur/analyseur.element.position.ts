@@ -36,8 +36,11 @@ export class AnalyseurElementPosition {
     let nombre: Nombre;
     let position: PositionSujetString;
 
+    // C4 — placement de ressource quantifié « il y a N <unité> de <ressource> [position|ici] »
+    newElementGenerique = AnalyseurElementPosition.testerPlacementRessource(phrase, ctx);
+
     // élément positionné défini (la, le, les)
-    let result = ExprReg.xPositionElementGeneriqueDefini.exec(phrase.morceaux[0]);
+    let result = newElementGenerique ? null : ExprReg.xPositionElementGeneriqueDefini.exec(phrase.morceaux[0]);
     if (result !== null) {
       // console.log("testerPosition", result);
       genreSingPlur = result[4];
@@ -177,7 +180,7 @@ export class AnalyseurElementPosition {
 
       // élément positionné avec "un/une xxxx est" soit "il y a un/une xxxx"
     } else {
-      result = ExprReg.xPositionElementGeneriqueIndefini.exec(phrase.morceaux[0]);
+      result = newElementGenerique ? null : ExprReg.xPositionElementGeneriqueIndefini.exec(phrase.morceaux[0]);
 
       if (result != null) {
         // selon le type de résultat ("il y a un xxx" ou "un xxx est")
@@ -258,30 +261,54 @@ export class AnalyseurElementPosition {
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
         let elementGeneriqueFound = filtered[filtered.length - 1];
-        // finalement l’élément concerné est l’élément trouvé
-        elementConcerne = elementGeneriqueFound;
-        // - position
-        // // if (newElementGenerique.positionString) {
-        // //   // s'il y avait déjà une position définie, c'est un autre élément, donc on ajoute quand même le nouveau !
-        // //   if (elementGeneriqueFound.positionString) {
-        // //     ctx.elementsGeneriques.push(newElementGenerique);
-        // //     elementConcerne = newElementGenerique;
-        // //   } else {
-        // //     // sinon, ajouter la position à l’élément trouvé
-        // //     elementGeneriqueFound.positionString = newElementGenerique.positionString;
-        // //   }
-        // // }
-        //ajouter la position à l’élément trouvé
 
-        elementGeneriqueFound.ajouterPositionsString(newElementGenerique.positionString);
+        // Cas particulier RESSOURCE : une même ressource peut exister en plusieurs piles
+        // localisées indépendantes (« Il y a 5 X dans le coffre. Il y a 3 X sur la table. »).
+        // → chaque emplacement supplémentaire devient un exemplaire DISTINCT, et le premier
+        //   placement reporte sa quantité sur le type (sinon elle serait perdue).
+        const foundEstRessource = (elementGeneriqueFound.classeIntitule === EClasseRacine.ressource);
+        const foundADejaPosition = (elementGeneriqueFound.positionString?.length ?? 0) > 0;
+        const newAPosition = (newElementGenerique.positionString?.length ?? 0) > 0;
 
-        // - màj attributs de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && newElementGenerique.attributs.length > 0) {
-          elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
-        }
-        // - màj type élément de l’élément trouvé
-        if ((elementConcerne == elementGeneriqueFound) && ClasseUtils.getIntituleNormalise(newElementGenerique.classeIntitule) !== EClasseRacine.objet) {
-          elementConcerne.classeIntitule = newElementGenerique.classeIntitule;
+        if (foundEstRessource && newAPosition && foundADejaPosition) {
+          // emplacement supplémentaire d’une ressource → exemplaire distinct (pile séparée)
+          // (conserver la classe « ressource » et l’unité héritées du type)
+          newElementGenerique.classeIntitule = elementGeneriqueFound.classeIntitule;
+          if (!newElementGenerique.unite && elementGeneriqueFound.unite) {
+            newElementGenerique.unite = elementGeneriqueFound.unite;
+          }
+          if (!newElementGenerique.unites && elementGeneriqueFound.unites) {
+            newElementGenerique.unites = elementGeneriqueFound.unites;
+          }
+          newElementGenerique.numeroLigne = phrase.ligne;
+          ctx.elementsGeneriques.push(newElementGenerique);
+          elementConcerne = newElementGenerique;
+        } else {
+          // finalement l’élément concerné est l’élément trouvé
+          elementConcerne = elementGeneriqueFound;
+          // ajouter la position à l’élément trouvé
+          elementGeneriqueFound.ajouterPositionsString(newElementGenerique.positionString);
+
+          // RESSOURCE : reporter la quantité du placement sur le type (premier emplacement),
+          //  sinon « Il y a 5 X » perdrait sa quantité au profit de la valeur par défaut du type.
+          if (foundEstRessource && newAPosition) {
+            elementGeneriqueFound.quantite = newElementGenerique.quantite;
+            // reporter aussi l’unité issue du placement (« 30 unités de bois ») si le type n’en a pas
+            if (!elementGeneriqueFound.unite && newElementGenerique.unite) {
+              elementGeneriqueFound.unite = newElementGenerique.unite;
+              elementGeneriqueFound.unites = newElementGenerique.unites;
+            }
+          }
+
+          // - màj attributs de l’élément trouvé
+          if (newElementGenerique.attributs.length > 0) {
+            elementConcerne.attributs = elementGeneriqueFound.attributs.concat(newElementGenerique.attributs);
+          }
+          // - màj type élément de l’élément trouvé
+          //  (ne pas écraser une classe racine « ressource » par le nom du placement)
+          if (!foundEstRessource && ClasseUtils.getIntituleNormalise(newElementGenerique.classeIntitule) !== EClasseRacine.objet) {
+            elementConcerne.classeIntitule = newElementGenerique.classeIntitule;
+          }
         }
 
       } else {
@@ -291,6 +318,72 @@ export class AnalyseurElementPosition {
       }
     }
     return elementConcerne;
+  }
+
+  /**
+   * C4 — Placement d’une ressource quantifiée : « il y a N <unité> de <ressource> [position|ici] ».
+   * Ne crée l’exemplaire que si <ressource> est une ressource déjà déclarée et que <unité> est
+   * « unité(s) » ou l’unité (singulier/pluriel) déclarée de cette ressource. Sinon renvoie null
+   * (la phrase est alors analysée normalement, p.ex. « 5 pommes de terre »).
+   */
+  public static testerPlacementRessource(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
+    const result = ExprReg.xPlacementRessourceQuantifiee.exec(phrase.morceaux[0]);
+    if (!result) { return null; }
+
+    const quantiteStr = result[1].toLowerCase();
+    const uniteMot = result[2].toLowerCase();
+    const ressourceNom = result[3].toLowerCase();
+
+    // la ressource doit avoir été déclarée auparavant
+    const ressource = ctx.elementsGeneriques.find(x => x.nom.toLowerCase() === ressourceNom);
+    if (!ressource || ressource.classeIntitule !== EClasseRacine.ressource) {
+      return null;
+    }
+
+    // l’unité doit être « unité(s) » (défaut) ou l’unité déclarée de la ressource (singulier/pluriel)
+    const estUniteDefaut = (MotUtils.getSingulier(uniteMot) === 'unité');
+    const uniteDeclaree = ressource.unite ? ressource.unite.toLowerCase() : null;
+    const unitesDeclarees = ressource.unites ? ressource.unites.toLowerCase() : null;
+    const matchUniteDeclaree = (uniteMot === uniteDeclaree) || (uniteMot === unitesDeclarees);
+    if (!estUniteDefaut && !matchUniteDeclaree) {
+      return null;
+    }
+
+    // quantité (chiffres ou « un/une »)
+    const quantite = /^\d+$/.test(quantiteStr) ? parseInt(quantiteStr, 10) : 1;
+    const nombre = (quantite === 1) ? Nombre.s : Nombre.p;
+
+    // position : « ici »/dessus/dedans/dessous (relatif au dernier lieu/élément) ou préposition + complément
+    const sujet = ressourceNom;
+    let position: PositionSujetString = null;
+    if (result[6]) {
+      const mot = result[6].toLowerCase();
+      if (mot === 'ici') {
+        if (ctx.dernierLieu) {
+          position = new PositionSujetString(sujet, ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''), 'dans');
+        } else {
+          ctx.ajouterErreur(phrase.ligne, "« ici » : un lieu doit avoir été défini précédemment.");
+        }
+      } else {
+        if (ctx.dernierElementGenerique) {
+          position = new PositionSujetString(sujet, ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''), PositionSujetString.getPosition(mot));
+        } else {
+          ctx.ajouterErreur(phrase.ligne, "« " + mot + " » : un élément doit avoir été défini précédemment.");
+        }
+      }
+    } else {
+      position = new PositionSujetString(sujet, result[5].toLowerCase(), result[4]);
+    }
+
+    // exemplaire localisé de la ressource (classe « ressource » + unité héritées du type)
+    const el = new ElementGenerique(
+      quantiteStr + ' ', ressourceNom, null, EClasseRacine.ressource, null,
+      (position ? [position] : []), ressource.genre, nombre, quantite, [],
+    );
+    // unité : celle déclarée par la ressource, sinon « unité/unités » (forme par défaut du placement)
+    el.unite = ressource.unite ?? 'unité';
+    el.unites = ressource.unites ?? 'unités';
+    return el;
   }
 
   // 

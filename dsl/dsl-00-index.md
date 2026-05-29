@@ -10,7 +10,7 @@
 
 | Fichier | Contenu | Charger quand… |
 |---|---|---|
-| `dsl-01-monde.md` | Structure, Lieux, Objets, Portes/Obstacles | Créer la carte, les lieux, les objets |
+| `dsl-01-monde.md` | Structure, Lieux, Objets, Ressources, Portes/Obstacles | Créer la carte, les lieux, les objets, les ressources |
 | `dsl-02-elements.md` | États, Propriétés, Paramètres du jeu | Configurer des éléments, activer/désactiver des options |
 | `dsl-03-logique.md` | Synonymes, Actions personnalisées, Règles avant/après | Écrire la logique de jeu |
 | `dsl-04-texte.md` | Instructions courantes, Balises dynamiques, Balises de mise en forme | Rédiger les sorties texte |

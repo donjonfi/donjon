@@ -337,6 +337,21 @@ export class Generateur {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         let newObjet = new Objet(jeu.nextID++, intitule.nomEpithete, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
+        // reporter l’unité de comptage (ressources) : singulier + pluriel
+        if (curEle.unite) {
+          newObjet.unite = curEle.unite;
+        }
+        if (curEle.unites) {
+          newObjet.unites = curEle.unites;
+        }
+
+        // Ressource déclarée mais jamais placée ni créée → quantité 0 (type/gabarit seulement,
+        //  pas de pile illimitée fantôme). Une ressource placée a reçu une position via la fusion ;
+        //  sa quantité (issue du placement) est alors conservée.
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource) && (curEle.positionString?.length ?? 0) === 0) {
+          newObjet.quantite = 0;
+        }
+
         // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
         if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
           newObjet.idOriginal = newObjet.classe.id;
@@ -441,6 +456,18 @@ export class Generateur {
         // synonymes générés automatiquement
         if (jeu.parametres.activerSynonymesAuto) {
           Generateur.genererSynonymesAuto(newObjet);
+        }
+
+        // RESSOURCE : on peut la désigner par son unité, seule (« les pièces ») ou suivie de la
+        //  ressource (« les pièces d’argent »). On enregistre les deux formes comme synonymes.
+        if (newObjet.unite && ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource)) {
+          const unites = (newObjet.unites && newObjet.unites !== newObjet.unite) ? newObjet.unites : null;
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.unite, true));
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.unite + ' de ' + newObjet.nom, true));
+          if (unites) {
+            newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites, true));
+            newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites + ' de ' + newObjet.nom, true));
+          }
         }
 
         // description par défaut

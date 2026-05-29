@@ -80,7 +80,21 @@ export class ElementsJeuUtils {
         }
 
 
-        // dénombrable
+        // RESSOURCE avec unité de comptage : « N <unité> de <nom> » (ex. « 5 pièces d’argent », « 30 unités de bois »)
+      } else if (ceci.unite) {
+        const nomR = ceci.intituleS.nom;
+        const liaison = ExprReg.xCommenceParUneVoyelle.test(nomR) ? "d’" : "de ";
+        const unitePluriel = ceci.unites ?? ceci.unite;
+        const estSingulier = (forcerNombre === Nombre.s) || (forcerNombre !== Nombre.p && ceci.quantite === 1);
+        if (ceci.quantite === -1) {
+          determinant = "des " + unitePluriel + " " + liaison;
+        } else {
+          determinant = ceci.quantite + " " + (estSingulier ? ceci.unite : unitePluriel) + " " + liaison;
+        }
+        nom = nomR;
+        epithete = "";
+
+        // dénombrable (sans unité)
       } else {
         // 1 exemplaire => un/une ou le/la selon le contexte
         if (forcerNombre === Nombre.s || (forcerNombre !== Nombre.p && ceci.quantite == 1)) {
