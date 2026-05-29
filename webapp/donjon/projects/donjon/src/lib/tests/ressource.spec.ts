@@ -170,6 +170,54 @@ describe('Ressource — désigner par l’unité dans les commandes (G)', () => 
     expect(dansSalle.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(10);
   });
 
+  it('[F057-T210] instruction « créer N <unité> de X dans Y » → crée N à la destination', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nLe coffre est un contenant vu ici.\n` +
+      `L'argent est une ressource exprimée en pièces.\nIl y a 10 pièces d'argent ici.\n` +
+      `action enrichir:\n  créer 3 pièces d'argent dans le coffre.\nfin action`
+    );
+    ctx.com.executerCommande('enrichir', false);
+    const coffre = ctx.jeu.objets.find((o: any) => o.nom === 'coffre');
+    const dansCoffre = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === coffre.id);
+    expect(dansCoffre.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(3);
+  });
+
+  it('[F057-T200] instruction « consommer N <unité> de X » → retire N de l’inventaire', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nL'essence est une ressource.\nIl y a 8 unités d'essence ici.\n` +
+      `action gaspiller:\n  consommer 5 unités d'essence.\nfin action`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande("prendre les unités d'essence", false);
+    ctx.com.executerCommande('gaspiller', false);
+    const essence = ctx.jeu.objets.filter((o: any) => o.nom === 'essence');
+    expect(essence.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(3);
+  });
+
+  it('[F057-T201] « consommer » plus que disponible → échec, rien retiré', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nL'essence est une ressource.\nIl y a 8 unités d'essence ici.\n` +
+      `action gaspiller:\n  consommer 20 unités d'essence.\nfin action`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande("prendre les unités d'essence", false);
+    ctx.com.executerCommande('gaspiller', false);
+    const essence = ctx.jeu.objets.filter((o: any) => o.nom === 'essence');
+    expect(essence.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(8);
+  });
+
+  it('[F057-T202] « consommer » tout → l’exemplaire est supprimé', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nL'essence est une ressource.\nIl y a 8 unités d'essence ici.\n` +
+      `action gaspiller:\n  consommer 8 unités d'essence.\nfin action`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande("prendre les unités d'essence", false);
+    ctx.com.executerCommande('gaspiller', false);
+    const essence = ctx.jeu.objets.filter((o: any) => o.nom === 'essence');
+    expect(essence.length).toBe(0);
+  });
+
   it('[F057-T165] « déposer 2 fruits sur la table » (déposer = poser par défaut) → 2 sur la table, 3 gardés', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(
       actions + `\nLa salle est un lieu.\nLa table est un support ici.\n` +

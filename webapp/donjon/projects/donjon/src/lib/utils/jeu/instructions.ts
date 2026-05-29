@@ -21,10 +21,12 @@ import { InstructionJouerArreter } from './instruction-jouer-arreter';
 import { InstructionListes } from './instruction-listes';
 import { InstructionSelectionner } from './instruction-selectionner';
 import { InstructionSysteme } from './instruction-systeme';
+import { InstructionsUtils } from './instructions-utils';
 import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation, ELocalisation } from '../../models/jeu/localisation';
+import { MotUtils } from '../commun/mot-utils';
 import { Resultat } from '../../models/jouer/resultat';
 import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
@@ -216,6 +218,10 @@ export class Instructions {
     // — déplacer / copier
     m.set('déplacer', (ins, _nb, ctx, ev, _dec) => this.executerDeplacer(ins, ctx, ev));
     m.set('copier', (ins, _nb, ctx, ev, _dec) => this.executerCopier(ins, ctx, ev));
+    m.set('consommer', (ins, _nb, ctx, ev, _dec) => this.executerConsommer(ins, ctx, ev));
+    // « créer N <unité> de X dans Y » = créer de nouvelles unités de la ressource à la destination.
+    m.set('créer', (ins, _nb, ctx, ev, _dec) => this.executerCreer(ins, ctx, ev));
+    m.set('creer', (ins, _nb, ctx, ev, _dec) => this.executerCreer(ins, ctx, ev));
 
     // — exécuter (réaction / action / commande / dernière commande / routine)
     m.set('exécuter', (ins, nb, ctx, ev, dec) => this.executerExecuter(ins, nb, ctx, ev, dec));
@@ -361,6 +367,117 @@ export class Instructions {
     } else {
       sousResultat = this.insDeplacerCopier.executerDeplacer(sujetDeplacement, instruction.preposition1, instruction.sujetComplement1, contexteTour);
       resultat.succes = sousResultat.succes;
+    }
+    return resultat;
+  }
+
+  /**
+   * Instruction « consommer N <unité> de <ressource> » (DSL) : retire N unités de la ressource,
+   * de préférence dans l’inventaire du joueur (sinon où qu’elle se trouve). L’exemplaire qui
+   * atteint 0 est supprimé. Échoue (sans rien retirer) s’il n’y en a pas assez.
+   */
+  private executerConsommer(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité à consommer (déterminant numérique, ou quantitéCeci / quantitéCela)
+    let quantite = MotUtils.getQuantite(sujet.determinant, 1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    // résoudre la ressource (résolution synonyme-aware), puis privilégier les exemplaires possédés
+    const objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, true)[1] ?? [];
+    const possedes = objetsTrouves.filter(o => o.position?.cibleId === this.jeu.joueur.id);
+    const cibles = possedes.length ? possedes : objetsTrouves;
+    if (!cibles.length) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // vérifier la disponibilité (sauf si une pile est illimitée)
+    const illimite = cibles.some(o => o.quantite === -1);
+    if (!illimite) {
+      const total = cibles.reduce((somme, o) => somme + (o.quantite ?? 0), 0);
+      if (total < quantite) {
+        resultat.succes = false;
+        return resultat;
+      }
+    }
+    // consommer en puisant dans les exemplaires ; supprimer ceux qui atteignent 0
+    let reste = quantite;
+    for (const o of cibles) {
+      if (reste <= 0) {
+        break;
+      }
+      if (o.quantite === -1) {
+        continue; // illimité : ne pas décrémenter
+      }
+      const pris = Math.min(o.quantite, reste);
+      o.quantite -= pris;
+      reste -= pris;
+      if (o.quantite === 0) {
+        const idx = this.jeu.objets.indexOf(o);
+        if (idx !== -1) {
+          this.jeu.objets.splice(idx, 1);
+        }
+      }
+    }
+    return resultat;
+  }
+
+  /**
+   * Instruction « créer N <unité> de X dans/sur/sous <cible> » (DSL) : ajoute N unités de la
+   * ressource à la destination (fusion si une pile y existe déjà), sans toucher au modèle.
+   */
+  private executerCreer(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    let quantite = MotUtils.getQuantite(sujet.determinant, 1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    if (quantite < 1) {
+      quantite = 1;
+    }
+    // résoudre la ressource modèle (résolution synonyme-aware : gère « pièces d'argent »)
+    const modele = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1]?.[0];
+    if (!modele) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // résoudre la destination (lieu, contenant, support, joueur…)
+    const destination = InstructionsUtils.trouverElementCible(instruction.sujetComplement1, contexteTour, this.eju, this.jeu, false);
+    if (!destination || !ClasseUtils.heriteDe((destination as ElementJeu).classe, EClasseRacine.element)) {
+      resultat.succes = false;
+      return resultat;
+    }
+    const preposition = instruction.preposition1 ?? 'dans';
+    // cloner le modèle, fixer la quantité, placer à destination (fusion si exemplaire présent)
+    const copie = this.eju.copierObjet(modele);
+    copie.id = this.jeu.nextID++;
+    copie.quantite = quantite;
+    this.jeu.objets.push(copie);
+    resultat.succes = this.insDeplacerCopier.executerDeplacerObjetVersDestination(copie, preposition, destination as ElementJeu, quantite).succes;
+    // si la copie a été entièrement fusionnée dans un exemplaire existant, la retirer
+    if (copie.quantite === 0) {
+      const idx = this.jeu.objets.indexOf(copie);
+      if (idx !== -1) {
+        this.jeu.objets.splice(idx, 1);
+      }
     }
     return resultat;
   }
