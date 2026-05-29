@@ -131,6 +131,17 @@ export class AnalyseurCommunUtils {
             }
 
 
+            // DÉPLACER une ressource « <sujet> depuis <source> vers <destination> »
+          } else if ((els.infinitif === 'déplacer' || els.infinitif === 'deplacer') && / depuis .+ vers /i.test(els.complement1 ?? '')) {
+            const resDV = /^(.+?) depuis (.+?) vers (.+)$/i.exec(els.complement1);
+            if (resDV) {
+              els.sujet = PhraseUtils.getGroupeNominalDefiniOuIndefini(resDV[1].trim(), true);
+              els.preposition0 = 'depuis';
+              els.complement2 = resDV[2].trim();   // emplacement source (texte brut)
+              els.preposition1 = 'vers';
+              els.complement3 = resDV[3].trim();   // emplacement destination (texte brut)
+            }
+
             // AUTRE INFINITF
           } else {
             // tester si le sujet est une propriéter à changer

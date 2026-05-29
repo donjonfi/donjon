@@ -27,6 +27,8 @@ import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation, ELocalisation } from '../../models/jeu/localisation';
 import { MotUtils } from '../commun/mot-utils';
+import { PhraseUtils } from '../commun/phrase-utils';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
@@ -314,6 +316,18 @@ export class Instructions {
     const resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
+    // garde-fou : sujet absent (ex. forme « depuis … vers … » mal décomposée) → échec gracieux
+    if (!instruction.sujet) {
+      resultat.succes = false;
+      resultat.sortie = "{+[Instruction « déplacer » : sujet manquant ou forme non reconnue.]+}";
+      return resultat;
+    }
+
+    // RESSOURCE : « déplacer [N <unité> de X | les <unité> de X] depuis <source> vers <dest> »
+    if (instruction.preposition0 === 'depuis') {
+      return this.executerDeplacerRessource(instruction, contexteTour, evenement);
+    }
+
     // retrouver quantité à déplacer
     let sujetDeplacement = instruction.sujet;
     if (instruction.sujet.determinant == 'quantitéCeci ') {
@@ -480,6 +494,101 @@ export class Instructions {
       }
     }
     return resultat;
+  }
+
+  /**
+   * Instruction « déplacer [N <unité> de X | les <unité> de X] depuis <source> vers <dest> » :
+   * prélève la ressource à l’emplacement source et la déplace vers l’emplacement destination.
+   */
+  private executerDeplacerRessource(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité (« les … » → -1 = tout)
+    let quantite = MotUtils.getQuantite(sujet.determinant, -1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    // résoudre la ressource (fuzzy) — un exemplaire sert de référence (idOriginal commun)
+    const exemplaires = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    if (!exemplaires.length) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // résoudre les emplacements source et destination
+    const source = this.resoudreEmplacementRessource(instruction.complement2, contexteTour);
+    const dest = this.resoudreEmplacementRessource(instruction.complement3, contexteTour);
+    if (!source || !dest) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // exemplaire présent à la source
+    const exemplaireSource = this.eju.getExemplaireDejaContenu(exemplaires[0], source.prep, source.element);
+    if (!exemplaireSource) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité réelle (bornée au disponible ; « tout » si -1 et source finie)
+    let q = quantite;
+    if (exemplaireSource.quantite !== -1 && (q === -1 || q > exemplaireSource.quantite)) {
+      q = exemplaireSource.quantite;
+    }
+    // déplacer vers la destination
+    const prepDest = PositionObjet.prepositionSpatialeToString(dest.prep);
+    resultat.succes = this.insDeplacerCopier.executerDeplacerObjetVersDestination(exemplaireSource, prepDest, dest.element, q).succes;
+    // nettoyer l’exemplaire source s’il est vidé
+    if (exemplaireSource.quantite === 0) {
+      const idx = this.jeu.objets.indexOf(exemplaireSource);
+      if (idx !== -1) {
+        this.jeu.objets.splice(idx, 1);
+      }
+    }
+    return resultat;
+  }
+
+  /**
+   * Résout un emplacement de ressource (« l’inventaire », « l’intérieur du coffre »,
+   * « le dessous du lit », « le coffre », …) en (préposition spatiale, élément cible).
+   */
+  private resoudreEmplacementRessource(
+    loc: string | undefined, contexteTour: ContexteTour,
+  ): { prep: PrepositionSpatiale, element: ElementJeu } | null {
+    if (!loc) {
+      return null;
+    }
+    const t = loc.trim();
+    // « (l’)inventaire » → dans le joueur
+    if (/inventaire/i.test(t)) {
+      return { prep: PrepositionSpatiale.dans, element: this.jeu.joueur };
+    }
+    let prep = PrepositionSpatiale.dans;
+    let elementStr = t;
+    let m: RegExpExecArray | null;
+    if ((m = /^(?:à )?l(?:'|’)int[ée]rieur d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.dans; elementStr = m[1];
+    } else if ((m = /^(?:le |au[- ])?dessus d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.sur; elementStr = m[1];
+    } else if ((m = /^(?:le |au[- ])?dessous d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.sous; elementStr = m[1];
+    } else if ((m = /^(dans|sur|sous) (.+)$/i.exec(t))) {
+      prep = PositionObjet.getPrepositionSpatiale(m[1]); elementStr = m[2];
+    }
+    const gn = PhraseUtils.getGroupeNominalDefiniOuIndefini(elementStr.trim(), true);
+    if (!gn) {
+      return null;
+    }
+    const element = InstructionsUtils.trouverElementCible(gn, contexteTour, this.eju, this.jeu, false);
+    if (!element || !ClasseUtils.heriteDe((element as ElementJeu).classe, EClasseRacine.element)) {
+      return null;
+    }
+    return { prep, element: element as ElementJeu };
   }
 
   private executerCopier(

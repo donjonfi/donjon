@@ -268,3 +268,22 @@ donner 3 pièces d'argent au marchand
 lâcher les pièces
 déposer 2 fruits sur la table  -- « déposer » = synonyme de « poser »
 ```
+
+### Manipuler les ressources dans les règles (instructions)
+
+Dans les règles, réactions et routines, on agit sur les ressources par script :
+
+```
+-- créer N unités à un emplacement (contenant, support, lieu, inventaire)
+créer 3 pièces d'argent dans le coffre.
+créer 3 unités d'argent dans l'inventaire.
+
+-- consommer N unités possédées (les fait disparaître de l'inventaire)
+consommer 5 unités d'essence.
+
+-- déplacer d'un emplacement à un autre (« les … » = toute la pile)
+déplacer les pièces d'argent depuis l'intérieur du coffre vers l'inventaire.
+déplacer 5 unités d'argent depuis l'inventaire vers le dessous du lit.
+```
+
+Emplacements reconnus : `l'inventaire`, `l'intérieur du <contenant>`, `le dessus du <support>`, `le dessous du <support>`, ou un lieu / contenant / support nommé.

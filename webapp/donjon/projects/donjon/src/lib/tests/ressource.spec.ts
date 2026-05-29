@@ -170,6 +170,36 @@ describe('Ressource — désigner par l’unité dans les commandes (G)', () => 
     expect(dansSalle.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(10);
   });
 
+  it('[F057-T220] « déplacer les pièces d’argent depuis l’intérieur du coffre vers l’inventaire »', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nLe coffre est un contenant vu ici.\n` +
+      `L'argent est une ressource exprimée en pièces.\nIl y a 10 pièces d'argent dans le coffre.\n` +
+      `action transferer:\n  déplacer les pièces d'argent depuis l'intérieur du coffre vers l'inventaire.\nfin action`
+    );
+    ctx.com.executerCommande('transferer', false);
+    const coffre = ctx.jeu.objets.find((o: any) => o.nom === 'coffre');
+    const auJoueur = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === ctx.jeu.joueur.id);
+    const dansCoffre = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === coffre.id);
+    expect(auJoueur.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(10);
+    expect(dansCoffre.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(0);
+  });
+
+  it('[F057-T221] « déplacer 5 pièces d’argent depuis l’inventaire vers le dessous du lit »', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\nLe lit est un support vu ici.\n` +
+      `L'argent est une ressource exprimée en pièces.\nIl y a 10 pièces d'argent ici.\n` +
+      `action cacher:\n  déplacer 5 pièces d'argent depuis l'inventaire vers le dessous du lit.\nfin action`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande('prendre les pièces', false);
+    ctx.com.executerCommande('cacher', false);
+    const lit = ctx.jeu.objets.find((o: any) => o.nom === 'lit');
+    const sousLit = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === lit.id);
+    const auJoueur = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === ctx.jeu.joueur.id);
+    expect(sousLit.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(5);
+    expect(auJoueur.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(5);
+  });
+
   it('[F057-T210] instruction « créer N <unité> de X dans Y » → crée N à la destination', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(
       actions + `\nLa salle est un lieu.\nLe coffre est un contenant vu ici.\n` +
@@ -180,6 +210,17 @@ describe('Ressource — désigner par l’unité dans les commandes (G)', () => 
     const coffre = ctx.jeu.objets.find((o: any) => o.nom === 'coffre');
     const dansCoffre = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === coffre.id);
     expect(dansCoffre.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(3);
+  });
+
+  it('[F057-T211] « créer 3 pièces d’argent dans l’inventaire » → 3 dans l’inventaire', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      actions + `\nLa salle est un lieu.\n` +
+      `L'argent est une ressource exprimée en pièces.\nIl y a 10 pièces d'argent ici.\n` +
+      `action enrichir:\n  créer 3 pièces d'argent dans l'inventaire.\nfin action`
+    );
+    ctx.com.executerCommande('enrichir', false);
+    const auJoueur = ctx.jeu.objets.filter((o: any) => o.nom === 'argent' && o.position?.cibleId === ctx.jeu.joueur.id);
+    expect(auJoueur.reduce((s: number, o: any) => s + o.quantite, 0)).toBe(3);
   });
 
   it('[F057-T200] instruction « consommer N <unité> de X » → retire N de l’inventaire', () => {
