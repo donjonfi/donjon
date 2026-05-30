@@ -211,7 +211,12 @@ export class CompilateurCommunUtils {
     let classe = monde.classes.find(x => x.nom === nomClasse);
     if (!classe) {
       const parent = monde.classes.find(x => x.nom === EClasseRacine.ressource) ?? ClassesRacines.Ressource;
-      classe = new Classe(nomClasse, nomSingulier, parent, parent.niveau + 1, []);
+      // Les adjectifs/attributs de la définition (« des ressources mangeables, rouges et vertes »)
+      //  deviennent les états par défaut de la classe → toute pile/objet héritant de cette ressource
+      //  les reçoit via attribuerEtatsParDefaut. On exclut le pseudo-attribut « initialisé à N »
+      //  (quantité propre à la pile, pas un état de la classe).
+      const etatsParDefaut = (el.attributs ?? []).filter(a => !/^initialis/i.test(a.trim()));
+      classe = new Classe(nomClasse, nomSingulier, parent, parent.niveau + 1, etatsParDefaut);
       monde.classes.push(classe);
     }
     return classe;

@@ -337,6 +337,9 @@ export class Generateur {
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
+    // Placements à différer en 2ᵉ passe : objet posé sur un contenant/support déclaré APRÈS lui
+    //  (la cible n'existe pas encore dans jeu.objets au moment de la résolution inline).
+    const placementsADifferer: Array<{ newObjet: Objet, curEle: any, curPositionString: any }> = [];
     rc.monde.objets.forEach(curEle => {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
@@ -544,7 +547,14 @@ export class Generateur {
               // chercher un contenant ou un support
               const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curPositionString.complement);
               // >> trouvé contenant
-              if (contenantSupport) {
+              // Cible introuvable inline : support/contenant déclaré APRÈS l'objet (typiquement la
+              //  1re pile d'une ressource, fusionnée sur sa définition placée tôt). On diffère : une
+              //  2e passe (cf. après la boucle) réessaie une fois TOUS les objets créés ; le « else »
+              //  d'erreur plus bas devient alors mort (cible toujours truthy ici) — l'erreur réelle
+              //  est émise par la 2e passe si la cible reste introuvable.
+              if (!contenantSupport) {
+                placementsADifferer.push({ newObjet, curEle, curPositionString });
+              } else if (contenantSupport) {
 
                 // si le contenant est vivant, l’objet est « occupé »
                 if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
@@ -585,6 +595,17 @@ export class Generateur {
 
         }
         jeu.objets.push(newObjet);
+      }
+    });
+
+    // 2e PASSE — placements différés : objet posé sur un contenant/support déclaré APRÈS lui.
+    // *********************************************************************************
+    //  Tous les objets existent désormais dans jeu.objets : on réessaie la résolution (position +
+    //  états induits). L'erreur « position pas trouvée » n'est émise QUE si la cible reste
+    //  introuvable (vraie faute d'auteur : nom inexistant / faute de frappe).
+    placementsADifferer.forEach(({ newObjet, curEle, curPositionString }) => {
+      if (!Generateur.resoudrePositionSurContenant(jeu, ctx, newObjet, curPositionString)) {
+        ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
       }
     });
 
@@ -902,6 +923,36 @@ export class Generateur {
     }
 
     return retVal;
+  }
+
+  /**
+   * Résoudre la position d’un objet posé SUR/DANS/SOUS un contenant ou support : applique la
+   * position ET les états induits (disponible/occupé, et possédé+vu si la cible est le joueur).
+   * Appelé en résolution inline (1re passe) ET pour les placements différés (2e passe).
+   * @returns true si la cible a été trouvée et la position appliquée ; false sinon (cible absente
+   *          de jeu.objets — au caller de différer (1re passe) ou d’émettre l’erreur (2e passe)).
+   */
+  static resoudrePositionSurContenant(jeu: Jeu, ctx: ContexteGeneration, newObjet: Objet, curPositionString: any): boolean {
+    const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curPositionString.complement);
+    if (!contenantSupport) { return false; }
+
+    // si le contenant est vivant, l’objet est « occupé » ; sinon il est « disponible »
+    if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.occupe, ctx, true);
+    } else {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
+    }
+
+    // si le contenant est le joueur, l’objet est possédé (et vu, sauf s’il est caché)
+    if (contenantSupport === jeu.joueur) {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, ctx, true);
+      if (!jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.cacheID, null)) {
+        jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.vu, ctx, true);
+      }
+    }
+
+    newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
+    return true;
   }
 
   /** Trouver l’objet qui fait office de contenant (dans), support (sur) ou couvrant (sous) */

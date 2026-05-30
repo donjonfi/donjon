@@ -206,9 +206,9 @@ désactiver affichage des obstacles.
 
 ---
 
-## 5. Ressources (objets quantifiables)
+## 5. Ressources (objets quantifiables et multiples)
 
-Une **ressource** est un objet que l'on accumule en quantité variable (argent, bois, essence, fruits…). Elle hérite d'`objet` : on la prend, la pose, la donne, la mange… mais en **quantités**.
+Une **ressource** est un objet que l'on accumule en quantité variable (argent, bois, essence, fruits…). Elle hérite d'`objet` : on la prend, la pose, la donne, la mange… mais en **quantités**. Une ressource est par nature un objet **multiple** : elle existe en plusieurs unités à la fois (état `multiple`) et n'est `unique` que lorsqu'il n'en reste **qu'une seule** (quantité 1).
 
 ### Définir une ressource
 
@@ -222,6 +222,17 @@ Des graines sont des ressources.
 Tous les déterminants conviennent (`le`/`la`/`les`/`l'` comme `un`/`une`/`des`) ; le genre est déduit de l'article. Une ressource définie au singulier (`Le bois`, `Une pomme`) ou au pluriel (`Les fruits`, `Des graines`) crée toujours une **classe** à son nom (`bois`, `pomme`…) héritant de `ressource`, si bien que les règles et actions peuvent la cibler (`règle après manger une pomme`, `action cueillir une pomme`).
 
 > La forme **avec position attachée** (`… est une ressource ici` / `… sur la table`) n'accepte que `le`/`la`/`les`/`l'`. Avec un article indéfini, placez la ressource séparément : `Une pomme est une ressource.` puis `Il y a 3 pommes sur la table.`
+
+### Attributs par défaut
+
+Les adjectifs/attributs ajoutés à la définition deviennent les **états par défaut de la classe** de la ressource : **chaque** pile (ou objet) de cette ressource en hérite, y compris les piles placées séparément avec `Il y a …`.
+
+```
+Les pommes sont des ressources mangeables, rouges et vertes.
+Il y a 3 pommes dans le panier.   -- chaque pomme hérite des états mangeable, rouge et vert
+```
+
+On liste les états séparés par des virgules et `et`, comme pour une classe ordinaire. Ne pas confondre avec l'état `multiple`, qui n'est pas un état de classe mais se déduit de la **quantité** de chaque pile (≠ 1 → `multiple`, = 1 → `unique`).
 
 ### Unité de comptage (optionnelle)
 

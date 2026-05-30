@@ -384,3 +384,78 @@ describe('Ressource — forme « N <unité> de <ressource> » (C4)', () => {
   });
 
 });
+
+describe('Ressource — attributs de la définition = états par défaut de la classe (A)', () => {
+
+  it('[F057-T170] les adjectifs de la définition deviennent les états par défaut de la classe ressource', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La salle est un lieu.\nLes pommes sont des ressources mangeables, rouges et vertes ici.`
+    );
+    const classe = ctx.jeu.classes.find((c: any) => c.nom === 'pomme');
+    expect(classe).toBeDefined();
+    // les états sont stockés tels qu'écrits dans la définition (au pluriel, comme pour toute
+    //  classe utilisateur) ; le moteur les normalise au singulier en les appliquant aux éléments
+    //  (cf. T171). Le pseudo-attribut « initialisé à N » n'en fait pas partie.
+    expect(classe.etats).toEqual(['mangeables', 'rouges', 'vertes']);
+  });
+
+  it('[F057-T171] une pile distincte (sans attributs propres) hérite des états de la classe', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La salle est un lieu.\nLe panier est un contenant ici.\n` +
+      `Les pommes sont des ressources mangeables, rouges et vertes.\nIl y a 3 pommes dans le panier.`
+    );
+    const panier = ctx.jeu.objets.find((o: any) => o.nom === 'panier');
+    // la pile placée dans le panier ne porte aucun attribut explicite : ses états ne peuvent
+    //  venir que de la classe « pomme » (héritage via attribuerEtatsParDefaut).
+    const pile = ctx.jeu.objets.find((o: any) =>
+      (o.nom === 'pommes' || o.nom === 'pomme') && o.position?.cibleId === panier.id);
+    expect(pile).toBeDefined();
+    expect(pile.quantite).toBe(3);
+    expect(ctx.jeu.etats.possedeEtatElement(pile, 'mangeable', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(pile, 'rouge', ctx.eju)).toBeTrue();
+    expect(ctx.jeu.etats.possedeEtatElement(pile, 'vert', ctx.eju)).toBeTrue();
+  });
+
+});
+
+describe('Ressource — placement sur un support déclaré après la ressource (C)', () => {
+
+  it('[F057-T180] « Il y a N pommes dessus » : 1re pile sur muret (déclaré après) ET 2e pile sur table', () => {
+    // La 1re pile fusionne sur la définition « pomme » (placée tôt) → sa position « sur muret »
+    //  référence un support déclaré APRÈS : la résolution doit être différée (2e passe).
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `Une pomme est une ressource mangeable.\n` +
+      `Le verger est un lieu.\n` +
+      `Le muret est un support ici.\n` +
+      `Il y a 2 pommes dessus.\n` +
+      `La table est un support dans le verger.\n` +
+      `Il y a 3 pommes dessus.`
+    );
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+
+    const muret = ctx.jeu.objets.find((o: any) => o.nom === 'muret');
+    const table = ctx.jeu.objets.find((o: any) => o.nom === 'table');
+    expect(muret).toBeDefined();
+    expect(table).toBeDefined();
+
+    // pile sur le muret (placement différé) : quantité 2 + état « disponible » bien appliqué
+    const pileMuret = ctx.jeu.objets.find((o: any) => o.nom === 'pomme' && o.position?.cibleId === muret.id);
+    expect(pileMuret).toBeDefined();
+    expect(pileMuret.quantite).toBe(2);
+    expect(ctx.jeu.etats.possedeEtatElement(pileMuret, 'disponible', ctx.eju)).toBeTrue();
+
+    // pile sur la table (résolue en ligne) : quantité 3
+    const pileTable = ctx.jeu.objets.find((o: any) => o.nom === 'pomme' && o.position?.cibleId === table.id);
+    expect(pileTable).toBeDefined();
+    expect(pileTable.quantite).toBe(3);
+  });
+
+  it('[F057-T181] cible réellement inexistante → erreur « position pas trouvée » (non avalée)', () => {
+    // Le placement différé ne doit PAS masquer une vraie faute d'auteur : « tabouret » n'existe pas.
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La salle est un lieu.\nUne pomme est une ressource mangeable.\nIl y a 2 pommes sur le tabouret.`
+    );
+    expect(ctx.jeu.tamponErreurs.some((e: string) => /position pas trouvée/i.test(e))).toBeTrue();
+  });
+
+});
