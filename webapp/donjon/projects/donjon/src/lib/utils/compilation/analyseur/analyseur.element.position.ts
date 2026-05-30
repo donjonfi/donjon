@@ -262,6 +262,15 @@ export class AnalyseurElementPosition {
           if (ressource) {
             // normaliser sur le nom canonique de la ressource (« 1 fruit » → ressource « fruits »)
             newElementGenerique.nom = ressource.nom;
+            // L’identité grammaticale (genre, formes, genre de l’unité) provient de la RESSOURCE
+            //  — c’est là qu’on la spécifie (« Les pièces (f) … ») — et jamais du déterminant de
+            //  « il y a N … » (qui donnerait un masculin parasite via getGenre("6")). On la reporte
+            //  ici pour que TOUTES les piles (1ʳᵉ fusionnée dans le type ou exemplaires distincts)
+            //  partagent le même genre/formes.
+            newElementGenerique.genre = ressource.genre;
+            if (ressource.nomS) { newElementGenerique.nomS = ressource.nomS; }
+            if (ressource.nomP) { newElementGenerique.nomP = ressource.nomP; }
+            if (ressource.uniteGenre != null) { newElementGenerique.uniteGenre = ressource.uniteGenre; }
           } else {
             // signaler à l'analyseur V8 (qui émettra UN message bien formaté via ctx.probleme).
             ctx.placementNonRessource = newElementGenerique.nom;
@@ -352,7 +361,8 @@ export class AnalyseurElementPosition {
    */
   public static testerPlacementRessource(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
     const result = ExprReg.xPlacementRessourceQuantifiee.exec(phrase.morceaux[0]);
-    if (!result) { return null; }
+    // forme comptée par nom + mot positionnel (« Il y a 3 pommes ici. ») → branche dédiée
+    if (!result) { return AnalyseurElementPosition.placementRessourceNommee(phrase, ctx); }
 
     const quantiteStr = result[1].toLowerCase();
     const uniteMot = result[2].toLowerCase();
@@ -410,7 +420,67 @@ export class AnalyseurElementPosition {
     return el;
   }
 
-  // 
+  /**
+   * Placement d’une ressource COMPTÉE PAR SON NOM avec un mot positionnel :
+   *  « Il y a N <ressource> (ici|dessus|dedans|dessous) » (sans « de <unité> »).
+   *  La forme « … dans/sur/sous <complément> » passe par le chemin générique (offset 0).
+   *  Renvoie null si <ressource> n’est pas une ressource déclarée (→ analyse normale / erreur).
+   */
+  public static placementRessourceNommee(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
+    const result = ExprReg.xPlacementRessourceNommee.exec(phrase.morceaux[0]);
+    if (!result) { return null; }
+
+    const quantiteStr = result[1].toLowerCase();
+    const nomBrut = result[2].toLowerCase();
+    const mot = result[3].toLowerCase();
+
+    // résoudre vers une ressource déclarée (tolérance singulier/pluriel, y compris « X de Y »)
+    const tete = MotUtils.getSingulierTete(nomBrut);
+    const ressource = ctx.elementsGeneriques.find(x =>
+      x.classeIntitule === EClasseRacine.ressource &&
+      [x.nom, x.nomS, x.nomP].filter(Boolean).some(f => {
+        const fl = f.toLowerCase();
+        return fl === nomBrut || MotUtils.getSingulierTete(fl) === tete;
+      }));
+    if (!ressource) { return null; }
+
+    const nomCanonique = ressource.nom;
+    const quantite = /^\d+$/.test(quantiteStr) ? parseInt(quantiteStr, 10) : 1;
+    const nombre = (quantite === 1) ? Nombre.s : Nombre.p;
+
+    // position : « ici » → dernier lieu ; dessus/dedans/dessous → dernier élément (≠ la ressource elle-même)
+    let position: PositionSujetString = null;
+    if (mot === 'ici') {
+      if (ctx.dernierLieu) {
+        position = new PositionSujetString(nomCanonique, ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''), 'dans');
+      } else {
+        ctx.ajouterErreur(phrase.ligne, "« ici » : un lieu doit avoir été défini précédemment.");
+        return null;
+      }
+    } else {
+      if (ctx.dernierElementGenerique && ctx.dernierElementGenerique.nom.toLowerCase() !== nomCanonique.toLowerCase()) {
+        position = new PositionSujetString(nomCanonique, ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''), PositionSujetString.getPosition(mot));
+      } else {
+        ctx.ajouterErreur(phrase.ligne, "« " + mot + " » : un élément (distinct de la ressource) doit avoir été défini précédemment.");
+        return null;
+      }
+    }
+
+    const el = new ElementGenerique(
+      quantiteStr + ' ', nomCanonique, null, EClasseRacine.ressource, null,
+      [position], ressource.genre, nombre, quantite, [],
+    );
+    // ressource comptée par son nom : PAS de fallback « unité » (sinon « 3 unités de pommes »).
+    //  On reporte l’unité éventuelle déclarée par la ressource, sinon null (= comptée par son nom).
+    el.unite = ressource.unite ?? null;
+    el.unites = ressource.unites ?? null;
+    if (ressource.nomS) { el.nomS = ressource.nomS; }
+    if (ressource.nomP) { el.nomP = ressource.nomP; }
+    if (ressource.uniteGenre != null) { el.uniteGenre = ressource.uniteGenre; }
+    return el;
+  }
+
+  //
   /**
    * Tester phrase avec pronom personnel (il/elle) et position du dernier élément.
    * @param elementsGeneriques 

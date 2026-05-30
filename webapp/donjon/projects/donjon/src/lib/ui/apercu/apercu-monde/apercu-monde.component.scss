@@ -5,3 +5,39 @@ li {
 ul{
     padding-left: 1em;
 }
+
+// arbre des classes : connecteurs (lignes verticales + coudes horizontaux)
+.apercu-arbre-classes,
+.apercu-arbre-classes ul {
+    list-style: none;
+}
+.apercu-arbre-classes ul {
+    padding-left: 1em;
+}
+.apercu-arbre-classes ul li {
+    position: relative;
+    padding-left: 1.1em;
+}
+// ligne verticale reliant la fratrie
+.apercu-arbre-classes ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid #bbb;
+}
+// coude horizontal vers le nœud (au milieu de la première ligne de texte)
+.apercu-arbre-classes ul li::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.8em;
+    border-top: 1px solid #bbb;
+}
+// dernier enfant : la verticale s’arrête au coude (└ au lieu de ├)
+.apercu-arbre-classes ul li:last-child::before {
+    bottom: auto;
+    height: 0.7em;
+}

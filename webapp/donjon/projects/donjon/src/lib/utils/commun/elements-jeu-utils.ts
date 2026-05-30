@@ -61,6 +61,15 @@ export class ElementsJeuUtils {
    */
   static intituleEchoRessource(obj: ElementJeu, quantiteDemandee: number): string {
     const nom = obj.intituleS?.nom ?? obj.nom;
+    // ressource comptée par son NOM (sans unité) : « 2 pommes » / « 1 pomme » / « les pommes »
+    if (!obj.unite) {
+      const nomPluriel = obj.intituleP?.nom ?? nom;
+      if (quantiteDemandee === -1 || quantiteDemandee == null) {
+        return `les ${nomPluriel}`;
+      }
+      return `${quantiteDemandee} ${(Math.abs(quantiteDemandee) <= 1) ? nom : nomPluriel}`;
+    }
+    // ressource avec unité : « 2 litres d’eau » / « les litres d’eau »
     const liaison = ExprReg.xCommenceParUneVoyelle.test(nom) ? "d’" : "de ";
     const unite = obj.unite;
     const unites = (obj.unites && obj.unites !== unite) ? obj.unites : unite;

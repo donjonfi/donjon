@@ -31,6 +31,15 @@ export class AnalyseurType {
             const typeParent = StringUtils.normaliserMot(result[3]);
             const attributsBruts = result[4];
 
+            // Une ressource n’est PAS un kind : « Une pomme est une ressource. » est une définition
+            //  d’élément (gérée par la regex dédiée ExprReg.xDefinitionRessource). On décline ici pour
+            //  que la phrase retombe sur testerDefinitionElement → élément de classe « ressource »
+            //  (et sa classe par-nom). Strictement borné à « ressource » : « Un fruit est un objet »
+            //  reste un kind.
+            if (typeParent === EClasseRacine.ressource) {
+                return ResultatAnalysePhrase.aucun;
+            }
+
             // retrouver les attributs éventuels
             let nouveauxAttributs: string[] = null;
             if (attributsBruts?.trim() !== '') {

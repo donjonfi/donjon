@@ -13,6 +13,9 @@
         <span class="epithete">{{el.epithete}}</span>
       }
     </span>
+    @for (etq of etiquettes; track etq) {
+      <span class="apercu-etiquette" [attr.data-etiquette]="etq">{{etq}}</span>
+    }
   </div>
 </div>
 

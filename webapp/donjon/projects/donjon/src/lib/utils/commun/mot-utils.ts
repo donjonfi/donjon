@@ -23,6 +23,27 @@ export class MotUtils {
     return singulier;
   }
 
+  /**
+   * Forme « singulier de tête » d’un groupe nominal : le pluriel d’un nom composé « X de Y »
+   * porte sur le mot de TÊTE (« points de vie » → « point de vie », « pommes de terre » →
+   * « pomme de terre »), pas sur le complément. On singularise donc uniquement le 1er segment
+   * (avant « de / du / des / d’ / à / au / en … »), sinon le mot entier.
+   *
+   * Utilisée pour comparer deux groupes nominaux au singulier/pluriel près : on l’applique aux
+   * DEUX côtés, si bien que la comparaison reste fiable même si getSingulier est imparfait
+   * (« bois » → « boi » des deux côtés → toujours égaux).
+   */
+  static getSingulierTete(nom: string): string {
+    if (!nom) { return nom; }
+    const sep = nom.match(/ (?:de la |de l(?:'|’)|de |du |des |d(?:'|’)|à |au |aux |en )/i);
+    if (sep) {
+      const tete = nom.slice(0, sep.index);
+      const reste = nom.slice(sep.index);
+      return MotUtils.getSingulier(tete) + reste;
+    }
+    return MotUtils.getSingulier(nom);
+  }
+
   /** abréviations d'unités de mesure communes qui restent invariables au pluriel */
   static readonly abreviationsUnitesMesure = [
     // longueur

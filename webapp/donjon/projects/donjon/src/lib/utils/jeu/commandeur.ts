@@ -376,7 +376,12 @@ export class Commandeur {
             let qCeci = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
             qCeci.Choix = [];
             candidatActionChoisi.ceci.forEach((candidatCeci: any) => {
-              let valeur = `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci.intitule}=}`;
+              // RESSOURCE : refléter la quantité DEMANDÉE (« 2 pommes ») et non celle de la pile
+              //  (« les pommes »/« 3 pommes »), comme l’écho de commande.
+              const intituleCeci = (candidatCeci?.classe && ClasseUtils.heriteDe(candidatCeci.classe, EClasseRacine.ressource))
+                ? ElementsJeuUtils.intituleEchoRessource(candidatCeci, candidatCommande.ceciQuantiteV1)
+                : candidatCeci.intitule;
+              let valeur = `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${intituleCeci}=}`;
               // préciser l’emplacement (utile pour départager des ressources de même nom)
               const pos = candidatCeci?.position;
               if (pos) {

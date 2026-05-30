@@ -32,7 +32,12 @@ export class AnalyseurElementSimple {
     let position: PositionSujetString;
 
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
-    let result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
+    //  Les RESSOURCES ont leur propre regex dédiée (tous déterminants : le/la/les/l’ ET un/une/des),
+    //  essayée en premier ; sinon on retombe sur la regex générique (autres éléments, inchangée).
+    let result = ExprReg.xDefinitionRessource.exec(phrase.morceaux[0]);
+    if (result === null) {
+      result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
+    }
     if (result !== null) {
       let genreSingPlur = result[4];
       let estFeminin = false;

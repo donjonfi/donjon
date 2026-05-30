@@ -9,18 +9,23 @@ describe('Synonymes auto − Découpe', () => {
         const ej = new ElementJeu(1, "Le Ballon rouge", PhraseUtils.getGroupeNominalDefini("Le Ballon rouge", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Ballon rouge");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(2);
+        // chaque mot-clé est généré au singulier ET au pluriel
+        expect(ej.synonymes).toHaveSize(4);
         expect(ej.synonymes[0].nomEpithete).toEqual("ballon");
-        expect(ej.synonymes[1].nomEpithete).toEqual("rouge");
+        expect(ej.synonymes[1].nomEpithete).toEqual("ballons");
+        expect(ej.synonymes[2].nomEpithete).toEqual("rouge");
+        expect(ej.synonymes[3].nomEpithete).toEqual("rouges");
     });
 
     it('[F049-T002] la lettre verte', () => {
         const ej = new ElementJeu(1, "la lettre verte", PhraseUtils.getGroupeNominalDefini("la lettre verte", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("lettre verte");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(2);
+        expect(ej.synonymes).toHaveSize(4);
         expect(ej.synonymes[0].nomEpithete).toEqual("lettre");
-        expect(ej.synonymes[1].nomEpithete).toEqual("verte");
+        expect(ej.synonymes[1].nomEpithete).toEqual("lettres");
+        expect(ej.synonymes[2].nomEpithete).toEqual("verte");
+        expect(ej.synonymes[3].nomEpithete).toEqual("vertes");
     });
 
 
@@ -28,9 +33,11 @@ describe('Synonymes auto − Découpe', () => {
         const ej = new ElementJeu(1, "Monsieur Dubois", PhraseUtils.getGroupeNominalDefini("Monsieur Dubois", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Monsieur Dubois");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(2);
+        // « dubois » est invariable (se termine par s) → pas de forme singulier mutilée (« duboi »)
+        expect(ej.synonymes).toHaveSize(3);
         expect(ej.synonymes[0].nomEpithete).toEqual("monsieur");
-        expect(ej.synonymes[1].nomEpithete).toEqual("dubois");
+        expect(ej.synonymes[1].nomEpithete).toEqual("monsieurs");
+        expect(ej.synonymes[2].nomEpithete).toEqual("dubois");
     });
 
     it('[F049-T004] Clé verte rouillée', () => {
@@ -38,13 +45,16 @@ describe('Synonymes auto − Découpe', () => {
         
         expect(ej.intitule.nomEpithete).toEqual("Clé de bois sec");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(6);
+        // mots simples au singulier+pluriel (« bois » invariable) ; combinaisons à 2 mots inchangées
+        expect(ej.synonymes).toHaveSize(8);
         expect(ej.synonymes[0].nomEpithete).toEqual("cle");
-        expect(ej.synonymes[1].nomEpithete).toEqual("cle bois");
-        expect(ej.synonymes[2].nomEpithete).toEqual("cle sec");
-        expect(ej.synonymes[3].nomEpithete).toEqual("bois");
-        expect(ej.synonymes[4].nomEpithete).toEqual("bois sec");
-        expect(ej.synonymes[5].nomEpithete).toEqual("sec");
+        expect(ej.synonymes[1].nomEpithete).toEqual("cles");
+        expect(ej.synonymes[2].nomEpithete).toEqual("cle bois");
+        expect(ej.synonymes[3].nomEpithete).toEqual("cle sec");
+        expect(ej.synonymes[4].nomEpithete).toEqual("bois");
+        expect(ej.synonymes[5].nomEpithete).toEqual("bois sec");
+        expect(ej.synonymes[6].nomEpithete).toEqual("sec");
+        expect(ej.synonymes[7].nomEpithete).toEqual("secs");
     });
 
     it('[F049-T005] Jacques', () => {
@@ -68,17 +78,21 @@ describe('Synonymes auto − Découpe', () => {
         // (index 0 et 1 utilisés pour inventaire et joueur)
         expect(ctx.jeu.objets).toHaveSize(4);
         expect(ctx.jeu.objets[2].nom).toEqual("chateau d'if");
-        expect(ctx.jeu.objets[2].synonymes).toHaveSize(2);
+        expect(ctx.jeu.objets[2].synonymes).toHaveSize(4);
         expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('chateau');
         expect(ctx.jeu.objets[2].synonymes[0].epithete).toBeFalsy();
-        expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('if');
-        expect(ctx.jeu.objets[2].synonymes[1].epithete).toBeFalsy();
+        expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('chateaux');
+        expect(ctx.jeu.objets[2].synonymes[2].nom).toEqual('if');
+        expect(ctx.jeu.objets[2].synonymes[2].epithete).toBeFalsy();
+        expect(ctx.jeu.objets[2].synonymes[3].nom).toEqual('ifs');
         expect(ctx.jeu.objets[3].nom).toEqual('comte du chateau');
-        expect(ctx.jeu.objets[3].synonymes).toHaveSize(2);
+        expect(ctx.jeu.objets[3].synonymes).toHaveSize(4);
         expect(ctx.jeu.objets[3].synonymes[0].nom).toEqual('comte');
         expect(ctx.jeu.objets[3].synonymes[0].epithete).toBeFalsy();
-        expect(ctx.jeu.objets[3].synonymes[1].nom).toEqual('chateau');
-        expect(ctx.jeu.objets[3].synonymes[1].epithete).toBeFalsy();
+        expect(ctx.jeu.objets[3].synonymes[1].nom).toEqual('comtes');
+        expect(ctx.jeu.objets[3].synonymes[2].nom).toEqual('chateau');
+        expect(ctx.jeu.objets[3].synonymes[2].epithete).toBeFalsy();
+        expect(ctx.jeu.objets[3].synonymes[3].nom).toEqual('chateaux');
 
         const ctxCom = ctx.com.decomposerCommande('interroger comte sur le chateau');
         expect(ctxCom.brute).toEqual('interroger comte sur le chateau');

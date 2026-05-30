@@ -215,7 +215,13 @@ Une **ressource** est un objet que l'on accumule en quantité variable (argent, 
 ```
 Le bois est une ressource.
 Les fruits sont une ressource.
+Une pomme est une ressource.          -- l'article indéfini est accepté (un / une / des)
+Des graines sont des ressources.
 ```
+
+Tous les déterminants conviennent (`le`/`la`/`les`/`l'` comme `un`/`une`/`des`) ; le genre est déduit de l'article. Une ressource définie au singulier (`Le bois`, `Une pomme`) ou au pluriel (`Les fruits`, `Des graines`) crée toujours une **classe** à son nom (`bois`, `pomme`…) héritant de `ressource`, si bien que les règles et actions peuvent la cibler (`règle après manger une pomme`, `action cueillir une pomme`).
+
+> La forme **avec position attachée** (`… est une ressource ici` / `… sur la table`) n'accepte que `le`/`la`/`les`/`l'`. Avec un article indéfini, placez la ressource séparément : `Une pomme est une ressource.` puis `Il y a 3 pommes sur la table.`
 
 ### Unité de comptage (optionnelle)
 

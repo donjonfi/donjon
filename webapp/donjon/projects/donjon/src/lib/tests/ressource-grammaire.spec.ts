@@ -186,7 +186,7 @@ describe('Ressource — règles & actions référençant « une <ressource> » (
 
 describe('Ressource — description & aperçu personnalisés (K6)', () => {
 
-  it('[F057-T450] la description d\'auteur écrase le défaut dynamique', () => {
+  it('[F057-T453] la description d\'auteur écrase le défaut dynamique', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(
       `${actions}\nLa salle est un lieu.\nL'or est une ressource exprimée en pièces (f).\n` +
       `La description de l'or est "Des pièces étincelantes frappées à l'effigie du roi.".\nIl y a 23 pièces d'or ici.`
@@ -195,6 +195,133 @@ describe('Ressource — description & aperçu personnalisés (K6)', () => {
     const r = ctx.com.executerCommande('examiner l’or', false);
     expect(r.sortie).toContain('Des pièces étincelantes');
     expect(r.sortie).not.toContain('Ce sont 23');
+  });
+
+});
+
+// =====================================================================================
+//  RESSOURCE — définition par tous les déterminants (un/une/des ET le/la/les/l’) (K7)
+//  « Une pomme est une ressource. » doit se comporter comme « La pomme est une ressource. ».
+// =====================================================================================
+describe('Ressource — définition indéfinie un/une/des (K7)', () => {
+
+  it('[F057-T460] « Une pomme est une ressource. » + placement → ressource (classe par-nom, genre f)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La cuisine est un lieu.\nLa table est un support ici.\n` +
+      `Une pomme est une ressource.\nIl y a 3 pommes sur la table.`
+    );
+    const pommes = ctx.jeu.objets.filter((o: any) => o.nom === 'pomme' || o.nom === 'pommes');
+    expect(pommes.length).toBeGreaterThan(0);
+    expect(pommes[0].classe.nom).toBe('pomme');
+    expect(ClasseUtils.heriteDe(pommes[0].classe, EClasseRacine.ressource)).toBeTrue();
+    expect(pommes.every((p: any) => p.genre === Genre.f)).toBeTrue();
+    expect(pommes.reduce((s: number, o: any) => s + (o.quantite ?? 0), 0)).toBe(3);
+  });
+
+  it('[F057-T461] « Des pommes sont des ressources mangeables. » → ressource (pluriel)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La salle est un lieu.\nDes pommes sont des ressources mangeables.`
+    );
+    const p = ctx.jeu.objets.find((o: any) => o.nom === 'pommes' || o.nom === 'pomme');
+    expect(p).toBeDefined();
+    expect(ClasseUtils.heriteDe(p.classe, EClasseRacine.ressource)).toBeTrue();
+    expect(p.classe.nom).toBe('pomme');
+  });
+
+  it('[F057-T462] « Un magot est une ressource exprimée en pièces (f). » → unité+genre captés', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La salle est un lieu.\nUn magot est une ressource exprimée en pièces (f).`
+    );
+    const t = ctx.jeu.objets.find((o: any) => o.nom === 'magot');
+    expect(t).toBeDefined();
+    expect(ClasseUtils.heriteDe(t.classe, EClasseRacine.ressource)).toBeTrue();
+    expect(t.unite).toBe('pièce');
+    expect(t.uniteGenre).toBe(Genre.f);
+  });
+
+  it('[F057-T463] piles multiples d\'une même ressource → genre f & classe communs', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `La cuisine est un lieu.\nLa table est un support ici.\nLa chaise est un support ici.\n` +
+      `Le grenier est un contenant ici.\nLa pomme est une ressource.\n` +
+      `Il y a 3 pommes sur la table.\nIl y a 6 pommes sur la chaise.\nIl y a 5 pommes dans le grenier.`
+    );
+    const pommes = ctx.jeu.objets.filter((o: any) => o.nom === 'pomme' || o.nom === 'pommes');
+    expect(pommes.length).toBe(3);
+    // toutes les piles partagent le genre (de la ressource, pas du « il y a N ») et la classe par-nom
+    expect(pommes.every((p: any) => p.genre === Genre.f)).toBeTrue();
+    expect(new Set(pommes.map((p: any) => p.classe.nom))).toEqual(new Set(['pomme']));
+    expect(pommes.reduce((s: number, o: any) => s + (o.quantite ?? 0), 0)).toBe(14);
+  });
+
+  it('[F057-T464] règle référençant « une pomme » sur ressource définie en indéfini', () => {
+    const scenario =
+      `${actions}\nLe verger est un lieu.\nLe pommier est un support ici.\n` +
+      `Une pomme est une ressource mangeable.\nIl y a 3 pommes sur le pommier.\n` +
+      `règle après manger une pomme:\n  dire "Miam!".\nfin règle`;
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    ctx.com.executerCommande('regarder', false);
+    const r = ctx.com.executerCommande('manger une pomme', false);
+    expect(r.sortie).toContain('Miam!');
+  });
+
+  it('[F057-T465] synonyme d\'une ressource (pluriel) référencée au singulier « X de Y »', () => {
+    const scenario =
+      `${actions}\nLa cuisine est un lieu.\nLa chaise est un support ici.\n` +
+      `Les points de vie sont une ressource.\ninterpréter pv comme point de vie.\n` +
+      `Il y a 5 points de vie sur la chaise.`;
+    // ne doit PAS lever « élément original pas trouvé : point de vie »
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+    const pv = ctx.jeu.objets.find((o: any) => o.nom === 'points de vie');
+    expect(pv).toBeDefined();
+    expect(pv.synonymes.some((s: any) => s.nom === 'pv')).toBeTrue();
+  });
+
+  it('[F057-T466] synonymes auto d\'une ressource : mot au singulier ET au pluriel (« vies »)', () => {
+    const sc =
+      `${actions}\nLa cuisine est un lieu.\nLa chaise est un support ici.\n` +
+      `Les points de vie sont une ressource.\nIl y a 5 points de vie sur la chaise.`;
+    const possedeApres = (cmd: string): number => {
+      const ctx = TestUtils.genererEtCommencerLeJeu(sc);
+      ctx.com.executerCommande('regarder', false);
+      ctx.com.executerCommande(cmd, false);
+      return ctx.jeu.objets
+        .filter((o: any) => o.nom === 'points de vie' && o.position?.cibleId === ctx.jeu.joueur.id)
+        .reduce((s: number, o: any) => s + (o.quantite ?? 0), 0);
+    };
+    // « vies » (pluriel du mot « vie ») doit fonctionner sans synonyme explicite, comme « vie »
+    expect(possedeApres('prendre vies')).toBe(5);
+    expect(possedeApres('prendre 2 vies')).toBe(2);
+    expect(possedeApres('prendre vie')).toBe(1);
+  });
+
+  it('[F057-T467] « Il y a 3 pommes ici » (ressource comptée par nom + mot positionnel)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `Le verger est un lieu.\nLe pommier est un support ici.\n` +
+      `Les pommes sont des ressources sur le pommier.\nIl y a 3 pommes ici.`
+    );
+    const pommes = ctx.jeu.objets.filter((o: any) => o.nom === 'pommes' || o.nom === 'pomme');
+    // pile illimitée sur le pommier (type) + pile de 3 dans le verger (ici)
+    const surPommier = pommes.find((p: any) => p.position?.cibleType === 'objet');
+    const dansVerger = pommes.find((p: any) => p.position?.cibleType === 'lieu');
+    expect(surPommier?.quantite).toBe(-1);
+    expect(dansVerger?.quantite).toBe(3);
+    // comptée par nom → pas d'unité parasite (« 3 pommes », pas « 3 unités de pommes »)
+    expect(dansVerger?.unite).toBeFalsy();
+  });
+
+  it('[F057-T468] désambiguïsation ressource → les choix reflètent la quantité DEMANDÉE', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLe verger est un lieu.\nLe pommier est un support ici.\n` +
+      `Les pommes sont des ressources sur le pommier.\nIl y a 3 pommes ici.`
+    );
+    ctx.com.executerCommande('regarder', false);
+    const r: any = ctx.com.executerCommande('prendre 2 pommes', false);
+    const choix: string[] = r.questions.QcmCeci.Choix.map((c: any) => c.valeurs[0]);
+    expect(choix.length).toBe(2);
+    // « 2 pommes » (demandé) et non « 3 pommes » (pile) ni « les pommes »
+    choix.forEach(c => expect(c).toContain('2 pommes'));
+    choix.forEach(c => expect(c).not.toContain('3 pommes'));
+    choix.forEach(c => expect(c).not.toContain('les pommes'));
   });
 
 });

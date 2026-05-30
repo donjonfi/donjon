@@ -171,6 +171,13 @@ export class ExprReg {
    * - Exemples : « Il y a 30 unités de bois ici. », « Il y a 5 pièces d’argent dans le coffre. », « Il y a 3 unités d’essence sous la table. »
    */
   static readonly xPlacementRessourceQuantifiee = /^il y a ([1-9]\d*|une?) (\S+?) (?:de |d(?:'|’))(\S+?) (?:((?:(?:à l(?:'|’)(?:intérieur|interieur|extérieur|exterieur|est|ouest)|hors|en (?:haut|bas|dessous)|au(?: |\-)(?:dessus|dessous|nord(?:-(?:est|ouest))?|sud(?:-(?:est|ouest))?)) (?:du |de (?:la |l(?:'|’))?|des ))|(?:(?:dans|sur|sous) (?:la |le |l(?:'|’)?|les |un |une )?))(.+)|(ici|dessus|dedans|dessous))$/i;
+  /** Placement d’une ressource COMPTÉE PAR SON NOM avec un mot positionnel (sans « de <unité> ») :
+   *  « Il y a N <ressource> (ici|dessus|dedans|dessous) ». Le « … dans/sur/sous <complément> »
+   *  passe par le chemin générique (xPositionElementGeneriqueIndefini).
+   *  - Découpage : quantité(1), nom de la ressource(2), ici/dessus/dedans/dessous(3)
+   *  - Exemples : « Il y a 3 pommes ici. », « Il y a 5 points de vie ici. »
+   */
+  static readonly xPlacementRessourceNommee = /^il y a ([1-9]\d*|une?) (.+?) (ici|dessus|dedans|dessous)$/i;
   /** Affichage du lieu sans le sujet (utilisé runtime via « changer »). Ex: « affiché dans le cartouche du haut ». */
   static readonly xAffichageLieuSeul = /^affich[eé]e?s?(?: dans le cartouche(?: du (haut|bas))?)?$/i;
 
@@ -192,6 +199,25 @@ export class ExprReg {
    *     - 💥 Le bucheron est une personne ici
    */
   static readonly xDefinitionElementAvecType = /^(?!un |une |ce |c'|c\u2019|elle |il |elles |ils |sa |son |ses |si |avant |après |dire |changer |exécuter |terminer |refuser )(le |(?:de )?(?:la |l'|l\u2019)|les |du )?(\S+?|(?:\S+? (?:(?:(?:à|dans|et|sous|sur|vers) (?:la |le |les |l'|\u2019))|de (?:la |l'|l\u2019)?|du |des |d'|d\u2019|à |au(?:x)? |en |qui |sans )\S+?))(?:(?: )((?!\(|(?:(?:ne|et|ou|soit|mais|un|de|du|des|dans|sur|avec|concernant|se)\b)|(?:d'|d\u2019|n'|n\u2019|s'|s\u2019|à))\S+))?(?:(?: )(\(.+\))?)? (?:est|sont) (?:un|une|des) (\S+)(?: ((?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)(?:(?:, (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?))*(?: et (?!(?:au|à|en|dans|ici|hors)\b)(?:\S+?)))?))?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?(?:(?: *)(?:avec (?:l'|l’)unité|exprimée?s? en) (\S+)(?:\s*\((f|m)\))?)?(?:(?: *)(initialisé(?:e)?(?:s)? à (?:\d+)))?$/i;
+
+  /**
+   * Définition d’une RESSOURCE — règle dédiée, tous déterminants (le/la/les/l’ ET un/une/des).
+   * Dérivée de xDefinitionElementAvecType (même découpage des groupes 1–10), avec :
+   *  - l’article élargi à un/une/des (retirés du lookahead de tête) ;
+   *  - le type figé à « ressource(s) » → cette regex ne matche QUE les ressources.
+   * Exemples :
+   *  - Une pomme est une ressource.
+   *  - Les pommes sont des ressources mangeables.
+   *  - Une pièce (f) est une ressource exprimée en pièces.
+   *  - Le bois est une ressource. / La pomme est une ressource. (formes définies inchangées)
+   */
+  static readonly xDefinitionRessource = new RegExp(
+    ExprReg.xDefinitionElementAvecType.source
+      .replace('(?!un |une |ce |', '(?!ce |')
+      .replace('|les |du )?', '|les |du |un |une |des )?')
+      .replace('(?:est|sont) (?:un|une|des) (\\S+)', '(?:est|sont) (?:un|une|des) (ressources?)'),
+    'i'
+  );
 
   /** élément générique positionné par rapport à complément
    * - Découpage :

@@ -1157,12 +1157,23 @@ export class Generateur {
     // composé de au moins 2 mots
     if (concept.intitule.motsCles.length > 1) {
       for (let indexMotA = 0; indexMotA < concept.intitule.motsCles.length; indexMotA++) {
-        // chaque mot séparé est un synonyme
+        // chaque mot séparé est un synonyme — dans ses DEUX formes (singulier ET pluriel), car les
+        //  commandes ne normalisent pas le nombre (on matche les formes stockées). Ainsi « vies »
+        //  comme « vie » désignent « points de vie » (cf. nomS/nomP du nom principal).
         const motCleA = concept.intitule.motsCles[indexMotA];
-        const curSynonymeSimple = PhraseUtils.getGroupeNominalDefini(motCleA, true);
-        if (!concept.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
-          concept.synonymes.push(curSynonymeSimple);
+        const formes = [motCleA];
+        // ajouter la forme singulier seulement si le mot n’est PAS invariable au pluriel
+        //  (évite de mutiler « bois » → « boi », « dubois » → « duboi »).
+        if (MotUtils.getPluriel(motCleA) !== motCleA) {
+          formes.push(MotUtils.getSingulier(motCleA));
         }
+        formes.push(MotUtils.getPluriel(motCleA));
+        formes.forEach(forme => {
+          const syn = PhraseUtils.getGroupeNominalDefini(forme, true);
+          if (!concept.synonymes.some(x => x.toString() == syn.toString())) {
+            concept.synonymes.push(syn);
+          }
+        });
         // composé de au moins 3 mots
         if (concept.intitule.motsCles.length > 2) {
           for (let indexMotB = indexMotA + 1; indexMotB < concept.intitule.motsCles.length; indexMotB++) {
