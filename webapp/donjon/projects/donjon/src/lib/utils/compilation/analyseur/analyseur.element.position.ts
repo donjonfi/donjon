@@ -368,10 +368,13 @@ export class AnalyseurElementPosition {
     const uniteMot = result[2].toLowerCase();
     const ressourceNom = result[3].toLowerCase();
 
-    // la ressource doit avoir été déclarée auparavant
+    // la ressource doit avoir été déclarée auparavant.
+    //  Repli : « Il y a 3 points de vie ici » est capté à tort par la regex « N <unité> de <ress.> »
+    //  (unité=points, ress.=vie) ; si la ressource n'existe pas sous cette forme, retenter la
+    //  forme comptée par nom (« N <ressource> ici »).
     const ressource = ctx.elementsGeneriques.find(x => x.nom.toLowerCase() === ressourceNom);
     if (!ressource || ressource.classeIntitule !== EClasseRacine.ressource) {
-      return null;
+      return AnalyseurElementPosition.placementRessourceNommee(phrase, ctx);
     }
 
     // l’unité doit être « unité(s) » (défaut) ou l’unité déclarée de la ressource (singulier/pluriel)
@@ -380,7 +383,7 @@ export class AnalyseurElementPosition {
     const unitesDeclarees = ressource.unites ? ressource.unites.toLowerCase() : null;
     const matchUniteDeclaree = (uniteMot === uniteDeclaree) || (uniteMot === unitesDeclarees);
     if (!estUniteDefaut && !matchUniteDeclaree) {
-      return null;
+      return AnalyseurElementPosition.placementRessourceNommee(phrase, ctx);
     }
 
     // quantité (chiffres ou « un/une »)
@@ -474,8 +477,10 @@ export class AnalyseurElementPosition {
     //  On reporte l’unité éventuelle déclarée par la ressource, sinon null (= comptée par son nom).
     el.unite = ressource.unite ?? null;
     el.unites = ressource.unites ?? null;
-    if (ressource.nomS) { el.nomS = ressource.nomS; }
-    if (ressource.nomP) { el.nomP = ressource.nomP; }
+    // formes singulier/pluriel : le nom canonique peut être singulier (« pomme ») alors que la pile
+    //  est plurielle (« 3 pommes ») → dériver les deux formes (tête) pour un intitulé correct.
+    el.nomS = ressource.nomS ?? MotUtils.getSingulierTete(nomCanonique);
+    el.nomP = ressource.nomP ?? MotUtils.getPlurielTete(nomCanonique);
     if (ressource.uniteGenre != null) { el.uniteGenre = ressource.uniteGenre; }
     return el;
   }

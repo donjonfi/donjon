@@ -357,6 +357,39 @@ describe('Ressource — définition indéfinie un/une/des (K7)', () => {
     expect(ctx.jeu.objets.some((o: any) => o.id === ressourceId)).toBeFalse();
   });
 
+  it('[F057-T471] ressource définie au SINGULIER placée en quantité → pluriel correct (2 chemins)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLa cuisine est un lieu.\nUne pomme est une ressource.\n` +
+      `Il y a 3 pommes ici.\nIl y a 2 pommes dans la cuisine.`
+    );
+    const piles = ctx.jeu.objets.filter((o: any) => o.nom === 'pomme');
+    expect(piles.length).toBeGreaterThanOrEqual(1);
+    // chaque pile a un pluriel correct (« pommes »), via le chemin « ici » comme « dans … »
+    piles.forEach((p: any) => expect(p.intituleP?.nom).toBe('pommes'));
+  });
+
+  it('[F057-T472] ressource multi-mots « point de vie » : placement OK + pluriel de tête', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLa cuisine est un lieu.\nUn point de vie est une ressource.\nIl y a 3 points de vie ici.`
+    );
+    const pv = ctx.jeu.objets.find((o: any) => o.nom === 'point de vie' && o.quantite === 3);
+    expect(pv).toBeDefined();                              // le placement a bien eu lieu (pas « Définition attendue »)
+    expect(pv.intituleP?.nom).toBe('points de vie');       // pluriel de TÊTE, pas « point de vies »
+  });
+
+  it('[F057-T473] priorité au disponible pour une ressource définie au singulier', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLa cuisine est un lieu.\nUne pomme est une ressource.\n` +
+      `Il y a 2 pommes dans l'inventaire.\nIl y a 3 pommes ici.`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande('prendre 3 pommes', false);   // doit prendre la pile du lieu (disponible)
+    const total = ctx.jeu.objets
+      .filter((o: any) => o.nom === 'pomme' && o.position?.cibleId === ctx.jeu.joueur.id)
+      .reduce((s: number, o: any) => s + (o.quantite ?? 0), 0);
+    expect(total).toBe(5);                                 // 2 déjà possédées + 3 prises, fusionnées
+  });
+
 });
 
 describe('Ressource — écho de commande quantité+unité (K4)', () => {

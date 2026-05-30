@@ -421,14 +421,15 @@ export class Generateur {
 
         // Déterminer le SINGULIER à partir du pluriel.
         if (curEle.nombre === Nombre.p) {
-          // on a déjà le pluriel
-          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          // on a déjà le pluriel (nomP si fourni — utile quand le nom a été normalisé sur la forme
+          //  singulière canonique d'une ressource ; sinon le nom lui-même).
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nomP ?? curEle.nom, curEle.epithete);
           // le singulier est fourni
           if (curEle.nomS) {
             newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
-            // le singulier est calculé
+            // le singulier est calculé (tête : « pommes de terre » → « pomme de terre »)
           } else {
-            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulier(curEle.nom), MotUtils.getSingulier(curEle.epithete));
+            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete));
           }
           // Déterminer PLURIEL à partir du singulier.
         } else if (curEle.nombre == Nombre.s) {
@@ -437,9 +438,9 @@ export class Generateur {
           // le pluriel est fourni
           if (curEle.nomP) {
             newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
-            // le pluriel est calculé
+            // le pluriel est calculé (tête : « point de vie » → « points de vie »)
           } else {
-            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
+            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete));
           }
         } else if (curEle.nombre == Nombre.tp) {
           // on a déjà le pluriel

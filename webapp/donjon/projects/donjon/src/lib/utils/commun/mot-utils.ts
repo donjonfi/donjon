@@ -44,6 +44,25 @@ export class MotUtils {
     return MotUtils.getSingulier(nom);
   }
 
+  /**
+   * Forme « pluriel de tête » d’un groupe nominal : le pluriel d’un nom composé « X de Y » porte
+   * sur le mot de TÊTE (« point de vie » → « points de vie », pas « point de vies »). On pluralise
+   * donc uniquement le 1er segment (avant « de / du / des / d’ / à / au / en … »), sinon le mot entier.
+   *
+   * Idempotent grâce à la règle française : un mot qui ne se termine NI par « s » NI par « x » est
+   * forcément un singulier → on le pluralise ; sinon (déjà pluriel ou invariable) on le laisse tel
+   * quel (évite « pommes » → « pommess », « bois » → « boiss »).
+   */
+  static getPlurielTete(nom: string): string {
+    if (!nom) { return nom; }
+    const sep = nom.match(/ (?:de la |de l(?:'|’)|de |du |des |d(?:'|’)|à |au |aux |en )/i);
+    const tete = sep ? nom.slice(0, sep.index) : nom;
+    const reste = sep ? nom.slice(sep.index) : '';
+    // se termine par s/x → déjà pluriel ou invariable : ne pas re-pluraliser
+    if (/[sx]$/i.test(tete)) { return nom; }
+    return MotUtils.getPluriel(tete) + reste;
+  }
+
   /** abréviations d'unités de mesure communes qui restent invariables au pluriel */
   static readonly abreviationsUnitesMesure = [
     // longueur
