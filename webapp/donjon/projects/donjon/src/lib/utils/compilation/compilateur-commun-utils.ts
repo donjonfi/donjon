@@ -9,6 +9,7 @@ import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementGenerique } from "../../models/compilateur/element-generique";
 import { Genre } from "../../models/commun/genre.enum";
 import { Monde } from "../../models/compilateur/monde";
+import { MotUtils } from "../commun/mot-utils";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { ResultatCompilation } from "../../models/compilateur/resultat-compilation";
 import { StringUtils } from "../commun/string.utils";
@@ -46,6 +47,15 @@ export class CompilateurCommunUtils {
       CompilateurCommunUtils.ajouterClasseDuTypeUtilisateur(def.intitule, ctx.analyse, ctx.monde);
     });
 
+    // CLASSES DES RESSOURCES (par-nom, héritant de « ressource »)
+    // À FAIRE AVANT les règles : « une pomme » dans une règle/action sera résolu en classe
+    //  « pomme » ; on s'assure ici qu'elle existe et hérite bien de « ressource ».
+    ctx.analyse.elementsGeneriques.forEach(el => {
+      if (ClasseUtils.getIntituleNormalise(el.classeIntitule) === EClasseRacine.ressource) {
+        CompilateurCommunUtils.trouverOuCreerClasseRessource(el, ctx.monde);
+      }
+    });
+
     // CLASSE ÉVÈNEMENTS DES RÈGLES
     // parcour des règles
     ctx.analyse.regles.forEach(regle => {
@@ -73,7 +83,10 @@ export class CompilateurCommunUtils {
     ctx.listes = [];
     // définir la classe des éléments génériques et les trier.
     ctx.analyse.elementsGeneriques.forEach(el => {
-      el.classe = ClasseUtils.trouverOuCreerClasse(ctx.monde.classes, el.classeIntitule);
+      // ressource → classe par-nom (héritant de « ressource ») ; sinon résolution standard.
+      el.classe = (ClasseUtils.getIntituleNormalise(el.classeIntitule) === EClasseRacine.ressource)
+        ? CompilateurCommunUtils.trouverOuCreerClasseRessource(el, ctx.monde)
+        : ClasseUtils.trouverOuCreerClasse(ctx.monde.classes, el.classeIntitule);
       // objets
       if (ClasseUtils.heriteDe(el.classe, EClasseRacine.objet)) {
         ctx.monde.objets.push(el);
@@ -181,6 +194,32 @@ export class CompilateurCommunUtils {
       }
     }
     return (dernierEstOuvert);
+  }
+
+  /**
+   * Pour une ressource (« Les pommes sont des ressources »), trouver ou créer une CLASSE
+   * par-nom (forme singulière : « pomme ») héritant de « ressource ». L'instance de la ressource
+   * sera de cette classe, si bien que les règles et actions personnalisées qui référencent
+   * « une pomme » (résolu en classe « pomme ») la désignent correctement — sans rien changer
+   * dans la compilation des règles/actions.
+   */
+  public static trouverOuCreerClasseRessource(el: ElementGenerique, monde: Monde): Classe {
+    // forme singulière : si la ressource est déclarée au singulier (« Le bois »), le nom EST déjà
+    //  singulier (éviter getSingulier qui mutilerait « bois » → « boi »). Sinon, nomS ou dérivé.
+    const nomSingulier = (el.nombre === Nombre.s) ? el.nom : (el.nomS ?? MotUtils.getSingulier(el.nom));
+    const nomClasse = StringUtils.normaliserMot(nomSingulier);
+    let classe = monde.classes.find(x => x.nom === nomClasse);
+    if (!classe) {
+      const parent = monde.classes.find(x => x.nom === EClasseRacine.ressource) ?? ClassesRacines.Ressource;
+      // Les adjectifs/attributs de la définition (« des ressources mangeables, rouges et vertes »)
+      //  deviennent les états par défaut de la classe → toute pile/objet héritant de cette ressource
+      //  les reçoit via attribuerEtatsParDefaut. On exclut le pseudo-attribut « initialisé à N »
+      //  (quantité propre à la pile, pas un état de la classe).
+      const etatsParDefaut = (el.attributs ?? []).filter(a => !/^initialis/i.test(a.trim()));
+      classe = new Classe(nomClasse, nomSingulier, parent, parent.niveau + 1, etatsParDefaut);
+      monde.classes.push(classe);
+    }
+    return classe;
   }
 
   public static ajouterClasseDuTypeUtilisateur(nomTypeUtilisateur, ctxAnalyse: ContexteAnalyse, monde: Monde): Classe {

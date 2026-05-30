@@ -70,7 +70,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(afficher|ajouter|allumer|arrêter|attendre|augmenter|changer|charger|continuer|copier|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|stopper|terminer|verrouiller|vider)\\b(?!\\.)"
+          "match": "\\b(afficher|ajouter|allumer|arrêter|attendre|augmenter|changer|charger|consommer|continuer|copier|créer|creer|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|stopper|terminer|verrouiller|vider)\\b(?!\\.)"
         },
         {
           "name": "keyword.other.direction.donjon",
@@ -82,7 +82,7 @@
         },
         {
           "name": "constant.language",
-          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|marche|arrêt|arrêté|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|adjacent|initialisé|multiple|unique|illimité|cassé|actionné|connu|visité)(e)?(s)?(?!\\w))"
+          "match": "(\\b(présent|absent|intact|déplacé|modifié|mentionné|vu|famili(er|èr)|couvert|décorati(f|v)|secr(et|èt)|caché|discr(et|èt)|(in)?dénombrable|mangeable|buvable|ouvrable|ouvert|fermé|verrouillable|(dé)?verrouillé|clair|obscur|allumé|éteint|marche|arrêt|arrêté|parlant|opaque|transparent|fixé|(trans)?portable|solide|liquide|gazeu(x|s)|(im)?perméable|enfilable|équipable|chaussable|porté|enfilé|équipé|chaussé|possédé|disponible|occupé|(in)?visible|(in)?accessible|adjacent|initialisé|affiché|multiple|unique|illimité|cassé|actionné|connu|visité)(e)?(s)?(?!\\w))"
         }
       ]
     },
@@ -110,7 +110,7 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|règle|routine|si|choix|choisir)|fin|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE|forment une bascule|se contredisent|implique|exclut|est un état|non)\\b)|(\\baction\\b(?!;|\\.))|((?i)^(\\s)*(red(é|e)finir\\s+(l['’]\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:))|((?i)^\\s*(phase (prérequis|exécution|épilogue)|définition(s)?|basique)\\s*:)"
+          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|règle|routine|si|choix|choisir)|fin|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE|forment une bascule|se contredisent|implique|exclut|est un état|non)\\b)|(\\baction\\b(?!;|\\.))|((?i)^(\\s)*(red(é|e)finir\\s+(l['’]\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:))|((?i)^\\s*(phase (prérequis|exécution|épilogue)|définition(s)?|basique)\\s*:)|((?i)\\b(il y a|exprimée?s? en)\\b)|((?i)avec l['’]unité)"
         },
         {
           "name": "keyword.operator",

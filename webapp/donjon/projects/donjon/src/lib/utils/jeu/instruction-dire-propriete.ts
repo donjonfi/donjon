@@ -29,7 +29,7 @@ export class InstructionDirePropriete {
   ) { }
 
   calculerBalisePropriete(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
-    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|accord|es|s|e|pronom|Pronom|il|Il|l'|l\u2019|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
+    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|Cest|cest|accord|es|s|e|pronom|Pronom|il|Il|l'|l\u2019|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
     return InstructionsUtils.processBalises(texteDynamique, balisePropriete, decoupe => {
       const proprieteString = decoupe[1];
       const cibleString = decoupe[2];
@@ -57,6 +57,17 @@ export class InstructionDirePropriete {
               resultat = this.eju.calculerIntituleElement(cibleElement, false, true, Nombre.p); break;
             case 'accord': case 'es':
               resultat = (cibleElement.genre === Genre.f ? "e" : "") + (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : ""); break;
+            // démonstratif accordé au compte : « C'est » / « Ce sont » (et minuscule).
+            //  Pluriel si quantité > 1 ou illimitée ; sinon selon le nombre grammatical.
+            case 'Cest': case 'cest': {
+              const q = cibleElement.quantite;
+              const pluriel = (q !== null && q !== undefined)
+                ? (q > 1 || q === -1)
+                : (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp);
+              const maj = (proprieteString === 'Cest');
+              resultat = pluriel ? (maj ? "Ce sont" : "ce sont") : (maj ? "C’est" : "c’est");
+              break;
+            }
             case 's':
               resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "s" : ""); break;
             case 'e':

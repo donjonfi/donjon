@@ -1,0 +1,11 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 8 — fichier racine.
+-- Le scénario est découpé en 3 fichiers : ce fichier en inclut deux autres.
+-- Concept : « inclure "X.djn". » — résolu à la compilation, chemins relatifs au fichier racine.
+
+Le titre du jeu est "L’Express de 23h47 — découpé".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+inclure "08_a_inclure_intro.djn".
+inclure "08_a_inclure_finale.djn".
+
+Le joueur se trouve dans le compartiment sept.

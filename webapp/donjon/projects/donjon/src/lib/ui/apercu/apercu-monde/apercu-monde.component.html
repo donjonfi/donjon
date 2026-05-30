@@ -37,6 +37,27 @@
         </li>
       }
     </ul>
+    <h3>Arbre des classes</h3>
+    @if (racinesClasses.length == 0) {
+      <p>Aucune classe trouvée.</p>
+    }
+    <ul class="apercu-arbre-classes">
+      @for (classe of racinesClasses; track classe) {
+        <ng-container *ngTemplateOutlet="noeudClasse; context: { $implicit: classe }"></ng-container>
+      }
+    </ul>
+    <ng-template #noeudClasse let-classe>
+      <li>
+        <strong>{{ classe.intitule }}</strong>
+        @if (enfants(classe).length > 0) {
+          <ul>
+            @for (enfant of enfants(classe); track enfant) {
+              <ng-container *ngTemplateOutlet="noeudClasse; context: { $implicit: enfant }"></ng-container>
+            }
+          </ul>
+        }
+      </li>
+    </ng-template>
     <h3>Éléments spéciaux</h3>
     @if (monde.speciaux && monde.speciaux.length == 0) {
       <p>Aucun élément spécial trouvé.</p>

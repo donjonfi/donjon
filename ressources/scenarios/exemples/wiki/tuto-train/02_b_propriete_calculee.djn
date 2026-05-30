@@ -1,0 +1,32 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 2, étape B
+-- Accumulation d’une propriété : le poids transporté augmente à la prise, diminue au dépôt.
+-- Concepts : « X est un compteur initialisé à N. » + « changer le total augmente du poids de ceci. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept du Train-Couchettes. Les bagages du passager précédent traînent.".
+
+Le poids transporté est un compteur initialisé à 0 avec l’unité kilos.
+
+La valise de cuir est un objet dans le compartiment sept.
+Le poids de la valise de cuir vaut 12.
+
+Le sac de toile est un objet dans le compartiment sept.
+Le poids du sac de toile vaut 2.
+
+La malle en bois est un objet dans le compartiment sept.
+Le poids de la malle en bois vaut 28.
+
+règle après prendre un objet:
+  changer le poids transporté augmente du poids de ceci.
+  dire "Vous soulevez [le ceci]. Poids transporté : [poids transporté] kilos.".
+fin règle
+
+règle après laisser un objet:
+  changer le poids transporté diminue du poids de ceci.
+  dire "Vous reposez [le ceci]. Poids transporté : [poids transporté] kilos.".
+fin règle
+
+Le joueur se trouve dans le compartiment sept.

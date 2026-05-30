@@ -346,7 +346,8 @@ describe('Test du jeu avec secret, caché et discret', () => {
     expect(piece.etats).toContain(ctxPartie.jeu.etats.familierID);
 
     ctxCommande = ctxPartie.com.executerCommande("examiner pièce", false);
-    expect(ctxCommande.sortie).toEqual("C’est une pièce.{N}");
+    // la pièce a été rendue « familière » par la lettre ([&pièce]) → forme définie.
+    expect(ctxCommande.sortie).toEqual("C’est la pièce.{N}");
 
   });
 });

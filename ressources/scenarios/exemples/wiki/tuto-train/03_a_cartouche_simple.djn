@@ -1,0 +1,18 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 3, étape A
+-- Afficher une valeur dans le cartouche. Par défaut, c’est en haut à droite.
+-- Concepts : « X est un compteur initialisé à N avec l’unité U. » + « X est affiché. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+La cabine de pilotage est un lieu.
+Sa description est "La cabine du Train-Couchettes. Le compteur de vitesse tressaute. La nuit défile par la baie vitrée.".
+
+La vitesse est un compteur initialisé à 95 avec l’unité km/h.
+La vitesse est affichée.
+
+Le joueur se trouve dans la cabine de pilotage.
+
+règle avant commencer le jeu:
+  dire "Regardez le coin supérieur droit de l’écran : la vitesse du train y est affichée.".
+fin règle

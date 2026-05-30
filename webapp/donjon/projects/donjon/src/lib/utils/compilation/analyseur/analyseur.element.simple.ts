@@ -32,7 +32,12 @@ export class AnalyseurElementSimple {
     let position: PositionSujetString;
 
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
-    let result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
+    //  Les RESSOURCES ont leur propre regex dédiée (tous déterminants : le/la/les/l’ ET un/une/des),
+    //  essayée en premier ; sinon on retombe sur la regex générique (autres éléments, inchangée).
+    let result = ExprReg.xDefinitionRessource.exec(phrase.morceaux[0]);
+    if (result === null) {
+      result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
+    }
     if (result !== null) {
       let genreSingPlur = result[4];
       let estFeminin = false;
@@ -67,8 +72,9 @@ export class AnalyseurElementSimple {
       nombre = MotUtils.getNombre(result[1], estToujoursPluriel);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
-      initialiseA = result[7] ?? result[9];
+      initialiseA = result[7] ?? result[10];
       const unite = result[8];
+      const uniteGenreMarqueur = result[9];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
       if (initialiseA) {
         attributs.push(initialiseA);
@@ -100,7 +106,13 @@ export class AnalyseurElementSimple {
       }
 
       if (unite) {
-        nouvelElementGenerique.unite = unite;
+        // l’unité peut être fournie au singulier (« avec l’unité pièce ») ou au pluriel
+        // (« exprimée en pièces ») : on stocke les deux formes.
+        nouvelElementGenerique.unite = MotUtils.getSingulier(unite);
+        nouvelElementGenerique.unites = MotUtils.getPluriel(nouvelElementGenerique.unite);
+        // genre grammatical de l’unité (ex. « pièce » est féminin) : marqueur « (f) »/« (m) »,
+        //  masculin par défaut. Sert aux accords des messages (« 3 pièces … ajoutées »).
+        nouvelElementGenerique.uniteGenre = (uniteGenreMarqueur?.toLowerCase() === 'f') ? Genre.f : Genre.m;
       }
 
     } else {

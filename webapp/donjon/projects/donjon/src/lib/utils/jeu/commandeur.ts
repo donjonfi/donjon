@@ -14,6 +14,7 @@ import { ContexteCommande } from '../../models/jouer/contexte-commande';
 import { Debogueur } from './debogueur';
 import { Declencheur } from './declencheur';
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { PositionObjet } from '../../models/jeu/position-objet';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { Evenement } from '../../models/jouer/evenement';
@@ -350,25 +351,55 @@ export class Commandeur {
           }
           // s’il y a plusieurs correspondances équivalentes pour ceci
         } else if (candidatActionChoisi.ceci?.length > 1) {
-          // on a déjà précisé => appliqué la correction
-          if (ctx.questions?.QcmCeci?.Reponse !== undefined) {
+          // RESSOURCE anti-spoiler : si plusieurs exemplaires de la MÊME ressource, ne garder que
+          //  ceux déjà « mentionnés » (on ne révèle pas au joueur les piles encore inconnues).
+          const ceciCands: any[] = candidatActionChoisi.ceci;
+          const memeRessource = ceciCands.length > 1
+            && ceciCands[0]?.classe && ClasseUtils.heriteDe(ceciCands[0].classe, EClasseRacine.ressource)
+            && ceciCands.every((c: any) => c?.nom === ceciCands[0].nom);
+          if (memeRessource) {
+            const mentionnes = ceciCands.filter((e: any) => this.jeu.etats.possedeEtatIdElement(e, this.jeu.etats.mentionneID));
+            if (mentionnes.length >= 1 && mentionnes.length < ceciCands.length) {
+              candidatActionChoisi.ceci = mentionnes;
+            }
+          }
+          // un seul candidat restant (après filtrage) => résolution silencieuse
+          if (candidatActionChoisi.ceci.length === 1) {
+            ctx.commandeValidee = true;
+            // on a déjà précisé => appliquer la correction
+          } else if (ctx.questions?.QcmCeci?.Reponse !== undefined) {
             const indexCeciChoisi = ctx.questions.QcmCeci.Reponse;
             candidatActionChoisi.ceci = [candidatActionChoisi.ceci[indexCeciChoisi]]
-            // console.warn("Ceci choisi !");
             ctx.commandeValidee = true;
-            // demander une précision
+            // demander une précision (en distinguant par l’emplacement)
           } else {
-            // ajouter question concernant complément direct
             let qCeci = new QuestionCommande(`Comment dois-je interpréter votre commande ?`);
             qCeci.Choix = [];
-            candidatActionChoisi.ceci.forEach(candidatCeci => {
-              let choixCeci = new Choix([
-                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci.intitule}=}`
-              ]);
-              if (candidatActionChoisi.cela?.length) {
-                choixCeci.valeurs[0] += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`
+            candidatActionChoisi.ceci.forEach((candidatCeci: any) => {
+              // RESSOURCE : refléter la quantité DEMANDÉE (« 2 pommes ») et non celle de la pile
+              //  (« les pommes »/« 3 pommes »), comme l’écho de commande.
+              const intituleCeci = (candidatCeci?.classe && ClasseUtils.heriteDe(candidatCeci.classe, EClasseRacine.ressource))
+                ? ElementsJeuUtils.intituleEchoRessource(candidatCeci, candidatCommande.ceciQuantiteV1)
+                : candidatCeci.intitule;
+              let valeur = `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${intituleCeci}=}`;
+              // préciser l’emplacement (utile pour départager des ressources de même nom)
+              const pos = candidatCeci?.position;
+              if (pos) {
+                if (pos.cibleId === this.jeu.joueur.id) {
+                  valeur += ' (dans votre inventaire)';
+                } else {
+                  const cible: any = (pos.cibleType === EClasseRacine.lieu)
+                    ? this.jeu.lieux.find(l => l.id === pos.cibleId)
+                    : this.jeu.objets.find(o => o.id === pos.cibleId);
+                  if (cible?.intitule) {
+                    valeur += ` (${PositionObjet.prepositionSpatialeToString(pos.pre)} ${cible.intitule})`;
+                  }
+                }
               }
-              qCeci.Choix.push(choixCeci);
+              if (candidatActionChoisi.cela?.length) {
+                valeur += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`;
+              }
+              qCeci.Choix.push(new Choix([valeur]));
             });
             if (!ctx.questions) {
               ctx.questions = new QuestionsCommande();
@@ -432,6 +463,15 @@ export class Commandeur {
         const celaNomV2 = isCelaV2 ? actionChoisie.cela.nom : null;
         const celaClasseV2 = (isCelaV2 ? actionChoisie.cela.classe : null)
 
+        // intitulé pour l'écho de commande : pour une ressource, refléter la quantité + l'unité
+        //  demandées (« prendre 2 litres d'eau ») plutôt que l'intitulé statique (« l'eau »).
+        const ceciIntituleComprise = (actionChoisie.ceci && ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.ressource) && (actionChoisie.ceci as Objet).unite)
+          ? ElementsJeuUtils.intituleEchoRessource(actionChoisie.ceci as Objet, candidatCommande.ceciQuantiteV1)
+          : actionChoisie.ceci?.intitule;
+        const celaIntituleComprise = (actionChoisie.cela && ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.ressource) && (actionChoisie.cela as Objet).unite)
+          ? ElementsJeuUtils.intituleEchoRessource(actionChoisie.cela as Objet, candidatCommande.celaQuantiteV1)
+          : actionChoisie.cela?.intitule;
+
         // mettre à jour l'évènement avec les éléments trouvés
         ctx.evenement = new Evenement(
           TypeEvenement.action,
@@ -442,7 +482,7 @@ export class Commandeur {
           // cela
           isCelaV2, candidatCommande.els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2,
           // commande correspondante
-          (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + actionChoisie.ceci.intitule + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + actionChoisie.cela.intitule + '/}') : ''))
+          (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + ceciIntituleComprise + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + celaIntituleComprise + '/}') : ''))
         );
 
         // éviter « aller en le haut » et « aller au le nord ».

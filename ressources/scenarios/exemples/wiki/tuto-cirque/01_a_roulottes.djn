@@ -1,12 +1,12 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 1, étape B
+-- Tutoriel « Le Cirque Étoile » — Chapitre 1, étape B
 -- La place du cirque entourée de trois roulottes, dans trois directions distinctes.
 -- Les sorties sont bidirectionnelles (depuis chaque roulotte, on revient à la place).
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 La place du cirque est un lieu.
-Sa description est "La place du Cirque Phosphène, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
+Sa description est "La place du Cirque Étoile, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".
 
 La roulotte de Pétunia est un lieu à l’est de la place du cirque.
 Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante de ballons crevés, de confettis incrustés dans les rainures du plancher et d’une odeur têtue de barbe à papa.".
@@ -14,5 +14,5 @@ Sa description est "La roulotte de Pétunia, peinte en rouge cerise, débordante
 La roulotte de Lucia est un lieu à l’ouest de la place du cirque.
 Sa description est "La roulotte austère de Lucia : des bottes alignées, un fouet roulé sur l’étagère, des photos sépia de fauves apprivoisés au mur.".
 
-La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
-Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Tout est rangé, étiqueté, classé — mais Phosphorus, lui, n’est pas là.".
+La roulotte du maître Aurélien est un lieu au nord de la place du cirque.
+Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde. Tout est rangé, étiqueté, classé — mais Aurélien, lui, n’est pas là.".

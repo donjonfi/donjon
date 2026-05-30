@@ -1,0 +1,35 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 5, étape B
+-- Trois manières d’afficher une liste : [lister], [décrire], [énumérer].
+-- Concept : balises d’affichage de liste dans une chaîne « dire ».
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Les indices sont une liste.
+
+Le wagon-restaurant est un lieu.
+Sa description est "Le wagon-restaurant. Sur le bar, un carnet de bord vous attend.".
+
+Le bar est un support fixé dans le wagon-restaurant.
+
+Le carnet de bord est un objet sur le bar.
+Sa description est "Un carnet relié de cuir. Examinez-le pour consulter vos indices.".
+
+Le ticket usagé est un objet sur le bar.
+Le mouchoir brodé est un objet sur le bar.
+La carte de visite est un objet sur le bar.
+
+règle avant commencer le jeu:
+  ajouter le ticket usagé à la liste indices.
+  ajouter le mouchoir brodé à la liste indices.
+  ajouter la carte de visite à la liste indices.
+  dire "Trois indices ont été automatiquement notés. Examinez le carnet de bord pour les voir affichés de trois manières différentes.".
+fin règle
+
+règle après examiner le carnet de bord:
+  dire "Lister : [lister indices].".
+  dire "{n}Décrire : [décrire indices].".
+  dire "{n}Énumérer : [énumérer indices].".
+fin règle
+
+Le joueur se trouve dans le wagon-restaurant.

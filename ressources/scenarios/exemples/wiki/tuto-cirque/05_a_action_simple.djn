@@ -1,13 +1,13 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 5, étape A
+-- Tutoriel « Le Cirque Étoile » — Chapitre 5, étape A
 -- Une action personnalisée SANS phases, sans complément : « réaliser le tour ».
 -- Le joueur tape la commande, l’action s’exécute, point. Pas encore de prérequis,
 -- pas encore de téléportation.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- LIEU
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître.".
 
 -- ======================================================
@@ -19,7 +19,7 @@ action réaliser le tour:
 fin action
 
 -- DÉPART
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Essayez : ''réaliser le tour'' (l’action s’exécute, mais elle ne vérifie rien).".

@@ -1,0 +1,14 @@
+-- Trois façons de déclarer une ressource, puis on la place en quantité.
+L'atelier est un lieu.
+
+-- ressource « massive » : sans unité déclarée, l'unité par défaut est « unité »
+Le bois est une ressource.
+Il y a 30 unités de bois ici.
+
+-- ressource avec une unité explicite
+L'argent est une ressource exprimée en pièces.
+Il y a 5 pièces d'argent ici.
+
+-- ressource déclarée au pluriel : comptée par son propre nom
+Les fruits sont une ressource.
+Il y a 4 fruits dans l'atelier.

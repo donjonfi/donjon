@@ -123,13 +123,14 @@ Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
 | `objet`      | objet générique                      |
 | `contenant`  | peut contenir d'autres objets        |
 | `support`    | les objets se posent dessus/dessous  |
+| `ressource`  | objet quantifiable et consommable, avec une unité (voir §5) |
 | `porte`      | obstacle spécial (ouvrable/fermable) |
 | `obstacle`   | bloque une sortie                    |
 | `personne`   | personnage vivant                    |
 | `animal`     | animal                               |
 | `vivant`     | personne ou animal                   |
 
-Hiérarchie : `porte → obstacle → objet → élément → concept → intitulé`
+Hiérarchie : `porte → obstacle → objet → élément → concept → intitulé` · `ressource → objet`
 
 ### Classes personnalisées
 
@@ -202,3 +203,148 @@ Par défaut, les sorties obstruées affichent `({/obstrué/})` et les sorties av
 -- Désactiver cet affichage
 désactiver affichage des obstacles.
 ```
+
+---
+
+## 5. Ressources (objets quantifiables et multiples)
+
+Une **ressource** est un objet que l'on accumule en quantité variable (argent, bois, essence, fruits…). Elle hérite d'`objet` : on la prend, la pose, la donne, la mange… mais en **quantités**. Une ressource est par nature un objet **multiple** : elle existe en plusieurs unités à la fois (état `multiple`) et n'est `unique` que lorsqu'il n'en reste **qu'une seule** (quantité 1).
+
+### Définir une ressource
+
+```
+Le bois est une ressource.
+Les fruits sont une ressource.
+Une pomme est une ressource.          -- l'article indéfini est accepté (un / une / des)
+Des graines sont des ressources.
+```
+
+Tous les déterminants conviennent (`le`/`la`/`les`/`l'` comme `un`/`une`/`des`) ; le genre est déduit de l'article. Une ressource définie au singulier (`Le bois`, `Une pomme`) ou au pluriel (`Les fruits`, `Des graines`) crée toujours une **classe** à son nom (`bois`, `pomme`…) héritant de `ressource`, si bien que les règles et actions peuvent la cibler (`règle après manger une pomme`, `action cueillir une pomme`).
+
+> La forme **avec position attachée** (`… est une ressource ici` / `… sur la table`) n'accepte que `le`/`la`/`les`/`l'`. Avec un article indéfini, placez la ressource séparément : `Une pomme est une ressource.` puis `Il y a 3 pommes sur la table.`
+
+### Attributs par défaut
+
+Les adjectifs/attributs ajoutés à la définition deviennent les **états par défaut de la classe** de la ressource : **chaque** pile (ou objet) de cette ressource en hérite, y compris les piles placées séparément avec `Il y a …`.
+
+```
+Les pommes sont des ressources mangeables, rouges et vertes.
+Il y a 3 pommes dans le panier.   -- chaque pomme hérite des états mangeable, rouge et vert
+```
+
+On liste les états séparés par des virgules et `et`, comme pour une classe ordinaire. Ne pas confondre avec l'état `multiple`, qui n'est pas un état de classe mais se déduit de la **quantité** de chaque pile (≠ 1 → `multiple`, = 1 → `unique`).
+
+### Unité de comptage (optionnelle)
+
+Selon la déclaration, sans unité explicite :
+
+- ressource **au pluriel** (« Les fruits ») → comptée par son nom : « 5 fruits » ;
+- ressource **au singulier / massif** (« Le bois ») → unité par défaut « unité(s) » : « 30 unités de bois ».
+
+Trois façons de déclarer une unité explicite (le moteur en dérive singulier et pluriel) :
+
+```
+L'argent est une ressource exprimée en pièces.   -- unité donnée au pluriel
+L'eau est une ressource avec l'unité litre.        -- unité donnée au singulier
+Le sable est une ressource.
+Son unité est le grain.                            -- séparément, après la définition
+```
+
+**Genre de l'unité** — l'unité a son propre genre grammatical (« pièce » est féminin), qui peut différer de celui de la ressource (« or » masculin). Il sert aux accords des messages (« 3 pièces d'or **ont été ajoutées** »). Par défaut **masculin** ; déduit de l'article (`la`→féminin, `le`→masculin) quand il est présent ; ou forcé avec le marqueur `(f)` / `(m)` :
+
+```
+L'or est une ressource exprimée en pièces (f).    -- marqueur explicite
+Le minerai est une ressource. Son unité est la pépite.   -- déduit de « la » → féminin
+L'eau est une ressource avec l'unité litre (m).   -- masculin (défaut, ici explicite)
+```
+
+### Placer des quantités
+
+Les nombres s'écrivent en **chiffres**. Positions : `ici`, `dans …`, `sur …`, `sous …`.
+
+> **« Il y a … » est réservé aux ressources.** L'instruction `Il y a N X …` exige que `X` soit une **ressource déjà définie** (reconnue au singulier comme au pluriel : `Il y a 1 fruit` place 1 unité de la ressource `fruits`). Si `X` n'est pas une ressource, c'est une **erreur d'auteur** : pour un objet ordinaire, utilisez plutôt `X est un objet ici` (ou `… dans/sur/sous …`).
+
+```
+Il y a 30 unités de bois ici.
+Il y a 5 pièces d'argent dans le coffre.
+Il y a 3 unités d'essence sous la table.
+Il y a 1 fruit ici.                       -- singulier accepté → ressource « fruits »
+```
+
+Une même ressource peut former **plusieurs piles indépendantes** :
+
+```
+Il y a 5 pièces d'argent dans le coffre.
+Il y a 3 pièces d'argent sur la table.   -- deux piles distinctes : 5 et 3
+```
+
+> Une ressource déclarée mais jamais placée vaut **0** : le type existe, mais il n'y en a pas dans le monde tant qu'on n'en place pas.
+
+### Affichage
+
+Le moteur affiche la quantité avec l'unité : « 30 unités de bois », « 5 pièces d'argent » (élision automatique), ou « 5 fruits » quand la ressource se compte par son nom.
+
+### Commandes du joueur
+
+Les commandes standard acceptent une quantité et l'unité. Le joueur désigne la ressource par son **unité** (« les pièces ») ou par « unité de ressource » (« les pièces d'argent ») pour lever une ambiguïté.
+
+```
+prendre les pièces             -- prend toute la pile
+prendre 3 pièces d'argent      -- quantité précise
+manger 5 fruits
+donner 3 pièces d'argent au marchand
+lâcher les pièces
+déposer 2 fruits sur la table  -- « déposer » = synonyme de « poser »
+```
+
+### Manipuler les ressources dans les règles (instructions)
+
+Dans les règles, réactions et routines, on agit sur les ressources par script :
+
+```
+-- créer N unités à un emplacement (contenant, support, lieu, inventaire)
+créer 3 pièces d'argent dans le coffre.
+créer 3 unités d'argent dans l'inventaire.
+
+-- consommer N unités possédées (les fait disparaître de l'inventaire)
+consommer 5 unités d'essence.
+
+-- déplacer d'un emplacement à un autre (« les … » = toute la pile)
+déplacer les pièces d'argent depuis l'intérieur du coffre vers l'inventaire.
+déplacer 5 unités d'argent depuis l'inventaire vers le dessous du lit.
+```
+
+Emplacements reconnus : `l'inventaire`, `l'intérieur du <contenant>`, `le dessus du <support>`, `le dessous du <support>`, ou un lieu / contenant / support nommé.
+
+### Afficher une ressource dans le cartouche
+
+Une ressource s'affiche dans le cartouche (la barre fixe du lecteur) comme un compteur. La quantité affichée est calculée **en direct** : prendre, lâcher, consommer ou créer la ressource met le cartouche à jour automatiquement.
+
+```
+L'argent est une ressource exprimée en pièces.
+
+-- Afficher dans un coin (haut/bas + gauche/droite ; « en haut » et « droite » par défaut)
+L'argent est affiché en haut à droite.
+Le bois est affiché en bas à gauche.
+
+-- Périmètre compté (mot-clé optionnel après le nom)
+L'argent possédé est affiché en haut à droite.    -- piles de l'inventaire du joueur (défaut)
+Le bois disponible est affiché en bas à gauche.    -- tout SAUF l'inventaire du joueur (lieux, coffres, PNJ…)
+
+-- Options : masquer l'intitulé et/ou l'unité
+L'argent est affiché en haut à droite sans intitulé.
+L'argent est affiché en haut à droite sans unité.
+L'argent est affiché en haut à droite sans intitulé sans unité.
+
+-- Modifier l'affichage EN COURS DE PARTIE (dans une règle/action/réaction)
+changer l'argent est affiché en bas à gauche.            -- repositionner (et/ou changer les options)
+changer l'argent est affiché en haut à droite sans intitulé.
+changer l'argent n'est plus affiché.                     -- retirer du cartouche
+```
+
+Notes :
+- À l'exécution, `changer … est affiché …` sur une ressource encore jamais affichée **crée** l'entrée (périmètre `possédé`). À chaque réaffichage, les options « sans X » sont réinitialisées (les redéclarer pour les conserver). Le périmètre possédé/disponible se choisit à la définition, pas via `changer`.
+- Sans mot-clé, le périmètre est **possédé** (ce que le joueur transporte). `possédé` et `disponible` sont complémentaires : leur somme couvre toutes les piles de la ressource, sans recouvrement.
+- L'unité s'accorde automatiquement (singulier si la quantité vaut 0 ou 1, pluriel sinon). Une pile illimitée affiche « ∞ ».
+- L'entrée du cartouche reste affichée même quand la quantité tombe à 0 (elle affiche « 0 », elle ne disparaît pas).
+- Le périmètre est **direct** (comme `consommer`) : une pile rangée dans un sac porté par le joueur compte comme `disponible`, pas comme `possédé`.

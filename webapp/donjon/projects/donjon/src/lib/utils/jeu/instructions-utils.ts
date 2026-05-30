@@ -83,6 +83,12 @@ export class InstructionsUtils {
                 cibleEle.nombre = Nombre.s;
               }
             }
+            // genre grammatical : pour une ressource comptée par unité, l’accord suit l’UNITÉ
+            //  (« 3 pièces … ajoutées »), pas le genre propre de la ressource (« l’or » masculin).
+            //  Unité par défaut « unité » → féminin ; sinon genre déclaré, masculin par défaut.
+            if (ClasseUtils.heriteDe(cibleEle.classe, EClasseRacine.ressource) && cibleEle.unite) {
+              cibleEle.genre = cibleEle.uniteGenre ?? (cibleEle.unite === 'unité' ? Genre.f : Genre.m);
+            }
           }
           break;
         case 'quantitecela':
@@ -111,6 +117,10 @@ export class InstructionsUtils {
               // => 0 ou 1
             } else {
               cibleEle.nombre = Nombre.s;
+            }
+            // genre grammatical : pour une ressource comptée par unité, l’accord suit l’UNITÉ.
+            if (ClasseUtils.heriteDe(cibleEle.classe, EClasseRacine.ressource) && cibleEle.unite) {
+              cibleEle.genre = cibleEle.uniteGenre ?? (cibleEle.unite === 'unité' ? Genre.f : Genre.m);
             }
           }
           break;

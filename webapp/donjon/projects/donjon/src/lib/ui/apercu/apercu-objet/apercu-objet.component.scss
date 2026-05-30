@@ -1,0 +1,20 @@
+// étiquette de catégorie (ressource, vivant, support, contenant) à côté du nom de l’objet
+.apercu-etiquette {
+    display: inline-block;
+    margin-left: 0.4em;
+    padding: 0 0.45em;
+    font-size: 0.72em;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #fff;
+    background: #6c757d;
+    border-radius: 0.7em;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.apercu-etiquette[data-etiquette="ressource"] { background: #2e8b57; }
+.apercu-etiquette[data-etiquette="vivant"]    { background: #3a7bd5; }
+.apercu-etiquette[data-etiquette="support"]   { background: #c8862b; }
+.apercu-etiquette[data-etiquette="contenant"] { background: #7b5ea7; }

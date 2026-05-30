@@ -1,0 +1,159 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 9
+-- ÉTAT FINAL DU TUTORIEL — l’escape game intégré, bout à bout :
+--   • Position joueur de démarrage (compartiment sept).
+--   • Propriétés numériques (poids des bagages).
+--   • Cartouche multi-zones (vitesse, énergie, indices, distance).
+--   • Horloge et routine programmée (freinage d’urgence après N secondes).
+--   • Liste des indices ramassés.
+--   • Écran secondaire pour le flashback.
+--   • Balises de mention et accord grammatical.
+--   • Fin du jeu sur action de sécurité (tirer le levier).
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+-- ======================================================
+-- COMPTEURS AFFICHÉS EN CARTOUCHE
+-- ======================================================
+
+La vitesse est un compteur initialisé à 95 avec l’unité km/h.
+La vitesse est affichée en haut à droite.
+
+L’énergie est un compteur initialisé à 80 avec l’unité points.
+L’énergie est affichée en bas à droite.
+
+La distance est un compteur initialisé à 312 avec l’unité km.
+La distance est affichée en haut à gauche.
+
+Le poids transporté est un compteur initialisé à 0 avec l’unité kilos.
+Le poids transporté est affiché en bas à gauche.
+
+-- ======================================================
+-- LISTE DES INDICES
+-- ======================================================
+
+Les indices sont une liste.
+
+-- ======================================================
+-- LIEUX (5, en ligne d’est en ouest)
+-- ======================================================
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept. Banquette de velours bordeaux, lampe à abat-jour vert qui tremble. [@valise de cuir] est posée près de la fenêtre, et [@photo sépia] est glissée dans la rainure du verre. La porte coulissante donne sur le couloir, à l’ouest.".
+
+Le couloir est un lieu à l’ouest du compartiment sept.
+Sa description est "Le long couloir lambrissé du Train-Couchettes. Une grande horloge murale indique [horloge]. Le wagon-restaurant s’ouvre à l’ouest, la cabine encore plus loin.".
+
+Le wagon-restaurant est un lieu à l’ouest du couloir.
+Sa description est "Le wagon-restaurant désert. Une table en chêne, encore dressée, occupe le centre. Un haut-parleur grésille au plafond.".
+
+La cabine de pilotage est un lieu à l’ouest du wagon-restaurant.
+Sa description est "La cabine de pilotage. Le tableau de bord clignote. [@levier de sécurité] luit sous la lampe. Le voyant rouge bat la mesure d’un cœur affolé.".
+
+-- ======================================================
+-- OBJETS DU COMPARTIMENT SEPT
+-- ======================================================
+
+La valise de cuir est un objet dans le compartiment sept.
+Sa description est "Une valise de cuir patinée, étiquette manuscrite : ''[poids ceci] kilos''.".
+Le poids de la valise de cuir vaut 12.
+
+Le sac de toile est un objet dans le compartiment sept.
+Sa description est "Un sac de toile léger, étiquette : ''[poids ceci] kilos''.".
+Le poids du sac de toile vaut 2.
+
+La photo sépia est un objet décoratif fixé dans le compartiment sept.
+Sa description est "Une photographie d’avant-guerre : un homme en uniforme bleu sourit à l’objectif.".
+
+-- ======================================================
+-- OBJETS DU WAGON-RESTAURANT
+-- ======================================================
+
+La table principale est un support fixé dans le wagon-restaurant.
+
+Le ticket usagé est un objet sur la table principale.
+Sa description est "Un ticket de train chiffonné. Destination effacée.".
+Le poids du ticket usagé vaut 1.
+
+Le mouchoir brodé est un objet sur la table principale.
+Sa description est "Un fin mouchoir blanc brodé des initiales C.V.".
+Le poids du mouchoir brodé vaut 1.
+
+La carte de visite est un objet sur la table principale.
+Sa description est "Une carte de visite jaunie : ''Charles Vermine — Détective privé''.".
+Le poids de la carte de visite vaut 1.
+
+-- ======================================================
+-- OBJETS DE LA CABINE
+-- ======================================================
+
+Le levier de sécurité est un objet décoratif fixé dans la cabine de pilotage.
+Sa description est "Un levier de bois cerclé de laiton. Tirer dessus arrête le compte à rebours d’urgence.".
+
+-- ======================================================
+-- LE JOUEUR DÉMARRE DANS LE COMPARTIMENT SEPT
+-- ======================================================
+
+Le joueur se trouve dans le compartiment sept.
+
+-- ======================================================
+-- INTRO + COMPTE À REBOURS PROGRAMMÉ
+-- ======================================================
+
+règle avant commencer le jeu:
+  dire "{/Vous ouvrez les yeux. Vous ne savez ni quel jour, ni quelle gare, ni pour combien de temps encore. Le train roule, vite. Trop vite./}".
+  dire "{n}Examinez la photo pour retrouver vos souvenirs, fouillez le wagon-restaurant pour des indices, puis filez à la cabine ''tirer sur le levier de sécurité''.".
+  exécuter la routine déclencher le freinage dans 90 secondes.
+fin règle
+
+-- ======================================================
+-- FLASHBACK SUR ÉCRAN SECONDAIRE
+-- ======================================================
+
+règle après examiner la photo sépia:
+  afficher l’écran secondaire.
+  dire "{/Le décor vacille — vous revoyez la scène./}".
+  dire "{n}Vous êtes sur un quai bondé, le 14 juillet. L’orchestre joue. L’homme en uniforme vous serre dans ses bras. « Je reviendrai par l’Express de 23h47, » promet-il.".
+  dire "{n}Puis, plus tard, dans le compartiment : une silhouette qui se penche sur votre verre. Un goût amer. Le sommeil.".
+  attendre une touche.
+  afficher l’écran principal.
+  dire "Vous revenez à vous, la photo entre les doigts. Vous savez à présent que quelqu’un voulait que vous dormiez jusqu’au terminus.".
+fin règle
+
+-- ======================================================
+-- COLLECTE DES INDICES + POIDS TRANSPORTÉ
+-- ======================================================
+
+règle après prendre un objet:
+  ajouter ceci à la liste indices.
+  changer le poids transporté augmente du poids de ceci.
+  dire "Vous glissez [le ceci] dans votre poche. [Pronom ceci] [v être ipr ceci] désormais avec vous.".
+fin règle
+
+règle après laisser un objet:
+  retirer ceci de la liste indices.
+  changer le poids transporté diminue du poids de ceci.
+  dire "Vous reposez [le ceci].".
+fin règle
+
+-- ======================================================
+-- ROUTINE : FREINAGE D’URGENCE (fin du temps)
+-- ======================================================
+
+routine déclencher le freinage:
+  dire "{n}{*FREINAGE D’URGENCE — vous n’avez pas tiré le levier à temps. Les roues hurlent, le train sort des rails, et tout devient noir.*}".
+  terminer le jeu.
+fin routine
+
+-- ======================================================
+-- ACTION FINALE : TIRER LE LEVIER
+-- ======================================================
+
+règle après tirer sur le levier de sécurité:
+  annuler la routine déclencher le freinage.
+  dire "Vous empoignez le levier des deux mains et tirez de toutes vos forces. Le voyant rouge cesse de battre. Le train ralentit doucement, et finit par s’immobiliser dans un crissement long et triste.".
+  si la liste indices contient la carte de visite:
+    dire "{n}Le détective Charles Vermine, dont vous portez la carte dans la poche, n’aura plus à enquêter sur votre disparition.".
+  fin si
+  terminer le jeu.
+fin règle

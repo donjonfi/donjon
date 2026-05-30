@@ -107,6 +107,54 @@
       "${1:étatA} exclut ${2:étatB}."
     ],
     "description": "Déclarer une exclusion (contradiction bilatérale entre 2 états)"
+  },
+
+  "ressource": {
+    "prefix": ["ressource", "res"],
+    "body": [
+      "${1:Le bois} est une ressource exprimée en ${2:unités}."
+    ],
+    "description": "Déclarer une ressource (objet quantifiable) avec son unité"
+  },
+
+  "placer ressource": {
+    "prefix": ["ilya", "il y a"],
+    "body": [
+      "Il y a ${1:30} ${2:unités} de ${3:bois} ${4:ici}."
+    ],
+    "description": "Placer une quantité d’une ressource (Il y a N unités de X …)"
+  },
+
+  "créer ressource": {
+    "prefix": ["creer", "créer"],
+    "body": [
+      "créer ${1:3} ${2:unités} de ${3:bois} dans ${4:l’inventaire}."
+    ],
+    "description": "Créer N unités d’une ressource à un emplacement"
+  },
+
+  "consommer ressource": {
+    "prefix": ["consommer", "cons"],
+    "body": [
+      "consommer ${1:5} ${2:unités} de ${3:bois}."
+    ],
+    "description": "Consommer N unités possédées d’une ressource"
+  },
+
+  "déplacer ressource": {
+    "prefix": ["deplacer", "déplacer"],
+    "body": [
+      "déplacer ${1:les ${2:pièces}} depuis ${3:l’inventaire} vers ${4:le coffre}."
+    ],
+    "description": "Déplacer une ressource d’un emplacement à un autre"
+  },
+
+  "afficher ressource (cartouche)": {
+    "prefix": ["cartouche", "affiché"],
+    "body": [
+      "${1:Le bois} est affiché en ${2|haut,bas|} à ${3|droite,gauche|}."
+    ],
+    "description": "Afficher une ressource dans le cartouche (compteur en direct)"
   }
 
 }

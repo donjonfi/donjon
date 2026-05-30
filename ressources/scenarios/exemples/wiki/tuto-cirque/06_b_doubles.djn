@@ -1,10 +1,10 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 6, étape B
+-- Tutoriel « Le Cirque Étoile » — Chapitre 6, étape B
 -- Les trois doubles tristes peuplent maintenant le cirque-miroir :
 -- Pétunie (clown sans nez), Mucia (dresseuse d’escargots), Anatolette (chaton).
 -- Chacun porte un état personnalisé « triste » qui basculera en « joyeux » au chapitre 7.
 -- État final du chapitre 6.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ======================================================
@@ -21,10 +21,10 @@ triste et joyeux forment une bascule.
 -- CIRQUE JOYEUX
 -- ======================================================
 
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 Le chapeau cylindre est un objet sur l’établi.
 La baguette d’ébène est un objet sur l’établi.
@@ -39,7 +39,7 @@ La roulotte du miroir est un lieu.
 Sa description est "Une roulotte étrangement familière, mais ternie. Le miroir terni au mur ondule.".
 
 La place ternie est un lieu au sud de la roulotte du miroir.
-Sa description est "La place du Cirque Phosphène, mais éteinte. Le drapeau bigarré est déchiré au tiers. Pas un éclat de rire.".
+Sa description est "La place du Cirque Étoile, mais éteinte. Le drapeau bigarré est déchiré au tiers. Pas un éclat de rire.".
 
 La roulotte de Pétunie est un lieu à l’est de la place ternie.
 Sa description est "Une roulotte qui fut peinte en rouge cerise. Aujourd’hui le rouge a viré au gris-rose, et les confettis fanés crissent sous les pieds.".
@@ -120,7 +120,7 @@ règle après secouer le foulard de soie:
 fin règle
 
 -- DÉPART
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Préparez les accessoires, ''réaliser le tour'', puis explorez le cirque-miroir : Pétunie à l’est, Mucia à l’ouest, et la chatonne Anatolette au sud du sud.".

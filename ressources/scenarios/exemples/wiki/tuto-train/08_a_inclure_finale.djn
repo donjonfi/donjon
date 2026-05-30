@@ -1,0 +1,11 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 8 — partie finale.
+-- Fichier inclus par 08_a_inclure_principal.djn. Pas à lancer seul.
+-- Déclare un objet et la règle qui termine le scénario.
+
+La valise de cuir est un objet dans le compartiment sept.
+Sa description est "Une valise patinée, qui semble attendre son propriétaire.".
+
+règle après examiner la valise de cuir:
+  dire "Vous avez consulté l’objet déclaré dans le fichier ''finale''. Les trois fichiers ont bien été assemblés en un seul scénario.".
+  terminer le jeu.
+fin règle

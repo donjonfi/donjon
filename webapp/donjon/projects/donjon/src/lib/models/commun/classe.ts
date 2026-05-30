@@ -19,5 +19,12 @@ export class Classe {
    */
   public id: number;
 
+  /** Identifiant de ressource (uniquement pour les classes héritant de « ressource »).
+   * Id dédié, alloué une fois par TYPE de ressource sur le compteur global d'ids (donc sans
+   * conflit avec un id d'objet/lieu/classe). Toutes les piles d'une même ressource reçoivent ce
+   * ressourceId comme `idOriginal`, ce qui les regroupe lorsqu'on les rassemble dans un contenant.
+   */
+  public ressourceId: number;
+
 }
 

@@ -1,19 +1,19 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 5, étape C
+-- Tutoriel « Le Cirque Étoile » — Chapitre 5, étape C
 -- Action complète : phase prérequis + phase exécution qui DÉPLACE le joueur vers
 -- un nouveau lieu (la roulotte du miroir — premier pied dans le cirque-miroir).
 -- État final du chapitre 5.
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ÉTATS PERSONNALISÉS
 plié et déployé forment une bascule.
 
 -- LIEUX (résumé + nouveau lieu)
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 -- Le premier pied dans le cirque-miroir. On en fera quelque chose au chapitre 6.
 La roulotte du miroir est un lieu.
@@ -53,7 +53,7 @@ action réaliser le tour:
     déplacer le joueur dans la roulotte du miroir.
 
   phase épilogue:
-    dire "{n}Vous vous redressez dans une roulotte qui ressemble à celle de Phosphorus, mais éteinte, comme un photogramme jauni.".
+    dire "{n}Vous vous redressez dans une roulotte qui ressemble à celle de Aurélien, mais éteinte, comme un photogramme jauni.".
 
 fin action
 
@@ -69,7 +69,7 @@ règle après secouer le foulard de soie:
 fin règle
 
 -- DÉPART
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Le grand jour. Prenez les quatre accessoires, secouez le foulard, et réalisez le tour.{n}Pour gagner du temps : ''prendre chapeau'', ''prendre baguette'', ''prendre foulard'', ''prendre miroir'', ''secouer foulard'', ''réaliser le tour''.".

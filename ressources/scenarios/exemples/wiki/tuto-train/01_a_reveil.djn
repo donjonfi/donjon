@@ -1,0 +1,16 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 1, étape A
+-- Le décor de l’escape game : on plante les deux premiers lieux du train.
+-- Pas de nouveau concept ici (rappel des lieux du tutoriel MeuhCorp).
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Une banquette de velours bordeaux, une lampe à abat-jour vert qui tremble au rythme des rails. La porte coulissante donne sur le couloir, à l’ouest.".
+
+Le couloir est un lieu à l’ouest du compartiment sept.
+Sa description est "Un long couloir lambrissé qui file vers l’avant du train. Le plancher vibre sous les roues.".
+
+règle avant commencer le jeu:
+  dire "{/Vous ouvrez les yeux. Vous ne savez ni quel jour, ni quelle gare, ni pour combien de temps encore. Le train roule./}".
+fin règle

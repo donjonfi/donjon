@@ -17,6 +17,7 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { RessourceAffichee } from '../../models/jeu/ressource-affichee';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Liste } from '../../models/jeu/liste';
@@ -56,6 +57,11 @@ export class Generateur {
     jeu.classes = [];
     rc.monde.classes.forEach(classe => {
       classe.id = jeu.nextID++;
+      // RESSOURCE : id dédié par TYPE de ressource (classe par-nom héritant de « ressource »,
+      //  hors classe racine). Sert d'idOriginal commun à toutes les piles de cette ressource.
+      if (classe.nom !== EClasseRacine.ressource && ClasseUtils.heriteDe(classe, EClasseRacine.ressource)) {
+        classe.ressourceId = jeu.nextID++;
+      }
       jeu.classes.push(classe);
     });
 
@@ -331,14 +337,60 @@ export class Generateur {
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
+    // Placements à différer en 2ᵉ passe : objet posé sur un contenant/support déclaré APRÈS lui
+    //  (la cible n'existe pas encore dans jeu.objets au moment de la résolution inline).
+    const placementsADifferer: Array<{ newObjet: Objet, curEle: any, curPositionString: any }> = [];
     rc.monde.objets.forEach(curEle => {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
         let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
         let newObjet = new Objet(jeu.nextID++, intitule.nomEpithete, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
-        // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
-        if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
+        // reporter l’unité de comptage (ressources) : singulier + pluriel
+        if (curEle.unite) {
+          newObjet.unite = curEle.unite;
+        }
+        if (curEle.unites) {
+          newObjet.unites = curEle.unites;
+        }
+        // genre grammatical de l’unité (pour les accords des messages)
+        if (curEle.uniteGenre) {
+          newObjet.uniteGenre = curEle.uniteGenre;
+        }
+
+        // Ressource déclarée mais jamais placée ni créée → quantité 0 (type/gabarit seulement,
+        //  pas de pile illimitée fantôme). Une ressource placée a reçu une position via la fusion ;
+        //  sa quantité (issue du placement) est alors conservée.
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource) && (curEle.positionString?.length ?? 0) === 0) {
+          newObjet.quantite = 0;
+        }
+
+        // RESSOURCE affichée dans le cartouche : config figée à la compilation (ancrée sur la
+        //  définition) ; la quantité est sommée en direct à l'exécution selon le périmètre (scope).
+        //  Dédup par nom : seul le 1er exemplaire (la définition) porte positionAffichage.
+        if (curEle.positionAffichage
+          && ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource)
+          && !jeu.ressourcesAffichees.some(r => r.nom === newObjet.nom)) {
+          const proprieteTitre = curEle.proprietes?.find(p => p.nom?.toLowerCase() === 'titre');
+          jeu.ressourcesAffichees.push(new RessourceAffichee(
+            newObjet.nom,
+            curEle.positionAffichage,
+            intitule.nom,
+            curEle.scopeAffichage ?? 'possede',
+            newObjet.unite ?? null,
+            newObjet.unites ?? null,
+            proprieteTitre?.valeur ?? null,
+            !!curEle.sansIntitule,
+            !!curEle.sansUnite,
+          ));
+        }
+
+        // RESSOURCE : toutes les piles d'une même ressource partagent le ressourceId dédié comme
+        //  idOriginal (identité stable) → elles se regroupent une fois rassemblées dans un contenant.
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource) && newObjet.classe.ressourceId != null) {
+          newObjet.idOriginal = newObjet.classe.ressourceId;
+          // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
+        } else if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
           newObjet.idOriginal = newObjet.classe.id;
         }
         newObjet.capacites = curEle.capacites;
@@ -372,14 +424,15 @@ export class Generateur {
 
         // Déterminer le SINGULIER à partir du pluriel.
         if (curEle.nombre === Nombre.p) {
-          // on a déjà le pluriel
-          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          // on a déjà le pluriel (nomP si fourni — utile quand le nom a été normalisé sur la forme
+          //  singulière canonique d'une ressource ; sinon le nom lui-même).
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nomP ?? curEle.nom, curEle.epithete);
           // le singulier est fourni
           if (curEle.nomS) {
             newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
-            // le singulier est calculé
+            // le singulier est calculé (tête : « pommes de terre » → « pomme de terre »)
           } else {
-            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulier(curEle.nom), MotUtils.getSingulier(curEle.epithete));
+            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete));
           }
           // Déterminer PLURIEL à partir du singulier.
         } else if (curEle.nombre == Nombre.s) {
@@ -388,9 +441,9 @@ export class Generateur {
           // le pluriel est fourni
           if (curEle.nomP) {
             newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
-            // le pluriel est calculé
+            // le pluriel est calculé (tête : « point de vie » → « points de vie »)
           } else {
-            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPluriel(curEle.nom), MotUtils.getPluriel(curEle.epithete));
+            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete));
           }
         } else if (curEle.nombre == Nombre.tp) {
           // on a déjà le pluriel
@@ -443,15 +496,28 @@ export class Generateur {
           Generateur.genererSynonymesAuto(newObjet);
         }
 
-        // description par défaut
-        if (newObjet.description === null) {
-          // mettre un déterminant indéfini, sauf si intitulé sans déterminant.
-          const detIndefini = newObjet.intitule.determinant ? ElementsJeuUtils.trouverDeterminantIndefini(newObjet) : "";
-          if (newObjet.nombre == Nombre.p || newObjet.nombre == Nombre.tp) {
-            newObjet.description = "Ce sont " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
-          } else {
-            newObjet.description = "C’est " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
+        // RESSOURCE : on peut la désigner par son unité, seule (« les pièces ») ou suivie de la
+        //  ressource (« les pièces d’argent »). On enregistre les deux formes comme synonymes.
+        if (newObjet.unite && ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource)) {
+          const unites = (newObjet.unites && newObjet.unites !== newObjet.unite) ? newObjet.unites : null;
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.unite, true));
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.unite + ' de ' + newObjet.nom, true));
+          if (unites) {
+            newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites, true));
+            newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites + ' de ' + newObjet.nom, true));
           }
+          // Le NOM seul (« or ») doit aussi être désignable avec une quantité (« prendre 10 or »).
+          //  Sans ça, une quantité plurielle cherche l'intitulé pluriel (« ors ») qui ne matche pas
+          //  le nom massif. On enregistre le nom comme synonyme (matché quelle que soit la quantité).
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.nom, true));
+        }
+
+        // description par défaut : phrase DYNAMIQUE résolue à l'affichage.
+        //  « [Cest ceci] » → « C'est »/« Ce sont » accordé ; « [ceci] » → intitulé selon l'état
+        //  réel (« une pomme » → « la pomme »), et toujours le nombre pour les ressources
+        //  (« 1 pièce d'or », « 4 fruits »). L'auteur peut toujours définir sa propre description.
+        if (newObjet.description === null) {
+          newObjet.description = "[Cest ceci] [ceci].";
         }
 
         // POSITION de l’élément
@@ -481,7 +547,14 @@ export class Generateur {
               // chercher un contenant ou un support
               const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curPositionString.complement);
               // >> trouvé contenant
-              if (contenantSupport) {
+              // Cible introuvable inline : support/contenant déclaré APRÈS l'objet (typiquement la
+              //  1re pile d'une ressource, fusionnée sur sa définition placée tôt). On diffère : une
+              //  2e passe (cf. après la boucle) réessaie une fois TOUS les objets créés ; le « else »
+              //  d'erreur plus bas devient alors mort (cible toujours truthy ici) — l'erreur réelle
+              //  est émise par la 2e passe si la cible reste introuvable.
+              if (!contenantSupport) {
+                placementsADifferer.push({ newObjet, curEle, curPositionString });
+              } else if (contenantSupport) {
 
                 // si le contenant est vivant, l’objet est « occupé »
                 if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
@@ -522,6 +595,17 @@ export class Generateur {
 
         }
         jeu.objets.push(newObjet);
+      }
+    });
+
+    // 2e PASSE — placements différés : objet posé sur un contenant/support déclaré APRÈS lui.
+    // *********************************************************************************
+    //  Tous les objets existent désormais dans jeu.objets : on réessaie la résolution (position +
+    //  états induits). L'erreur « position pas trouvée » n'est émise QUE si la cible reste
+    //  introuvable (vraie faute d'auteur : nom inexistant / faute de frappe).
+    placementsADifferer.forEach(({ newObjet, curEle, curPositionString }) => {
+      if (!Generateur.resoudrePositionSurContenant(jeu, ctx, newObjet, curPositionString)) {
+        ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
       }
     });
 
@@ -841,6 +925,36 @@ export class Generateur {
     return retVal;
   }
 
+  /**
+   * Résoudre la position d’un objet posé SUR/DANS/SOUS un contenant ou support : applique la
+   * position ET les états induits (disponible/occupé, et possédé+vu si la cible est le joueur).
+   * Appelé en résolution inline (1re passe) ET pour les placements différés (2e passe).
+   * @returns true si la cible a été trouvée et la position appliquée ; false sinon (cible absente
+   *          de jeu.objets — au caller de différer (1re passe) ou d’émettre l’erreur (2e passe)).
+   */
+  static resoudrePositionSurContenant(jeu: Jeu, ctx: ContexteGeneration, newObjet: Objet, curPositionString: any): boolean {
+    const contenantSupport = Generateur.getContenantSupportOuCouvrant(jeu.objets, curPositionString.complement);
+    if (!contenantSupport) { return false; }
+
+    // si le contenant est vivant, l’objet est « occupé » ; sinon il est « disponible »
+    if (ClasseUtils.heriteDe(contenantSupport.classe, EClasseRacine.vivant)) {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.occupe, ctx, true);
+    } else {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.disponible, ctx, true);
+    }
+
+    // si le contenant est le joueur, l’objet est possédé (et vu, sauf s’il est caché)
+    if (contenantSupport === jeu.joueur) {
+      jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.possede, ctx, true);
+      if (!jeu.etats.possedeEtatIdElement(newObjet, jeu.etats.cacheID, null)) {
+        jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.vu, ctx, true);
+      }
+    }
+
+    newObjet.position = new PositionObjet(PositionObjet.getPrepositionSpatiale(curPositionString.position), EClasseRacine.objet, contenantSupport.id);
+    return true;
+  }
+
   /** Trouver l’objet qui fait office de contenant (dans), support (sur) ou couvrant (sous) */
   static getContenantSupportOuCouvrant(objets: Objet[], nomObjet: string) {
 
@@ -1104,12 +1218,23 @@ export class Generateur {
     // composé de au moins 2 mots
     if (concept.intitule.motsCles.length > 1) {
       for (let indexMotA = 0; indexMotA < concept.intitule.motsCles.length; indexMotA++) {
-        // chaque mot séparé est un synonyme
+        // chaque mot séparé est un synonyme — dans ses DEUX formes (singulier ET pluriel), car les
+        //  commandes ne normalisent pas le nombre (on matche les formes stockées). Ainsi « vies »
+        //  comme « vie » désignent « points de vie » (cf. nomS/nomP du nom principal).
         const motCleA = concept.intitule.motsCles[indexMotA];
-        const curSynonymeSimple = PhraseUtils.getGroupeNominalDefini(motCleA, true);
-        if (!concept.synonymes.some(x => x.toString() == curSynonymeSimple.toString())) {
-          concept.synonymes.push(curSynonymeSimple);
+        const formes = [motCleA];
+        // ajouter la forme singulier seulement si le mot n’est PAS invariable au pluriel
+        //  (évite de mutiler « bois » → « boi », « dubois » → « duboi »).
+        if (MotUtils.getPluriel(motCleA) !== motCleA) {
+          formes.push(MotUtils.getSingulier(motCleA));
         }
+        formes.push(MotUtils.getPluriel(motCleA));
+        formes.forEach(forme => {
+          const syn = PhraseUtils.getGroupeNominalDefini(forme, true);
+          if (!concept.synonymes.some(x => x.toString() == syn.toString())) {
+            concept.synonymes.push(syn);
+          }
+        });
         // composé de au moins 3 mots
         if (concept.intitule.motsCles.length > 2) {
           for (let indexMotB = indexMotA + 1; indexMotB < concept.intitule.motsCles.length; indexMotB++) {

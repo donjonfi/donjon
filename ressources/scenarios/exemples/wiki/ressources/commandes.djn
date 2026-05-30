@@ -1,0 +1,15 @@
+-- Les commandes habituelles fonctionnent avec des quantités et l'unité.
+Le marché est un lieu.
+Le marchand est une personne ici.
+
+L'argent est une ressource exprimée en pièces.
+Il y a 10 pièces d'argent ici.
+
+Les fruits sont une ressource mangeable.
+Il y a 5 fruits dans le marché.
+
+-- À tester (après « regarder ») :
+--   prendre les pièces                 -- prend toute la pile
+--   donner 3 pièces d'argent au marchand
+--   prendre les fruits
+--   manger 2 fruits

@@ -19,6 +19,7 @@ import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { RechercheUtils } from "../commun/recherche-utils";
+import { RessourceAffichee } from "../../models/jeu/ressource-affichee";
 import { Resultat } from "../../models/jouer/resultat";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { InstructionDire } from "./instruction-dire";
@@ -561,6 +562,89 @@ export class InstructionChanger {
     return resultat;
   }
 
+  /** Vrai si l'instruction « changer » est une forme d'affichage cartouche (« est affiché[…] »). */
+  private estInstructionAffichage(instruction: ElementsPhrase): boolean {
+    const verbe = (instruction.verbe ?? '').trim().toLowerCase();
+    if (verbe !== 'est' && verbe !== 'sont') { return false; }
+    const complement = (instruction.complement1 ?? '').trim().toLowerCase();
+    return /^affich[eé][e]?s?(\s|$)/.test(complement);
+  }
+
+  /**
+   * Changer l'affichage d'une ressource dans le cartouche en cours de partie.
+   *  - « changer l'argent est affiché en bas à gauche sans intitulé » → (re)positionner / créer l'entrée ;
+   *  - « changer l'argent n'est plus affiché » → retirer l'entrée.
+   * Le périmètre (possédé / disponible) déjà configuré est conservé ; à la création, il vaut « possédé ».
+   */
+  private changerAffichageRessource(element: ElementJeu, instruction: ElementsPhrase): Resultat {
+    const resultat = new Resultat(true, '', 1);
+
+    const nom = element.nom;
+    const complement = (instruction.complement1 ?? '').trim().toLowerCase();
+    const negation = !!(instruction.negation && (instruction.negation.trim() === 'pas' || instruction.negation.trim() === 'plus'));
+
+    // Forme négative : « n'est plus/pas affiché » → retirer du cartouche
+    if (negation) {
+      if (/^affich[eé][e]?s?$/.test(complement)) {
+        this.jeu.ressourcesAffichees = this.jeu.ressourcesAffichees.filter(r => r.nom !== nom);
+        return resultat;
+      }
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : ressource « ${instruction.sujet} » : forme négative pas comprise : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    // Forme positive : « est affiché[…] [en haut/bas] [à gauche/droite] [sans X]… »
+    const match = ExprReg.xAffichageCompteurSeul.exec(complement);
+    if (!match) {
+      resultat.succes = false;
+      resultat.sortie = `{n}{+[Instruction « changer » : ressource « ${instruction.sujet} » : affichage pas compris : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    const verticalite = (match[1] ?? 'haut').toLowerCase();
+    const lateralite = (match[2] ?? 'droite').toLowerCase();
+    const position = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
+
+    // options « sans X »
+    let sansIntitule = false;
+    let sansUnite = false;
+    let optionInconnue: string | null = null;
+    const xSansItem = /sans (\S+)/g;
+    let mSans: RegExpExecArray | null;
+    const options = match[3] ?? '';
+    while ((mSans = xSansItem.exec(options)) !== null) {
+      const opt = mSans[1].toLowerCase();
+      if (opt === 'titre' || opt === 'intitulé') {
+        sansIntitule = true;
+      } else if (opt === 'unité') {
+        sansUnite = true;
+      } else if (!optionInconnue) {
+        optionInconnue = mSans[1];
+      }
+    }
+
+    // (re)positionner l'entrée existante, ou la créer (en conservant / initialisant le périmètre)
+    const existante = this.jeu.ressourcesAffichees.find(r => r.nom === nom);
+    if (existante) {
+      existante.positionAffichage = position;
+      existante.sansIntitule = sansIntitule;
+      existante.sansUnite = sansUnite;
+    } else {
+      this.jeu.ressourcesAffichees.push(new RessourceAffichee(
+        nom, position, element.intitule?.nom ?? nom, 'possede',
+        element.unite ?? null, element.unites ?? null, element.titre ?? null,
+        sansIntitule, sansUnite,
+      ));
+    }
+
+    if (optionInconnue) {
+      resultat.sortie = `{n}{+[changer affichage ressource : option « sans ${optionInconnue} » inconnue. Options valides : « sans intitulé », « sans unité ».]+}`;
+    }
+
+    return resultat;
+  }
+
   private changerListe(liste: Liste, instruction: ElementsPhrase, contexteTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {
     let resultat = new Resultat(true, '', 1);
 
@@ -680,6 +764,13 @@ export class InstructionChanger {
   private changerElementJeu(element: ElementJeu, instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
 
     let resultat = new Resultat(true, '', 1);
+
+    // RESSOURCE : modifier l'affichage dans le cartouche en cours de partie (comme un compteur).
+    //  « changer l'argent est affiché en bas à gauche sans intitulé », « changer l'argent n'est plus affiché ».
+    if (ClasseUtils.heriteDe(element.classe, EClasseRacine.ressource)
+      && this.estInstructionAffichage(instruction)) {
+      return this.changerAffichageRessource(element, instruction);
+    }
 
     switch (instruction.verbe.toLowerCase()) {
       case 'est':

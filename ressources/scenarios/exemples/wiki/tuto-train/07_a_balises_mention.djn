@@ -1,0 +1,19 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 7, étape A
+-- Balises de mention : éviter qu’un objet déjà cité dans la description du lieu
+-- soit listé une seconde fois automatiquement.
+-- Concepts : [@X] (visible et mentionné), [#X] (mentionné non visible), [&X] (déjà connu).
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept. [@valise de cuir] est posée sur la banquette, étiquette tournée vers vous. Une légère odeur de [#tabac froid] flotte encore.".
+
+La valise de cuir est un objet dans le compartiment sept.
+Sa description est "Une valise patinée, étiquette effacée.".
+
+Le joueur se trouve dans le compartiment sept.
+
+règle avant commencer le jeu:
+  dire "Sans la balise [@], la valise serait listée une seconde fois en bas de la description. La balise [#] mentionne le tabac sans pour autant créer un objet visible.".
+fin règle

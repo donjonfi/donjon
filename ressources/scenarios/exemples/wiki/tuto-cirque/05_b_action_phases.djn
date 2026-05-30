@@ -1,18 +1,18 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 5, étape B
+-- Tutoriel « Le Cirque Étoile » — Chapitre 5, étape B
 -- L’action « réaliser le tour » avec une phase prérequis : on REFUSE si le joueur
 -- ne possède pas tous les accessoires (et si le foulard n’est pas déployé).
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- ÉTATS PERSONNALISÉS
 plié et déployé forment une bascule.
 
 -- LIEU
-La roulotte du Grand Phosphorus est un lieu.
+La roulotte du maître Aurélien est un lieu.
 Sa description est "La roulotte du maître. Quatre accessoires sur l’établi.".
 
-L’établi est un support dans la roulotte du Grand Phosphorus.
+L’établi est un support dans la roulotte du maître Aurélien.
 
 -- ACCESSOIRES
 Le chapeau cylindre est un objet sur l’établi.
@@ -60,7 +60,7 @@ règle après secouer le foulard de soie:
 fin règle
 
 -- DÉPART
-Le joueur est dans la roulotte du Grand Phosphorus.
+Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
   dire "Pour réaliser le tour, vous devez avoir les quatre accessoires en main ET le foulard déployé.{n}Essayez :{n}— ''réaliser le tour'' tout de suite (doit être refusé : il manque tout){n}— Prenez les quatre accessoires, puis ''réaliser le tour'' (refusé : foulard plié){n}— ''secouer le foulard'', puis ''réaliser le tour'' (accepté).".

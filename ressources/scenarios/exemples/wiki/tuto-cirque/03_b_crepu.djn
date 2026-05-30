@@ -1,21 +1,21 @@
--- Tutoriel « Le Cirque Phosphène » — Chapitre 3, étape B
+-- Tutoriel « Le Cirque Étoile » — Chapitre 3, étape B
 -- Crépu, le chat sorcier : un animal qui PARLE.
 -- On utilise la classe « animal » + l’état « parlant » (forme « animal parlant »).
 
-Le titre du jeu est "Le Cirque Phosphène".
+Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
 
 -- LIEUX (résumé)
 La place du cirque est un lieu.
-La roulotte du Grand Phosphorus est un lieu au nord de la place du cirque.
+La roulotte du maître Aurélien est un lieu au nord de la place du cirque.
 Sa description est "La roulotte du maître, ordonnée jusqu’à l’absurde — sauf pour ce chat aux yeux jaunes qui vous observe depuis l’établi.".
 
 -- L’ANIMAL PARLANT
-Le chat Crépu est un animal parlant dans la roulotte du Grand Phosphorus.
+Crépu est un animal parlant dans la roulotte du maître Aurélien.
 Sa description est "Un vieux chat gris-ardoise au poil hirsute, un seul œil jaune ouvert, l’autre fermé en permanence comme s’il calculait quelque chose. Une mèche blanche lui barre le front.".
 
 -- Avec « animal parlant », « parler à Crépu » est accepté par le moteur
 -- (la réaction joue le rôle de réponse).
-réaction du chat Crépu:
+réaction de Crépu:
   dire "« Mmh. L’apprenti·e. On me l’avait promis. »{n}Le chat bâille longuement, comme s’il avait tout le temps du monde.".
 fin réaction

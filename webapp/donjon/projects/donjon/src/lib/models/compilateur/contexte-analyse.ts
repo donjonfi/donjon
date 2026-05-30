@@ -27,6 +27,13 @@ export class ContexteAnalyse {
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;
 
+  /**
+   * Signale qu'une phrase « Il y a … » a référencé un nom qui n'est PAS une ressource définie.
+   * Porte le nom fautif (sinon null). Permet à l'analyseur V8 d'émettre UN seul message bien
+   * formaté (via ctx.probleme) et de considérer la phrase comme traitée (pas de « Définition attendue »).
+   */
+  public placementNonRessource: string | null = null;
+
   /** 
    * (beta) Ajouter une nouvelle erreur.
    * @deprecated Utiliser une des méthode conseil(), probleme() ou erreur() à la place.

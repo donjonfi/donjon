@@ -1,5 +1,5 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-05-24-30801
+-- Version: 2026-05-30-30900
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -576,9 +576,6 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
-      changer ceci est familier.
-      changer ceci n’est plus discret.
-      changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
       -- sous l’objet
@@ -615,7 +612,12 @@ action examiner ceci:
     -- inconnu
     sinon
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
-    fin si    
+    fin si
+    -- marquer l’élément APRÈS l’avoir décrit : ainsi la 1re description emploie la forme
+    -- indéfinie (« C’est un parchemin. ») et les examens suivants la forme définie (« le parchemin »).
+    changer ceci est familier.
+    changer ceci n’est plus discret.
+    changer ceci n’est plus intact.
 fin action
 
 action examiner ceci:
@@ -1094,8 +1096,11 @@ action poser ceci sur cela:
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
     si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
   phase exécution:
-    exécuter la commande "mettre [intitulé ceci] sur [intitulé cela]".
+    exécuter la commande "mettre [intitulé quantitéCeci] sur [intitulé cela]".
 fin action
+
+-- « déposer » est un synonyme de « poser »
+Interpréter déposer comme poser.
 
 -- ===========
 --   POUSSER

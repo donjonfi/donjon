@@ -1,0 +1,15 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 4, étape A
+-- Lire l’heure du jeu via les balises [horloge], [heures] et [minutes].
+-- Le moteur fait avancer le temps à chaque tour. Observez la grande horloge.
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le couloir est un lieu.
+Sa description est "Le long couloir lambrissé. Une grande horloge murale indique [horloge].".
+
+Le joueur se trouve dans le couloir.
+
+règle avant commencer le jeu:
+  dire "Il est [heures] heures et [minutes] minutes. Faites quelques tours et observez l’horloge avancer.".
+fin règle

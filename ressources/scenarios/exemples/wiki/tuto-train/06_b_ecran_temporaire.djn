@@ -1,0 +1,36 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 6, étape B
+-- L’écran temporaire est volatile : son historique disparaît dès qu’on en sort.
+-- Idéal pour les pauses et les messages éphémères.
+-- Concepts : « afficher l’écran temporaire. » + « afficher l’écran précédent. »
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le couloir est un lieu.
+Sa description est "Le couloir du Train-Couchettes. Pour vous reposer un instant, ''faire une pause''.".
+
+Le joueur se trouve dans le couloir.
+
+action faire ceci:
+  définitions:
+    ceci est un intitulé.
+
+  phase prérequis:
+    si ceci ne vaut pas une pause, refuser "Je sais seulement faire une pause.".
+
+  phase exécution:
+    si ceci vaut une pause:
+      interrompre la partie.
+      dire "{/Partie interrompue./}".
+      afficher l’écran temporaire.
+      dire "Jeu en pause. Appuyez sur une touche pour reprendre.".
+      attendre une touche.
+      continuer la partie.
+      afficher l’écran précédent.
+      dire "{/Reprise de la partie./}".
+    fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Tapez ''faire une pause'' pour basculer sur l’écran temporaire et revenir ensuite.".
+fin règle

@@ -30,6 +30,56 @@ export class ElementsJeuUtils {
     private verbeux: boolean,
   ) { }
 
+  /**
+   * Somme la quantité d'une ressource (identifiée par son nom) selon le périmètre demandé :
+   *  - 'possede'    : piles directement dans l'inventaire du joueur ;
+   *  - 'disponible' : toutes les autres piles du jeu (tout SAUF l'inventaire du joueur).
+   * Retourne -1 (illimité) si au moins une pile concernée est illimitée.
+   * Périmètre direct uniquement (comme « consommer ») : une pile dans un sac porté par le
+   * joueur est comptée « disponible », pas « possédée ».
+   */
+  static sommeQuantiteRessource(
+    objets: Objet[],
+    joueurId: number,
+    nomRessource: string,
+    scope: 'possede' | 'disponible' = 'possede',
+  ): number {
+    const piles = (objets ?? []).filter(o => {
+      if (o.nom !== nomRessource) { return false; }
+      const possedee = o.position?.cibleId === joueurId;
+      return scope === 'possede' ? possedee : !possedee;
+    });
+    if (piles.some(o => o.quantite === -1)) { return -1; }
+    return piles.reduce((somme, o) => somme + (o.quantite ?? 0), 0);
+  }
+
+  /**
+   * Intitulé d'une ressource pour l'écho de commande (« prendre 2 litres d'eau »),
+   * selon la quantité demandée par le joueur :
+   *  - quantité > 0 → « N <unité accordée> de <nom> » (« 1 pièce d'or », « 8 unités de bois ») ;
+   *  - quantité -1 (toute la pile) ou non précisée → « les <unités> de <nom> ».
+   */
+  static intituleEchoRessource(obj: ElementJeu, quantiteDemandee: number): string {
+    const nom = obj.intituleS?.nom ?? obj.nom;
+    // ressource comptée par son NOM (sans unité) : « 2 pommes » / « 1 pomme » / « les pommes »
+    if (!obj.unite) {
+      const nomPluriel = obj.intituleP?.nom ?? nom;
+      if (quantiteDemandee === -1 || quantiteDemandee == null) {
+        return `les ${nomPluriel}`;
+      }
+      return `${quantiteDemandee} ${(Math.abs(quantiteDemandee) <= 1) ? nom : nomPluriel}`;
+    }
+    // ressource avec unité : « 2 litres d’eau » / « les litres d’eau »
+    const liaison = ExprReg.xCommenceParUneVoyelle.test(nom) ? "d’" : "de ";
+    const unite = obj.unite;
+    const unites = (obj.unites && obj.unites !== unite) ? obj.unites : unite;
+    if (quantiteDemandee === -1 || quantiteDemandee == null) {
+      return `les ${unites} ${liaison}${nom}`;
+    }
+    const uniteAccordee = (Math.abs(quantiteDemandee) <= 1) ? unite : unites;
+    return `${quantiteDemandee} ${uniteAccordee} ${liaison}${nom}`;
+  }
+
   static calculerIntituleGenerique(ceci: Intitule, forcerMajuscule: boolean) {
     let retVal = ceci?.nom ?? "???";
     if (ceci.intitule) {
@@ -80,7 +130,38 @@ export class ElementsJeuUtils {
         }
 
 
-        // dénombrable
+        // RESSOURCE avec unité de comptage : « N <unité> de <nom> » (ex. « 5 pièces d’argent », « 30 unités de bois »)
+      } else if (ceci.unite) {
+        const nomR = ceci.intituleS.nom;
+        const liaison = ExprReg.xCommenceParUneVoyelle.test(nomR) ? "d’" : "de ";
+        const unitePluriel = ceci.unites ?? ceci.unite;
+        const estSingulier = (forcerNombre === Nombre.s) || (forcerNombre !== Nombre.p && ceci.quantite === 1);
+        if (ceci.quantite === -1) {
+          determinant = "des " + unitePluriel + " " + liaison;
+        } else {
+          determinant = ceci.quantite + " " + (estSingulier ? ceci.unite : unitePluriel) + " " + liaison;
+        }
+        nom = nomR;
+        epithete = "";
+
+        // RESSOURCE comptée par son nom (sans unité) : toujours le NOMBRE (jamais la forme
+        //  familière/définie — il est étrange d'être « familier » avec une ressource).
+        //  Ex. « 1 fruit », « 4 fruits ».
+      } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.ressource)) {
+        if (ceci.quantite === -1 && forcerNombre !== Nombre.s) {
+          // quantité illimitée / indéfinie (« sont des ressources ») → « des <pluriel> »
+          determinant = 'des ';
+          nom = ceci.intituleP.nom;
+          epithete = ceci.intituleP.epithete ?? '';
+        } else {
+          const qte = (forcerNombre === Nombre.s) ? 1 : (ceci.quantite ?? 0);
+          determinant = qte + ' ';
+          const auSingulier = (forcerNombre === Nombre.s) || (forcerNombre !== Nombre.p && qte === 1);
+          nom = auSingulier ? ceci.intituleS.nom : ceci.intituleP.nom;
+          epithete = (auSingulier ? ceci.intituleS.epithete : ceci.intituleP.epithete) ?? '';
+        }
+
+        // dénombrable (sans unité)
       } else {
         // 1 exemplaire => un/une ou le/la selon le contexte
         if (forcerNombre === Nombre.s || (forcerNombre !== Nombre.p && ceci.quantite == 1)) {
@@ -1319,6 +1400,11 @@ export class ElementsJeuUtils {
       if (prop.nom != 'quantité') {
         copie.proprietes.push(new ProprieteConcept(copie, prop.nom, prop.type, prop.valeur, prop.nbAffichage));
       }
+    });
+
+    // copier les synonymes (indispensable pour les ressources : « les pièces », « pièces d’argent »)
+    original.synonymes.forEach(syn => {
+      copie.synonymes.push(syn);
     });
 
     // TODO: faut-il copier le contenu ?

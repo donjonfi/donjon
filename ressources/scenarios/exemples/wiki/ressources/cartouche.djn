@@ -1,0 +1,13 @@
+-- Afficher des ressources dans le cartouche (la barre fixe du lecteur).
+-- La quantité se met à jour toute seule quand on prend / lâche / consomme / crée.
+Le campement est un lieu.
+
+-- « possédé » (périmètre par défaut) : ce que le joueur transporte.
+L'or est une ressource exprimée en pièces.
+L'or est affiché en haut à droite.
+Il y a 12 pièces d'or ici.
+
+-- « disponible » : tout SAUF l'inventaire du joueur (ici, le bois posé dans le lieu).
+Le bois est une ressource.
+Le bois disponible est affiché en haut à gauche.
+Il y a 20 unités de bois ici.

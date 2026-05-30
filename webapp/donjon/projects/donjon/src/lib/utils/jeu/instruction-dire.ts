@@ -609,8 +609,9 @@ export class InstructionDire {
       t => this.apercuStatut.calculerBaliseAide(t, ctxTour),
       t => this.propriete.calculerBalisePropriete(t, ctxTour, evenement),
       t => this.propriete.calculerBaliseP(t, ctxTour, evenement, declenchements),
-      t => this.numerique.calculerBaliseCompteur(t, evenement),
-      t => this.numerique.calculerBalisePluriel(t, evenement),
+      t => this.numerique.calculerBaliseCompteur(t, evenement, ctxTour),
+      t => this.numerique.calculerBalisePluriel(t, evenement, ctxTour),
+      t => this.calculerBaliseCeciCelaBrut(t, ctxTour),
       t => this.numerique.calculerBaliseCalendrier(t),
       t => this.numerique.calculerBaliseHorloge(t),
       t => this.numerique.calculerBaliseMémoire(t, ctxTour),
@@ -629,6 +630,27 @@ export class InstructionDire {
     }
 
     return texteDynamique;
+  }
+
+  /**
+   * Balise brute `[ceci]` / `[cela]` : substitue par la représentation textuelle
+   * de `ctxTour.ceci`/`ctxTour.cela`. Utilisée principalement par les paramètres
+   * de routine de type `texte` (Intitule synthétique) ; pour les paramètres de
+   * type classe, préférer `[le ceci]`, `[nom ceci]`, etc. (handlées par
+   * `calculerBalisePropriete`).
+   */
+  private calculerBaliseCeciCelaBrut(texteDynamique: string, ctxTour: ContexteTour | undefined): string {
+    return InstructionsUtils.processBalises(texteDynamique, "(ceci|cela)", decoupe => {
+      const cible = decoupe[1].toLowerCase();
+      const val: Intitule | undefined = (cible === 'ceci') ? ctxTour?.ceci : ctxTour?.cela;
+      if (!val) return '';
+      // Élément du jeu → intitulé DYNAMIQUE (familiarité réelle ; toujours le nombre pour les
+      //  ressources). Paramètre texte/synthétique (Intitulé non-élément) → intitulé brut.
+      if (val.classe && ClasseUtils.heriteDe(val.classe, EClasseRacine.element)) {
+        return this.eju.calculerIntituleElement(val as ElementJeu, false, false);
+      }
+      return val.intitule ? val.intitule.toString() : (val.nom ?? '');
+    });
   }
 
   private calculerBaliseNombreDeProprieteDe(t: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {

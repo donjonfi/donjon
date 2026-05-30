@@ -28,8 +28,17 @@ export class ElementGenerique implements ElementDonjon {
 
   public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
 
-  /** Unité (forme singulière) pour un compteur. */
+  /** Ressource : périmètre des piles à sommer dans le cartouche ('possede' par défaut, ou 'disponible'). */
+  public scopeAffichage?: 'possede' | 'disponible';
+
+  /** Unité (forme singulière) pour un compteur ou une ressource. */
   public unite?: string;
+
+  /** Unité (forme plurielle) pour une ressource (dérivée de l’unité singulière). */
+  public unites?: string;
+
+  /** Genre grammatical de l’unité (ressource) — ex. « pièce » est féminin. Sert aux accords. */
+  public uniteGenre?: Genre;
 
   /** Compteur : ne pas afficher l'intitulé dans le cartouche. */
   public sansIntitule?: boolean;

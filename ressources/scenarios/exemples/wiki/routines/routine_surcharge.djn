@@ -1,0 +1,27 @@
+Le salon est un lieu.
+La pomme est un objet dans le salon.
+Le chien est un vivant dans le salon.
+
+routine logger:
+  dire "ZERO.".
+fin routine
+
+routine logger:
+  définitions:
+    ceci est un objet.
+  exécution:
+    dire "OBJ : [intitulé ceci].".
+fin routine
+
+routine logger:
+  définitions:
+    ceci est un vivant.
+  exécution:
+    dire "VIV : [intitulé ceci].".
+fin routine
+
+règle après commencer le jeu:
+  exécuter routine logger.
+  exécuter routine logger avec la pomme.
+  exécuter routine logger avec le chien.
+fin règle

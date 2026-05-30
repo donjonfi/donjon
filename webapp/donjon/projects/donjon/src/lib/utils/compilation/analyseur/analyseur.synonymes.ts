@@ -4,6 +4,7 @@ import { Abreviation } from "../../../models/compilateur/abreviation";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../expr-reg";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
+import { MotUtils } from "../../commun/mot-utils";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
@@ -120,7 +121,20 @@ export class AnalyseurSynonymes {
           // retrouver l’élément générique correspondant
           let nomLower = nom.toLowerCase();
           let epiLower = epithete?.toLowerCase();
-          const elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
+          let elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
+          // repli tolérant au singulier/pluriel : utile pour les ressources déclarées au pluriel
+          //  (« les points de vie ») référencées au singulier (« interpréter pv comme point de vie »),
+          //  y compris les groupes « X de Y » où le pluriel porte sur le mot de tête. La forme de tête
+          //  est appliquée des deux côtés (comparaison symétrique → fiable même si imparfaite).
+          if (elementsTrouves.length === 0) {
+            const teteOriginal = MotUtils.getSingulierTete(nomLower);
+            elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => {
+              if ((x.epithete?.toLowerCase() ?? null) !== (epiLower ?? null)) { return false; }
+              return [x.nom, x.nomS, x.nomP]
+                .filter(Boolean)
+                .some(forme => MotUtils.getSingulierTete(forme.toLowerCase()) === teteOriginal);
+            });
+          }
           // 1 élément trouvé
           if (elementsTrouves.length === 1) {
             let elementTrouve = elementsTrouves[0];

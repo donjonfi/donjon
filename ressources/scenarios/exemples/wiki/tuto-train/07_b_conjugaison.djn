@@ -1,0 +1,23 @@
+-- Tutoriel « L’Express de 23h47 » — Chapitre 7, étape B
+-- Conjugaison automatique d’un verbe : la même phrase « dire » conjugue le verbe
+-- au singulier ou au pluriel selon le nombre de l’objet courant.
+-- Concept : [v être ipr X] (être au présent), [v avoir spr X] (avoir au subjonctif présent).
+
+Le titre du jeu est "L’Express de 23h47".
+L’auteur du jeu est "Voyageur·euse de l’ombre".
+
+Le compartiment sept est un lieu.
+Sa description est "Le compartiment sept. Trois sortes d’objets oubliés.".
+
+Le carnet noir est un objet dans le compartiment sept.
+Les lunettes anciennes sont un objet dans le compartiment sept.
+
+Le joueur se trouve dans le compartiment sept.
+
+règle après examiner un objet:
+  dire "[Le ceci] [v être ipr ceci] discrètement posé sur la banquette. Il faudrait que vous [v avoir spr ceci] le temps de tout fouiller.".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Examinez le carnet (singulier) puis les lunettes (pluriel) : la même phrase ''dire'' conjugue automatiquement les verbes ''est''/''sont'' et ''ait''/''aient''.".
+fin règle

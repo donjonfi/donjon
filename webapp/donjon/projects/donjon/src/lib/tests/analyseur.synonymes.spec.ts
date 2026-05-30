@@ -140,13 +140,16 @@ describe('Synonymes − Scénario synonyme action)', () => {
     // (index 0 et 1 utilisés pour inventaire et joueur)
     expect(ctx.jeu.objets).toHaveSize(4);
     expect(ctx.jeu.objets[2].nom).toEqual('pomme rouge');
-    expect(ctx.jeu.objets[2].synonymes).toHaveSize(3);
+    // synonymes auteur (pomme, fruit) + auto au singulier ET pluriel (pommes, rouge, rouges)
+    expect(ctx.jeu.objets[2].synonymes).toHaveSize(5);
     expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('pomme');
     expect(ctx.jeu.objets[2].synonymes[0].epithete).toBeFalsy();
     expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('fruit');
     expect(ctx.jeu.objets[2].synonymes[1].epithete).toBeFalsy();
-    expect(ctx.jeu.objets[2].synonymes[2].nom).toEqual('rouge');
-    expect(ctx.jeu.objets[2].synonymes[2].epithete).toBeFalsy();
+    expect(ctx.jeu.objets[2].synonymes[2].nom).toEqual('pommes');
+    expect(ctx.jeu.objets[2].synonymes[3].nom).toEqual('rouge');
+    expect(ctx.jeu.objets[2].synonymes[3].epithete).toBeFalsy();
+    expect(ctx.jeu.objets[2].synonymes[4].nom).toEqual('rouges');
     expect(ctx.jeu.objets[3].nom).toEqual('table');
     expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
   });

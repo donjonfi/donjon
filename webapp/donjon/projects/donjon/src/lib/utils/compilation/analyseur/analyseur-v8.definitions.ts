@@ -282,6 +282,16 @@ export class AnalyseurV8Definitions {
         if (ctx.verbeux) {
           console.log("=> trouvé élément avec position:", ctx.dernierElementGenerique);
         }
+      } else if (ctx.placementNonRessource) {
+        // « Il y a <X> » où X n'est pas une ressource définie : erreur d'auteur (UN seul message,
+        //  bien formaté). On considère la phrase comme traitée → pas de « Définition attendue » en plus.
+        ctx.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          "Ressource attendue",
+          `« ${ctx.placementNonRessource} » n’est pas une ressource. « Il y a … » est réservé aux ressources définies ; pour un objet ordinaire, déclarez-le avec « … est un objet ici ».`
+        );
+        ctx.placementNonRessource = null;
+        elementTrouve = ResultatAnalysePhrase.elementAvecPosition;
       }
     }
 

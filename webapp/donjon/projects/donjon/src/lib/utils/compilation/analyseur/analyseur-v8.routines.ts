@@ -18,6 +18,7 @@ import { Nombre } from "../../../models/commun/nombre.enum";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { RoutineRegle } from "../../../models/compilateur/routine-regle";
+import { ParamRoutine } from "../../../models/compilateur/param-routine";
 import { RoutineSimple } from "../../../models/compilateur/routine-simple";
 import { StringUtils } from "../../commun/string.utils";
 import { TypeRegle } from "../../../models/compilateur/type-regle";
@@ -91,7 +92,14 @@ export class AnalyseurV8Routines {
   }
 
   /**
-   * Traiter la routine (simple)
+   * Traiter la routine (simple).
+   *
+   * Une routine simple a deux formes :
+   *  - **courte** : `routine X:` puis instructions directement, `fin routine`.
+   *    Pas de paramètres.
+   *  - **étiquetée** : un bloc `définitions:` (paramètres ceci/cela typés)
+   *    suivi d’un bloc `exécution:` (instructions). Les deux étiquettes
+   *    acceptent les alias `phase définitions` / `phase exécution`.
    */
   public static traiterRoutineSimple(phrases: Phrase[], ctx: ContexteAnalyseV8): RoutineSimple | undefined {
     let routine: RoutineSimple | undefined;
@@ -112,33 +120,79 @@ export class AnalyseurV8Routines {
       // création de la routine
       routine = new RoutineSimple(nomRoutine, phraseAnalysee.ligne);
 
-      // si pas de nom à 1 seul mot trouvé
-      if (!AnalyseurV8Utils.contientExactement1Mot(nomRoutine)) {
-        ctx.probleme(phraseAnalysee, routine,
-          CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
-          'nom routine simple incorrect',
-          `Le nom de la routine simple doit faire exactement un mot. Ex: {@routine MaSuperRoutine:@}`,
-        );
-        nomRoutine = ('routineSansNom' + AnalyseurV8Routines.indexRoutineSansNom++);
+      // Valider le nom (1 seul mot, caractères autorisés, pas mot réservé)
+      if (!AnalyseurV8Routines.validerNomRoutine(nomRoutine, phraseAnalysee, routine, ctx)) {
+        routine.nom = ('routineSansNom' + AnalyseurV8Routines.indexRoutineSansNom++);
       }
+
       // B. CORPS et PIED
-      // parcours de la routine jusqu’à la fin
+      // Phase courante. Forme courte = exécution implicite ; les étiquettes
+      // `définitions:` / `exécution:` (et alias `phase …`) basculent.
+      let phaseActuelle: 'execution' | 'definitions' = 'execution';
+      let etiquetteDefinitionsVue = false;
+      let definitionsContientPhrase = false;
+      let phraseDefinitions: Phrase | undefined;
+
       while (routine.ouvert && ctx.indexProchainePhrase < phrases.length) {
-        //let phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+        const phraseCourante = ctx.getPhraseAnalysee(phrases);
 
-        // A. CHERCHER ÉTIQUETTES SPÉCIFIQUES À INSTRUCTION SIMPLE
-        // (il n’y en a pas)
+        // i. CHERCHER ÉTIQUETTE `définitions:` (+ alias)
+        const etiquetteDefTrouve = AnalyseurV8Utils.chercherEtiquetteExacte(
+          [
+            'définitions', 'definitions', 'définition', 'definition',
+            'phase définitions', 'phase definitions', 'phase définition', 'phase definition',
+          ],
+          phraseCourante, ObligatoireFacultatif.obligatoire);
 
-        // B. CHERCHER DÉBUT/FIN ROUTINE
-        // (l’index de la phrochaine phrase est géré par chercherDebutFinRoutine)
-        const debutFinRoutineTrouve = this.chercherTraiterDebutFinRoutine(phrases, routine, ctx);
-
-        // C. CHERCHER INSTRUCTION ou BLOC CONTRÔLE
-        // (l’index de la phrochaine phrase est géré par chercherInstructionOuBlocControle)
-        if (!debutFinRoutineTrouve) {
-          AnalyseurV8Instructions.chercherEtTraiterInstructionSimpleOuControle(phrases, routine.instructions, routine, ctx);
+        if (etiquetteDefTrouve) {
+          if (etiquetteDefinitionsVue) {
+            ctx.probleme(phraseCourante, routine,
+              CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+              'bloc définitions répété',
+              `La routine ne peut comporter qu’un seul bloc {@définitions:@}.`,
+            );
+          }
+          etiquetteDefinitionsVue = true;
+          phaseActuelle = 'definitions';
+          phraseDefinitions = phraseCourante;
+          ctx.indexProchainePhrase++;
+          continue;
         }
 
+        // ii. CHERCHER ÉTIQUETTE `exécution:` (+ alias)
+        const etiquetteExecTrouve = AnalyseurV8Utils.chercherEtiquetteExacte(
+          ['exécution', 'execution', 'phase exécution', 'phase execution'],
+          phraseCourante, ObligatoireFacultatif.obligatoire);
+
+        if (etiquetteExecTrouve) {
+          phaseActuelle = 'execution';
+          ctx.indexProchainePhrase++;
+          continue;
+        }
+
+        // iii. CHERCHER DÉBUT/FIN ROUTINE
+        // (l’index de la prochaine phrase est géré par chercherDebutFinRoutine)
+        const debutFinRoutineTrouve = this.chercherTraiterDebutFinRoutine(phrases, routine, ctx);
+
+        // iv. CHERCHER INSTRUCTION (mode exécution) ou DÉFINITION (mode définitions)
+        if (!debutFinRoutineTrouve) {
+          if (phaseActuelle === 'definitions') {
+            if (this.chercherEtTraiterDefinitionRoutine(phrases, routine, ctx)) {
+              definitionsContientPhrase = true;
+            }
+          } else {
+            AnalyseurV8Instructions.chercherEtTraiterInstructionSimpleOuControle(phrases, routine.instructions, routine, ctx);
+          }
+        }
+      }
+
+      // Vérifier que le bloc définitions: n’est pas vide
+      if (etiquetteDefinitionsVue && !definitionsContientPhrase) {
+        ctx.probleme(phraseDefinitions ?? phraseAnalysee, routine,
+          CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+          'bloc définitions vide',
+          `Le bloc {@définitions:@} de la routine « ${routine.nom} » ne contient aucune définition de paramètre. Pour une routine sans paramètre, omettre l’étiquette.`,
+        );
       }
       // étiquette pas trouvée (ne devrait jamais arriver)
     } else {
@@ -150,6 +204,144 @@ export class AnalyseurV8Routines {
     }
 
     return routine;
+  }
+
+  /** Mots réservés interdits comme nom de routine (déjà normalisés via StringUtils.normaliserMot). */
+  private static readonly motsReservesRoutine: ReadonlySet<string> = new Set<string>([
+    'routine', 'executer', 'fin',
+    'definitions', 'definition', 'execution',
+    'ceci', 'cela',
+    'avec', 'et', 'dans',
+    'la', 'le', 'les',
+    'un', 'une', 'des',
+    'tour', 'seconde', 'minute', 'heure',
+  ]);
+
+  /** Valide le nom de routine. Retourne true si valide. Émet un problème sinon. */
+  private static validerNomRoutine(nom: string, phrase: Phrase, routine: RoutineSimple, ctx: ContexteAnalyseV8): boolean {
+    // 1) Doit faire exactement un mot
+    if (!AnalyseurV8Utils.contientExactement1Mot(nom)) {
+      ctx.probleme(phrase, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+        'nom routine simple incorrect',
+        `Le nom de la routine simple doit faire exactement un mot. Ex: {@routine MaSuperRoutine:@}`,
+      );
+      return false;
+    }
+    // 2) Caractères autorisés : lettre/_ + alphanum/_ (accents acceptés)
+    if (!/^[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/.test(nom)) {
+      ctx.probleme(phrase, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+        'nom de routine invalide',
+        `Le nom de la routine « ${nom} » contient des caractères non autorisés ou commence par un chiffre. Utiliser uniquement des lettres (accents acceptés), chiffres et soulignés ; le premier caractère doit être une lettre ou un souligné.`,
+      );
+      return false;
+    }
+    // 3) Pas un mot réservé du DSL
+    const nomNormalise = StringUtils.normaliserMot(nom);
+    if (AnalyseurV8Routines.motsReservesRoutine.has(nomNormalise)) {
+      ctx.probleme(phrase, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.nomRoutineInvalide,
+        'nom de routine réservé',
+        `Le nom « ${nom} » est un mot réservé du DSL et ne peut pas être utilisé comme nom de routine. Choisir un autre nom.`,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Chercher et traiter une définition de paramètre dans le bloc `définitions:`
+   * d’une routine simple.
+   *
+   * Forme attendue : `ceci|cela est un|une <type>.`
+   * Types acceptés : `nombre`, `texte`, ou n’importe quelle classe (résolution
+   * différée au runtime via `ClasseUtils.trouverClasse`).
+   *
+   * @returns true si la phrase courante a bien été consommée comme définition.
+   */
+  private static chercherEtTraiterDefinitionRoutine(phrases: Phrase[], routine: RoutineSimple, ctx: ContexteAnalyseV8): boolean {
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    const phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
+
+    const match = ExprReg.xRoutineDefinitionParam.exec(phraseBrute);
+    if (!match) {
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.definitionAttendue,
+        'définition de paramètre non comprise',
+        `La phrase « ${phraseBrute} » dans le bloc {@définitions:@} n’est pas une définition de paramètre valide. Forme attendue : {@ceci est un <type>@} ou {@cela est un <type>@}. Types : {@nombre@}, {@texte@}, ou n’importe quelle classe (objet, lieu, personne, compteur, dragon, …).`,
+      );
+      ctx.indexProchainePhrase++;
+      return false;
+    }
+
+    const sujet = match[1].toLocaleLowerCase();   // ceci | cela
+    const article = match[2].toLocaleLowerCase(); // un | une | des
+    const typeNom = StringUtils.normaliserMot(match[3]);
+
+    // Refuser l’article « des » (paramètre singulier)
+    if (article === 'des') {
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.definitionAttendue,
+        'article « des » non admis',
+        `Dans une définition de paramètre, l’article doit être {@un@} ou {@une@} (le paramètre est singulier). Trouvé : {@des@}.`,
+      );
+      ctx.indexProchainePhrase++;
+      return true;
+    }
+
+    // Doublon ?
+    if (sujet === 'ceci' && routine.ceci) {
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.definitionAttendue,
+        'définition ceci en double',
+        `La routine « ${routine.nom} » définit déjà un paramètre {@ceci@}.`,
+      );
+      ctx.indexProchainePhrase++;
+      return true;
+    }
+    if (sujet === 'cela' && routine.cela) {
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.definitionAttendue,
+        'définition cela en double',
+        `La routine « ${routine.nom} » définit déjà un paramètre {@cela@}.`,
+      );
+      ctx.indexProchainePhrase++;
+      return true;
+    }
+    // cela sans ceci ?
+    if (sujet === 'cela' && !routine.ceci) {
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeRoutine, CodeMessage.definitionAttendue,
+        'cela défini avant ceci',
+        `La routine « ${routine.nom} » définit {@cela@} sans avoir défini {@ceci@}. Définir d’abord {@ceci@} ou ne pas définir {@cela@}.`,
+      );
+      ctx.indexProchainePhrase++;
+      return true;
+    }
+
+    // Construire le ParamRoutine
+    let param: ParamRoutine;
+    if (typeNom === 'nombre') {
+      param = new ParamRoutine('nombre');
+    } else if (typeNom === 'texte') {
+      param = new ParamRoutine('texte');
+    } else {
+      // Classe — sera résolue au runtime via ClasseUtils.trouverClasse(jeu.classes, typeNom)
+      param = new ParamRoutine('classe', typeNom);
+    }
+
+    if (sujet === 'ceci') {
+      routine.ceci = true;
+      routine.paramCeci = param;
+    } else {
+      routine.cela = true;
+      routine.paramCela = param;
+    }
+
+    ctx.logResultatOk(`définition routine: ${sujet} = ${typeNom}`);
+    ctx.indexProchainePhrase++;
+    return true;
   }
 
 

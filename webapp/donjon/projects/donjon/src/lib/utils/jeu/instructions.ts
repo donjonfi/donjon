@@ -21,10 +21,15 @@ import { InstructionJouerArreter } from './instruction-jouer-arreter';
 import { InstructionListes } from './instruction-listes';
 import { InstructionSelectionner } from './instruction-selectionner';
 import { InstructionSysteme } from './instruction-systeme';
+import { InstructionsUtils } from './instructions-utils';
 import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation, ELocalisation } from '../../models/jeu/localisation';
+import { MotUtils } from '../commun/mot-utils';
+import { Nombre } from '../../models/commun/nombre.enum';
+import { PhraseUtils } from '../commun/phrase-utils';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Resultat } from '../../models/jouer/resultat';
 import { TypeChoisir } from '../../models/compilateur/bloc-instructions';
 import { TypeInterruption } from '../../models/jeu/interruption';
@@ -216,6 +221,10 @@ export class Instructions {
     // — déplacer / copier
     m.set('déplacer', (ins, _nb, ctx, ev, _dec) => this.executerDeplacer(ins, ctx, ev));
     m.set('copier', (ins, _nb, ctx, ev, _dec) => this.executerCopier(ins, ctx, ev));
+    m.set('consommer', (ins, _nb, ctx, ev, _dec) => this.executerConsommer(ins, ctx, ev));
+    // « créer N <unité> de X dans Y » = créer de nouvelles unités de la ressource à la destination.
+    m.set('créer', (ins, _nb, ctx, ev, _dec) => this.executerCreer(ins, ctx, ev));
+    m.set('creer', (ins, _nb, ctx, ev, _dec) => this.executerCreer(ins, ctx, ev));
 
     // — exécuter (réaction / action / commande / dernière commande / routine)
     m.set('exécuter', (ins, nb, ctx, ev, dec) => this.executerExecuter(ins, nb, ctx, ev, dec));
@@ -308,6 +317,18 @@ export class Instructions {
     const resultat = new Resultat(true, '', 1);
     let sousResultat: Resultat;
 
+    // garde-fou : sujet absent (ex. forme « depuis … vers … » mal décomposée) → échec gracieux
+    if (!instruction.sujet) {
+      resultat.succes = false;
+      resultat.sortie = "{+[Instruction « déplacer » : sujet manquant ou forme non reconnue.]+}";
+      return resultat;
+    }
+
+    // RESSOURCE : « déplacer [N <unité> de X | les <unité> de X] depuis <source> vers <dest> »
+    if (instruction.preposition0 === 'depuis') {
+      return this.executerDeplacerRessource(instruction, contexteTour, evenement);
+    }
+
     // retrouver quantité à déplacer
     let sujetDeplacement = instruction.sujet;
     if (instruction.sujet.determinant == 'quantitéCeci ') {
@@ -363,6 +384,222 @@ export class Instructions {
       resultat.succes = sousResultat.succes;
     }
     return resultat;
+  }
+
+  /**
+   * Instruction « consommer N <unité> de <ressource> » (DSL) : retire N unités de la ressource,
+   * de préférence dans l’inventaire du joueur (sinon où qu’elle se trouve). L’exemplaire qui
+   * atteint 0 est supprimé. Échoue (sans rien retirer) s’il n’y en a pas assez.
+   */
+  private executerConsommer(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité à consommer (déterminant numérique, ou quantitéCeci / quantitéCela)
+    let quantite = MotUtils.getQuantite(sujet.determinant, 1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    // résoudre la ressource (résolution synonyme-aware) pour identifier son nom
+    // résolution robuste au singulier/pluriel (« consommer 1 pomme » comme « consommer 2 pommes »)
+    let objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    if (!objetsTrouves.length) { objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.s)[1] ?? []; }
+    if (!objetsTrouves.length) { objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.p)[1] ?? []; }
+    if (!objetsTrouves.length) {
+      resultat.succes = false;
+      return resultat;
+    }
+    const nomRessource = objetsTrouves[0].nom;
+    // rassembler TOUS les exemplaires possédés de cette ressource (robuste au multi-exemplaire)
+    let cibles = this.jeu.objets.filter(o => o.nom === nomRessource && o.position?.cibleId === this.jeu.joueur.id);
+    if (!cibles.length) {
+      cibles = objetsTrouves; // aucune en inventaire → puiser là où la ressource se trouve
+    }
+    // vérifier la disponibilité (sauf si une pile est illimitée)
+    const illimite = cibles.some(o => o.quantite === -1);
+    if (!illimite) {
+      const total = cibles.reduce((somme, o) => somme + (o.quantite ?? 0), 0);
+      if (total < quantite) {
+        resultat.succes = false;
+        return resultat;
+      }
+    }
+    // consommer en puisant dans les exemplaires ; supprimer ceux qui atteignent 0
+    let reste = quantite;
+    for (const o of cibles) {
+      if (reste <= 0) {
+        break;
+      }
+      if (o.quantite === -1) {
+        continue; // illimité : ne pas décrémenter
+      }
+      const pris = Math.min(o.quantite, reste);
+      o.quantite -= pris;
+      reste -= pris;
+      if (o.quantite === 0) {
+        const idx = this.jeu.objets.indexOf(o);
+        if (idx !== -1) {
+          this.jeu.objets.splice(idx, 1);
+        }
+      }
+    }
+    return resultat;
+  }
+
+  /**
+   * Instruction « créer N <unité> de X dans/sur/sous <cible> » (DSL) : ajoute N unités de la
+   * ressource à la destination (fusion si une pile y existe déjà), sans toucher au modèle.
+   */
+  private executerCreer(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    let quantite = MotUtils.getQuantite(sujet.determinant, 1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    if (quantite < 1) {
+      quantite = 1;
+    }
+    // résoudre la ressource modèle (synonyme-aware ; robuste au singulier/pluriel : « créer une
+    //  pomme » comme « créer 2 pommes » — on essaie indéfini, puis singulier, puis pluriel).
+    const modele = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1]?.[0]
+      ?? this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.s)[1]?.[0]
+      ?? this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.p)[1]?.[0];
+    if (!modele) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // résoudre la destination (lieu, contenant, support, joueur…)
+    const destination = InstructionsUtils.trouverElementCible(instruction.sujetComplement1, contexteTour, this.eju, this.jeu, false);
+    if (!destination || !ClasseUtils.heriteDe((destination as ElementJeu).classe, EClasseRacine.element)) {
+      resultat.succes = false;
+      return resultat;
+    }
+    const preposition = instruction.preposition1 ?? 'dans';
+    // cloner le modèle, fixer la quantité, placer à destination (fusion si exemplaire présent)
+    const copie = this.eju.copierObjet(modele);
+    copie.id = this.jeu.nextID++;
+    copie.quantite = quantite;
+    this.jeu.objets.push(copie);
+    resultat.succes = this.insDeplacerCopier.executerDeplacerObjetVersDestination(copie, preposition, destination as ElementJeu, quantite).succes;
+    // si la copie a été entièrement fusionnée dans un exemplaire existant, la retirer
+    if (copie.quantite === 0) {
+      const idx = this.jeu.objets.indexOf(copie);
+      if (idx !== -1) {
+        this.jeu.objets.splice(idx, 1);
+      }
+    }
+    return resultat;
+  }
+
+  /**
+   * Instruction « déplacer [N <unité> de X | les <unité> de X] depuis <source> vers <dest> » :
+   * prélève la ressource à l’emplacement source et la déplace vers l’emplacement destination.
+   */
+  private executerDeplacerRessource(
+    instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined,
+  ): Resultat {
+    const resultat = new Resultat(true, '', 1);
+    const sujet = instruction.sujet;
+    if (!sujet) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité (« les … » → -1 = tout)
+    let quantite = MotUtils.getQuantite(sujet.determinant, -1);
+    if (sujet.determinant === 'quantitéCeci ' && evenement) {
+      quantite = evenement.quantiteCeci;
+    } else if (sujet.determinant === 'quantitéCela ' && evenement) {
+      quantite = evenement.quantiteCela;
+    }
+    // résoudre la ressource (fuzzy) — un exemplaire sert de référence (idOriginal commun)
+    const exemplaires = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    if (!exemplaires.length) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // résoudre les emplacements source et destination
+    const source = this.resoudreEmplacementRessource(instruction.complement2, contexteTour);
+    const dest = this.resoudreEmplacementRessource(instruction.complement3, contexteTour);
+    if (!source || !dest) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // exemplaire présent à la source
+    const exemplaireSource = this.eju.getExemplaireDejaContenu(exemplaires[0], source.prep, source.element);
+    if (!exemplaireSource) {
+      resultat.succes = false;
+      return resultat;
+    }
+    // quantité réelle (bornée au disponible ; « tout » si -1 et source finie)
+    let q = quantite;
+    if (exemplaireSource.quantite !== -1 && (q === -1 || q > exemplaireSource.quantite)) {
+      q = exemplaireSource.quantite;
+    }
+    // déplacer vers la destination
+    const prepDest = PositionObjet.prepositionSpatialeToString(dest.prep);
+    resultat.succes = this.insDeplacerCopier.executerDeplacerObjetVersDestination(exemplaireSource, prepDest, dest.element, q).succes;
+    // nettoyer l’exemplaire source s’il est vidé
+    if (exemplaireSource.quantite === 0) {
+      const idx = this.jeu.objets.indexOf(exemplaireSource);
+      if (idx !== -1) {
+        this.jeu.objets.splice(idx, 1);
+      }
+    }
+    return resultat;
+  }
+
+  /**
+   * Résout un emplacement de ressource (« l’inventaire », « l’intérieur du coffre »,
+   * « le dessous du lit », « le coffre », …) en (préposition spatiale, élément cible).
+   */
+  private resoudreEmplacementRessource(
+    loc: string | undefined, contexteTour: ContexteTour,
+  ): { prep: PrepositionSpatiale, element: ElementJeu } | null {
+    if (!loc) {
+      return null;
+    }
+    const t = loc.trim();
+    // « (l’)inventaire » → dans le joueur
+    if (/inventaire/i.test(t)) {
+      return { prep: PrepositionSpatiale.dans, element: this.jeu.joueur };
+    }
+    let prep = PrepositionSpatiale.dans;
+    let elementStr = t;
+    let m: RegExpExecArray | null;
+    if ((m = /^(?:à )?l(?:'|’)int[ée]rieur d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.dans; elementStr = m[1];
+    } else if ((m = /^(?:le |au[- ])?dessus d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.sur; elementStr = m[1];
+    } else if ((m = /^(?:le |au[- ])?dessous d(?:u |e la |e l(?:'|’)|es )(.+)$/i.exec(t))) {
+      prep = PrepositionSpatiale.sous; elementStr = m[1];
+    } else if ((m = /^(dans|sur|sous) (.+)$/i.exec(t))) {
+      prep = PositionObjet.getPrepositionSpatiale(m[1]); elementStr = m[2];
+    }
+    const gn = PhraseUtils.getGroupeNominalDefiniOuIndefini(elementStr.trim(), true);
+    if (!gn) {
+      return null;
+    }
+    const element = InstructionsUtils.trouverElementCible(gn, contexteTour, this.eju, this.jeu, false);
+    if (!element || !ClasseUtils.heriteDe((element as ElementJeu).classe, EClasseRacine.element)) {
+      return null;
+    }
+    return { prep, element: element as ElementJeu };
   }
 
   private executerCopier(
