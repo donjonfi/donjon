@@ -324,6 +324,39 @@ describe('Ressource — définition indéfinie un/une/des (K7)', () => {
     choix.forEach(c => expect(c).not.toContain('les pommes'));
   });
 
+  it('[F057-T469] prendre une même ressource depuis 2 emplacements → 1 seule pile dans l\'inventaire', () => {
+    // type « Les pommes … » (cuisine) + placement « Il y a 3 pommes » (cellier) : exemplaires
+    //  distincts (idOriginal différents) qui doivent néanmoins se regrouper une fois pris.
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLa cuisine est un lieu.\nLes pommes sont des ressources dans la cuisine.\n` +
+      `Le cellier est un lieu au nord de la cuisine.\nIl y a 3 pommes ici.`
+    );
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande('prendre 4 pommes', false);       // depuis la cuisine (illimité → copie)
+    ctx.com.executerCommande('aller au nord', false);
+    ctx.com.executerCommande('regarder', false);
+    ctx.com.executerCommande('prendre 3 pommes', false);       // depuis le cellier
+    const invPiles = ctx.jeu.objets.filter((o: any) =>
+      (o.nom === 'pommes' || o.nom === 'pomme') && o.position?.cibleId === ctx.jeu.joueur.id);
+    expect(invPiles.length).toBe(1);                            // une seule pile, pas deux
+    expect(invPiles[0].quantite).toBe(7);                       // 4 + 3 regroupés
+  });
+
+  it('[F057-T470] toutes les piles d\'une ressource partagent le ressourceId (idOriginal commun)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(
+      `${actions}\nLe verger est un lieu.\nLe pommier est un support ici.\n` +
+      `Les pommes sont des ressources sur le pommier.\nIl y a 3 pommes ici.`
+    );
+    const piles = ctx.jeu.objets.filter((o: any) => o.nom === 'pommes' || o.nom === 'pomme');
+    expect(piles.length).toBe(2);
+    const ressourceId = piles[0].classe.ressourceId;
+    expect(ressourceId).toBeGreaterThan(0);
+    // identité commune (idOriginal = ressourceId) → regroupement une fois rassemblées
+    piles.forEach((p: any) => expect(p.idOriginal).toBe(ressourceId));
+    // l'id dédié ne doit pas coïncider avec l'id d'un objet du jeu
+    expect(ctx.jeu.objets.some((o: any) => o.id === ressourceId)).toBeFalse();
+  });
+
 });
 
 describe('Ressource — écho de commande quantité+unité (K4)', () => {

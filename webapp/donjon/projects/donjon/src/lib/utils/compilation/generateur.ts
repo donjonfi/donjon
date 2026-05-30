@@ -57,6 +57,11 @@ export class Generateur {
     jeu.classes = [];
     rc.monde.classes.forEach(classe => {
       classe.id = jeu.nextID++;
+      // RESSOURCE : id dédié par TYPE de ressource (classe par-nom héritant de « ressource »,
+      //  hors classe racine). Sert d'idOriginal commun à toutes les piles de cette ressource.
+      if (classe.nom !== EClasseRacine.ressource && ClasseUtils.heriteDe(classe, EClasseRacine.ressource)) {
+        classe.ressourceId = jeu.nextID++;
+      }
       jeu.classes.push(classe);
     });
 
@@ -377,8 +382,12 @@ export class Generateur {
           ));
         }
 
-        // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
-        if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
+        // RESSOURCE : toutes les piles d'une même ressource partagent le ressourceId dédié comme
+        //  idOriginal (identité stable) → elles se regroupent une fois rassemblées dans un contenant.
+        if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource) && newObjet.classe.ressourceId != null) {
+          newObjet.idOriginal = newObjet.classe.ressourceId;
+          // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
+        } else if (curEle.determinant?.match(/^(un |une |des |\d+ )$/i)) {
           newObjet.idOriginal = newObjet.classe.id;
         }
         newObjet.capacites = curEle.capacites;
