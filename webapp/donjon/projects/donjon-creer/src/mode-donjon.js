@@ -16,7 +16,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
 
     var builtinFunctions = (
       "afficher|ajouter|allumer|arrêter|attendre|augmenter|"
-      + "changer|charger|continuer|copier|"
+      + "changer|charger|consommer|continuer|copier|créer|creer|"
       + "décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|"
       + "effacer|enlever|éteindre|exécuter|"
       + "fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|"
@@ -70,6 +70,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|fin(?=\])|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
+            "(\\b(il y a|exprimée?s? en)\\b)|(avec l('|’)unité)|" +
             "(^( )*(définition(s)?|basique)(?=( )*:))|" +
             "(^( )*(red(é|e)finir (l(’|')\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:$))"
           ,
@@ -93,7 +94,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             + "enfilable|chaussable|"
             + "porté|enfilé|chaussé|possédé|disponible|occupé|"
             + "(in)?visible|(in)?accessible|adjacent|"
-            + "initialisé|"
+            + "initialisé|affiché|"
             + "multiple|unique|illimité|"
             + "cassé|actionné|connu|visité"
             + ")(e)?(s)?(?!\\w))|(équipé(e)?(s)?)|(équipable(s)?)"
